@@ -1,0 +1,6 @@
+kind = "package"
+name = "trureturing-reasoning"
+persistence_class = "stateless_adapter"
+
+[code]
+root = "."
