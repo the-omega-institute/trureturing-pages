@@ -1,0 +1,35 @@
+{
+  "schema_version": "truth-graph.v1",
+  "synthetic": true,
+  "_comment": "Minimal UI fixture only. Replace at publication time from the manually approved trureturing source snapshot; real contract and injection are TBD.",
+  "source_snapshot": {
+    "source_commit": null,
+    "approved_at": null
+  },
+  "nodes": [
+    {
+      "id": "fixture:closed",
+      "title": "Closed fixture node",
+      "status": "Closed",
+      "summary": "Synthetic node used to verify Closed styling and filtering."
+    },
+    {
+      "id": "fixture:open",
+      "title": "Open fixture node",
+      "status": "Open",
+      "summary": "Synthetic node used to verify Open styling and filtering."
+    },
+    {
+      "id": "fixture:tail",
+      "title": "Tail fixture node",
+      "status": "Tail",
+      "summary": "Synthetic node used to verify Tail styling and filtering."
+    },
+    {
+      "id": "fixture:semantic",
+      "title": "Semantic fixture node",
+      "status": "Semantic",
+      "summary": "Synthetic node used to verify Semantic styling and filtering."
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+<!doctype html>
+<!-- TBD: select and vendor a production Markdown library; this skeleton uses a minimal local renderer. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theory document &middot; trureturing</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">trureturing</a>
+    <nav aria-label="Primary navigation">
+      <ul>
+        <li><a href="../index.html">Overview</a></li>
+        <li><a href="../dag.html">DAG</a></li>
+        <li><a href="index.html" aria-current="page">Theory</a></li>
+        <li><a href="../conclusions.html">Conclusions</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <p><a href="index.html">&larr; Theory index</a></p>
+    <article id="document" class="markdown-body" aria-live="polite">
+      <p class="muted">Loading document&hellip;</p>
+    </article>
+  </main>
+
+  <footer class="site-footer">Rendered client-side from a read-only Markdown injection target.</footer>
+
+  <script>
+    // This deliberately small renderer proves the data-loading shell only.
+    // Full CommonMark support, sanitization policy, and a vendored dependency are TBD.
+    const documentRoot = document.querySelector('#document');
+    const slug = new URLSearchParams(window.location.search).get('slug') || '_example';
+    const safeSlug = /^[A-Za-z0-9_-]+$/.test(slug) ? slug : null;
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function renderInline(value) {
+      return escapeHtml(value)
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    }
+
+    function renderMarkdown(markdown) {
+      const output = [];
+      const lines = markdown.replaceAll('\r\n', '\n').split('\n');
+      let paragraph = [];
+      let listOpen = false;
+      let codeOpen = false;
+
+      const closeParagraph = () => {
+        if (paragraph.length) output.push(`<p>${renderInline(paragraph.join(' '))}</p>`);
+        paragraph = [];
+      };
+      const closeList = () => {
+        if (listOpen) output.push('</ul>');
+        listOpen = false;
+      };
+
+      lines.forEach((line) => {
+        if (line.startsWith('```')) {
+          closeParagraph();
+          closeList();
+          output.push(codeOpen ? '</code></pre>' : '<pre><code>');
+          codeOpen = !codeOpen;
+          return;
+        }
+        if (codeOpen) {
+          output.push(`${escapeHtml(line)}\n`);
+          return;
+        }
+
+        const heading = line.match(/^(#{1,3})\s+(.+)$/);
+        if (heading) {
+          closeParagraph();
+          closeList();
+          const level = heading[1].length;
+          output.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+          return;
+        }
+
+        const item = line.match(/^[-*]\s+(.+)$/);
+        if (item) {
+          closeParagraph();
+          if (!listOpen) output.push('<ul>');
+          listOpen = true;
+          output.push(`<li>${renderInline(item[1])}</li>`);
+          return;
+        }
+
+        if (!line.trim()) {
+          closeParagraph();
+          closeList();
+          return;
+        }
+        paragraph.push(line.trim());
+      });
+
+      closeParagraph();
+      closeList();
+      if (codeOpen) output.push('</code></pre>');
+      return output.join('\n');
+    }
+
+    if (!safeSlug) {
+      documentRoot.innerHTML = '<p class="error">Invalid theory document identifier.</p>';
+    } else {
+      document.title = `${safeSlug} | trureturing`;
+      fetch(`../data/theory/${safeSlug}.md`)
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.text();
+        })
+        .then((markdown) => {
+          documentRoot.innerHTML = renderMarkdown(markdown);
+        })
+        .catch((error) => {
+          documentRoot.innerHTML = `<p class="error">Unable to load ${escapeHtml(safeSlug)}.md: ${escapeHtml(error.message)}. The upstream document may not be injected yet, or site/ may need to be served over local HTTP.</p>`;
+        });
+    }
+  </script>
+</body>
+</html>

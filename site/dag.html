@@ -1,0 +1,101 @@
+<!doctype html>
+<!-- Real truth-graph.v1 injection from a blessed trureturing snapshot is TBD. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DAG &middot; trureturing</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">trureturing</a>
+    <nav aria-label="Primary navigation">
+      <ul>
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="dag.html" aria-current="page">DAG</a></li>
+        <li><a href="theory/">Theory</a></li>
+        <li><a href="conclusions.html">Conclusions</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>DAG status</h1>
+    <p class="lede">A list-view shell for nodes from the published truth graph.</p>
+
+    <fieldset class="filters" aria-controls="node-list">
+      <legend>Filter by status</legend>
+      <button class="filter-button" type="button" data-filter="All" aria-pressed="true">All</button>
+      <button class="filter-button" type="button" data-filter="Closed" aria-pressed="false">Closed</button>
+      <button class="filter-button" type="button" data-filter="Open" aria-pressed="false">Open</button>
+      <button class="filter-button" type="button" data-filter="Tail" aria-pressed="false">Tail</button>
+      <button class="filter-button" type="button" data-filter="Semantic" aria-pressed="false">Semantic</button>
+    </fieldset>
+
+    <p id="dag-summary" class="muted" aria-live="polite">Loading synthetic fixture&hellip;</p>
+    <ul id="node-list" class="node-list" aria-label="DAG nodes"></ul>
+  </main>
+
+  <footer class="site-footer">Fixture data is synthetic and not research truth.</footer>
+
+  <script>
+    // TBD: inject the real truth-graph.v1 artifact from the manually approved source snapshot.
+    const list = document.querySelector('#node-list');
+    const summary = document.querySelector('#dag-summary');
+    const filterButtons = [...document.querySelectorAll('[data-filter]')];
+    let nodes = [];
+    let activeFilter = 'All';
+
+    function renderNodes() {
+      const visible = activeFilter === 'All'
+        ? nodes
+        : nodes.filter((node) => node.status === activeFilter);
+
+      list.replaceChildren(...visible.map((node) => {
+        const item = document.createElement('li');
+        item.className = `node status-${node.status.toLowerCase()}`;
+
+        const heading = document.createElement('h2');
+        heading.textContent = node.title;
+
+        const description = document.createElement('p');
+        description.textContent = node.summary;
+
+        const meta = document.createElement('div');
+        meta.className = 'node-meta';
+        meta.textContent = `${node.status} | ${node.id}`;
+
+        item.append(heading, description, meta);
+        return item;
+      }));
+
+      summary.textContent = `${visible.length} of ${nodes.length} synthetic fixture nodes shown`;
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach((candidate) => {
+          candidate.setAttribute('aria-pressed', String(candidate === button));
+        });
+        renderNodes();
+      });
+    });
+
+    fetch('data/truth-graph.v1.json')
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((graph) => {
+        nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+        renderNodes();
+      })
+      .catch((error) => {
+        summary.className = 'error';
+        summary.textContent = `Unable to load the DAG fixture: ${error.message}. Serve site/ over local HTTP to test data fetching.`;
+      });
+  </script>
+</body>
+</html>
