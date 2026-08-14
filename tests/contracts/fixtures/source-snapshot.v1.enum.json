@@ -1,0 +1,1 @@
+{"schema":"source-snapshot.v1","repo_identity":"bad/path/extra","source_commit":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","source_tree":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","derived_at":"2026-01-01T00:00:00Z","deriver":{"tool":"fkst","ref":"v1"},"open_set":[]}

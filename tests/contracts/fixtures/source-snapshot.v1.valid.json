@@ -1,0 +1,1 @@
+{"schema":"source-snapshot.v1","repo_identity":"the-omega-institute/trureturing","source_commit":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","source_tree":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","derived_at":"2026-01-01T00:00:00Z","deriver":{"tool":"fkst","ref":"v1"},"open_set":[{"gid":"n1","deps":[],"deps_all_closed":true}]}

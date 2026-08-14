@@ -1,0 +1,1 @@
+{"schema":"work-item.v1","work_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","node_gid":"n1","source_commit":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","pipeline_version":"p1","eligibility":{"state":"Open","deps_all_closed":true},"selection":{"tie_break":{"unlocks":1,"depth":0,"gid":"n1"},"runner_up":null},"created_at":"2026-01-01T00:00:00Z","extra":1}
