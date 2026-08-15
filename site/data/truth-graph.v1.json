@@ -5,17 +5,22 @@
     "source_repo": "the-omega-institute/trureturing",
     "source_commit": "90059ebbb6c1d61da93690723af581145b88bad1",
     "truth_graph_sha256": "7d17c242514cb4f0828041a10f6b3c51311d81a42c98458f11121e5841406598",
-    "blessed_by": "AlyicaBHZ",
+    "blessed_by": "AlyciaBHZ",
     "approved_at": "2026-08-14T19:23:24Z"
   },
   "counts": {
-    "closed": 670,
-    "open": 12,
-    "tail": 0,
-    "semantic": 7215,
-    "edges": 669,
-    "shown": 681
+    "shown": 681,
+    "shown_closed": 669,
+    "shown_open": 12,
+    "shown_tail": 0,
+    "dag_closed": 670,
+    "dag_open": 12,
+    "dag_tail": 0,
+    "dag_semantic": 7215,
+    "filtered_no_gid": 1,
+    "edges": 669
   },
+  "note": "Showing 681 of 682 mathematical nodes; 1 carry no GID (the umbrella root module) and are not listed.",
   "nodes": [
     {
       "id": "D5/S1/Depth/Finite",

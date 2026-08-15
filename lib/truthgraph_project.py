@@ -16,6 +16,7 @@ the repository "semantic" file nodes, which are display noise. Deterministic: no
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 
 # Math states shown in the DAG view (semantic repo-file nodes are excluded as noise).
@@ -52,14 +53,23 @@ def project(truth_graph: dict, source_snapshot: dict | None = None) -> dict:
         key=lambda d: (_STATUS_RANK.get(d["status"].lower(), 9), d["id"]),
     )
 
+    # Math-state nodes that carry no gid (e.g. the umbrella root module `Trureturing`, which imports
+    # everything and is not itself a theorem) cannot be linked or displayed, so they are filtered out.
+    # Account for them explicitly so the counts stay closed: dag totals == shown + filtered_no_gid.
+    filtered_no_gid = sum(1 for n in raw_nodes if n.get("state") in _MATH_STATES and not n.get("gid"))
+    shown_by_status = Counter(n["status"] for n in nodes)
     state_counts = truth.get("state_counts", {})
     counts = {
-        "closed": state_counts.get("closed"),
-        "open": state_counts.get("open"),
-        "tail": state_counts.get("tail"),
-        "semantic": state_counts.get("semantic"),
-        "edges": len(truth.get("edges", [])),
         "shown": len(nodes),
+        "shown_closed": shown_by_status.get("Closed", 0),
+        "shown_open": shown_by_status.get("Open", 0),
+        "shown_tail": shown_by_status.get("Tail", 0),
+        "dag_closed": state_counts.get("closed"),
+        "dag_open": state_counts.get("open"),
+        "dag_tail": state_counts.get("tail"),
+        "dag_semantic": state_counts.get("semantic"),
+        "filtered_no_gid": filtered_no_gid,
+        "edges": len(truth.get("edges", [])),
     }
 
     snap = source_snapshot or {}
@@ -76,6 +86,10 @@ def project(truth_graph: dict, source_snapshot: dict | None = None) -> dict:
         "synthetic": False,
         "source_snapshot": source_block,
         "counts": counts,
+        "note": (
+            f"Showing {len(nodes)} of {len(nodes) + filtered_no_gid} mathematical nodes; "
+            f"{filtered_no_gid} carry no GID (the umbrella root module) and are not listed."
+        ),
         "nodes": nodes,
     }
 
@@ -94,5 +108,7 @@ if __name__ == "__main__":
     tg_path, out_path = sys.argv[1], sys.argv[2]
     snap_path = sys.argv[3] if len(sys.argv) > 3 else None
     r = project_files(tg_path, out_path, snap_path)
-    print(f"projected {r['counts']['shown']} math nodes "
-          f"(closed={r['counts']['closed']} open={r['counts']['open']} tail={r['counts']['tail']}) -> {out_path}")
+    c = r["counts"]
+    print(f"projected {c['shown']} shown math nodes "
+          f"(closed={c['shown_closed']} open={c['shown_open']} tail={c['shown_tail']}; "
+          f"dag_closed={c['dag_closed']} filtered_no_gid={c['filtered_no_gid']}) -> {out_path}")
