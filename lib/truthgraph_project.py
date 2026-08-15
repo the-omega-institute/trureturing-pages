@@ -95,20 +95,33 @@ def project(truth_graph: dict, source_snapshot: dict | None = None) -> dict:
     }
 
 
-def project_files(truth_graph_path: str, output_path: str, source_snapshot_path: str | None = None) -> dict:
+def project_files(
+    truth_graph_path: str,
+    output_path: str,
+    source_snapshot_path: str | None = None,
+    expected_digest: str | None = None,
+) -> dict:
     tg_bytes = Path(truth_graph_path).read_bytes()
     snap = json.loads(Path(source_snapshot_path).read_bytes()) if source_snapshot_path else None
+    actual = hashlib.sha256(tg_bytes).hexdigest()
     # Bind the raw truth-graph bytes to the blessing: the projection must be built
     # from exactly the graph the snapshot pins, not merely copy the snapshot's
     # digest into the output. A mismatch means the wrong raw graph would be
     # published under the blessed digest, so fail before writing (nonzero exit).
     if snap is not None:
         expected = snap.get("truth_graph_sha256")
-        actual = hashlib.sha256(tg_bytes).hexdigest()
         if expected != actual:
             raise SystemExit(
                 f"raw truth-graph digest {actual} does not match blessed "
                 f"truth_graph_sha256 {expected}")
+    # Bind the write to the caller's expected digest too. The caller (act) passes
+    # the triggering event's digest; if the current inputs have advanced past it,
+    # fail before writing so a stale trigger cannot mutate the published output
+    # (closes the read-current-inputs / phantom-publish race).
+    if expected_digest is not None and expected_digest != actual:
+        raise SystemExit(
+            f"raw truth-graph digest {actual} does not match expected "
+            f"digest {expected_digest} (inputs advanced past the trigger)")
     tg = json.loads(tg_bytes)
     result = project(tg, snap)
     Path(output_path).write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -120,7 +133,8 @@ if __name__ == "__main__":
 
     tg_path, out_path = sys.argv[1], sys.argv[2]
     snap_path = sys.argv[3] if len(sys.argv) > 3 else None
-    r = project_files(tg_path, out_path, snap_path)
+    expected_digest = sys.argv[4] if len(sys.argv) > 4 else None
+    r = project_files(tg_path, out_path, snap_path, expected_digest)
     c = r["counts"]
     print(f"projected {c['shown']} shown math nodes "
           f"(closed={c['shown_closed']} open={c['shown_open']} tail={c['shown_tail']}; "
