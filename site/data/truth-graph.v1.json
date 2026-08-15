@@ -1,35 +1,4788 @@
 {
   "schema_version": "truth-graph.v1",
-  "synthetic": true,
-  "_comment": "Minimal UI fixture only. Replace at publication time from the manually approved trureturing source snapshot; real contract and injection are TBD.",
+  "synthetic": false,
   "source_snapshot": {
-    "source_commit": null,
-    "approved_at": null
+    "source_repo": "the-omega-institute/trureturing",
+    "source_commit": "90059ebbb6c1d61da93690723af581145b88bad1",
+    "truth_graph_sha256": "7d17c242514cb4f0828041a10f6b3c51311d81a42c98458f11121e5841406598",
+    "blessed_by": "AlyicaBHZ",
+    "approved_at": "2026-08-14T19:23:24Z"
+  },
+  "counts": {
+    "closed": 670,
+    "open": 12,
+    "tail": 0,
+    "semantic": 7215,
+    "edges": 669,
+    "shown": 681
   },
   "nodes": [
     {
-      "id": "fixture:closed",
-      "title": "Closed fixture node",
-      "status": "Closed",
-      "summary": "Synthetic node used to verify Closed styling and filtering."
-    },
-    {
-      "id": "fixture:open",
-      "title": "Open fixture node",
+      "id": "D5/S1/Depth/Finite",
+      "title": "D5.S1.Depth.Finite",
       "status": "Open",
-      "summary": "Synthetic node used to verify Open styling and filtering."
+      "summary": "Open · depth 6 · D5/S1/Depth/Finite.lean",
+      "depth": 6
     },
     {
-      "id": "fixture:tail",
-      "title": "Tail fixture node",
-      "status": "Tail",
-      "summary": "Synthetic node used to verify Tail styling and filtering."
+      "id": "D5/X_Frontier/D5P001",
+      "title": "D5.X_Frontier.D5P001",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/D5P001.lean",
+      "depth": 0
     },
     {
-      "id": "fixture:semantic",
-      "title": "Semantic fixture node",
-      "status": "Semantic",
-      "summary": "Synthetic node used to verify Semantic styling and filtering."
+      "id": "D5/X_Frontier/FutureInstances",
+      "title": "D5.X_Frontier.FutureInstances",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/FutureInstances.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/GoldenUnitsUFD",
+      "title": "D5.X_Frontier.GoldenUnitsUFD",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/GoldenUnitsUFD.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/GovernanceDeferrals",
+      "title": "D5.X_Frontier.GovernanceDeferrals",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/GovernanceDeferrals.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/Hearts",
+      "title": "D5.X_Frontier.Hearts",
+      "status": "Open",
+      "summary": "Open · depth 18 · D5/X_Frontier/Hearts.lean",
+      "depth": 18
+    },
+    {
+      "id": "D5/X_Frontier/HeartsDraft",
+      "title": "D5.X_Frontier.HeartsDraft",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/HeartsDraft.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/PaperGenerator",
+      "title": "D5.X_Frontier.PaperGenerator",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/PaperGenerator.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/RequiredChecks",
+      "title": "D5.X_Frontier.RequiredChecks",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/RequiredChecks.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/SplitTool",
+      "title": "D5.X_Frontier.SplitTool",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/SplitTool.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/ToolchainUpgrade",
+      "title": "D5.X_Frontier.ToolchainUpgrade",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/ToolchainUpgrade.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/X_Frontier/ValuesProducer",
+      "title": "D5.X_Frontier.ValuesProducer",
+      "status": "Open",
+      "summary": "Open · depth 0 · D5/X_Frontier/ValuesProducer.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/DensePhaseEscapeIdentity",
+      "title": "D5.S0.Asymptotics.DensePhaseEscapeIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Asymptotics/DensePhaseEscapeIdentity.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Asymptotics/DensePhaseUnrealizable",
+      "title": "D5.S0.Asymptotics.DensePhaseUnrealizable",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Asymptotics/DensePhaseUnrealizable.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Asymptotics/EscapeProbabilityMonotone",
+      "title": "D5.S0.Asymptotics.EscapeProbabilityMonotone",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Asymptotics/EscapeProbabilityMonotone.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Asymptotics/FinitePartitionCellMeasure",
+      "title": "D5.S0.Asymptotics.FinitePartitionCellMeasure",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/FinitePartitionCellMeasure.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/FiniteProgramLevelSet",
+      "title": "D5.S0.Asymptotics.FiniteProgramLevelSet",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/FiniteProgramLevelSet.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/FixedPointFreeEscapeProbability",
+      "title": "D5.S0.Asymptotics.FixedPointFreeEscapeProbability",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Asymptotics/FixedPointFreeEscapeProbability.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Asymptotics/GreenClassRadius",
+      "title": "D5.S0.Asymptotics.GreenClassRadius",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Asymptotics/GreenClassRadius.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Asymptotics/Interference/FiniteAutocorrelation",
+      "title": "D5.S0.Asymptotics.Interference.FiniteAutocorrelation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/Interference/FiniteAutocorrelation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/MetallicFamily",
+      "title": "D5.S0.Asymptotics.MetallicFamily",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/MetallicFamily.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/MetricGeometry/GreenClassDiameter",
+      "title": "D5.S0.Asymptotics.MetricGeometry.GreenClassDiameter",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Asymptotics/MetricGeometry/GreenClassDiameter.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Asymptotics/MetricGeometry/GreenClassHausdorffDimension",
+      "title": "D5.S0.Asymptotics.MetricGeometry.GreenClassHausdorffDimension",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Asymptotics/MetricGeometry/GreenClassHausdorffDimension.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Asymptotics/MetricGeometry/VaryingMarginalGreenClassMeasure",
+      "title": "D5.S0.Asymptotics.MetricGeometry.VaryingMarginalGreenClassMeasure",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Asymptotics/MetricGeometry/VaryingMarginalGreenClassMeasure.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Asymptotics/NameSetDistanceSandwich",
+      "title": "D5.S0.Asymptotics.NameSetDistanceSandwich",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/NameSetDistanceSandwich.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/OddCycleDrift",
+      "title": "D5.S0.Asymptotics.OddCycleDrift",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/OddCycleDrift.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/PoissonWeightDecay",
+      "title": "D5.S0.Asymptotics.PoissonWeightDecay",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/PoissonWeightDecay.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Asymptotics/SkewedEscapeMass",
+      "title": "D5.S0.Asymptotics.SkewedEscapeMass",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Asymptotics/SkewedEscapeMass.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Carrier/AlgebraicModel",
+      "title": "D5.S0.Carrier.AlgebraicModel",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Carrier/AlgebraicModel.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Carrier/Conj",
+      "title": "D5.S0.Carrier.Conj",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Carrier/Conj.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Carrier/Euclidean",
+      "title": "D5.S0.Carrier.Euclidean",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Carrier/Euclidean.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Carrier/GoldenDiscriminant",
+      "title": "D5.S0.Carrier.GoldenDiscriminant",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Carrier/GoldenDiscriminant.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Carrier/GoldenRatio",
+      "title": "D5.S0.Carrier.GoldenRatio",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Carrier/GoldenRatio.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Carrier/Norm",
+      "title": "D5.S0.Carrier.Norm",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Carrier/Norm.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Carrier/NormPowers",
+      "title": "D5.S0.Carrier.NormPowers",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Carrier/NormPowers.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Carrier/Powers/GoldenMidlineFactorization",
+      "title": "D5.S0.Carrier.Powers.GoldenMidlineFactorization",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Carrier/Powers/GoldenMidlineFactorization.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Carrier/Powers/IntegerPowerNorm",
+      "title": "D5.S0.Carrier.Powers.IntegerPowerNorm",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S0/Carrier/Powers/IntegerPowerNorm.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S0/Carrier/PrincipalIdeal",
+      "title": "D5.S0.Carrier.PrincipalIdeal",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S0/Carrier/PrincipalIdeal.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S0/Carrier/Ring",
+      "title": "D5.S0.Carrier.Ring",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Carrier/Ring.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Carrier/TraceConjugation",
+      "title": "D5.S0.Carrier.TraceConjugation",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Carrier/TraceConjugation.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Carrier/Units",
+      "title": "D5.S0.Carrier.Units",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Carrier/Units.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Carrier/ZsqrtdImage",
+      "title": "D5.S0.Carrier.ZsqrtdImage",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Carrier/ZsqrtdImage.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/CertificateHistory/FiniteCertificateDepth",
+      "title": "D5.S0.CertificateHistory.FiniteCertificateDepth",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/CertificateHistory/FiniteCertificateDepth.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Computability/ClosureUndecidable",
+      "title": "D5.S0.Computability.ClosureUndecidable",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/ClosureUndecidable.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/CodeFixedPoint",
+      "title": "D5.S0.Computability.CodeFixedPoint",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/CodeFixedPoint.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/ConditionalComplexityFloor",
+      "title": "D5.S0.Computability.ConditionalComplexityFloor",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/ConditionalComplexityFloor.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/DescriptionComplexity/AffordableRegionAgreement",
+      "title": "D5.S0.Computability.DescriptionComplexity.AffordableRegionAgreement",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/DescriptionComplexity/AffordableRegionAgreement.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/DescriptionComplexity/LevinUpperBound",
+      "title": "D5.S0.Computability.DescriptionComplexity.LevinUpperBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/DescriptionComplexity/LevinUpperBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/DescriptionComplexity/LookupProgramUpperBound",
+      "title": "D5.S0.Computability.DescriptionComplexity.LookupProgramUpperBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/DescriptionComplexity/LookupProgramUpperBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/DescriptionComplexity/TransformationDescriptionBound",
+      "title": "D5.S0.Computability.DescriptionComplexity.TransformationDescriptionBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/DescriptionComplexity/TransformationDescriptionBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/DescriptionComplexity/WideVacuumBand",
+      "title": "D5.S0.Computability.DescriptionComplexity.WideVacuumBand",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Computability/DescriptionComplexity/WideVacuumBand.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Computability/Diagonalization/BooleanStreamDiagonal",
+      "title": "D5.S0.Computability.Diagonalization.BooleanStreamDiagonal",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/Diagonalization/BooleanStreamDiagonal.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/Diagonalization/BooleanSwapLoad",
+      "title": "D5.S0.Computability.Diagonalization.BooleanSwapLoad",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/Diagonalization/BooleanSwapLoad.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/FiniteCounterexampleCertificate",
+      "title": "D5.S0.Computability.FiniteCounterexampleCertificate",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Computability/FiniteCounterexampleCertificate.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Computability/GuardedWall",
+      "title": "D5.S0.Computability.GuardedWall",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/GuardedWall.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/KraftInequality",
+      "title": "D5.S0.Computability.KraftInequality",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/KraftInequality.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/LayerShiftNaturality",
+      "title": "D5.S0.Computability.LayerShiftNaturality",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/LayerShiftNaturality.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/PropertyObject",
+      "title": "D5.S0.Computability.PropertyObject",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/PropertyObject.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/Searchability/SearchableWindowDecision",
+      "title": "D5.S0.Computability.Searchability.SearchableWindowDecision",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/Searchability/SearchableWindowDecision.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/SemanticLayerShift",
+      "title": "D5.S0.Computability.SemanticLayerShift",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Computability/SemanticLayerShift.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Computability/SyntaxSemanticsBoundary",
+      "title": "D5.S0.Computability.SyntaxSemanticsBoundary",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/SyntaxSemanticsBoundary.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Computability/TerminalGradeDecomposition",
+      "title": "D5.S0.Computability.TerminalGradeDecomposition",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Computability/TerminalGradeDecomposition.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Computability/TotalOrbitEvaluator",
+      "title": "D5.S0.Computability.TotalOrbitEvaluator",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Computability/TotalOrbitEvaluator.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Conventions/CanonicalInterchangeability",
+      "title": "D5.S0.Conventions.CanonicalInterchangeability",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Conventions/CanonicalInterchangeability.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Conventions/DiagonalSwap",
+      "title": "D5.S0.Conventions.DiagonalSwap",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Conventions/DiagonalSwap.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Conventions/GeometricWeights",
+      "title": "D5.S0.Conventions.GeometricWeights",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Conventions/GeometricWeights.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Conventions/InvolutionDecomposition",
+      "title": "D5.S0.Conventions.InvolutionDecomposition",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Conventions/InvolutionDecomposition.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Conventions/Notation",
+      "title": "D5.S0.Conventions.Notation",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S0/Conventions/Notation.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S0/Conventions/SingleEyeInvariant",
+      "title": "D5.S0.Conventions.SingleEyeInvariant",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Conventions/SingleEyeInvariant.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Conventions/TotalCode",
+      "title": "D5.S0.Conventions.TotalCode",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Conventions/TotalCode.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Conventions/UnitIntervalReflection",
+      "title": "D5.S0.Conventions.UnitIntervalReflection",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Conventions/UnitIntervalReflection.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Conventions/WDigits",
+      "title": "D5.S0.Conventions.WDigits",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Conventions/WDigits.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Diagonal/CaptureCount",
+      "title": "D5.S0.Diagonal.CaptureCount",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Diagonal/CaptureCount.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Diagonal/CaptureIntersectionCardinality",
+      "title": "D5.S0.Diagonal.CaptureIntersectionCardinality",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Diagonal/CaptureIntersectionCardinality.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Diagonal/DistanceProfile",
+      "title": "D5.S0.Diagonal.DistanceProfile",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Diagonal/DistanceProfile.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Diagonal/EquivariantEscape",
+      "title": "D5.S0.Diagonal.EquivariantEscape",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Diagonal/EquivariantEscape.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Diagonal/EscapeAsymptotics",
+      "title": "D5.S0.Diagonal.EscapeAsymptotics",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Diagonal/EscapeAsymptotics.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Diagonal/EscapeCount",
+      "title": "D5.S0.Diagonal.EscapeCount",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Diagonal/EscapeCount.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Diagonal/MarginBound",
+      "title": "D5.S0.Diagonal.MarginBound",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Diagonal/MarginBound.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Diagonal/MarginVanishing",
+      "title": "D5.S0.Diagonal.MarginVanishing",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Diagonal/MarginVanishing.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Diagonal/PigeonholeFiber",
+      "title": "D5.S0.Diagonal.PigeonholeFiber",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Diagonal/PigeonholeFiber.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Diagonal/Probability/EquivariantEscape",
+      "title": "D5.S0.Diagonal.Probability.EquivariantEscape",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Diagonal/Probability/EquivariantEscape.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Diagonal/RecordExtensionCount",
+      "title": "D5.S0.Diagonal.RecordExtensionCount",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Diagonal/RecordExtensionCount.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Diagonal/SelfApplicationFates",
+      "title": "D5.S0.Diagonal.SelfApplicationFates",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Diagonal/SelfApplicationFates.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Diagonal/TypicalDensity",
+      "title": "D5.S0.Diagonal.TypicalDensity",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S0/Diagonal/TypicalDensity.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S0/History/CancellationLedger",
+      "title": "D5.S0.History.CancellationLedger",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/History/CancellationLedger.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/History/EmptyLedgerConservation",
+      "title": "D5.S0.History.EmptyLedgerConservation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/EmptyLedgerConservation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/EventOrbitData",
+      "title": "D5.S0.History.EventOrbitData",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/History/EventOrbitData.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/History/FiniteDescriptionSelfCode",
+      "title": "D5.S0.History.FiniteDescriptionSelfCode",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/FiniteDescriptionSelfCode.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/HistoryCarrier",
+      "title": "D5.S0.History.HistoryCarrier",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/HistoryCarrier.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/LedgerLimit",
+      "title": "D5.S0.History.LedgerLimit",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/LedgerLimit.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/MarkerHistorySearch",
+      "title": "D5.S0.History.MarkerHistorySearch",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/History/MarkerHistorySearch.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/History/PrimeSequenceCode",
+      "title": "D5.S0.History.PrimeSequenceCode",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/PrimeSequenceCode.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/ReferencedReversal",
+      "title": "D5.S0.History.ReferencedReversal",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/ReferencedReversal.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/ResidualDiscrepancy",
+      "title": "D5.S0.History.ResidualDiscrepancy",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/ResidualDiscrepancy.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/ResidualLedger",
+      "title": "D5.S0.History.ResidualLedger",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/History/ResidualLedger.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/History/SpliceEquations",
+      "title": "D5.S0.History.SpliceEquations",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/History/SpliceEquations.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Naming/CompletionEmbeddingDense",
+      "title": "D5.S0.Naming.CompletionEmbeddingDense",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/CompletionEmbeddingDense.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/Conservation/NamingTowerConservation",
+      "title": "D5.S0.Naming.Conservation.NamingTowerConservation",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Naming/Conservation/NamingTowerConservation.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Naming/CoordinateDependence",
+      "title": "D5.S0.Naming.CoordinateDependence",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/CoordinateDependence.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/DenseGreenClass",
+      "title": "D5.S0.Naming.DenseGreenClass",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/DenseGreenClass.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/ExchangeRateComposition",
+      "title": "D5.S0.Naming.ExchangeRateComposition",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/ExchangeRateComposition.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/FirstHoleBound",
+      "title": "D5.S0.Naming.FirstHoleBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/FirstHoleBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/GraphPairingCriterion",
+      "title": "D5.S0.Naming.GraphPairingCriterion",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/GraphPairingCriterion.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/GreenClassMeasure",
+      "title": "D5.S0.Naming.GreenClassMeasure",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/GreenClassMeasure.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/IndependentKillRate",
+      "title": "D5.S0.Naming.IndependentKillRate",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/IndependentKillRate.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/NamingSystem",
+      "title": "D5.S0.Naming.NamingSystem",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/NamingSystem.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/ToleranceNonGroup",
+      "title": "D5.S0.Naming.ToleranceNonGroup",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/ToleranceNonGroup.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Naming/TranslationComposition",
+      "title": "D5.S0.Naming.TranslationComposition",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Naming/TranslationComposition.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Naming/VerdictColumnSeparation",
+      "title": "D5.S0.Naming.VerdictColumnSeparation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Naming/VerdictColumnSeparation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Rewriting/BinaryPatchFamily",
+      "title": "D5.S0.Rewriting.BinaryPatchFamily",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Rewriting/BinaryPatchFamily.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Rewriting/CascadeContinuation",
+      "title": "D5.S0.Rewriting.CascadeContinuation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Rewriting/CascadeContinuation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Rewriting/ChurchRosser",
+      "title": "D5.S0.Rewriting.ChurchRosser",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Rewriting/ChurchRosser.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Rewriting/HindleyRosen",
+      "title": "D5.S0.Rewriting.HindleyRosen",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Rewriting/HindleyRosen.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Rewriting/Newman",
+      "title": "D5.S0.Rewriting.Newman",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Rewriting/Newman.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Rewriting/NewmanConfluence",
+      "title": "D5.S0.Rewriting.NewmanConfluence",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Rewriting/NewmanConfluence.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Rewriting/NormalFormConfluence",
+      "title": "D5.S0.Rewriting.NormalFormConfluence",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Rewriting/NormalFormConfluence.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Rewriting/NormalFormFunction",
+      "title": "D5.S0.Rewriting.NormalFormFunction",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Rewriting/NormalFormFunction.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Rewriting/QuotientInvariantCoordinate",
+      "title": "D5.S0.Rewriting.QuotientInvariantCoordinate",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Rewriting/QuotientInvariantCoordinate.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Rewriting/SinglePointPatch",
+      "title": "D5.S0.Rewriting.SinglePointPatch",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Rewriting/SinglePointPatch.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Rewriting/TerminationTransfer",
+      "title": "D5.S0.Rewriting.TerminationTransfer",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Rewriting/TerminationTransfer.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Tower/ChampionExtremality",
+      "title": "D5.S0.Tower.ChampionExtremality",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Tower/ChampionExtremality.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Tower/ConstantArms",
+      "title": "D5.S0.Tower.ConstantArms",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Tower/ConstantArms.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Tower/FrameBundleDimension",
+      "title": "D5.S0.Tower.FrameBundleDimension",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Tower/FrameBundleDimension.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Tower/GoldenChampionPoint",
+      "title": "D5.S0.Tower.GoldenChampionPoint",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Tower/GoldenChampionPoint.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Tower/GoldenFixedPoint",
+      "title": "D5.S0.Tower.GoldenFixedPoint",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Tower/GoldenFixedPoint.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S0/Tower/GoldenGapFrequency",
+      "title": "D5.S0.Tower.GoldenGapFrequency",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S0/Tower/GoldenGapFrequency.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S0/Tower/GoldenGapWord",
+      "title": "D5.S0.Tower.GoldenGapWord",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S0/Tower/GoldenGapWord.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S0/Tower/GoldenGapZeckendorf",
+      "title": "D5.S0.Tower.GoldenGapZeckendorf",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S0/Tower/GoldenGapZeckendorf.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S0/Tower/GoldenGaps",
+      "title": "D5.S0.Tower.GoldenGaps",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S0/Tower/GoldenGaps.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S0/Tower/GoldenNames",
+      "title": "D5.S0.Tower.GoldenNames",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S0/Tower/GoldenNames.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S0/Tower/GoldenSubstitution",
+      "title": "D5.S0.Tower.GoldenSubstitution",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S0/Tower/GoldenSubstitution.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S0/Tower/QuadraticFixedPoint",
+      "title": "D5.S0.Tower.QuadraticFixedPoint",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S0/Tower/QuadraticFixedPoint.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Deficit/AlmostAdditivity",
+      "title": "D5.S1.Deficit.AlmostAdditivity",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S1/Deficit/AlmostAdditivity.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S1/Deficit/DeficitInteger",
+      "title": "D5.S1.Deficit.DeficitInteger",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Deficit/DeficitInteger.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Deficit/DeficitThreeValued",
+      "title": "D5.S1.Deficit.DeficitThreeValued",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Deficit/DeficitThreeValued.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+      "title": "D5.S1.Deficit.Displacement.GoldenContractionRadicalBound",
+      "status": "Closed",
+      "summary": "Closed · depth 16 · D5/S1/Deficit/Displacement/GoldenContractionRadicalBound.lean",
+      "depth": 16
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms",
+      "title": "D5.S1.Deficit.Displacement.GoldenDesubstitutionClosedForms",
+      "status": "Closed",
+      "summary": "Closed · depth 15 · D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms.lean",
+      "depth": 15
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength",
+      "title": "D5.S1.Deficit.Displacement.GoldenDesubstitutionConjugateLength",
+      "status": "Closed",
+      "summary": "Closed · depth 14 · D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength.lean",
+      "depth": 14
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength",
+      "title": "D5.S1.Deficit.Displacement.GoldenDesubstitutionLength",
+      "status": "Closed",
+      "summary": "Closed · depth 13 · D5/S1/Deficit/Displacement/GoldenDesubstitutionLength.lean",
+      "depth": 13
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct",
+      "title": "D5.S1.Deficit.Displacement.GoldenDisplacementEulerProduct",
+      "status": "Closed",
+      "summary": "Closed · depth 18 · D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct.lean",
+      "depth": 18
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+      "title": "D5.S1.Deficit.Displacement.GoldenSubstStartSharpness",
+      "status": "Closed",
+      "summary": "Closed · depth 17 · D5/S1/Deficit/Displacement/GoldenSubstStartSharpness.lean",
+      "depth": 17
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit",
+      "title": "D5.S1.Deficit.Displacement.GoldenSubstitutionOrbit",
+      "status": "Closed",
+      "summary": "Closed · depth 17 · D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit.lean",
+      "depth": 17
+    },
+    {
+      "id": "D5/S1/Deficit/DoubleFaceLength",
+      "title": "D5.S1.Deficit.DoubleFaceLength",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S1/Deficit/DoubleFaceLength.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S1/Deficit/FixedModulusNoncongruence",
+      "title": "D5.S1.Deficit.FixedModulusNoncongruence",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S1/Deficit/FixedModulusNoncongruence.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S1/Deficit/GoldenCarryLedger",
+      "title": "D5.S1.Deficit.GoldenCarryLedger",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Deficit/GoldenCarryLedger.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Deficit/GoldenDeficitCoin",
+      "title": "D5.S1.Deficit.GoldenDeficitCoin",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Deficit/GoldenDeficitCoin.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Deficit/GoldenFiberFirstIndex",
+      "title": "D5.S1.Deficit.GoldenFiberFirstIndex",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Deficit/GoldenFiberFirstIndex.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Deficit/GoldenPhaseDeficit",
+      "title": "D5.S1.Deficit.GoldenPhaseDeficit",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Deficit/GoldenPhaseDeficit.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Deficit/GoldenPhaseDistribution",
+      "title": "D5.S1.Deficit.GoldenPhaseDistribution",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Deficit/GoldenPhaseDistribution.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Deficit/LambdaMinusAdditive",
+      "title": "D5.S1.Deficit.LambdaMinusAdditive",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S1/Deficit/LambdaMinusAdditive.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S1/Deficit/ZeckendorfDisplacementReading",
+      "title": "D5.S1.Deficit.ZeckendorfDisplacementReading",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Deficit/ZeckendorfDisplacementReading.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Depth/FiniteMetric",
+      "title": "D5.S1.Depth.FiniteMetric",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Depth/FiniteMetric.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Depth/GoldenContinuedFraction",
+      "title": "D5.S1.Depth.GoldenContinuedFraction",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Depth/GoldenContinuedFraction.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Depth/GoldenHurwitzBound",
+      "title": "D5.S1.Depth.GoldenHurwitzBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Depth/GoldenHurwitzBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Depth/GoldenPowerRounding",
+      "title": "D5.S1.Depth.GoldenPowerRounding",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Depth/GoldenPowerRounding.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Depth/IrrationalContinuedFractionNontermination",
+      "title": "D5.S1.Depth.IrrationalContinuedFractionNontermination",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Depth/IrrationalContinuedFractionNontermination.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Depth/JointCoordinates",
+      "title": "D5.S1.Depth.JointCoordinates",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Depth/JointCoordinates.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Depth/JointDepth",
+      "title": "D5.S1.Depth.JointDepth",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Depth/JointDepth.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Depth/PartialQuotientExtraction",
+      "title": "D5.S1.Depth.PartialQuotientExtraction",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Depth/PartialQuotientExtraction.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Depth/StationingCombinatorics",
+      "title": "D5.S1.Depth.StationingCombinatorics",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Depth/StationingCombinatorics.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Depth/StationingCounts",
+      "title": "D5.S1.Depth.StationingCounts",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Depth/StationingCounts.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Depth/TwelveScaleReduction",
+      "title": "D5.S1.Depth.TwelveScaleReduction",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Depth/TwelveScaleReduction.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Digit/Addition",
+      "title": "D5.S1.Digit.Addition",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Digit/Addition.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Digit/Carry",
+      "title": "D5.S1.Digit.Carry",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Digit/Carry.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Digit/Carry/Successor",
+      "title": "D5.S1.Digit.Carry.Successor",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Digit/Carry/Successor.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Digit/CompositeGas",
+      "title": "D5.S1.Digit.CompositeGas",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Digit/CompositeGas.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Digit/CompositeGasBeta",
+      "title": "D5.S1.Digit.CompositeGasBeta",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Digit/CompositeGasBeta.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Digit/CompositeGasContraction",
+      "title": "D5.S1.Digit.CompositeGasContraction",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Digit/CompositeGasContraction.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Digit/CompositeGasPronic",
+      "title": "D5.S1.Digit.CompositeGasPronic",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Digit/CompositeGasPronic.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Digit/CompositeGasUnit",
+      "title": "D5.S1.Digit.CompositeGasUnit",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Digit/CompositeGasUnit.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Digit/Normalize",
+      "title": "D5.S1.Digit.Normalize",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S1/Digit/Normalize.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S1/Digit/PrimeAxis/PrimeAxisNormalizationUnique",
+      "title": "D5.S1.Digit.PrimeAxis.PrimeAxisNormalizationUnique",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Digit/PrimeAxis/PrimeAxisNormalizationUnique.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Digit/PrimeAxisAddition",
+      "title": "D5.S1.Digit.PrimeAxisAddition",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Digit/PrimeAxisAddition.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Digit/PrimeAxisEncoding",
+      "title": "D5.S1.Digit.PrimeAxisEncoding",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Digit/PrimeAxisEncoding.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Digit/PrimeAxisTable",
+      "title": "D5.S1.Digit.PrimeAxisTable",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Digit/PrimeAxisTable.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Digit/Raw",
+      "title": "D5.S1.Digit.Raw",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Digit/Raw.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Dynamics/CodeLedgerIdentity",
+      "title": "D5.S1.Dynamics.CodeLedgerIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Dynamics/CodeLedgerIdentity.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Dynamics/GoldenFractionalPart",
+      "title": "D5.S1.Dynamics.GoldenFractionalPart",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Dynamics/GoldenFractionalPart.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Dynamics/JumpCocycle",
+      "title": "D5.S1.Dynamics.JumpCocycle",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Dynamics/JumpCocycle.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Dynamics/KnasterTarski",
+      "title": "D5.S1.Dynamics.KnasterTarski",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Dynamics/KnasterTarski.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Dynamics/KnasterTarskiWitness",
+      "title": "D5.S1.Dynamics.KnasterTarskiWitness",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Dynamics/KnasterTarskiWitness.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Dynamics/OnticStateCoordinates",
+      "title": "D5.S1.Dynamics.OnticStateCoordinates",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Dynamics/OnticStateCoordinates.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Dynamics/ProfiniteCharacter",
+      "title": "D5.S1.Dynamics.ProfiniteCharacter",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Dynamics/ProfiniteCharacter.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Dynamics/ProfiniteIntegers",
+      "title": "D5.S1.Dynamics.ProfiniteIntegers",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Dynamics/ProfiniteIntegers.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Dynamics/RecursiveDefinition",
+      "title": "D5.S1.Dynamics.RecursiveDefinition",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Dynamics/RecursiveDefinition.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Dynamics/SolenoidCharacter",
+      "title": "D5.S1.Dynamics.SolenoidCharacter",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Dynamics/SolenoidCharacter.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Dynamics/UniversalSolenoid",
+      "title": "D5.S1.Dynamics.UniversalSolenoid",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Dynamics/UniversalSolenoid.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Dynamics/UniversalSolenoidCompact",
+      "title": "D5.S1.Dynamics.UniversalSolenoidCompact",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Dynamics/UniversalSolenoidCompact.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Eigenstructure/ContractingAxisSignDepth",
+      "title": "D5.S1.Eigenstructure.ContractingAxisSignDepth",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Eigenstructure/ContractingAxisSignDepth.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Eigenstructure/EigenframeInvariance",
+      "title": "D5.S1.Eigenstructure.EigenframeInvariance",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Eigenstructure/EigenframeInvariance.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Eigenstructure/GoldenPowerCoordinates",
+      "title": "D5.S1.Eigenstructure.GoldenPowerCoordinates",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Eigenstructure/GoldenPowerCoordinates.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Eigenstructure/GoldenPowerLog",
+      "title": "D5.S1.Eigenstructure.GoldenPowerLog",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Eigenstructure/GoldenPowerLog.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/FixedPoints/ThreeCycleGap",
+      "title": "D5.S1.FixedPoints.ThreeCycleGap",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/FixedPoints/ThreeCycleGap.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/AlternatingGoldenContraction",
+      "title": "D5.S1.Phase.AlternatingGoldenContraction",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/AlternatingGoldenContraction.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/Basic",
+      "title": "D5.S1.Phase.Basic",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/Basic.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/GoldenBeattyCount",
+      "title": "D5.S1.Phase.GoldenBeattyCount",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/GoldenBeattyCount.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/Interference/DedekindBhkCertificates",
+      "title": "D5.S1.Phase.Interference.DedekindBhkCertificates",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/Interference/DedekindBhkCertificates.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/Interference/DedekindBhkEuclideanStep",
+      "title": "D5.S1.Phase.Interference.DedekindBhkEuclideanStep",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Phase/Interference/DedekindBhkEuclideanStep.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Phase/Interference/DedekindFamilySplit",
+      "title": "D5.S1.Phase.Interference.DedekindFamilySplit",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/Interference/DedekindFamilySplit.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/Interference/DedekindReciprocity",
+      "title": "D5.S1.Phase.Interference.DedekindReciprocity",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Phase/Interference/DedekindReciprocity.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Phase/Interference/DedekindReciprocityFiniteSums",
+      "title": "D5.S1.Phase.Interference.DedekindReciprocityFiniteSums",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Phase/Interference/DedekindReciprocityFiniteSums.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Phase/Interference/DedekindReciprocityLattice",
+      "title": "D5.S1.Phase.Interference.DedekindReciprocityLattice",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S1/Phase/Interference/DedekindReciprocityLattice.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S1/Phase/Interference/DominantPartialQuotientGap",
+      "title": "D5.S1.Phase.Interference.DominantPartialQuotientGap",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/Interference/DominantPartialQuotientGap.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/Interference/FixedRayNineteenWitness",
+      "title": "D5.S1.Phase.Interference.FixedRayNineteenWitness",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Phase/Interference/FixedRayNineteenWitness.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Phase/Interference/M1728Countershot",
+      "title": "D5.S1.Phase.Interference.M1728Countershot",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/Interference/M1728Countershot.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/Interference/M1729ThreeOrbitBijection",
+      "title": "D5.S1.Phase.Interference.M1729ThreeOrbitBijection",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/Interference/M1729ThreeOrbitBijection.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/Interference/M468MemberTable",
+      "title": "D5.S1.Phase.Interference.M468MemberTable",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Phase/Interference/M468MemberTable.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Phase/Interference/ZolotarevSelector",
+      "title": "D5.S1.Phase.Interference.ZolotarevSelector",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/Interference/ZolotarevSelector.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/PythagoreanInputValidator",
+      "title": "D5.S1.Phase.PythagoreanInputValidator",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/PythagoreanInputValidator.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/RenormalizationPayload",
+      "title": "D5.S1.Phase.RenormalizationPayload",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/RenormalizationPayload.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/SeatTowerArithmetic",
+      "title": "D5.S1.Phase.SeatTowerArithmetic",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/SeatTowerArithmetic.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/SeatTowerCombinatorics",
+      "title": "D5.S1.Phase.SeatTowerCombinatorics",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/SeatTowerCombinatorics.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/SeatTowerConsequences",
+      "title": "D5.S1.Phase.SeatTowerConsequences",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/SeatTowerConsequences.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/SelfReference/GoldenShellRecurrence",
+      "title": "D5.S1.Phase.SelfReference.GoldenShellRecurrence",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/SelfReference/GoldenShellRecurrence.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/StationingCounts",
+      "title": "D5.S1.Phase.StationingCounts",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/StationingCounts.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/ThreeDistance",
+      "title": "D5.S1.Phase.ThreeDistance",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Phase/ThreeDistance.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Phase/ThreeGap/Classification",
+      "title": "D5.S1.Phase.ThreeGap.Classification",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Phase/ThreeGap/Classification.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Phase/ThreeGap/Foundations",
+      "title": "D5.S1.Phase.ThreeGap.Foundations",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/ThreeGap/Foundations.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/ThreeGap/Main",
+      "title": "D5.S1.Phase.ThreeGap.Main",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S1/Phase/ThreeGap/Main.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S1/Phase/ThreeGap/Returns",
+      "title": "D5.S1.Phase.ThreeGap.Returns",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Phase/ThreeGap/Returns.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Phase/WalkFormula",
+      "title": "D5.S1.Phase.WalkFormula",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/WalkFormula.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Phase/ZeroOrbitCongruence",
+      "title": "D5.S1.Phase.ZeroOrbitCongruence",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Phase/ZeroOrbitCongruence.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Quad/CompositeGasOrder",
+      "title": "D5.S1.Quad.CompositeGasOrder",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Quad/CompositeGasOrder.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Recurrence/BilateralLiftUniqueness",
+      "title": "D5.S1.Recurrence.BilateralLiftUniqueness",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/BilateralLiftUniqueness.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/BivariateWordSeries",
+      "title": "D5.S1.Recurrence.BivariateWordSeries",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/BivariateWordSeries.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/CarryCancellation",
+      "title": "D5.S1.Recurrence.CarryCancellation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/CarryCancellation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/CassiniFricke",
+      "title": "D5.S1.Recurrence.CassiniFricke",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/CassiniFricke.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/CyclicGapsPartition",
+      "title": "D5.S1.Recurrence.CyclicGapsPartition",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Recurrence/CyclicGapsPartition.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Recurrence/CyclicNearestReturn",
+      "title": "D5.S1.Recurrence.CyclicNearestReturn",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/CyclicNearestReturn.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/FibAlternatingSum",
+      "title": "D5.S1.Recurrence.FibAlternatingSum",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/FibAlternatingSum.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/FibVajda",
+      "title": "D5.S1.Recurrence.FibVajda",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/FibVajda.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/GoldenFibDivisibility",
+      "title": "D5.S1.Recurrence.GoldenFibDivisibility",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/GoldenFibDivisibility.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Recurrence/GoldenPartition",
+      "title": "D5.S1.Recurrence.GoldenPartition",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Recurrence/GoldenPartition.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Recurrence/RotationOrbitGapsPartition",
+      "title": "D5.S1.Recurrence.RotationOrbitGapsPartition",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Recurrence/RotationOrbitGapsPartition.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Recurrence/TraceMap",
+      "title": "D5.S1.Recurrence.TraceMap",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Recurrence/TraceMap.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Scale/CarrierFoundations",
+      "title": "D5.S1.Scale.CarrierFoundations",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Scale/CarrierFoundations.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Scale/Embedding",
+      "title": "D5.S1.Scale.Embedding",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S1/Scale/Embedding.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S1/Scale/FibLucasDouble",
+      "title": "D5.S1.Scale.FibLucasDouble",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Scale/FibLucasDouble.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Scale/Fibonacci",
+      "title": "D5.S1.Scale.Fibonacci",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Scale/Fibonacci.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Scale/FibonacciEigen",
+      "title": "D5.S1.Scale.FibonacciEigen",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Scale/FibonacciEigen.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Scale/FibonacciErrorRatio",
+      "title": "D5.S1.Scale.FibonacciErrorRatio",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Scale/FibonacciErrorRatio.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Scale/Log",
+      "title": "D5.S1.Scale.Log",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S1/Scale/Log.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S1/Scale/Lucas",
+      "title": "D5.S1.Scale.Lucas",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Scale/Lucas.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Scale/MinkowskiHarnessWindow",
+      "title": "D5.S1.Scale.MinkowskiHarnessWindow",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S1/Scale/MinkowskiHarnessWindow.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S1/Scale/MinkowskiModelSet",
+      "title": "D5.S1.Scale.MinkowskiModelSet",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Scale/MinkowskiModelSet.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Scale/UnitGroup",
+      "title": "D5.S1.Scale.UnitGroup",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Scale/UnitGroup.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Scale/Units",
+      "title": "D5.S1.Scale.Units",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S1/Scale/Units.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S1/Solenoid/AdditiveCocycleTransport",
+      "title": "D5.S1.Solenoid.AdditiveCocycleTransport",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Solenoid/AdditiveCocycleTransport.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Solenoid/ExactSequence",
+      "title": "D5.S1.Solenoid.ExactSequence",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Solenoid/ExactSequence.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Solenoid/HiddenFiberCompact",
+      "title": "D5.S1.Solenoid.HiddenFiberCompact",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Solenoid/HiddenFiberCompact.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Solenoid/HiddenMotionRigidity",
+      "title": "D5.S1.Solenoid.HiddenMotionRigidity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Solenoid/HiddenMotionRigidity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Solenoid/PathOrbitClassification",
+      "title": "D5.S1.Solenoid.PathOrbitClassification",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Solenoid/PathOrbitClassification.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Solenoid/RealFlowInjectivity",
+      "title": "D5.S1.Solenoid.RealFlowInjectivity",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Solenoid/RealFlowInjectivity.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Solenoid/RealFlowRecurrence",
+      "title": "D5.S1.Solenoid.RealFlowRecurrence",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Solenoid/RealFlowRecurrence.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Solenoid/StreamlineDecomposition",
+      "title": "D5.S1.Solenoid.StreamlineDecomposition",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Solenoid/StreamlineDecomposition.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Solenoid/ThroatTransitionCocycle",
+      "title": "D5.S1.Solenoid.ThroatTransitionCocycle",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S1/Solenoid/ThroatTransitionCocycle.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S1/Words/AdmissibleWords/AdmissibleCount",
+      "title": "D5.S1.Words.AdmissibleWords.AdmissibleCount",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Words/AdmissibleWords/AdmissibleCount.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Words/Complexity/GoldenSubshiftMinimality",
+      "title": "D5.S1.Words.Complexity.GoldenSubshiftMinimality",
+      "status": "Closed",
+      "summary": "Closed · depth 12 · D5/S1/Words/Complexity/GoldenSubshiftMinimality.lean",
+      "depth": 12
+    },
+    {
+      "id": "D5/S1/Words/Complexity/MechanicalComplexityCharacterization",
+      "title": "D5.S1.Words.Complexity.MechanicalComplexityCharacterization",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S1/Words/Complexity/MechanicalComplexityCharacterization.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S1/Words/Complexity/MorseHedlund",
+      "title": "D5.S1.Words.Complexity.MorseHedlund",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Words/Complexity/MorseHedlund.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Words/Complexity/SubshiftHausdorffDimension",
+      "title": "D5.S1.Words.Complexity.SubshiftHausdorffDimension",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S1/Words/Complexity/SubshiftHausdorffDimension.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S1/Words/Complexity/SubshiftTopology",
+      "title": "D5.S1.Words.Complexity.SubshiftTopology",
+      "status": "Closed",
+      "summary": "Closed · depth 11 · D5/S1/Words/Complexity/SubshiftTopology.lean",
+      "depth": 11
+    },
+    {
+      "id": "D5/S1/Words/GoldenBalance",
+      "title": "D5.S1.Words.GoldenBalance",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S1/Words/GoldenBalance.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S1/Words/GoldenDensity",
+      "title": "D5.S1.Words.GoldenDensity",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S1/Words/GoldenDensity.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S1/Words/GoldenFactorComplexity",
+      "title": "D5.S1.Words.GoldenFactorComplexity",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S1/Words/GoldenFactorComplexity.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S1/Words/GoldenFiberCoordinates",
+      "title": "D5.S1.Words.GoldenFiberCoordinates",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Words/GoldenFiberCoordinates.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Words/GoldenGapPrefix",
+      "title": "D5.S1.Words.GoldenGapPrefix",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S1/Words/GoldenGapPrefix.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S1/Words/GoldenMechanicalWord",
+      "title": "D5.S1.Words.GoldenMechanicalWord",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Words/GoldenMechanicalWord.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Words/GoldenRecurrence",
+      "title": "D5.S1.Words.GoldenRecurrence",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S1/Words/GoldenRecurrence.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S1/Words/GoldenSubstFixed",
+      "title": "D5.S1.Words.GoldenSubstFixed",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S1/Words/GoldenSubstFixed.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S1/Words/GoldenUniformRecurrence",
+      "title": "D5.S1.Words.GoldenUniformRecurrence",
+      "status": "Closed",
+      "summary": "Closed · depth 11 · D5/S1/Words/GoldenUniformRecurrence.lean",
+      "depth": 11
+    },
+    {
+      "id": "D5/S1/Words/GoldenWord",
+      "title": "D5.S1.Words.GoldenWord",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S1/Words/GoldenWord.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S1/Words/Mechanical/GoldenFiberPrefixBound",
+      "title": "D5.S1.Words.Mechanical.GoldenFiberPrefixBound",
+      "status": "Closed",
+      "summary": "Closed · depth 11 · D5/S1/Words/Mechanical/GoldenFiberPrefixBound.lean",
+      "depth": 11
+    },
+    {
+      "id": "D5/S1/Words/Mechanical/GoldenFiberPrefixCount",
+      "title": "D5.S1.Words.Mechanical.GoldenFiberPrefixCount",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S1/Words/Mechanical/GoldenFiberPrefixCount.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S1/Words/Mechanical/MechanicalBalance",
+      "title": "D5.S1.Words.Mechanical.MechanicalBalance",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Words/Mechanical/MechanicalBalance.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Words/Mechanical/MechanicalDensity",
+      "title": "D5.S1.Words.Mechanical.MechanicalDensity",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Words/Mechanical/MechanicalDensity.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Words/Mechanical/MechanicalFactorComplexity",
+      "title": "D5.S1.Words.Mechanical.MechanicalFactorComplexity",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S1/Words/Mechanical/MechanicalFactorComplexity.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S1/Words/Mechanical/MechanicalGoldenBridge",
+      "title": "D5.S1.Words.Mechanical.MechanicalGoldenBridge",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S1/Words/Mechanical/MechanicalGoldenBridge.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S1/Words/Mechanical/MechanicalPeriodicity",
+      "title": "D5.S1.Words.Mechanical.MechanicalPeriodicity",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S1/Words/Mechanical/MechanicalPeriodicity.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S1/Words/Palindromes/GoldenPalindromicFactorComplexity",
+      "title": "D5.S1.Words.Palindromes.GoldenPalindromicFactorComplexity",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S1/Words/Palindromes/GoldenPalindromicFactorComplexity.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S1/Words/Palindromes/GoldenPalindromicPrefix",
+      "title": "D5.S1.Words.Palindromes.GoldenPalindromicPrefix",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S1/Words/Palindromes/GoldenPalindromicPrefix.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S1/Words/Palindromes/GoldenPalindromicPrefixComplete",
+      "title": "D5.S1.Words.Palindromes.GoldenPalindromicPrefixComplete",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S1/Words/Palindromes/GoldenPalindromicPrefixComplete.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S1/Words/Palindromes/GoldenRichness",
+      "title": "D5.S1.Words.Palindromes.GoldenRichness",
+      "status": "Closed",
+      "summary": "Closed · depth 18 · D5/S1/Words/Palindromes/GoldenRichness.lean",
+      "depth": 18
+    },
+    {
+      "id": "D5/S1/Words/Palindromes/PalindromicFactors",
+      "title": "D5.S1.Words.Palindromes.PalindromicFactors",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Words/Palindromes/PalindromicFactors.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenCubeExistence",
+      "title": "D5.S1.Words.Powers.GoldenCubeExistence",
+      "status": "Closed",
+      "summary": "Closed · depth 19 · D5/S1/Words/Powers/GoldenCubeExistence.lean",
+      "depth": 19
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenCubeNameBridge",
+      "title": "D5.S1.Words.Powers.GoldenCubeNameBridge",
+      "status": "Closed",
+      "summary": "Closed · depth 20 · D5/S1/Words/Powers/GoldenCubeNameBridge.lean",
+      "depth": 20
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenCubePeriods",
+      "title": "D5.S1.Words.Powers.GoldenCubePeriods",
+      "status": "Closed",
+      "summary": "Closed · depth 18 · D5/S1/Words/Powers/GoldenCubePeriods.lean",
+      "depth": 18
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenCubePeriodsSupport",
+      "title": "D5.S1.Words.Powers.GoldenCubePeriodsSupport",
+      "status": "Closed",
+      "summary": "Closed · depth 17 · D5/S1/Words/Powers/GoldenCubePeriodsSupport.lean",
+      "depth": 17
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitution",
+      "title": "D5.S1.Words.Powers.GoldenDesubstitution",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S1/Words/Powers/GoldenDesubstitution.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitutionDepth",
+      "title": "D5.S1.Words.Powers.GoldenDesubstitutionDepth",
+      "status": "Closed",
+      "summary": "Closed · depth 13 · D5/S1/Words/Powers/GoldenDesubstitutionDepth.lean",
+      "depth": 13
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitutionNfDepth",
+      "title": "D5.S1.Words.Powers.GoldenDesubstitutionNfDepth",
+      "status": "Closed",
+      "summary": "Closed · depth 14 · D5/S1/Words/Powers/GoldenDesubstitutionNfDepth.lean",
+      "depth": 14
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitutionNormalForm",
+      "title": "D5.S1.Words.Powers.GoldenDesubstitutionNormalForm",
+      "status": "Closed",
+      "summary": "Closed · depth 11 · D5/S1/Words/Powers/GoldenDesubstitutionNormalForm.lean",
+      "depth": 11
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitutionZeckendorf",
+      "title": "D5.S1.Words.Powers.GoldenDesubstitutionZeckendorf",
+      "status": "Closed",
+      "summary": "Closed · depth 12 · D5/S1/Words/Powers/GoldenDesubstitutionZeckendorf.lean",
+      "depth": 12
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenFourthPower",
+      "title": "D5.S1.Words.Powers.GoldenFourthPower",
+      "status": "Closed",
+      "summary": "Closed · depth 11 · D5/S1/Words/Powers/GoldenFourthPower.lean",
+      "depth": 11
+    },
+    {
+      "id": "D5/S1/Words/Powers/WordPower",
+      "title": "D5.S1.Words.Powers.WordPower",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Words/Powers/WordPower.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenArcFirstReturn",
+      "title": "D5.S1.Words.ReturnWords.GoldenArcFirstReturn",
+      "status": "Closed",
+      "summary": "Closed · depth 16 · D5/S1/Words/ReturnWords/GoldenArcFirstReturn.lean",
+      "depth": 16
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenArcFirstReturnCore",
+      "title": "D5.S1.Words.ReturnWords.GoldenArcFirstReturnCore",
+      "status": "Closed",
+      "summary": "Closed · depth 15 · D5/S1/Words/ReturnWords/GoldenArcFirstReturnCore.lean",
+      "depth": 15
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenGapFirstReturn",
+      "title": "D5.S1.Words.ReturnWords.GoldenGapFirstReturn",
+      "status": "Closed",
+      "summary": "Closed · depth 14 · D5/S1/Words/ReturnWords/GoldenGapFirstReturn.lean",
+      "depth": 14
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenOccurrenceGaps",
+      "title": "D5.S1.Words.ReturnWords.GoldenOccurrenceGaps",
+      "status": "Closed",
+      "summary": "Closed · depth 13 · D5/S1/Words/ReturnWords/GoldenOccurrenceGaps.lean",
+      "depth": 13
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenRankArcs",
+      "title": "D5.S1.Words.ReturnWords.GoldenRankArcs",
+      "status": "Closed",
+      "summary": "Closed · depth 14 · D5/S1/Words/ReturnWords/GoldenRankArcs.lean",
+      "depth": 14
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenReturnItinerary",
+      "title": "D5.S1.Words.ReturnWords.GoldenReturnItinerary",
+      "status": "Closed",
+      "summary": "Closed · depth 17 · D5/S1/Words/ReturnWords/GoldenReturnItinerary.lean",
+      "depth": 17
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenReturnWords",
+      "title": "D5.S1.Words.ReturnWords.GoldenReturnWords",
+      "status": "Closed",
+      "summary": "Closed · depth 12 · D5/S1/Words/ReturnWords/GoldenReturnWords.lean",
+      "depth": 12
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/GoldenReturnWordsExact",
+      "title": "D5.S1.Words.ReturnWords.GoldenReturnWordsExact",
+      "status": "Closed",
+      "summary": "Closed · depth 18 · D5/S1/Words/ReturnWords/GoldenReturnWordsExact.lean",
+      "depth": 18
+    },
+    {
+      "id": "D5/S1/Words/ReturnWords/RotationGapArcs",
+      "title": "D5.S1.Words.ReturnWords.RotationGapArcs",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S1/Words/ReturnWords/RotationGapArcs.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S1/Words/ZeckendorfBeattyBridge",
+      "title": "D5.S1.Words.ZeckendorfBeattyBridge",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S1/Words/ZeckendorfBeattyBridge.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S1/Words/ZeckendorfOrder",
+      "title": "D5.S1.Words.ZeckendorfOrder",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S1/Words/ZeckendorfOrder.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/AlternatingPoleCoefficients",
+      "title": "D5.S3.Analytic.AlternatingPoleCoefficients",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/AlternatingPoleCoefficients.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/CompletedZetaMellinReconstruction",
+      "title": "D5.S3.Analytic.CompletedZetaMellinReconstruction",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Analytic/CompletedZetaMellinReconstruction.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Analytic/DiagonalCollapse",
+      "title": "D5.S3.Analytic.DiagonalCollapse",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Analytic/DiagonalCollapse.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Analytic/Dilation/MellinDilationFlow",
+      "title": "D5.S3.Analytic.Dilation.MellinDilationFlow",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/Dilation/MellinDilationFlow.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct",
+      "title": "D5.S3.Analytic.Displacement.GoldenDisplacementComplexEulerProduct",
+      "status": "Closed",
+      "summary": "Closed · depth 19 · D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct.lean",
+      "depth": 19
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa",
+      "title": "D5.S3.Analytic.Displacement.GoldenDisplacementFaceHeatAbscissa",
+      "status": "Closed",
+      "summary": "Closed · depth 21 · D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa.lean",
+      "depth": 21
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace",
+      "title": "D5.S3.Analytic.Displacement.GoldenDisplacementFaceHeatTrace",
+      "status": "Closed",
+      "summary": "Closed · depth 20 · D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace.lean",
+      "depth": 20
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion",
+      "title": "D5.S3.Analytic.Displacement.GoldenDisplacementSurfaceRegion",
+      "status": "Closed",
+      "summary": "Closed · depth 22 · D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion.lean",
+      "depth": 22
+    },
+    {
+      "id": "D5/S3/Analytic/GoldenEulerBeta",
+      "title": "D5.S3.Analytic.GoldenEulerBeta",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/GoldenEulerBeta.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/Isolation/RationalSpanIsolation",
+      "title": "D5.S3.Analytic.Isolation.RationalSpanIsolation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/Isolation/RationalSpanIsolation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/LedgerLengthGrowth",
+      "title": "D5.S3.Analytic.LedgerLengthGrowth",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Analytic/LedgerLengthGrowth.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Analytic/LiCausalTrichotomy",
+      "title": "D5.S3.Analytic.LiCausalTrichotomy",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Analytic/LiCausalTrichotomy.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Analytic/PoleLayerSelection",
+      "title": "D5.S3.Analytic.PoleLayerSelection",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/PoleLayerSelection.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/PrimeCashflowCost",
+      "title": "D5.S3.Analytic.PrimeCashflowCost",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/PrimeCashflowCost.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/ScaledPoleAccumulation",
+      "title": "D5.S3.Analytic.ScaledPoleAccumulation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/ScaledPoleAccumulation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/TailCertificate",
+      "title": "D5.S3.Analytic.TailCertificate",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/TailCertificate.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Analytic/TailClosure",
+      "title": "D5.S3.Analytic.TailClosure",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Analytic/TailClosure.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Analytic/ZetaGibbs",
+      "title": "D5.S3.Analytic.ZetaGibbs",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Analytic/ZetaGibbs.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/AnalyticClosure/CofinalTailDiscipline",
+      "title": "D5.S3.AnalyticClosure.CofinalTailDiscipline",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/AnalyticClosure/CofinalTailDiscipline.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/AnalyticClosure/GoldenApproximationConstant",
+      "title": "D5.S3.AnalyticClosure.GoldenApproximationConstant",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/AnalyticClosure/GoldenApproximationConstant.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Arith/ChineseRemainder",
+      "title": "D5.S3.Arith.ChineseRemainder",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/ChineseRemainder.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/Congruence/InertPrimeMod12",
+      "title": "D5.S3.Arith.Congruence.InertPrimeMod12",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/Congruence/InertPrimeMod12.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/Congruence/QuarticThirtySix",
+      "title": "D5.S3.Arith.Congruence.QuarticThirtySix",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/Congruence/QuarticThirtySix.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/EuclidLemma",
+      "title": "D5.S3.Arith.EuclidLemma",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/EuclidLemma.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/FibonacciRank",
+      "title": "D5.S3.Arith.FibonacciRank",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Arith/FibonacciRank.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Arith/FiniteWindowEscape",
+      "title": "D5.S3.Arith.FiniteWindowEscape",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/FiniteWindowEscape.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/GoldenApparition",
+      "title": "D5.S3.Arith.GoldenApparition",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Arith/GoldenApparition.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Arith/GoldenPell",
+      "title": "D5.S3.Arith.GoldenPell",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Arith/GoldenPell.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Arith/GoldenPrimeSplitting",
+      "title": "D5.S3.Arith.GoldenPrimeSplitting",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Arith/GoldenPrimeSplitting.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Arith/GoldenSplitSufficient",
+      "title": "D5.S3.Arith.GoldenSplitSufficient",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Arith/GoldenSplitSufficient.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Arith/HiddenFiberRigidity",
+      "title": "D5.S3.Arith.HiddenFiberRigidity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/HiddenFiberRigidity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/PrimeFactorization",
+      "title": "D5.S3.Arith.PrimeFactorization",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/PrimeFactorization.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/ResidueSeparation",
+      "title": "D5.S3.Arith.ResidueSeparation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/ResidueSeparation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Arith/Wilson",
+      "title": "D5.S3.Arith.Wilson",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Arith/Wilson.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ArithUnits/FermatLittle",
+      "title": "D5.S3.ArithUnits.FermatLittle",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ArithUnits/FermatLittle.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ArithUnits/FiniteWindowResidues",
+      "title": "D5.S3.ArithUnits.FiniteWindowResidues",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ArithUnits/FiniteWindowResidues.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ArithUnits/HalfFactorial",
+      "title": "D5.S3.ArithUnits.HalfFactorial",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/ArithUnits/HalfFactorial.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/ArithUnits/PrimeModInverse",
+      "title": "D5.S3.ArithUnits.PrimeModInverse",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ArithUnits/PrimeModInverse.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ArithUnits/PrimeModUnit",
+      "title": "D5.S3.ArithUnits.PrimeModUnit",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ArithUnits/PrimeModUnit.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ArithUnits/ThreeWayClassification",
+      "title": "D5.S3.ArithUnits.ThreeWayClassification",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ArithUnits/ThreeWayClassification.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ArithUnits/Thue",
+      "title": "D5.S3.ArithUnits.Thue",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ArithUnits/Thue.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Axis/PrimeAddressSupport",
+      "title": "D5.S3.Axis.PrimeAddressSupport",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Axis/PrimeAddressSupport.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Axis/PrimeAddressTrichotomy",
+      "title": "D5.S3.Axis.PrimeAddressTrichotomy",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Axis/PrimeAddressTrichotomy.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Axis/PrimeAxisEscape",
+      "title": "D5.S3.Axis.PrimeAxisEscape",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Axis/PrimeAxisEscape.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/COneExactValue",
+      "title": "D5.S3.Constants.COneExactValue",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Constants/COneExactValue.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Constants/DeltaMeanArtifact",
+      "title": "D5.S3.Constants.DeltaMeanArtifact",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/DeltaMeanArtifact.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/ElementaryExactValues",
+      "title": "D5.S3.Constants.ElementaryExactValues",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Constants/ElementaryExactValues.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Constants/MidslopeCurvature",
+      "title": "D5.S3.Constants.MidslopeCurvature",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Constants/MidslopeCurvature.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Constants/MidslopeCurvatureValues",
+      "title": "D5.S3.Constants.MidslopeCurvatureValues",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Constants/MidslopeCurvatureValues.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Constants/MidslopeDoubleDual",
+      "title": "D5.S3.Constants.MidslopeDoubleDual",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Constants/MidslopeDoubleDual.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Constants/MoranComplexDimensions",
+      "title": "D5.S3.Constants.MoranComplexDimensions",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/MoranComplexDimensions.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/PentagonCosines",
+      "title": "D5.S3.Constants.PentagonCosines",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/PentagonCosines.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/PowerMeanKernel",
+      "title": "D5.S3.Constants.PowerMeanKernel",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/PowerMeanKernel.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/RecordEntropy",
+      "title": "D5.S3.Constants.RecordEntropy",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/RecordEntropy.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/SturmianDirichletValue",
+      "title": "D5.S3.Constants.SturmianDirichletValue",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/SturmianDirichletValue.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/Values",
+      "title": "D5.S3.Constants.Values",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/Values.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Constants/WignerYanaseSpectrum",
+      "title": "D5.S3.Constants.WignerYanaseSpectrum",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Constants/WignerYanaseSpectrum.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ContinuousObservables/CentralWinding",
+      "title": "D5.S3.ContinuousObservables.CentralWinding",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/ContinuousObservables/CentralWinding.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/ContinuousObservables/PhaseFunctionCenter",
+      "title": "D5.S3.ContinuousObservables.PhaseFunctionCenter",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/ContinuousObservables/PhaseFunctionCenter.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Divergence/ChainRule",
+      "title": "D5.S3.Divergence.ChainRule",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Divergence/ChainRule.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Divergence/ChannelMonotone",
+      "title": "D5.S3.Divergence.ChannelMonotone",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Divergence/ChannelMonotone.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Divergence/ClassicalDPI",
+      "title": "D5.S3.Divergence.ClassicalDPI",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Divergence/ClassicalDPI.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Divergence/DpiDefect",
+      "title": "D5.S3.Divergence.DpiDefect",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Divergence/DpiDefect.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Divergence/GibbsEquality",
+      "title": "D5.S3.Divergence.GibbsEquality",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Divergence/GibbsEquality.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Divergence/GrandmotherTheorem",
+      "title": "D5.S3.Divergence.GrandmotherTheorem",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Divergence/GrandmotherTheorem.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Divergence/LogDerivTrace",
+      "title": "D5.S3.Divergence.LogDerivTrace",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Divergence/LogDerivTrace.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Divergence/MarginalMonotone",
+      "title": "D5.S3.Divergence.MarginalMonotone",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Divergence/MarginalMonotone.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Divergence/MeanKernels/LogarithmicMeanSandwich",
+      "title": "D5.S3.Divergence.MeanKernels.LogarithmicMeanSandwich",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Divergence/MeanKernels/LogarithmicMeanSandwich.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Divergence/MeanKernels/MeanKernelLowerTower",
+      "title": "D5.S3.Divergence.MeanKernels.MeanKernelLowerTower",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Divergence/MeanKernels/MeanKernelLowerTower.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Divergence/PetzClassical",
+      "title": "D5.S3.Divergence.PetzClassical",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Divergence/PetzClassical.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Divergence/ProductAdditivity",
+      "title": "D5.S3.Divergence.ProductAdditivity",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Divergence/ProductAdditivity.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Divergence/StrictDpi",
+      "title": "D5.S3.Divergence.StrictDpi",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Divergence/StrictDpi.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Divergence/StrictGibbs",
+      "title": "D5.S3.Divergence.StrictGibbs",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Divergence/StrictGibbs.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/LandauerBound",
+      "title": "D5.S3.DivergenceSupport.LandauerBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/DivergenceSupport/LandauerBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/LandauerIdentity",
+      "title": "D5.S3.DivergenceSupport.LandauerIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/DivergenceSupport/LandauerIdentity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/LandauerSaturation",
+      "title": "D5.S3.DivergenceSupport.LandauerSaturation",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/DivergenceSupport/LandauerSaturation.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/LogSumInequality",
+      "title": "D5.S3.DivergenceSupport.LogSumInequality",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/DivergenceSupport/LogSumInequality.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/PathRatioBound",
+      "title": "D5.S3.DivergenceSupport.PathRatioBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/DivergenceSupport/PathRatioBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/PowerAdditivity",
+      "title": "D5.S3.DivergenceSupport.PowerAdditivity",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S3/DivergenceSupport/PowerAdditivity.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/ShadowOfIdentity",
+      "title": "D5.S3.DivergenceSupport.ShadowOfIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/DivergenceSupport/ShadowOfIdentity.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/ZeroSupportDPI",
+      "title": "D5.S3.DivergenceSupport.ZeroSupportDPI",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/DivergenceSupport/ZeroSupportDPI.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/ZeroSupportDefect",
+      "title": "D5.S3.DivergenceSupport.ZeroSupportDefect",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/DivergenceSupport/ZeroSupportDefect.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/DivergenceSupport/ZeroSupportDefectEquality",
+      "title": "D5.S3.DivergenceSupport.ZeroSupportDefectEquality",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/DivergenceSupport/ZeroSupportDefectEquality.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/ConditionalEntropy",
+      "title": "D5.S3.Entropy.ConditionalEntropy",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/ConditionalEntropy.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/ConditionalEntropyEquality",
+      "title": "D5.S3.Entropy.ConditionalEntropyEquality",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Entropy/ConditionalEntropyEquality.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Entropy/ConditioningReducesEntropy",
+      "title": "D5.S3.Entropy.ConditioningReducesEntropy",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Entropy/ConditioningReducesEntropy.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Entropy/EntropyDivergenceIdentity",
+      "title": "D5.S3.Entropy.EntropyDivergenceIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/EntropyDivergenceIdentity.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/EntropyEquality",
+      "title": "D5.S3.Entropy.EntropyEquality",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Entropy/EntropyEquality.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Entropy/EntropyNonneg",
+      "title": "D5.S3.Entropy.EntropyNonneg",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Entropy/EntropyNonneg.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Entropy/Feedback/DemonIdentity",
+      "title": "D5.S3.Entropy.Feedback.DemonIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/Feedback/DemonIdentity.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/Forgetting/CapacityMonotone",
+      "title": "D5.S3.Entropy.Forgetting.CapacityMonotone",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Entropy/Forgetting/CapacityMonotone.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Entropy/MaxEntropy",
+      "title": "D5.S3.Entropy.MaxEntropy",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Entropy/MaxEntropy.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Entropy/MutualInformation",
+      "title": "D5.S3.Entropy.MutualInformation",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Entropy/MutualInformation.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Entropy/MutualInformationEntropy",
+      "title": "D5.S3.Entropy.MutualInformationEntropy",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/MutualInformationEntropy.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/MutualInformationIndependence",
+      "title": "D5.S3.Entropy.MutualInformationIndependence",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/MutualInformationIndependence.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/MutualInformationProduct",
+      "title": "D5.S3.Entropy.MutualInformationProduct",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/MutualInformationProduct.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/MutualInformationSymm",
+      "title": "D5.S3.Entropy.MutualInformationSymm",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/MutualInformationSymm.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Entropy/Relabeling/InjectiveInvariance",
+      "title": "D5.S3.Entropy.Relabeling.InjectiveInvariance",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Entropy/Relabeling/InjectiveInvariance.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Estimation/BhattacharyyaExponent",
+      "title": "D5.S3.Estimation.BhattacharyyaExponent",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S3/Estimation/BhattacharyyaExponent.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S3/Estimation/DecisionRisk/FixedSuiteBayesRiskFloor",
+      "title": "D5.S3.Estimation.DecisionRisk.FixedSuiteBayesRiskFloor",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Estimation/DecisionRisk/FixedSuiteBayesRiskFloor.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Estimation/Fano",
+      "title": "D5.S3.Estimation.Fano",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Estimation/Fano.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Estimation/FanoDivergenceForm",
+      "title": "D5.S3.Estimation.FanoDivergenceForm",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Estimation/FanoDivergenceForm.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Estimation/FanoErrorBound",
+      "title": "D5.S3.Estimation.FanoErrorBound",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Estimation/FanoErrorBound.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Estimation/FanoMethod",
+      "title": "D5.S3.Estimation.FanoMethod",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S3/Estimation/FanoMethod.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S3/Estimation/FanoMethodSampleComplexity",
+      "title": "D5.S3.Estimation.FanoMethodSampleComplexity",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S3/Estimation/FanoMethodSampleComplexity.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S3/Estimation/FanoReferenceDivergence",
+      "title": "D5.S3.Estimation.FanoReferenceDivergence",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S3/Estimation/FanoReferenceDivergence.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S3/Estimation/FanoSharp",
+      "title": "D5.S3.Estimation.FanoSharp",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Estimation/FanoSharp.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Estimation/LeCam",
+      "title": "D5.S3.Estimation.LeCam",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Estimation/LeCam.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Estimation/LeCamTight",
+      "title": "D5.S3.Estimation.LeCamTight",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Estimation/LeCamTight.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Estimation/SampleComplexity",
+      "title": "D5.S3.Estimation.SampleComplexity",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S3/Estimation/SampleComplexity.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S3/Estimation/TestingDivergenceBounds",
+      "title": "D5.S3.Estimation.TestingDivergenceBounds",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Estimation/TestingDivergenceBounds.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Factorization/BasicDiscriminantMinimum",
+      "title": "D5.S3.Factorization.BasicDiscriminantMinimum",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/BasicDiscriminantMinimum.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/Embeddings/SignedPrimeLogDensity",
+      "title": "D5.S3.Factorization.Embeddings.SignedPrimeLogDensity",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Factorization/Embeddings/SignedPrimeLogDensity.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Factorization/Embeddings/SignedPrimeLogEmbedding",
+      "title": "D5.S3.Factorization.Embeddings.SignedPrimeLogEmbedding",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Factorization/Embeddings/SignedPrimeLogEmbedding.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Factorization/FreeCommMonoid",
+      "title": "D5.S3.Factorization.FreeCommMonoid",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/FreeCommMonoid.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/HilbertMonoidNonUnique",
+      "title": "D5.S3.Factorization.HilbertMonoidNonUnique",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/HilbertMonoidNonUnique.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/LogarithmicLength",
+      "title": "D5.S3.Factorization.LogarithmicLength",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/LogarithmicLength.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/MarkovEquationMutation",
+      "title": "D5.S3.Factorization.MarkovEquationMutation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/MarkovEquationMutation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/PositiveRationalGroup",
+      "title": "D5.S3.Factorization.PositiveRationalGroup",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Factorization/PositiveRationalGroup.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Factorization/PrimeLogIndependence",
+      "title": "D5.S3.Factorization.PrimeLogIndependence",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/PrimeLogIndependence.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/ProfinitePrimeDecomposition",
+      "title": "D5.S3.Factorization.ProfinitePrimeDecomposition",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/ProfinitePrimeDecomposition.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/SecondOrderEulerFactorization",
+      "title": "D5.S3.Factorization.SecondOrderEulerFactorization",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/SecondOrderEulerFactorization.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/SolenoidProfiniteKernel",
+      "title": "D5.S3.Factorization.SolenoidProfiniteKernel",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Factorization/SolenoidProfiniteKernel.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Factorization/SquarefreeSquareDecomposition",
+      "title": "D5.S3.Factorization.SquarefreeSquareDecomposition",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/SquarefreeSquareDecomposition.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/UnimodularMonomialSubstitution",
+      "title": "D5.S3.Factorization.UnimodularMonomialSubstitution",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/UnimodularMonomialSubstitution.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Factorization/UniqueFactorization",
+      "title": "D5.S3.Factorization.UniqueFactorization",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Factorization/UniqueFactorization.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Fourier/CotangentHeckeIdentity",
+      "title": "D5.S3.Fourier.CotangentHeckeIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Fourier/CotangentHeckeIdentity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Fourier/FinitePoisson",
+      "title": "D5.S3.Fourier.FinitePoisson",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Fourier/FinitePoisson.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Fourier/FourierLaplaceEntire",
+      "title": "D5.S3.Fourier.FourierLaplaceEntire",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Fourier/FourierLaplaceEntire.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Fourier/GaussianThetaTransformation",
+      "title": "D5.S3.Fourier.GaussianThetaTransformation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Fourier/GaussianThetaTransformation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Fourier/PaleyWiener",
+      "title": "D5.S3.Fourier.PaleyWiener",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Fourier/PaleyWiener.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Fourier/ReductionKernel",
+      "title": "D5.S3.Fourier.ReductionKernel",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Fourier/ReductionKernel.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Fourier/WindowDiffraction",
+      "title": "D5.S3.Fourier.WindowDiffraction",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Fourier/WindowDiffraction.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Midline/AddressableCoefficientFactorization",
+      "title": "D5.S3.Midline.AddressableCoefficientFactorization",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Midline/AddressableCoefficientFactorization.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Midline/AutomaticMidlineDecomposition",
+      "title": "D5.S3.Midline.AutomaticMidlineDecomposition",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Midline/AutomaticMidlineDecomposition.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Midline/DualCharacterization",
+      "title": "D5.S3.Midline.DualCharacterization",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Midline/DualCharacterization.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Midline/GoldenHeatBoundary",
+      "title": "D5.S3.Midline.GoldenHeatBoundary",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Midline/GoldenHeatBoundary.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Midline/GoldenHeatSpectrum",
+      "title": "D5.S3.Midline.GoldenHeatSpectrum",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Midline/GoldenHeatSpectrum.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Midline/GoldenSpectralMarker",
+      "title": "D5.S3.Midline.GoldenSpectralMarker",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Midline/GoldenSpectralMarker.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Midline/HeatLayers/GoldenHeatLayers",
+      "title": "D5.S3.Midline.HeatLayers.GoldenHeatLayers",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Midline/HeatLayers/GoldenHeatLayers.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Midline/HeatTraceConvergence",
+      "title": "D5.S3.Midline.HeatTraceConvergence",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Midline/HeatTraceConvergence.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Midline/HeatTraceHolomorphy",
+      "title": "D5.S3.Midline.HeatTraceHolomorphy",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Midline/HeatTraceHolomorphy.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Midline/OffLineCoefficientScaling",
+      "title": "D5.S3.Midline.OffLineCoefficientScaling",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Midline/OffLineCoefficientScaling.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Midline/OffLineScaling",
+      "title": "D5.S3.Midline.OffLineScaling",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Midline/OffLineScaling.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Midline/UniversalHeatTrace",
+      "title": "D5.S3.Midline.UniversalHeatTrace",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Midline/UniversalHeatTrace.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Midline/ZetaHeatTraceBridge",
+      "title": "D5.S3.Midline.ZetaHeatTraceBridge",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Midline/ZetaHeatTraceBridge.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Observer/BornReduction",
+      "title": "D5.S3.Observer.BornReduction",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Observer/BornReduction.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Observer/CenterOperational",
+      "title": "D5.S3.Observer.CenterOperational",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Observer/CenterOperational.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Observer/ClassicalAnswerTableExclusion",
+      "title": "D5.S3.Observer.ClassicalAnswerTableExclusion",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Observer/ClassicalAnswerTableExclusion.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Observer/Conditioning",
+      "title": "D5.S3.Observer.Conditioning",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Observer/Conditioning.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Observer/ConditioningCertificate",
+      "title": "D5.S3.Observer.ConditioningCertificate",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Observer/ConditioningCertificate.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Observer/HiddenFlow/ContinuousRigidity",
+      "title": "D5.S3.Observer.HiddenFlow.ContinuousRigidity",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Observer/HiddenFlow/ContinuousRigidity.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Observer/HiddenFlow/DiscreteRigidity",
+      "title": "D5.S3.Observer.HiddenFlow.DiscreteRigidity",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Observer/HiddenFlow/DiscreteRigidity.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Observer/HiddenFlow/StreamlineExistence",
+      "title": "D5.S3.Observer.HiddenFlow.StreamlineExistence",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Observer/HiddenFlow/StreamlineExistence.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Observer/MatrixUnitCertificate",
+      "title": "D5.S3.Observer.MatrixUnitCertificate",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Observer/MatrixUnitCertificate.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Observer/MeasurementMarginal",
+      "title": "D5.S3.Observer.MeasurementMarginal",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Observer/MeasurementMarginal.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Observer/MetricGeometry/OrbitConnesDistance",
+      "title": "D5.S3.Observer.MetricGeometry.OrbitConnesDistance",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Observer/MetricGeometry/OrbitConnesDistance.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Observer/MetricGeometry/VisiblePhaseInfinity",
+      "title": "D5.S3.Observer.MetricGeometry.VisiblePhaseInfinity",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Observer/MetricGeometry/VisiblePhaseInfinity.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Observer/MetricGeometry/WindowObserverDistance",
+      "title": "D5.S3.Observer.MetricGeometry.WindowObserverDistance",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Observer/MetricGeometry/WindowObserverDistance.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Observer/ObserverMetric",
+      "title": "D5.S3.Observer.ObserverMetric",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Observer/ObserverMetric.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Observer/StateNotPath",
+      "title": "D5.S3.Observer.StateNotPath",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Observer/StateNotPath.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Observer/StreamlineTheorem",
+      "title": "D5.S3.Observer.StreamlineTheorem",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Observer/StreamlineTheorem.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Observer/WindowAlgebra/WindowGeneration",
+      "title": "D5.S3.Observer.WindowAlgebra.WindowGeneration",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Observer/WindowAlgebra/WindowGeneration.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Observer/WindowCharacter",
+      "title": "D5.S3.Observer.WindowCharacter",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Observer/WindowCharacter.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Observer/WindowRegister",
+      "title": "D5.S3.Observer.WindowRegister",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Observer/WindowRegister.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/ObserverMemory/CyclicWindowRevival",
+      "title": "D5.S3.ObserverMemory.CyclicWindowRevival",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/ObserverMemory/CyclicWindowRevival.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/ObserverMemory/FiniteForgettingCertificate",
+      "title": "D5.S3.ObserverMemory.FiniteForgettingCertificate",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ObserverMemory/FiniteForgettingCertificate.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ObserverMemory/FiniteReadoutKernel",
+      "title": "D5.S3.ObserverMemory.FiniteReadoutKernel",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ObserverMemory/FiniteReadoutKernel.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ObserverMemory/GoldenRevivalScore",
+      "title": "D5.S3.ObserverMemory.GoldenRevivalScore",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/ObserverMemory/GoldenRevivalScore.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/ObserverMemory/JointCoherentReversal",
+      "title": "D5.S3.ObserverMemory.JointCoherentReversal",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/ObserverMemory/JointCoherentReversal.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/ObserverMemory/LedgerEnvironmentBridge",
+      "title": "D5.S3.ObserverMemory.LedgerEnvironmentBridge",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/ObserverMemory/LedgerEnvironmentBridge.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/ObserverMemory/MultiCopyErasure",
+      "title": "D5.S3.ObserverMemory.MultiCopyErasure",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/ObserverMemory/MultiCopyErasure.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/ObserverMemory/PrimePowerTensorTower",
+      "title": "D5.S3.ObserverMemory.PrimePowerTensorTower",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ObserverMemory/PrimePowerTensorTower.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ObserverMemory/RecordCorrelationMonogamy",
+      "title": "D5.S3.ObserverMemory.RecordCorrelationMonogamy",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/ObserverMemory/RecordCorrelationMonogamy.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/ObserverMemory/RevivalSpectrum",
+      "title": "D5.S3.ObserverMemory.RevivalSpectrum",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ObserverMemory/RevivalSpectrum.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ObserverMemory/TwoTimeKnowledge",
+      "title": "D5.S3.ObserverMemory.TwoTimeKnowledge",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/ObserverMemory/TwoTimeKnowledge.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/ObserverMemory/WindowRegisterCRT",
+      "title": "D5.S3.ObserverMemory.WindowRegisterCRT",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/ObserverMemory/WindowRegisterCRT.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/PrimeForms/AlignmentClifford",
+      "title": "D5.S3.PrimeForms.AlignmentClifford",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/AlignmentClifford.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/BronzeLadderLeg",
+      "title": "D5.S3.PrimeForms.BronzeLadderLeg",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/BronzeLadderLeg.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/Crossing/CrossingNormForm",
+      "title": "D5.S3.PrimeForms.Crossing.CrossingNormForm",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/Crossing/CrossingNormForm.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/Crossing/ThirdOrderReciprocity",
+      "title": "D5.S3.PrimeForms.Crossing.ThirdOrderReciprocity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/Crossing/ThirdOrderReciprocity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/EisensteinDiscriminant",
+      "title": "D5.S3.PrimeForms.EisensteinDiscriminant",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/EisensteinDiscriminant.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/FixedFormDiscriminant",
+      "title": "D5.S3.PrimeForms.FixedFormDiscriminant",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/FixedFormDiscriminant.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/GoldenPrimeClassification",
+      "title": "D5.S3.PrimeForms.GoldenPrimeClassification",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/PrimeForms/GoldenPrimeClassification.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/PrimeForms/LowSpectrumLegIdentity",
+      "title": "D5.S3.PrimeForms.LowSpectrumLegIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/LowSpectrumLegIdentity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/PropagationLegs",
+      "title": "D5.S3.PrimeForms.PropagationLegs",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/PropagationLegs.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/QuadraticResidueCounterexample",
+      "title": "D5.S3.PrimeForms.QuadraticResidueCounterexample",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S3/PrimeForms/QuadraticResidueCounterexample.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S3/PrimeForms/QuadraticResidues",
+      "title": "D5.S3.PrimeForms.QuadraticResidues",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/QuadraticResidues.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/Splitting/EisensteinCriterion",
+      "title": "D5.S3.PrimeForms.Splitting.EisensteinCriterion",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/Splitting/EisensteinCriterion.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/SumTwoSquares",
+      "title": "D5.S3.PrimeForms.SumTwoSquares",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/SumTwoSquares.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/SumTwoSquaresClassification",
+      "title": "D5.S3.PrimeForms.SumTwoSquaresClassification",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/SumTwoSquaresClassification.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/PrimeForms/ThreeModFourDescent",
+      "title": "D5.S3.PrimeForms.ThreeModFourDescent",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/PrimeForms/ThreeModFourDescent.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/Algebra/CovariantCommutator",
+      "title": "D5.S3.Quantum.Algebra.CovariantCommutator",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Quantum/Algebra/CovariantCommutator.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Quantum/ChannelFixedState",
+      "title": "D5.S3.Quantum.ChannelFixedState",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/ChannelFixedState.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/CloningMachine",
+      "title": "D5.S3.Quantum.CloningMachine",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Quantum/CloningMachine.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Quantum/Decoherence",
+      "title": "D5.S3.Quantum.Decoherence",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Quantum/Decoherence.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Quantum/DoubleArtanhBounds",
+      "title": "D5.S3.Quantum.DoubleArtanhBounds",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/DoubleArtanhBounds.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/EnvironmentRecords",
+      "title": "D5.S3.Quantum.EnvironmentRecords",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Quantum/EnvironmentRecords.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Quantum/FiniteDimensional",
+      "title": "D5.S3.Quantum.FiniteDimensional",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/FiniteDimensional.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/GNSMatrix",
+      "title": "D5.S3.Quantum.GNSMatrix",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/GNSMatrix.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/MatrixInversion",
+      "title": "D5.S3.Quantum.MatrixInversion",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/MatrixInversion.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/ObserverAlgebra",
+      "title": "D5.S3.Quantum.ObserverAlgebra",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/ObserverAlgebra.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/ObserverCommutator",
+      "title": "D5.S3.Quantum.ObserverCommutator",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Quantum/ObserverCommutator.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Quantum/PointerBasis",
+      "title": "D5.S3.Quantum.PointerBasis",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Quantum/PointerBasis.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Quantum/PureState/PureStateHandshake",
+      "title": "D5.S3.Quantum.PureState.PureStateHandshake",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/PureState/PureStateHandshake.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/QubitWitnesses",
+      "title": "D5.S3.Quantum.QubitWitnesses",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Quantum/QubitWitnesses.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Quantum/Sharpness/SpectralSharpness",
+      "title": "D5.S3.Quantum.Sharpness.SpectralSharpness",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Quantum/Sharpness/SpectralSharpness.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Quantum/Sharpness/SpectralSharpnessSaturation",
+      "title": "D5.S3.Quantum.Sharpness.SpectralSharpnessSaturation",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Quantum/Sharpness/SpectralSharpnessSaturation.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumBounds/CHSHSpectrum",
+      "title": "D5.S3.QuantumBounds.CHSHSpectrum",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumBounds/CHSHSpectrum.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumBounds/CHSHWitness",
+      "title": "D5.S3.QuantumBounds.CHSHWitness",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/QuantumBounds/CHSHWitness.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/QuantumBounds/ClassicalFiberBound",
+      "title": "D5.S3.QuantumBounds.ClassicalFiberBound",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/QuantumBounds/ClassicalFiberBound.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/QuantumBounds/CollisionEntropyUncertainty",
+      "title": "D5.S3.QuantumBounds.CollisionEntropyUncertainty",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/QuantumBounds/CollisionEntropyUncertainty.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/QuantumBounds/LagrangeGramIdentity",
+      "title": "D5.S3.QuantumBounds.LagrangeGramIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumBounds/LagrangeGramIdentity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumBounds/LandauIdentity",
+      "title": "D5.S3.QuantumBounds.LandauIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumBounds/LandauIdentity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumBounds/ReferenceFrameTax",
+      "title": "D5.S3.QuantumBounds.ReferenceFrameTax",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumBounds/ReferenceFrameTax.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumBounds/ReferenceFrameTaxOptimal",
+      "title": "D5.S3.QuantumBounds.ReferenceFrameTaxOptimal",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumBounds/ReferenceFrameTaxOptimal.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumBounds/RobertsonSchrodinger",
+      "title": "D5.S3.QuantumBounds.RobertsonSchrodinger",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumBounds/RobertsonSchrodinger.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumChannels/AmplitudeDampingContraction",
+      "title": "D5.S3.QuantumChannels.AmplitudeDampingContraction",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumChannels/AmplitudeDampingContraction.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumChannels/BoundarySaturation",
+      "title": "D5.S3.QuantumChannels.BoundarySaturation",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumChannels/BoundarySaturation.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumChannels/ContractionSpectrumOrder",
+      "title": "D5.S3.QuantumChannels.ContractionSpectrumOrder",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumChannels/ContractionSpectrumOrder.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumChannels/DecoherenceFreeze",
+      "title": "D5.S3.QuantumChannels.DecoherenceFreeze",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumChannels/DecoherenceFreeze.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumChannels/FreezeTrichotomy",
+      "title": "D5.S3.QuantumChannels.FreezeTrichotomy",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumChannels/FreezeTrichotomy.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumChannels/NumericCoherenceCertificate",
+      "title": "D5.S3.QuantumChannels.NumericCoherenceCertificate",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/QuantumChannels/NumericCoherenceCertificate.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/QuantumChannels/Pinching",
+      "title": "D5.S3.QuantumChannels.Pinching",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/QuantumChannels/Pinching.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/QuantumContext/AdditivePricingPruning",
+      "title": "D5.S3.QuantumContext.AdditivePricingPruning",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/QuantumContext/AdditivePricingPruning.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/QuantumContext/ClassicalAddressRealismExclusion",
+      "title": "D5.S3.QuantumContext.ClassicalAddressRealismExclusion",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumContext/ClassicalAddressRealismExclusion.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumContext/ProjectionValuationObstruction",
+      "title": "D5.S3.QuantumContext.ProjectionValuationObstruction",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/QuantumContext/ProjectionValuationObstruction.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/QuantumContext/PublicLedgerDescent",
+      "title": "D5.S3.QuantumContext.PublicLedgerDescent",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumContext/PublicLedgerDescent.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumContext/QuarticContextWitness",
+      "title": "D5.S3.QuantumContext.QuarticContextWitness",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumContext/QuarticContextWitness.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/QuantumStates/GNSStateCone",
+      "title": "D5.S3.QuantumStates.GNSStateCone",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/QuantumStates/GNSStateCone.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/Basic",
+      "title": "D5.S3.RenyiDivergence.Basic",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/RenyiDivergence/Basic.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/DataProcessing",
+      "title": "D5.S3.RenyiDivergence.DataProcessing",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/RenyiDivergence/DataProcessing.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/DataProcessingAboveOne",
+      "title": "D5.S3.RenyiDivergence.DataProcessingAboveOne",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S3/RenyiDivergence/DataProcessingAboveOne.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/Monotone",
+      "title": "D5.S3.RenyiDivergence.Monotone",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/RenyiDivergence/Monotone.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/OrderLimits",
+      "title": "D5.S3.RenyiDivergence.OrderLimits",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/RenyiDivergence/OrderLimits.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/PowerAdditivity",
+      "title": "D5.S3.RenyiDivergence.PowerAdditivity",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/RenyiDivergence/PowerAdditivity.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/ProductAdditivity",
+      "title": "D5.S3.RenyiDivergence.ProductAdditivity",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/RenyiDivergence/ProductAdditivity.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/SkewSymmetry",
+      "title": "D5.S3.RenyiDivergence.SkewSymmetry",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/RenyiDivergence/SkewSymmetry.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/RenyiDivergence/ZeroCharacterization",
+      "title": "D5.S3.RenyiDivergence.ZeroCharacterization",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S3/RenyiDivergence/ZeroCharacterization.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S3/Resource/CompositeConeDuality",
+      "title": "D5.S3.Resource.CompositeConeDuality",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Resource/CompositeConeDuality.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Resource/CompositeConeProperness",
+      "title": "D5.S3.Resource.CompositeConeProperness",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Resource/CompositeConeProperness.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Resource/CompositeCones",
+      "title": "D5.S3.Resource.CompositeCones",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Resource/CompositeCones.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Resource/DivideConquer",
+      "title": "D5.S3.Resource.DivideConquer",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Resource/DivideConquer.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Resource/EntanglementWitness",
+      "title": "D5.S3.Resource.EntanglementWitness",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Resource/EntanglementWitness.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Resource/EntanglementWitnessExists",
+      "title": "D5.S3.Resource.EntanglementWitnessExists",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Resource/EntanglementWitnessExists.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Resource/LogDetDivergence",
+      "title": "D5.S3.Resource.LogDetDivergence",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Resource/LogDetDivergence.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Resource/LogDetDivergenceEquality",
+      "title": "D5.S3.Resource.LogDetDivergenceEquality",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Resource/LogDetDivergenceEquality.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Resource/LogDetDivergenceNonneg",
+      "title": "D5.S3.Resource.LogDetDivergenceNonneg",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Resource/LogDetDivergenceNonneg.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Resource/LogicalReversibleExtension",
+      "title": "D5.S3.Resource.LogicalReversibleExtension",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Resource/LogicalReversibleExtension.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Resource/PriceFace",
+      "title": "D5.S3.Resource.PriceFace",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Resource/PriceFace.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Resource/SeparableConeClosed",
+      "title": "D5.S3.Resource.SeparableConeClosed",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Resource/SeparableConeClosed.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/ResourceOrder/FiniteAnchorCoverage",
+      "title": "D5.S3.ResourceOrder.FiniteAnchorCoverage",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/ResourceOrder/FiniteAnchorCoverage.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/ResourceOrder/PriceFaceOrder",
+      "title": "D5.S3.ResourceOrder.PriceFaceOrder",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/ResourceOrder/PriceFaceOrder.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/TotalVariation/Bhattacharyya",
+      "title": "D5.S3.TotalVariation.Bhattacharyya",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/TotalVariation/Bhattacharyya.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/TotalVariation/BhattacharyyaProduct",
+      "title": "D5.S3.TotalVariation.BhattacharyyaProduct",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/TotalVariation/BhattacharyyaProduct.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/TotalVariation/Convexity",
+      "title": "D5.S3.TotalVariation.Convexity",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/TotalVariation/Convexity.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/TotalVariation/DataProcessing",
+      "title": "D5.S3.TotalVariation.DataProcessing",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/TotalVariation/DataProcessing.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/TotalVariation/Hellinger",
+      "title": "D5.S3.TotalVariation.Hellinger",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/TotalVariation/Hellinger.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/TotalVariation/HellingerDataProcessing",
+      "title": "D5.S3.TotalVariation.HellingerDataProcessing",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/TotalVariation/HellingerDataProcessing.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/TotalVariation/HellingerDivergence",
+      "title": "D5.S3.TotalVariation.HellingerDivergence",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/TotalVariation/HellingerDivergence.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/TotalVariation/IndependentSamplingExponentialBound",
+      "title": "D5.S3.TotalVariation.IndependentSamplingExponentialBound",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/TotalVariation/IndependentSamplingExponentialBound.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/TotalVariation/Metric",
+      "title": "D5.S3.TotalVariation.Metric",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/TotalVariation/Metric.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/TotalVariation/NegentropyBudget",
+      "title": "D5.S3.TotalVariation.NegentropyBudget",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/TotalVariation/NegentropyBudget.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/TotalVariation/Pinsker",
+      "title": "D5.S3.TotalVariation.Pinsker",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/TotalVariation/Pinsker.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/TotalVariation/ProductSubadditive",
+      "title": "D5.S3.TotalVariation.ProductSubadditive",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/TotalVariation/ProductSubadditive.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Weil/Convention",
+      "title": "D5.S3.Weil.Convention",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/Convention.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/CriticalLine",
+      "title": "D5.S3.Weil.CriticalLine",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/CriticalLine.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/EulerProduct",
+      "title": "D5.S3.Weil.EulerProduct",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Weil/EulerProduct.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Weil/FourierLaplace",
+      "title": "D5.S3.Weil.FourierLaplace",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/FourierLaplace.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/LabeledZeta",
+      "title": "D5.S3.Weil.LabeledZeta",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/LabeledZeta.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/PrimeAddress/PrimeAddress",
+      "title": "D5.S3.Weil.PrimeAddress.PrimeAddress",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Weil/PrimeAddress/PrimeAddress.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Weil/PrimeAddress/PrimeLogIndependence",
+      "title": "D5.S3.Weil.PrimeAddress.PrimeLogIndependence",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/PrimeAddress/PrimeLogIndependence.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/PrimePoleTerms",
+      "title": "D5.S3.Weil.PrimePoleTerms",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/PrimePoleTerms.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ReflectionLedger",
+      "title": "D5.S3.Weil.ReflectionLedger",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ReflectionLedger.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/Scattering/CompletedZetaScatteringCollapse",
+      "title": "D5.S3.Weil.Scattering.CompletedZetaScatteringCollapse",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Weil/Scattering/CompletedZetaScatteringCollapse.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Weil/Scattering/CompletedZetaScatteringQuotient",
+      "title": "D5.S3.Weil.Scattering.CompletedZetaScatteringQuotient",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Weil/Scattering/CompletedZetaScatteringQuotient.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Weil/SpectralDynamics",
+      "title": "D5.S3.Weil.SpectralDynamics",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Weil/SpectralDynamics.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Weil/SpectralHilbert",
+      "title": "D5.S3.Weil.SpectralHilbert",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Weil/SpectralHilbert.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Weil/TestFunctions",
+      "title": "D5.S3.Weil.TestFunctions",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/TestFunctions.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/TestFunctions/ConvolutionSquarePositivity",
+      "title": "D5.S3.Weil.TestFunctions.ConvolutionSquarePositivity",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/TestFunctions/ConvolutionSquarePositivity.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/WeilIdentity",
+      "title": "D5.S3.Weil.WeilIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 17 · D5/S3/Weil/WeilIdentity.lean",
+      "depth": 17
+    },
+    {
+      "id": "D5/S3/Weil/ZeroSum",
+      "title": "D5.S3.Weil.ZeroSum",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZeroSum.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaAnalytic/RectangleLogDeriv",
+      "title": "D5.S3.Weil.ZetaAnalytic.RectangleLogDeriv",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaAnalytic/RectangleLogDeriv.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaBridge/ClassicExplicitFormula",
+      "title": "D5.S3.Weil.ZetaBridge.ClassicExplicitFormula",
+      "status": "Closed",
+      "summary": "Closed · depth 16 · D5/S3/Weil/ZetaBridge/ClassicExplicitFormula.lean",
+      "depth": 16
+    },
+    {
+      "id": "D5/S3/Weil/ZetaBridge/ConvolutionSquareCriticalLine",
+      "title": "D5.S3.Weil.ZetaBridge.ConvolutionSquareCriticalLine",
+      "status": "Closed",
+      "summary": "Closed · depth 18 · D5/S3/Weil/ZetaBridge/ConvolutionSquareCriticalLine.lean",
+      "depth": 18
+    },
+    {
+      "id": "D5/S3/Weil/ZetaBridge/ConvolutionSquareOffLineOrbits",
+      "title": "D5.S3.Weil.ZetaBridge.ConvolutionSquareOffLineOrbits",
+      "status": "Closed",
+      "summary": "Closed · depth 19 · D5/S3/Weil/ZetaBridge/ConvolutionSquareOffLineOrbits.lean",
+      "depth": 19
+    },
+    {
+      "id": "D5/S3/Weil/ZetaBridge/ConvolutionSquareOrbitBounds",
+      "title": "D5.S3.Weil.ZetaBridge.ConvolutionSquareOrbitBounds",
+      "status": "Closed",
+      "summary": "Closed · depth 20 · D5/S3/Weil/ZetaBridge/ConvolutionSquareOrbitBounds.lean",
+      "depth": 20
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/AssemblyInputs",
+      "title": "D5.S3.Weil.ZetaCore.AssemblyInputs",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Weil/ZetaCore/AssemblyInputs.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/Counting",
+      "title": "D5.S3.Weil.ZetaCore.Counting",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaCore/Counting.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/Defs",
+      "title": "D5.S3.Weil.ZetaCore.Defs",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaCore/Defs.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/ExplicitFormula",
+      "title": "D5.S3.Weil.ZetaCore.ExplicitFormula",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaCore/ExplicitFormula.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/ExplicitFormulaBridge",
+      "title": "D5.S3.Weil.ZetaCore.ExplicitFormulaBridge",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ZetaCore/ExplicitFormulaBridge.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/Hypotheses",
+      "title": "D5.S3.Weil.ZetaCore.Hypotheses",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaCore/Hypotheses.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/InstancePriorities",
+      "title": "D5.S3.Weil.ZetaCore.InstancePriorities",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaCore/InstancePriorities.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/PaperFT",
+      "title": "D5.S3.Weil.ZetaCore.PaperFT",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaCore/PaperFT.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaCore/Statement",
+      "title": "D5.S3.Weil.ZetaCore.Statement",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ZetaCore/Statement.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/Contour",
+      "title": "D5.S3.Weil.ZetaExplicit.Contour",
+      "status": "Closed",
+      "summary": "Closed · depth 11 · D5/S3/Weil/ZetaExplicit/Contour.lean",
+      "depth": 11
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/FullLine",
+      "title": "D5.S3.Weil.ZetaExplicit.FullLine",
+      "status": "Closed",
+      "summary": "Closed · depth 12 · D5/S3/Weil/ZetaExplicit/FullLine.lean",
+      "depth": 12
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/FullLineAssembly",
+      "title": "D5.S3.Weil.ZetaExplicit.FullLineAssembly",
+      "status": "Closed",
+      "summary": "Closed · depth 14 · D5/S3/Weil/ZetaExplicit/FullLineAssembly.lean",
+      "depth": 14
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/GammaRBracket",
+      "title": "D5.S3.Weil.ZetaExplicit.GammaRBracket",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaExplicit/GammaRBracket.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/GoodHeights",
+      "title": "D5.S3.Weil.ZetaExplicit.GoodHeights",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S3/Weil/ZetaExplicit/GoodHeights.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/Horizontal",
+      "title": "D5.S3.Weil.ZetaExplicit.Horizontal",
+      "status": "Closed",
+      "summary": "Closed · depth 13 · D5/S3/Weil/ZetaExplicit/Horizontal.lean",
+      "depth": 13
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/Landau",
+      "title": "D5.S3.Weil.ZetaExplicit.Landau",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S3/Weil/ZetaExplicit/Landau.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/Main",
+      "title": "D5.S3.Weil.ZetaExplicit.Main",
+      "status": "Closed",
+      "summary": "Closed · depth 15 · D5/S3/Weil/ZetaExplicit/Main.lean",
+      "depth": 15
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/VerticalLine",
+      "title": "D5.S3.Weil.ZetaExplicit.VerticalLine",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Weil/ZetaExplicit/VerticalLine.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/XiLogDeriv",
+      "title": "D5.S3.Weil.ZetaExplicit.XiLogDeriv",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaExplicit/XiLogDeriv.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/ZeroSumLimit",
+      "title": "D5.S3.Weil.ZetaExplicit.ZeroSumLimit",
+      "status": "Closed",
+      "summary": "Closed · depth 12 · D5/S3/Weil/ZetaExplicit/ZeroSumLimit.lean",
+      "depth": 12
+    },
+    {
+      "id": "D5/S3/Weil/ZetaExplicit/ZeroSummability",
+      "title": "D5.S3.Weil.ZetaExplicit.ZeroSummability",
+      "status": "Closed",
+      "summary": "Closed · depth 10 · D5/S3/Weil/ZetaExplicit/ZeroSummability.lean",
+      "depth": 10
+    },
+    {
+      "id": "D5/S3/Weil/ZetaGamma/AnalyticStirling",
+      "title": "D5.S3.Weil.ZetaGamma.AnalyticStirling",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaGamma/AnalyticStirling.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaGamma/GammaFacts",
+      "title": "D5.S3.Weil.ZetaGamma.GammaFacts",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaGamma/GammaFacts.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaGamma/GammaMu",
+      "title": "D5.S3.Weil.ZetaGamma.GammaMu",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Weil/ZetaGamma/GammaMu.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Weil/ZetaGamma/GammaSeries",
+      "title": "D5.S3.Weil.ZetaGamma.GammaSeries",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ZetaGamma/GammaSeries.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/ZetaGamma/GammaStirlingVert",
+      "title": "D5.S3.Weil.ZetaGamma.GammaStirlingVert",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Weil/ZetaGamma/GammaStirlingVert.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/HermitianPosPart",
+      "title": "D5.S3.Weil.ZetaLinear.HermitianPosPart",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaLinear/HermitianPosPart.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/Inertia",
+      "title": "D5.S3.Weil.ZetaLinear.Inertia",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaLinear/Inertia.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/LinAlg",
+      "title": "D5.S3.Weil.ZetaLinear.LinAlg",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Weil/ZetaLinear/LinAlg.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/PosIndex",
+      "title": "D5.S3.Weil.ZetaLinear.PosIndex",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaLinear/PosIndex.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/RankTrace",
+      "title": "D5.S3.Weil.ZetaLinear.RankTrace",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ZetaLinear/RankTrace.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/Sylvester",
+      "title": "D5.S3.Weil.ZetaLinear.Sylvester",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ZetaLinear/Sylvester.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/VonNeumann",
+      "title": "D5.S3.Weil.ZetaLinear.VonNeumann",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaLinear/VonNeumann.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaLinear/Weyl",
+      "title": "D5.S3.Weil.ZetaLinear.Weyl",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaLinear/Weyl.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/AdditiveCombination",
+      "title": "D5.S3.Weil.ZetaPntBase.AdditiveCombination",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaPntBase/AdditiveCombination.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/Auxiliary",
+      "title": "D5.S3.Weil.ZetaPntBase.Auxiliary",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaPntBase/Auxiliary.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/EulerMaclaurin",
+      "title": "D5.S3.Weil.ZetaPntBase.EulerMaclaurin",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaPntBase/EulerMaclaurin.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/Fourier",
+      "title": "D5.S3.Weil.ZetaPntBase.Fourier",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaPntBase/Fourier.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/LogBasic",
+      "title": "D5.S3.Weil.ZetaPntBase.LogBasic",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaPntBase/LogBasic.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/Rectangle",
+      "title": "D5.S3.Weil.ZetaPntBase.Rectangle",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaPntBase/Rectangle.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/ResidueCalculus",
+      "title": "D5.S3.Weil.ZetaPntBase.ResidueCalculus",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ZetaPntBase/ResidueCalculus.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/ResidueRectangles",
+      "title": "D5.S3.Weil.ZetaPntBase.ResidueRectangles",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaPntBase/ResidueRectangles.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/Sobolev",
+      "title": "D5.S3.Weil.ZetaPntBase.Sobolev",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaPntBase/Sobolev.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBase/StrongPNTPrefix",
+      "title": "D5.S3.Weil.ZetaPntBase.StrongPNTPrefix",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaPntBase/StrongPNTPrefix.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBounds/ZetaBoundsAnalytic",
+      "title": "D5.S3.Weil.ZetaPntBounds.ZetaBoundsAnalytic",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaPntBounds/ZetaBoundsAnalytic.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBounds/ZetaBoundsDerivative",
+      "title": "D5.S3.Weil.ZetaPntBounds.ZetaBoundsDerivative",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Weil/ZetaPntBounds/ZetaBoundsDerivative.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBounds/ZetaBoundsLogDerivative",
+      "title": "D5.S3.Weil.ZetaPntBounds.ZetaBoundsLogDerivative",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Weil/ZetaPntBounds/ZetaBoundsLogDerivative.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBounds/ZetaBoundsLower",
+      "title": "D5.S3.Weil.ZetaPntBounds.ZetaBoundsLower",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Weil/ZetaPntBounds/ZetaBoundsLower.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Weil/ZetaPntBounds/ZetaBoundsUpper",
+      "title": "D5.S3.Weil.ZetaPntBounds.ZetaBoundsUpper",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Weil/ZetaPntBounds/ZetaBoundsUpper.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Weil/ZetaRvm/CountByIntegral",
+      "title": "D5.S3.Weil.ZetaRvm.CountByIntegral",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Weil/ZetaRvm/CountByIntegral.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Weil/ZetaRvm/Halving",
+      "title": "D5.S3.Weil.ZetaRvm.Halving",
+      "status": "Closed",
+      "summary": "Closed · depth 2 · D5/S3/Weil/ZetaRvm/Halving.lean",
+      "depth": 2
+    },
+    {
+      "id": "D5/S3/Weil/ZetaRvm/LocalCount",
+      "title": "D5.S3.Weil.ZetaRvm.LocalCount",
+      "status": "Closed",
+      "summary": "Closed · depth 9 · D5/S3/Weil/ZetaRvm/LocalCount.lean",
+      "depth": 9
+    },
+    {
+      "id": "D5/S3/Weil/ZetaRvm/ZetaGrowth",
+      "title": "D5.S3.Weil.ZetaRvm.ZetaGrowth",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S3/Weil/ZetaRvm/ZetaGrowth.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S3/Weil/ZetaSeam/StatementSeam",
+      "title": "D5.S3.Weil.ZetaSeam.StatementSeam",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaSeam/StatementSeam.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaSeam/StatementSeamClosed",
+      "title": "D5.S3.Weil.ZetaSeam.StatementSeamClosed",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Weil/ZetaSeam/StatementSeamClosed.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Weil/ZetaSeam/ZetaReflect",
+      "title": "D5.S3.Weil.ZetaSeam.ZetaReflect",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaSeam/ZetaReflect.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Weil/ZetaTail/Tail",
+      "title": "D5.S3.Weil.ZetaTail.Tail",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Weil/ZetaTail/Tail.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Weil/ZetaTail/TailBasic",
+      "title": "D5.S3.Weil.ZetaTail.TailBasic",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Weil/ZetaTail/TailBasic.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Weil/ZetaTail/TailCount",
+      "title": "D5.S3.Weil.ZetaTail.TailCount",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaTail/TailCount.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaTail/TailGrid",
+      "title": "D5.S3.Weil.ZetaTail.TailGrid",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Weil/ZetaTail/TailGrid.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Weil/ZetaTail/TailRankOne",
+      "title": "D5.S3.Weil.ZetaTail.TailRankOne",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Weil/ZetaTail/TailRankOne.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Zeros/CompletedZeta",
+      "title": "D5.S3.Zeros.CompletedZeta",
+      "status": "Closed",
+      "summary": "Closed · depth 3 · D5/S3/Zeros/CompletedZeta.lean",
+      "depth": 3
+    },
+    {
+      "id": "D5/S3/Zeros/CompletionLedger",
+      "title": "D5.S3.Zeros.CompletionLedger",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Zeros/CompletionLedger.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Zeros/Detection/DetectionRadiusCertificate",
+      "title": "D5.S3.Zeros.Detection.DetectionRadiusCertificate",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/Detection/DetectionRadiusCertificate.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/Endpoints/BernoulliBridgeVariance",
+      "title": "D5.S3.Zeros.Endpoints.BernoulliBridgeVariance",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/Endpoints/BernoulliBridgeVariance.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/Endpoints/XiEndpointValues",
+      "title": "D5.S3.Zeros.Endpoints.XiEndpointValues",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Zeros/Endpoints/XiEndpointValues.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Zeros/Endpoints/XiProductEndpointLimits",
+      "title": "D5.S3.Zeros.Endpoints.XiProductEndpointLimits",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Zeros/Endpoints/XiProductEndpointLimits.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Zeros/EulerWindows",
+      "title": "D5.S3.Zeros.EulerWindows",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Zeros/EulerWindows.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Zeros/MirrorPairEnvelope",
+      "title": "D5.S3.Zeros.MirrorPairEnvelope",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/MirrorPairEnvelope.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/MirrorPairIdentity",
+      "title": "D5.S3.Zeros.MirrorPairIdentity",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/MirrorPairIdentity.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/OffLineWitness",
+      "title": "D5.S3.Zeros.OffLineWitness",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/OffLineWitness.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/ScalingRegisterRigidity",
+      "title": "D5.S3.Zeros.ScalingRegisterRigidity",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Zeros/ScalingRegisterRigidity.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Zeros/ShiftOperators/BackwardShiftOperator",
+      "title": "D5.S3.Zeros.ShiftOperators.BackwardShiftOperator",
+      "status": "Closed",
+      "summary": "Closed · depth 7 · D5/S3/Zeros/ShiftOperators/BackwardShiftOperator.lean",
+      "depth": 7
+    },
+    {
+      "id": "D5/S3/Zeros/SimpleZeroLogResidue",
+      "title": "D5.S3.Zeros.SimpleZeroLogResidue",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/SimpleZeroLogResidue.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/SpectralShift",
+      "title": "D5.S3.Zeros.SpectralShift",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Zeros/SpectralShift.lean",
+      "depth": 6
+    },
+    {
+      "id": "D5/S3/Zeros/Symmetry/MirrorPairEnvelopeMonotonicity",
+      "title": "D5.S3.Zeros.Symmetry.MirrorPairEnvelopeMonotonicity",
+      "status": "Closed",
+      "summary": "Closed · depth 1 · D5/S3/Zeros/Symmetry/MirrorPairEnvelopeMonotonicity.lean",
+      "depth": 1
+    },
+    {
+      "id": "D5/S3/Zeros/Symmetry/ReflectionFixedPointContrast",
+      "title": "D5.S3.Zeros.Symmetry.ReflectionFixedPointContrast",
+      "status": "Closed",
+      "summary": "Closed · depth 8 · D5/S3/Zeros/Symmetry/ReflectionFixedPointContrast.lean",
+      "depth": 8
+    },
+    {
+      "id": "D5/S3/Zeros/Symmetry/ZeroOrbitCardinality",
+      "title": "D5.S3.Zeros.Symmetry.ZeroOrbitCardinality",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Zeros/Symmetry/ZeroOrbitCardinality.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Zeros/Symmetry/ZeroSymmetryAction",
+      "title": "D5.S3.Zeros.Symmetry.ZeroSymmetryAction",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Zeros/Symmetry/ZeroSymmetryAction.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Zeros/Symmetry/ZetaConjugationCovariance",
+      "title": "D5.S3.Zeros.Symmetry.ZetaConjugationCovariance",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Zeros/Symmetry/ZetaConjugationCovariance.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Zeros/ToySpectrum/FourPointPowerDefect",
+      "title": "D5.S3.Zeros.ToySpectrum.FourPointPowerDefect",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/ToySpectrum/FourPointPowerDefect.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/ToySpectrum/OffLineToySpectrum",
+      "title": "D5.S3.Zeros.ToySpectrum.OffLineToySpectrum",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Zeros/ToySpectrum/OffLineToySpectrum.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Zeros/ToySpectrum/QuadraticCollisionModel",
+      "title": "D5.S3.Zeros.ToySpectrum.QuadraticCollisionModel",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/ToySpectrum/QuadraticCollisionModel.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/Window/AnalyticWindowCount",
+      "title": "D5.S3.Zeros.Window.AnalyticWindowCount",
+      "status": "Closed",
+      "summary": "Closed · depth 0 · D5/S3/Zeros/Window/AnalyticWindowCount.lean",
+      "depth": 0
+    },
+    {
+      "id": "D5/S3/Zeros/ZeroGeometry",
+      "title": "D5.S3.Zeros.ZeroGeometry",
+      "status": "Closed",
+      "summary": "Closed · depth 4 · D5/S3/Zeros/ZeroGeometry.lean",
+      "depth": 4
+    },
+    {
+      "id": "D5/S3/Zeros/ZetaIdentities",
+      "title": "D5.S3.Zeros.ZetaIdentities",
+      "status": "Closed",
+      "summary": "Closed · depth 5 · D5/S3/Zeros/ZetaIdentities.lean",
+      "depth": 5
+    },
+    {
+      "id": "D5/S3/Zeros/ZetaUpgrade",
+      "title": "D5.S3.Zeros.ZetaUpgrade",
+      "status": "Closed",
+      "summary": "Closed · depth 6 · D5/S3/Zeros/ZetaUpgrade.lean",
+      "depth": 6
     }
   ]
 }

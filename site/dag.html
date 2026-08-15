@@ -33,18 +33,19 @@
       <button class="filter-button" type="button" data-filter="Semantic" aria-pressed="false">Semantic</button>
     </fieldset>
 
-    <p id="dag-summary" class="muted" aria-live="polite">Loading synthetic fixture&hellip;</p>
+    <p id="dag-summary" class="muted" aria-live="polite">Loading the frozen truth DAG&hellip;</p>
     <ul id="node-list" class="node-list" aria-label="DAG nodes"></ul>
   </main>
 
-  <footer class="site-footer">Fixture data is synthetic and not research truth.</footer>
+  <footer class="site-footer">Real frozen-truth DAG, projected from a blessed trureturing source-snapshot.v1 (kernel-verified nodes).</footer>
 
   <script>
-    // TBD: inject the real truth-graph.v1 artifact from the manually approved source snapshot.
+    // Real truth-graph.v1, projected from a blessed source-snapshot.v1 into site/data/ by lib/truthgraph_project.py.
     const list = document.querySelector('#node-list');
     const summary = document.querySelector('#dag-summary');
     const filterButtons = [...document.querySelectorAll('[data-filter]')];
     let nodes = [];
+    let provenance = null;
     let activeFilter = 'All';
 
     function renderNodes() {
@@ -70,7 +71,8 @@
         return item;
       }));
 
-      summary.textContent = `${visible.length} of ${nodes.length} synthetic fixture nodes shown`;
+      const commit = provenance && provenance.source_commit ? provenance.source_commit.slice(0, 12) : 'unknown';
+      summary.textContent = `${visible.length} of ${nodes.length} nodes shown — frozen truth DAG at trureturing@${commit}`;
     }
 
     filterButtons.forEach((button) => {
@@ -90,11 +92,12 @@
       })
       .then((graph) => {
         nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+        provenance = graph.source_snapshot || null;
         renderNodes();
       })
       .catch((error) => {
         summary.className = 'error';
-        summary.textContent = `Unable to load the DAG fixture: ${error.message}. Serve site/ over local HTTP to test data fetching.`;
+        summary.textContent = `Unable to load the DAG data: ${error.message}. Serve site/ over local HTTP to test data fetching.`;
       });
   </script>
 </body>

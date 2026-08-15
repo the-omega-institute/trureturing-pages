@@ -39,9 +39,9 @@
       <h2 id="snapshot-title">Published snapshot</h2>
       <dl class="snapshot-meta">
         <dt>Source commit</dt>
-        <dd data-snapshot-field="source-commit">TBD at injection</dd>
+        <dd data-snapshot-field="source-commit">90059ebbb6c1d61da93690723af581145b88bad1</dd>
         <dt>Last updated</dt>
-        <dd data-snapshot-field="updated-at">TBD at injection</dd>
+        <dd data-snapshot-field="updated-at">2026-08-14T19:23:24Z</dd>
       </dl>
     </section>
 
@@ -56,5 +56,20 @@
   </main>
 
   <footer class="site-footer">Read-only presentation of an approved trureturing snapshot.</footer>
+  <script>
+    // Keep the published-snapshot fields in sync with the real projected DAG data (single source of truth).
+    fetch('data/truth-graph.v1.json')
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
+      .then((graph) => {
+        const snap = graph.source_snapshot || {};
+        const set = (field, value) => {
+          const el = document.querySelector(`[data-snapshot-field="${field}"]`);
+          if (el && value) el.textContent = value;
+        };
+        set('source-commit', snap.source_commit);
+        set('updated-at', snap.approved_at);
+      })
+      .catch(() => { /* keep the static fallback values */ });
+  </script>
 </body>
 </html>
