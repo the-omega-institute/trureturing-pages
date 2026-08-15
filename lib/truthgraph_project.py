@@ -15,6 +15,7 @@ the repository "semantic" file nodes, which are display noise. Deterministic: no
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter
 from pathlib import Path
@@ -95,8 +96,20 @@ def project(truth_graph: dict, source_snapshot: dict | None = None) -> dict:
 
 
 def project_files(truth_graph_path: str, output_path: str, source_snapshot_path: str | None = None) -> dict:
-    tg = json.loads(Path(truth_graph_path).read_bytes())
+    tg_bytes = Path(truth_graph_path).read_bytes()
     snap = json.loads(Path(source_snapshot_path).read_bytes()) if source_snapshot_path else None
+    # Bind the raw truth-graph bytes to the blessing: the projection must be built
+    # from exactly the graph the snapshot pins, not merely copy the snapshot's
+    # digest into the output. A mismatch means the wrong raw graph would be
+    # published under the blessed digest, so fail before writing (nonzero exit).
+    if snap is not None:
+        expected = snap.get("truth_graph_sha256")
+        actual = hashlib.sha256(tg_bytes).hexdigest()
+        if expected != actual:
+            raise SystemExit(
+                f"raw truth-graph digest {actual} does not match blessed "
+                f"truth_graph_sha256 {expected}")
+    tg = json.loads(tg_bytes)
     result = project(tg, snap)
     Path(output_path).write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return result

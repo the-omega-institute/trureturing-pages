@@ -1,15 +1,16 @@
 -- core.lua — pure logic for the pages-publish host package.
 --
--- No SDK / host-authority calls live here (no file, exec, raise, log); this
--- module is pure so it is unit-tested directly in tests/core_test.lua. The
--- department entrypoints are thin glue that read host facts, call these
--- functions, and raise. (Same split as examples/codex-package's prompt.lua.)
+-- No host-authority side effects live here (no file.write, exec, raise, log); the
+-- functions are pure so they are unit-tested directly in tests/core_test.lua. The
+-- department entrypoints are thin glue that read host facts, call these functions,
+-- and raise/write. (json.decode is a pure parser, available in every engine Lua
+-- context, and is the only SDK global used here.)
 local M = {}
 
 -- The file_watch raiser reports the absolute path of the blessed
 -- source-snapshot.v1 file. Every other input/output is a fixed host filesystem
--- fact under the same pages repo root (§6 fact-source doctrine: durable truth
--- is git-committed host files, never <RT>/marks or cache).
+-- fact under the same pages repo root (§6 fact-source doctrine: durable truth is
+-- an explicit host filesystem file, never <RT>/marks or cache).
 local BLESSED_REL = "content/source/source%-snapshot%.v1%.blessed%.json"
 
 function M.paths(snap_abs)
@@ -30,6 +31,12 @@ function M.paths(snap_abs)
   }
 end
 
+-- A blessed/published digest must be a 64-char lowercase-hex SHA-256. Anything
+-- else is a malformed fact and must fail closed rather than flow downstream.
+function M.is_digest(d)
+  return type(d) == "string" and #d == 64 and d:match("^[0-9a-f]+$") ~= nil
+end
+
 -- Dedup key = the blessed truth-graph digest. It is a source-derived host fact,
 -- not a scratch marker: recovery re-reads it and re-compares, so a wiped <RT>
 -- loses nothing (§6 recovery model).
@@ -45,21 +52,25 @@ function M.published_digest(published)
   return ss.truth_graph_sha256
 end
 
--- Reproject iff the blessed digest is valid and differs from what the currently
--- published projection records.
+-- Reproject iff the blessed digest is a valid digest and differs from what the
+-- currently published projection records.
 function M.needs_reproject(blessed_dig, published_dig)
-  if type(blessed_dig) ~= "string" or blessed_dig == "" then
+  if not M.is_digest(blessed_dig) then
     return false
   end
   return blessed_dig ~= published_dig
 end
 
--- Inline verification is read-only and never repairs (oracle 33876626: verify
--- may not re-run the projector to "fix" a mismatch). It checks the projection
--- records the expected snapshot, is real (non-synthetic), and that its shown
--- counts are internally closed (shown == closed + open + tail).
+-- Inline verification is read-only and never repairs (oracle 33876626: verify may
+-- not re-run the projector to "fix" a mismatch). It checks the projection is the
+-- expected schema, records the expected snapshot, is real (non-synthetic), that
+-- every shown-count field is a present number whose parts close, and that the node
+-- array length matches the shown count. Missing fields are rejected, not defaulted.
 function M.verify(proj, expected_dig)
   if type(proj) ~= "table" then return false, "projection is not a table" end
+  if proj.schema_version ~= "truth-graph.v1" then
+    return false, "unexpected schema_version: " .. tostring(proj.schema_version)
+  end
   if proj.synthetic ~= false then return false, "projection is synthetic" end
   local d = M.published_digest(proj)
   if d ~= expected_dig then
@@ -67,17 +78,41 @@ function M.verify(proj, expected_dig)
   end
   local c = proj.counts
   if type(c) ~= "table" then return false, "counts missing" end
-  local shown = c.shown
-  local sum = (c.shown_closed or 0) + (c.shown_open or 0) + (c.shown_tail or 0)
-  if shown ~= sum then
-    return false, "counts not closed: shown=" .. tostring(shown) .. " sum=" .. tostring(sum)
+  for _, k in ipairs({ "shown", "shown_closed", "shown_open", "shown_tail" }) do
+    if type(c[k]) ~= "number" then
+      return false, "counts." .. k .. " missing or non-number"
+    end
+  end
+  if c.shown ~= c.shown_closed + c.shown_open + c.shown_tail then
+    return false, "counts not closed: shown=" .. tostring(c.shown)
+      .. " sum=" .. tostring(c.shown_closed + c.shown_open + c.shown_tail)
+  end
+  if type(proj.nodes) ~= "table" then return false, "nodes missing or not a table" end
+  if #proj.nodes ~= c.shown then
+    return false, "#nodes=" .. tostring(#proj.nodes) .. " != counts.shown=" .. tostring(c.shown)
   end
   return true, nil
 end
 
--- One JSONL receipt line for the durable, git-committed publications ledger.
--- json has no encode (§2), so the line is built from controlled scalar fields
--- (hex digest, repo-relative path, integer Unix seconds from engine now()).
+-- Whether the append-only publications ledger already records a receipt for this
+-- digest. This is record's idempotency check (a source-keyed dedup on a durable
+-- host fact), so an at-least-once replay does not append a second receipt. A
+-- malformed ledger line is skipped rather than allowed to crash the scan.
+function M.ledger_has_digest(ledger_text, digest)
+  if type(ledger_text) ~= "string" or ledger_text == "" then return false end
+  for line in ledger_text:gmatch("[^\n]+") do
+    local ok, rec = pcall(json.decode, line)
+    if ok and type(rec) == "table" and rec.snapshot_digest == digest then
+      return true
+    end
+  end
+  return false
+end
+
+-- One JSONL receipt line for the append-only publications ledger (an explicit
+-- host filesystem fact; file.write does not itself create a git commit). json has
+-- no encode (§2), so the line is built from controlled scalar fields: a validated
+-- 64-hex digest, a fixed repo-relative path, and integer Unix seconds (engine now()).
 function M.receipt_line(digest, out_rel, ts_unix)
   return string.format(
     '{"snapshot_digest":%q,"out":%q,"recorded_at_unix":%d}\n',

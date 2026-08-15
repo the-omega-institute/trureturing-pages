@@ -16,7 +16,7 @@ The site only consumes manually approved, frozen truth from trureturing, represe
 
 ## Publication lifecycle (fkst host package)
 
-The projection is driven by a real fkst host package, [`.fkst/local-packages/pages-publish`](.fkst/local-packages/pages-publish/README.md): a minimal `observe → act → record` chain that watches the pinned blessed input (`content/source/source-snapshot.v1.blessed.json` + `content/source/truth-graph.raw.v1.json`), reprojects `site/data/` only when the blessed `truth_graph_sha256` differs from what the site already publishes, verifies the output read-only, and appends a git-committed receipt to `site/data/publications.jsonl`. It passes `fkst-framework conformance` (7/7) and `test` (unit tests over the pure logic). This replaces the earlier `trureturing-reasoning` stub.
+The projection is driven by a real fkst host package, [`.fkst/local-packages/pages-publish`](.fkst/local-packages/pages-publish/README.md): a minimal `observe → act → record` chain that watches the pinned blessed input (`content/source/source-snapshot.v1.blessed.json` + `content/source/truth-graph.raw.v1.json`), reprojects `site/data/` only when the blessed `truth_graph_sha256` differs from what the site already publishes, verifies the output read-only, and appends a receipt to the append-only host-file ledger `site/data/publications.jsonl`. The chain is written for at-least-once delivery: act fails loud on projector/verify failure (so retries, never silent acks) and record is idempotent. It passes `fkst-framework conformance` (7/7) and `test` (32 unit tests over the pure logic). This replaces the earlier `trureturing-reasoning` stub.
 
 ## Site layout
 
