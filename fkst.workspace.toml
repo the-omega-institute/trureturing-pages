@@ -1,0 +1,2 @@
+[workspace]
+units = [".fkst/local-packages/pages-publish"]

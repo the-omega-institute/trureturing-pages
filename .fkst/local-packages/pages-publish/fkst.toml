@@ -1,6 +1,9 @@
 kind = "package"
-name = "trureturing-reasoning"
+name = "pages-publish"
 persistence_class = "stateless_adapter"
 
 [code]
 root = "."
+
+[lib_deps]
+libraries = []

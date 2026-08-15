@@ -14,6 +14,10 @@ The site only consumes manually approved, frozen truth from trureturing, represe
 
 **Real truth is now injected.** `site/data/truth-graph.v1.json` holds the real projected DAG (670 kernel-frozen / 12 open nodes) for the blessed `source-snapshot.v1` at `trureturing@90059eb` (`synthetic: false`, real provenance). The projection is a deterministic, read-only step in [`lib/truthgraph_project.py`](lib/truthgraph_project.py) — it does not edit or re-author upstream truth. (The `theory/` renderer still uses smoke-test fixtures.)
 
+## Publication lifecycle (fkst host package)
+
+The projection is driven by a real fkst host package, [`.fkst/local-packages/pages-publish`](.fkst/local-packages/pages-publish/README.md): a minimal `observe → act → record` chain that watches the pinned blessed input (`content/source/source-snapshot.v1.blessed.json` + `content/source/truth-graph.raw.v1.json`), reprojects `site/data/` only when the blessed `truth_graph_sha256` differs from what the site already publishes, verifies the output read-only, and appends a git-committed receipt to `site/data/publications.jsonl`. It passes `fkst-framework conformance` (7/7) and `test` (unit tests over the pure logic). This replaces the earlier `trureturing-reasoning` stub.
+
 ## Site layout
 
 ```text

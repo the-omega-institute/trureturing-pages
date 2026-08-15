@@ -1,0 +1,17 @@
+{
+  "schema": "source-snapshot.v1",
+  "source_repo": "the-omega-institute/trureturing",
+  "source_commit": "90059ebbb6c1d61da93690723af581145b88bad1",
+  "source_tree": "877274eb0b0354af1410b23353d551881e22665c",
+  "repository_snapshot_digest": "sha256-2c56ffe7bd7b7f4216249a46ebf5fd3228928dc9ce44c2d0053a6fd04f126d56",
+  "producer_version": "stratalint-dag-render@90059ebbb6c1d61da93690723af581145b88bad1",
+  "truth_root_sha256": "03f1452e11b3b578088b024ee5a1b9204b2d08309ec36c0f57f2b5fa1db5d20d",
+  "truth_graph_sha256": "7d17c242514cb4f0828041a10f6b3c51311d81a42c98458f11121e5841406598",
+  "lean_report_sha256": "8001d1e45724d516139b7fd7ee33be9e96709698547d3bd10381a99d95ff1f2d",
+  "blueprint_tree_digest": "sha256-f8104c3ab68d27fee90939ae470ab3cca982ebe666d3d836834e219c806f645c",
+  "theory_tree_digest": "sha256-fadf46e745acf1c9a7cfc02675119e9c9d922cee12dc13ab11737a6752b8d9b6",
+  "library_tree_digest": "sha256-155cfd52500a37af9f0a8890ff52d7917b01e9851b46463cd0bbef800f506dc7",
+  "evidence_digest": "sha256-179aecf9eec200989be55a385835326dbd147ed8784e1cb3ed093e8d8e9da683",
+  "derived_at": "2026-08-14T19:23:24Z",
+  "blessed_by": "AlyciaBHZ"
+}
