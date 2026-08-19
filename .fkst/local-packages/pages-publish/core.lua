@@ -1,9 +1,7 @@
 -- core.lua — pure lifecycle logic for the repository-local pages-publish package.
 --
--- No host-authority side effects live here (no file.write, exec, raise, log). The
--- C# pages CLI owns projection parsing, digest binding, schema/count validation,
--- deterministic rendering, and atomic installation. Lua owns only this repository's
--- event routing, path derivation, dedup comparison, and receipt bookkeeping.
+-- No host-authority side effects live here. CI/preflight compiles the repository-
+-- local C# projector; runtime Lua only invokes the prebuilt DLL.
 local M = {}
 
 local BLESSED_REL = "content/source/source%-snapshot%.v1%.blessed%.json"
@@ -22,7 +20,8 @@ function M.paths(snap_abs)
     raw = repo_root .. "content/source/truth-graph.raw.v1.json",
     out = repo_root .. "site/data/truth-graph.v1.json",
     pubs = repo_root .. "site/data/publications.jsonl",
-    cli_project = repo_root .. "src/Trureturing.Pages.Cli",
+    cli_dll = repo_root
+      .. "src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll",
   }
 end
 
