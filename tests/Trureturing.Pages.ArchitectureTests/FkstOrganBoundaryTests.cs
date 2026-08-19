@@ -44,7 +44,7 @@ public sealed class FkstOrganBoundaryTests
                 $"The repository-local FKST package must not reference cross-organ/framework detail '{token}'.");
         }
 
-        Assert.Equal(1, Regex.Matches(source, @"\bexec_argv\s*\(").Count);
+        Assert.Single(Regex.Matches(source, @"\bexec_argv\s*\(").Cast<Match>());
         var act = StripLineComments(File.ReadAllText(Path.Combine(
             packageRoot,
             "departments",
