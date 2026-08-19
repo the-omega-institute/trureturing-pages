@@ -11,7 +11,9 @@ return {
     t.eq(p.raw, "/repo/content/source/truth-graph.raw.v1.json")
     t.eq(p.out, "/repo/site/data/truth-graph.v1.json")
     t.eq(p.pubs, "/repo/site/data/publications.jsonl")
-    t.eq(p.cli_project, "/repo/src/Trureturing.Pages.Cli")
+    t.eq(
+      p.cli_dll,
+      "/repo/src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll")
   end,
   test_paths_rejects_non_blessed = function()
     local p, err = core.paths("/repo/other/file.json")
