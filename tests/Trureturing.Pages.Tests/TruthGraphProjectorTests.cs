@@ -126,6 +126,42 @@ public sealed class TruthGraphProjectorTests
         }
     }
 
+    [Fact]
+    public void Project_and_write_rejects_inputs_that_move_before_install()
+    {
+        var directory = Directory.CreateTempSubdirectory("pages-projector-race-");
+        try
+        {
+            var truthGraphPath = Path.Combine(directory.FullName, "truth-graph.json");
+            var snapshotPath = Path.Combine(directory.FullName, "snapshot.json");
+            var outputPath = Path.Combine(directory.FullName, "projection.json");
+            var digest = Sha256(TruthGraphBytes);
+            File.WriteAllBytes(truthGraphPath, TruthGraphBytes);
+            File.WriteAllText(
+                snapshotPath,
+                SnapshotJson.Replace("deadbeef", digest, StringComparison.Ordinal),
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            var sentinel = Encoding.UTF8.GetBytes("existing-output");
+            File.WriteAllBytes(outputPath, sentinel);
+
+            Assert.Throws<ProjectionException>(() =>
+                ProjectionFileService.ProjectAndWrite(
+                    truthGraphPath,
+                    snapshotPath,
+                    outputPath,
+                    digest,
+                    beforeFinalInputCheck: () =>
+                        File.AppendAllText(truthGraphPath, "\n", Encoding.UTF8))));
+
+            Assert.Equal(sentinel, File.ReadAllBytes(outputPath));
+            Assert.Empty(Directory.GetFiles(directory.FullName, "*.tmp-*"));
+        }
+        finally
+        {
+            directory.Delete(recursive: true);
+        }
+    }
+
     private static string Sha256(byte[] bytes) =>
         Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
