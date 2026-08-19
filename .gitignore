@@ -3,4 +3,5 @@ __pycache__/
 *.pyc
 .fkst/machine-profile.toml
 .DS_Store
-__pycache__/
+**/bin/
+**/obj/
