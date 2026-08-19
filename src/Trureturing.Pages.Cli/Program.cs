@@ -38,6 +38,11 @@ internal static class Program
             Console.Error.WriteLine($"PROJECTOR_FAILED {exception.Message}");
             return 2;
         }
+        catch (ArgumentException exception)
+        {
+            Console.Error.WriteLine($"PROJECTOR_FAILED {exception.Message}");
+            return 2;
+        }
         catch (Exception exception)
         {
             Console.Error.WriteLine($"PROJECTOR_INTERNAL {exception.GetType().Name}: {exception.Message}");
