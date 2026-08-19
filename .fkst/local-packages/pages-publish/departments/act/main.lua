@@ -1,8 +1,7 @@
 -- act — run the repository-local pages projector and record the publication.
 --
 -- FKST supplies generic event delivery, process execution, files, and locks. This
--- Lua belongs to trureturing-pages and knows only this repository's local paths,
--- local C# CLI, output, and receipt. Projection semantics live in the C# CLI.
+-- Lua belongs to trureturing-pages and invokes only the prebuilt local C# CLI.
 local M = {}
 local core = require("core")
 
@@ -29,13 +28,13 @@ function pipeline(event)
     log.info("act: trigger " .. digest .. " is obsolete; dropping")
     return
   end
+  if not file.exists(pth.cli_dll) then
+    error("act: prebuilt local projector is missing: " .. pth.cli_dll)
+  end
 
   local res = exec_argv({
     argv = {
-      "dotnet", "run",
-      "--project", pth.cli_project,
-      "--configuration", "Release",
-      "--",
+      "dotnet", pth.cli_dll,
       "project",
       "--truth-graph", pth.raw,
       "--snapshot", pth.snap,
@@ -53,8 +52,6 @@ function pipeline(event)
     error("act: local projector reported success without a non-empty output")
   end
 
-  -- If the blessing advanced after the local CLI completed, the current snapshot
-  -- has its own trigger. Do not record the superseded publication as current.
   if current_blessed(pth) ~= digest then
     log.info("act: blessing advanced after projection; not recording " .. digest)
     return
