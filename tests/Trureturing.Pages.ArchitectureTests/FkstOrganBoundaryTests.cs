@@ -18,6 +18,7 @@ public sealed class FkstOrganBoundaryTests
         "\"git\"",
         "\"gh\"",
         "\"curl\"",
+        "\"python3\"",
     ];
 
     [Fact]
@@ -50,7 +51,17 @@ public sealed class FkstOrganBoundaryTests
             "departments",
             "act",
             "main.lua")));
-        foreach (var localPort in new[] { "pth.script", "pth.raw", "pth.out", "pth.snap" })
+        Assert.Contains(
+            "\"dotnet\", \"run\"",
+            act,
+            StringComparison.Ordinal);
+        foreach (var localPort in new[]
+        {
+            "pth.cli_project",
+            "pth.raw",
+            "pth.out",
+            "pth.snap",
+        })
         {
             Assert.Contains(localPort, act, StringComparison.Ordinal);
         }
