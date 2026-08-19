@@ -24,6 +24,18 @@ public static class TruthGraphProjector
 
         RequireObject(truthGraph.RootElement, "truth graph root");
         RequireObject(sourceSnapshot.RootElement, "source snapshot root");
+        RequireStringValue(
+            truthGraph.RootElement,
+            "schema",
+            "stratalint.truth-graph.v1",
+            "truth graph");
+        RequireInt32Value(truthGraph.RootElement, "schema_version", 1, "truth graph");
+        RequireStringValue(
+            sourceSnapshot.RootElement,
+            "schema",
+            "source-snapshot.v1",
+            "source snapshot");
+
         var truth = RequireObjectProperty(truthGraph.RootElement, "truth");
         var rawNodes = RequireArrayProperty(truth, "nodes");
 
@@ -83,16 +95,27 @@ public static class TruthGraphProjector
             .Select(static item => item.Node)
             .ToArray();
         var stateCounts = OptionalObjectProperty(truth, "state_counts");
+        var dagClosed = OptionalInt32(stateCounts, "closed", "truth.state_counts");
+        var dagOpen = OptionalInt32(stateCounts, "open", "truth.state_counts");
+        var dagTail = OptionalInt32(stateCounts, "tail", "truth.state_counts");
+        var dagSemantic = OptionalInt32(stateCounts, "semantic", "truth.state_counts");
+        if (dagClosed is { } closed && dagOpen is { } open && dagTail is { } tail
+            && (long)closed + open + tail != nodes.Length + filteredNoGid)
+        {
+            throw new ProjectionException(
+                "truth.state_counts math total does not equal shown + filtered_no_gid");
+        }
+
         var edgeCount = OptionalArrayProperty(truth, "edges")?.GetArrayLength() ?? 0;
         var counts = new ProjectionCounts(
             nodes.Length,
             shownClosed,
             shownOpen,
             shownTail,
-            OptionalInt32(stateCounts, "closed", "truth.state_counts"),
-            OptionalInt32(stateCounts, "open", "truth.state_counts"),
-            OptionalInt32(stateCounts, "tail", "truth.state_counts"),
-            OptionalInt32(stateCounts, "semantic", "truth.state_counts"),
+            dagClosed,
+            dagOpen,
+            dagTail,
+            dagSemantic,
             filteredNoGid,
             edgeCount);
         var source = new ProjectionSourceSnapshot(
@@ -135,6 +158,37 @@ public static class TruthGraphProjector
         if (value.ValueKind != JsonValueKind.Object)
         {
             throw new ProjectionException($"{label} must be an object");
+        }
+    }
+
+    private static void RequireStringValue(
+        JsonElement parent,
+        string propertyName,
+        string expected,
+        string label)
+    {
+        if (!parent.TryGetProperty(propertyName, out var value)
+            || value.ValueKind != JsonValueKind.String
+            || !string.Equals(value.GetString(), expected, StringComparison.Ordinal))
+        {
+            throw new ProjectionException(
+                $"{label}.{propertyName} must equal '{expected}'");
+        }
+    }
+
+    private static void RequireInt32Value(
+        JsonElement parent,
+        string propertyName,
+        int expected,
+        string label)
+    {
+        if (!parent.TryGetProperty(propertyName, out var value)
+            || value.ValueKind != JsonValueKind.Number
+            || !value.TryGetInt32(out var actual)
+            || actual != expected)
+        {
+            throw new ProjectionException(
+                $"{label}.{propertyName} must equal {expected}");
         }
     }
 
