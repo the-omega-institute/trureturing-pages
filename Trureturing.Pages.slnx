@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="src/Trureturing.Pages.Core/Trureturing.Pages.Core.csproj" />
+  <Project Path="src/Trureturing.Pages.Cli/Trureturing.Pages.Cli.csproj" />
+  <Project Path="tests/Trureturing.Pages.Tests/Trureturing.Pages.Tests.csproj" />
   <Project Path="tests/Trureturing.Pages.ArchitectureTests/Trureturing.Pages.ArchitectureTests.csproj" />
 </Solution>
