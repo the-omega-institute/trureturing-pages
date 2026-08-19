@@ -35,7 +35,7 @@ public sealed class FkstOrganBoundaryTests
         var source = string.Join(
             "\n",
             luaFiles.Order(StringComparer.Ordinal)
-                .Select(path => StripLineComments(File.ReadAllText(path))));
+                .Select(path => StripFullLineComments(File.ReadAllText(path))));
 
         foreach (var token in ForbiddenCrossOrganTokens)
         {
@@ -45,7 +45,7 @@ public sealed class FkstOrganBoundaryTests
         }
 
         Assert.Single(Regex.Matches(source, @"\bexec_argv\s*\(").Cast<Match>());
-        var act = StripLineComments(File.ReadAllText(Path.Combine(
+        var act = StripFullLineComments(File.ReadAllText(Path.Combine(
             packageRoot,
             "departments",
             "act",
@@ -59,7 +59,7 @@ public sealed class FkstOrganBoundaryTests
     [Fact]
     public void Core_logic_has_no_host_authority_calls()
     {
-        var core = StripLineComments(File.ReadAllText(Path.Combine(
+        var core = StripFullLineComments(File.ReadAllText(Path.Combine(
             FindRepositoryRoot(),
             ".fkst",
             "local-packages",
@@ -101,12 +101,9 @@ public sealed class FkstOrganBoundaryTests
         throw new DirectoryNotFoundException("Could not locate the trureturing-pages repository root.");
     }
 
-    private static string StripLineComments(string source) =>
+    private static string StripFullLineComments(string source) =>
         string.Join(
             "\n",
-            source.Split('\n').Select(line =>
-            {
-                var comment = line.IndexOf("--", StringComparison.Ordinal);
-                return comment < 0 ? line : line[..comment];
-            }));
+            source.Split('\n').Where(line =>
+                !line.TrimStart().StartsWith("--", StringComparison.Ordinal)));
 }
