@@ -9,7 +9,20 @@ public static class ProjectionFileService
         string truthGraphPath,
         string sourceSnapshotPath,
         string outputPath,
-        string expectedDigest)
+        string expectedDigest) =>
+        ProjectAndWrite(
+            truthGraphPath,
+            sourceSnapshotPath,
+            outputPath,
+            expectedDigest,
+            beforeFinalInputCheck: null);
+
+    internal static byte[] ProjectAndWrite(
+        string truthGraphPath,
+        string sourceSnapshotPath,
+        string outputPath,
+        string expectedDigest,
+        Action? beforeFinalInputCheck)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(truthGraphPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceSnapshotPath);
@@ -42,6 +55,16 @@ public static class ProjectionFileService
             }
 
             var output = TruthGraphProjector.Project(truthGraphBytes, sourceSnapshotBytes);
+            beforeFinalInputCheck?.Invoke();
+            var finalTruthGraphBytes = File.ReadAllBytes(truthGraphPath);
+            var finalSourceSnapshotBytes = File.ReadAllBytes(sourceSnapshotPath);
+            if (!truthGraphBytes.AsSpan().SequenceEqual(finalTruthGraphBytes)
+                || !sourceSnapshotBytes.AsSpan().SequenceEqual(finalSourceSnapshotBytes))
+            {
+                throw new ProjectionException(
+                    "projection inputs changed before atomic install");
+            }
+
             AtomicWrite(outputPath, output);
             return output;
         }
