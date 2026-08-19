@@ -1,19 +1,8 @@
--- act — publish the DAG view for a blessed snapshot and record the publication in
--- one department, so the durable receipt is created atomically with the publication
--- rather than by a downstream lane re-reading mutable state (which loses receipts
--- under supersession). The chain is observe -> act; act is terminal.
+-- act — run the repository-local pages projector and record the publication.
 --
--- Correctness under at-least-once delivery:
---  * Obsolete trigger: if the blessing has already advanced past this event, drop
---    it (ack) — the current blessing has its own trigger; retrying can't help.
---  * Real failure (projector nonzero / verify fail): raise, so the child exits
---    nonzero for reliable retry / DLQ, never a silent ack.
---  * Phantom publish: the projector is given the event digest and refuses to write
---    unless the current raw bytes hash to it, so a mid-run input change cannot
---    mutate the live output under a stale trigger.
---  * Idempotent receipt: the ledger append is dedup'd by digest under a lock, so a
---    replay or concurrent act writes at most one receipt per published digest, and
---    a superseding publication keeps the earlier receipt (append-only history).
+-- FKST supplies generic event delivery, process execution, files, and locks. This
+-- Lua belongs to trureturing-pages and knows only this repository's local paths,
+-- local C# CLI, output, and receipt. Projection semantics live in the C# CLI.
 local M = {}
 local core = require("core")
 
@@ -21,6 +10,10 @@ M.spec = {
   consumes = { "pages_reproject" },
   stall_window = "10m",
 }
+
+local function current_blessed(pth)
+  return core.blessed_digest(json.decode(file.read(pth.snap)))
+end
 
 function pipeline(event)
   local p = event.payload or {}
@@ -32,38 +25,56 @@ function pipeline(event)
   if not core.is_digest(digest) then
     error("act: trigger digest is not a valid sha256: " .. tostring(digest))
   end
-  -- Obsolete-trigger fast path: re-read the blessing (authoritative; a decode
-  -- failure fails closed). If it has moved on, this trigger is superseded — ack.
-  local current = core.blessed_digest(json.decode(file.read(pth.snap)))
-  if current ~= digest then
-    log.info("act: blessing now " .. tostring(current) .. ", trigger " .. digest
-      .. " obsolete; dropping (its own trigger handles the current state)")
+  if current_blessed(pth) ~= digest then
+    log.info("act: trigger " .. digest .. " is obsolete; dropping")
     return
   end
-  -- Project. The projector re-checks sha256(raw) == blessed == this digest and
-  -- refuses to write on mismatch, so it cannot mutate the live output for a stale
-  -- trigger. Any nonzero exit is a real failure (or a raced move that wrote nothing).
+
   local res = exec_argv({
-    argv = { "python3", pth.script, pth.raw, pth.out, pth.snap, digest },
+    argv = {
+      "dotnet", "run",
+      "--project", pth.cli_project,
+      "--configuration", "Release",
+      "--",
+      "project",
+      "--truth-graph", pth.raw,
+      "--snapshot", pth.snap,
+      "--output", pth.out,
+      "--expected-digest", digest,
+    },
+    cwd = pth.repo_root,
     timeout = 120,
   })
   if res.exit_code ~= 0 then
-    error("act: projector exit=" .. tostring(res.exit_code) .. " stderr=" .. tostring(res.stderr))
+    error("act: local projector exit=" .. tostring(res.exit_code)
+      .. " stderr=" .. tostring(res.stderr))
   end
-  local ok, why = core.verify(json.decode(file.read(pth.out)), digest)
-  if not ok then
-    error("act: read-only verify failed: " .. tostring(why))
+  if not file.exists(pth.out) or #file.read(pth.out) == 0 then
+    error("act: local projector reported success without a non-empty output")
   end
-  -- Record the publication atomically with it: idempotent, serialized append to
-  -- the append-only ledger. A replay finds the digest already present and skips.
+
+  -- If the blessing advanced after the local CLI completed, the current snapshot
+  -- has its own trigger. Do not record the superseded publication as current.
+  if current_blessed(pth) ~= digest then
+    log.info("act: blessing advanced after projection; not recording " .. digest)
+    return
+  end
+
   with_lock("pages-publish/publications", function()
+    if current_blessed(pth) ~= digest then
+      log.info("act: blessing advanced before receipt commit; not recording " .. digest)
+      return
+    end
     local prior = ""
     if file.exists(pth.pubs) then prior = file.read(pth.pubs) end
     if core.ledger_has_digest(prior, digest) then
-      log.info("act: receipt for " .. digest .. " already present; publication is idempotent")
+      log.info("act: receipt for " .. digest .. " already present")
       return
     end
-    file.write(pth.pubs, prior .. core.receipt_line(digest, "site/data/truth-graph.v1.json", now()))
+    file.write(pth.pubs, prior .. core.receipt_line(
+      digest,
+      "site/data/truth-graph.v1.json",
+      now()))
   end)
   log.info("act: published + recorded " .. digest)
 end
