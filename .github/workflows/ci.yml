@@ -11,6 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Build C# architecture tests
+        run: dotnet build Trureturing.Pages.slnx -c Release
+
+      - name: Enforce repository-local FKST boundary
+        run: dotnet test Trureturing.Pages.slnx -c Release --no-build
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
