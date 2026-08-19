@@ -52,12 +52,17 @@ public sealed class FkstOrganBoundaryTests
             "act",
             "main.lua")));
         Assert.Contains(
+            "\"dotnet\", pth.cli_dll",
+            act,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
             "\"dotnet\", \"run\"",
             act,
             StringComparison.Ordinal);
+        Assert.DoesNotContain("--project", act, StringComparison.Ordinal);
         foreach (var localPort in new[]
         {
-            "pth.cli_project",
+            "pth.cli_dll",
             "pth.raw",
             "pth.out",
             "pth.snap",
