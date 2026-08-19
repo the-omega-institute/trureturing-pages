@@ -40,7 +40,10 @@ public static class TruthGraphProjector
         var rawNodes = RequireArrayProperty(truth, "nodes");
 
         var rendered = new List<(int Rank, ProjectionNode Node)>();
-        var filteredNoGid = 0;
+        var displayGids = new HashSet<string>(StringComparer.Ordinal);
+        var filteredClosedNoGid = 0;
+        var filteredOpenNoGid = 0;
+        var filteredTailNoGid = 0;
         var shownClosed = 0;
         var shownOpen = 0;
         var shownTail = 0;
@@ -57,8 +60,23 @@ public static class TruthGraphProjector
             var gid = OptionalString(rawNode, "gid", "truth.nodes item");
             if (string.IsNullOrEmpty(gid))
             {
-                filteredNoGid++;
+                switch (state)
+                {
+                    case "closed":
+                        filteredClosedNoGid++;
+                        break;
+                    case "open":
+                        filteredOpenNoGid++;
+                        break;
+                    case "tail":
+                        filteredTailNoGid++;
+                        break;
+                }
                 continue;
+            }
+            if (!displayGids.Add(gid))
+            {
+                throw new ProjectionException($"duplicate display gid: {gid}");
             }
 
             var status = StatusTitle(state!);
@@ -94,11 +112,24 @@ public static class TruthGraphProjector
             .ThenBy(static item => item.Node.Id, StringComparer.Ordinal)
             .Select(static item => item.Node)
             .ToArray();
+        var filteredNoGid = filteredClosedNoGid + filteredOpenNoGid + filteredTailNoGid;
         var stateCounts = OptionalObjectProperty(truth, "state_counts");
         var dagClosed = OptionalInt32(stateCounts, "closed", "truth.state_counts");
         var dagOpen = OptionalInt32(stateCounts, "open", "truth.state_counts");
         var dagTail = OptionalInt32(stateCounts, "tail", "truth.state_counts");
         var dagSemantic = OptionalInt32(stateCounts, "semantic", "truth.state_counts");
+        RequireStateCount(
+            dagClosed,
+            shownClosed + filteredClosedNoGid,
+            "closed");
+        RequireStateCount(
+            dagOpen,
+            shownOpen + filteredOpenNoGid,
+            "open");
+        RequireStateCount(
+            dagTail,
+            shownTail + filteredTailNoGid,
+            "tail");
         if (dagClosed is { } closed && dagOpen is { } open && dagTail is { } tail
             && (long)closed + open + tail != nodes.Length + filteredNoGid)
         {
@@ -152,6 +183,15 @@ public static class TruthGraphProjector
         "closed" => 2,
         _ => 9,
     };
+
+    private static void RequireStateCount(int? actual, int expected, string state)
+    {
+        if (actual is not null && actual.Value != expected)
+        {
+            throw new ProjectionException(
+                $"truth.state_counts.{state}={actual.Value} but projected nodes account for {expected}");
+        }
+    }
 
     private static void RequireObject(JsonElement value, string label)
     {
