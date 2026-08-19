@@ -42,6 +42,36 @@ public sealed class TruthGraphProjectorTests
     }
 
     [Fact]
+    public void Project_rejects_unknown_input_schemas()
+    {
+        var wrongGraph = Encoding.UTF8.GetBytes(
+            TruthGraphJson.Replace(
+                "stratalint.truth-graph.v1",
+                "stratalint.truth-graph.v0",
+                StringComparison.Ordinal));
+        var wrongSnapshot = Encoding.UTF8.GetBytes(
+            SnapshotJson.Replace(
+                "source-snapshot.v1",
+                "source-snapshot.v0",
+                StringComparison.Ordinal));
+
+        Assert.Throws<ProjectionException>(() =>
+            TruthGraphProjector.Project(wrongGraph, SnapshotBytes));
+        Assert.Throws<ProjectionException>(() =>
+            TruthGraphProjector.Project(TruthGraphBytes, wrongSnapshot));
+    }
+
+    [Fact]
+    public void Project_rejects_dag_state_count_drift()
+    {
+        var drifted = Encoding.UTF8.GetBytes(
+            TruthGraphJson.Replace("\"closed\": 2", "\"closed\": 3", StringComparison.Ordinal));
+
+        Assert.Throws<ProjectionException>(() =>
+            TruthGraphProjector.Project(drifted, SnapshotBytes));
+    }
+
+    [Fact]
     public void Project_and_write_binds_raw_bytes_to_both_blessing_and_trigger()
     {
         var directory = Directory.CreateTempSubdirectory("pages-projector-");
@@ -52,10 +82,11 @@ public sealed class TruthGraphProjectorTests
             var outputPath = Path.Combine(directory.FullName, "projection.json");
             File.WriteAllBytes(truthGraphPath, TruthGraphBytes);
             var digest = Sha256(TruthGraphBytes);
+            var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
             File.WriteAllText(
                 snapshotPath,
                 SnapshotJson.Replace("deadbeef", digest, StringComparison.Ordinal),
-                new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                utf8);
 
             var written = ProjectionFileService.ProjectAndWrite(
                 truthGraphPath,
@@ -73,6 +104,18 @@ public sealed class TruthGraphProjectorTests
                     snapshotPath,
                     outputPath,
                     new string('0', 64)));
+            Assert.Equal(sentinel, File.ReadAllBytes(outputPath));
+
+            File.WriteAllText(
+                snapshotPath,
+                SnapshotJson.Replace("deadbeef", new string('0', 64), StringComparison.Ordinal),
+                utf8);
+            Assert.Throws<ProjectionException>(() =>
+                ProjectionFileService.ProjectAndWrite(
+                    truthGraphPath,
+                    snapshotPath,
+                    outputPath,
+                    digest));
 
             Assert.Equal(sentinel, File.ReadAllBytes(outputPath));
             Assert.Empty(Directory.GetFiles(directory.FullName, "*.tmp-*"));
@@ -111,6 +154,7 @@ public sealed class TruthGraphProjectorTests
 
     private const string SnapshotJson = """
 {
+  "schema": "source-snapshot.v1",
   "source_repo": "the-omega-institute/trureturing",
   "source_commit": "abc123",
   "truth_graph_sha256": "deadbeef",
