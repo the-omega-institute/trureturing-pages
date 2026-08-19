@@ -1,50 +1,70 @@
 # trureturing-pages
 
-`trureturing-pages` is the public, read-only static presentation site for trureturing. Its first version presents three views:
+`trureturing-pages` is the read-only static presentation organ for trureturing. Its first version presents:
 
 - DAG status
 - the theory volume
 - selected important conclusions
 
-The site is plain HTML, CSS, and client-side JavaScript. It has no build step in this repository skeleton.
+The public site remains plain HTML, CSS, and client-side JavaScript.
 
 ## Truth boundary
 
-The site only consumes manually approved, frozen truth from trureturing, represented by a `source-snapshot.v1` input. It must not become a second source of truth: prose, node state, conclusions, and provenance stay owned by the frozen upstream snapshot.
+The site consumes an explicit, content-addressed upstream input and never becomes a second source of mathematical truth. The currently pinned input is `source-snapshot.v1` plus its raw truth graph. The intended successor is the shared `truth-release.v1` intake.
 
-**Real truth is now injected.** `site/data/truth-graph.v1.json` holds the real projected DAG (670 kernel-frozen / 12 open nodes) for the blessed `source-snapshot.v1` at `trureturing@90059eb` (`synthetic: false`, real provenance). The projection is a deterministic, read-only step in [`lib/truthgraph_project.py`](lib/truthgraph_project.py) — it does not edit or re-author upstream truth. (The `theory/` renderer still uses smoke-test fixtures.)
+`site/data/truth-graph.v1.json` currently presents the real projected DAG for the blessed `trureturing@90059eb` snapshot. Projection is deterministic and read-only. The production implementation is repository-local C#:
 
-## Publication lifecycle (fkst host package)
+```text
+src/Trureturing.Pages.Core
+    strict input parsing, digest binding, projection, atomic install
 
-The projection is driven by a real fkst host package, [`.fkst/local-packages/pages-publish`](.fkst/local-packages/pages-publish/README.md): an `observe → act` chain that watches the pinned blessed input (`content/source/source-snapshot.v1.blessed.json` + `content/source/truth-graph.raw.v1.json`), reprojects `site/data/` only when the blessed `truth_graph_sha256` differs from what the site already publishes, verifies the output read-only, and appends a receipt to the append-only host-file ledger `site/data/publications.jsonl` — publish and record are one atomic step. The chain is written for at-least-once delivery: act fails loud on projector/verify failure (so it retries, never silent-acks), acks and drops a trigger superseded by a newer blessing, refuses to publish a stale projection (the projector is bound to the event digest), and records idempotently. It passes `fkst-framework conformance` (7/7) and `test` (32 unit tests over the pure logic). This replaces the earlier `trureturing-reasoning` stub.
+src/Trureturing.Pages.Cli
+    local project command
+
+.fkst/local-packages/pages-publish
+    local observe → act lifecycle and publication receipt
+```
+
+The former Python projector remains temporarily as a migration oracle. It is no longer the intended production path after the C# cutover.
+
+## FKST boundary
+
+`fkst-ops` and the FKST engine know only generic deployment, package, event, delivery, lock, and process mechanics. Pages-specific event names, paths, CLI invocation, output, and publication history are owned by this repository's local package. Cross-organ information arrives only through explicit content-addressed files.
+
+## Publication lifecycle
+
+The repository-local package [`.fkst/local-packages/pages-publish`](.fkst/local-packages/pages-publish/README.md) is an `observe → act` chain:
+
+1. observe reads the local blessing and current local projection to decide whether work is needed;
+2. act invokes `Trureturing.Pages.Cli project` through shell-free `exec_argv`;
+3. the C# CLI validates the input dialects and digests, projects deterministically, rechecks that inputs did not move, and atomically installs the output;
+4. Lua records the publication idempotently in `site/data/publications.jsonl`.
 
 ## Site layout
 
 ```text
 site/
-|-- index.html                  # overview and snapshot metadata placeholders
-|-- dag.html                    # filterable DAG status view
-|-- conclusions.html            # curated conclusion slots
+|-- index.html
+|-- dag.html
+|-- conclusions.html
 |-- theory/
-|   |-- index.html              # index of the 11 upstream theory documents
-|   `-- render.html             # client-side Markdown rendering shell
+|   |-- index.html
+|   `-- render.html
 |-- assets/
-|   `-- style.css               # minimal shared presentation styles
+|   `-- style.css
 `-- data/
-    |-- truth-graph.v1.json     # real projected DAG (670 closed / 12 open @90059eb)
+    |-- truth-graph.v1.json
     `-- theory/
-        `-- _example.md         # renderer smoke fixture only
+        `-- _example.md
 ```
-
-Open `site/index.html` to inspect the navigation and static skeleton. Pages that fetch data, such as the DAG and Markdown renderer, should be served by any simple local static HTTP server because browsers commonly restrict `fetch()` from `file://` pages.
 
 ## Deferred decisions
 
-- Real `source-snapshot.v1` projection + injection is **done** (`lib/truthgraph_project.py`, deterministic, tested); automated re-selection when a new snapshot is blessed is not yet scripted.
-- The `highlights.v1` (conclusions) contract is TBD.
-- Large theory-document delivery, including chunking or lazy loading for `PZG_BEDC.md`, is TBD.
-- The production Markdown library and vendoring policy are TBD.
-- Deployment to GitHub Pages or another static host is TBD.
-- Exact visual design and branding are TBD.
+- migrate the pinned old snapshot to a fresh shared truth release;
+- define the `highlights.v1` conclusions contract;
+- deliver the large theory documents efficiently;
+- select and vendor a production Markdown library;
+- choose the static hosting target;
+- finalize visual design and branding.
 
-The previous L2 reasoning substrate is retained temporarily for reversibility. See [`DEPRECATED.md`](DEPRECATED.md); it is not part of the new site architecture.
+The previous L2 reasoning substrate is retained temporarily for reversibility. See [`DEPRECATED.md`](DEPRECATED.md); it is outside the current site architecture.
