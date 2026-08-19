@@ -10,17 +10,22 @@
 fkst-ops / FKST engine
     generic events, delivery, execution, files, and locks
 
+CI / preflight
+    builds the pages solution in Release
+
 pages-publish Lua
     pages-local event routing, paths, dedup, and publication receipt
+    invokes the prebuilt local C# DLL
 
 Trureturing.Pages.Core / Cli
     pages-local projection semantics and atomic output installation
 ```
 
-Lua does not parse or validate the truth-graph projection schema. The repository-local
-C# CLI owns input dialects, duplicate-member rejection, raw/blessing/trigger digest
-binding, deterministic projection, DAG count closure, input-race revalidation, and
-atomic install.
+Runtime Lua never calls `dotnet run`, restore, or build. A missing prebuilt DLL is a
+fail-loud deployment/preflight defect. Lua does not parse or validate the projection
+schema. The C# CLI owns input dialects, duplicate-member rejection, raw/blessing/trigger
+digest binding, deterministic projection, per-state count closure, duplicate-GID
+rejection, input-race revalidation, and atomic install.
 
 ## Event chain
 
@@ -32,14 +37,14 @@ departments/observe
     compare local blessed digest with the local published artifact
         ↓
 departments/act
-    exec_argv → local Trureturing.Pages.Cli project
+    exec_argv → dotnet <prebuilt local Trureturing.Pages.Cli.dll> project
     confirm a non-empty local output
     append an idempotent local publication receipt
 ```
 
-`act` is terminal. It rechecks the local blessing before and after the C# call and
-again inside the receipt lock, so a superseded event is never recorded as current.
-The C# CLI independently rechecks both input files before installing the projection.
+`act` rechecks the local blessing before and after the C# call and again inside the
+receipt lock. The C# CLI independently rechecks both input files before installing the
+projection.
 
 ## Facts and recovery
 
@@ -47,20 +52,15 @@ The C# CLI independently rechecks both input files before installing the project
 - raw graph: `content/source/truth-graph.raw.v1.json`;
 - output: `site/data/truth-graph.v1.json`;
 - publication history: `site/data/publications.jsonl`;
-- local CLI project: `src/Trureturing.Pages.Cli`.
+- local executable: `src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll`.
 
 The runtime root contains no authoritative business state. A wiped runtime can recover
-by rereading these local files and replaying the event.
+after preflight rebuilds the solution and the event is replayed.
 
 ## Gates
 
-Repository CI covers:
-
-- strict C# Release build and projector tests;
-- repository-local FKST architecture tests;
-- the existing Python projector, contract, and fail-closed tests as migration oracles.
-
-The previous FKST package measurements were taken before the Lua cutover. Before this
-cutover merges, rerun the exact engine's package `test`, `conformance`, and a real
-`run` smoke. Until those measurements are attached, this PR should remain Draft and
-must not claim deployment readiness.
+Repository CI covers the strict C# build/projector tests, repository-local architecture
+tests, and existing Python migration oracles. The previous FKST package measurements
+were taken before this Lua invocation change. Before this PR merges, rerun the exact
+engine's package `test`, `conformance`, and a real `run` smoke. Until those receipts are
+attached, keep the PR Draft and make no deployment-readiness claim.
