@@ -151,7 +151,7 @@ public sealed class TruthGraphProjectorTests
                     outputPath,
                     digest,
                     beforeFinalInputCheck: () =>
-                        File.AppendAllText(truthGraphPath, "\n", Encoding.UTF8))));
+                        File.AppendAllText(truthGraphPath, "\n", Encoding.UTF8)));
 
             Assert.Equal(sentinel, File.ReadAllBytes(outputPath));
             Assert.Empty(Directory.GetFiles(directory.FullName, "*.tmp-*"));
