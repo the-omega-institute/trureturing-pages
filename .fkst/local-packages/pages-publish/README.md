@@ -10,7 +10,7 @@
 fkst-ops / FKST engine
     generic events, delivery, execution, files, and locks
 
-CI / preflight
+CI / repository preflight
     builds the pages solution in Release
 
 pages-publish Lua
@@ -19,13 +19,21 @@ pages-publish Lua
 
 Trureturing.Pages.Core / Cli
     pages-local projection semantics and atomic output installation
+
+deployment composition
+    selects exact target, platform, engine, machine roots, and activation policy
 ```
 
 Runtime Lua never calls `dotnet run`, restore, or build. A missing prebuilt DLL is a
-fail-loud deployment/preflight defect. Lua does not parse or validate the projection
+fail-loud repository-preflight defect. Lua does not parse or validate the projection
 schema. The C# CLI owns input dialects, duplicate-member rejection, raw/blessing/trigger
 digest binding, deterministic projection, per-state count closure, duplicate-GID
 rejection, input-race revalidation, and atomic install.
+
+The package does not know the engine repository, engine revision, deployment set, lock
+file, machine profile, or platform checkout. Those facts belong exclusively to deployment
+composition. The deployment activation gate validates the selected engine against this
+opaque local package.
 
 ## Event chain
 
@@ -55,12 +63,15 @@ projection.
 - local executable: `src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll`.
 
 The runtime root contains no authoritative business state. A wiped runtime can recover
-after preflight rebuilds the solution and the event is replayed.
+after repository preflight rebuilds the solution and the event is replayed.
 
 ## Gates
 
-Repository CI covers the strict C# build/projector tests, repository-local architecture
-tests, and existing Python migration oracles. The previous FKST package measurements
-were taken before this Lua invocation change. Before this PR merges, rerun the exact
-engine's package `test`, `conformance`, and a real `run` smoke. Until those receipts are
-attached, keep the PR Draft and make no deployment-readiness claim.
+The business-repository merge gate covers the strict C# build/projector tests,
+repository-local architecture tests, and existing Python migration oracles. These gates
+prove the local package and local CLI without selecting an engine or deployment.
+
+The exact deployment-selected engine must still run package `test`, `conformance`, and a
+real `run` smoke before activation. That evidence belongs to the deployment composition
+and activation PR. Its absence blocks activation and deployment-readiness claims; it does
+not make this business repository own an engine pin.
