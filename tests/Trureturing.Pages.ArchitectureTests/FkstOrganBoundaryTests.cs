@@ -80,6 +80,41 @@ public sealed class FkstOrganBoundaryTests
     }
 
     [Fact]
+    public void Package_manifest_contains_only_package_local_configuration()
+    {
+        var manifest = File.ReadAllText(Path.Combine(
+            FindRepositoryRoot(),
+            ".fkst",
+            "local-packages",
+            "pages-publish",
+            "fkst.toml"));
+
+        Assert.Contains("kind = \"package\"", manifest, StringComparison.Ordinal);
+        Assert.Contains("name = \"pages-publish\"", manifest, StringComparison.Ordinal);
+        Assert.Contains("[code]", manifest, StringComparison.Ordinal);
+
+        foreach (var token in new[]
+        {
+            "[deployment]",
+            "[provider]",
+            "lock_ref",
+            "target_identity",
+            "engine_revision",
+            "[deployment.machine]",
+            "github_write_enabled",
+            "cadence_enabled",
+            "checkout_role",
+            "machine-profile",
+            "deployment-set",
+            "fkst.lock",
+            "substrate-ref",
+        })
+        {
+            Assert.DoesNotContain(token, manifest, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
     public void Core_logic_has_no_host_authority_calls()
     {
         var core = StripFullLineComments(File.ReadAllText(Path.Combine(
