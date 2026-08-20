@@ -8,7 +8,14 @@ public sealed class FkstOrganBoundaryTests
     private static readonly string[] ForbiddenCrossOrganTokens =
     [
         "fkst-ops",
+        "fkst-substrate",
         "trureturing-fkst-packages",
+        "deployment-set",
+        "fkst.lock",
+        "machine-profile",
+        "substrate-ref",
+        "engine_revision",
+        "checkout_role",
         "Golden/Frozen",
         "skills/codex",
         "docs/develop/spec",
@@ -42,7 +49,7 @@ public sealed class FkstOrganBoundaryTests
         {
             Assert.False(
                 source.Contains(token, StringComparison.OrdinalIgnoreCase),
-                $"The repository-local FKST package must not reference cross-organ/framework detail '{token}'.");
+                $"The repository-local FKST package must not reference cross-organ, deployment, or engine-composition detail '{token}'.");
         }
 
         Assert.Single(Regex.Matches(source, @"\bexec_argv\s*\(").Cast<Match>());
