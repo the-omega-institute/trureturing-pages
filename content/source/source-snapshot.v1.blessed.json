@@ -1,5 +1,6 @@
 {
   "schema": "source-snapshot.v1",
+  "repo_identity": "the-omega-institute/trureturing",
   "source_repo": "the-omega-institute/trureturing",
   "source_commit": "90059ebbb6c1d61da93690723af581145b88bad1",
   "source_tree": "877274eb0b0354af1410b23353d551881e22665c",
@@ -13,5 +14,23 @@
   "library_tree_digest": "sha256-155cfd52500a37af9f0a8890ff52d7917b01e9851b46463cd0bbef800f506dc7",
   "evidence_digest": "sha256-179aecf9eec200989be55a385835326dbd147ed8784e1cb3ed093e8d8e9da683",
   "derived_at": "2026-08-14T19:23:24Z",
+  "deriver": {
+    "tool": "stratalint-dag-render",
+    "ref": "90059ebbb6c1d61da93690723af581145b88bad1"
+  },
+  "open_set": [
+    {"gid": "D5/S1/Depth/Finite", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/D5P001", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/FutureInstances", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/GoldenUnitsUFD", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/GovernanceDeferrals", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/Hearts", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/HeartsDraft", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/PaperGenerator", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/RequiredChecks", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/SplitTool", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/ToolchainUpgrade", "deps": [], "deps_all_closed": true},
+    {"gid": "D5/X_Frontier/ValuesProducer", "deps": [], "deps_all_closed": true}
+  ],
   "blessed_by": "AlyciaBHZ"
 }

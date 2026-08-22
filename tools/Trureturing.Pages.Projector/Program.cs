@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -8,6 +10,9 @@ return ProjectorProgram.Run(args);
 
 internal static class ProjectorProgram
 {
+    private static readonly IComparer<string> UnicodeCodePointComparer =
+        Comparer<string>.Create(CompareUnicodeCodePoints);
+
     private static readonly JsonSerializerOptions OutputJsonOptions = new()
     {
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -68,7 +73,10 @@ internal static class ProjectorProgram
 
         TruthGraphExportModel truthGraph = TruthGraphJsonReader.Read(truthGraphBytes);
         DisplayProjection result = Project(truthGraph, snapshot);
-        string output = JsonSerializer.Serialize(result, OutputJsonOptions) + "\n";
+        // System.Text.Json escapes supplementary runes as UTF-16 surrogate pairs;
+        // Python's ensure_ascii=False emits the scalar directly as UTF-8.
+        string output = UnescapeSupplementaryCodePoints(
+            JsonSerializer.Serialize(result, OutputJsonOptions)) + "\n";
         File.WriteAllText(outputPath, output, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 
         DisplayCounts counts = result.Counts;
@@ -93,7 +101,7 @@ internal static class ProjectorProgram
                     node.Depth);
             })
             .OrderBy(node => StatusRank(node.Status))
-            .ThenBy(node => node.Id, StringComparer.Ordinal)
+            .ThenBy(node => node.Id, UnicodeCodePointComparer)
             .ToArray();
 
         int filteredNoGid = truthGraph.Truth.Nodes.Count(
@@ -146,31 +154,197 @@ internal static class ProjectorProgram
         "Closed" => 2,
         _ => 9,
     };
+
+    private static int CompareUnicodeCodePoints(string? left, string? right)
+    {
+        if (ReferenceEquals(left, right))
+        {
+            return 0;
+        }
+
+        if (left is null)
+        {
+            return -1;
+        }
+
+        if (right is null)
+        {
+            return 1;
+        }
+
+        StringRuneEnumerator leftRunes = left.EnumerateRunes();
+        StringRuneEnumerator rightRunes = right.EnumerateRunes();
+        while (leftRunes.MoveNext())
+        {
+            if (!rightRunes.MoveNext())
+            {
+                return 1;
+            }
+
+            int comparison = leftRunes.Current.Value.CompareTo(rightRunes.Current.Value);
+            if (comparison != 0)
+            {
+                return comparison;
+            }
+        }
+
+        return rightRunes.MoveNext() ? -1 : 0;
+    }
+
+    private static string UnescapeSupplementaryCodePoints(string json)
+    {
+        var output = new StringBuilder(json.Length);
+        for (int index = 0; index < json.Length; index++)
+        {
+            if (index + 11 < json.Length &&
+                json[index] == '\\' &&
+                json[index + 1] == 'u' &&
+                json[index + 6] == '\\' &&
+                json[index + 7] == 'u' &&
+                ushort.TryParse(
+                    json.AsSpan(index + 2, 4),
+                    NumberStyles.AllowHexSpecifier,
+                    CultureInfo.InvariantCulture,
+                    out ushort highSurrogate) &&
+                ushort.TryParse(
+                    json.AsSpan(index + 8, 4),
+                    NumberStyles.AllowHexSpecifier,
+                    CultureInfo.InvariantCulture,
+                    out ushort lowSurrogate) &&
+                Rune.TryCreate((char)highSurrogate, (char)lowSurrogate, out Rune rune))
+            {
+                output.Append(rune);
+                index += 11;
+                continue;
+            }
+
+            output.Append(json[index]);
+            if (json[index] == '\\' && index + 1 < json.Length)
+            {
+                output.Append(json[++index]);
+            }
+        }
+
+        return output.ToString();
+    }
 }
 
 internal sealed record SourceSnapshot(
-    string? SourceRepo,
-    string? SourceCommit,
-    string? TruthGraphSha256,
-    string? BlessedBy,
-    string? DerivedAt)
+    string SourceRepo,
+    string SourceCommit,
+    string TruthGraphSha256,
+    string BlessedBy,
+    string DerivedAt)
 {
     public static SourceSnapshot Read(byte[] bytes)
     {
         using JsonDocument document = JsonDocument.Parse(bytes);
         JsonElement root = document.RootElement;
+
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            throw new InvalidDataException("source snapshot must be a JSON object");
+        }
+
+        string schema = GetRequiredString(root, "schema");
+        if (schema != "source-snapshot.v1")
+        {
+            throw new InvalidDataException(
+                "source snapshot field 'schema' must be 'source-snapshot.v1'");
+        }
+
+        GetRequiredString(root, "repo_identity");
+        string sourceCommit = GetRequiredString(root, "source_commit");
+        GetRequiredString(root, "source_tree");
+        string derivedAt = GetRequiredString(root, "derived_at");
+        ValidateDeriver(GetRequiredProperty(root, "deriver"));
+        ValidateOpenSet(GetRequiredProperty(root, "open_set"));
+
+        string truthGraphSha256 = GetRequiredString(root, "truth_graph_sha256");
+        if (!IsLowerHex(truthGraphSha256, 64))
+        {
+            throw new InvalidDataException(
+                "source snapshot field 'truth_graph_sha256' must be a 64-character " +
+                "lowercase hexadecimal string");
+        }
+
         return new SourceSnapshot(
-            GetOptionalProperty(root, "source_repo"),
-            GetOptionalProperty(root, "source_commit"),
-            GetOptionalProperty(root, "truth_graph_sha256"),
-            GetOptionalProperty(root, "blessed_by"),
-            GetOptionalProperty(root, "derived_at"));
+            GetRequiredString(root, "source_repo"),
+            sourceCommit,
+            truthGraphSha256,
+            GetRequiredString(root, "blessed_by"),
+            derivedAt);
     }
 
-    private static string? GetOptionalProperty(JsonElement root, string name) =>
-        root.TryGetProperty(name, out JsonElement value) && value.ValueKind != JsonValueKind.Null
-            ? value.GetString()
-            : null;
+    private static JsonElement GetRequiredProperty(JsonElement root, string name)
+    {
+        if (!root.TryGetProperty(name, out JsonElement value) || value.ValueKind == JsonValueKind.Null)
+        {
+            throw new InvalidDataException($"source snapshot field '{name}' is required");
+        }
+
+        return value;
+    }
+
+    private static string GetRequiredString(JsonElement root, string name)
+    {
+        JsonElement value = GetRequiredProperty(root, name);
+        if (value.ValueKind != JsonValueKind.String)
+        {
+            throw new InvalidDataException($"source snapshot field '{name}' must be a string");
+        }
+
+        return value.GetString()!;
+    }
+
+    private static void ValidateDeriver(JsonElement deriver)
+    {
+        if (deriver.ValueKind != JsonValueKind.Object)
+        {
+            throw new InvalidDataException("source snapshot field 'deriver' must be an object");
+        }
+
+        GetRequiredString(deriver, "tool");
+        GetRequiredString(deriver, "ref");
+    }
+
+    private static void ValidateOpenSet(JsonElement openSet)
+    {
+        if (openSet.ValueKind != JsonValueKind.Array)
+        {
+            throw new InvalidDataException("source snapshot field 'open_set' must be an array");
+        }
+
+        foreach (JsonElement item in openSet.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidDataException("source snapshot open_set entries must be objects");
+            }
+
+            GetRequiredString(item, "gid");
+            JsonElement dependencies = GetRequiredProperty(item, "deps");
+            if (dependencies.ValueKind != JsonValueKind.Array ||
+                dependencies.EnumerateArray().Any(value => value.ValueKind != JsonValueKind.String))
+            {
+                throw new InvalidDataException(
+                    "source snapshot open_set entry field 'deps' must be an array of strings");
+            }
+
+            JsonValueKind depsAllClosedKind =
+                GetRequiredProperty(item, "deps_all_closed").ValueKind;
+            if (depsAllClosedKind is not JsonValueKind.True and not JsonValueKind.False)
+            {
+                throw new InvalidDataException(
+                    "source snapshot open_set entry field 'deps_all_closed' must be a boolean");
+            }
+        }
+    }
+
+    private static bool IsLowerHex(string value, int length) =>
+        value.Length == length &&
+        value.All(character =>
+            character is >= '0' and <= '9' or >= 'a' and <= 'f');
 }
 
 internal sealed record DisplayProjection(
