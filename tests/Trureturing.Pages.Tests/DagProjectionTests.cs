@@ -1,4 +1,5 @@
 using Trureturing.Pages.Core;
+using Xunit;
 
 namespace Trureturing.Pages.Tests;
 
