@@ -33,7 +33,8 @@ public sealed class TruthConsumptionBoundaryTests
             "*",
             SearchOption.AllDirectories))
         {
-            if (path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}",
+            if (Path.GetFileName(path) == "TruthConsumptionBoundaryTests.cs" ||
+                path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}",
                     StringComparison.Ordinal) ||
                 path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
                     StringComparison.Ordinal) ||
