@@ -65,18 +65,13 @@ public static class PagesDagProjection
         PagesIntuitionOverlay? overlay = null,
         int neighborhoodRadius = 1)
     {
+        PagesPortJson.Validate(port, overlay);
+
         if (neighborhoodRadius < 1)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(neighborhoodRadius),
                 "Neighborhood radius must be at least one.");
-        }
-
-        if (overlay is not null &&
-            overlay.SourceTruthReleaseDigest != port.ReleaseDigest)
-        {
-            throw new InvalidDataException(
-                "Intuition overlay is bound to a different truth release.");
         }
 
         IReadOnlyList<PagesDagNode> nodes = BuildNodes(port);
@@ -123,6 +118,9 @@ public static class PagesDagProjection
         PagesTruthReleasePort from,
         PagesTruthReleasePort to)
     {
+        PagesPortJson.Validate(from);
+        PagesPortJson.Validate(to);
+
         return new PagesReleaseDelta(
             DeltaSchema,
             from.ReleaseDigest,
@@ -211,8 +209,8 @@ public static class PagesDagProjection
                     {
                         edges.Add(new PagesDagEdge(
                             $"intuition:{relation.RelationId}:{StableFileName(input + "->" + output)}",
-                            NormalizeExternalNodeId(input),
-                            NormalizeExternalNodeId(output),
+                            input,
+                            output,
                             "intuition-candidate",
                             relation.Status));
                     }
@@ -324,12 +322,6 @@ public static class PagesDagProjection
 
     private static string ModuleId(string id) => $"module:{id}";
     private static string FrozenId(string id) => $"frozen:{id}";
-
-    private static string NormalizeExternalNodeId(string id) =>
-        id.StartsWith("module:", StringComparison.Ordinal) ||
-        id.StartsWith("frozen:", StringComparison.Ordinal)
-            ? id
-            : $"external:{id}";
 
     private static string EdgeId(string layer, string source, string target) =>
         $"{layer}:{StableFileName(source + "->" + target)}";

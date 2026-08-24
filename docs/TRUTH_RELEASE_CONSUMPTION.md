@@ -2,9 +2,10 @@
 
 `trureturing-pages` owns the visual read model. It does not own the upstream truth wire.
 
-The upstream adapter, once `Trureturing.Truth` has a stable package coordinate, verifies a
-`truth-release.v1` bundle and writes `pages-truth-release-port.v1`. The Pages core consumes
-only that local typed port.
+The upstream adapter is pending and is not wired in this repository. Once `Trureturing.Truth`
+has a stable package coordinate, that adapter will verify a `truth-release.v1` bundle and write
+`pages-truth-release-port.v1`. The Pages core consumes only that local typed port and rejects
+any record that does not satisfy the complete Pages contract.
 
 The port carries two certified graph layers:
 

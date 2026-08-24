@@ -53,7 +53,8 @@ The previous L2 reasoning substrate is retained temporarily for reversibility. S
 ## Verified release DAG consumer
 
 The next-generation C# consumer is intentionally separated from the upstream wire. An
-upstream adapter verifies a `truth-release.v1` bundle and emits the Pages-owned
+upstream adapter, which is still pending and is not wired in this repository, will verify a
+`truth-release.v1` bundle and emit the Pages-owned
 `pages-truth-release-port.v1`. The Pages core then builds:
 
 - a repository/module topology layer;

@@ -101,6 +101,15 @@ public static class PagesPortJson
         return overlay;
     }
 
+    public static PagesIntuitionOverlay ReadIntuitionOverlay(
+        ReadOnlySpan<byte> bytes,
+        PagesTruthReleasePort truthRelease)
+    {
+        PagesIntuitionOverlay overlay = Deserialize<PagesIntuitionOverlay>(bytes);
+        Validate(truthRelease, overlay);
+        return overlay;
+    }
+
     public static byte[] Write<T>(T value) =>
         JsonSerializer.SerializeToUtf8Bytes(value, Options)
             .Concat(new byte[] { (byte)'\n' })
@@ -121,22 +130,34 @@ public static class PagesPortJson
         }
     }
 
-    private static void Validate(PagesTruthReleasePort port)
+    public static void Validate(PagesTruthReleasePort port)
     {
+        port = RequireNotNull(port, "truth release port");
         Require(port.Schema == PagesSchemas.TruthReleasePort,
             $"schema must be {PagesSchemas.TruthReleasePort}.");
         RequireSha256(port.ReleaseDigest, nameof(port.ReleaseDigest));
         RequireGitPair(port.SourceCommit, port.SourceTree);
 
-        RequireUnique(port.ModuleNodes.Select(node => node.Id), "module node id");
-        RequireUnique(port.ModuleNodes.Select(node => node.RepoPath), "module repo_path");
-        RequireUnique(port.FrozenNodes.Select(node => node.FrozenNodeId), "frozen node id");
-        RequireUnique(port.FrozenNodes.Select(node => node.RepoPath), "frozen repo_path");
-        RequireUnique(port.DocumentAnchors.Select(anchor => anchor.NodeId), "document anchor node id");
+        Require(port.ModuleNodes is not null, "module_nodes must be an array.");
+        Require(port.ModuleEdges is not null, "module_edges must be an array.");
+        Require(port.FrozenNodes is not null, "frozen_nodes must be an array.");
+        Require(port.FrozenEdges is not null, "frozen_edges must be an array.");
+        Require(port.DocumentAnchors is not null, "document_anchors must be an array.");
+        RequireNoNullItems(port.ModuleNodes!, "module_nodes");
+        RequireNoNullItems(port.ModuleEdges!, "module_edges");
+        RequireNoNullItems(port.FrozenNodes!, "frozen_nodes");
+        RequireNoNullItems(port.FrozenEdges!, "frozen_edges");
+        RequireNoNullItems(port.DocumentAnchors!, "document_anchors");
 
-        var moduleIds = port.ModuleNodes.Select(node => node.Id)
+        RequireUnique(port.ModuleNodes!.Select(node => node.Id), "module node id");
+        RequireUnique(port.ModuleNodes!.Select(node => node.RepoPath), "module repo_path");
+        RequireUnique(port.FrozenNodes!.Select(node => node.FrozenNodeId), "frozen node id");
+        RequireUnique(port.FrozenNodes!.Select(node => node.RepoPath), "frozen repo_path");
+        RequireUnique(port.DocumentAnchors!.Select(anchor => anchor.NodeId), "document anchor node id");
+
+        var moduleIds = port.ModuleNodes!.Select(node => node.Id)
             .ToHashSet(StringComparer.Ordinal);
-        foreach (PagesModuleNode node in port.ModuleNodes)
+        foreach (PagesModuleNode node in port.ModuleNodes!)
         {
             RequireNonEmpty(node.Id, "module node id");
             RequireNonEmpty(node.Title, "module node title");
@@ -146,17 +167,27 @@ public static class PagesPortJson
             Require(node.Depth >= 0, $"module node {node.Id} has negative depth.");
         }
 
-        foreach (PagesModuleEdge edge in port.ModuleEdges)
+        foreach (PagesModuleEdge edge in port.ModuleEdges!)
         {
             Require(moduleIds.Contains(edge.Dependency),
                 $"module edge dependency {edge.Dependency} is absent.");
             Require(moduleIds.Contains(edge.Dependent),
                 $"module edge dependent {edge.Dependent} is absent.");
+            Require(edge.Dependency != edge.Dependent,
+                "module edge cannot be a self-loop.");
         }
 
-        var frozenIds = port.FrozenNodes.Select(node => node.FrozenNodeId)
+        RequireUniqueEdges(
+            port.ModuleEdges!.Select(edge => (edge.Dependency, edge.Dependent)),
+            "module edge");
+        RequireAcyclic(
+            moduleIds,
+            port.ModuleEdges!.Select(edge => (edge.Dependency, edge.Dependent)),
+            "module graph");
+
+        var frozenIds = port.FrozenNodes!.Select(node => node.FrozenNodeId)
             .ToHashSet(StringComparer.Ordinal);
-        foreach (PagesFrozenNode node in port.FrozenNodes)
+        foreach (PagesFrozenNode node in port.FrozenNodes!)
         {
             RequireSha256(node.FrozenNodeId, "frozen_node_id");
             RequireNonEmpty(node.RepoPath, "frozen node repo_path");
@@ -164,7 +195,7 @@ public static class PagesPortJson
             RequireUnique(node.AxiomClosure, $"axiom in {node.FrozenNodeId}");
         }
 
-        foreach (PagesFrozenEdge edge in port.FrozenEdges)
+        foreach (PagesFrozenEdge edge in port.FrozenEdges!)
         {
             Require(frozenIds.Contains(edge.PrerequisiteFrozenNodeId),
                 $"frozen prerequisite {edge.PrerequisiteFrozenNodeId} is absent.");
@@ -174,9 +205,17 @@ public static class PagesPortJson
                 "frozen proof edge cannot be a self-loop.");
         }
 
-        RequireAcyclic(frozenIds, port.FrozenEdges);
+        RequireUniqueEdges(
+            port.FrozenEdges!.Select(edge =>
+                (edge.PrerequisiteFrozenNodeId, edge.DependentFrozenNodeId)),
+            "frozen edge");
+        RequireAcyclic(
+            frozenIds,
+            port.FrozenEdges!.Select(edge =>
+                (edge.PrerequisiteFrozenNodeId, edge.DependentFrozenNodeId)),
+            "frozen proof graph");
 
-        foreach (PagesDocumentAnchor anchor in port.DocumentAnchors)
+        foreach (PagesDocumentAnchor anchor in port.DocumentAnchors!)
         {
             Require(moduleIds.Contains(anchor.NodeId),
                 $"document anchor node {anchor.NodeId} is absent.");
@@ -184,41 +223,82 @@ public static class PagesPortJson
         }
     }
 
-    private static void Validate(PagesIntuitionOverlay overlay)
+    public static void Validate(PagesIntuitionOverlay overlay)
     {
+        overlay = RequireNotNull(overlay, "intuition overlay");
         Require(overlay.Schema == PagesSchemas.IntuitionOverlay,
             $"schema must be {PagesSchemas.IntuitionOverlay}.");
         RequireSha256(overlay.SourceTruthReleaseDigest, nameof(overlay.SourceTruthReleaseDigest));
-        RequireUnique(overlay.Relations.Select(relation => relation.RelationId), "relation id");
+        Require(overlay.Relations is not null, "relations must be an array.");
+        RequireNoNullItems(overlay.Relations!, "relations");
+        RequireUnique(overlay.Relations!.Select(relation => relation.RelationId), "relation id");
 
-        foreach (PagesCandidateRelation relation in overlay.Relations)
+        foreach (PagesCandidateRelation relation in overlay.Relations!)
         {
             RequireNonEmpty(relation.RelationId, "relation id");
             RequireNonEmpty(relation.RelationType, "relation type");
             Require(CandidateStatuses.Contains(relation.Status),
                 $"relation {relation.RelationId} has unknown status {relation.Status}.");
-            Require(relation.Inputs.Count > 0, $"relation {relation.RelationId} has no inputs.");
-            Require(relation.Outputs.Count > 0, $"relation {relation.RelationId} has no outputs.");
+            Require(relation.Inputs is not null,
+                $"relation {relation.RelationId} inputs must be an array.");
+            Require(relation.Outputs is not null,
+                $"relation {relation.RelationId} outputs must be an array.");
+            Require(relation.EvidenceRefs is not null,
+                $"relation {relation.RelationId} evidence_refs must be an array.");
+            Require(relation.Inputs!.Count > 0, $"relation {relation.RelationId} has no inputs.");
+            Require(relation.Outputs!.Count > 0, $"relation {relation.RelationId} has no outputs.");
+            RequireUnique(relation.Inputs!, $"input in relation {relation.RelationId}");
+            RequireUnique(relation.Outputs!, $"output in relation {relation.RelationId}");
+            RequireUnique(relation.EvidenceRefs!, $"evidence ref in relation {relation.RelationId}");
+        }
+    }
+
+    public static void Validate(
+        PagesTruthReleasePort truthRelease,
+        PagesIntuitionOverlay? overlay)
+    {
+        Validate(truthRelease);
+        if (overlay is null)
+        {
+            return;
+        }
+
+        Validate(overlay);
+        Require(overlay.SourceTruthReleaseDigest == truthRelease.ReleaseDigest,
+            "intuition overlay is bound to a different truth release.");
+
+        var certifiedNodeIds = truthRelease.ModuleNodes!.Select(node => $"module:{node.Id}")
+            .Concat(truthRelease.FrozenNodes!.Select(node => $"frozen:{node.FrozenNodeId}"))
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (PagesCandidateRelation relation in overlay.Relations!)
+        {
+            foreach (string endpoint in relation.Inputs!.Concat(relation.Outputs!))
+            {
+                Require(certifiedNodeIds.Contains(endpoint),
+                    $"relation {relation.RelationId} endpoint {endpoint} is not a certified node.");
+            }
         }
     }
 
     private static void RequireAcyclic(
-        IReadOnlySet<string> frozenIds,
-        IReadOnlyList<PagesFrozenEdge> edges)
+        IReadOnlySet<string> nodeIds,
+        IEnumerable<(string Source, string Target)> edges,
+        string graphName)
     {
-        var outgoing = frozenIds.ToDictionary(
+        var outgoing = nodeIds.ToDictionary(
             id => id,
             _ => new List<string>(),
             StringComparer.Ordinal);
-        var indegree = frozenIds.ToDictionary(
+        var indegree = nodeIds.ToDictionary(
             id => id,
             _ => 0,
             StringComparer.Ordinal);
 
-        foreach (PagesFrozenEdge edge in edges)
+        foreach ((string source, string target) in edges)
         {
-            outgoing[edge.PrerequisiteFrozenNodeId].Add(edge.DependentFrozenNodeId);
-            indegree[edge.DependentFrozenNodeId]++;
+            outgoing[source].Add(target);
+            indegree[target]++;
         }
 
         var queue = new PriorityQueue<string, string>(StringComparer.Ordinal);
@@ -244,41 +324,59 @@ public static class PagesPortJson
             }
         }
 
-        Require(visited == frozenIds.Count, "frozen proof graph contains a cycle.");
+        Require(visited == nodeIds.Count, $"{graphName} contains a cycle.");
     }
 
-    private static void RequireGitPair(string commit, string tree)
+    private static void RequireGitPair(string? commit, string? tree)
     {
-        Require(IsLowerHex(commit) && commit.Length is 40 or 64,
+        Require(commit is not null && IsLowerHex(commit) && commit.Length is 40 or 64,
             "source_commit must be a lowercase 40- or 64-hex Git object id.");
-        Require(IsLowerHex(tree) && tree.Length == commit.Length,
+        Require(tree is not null && commit is not null && IsLowerHex(tree) && tree.Length == commit.Length,
             "source_tree must use the same Git object-id width as source_commit.");
     }
 
-    private static void RequireSha256(string value, string field)
+    private static void RequireSha256(string? value, string field)
     {
-        Require(value.StartsWith("sha256:", StringComparison.Ordinal),
+        Require(value is not null && value.StartsWith("sha256:", StringComparison.Ordinal),
             $"{field} must use sha256:<64hex>.");
-        string hex = value["sha256:".Length..];
+        string hex = value is null ? string.Empty : value["sha256:".Length..];
         Require(hex.Length == 64 && IsLowerHex(hex),
             $"{field} must use sha256:<64hex>.");
     }
 
-    private static bool IsLowerHex(string value) =>
-        value.All(character =>
+    private static bool IsLowerHex(string? value) =>
+        value is not null && value.All(character =>
             character is >= '0' and <= '9' or >= 'a' and <= 'f');
 
-    private static void RequireUnique(IEnumerable<string> values, string name)
+    private static void RequireUnique(IEnumerable<string?> values, string name)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
-        foreach (string value in values)
+        foreach (string? value in values)
         {
             RequireNonEmpty(value, name);
-            Require(seen.Add(value), $"duplicate {name}: {value}.");
+            Require(value is not null && seen.Add(value), $"duplicate {name}: {value}.");
         }
     }
 
-    private static void RequireNonEmpty(string value, string field) =>
+    private static void RequireUniqueEdges(
+        IEnumerable<(string Source, string Target)> edges,
+        string name)
+    {
+        var seen = new HashSet<(string Source, string Target)>();
+        foreach ((string source, string target) in edges)
+        {
+            Require(seen.Add((source, target)),
+                $"duplicate {name}: {source} -> {target}.");
+        }
+    }
+
+    private static void RequireNoNullItems<T>(IEnumerable<T> values, string field)
+    {
+        Require(values.All(value => value is not null),
+            $"{field} cannot contain null items.");
+    }
+
+    private static void RequireNonEmpty(string? value, string field) =>
         Require(!string.IsNullOrWhiteSpace(value), $"{field} must be non-empty.");
 
     private static void Require(bool condition, string message)
@@ -288,4 +386,8 @@ public static class PagesPortJson
             throw new InvalidDataException(message);
         }
     }
+
+    private static T RequireNotNull<T>(T? value, string field)
+        where T : class =>
+        value ?? throw new InvalidDataException($"{field} must be non-null.");
 }

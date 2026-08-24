@@ -32,7 +32,7 @@ internal static class PagesCli
         PagesTruthReleasePort port =
             PagesPortJson.ReadTruthReleasePort(File.ReadAllBytes(args[1]));
         PagesIntuitionOverlay? overlay = args.Length >= 4 && args[3] != "-"
-            ? PagesPortJson.ReadIntuitionOverlay(File.ReadAllBytes(args[3]))
+            ? PagesPortJson.ReadIntuitionOverlay(File.ReadAllBytes(args[3]), port)
             : null;
         int radius = args.Length == 5
             ? int.Parse(args[4], System.Globalization.CultureInfo.InvariantCulture)

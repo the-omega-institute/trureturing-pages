@@ -5,20 +5,22 @@ namespace Trureturing.Pages.ArchitectureTests;
 public sealed class TruthConsumptionBoundaryTests
 {
     [Fact]
-    public void PagesCoreOwnsAViewPortAndNotTheUpstreamWire()
+    public void PagesIngressAndCoreOwnAViewPortAndNotTheUpstreamWire()
     {
         string root = FindRoot();
-        string sourceRoot = Path.Combine(root, "src", "Trureturing.Pages.Core");
-        string text = string.Join(
-            "\n",
-            Directory.EnumerateFiles(sourceRoot, "*.cs", SearchOption.AllDirectories)
-                .OrderBy(path => path, StringComparer.Ordinal)
-                .Select(File.ReadAllText));
+        string source = Path.Combine(root, "src");
+        string text = string.Join("\n", new[] { "Trureturing.Pages.Core", "Trureturing.Pages.Cli" }
+            .SelectMany(project => Directory.EnumerateFiles(
+                Path.Combine(source, project), "*.cs", SearchOption.AllDirectories))
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .Select(File.ReadAllText));
 
-        Assert.DoesNotContain("stratalint.truth-graph", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("stratalint.truth-export", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("FrozenLedger", text, StringComparison.Ordinal);
-        Assert.DoesNotContain("Trureturing.Truth", text, StringComparison.Ordinal);
+        string normalized = Normalize(text);
+        foreach (string token in ForbiddenUpstreamTokens)
+        {
+            Assert.DoesNotContain(token, normalized, StringComparison.Ordinal);
+        }
+
         Assert.Contains(PagesPortSchema, text, StringComparison.Ordinal);
     }
 
@@ -60,6 +62,17 @@ public sealed class TruthConsumptionBoundaryTests
     }
 
     private const string PagesPortSchema = "pages-truth-release-port.v1";
+
+    private static readonly string[] ForbiddenUpstreamTokens =
+    [
+        "stratalinttruthgraph", "stratalinttruthexport",
+        "truthgraphv1", "truthexportv1", "truthreleasev1",
+        "trureturingtruth", "readtruthgraph", "readtruthexport",
+        "frozenledger", "ledgerreplay", "basewrite"
+    ];
+
+    private static string Normalize(string value) =>
+        new(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
 
     private static string FindRoot()
     {
