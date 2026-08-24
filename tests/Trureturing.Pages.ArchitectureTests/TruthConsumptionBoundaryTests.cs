@@ -1,3 +1,4 @@
+using System.Net;
 using System.Xml.Linq;
 using Xunit;
 
@@ -51,6 +52,25 @@ public sealed class TruthConsumptionBoundaryTests
               <ItemGroup>
                 <PackageReference
                     Include = " Trureturing&#x2E;Truth&#46;Wire " />
+              </ItemGroup>
+            </Project>
+            """;
+
+        Assert.Equal(
+            "trureturingtruth",
+            FindForbiddenProjectReference(new[] { projectFile }));
+    }
+
+    [Fact]
+    public void MsBuildPropertyIndirectionToUpstreamPackageIsRejected()
+    {
+        const string projectFile = """
+            <Project>
+              <PropertyGroup>
+                <DependencyCoordinate>Trureturing.Truth.Wire</DependencyCoordinate>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageReference Include="$(DependencyCoordinate)" />
               </ItemGroup>
             </Project>
             """;
@@ -150,24 +170,13 @@ public sealed class TruthConsumptionBoundaryTests
     {
         foreach (string projectDocument in projectDocuments)
         {
-            XDocument project = XDocument.Parse(projectDocument);
-            IEnumerable<XElement> elements = project.Root?.DescendantsAndSelf() ?? [];
-            foreach (XElement reference in elements.Where(element => element.Name.LocalName is
-                         "PackageReference" or "ProjectReference"))
+            _ = XDocument.Parse(projectDocument);
+            string decodedProjectDocument = WebUtility.HtmlDecode(projectDocument);
+            string? forbiddenToken = FindForbiddenUpstreamToken(
+                new[] { decodedProjectDocument });
+            if (forbiddenToken is not null)
             {
-                XAttribute? include = reference.Attributes().FirstOrDefault(attribute =>
-                    attribute.Name.LocalName == "Include");
-                if (include is null)
-                {
-                    continue;
-                }
-
-                string? forbiddenToken = FindForbiddenUpstreamToken(
-                    new[] { include.Value });
-                if (forbiddenToken is not null)
-                {
-                    return forbiddenToken;
-                }
+                return forbiddenToken;
             }
         }
 
