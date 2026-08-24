@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Reflection;
 using Trureturing.Pages.Core;
@@ -8,6 +9,101 @@ namespace Trureturing.Pages.Tests;
 
 public sealed class PortValidationTests
 {
+    public static TheoryData<string> TruthReleaseRequiredFields => new()
+    {
+        "schema",
+        "release_digest",
+        "source_commit",
+        "source_tree",
+        "module_nodes",
+        "module_edges",
+        "frozen_nodes",
+        "frozen_edges",
+        "document_anchors"
+    };
+
+    public static TheoryData<string, string> TruthReleaseRequiredItemFields => new()
+    {
+        { "module_nodes", "id" },
+        { "module_nodes", "title" },
+        { "module_nodes", "state" },
+        { "module_nodes", "depth" },
+        { "module_nodes", "repo_path" },
+        { "module_edges", "dependency" },
+        { "module_edges", "dependent" },
+        { "frozen_nodes", "frozen_node_id" },
+        { "frozen_nodes", "repo_path" },
+        { "frozen_nodes", "declaration_ids" },
+        { "frozen_nodes", "axiom_closure" },
+        { "frozen_edges", "prerequisite_frozen_node_id" },
+        { "frozen_edges", "dependent_frozen_node_id" },
+        { "document_anchors", "node_id" },
+        { "document_anchors", "mdbook_path" }
+    };
+
+    public static TheoryData<string> IntuitionOverlayRequiredFields => new()
+    {
+        "schema",
+        "source_truth_release_digest",
+        "relations"
+    };
+
+    public static TheoryData<string> IntuitionOverlayRequiredItemFields => new()
+    {
+        "relation_id",
+        "relation_type",
+        "status",
+        "inputs",
+        "outputs",
+        "evidence_refs"
+    };
+
+    [Theory]
+    [MemberData(nameof(TruthReleaseRequiredFields))]
+    public void TruthReleaseReaderRejectsMissingRequiredField(string field)
+    {
+        JsonObject document = Parse(PagesPortJson.Write(Port()));
+        Assert.True(document.Remove(field));
+
+        Assert.Throws<InvalidDataException>(
+            () => PagesPortJson.ReadTruthReleasePort(JsonSerializer.SerializeToUtf8Bytes(document)));
+    }
+
+    [Theory]
+    [MemberData(nameof(TruthReleaseRequiredItemFields))]
+    public void TruthReleaseReaderRejectsMissingRequiredItemField(string collection, string field)
+    {
+        JsonObject document = Parse(PagesPortJson.Write(Port()));
+        JsonObject item = document[collection]![0]!.AsObject();
+        Assert.True(item.Remove(field));
+
+        Assert.Throws<InvalidDataException>(
+            () => PagesPortJson.ReadTruthReleasePort(JsonSerializer.SerializeToUtf8Bytes(document)));
+    }
+
+    [Theory]
+    [MemberData(nameof(IntuitionOverlayRequiredFields))]
+    public void IntuitionOverlayReaderRejectsMissingRequiredField(string field)
+    {
+        JsonObject document = Parse(PagesPortJson.Write(Overlay()));
+        Assert.True(document.Remove(field));
+
+        Assert.Throws<InvalidDataException>(
+            () => PagesPortJson.ReadIntuitionOverlay(JsonSerializer.SerializeToUtf8Bytes(document)));
+    }
+
+    [Theory]
+    [MemberData(nameof(IntuitionOverlayRequiredItemFields))]
+    public void IntuitionOverlayReaderRejectsMissingRequiredItemField(string field)
+    {
+        JsonObject document = Parse(PagesPortJson.Write(Overlay()));
+        JsonObject relation = document["relations"]![0]!.AsObject();
+        Assert.True(relation.Remove(field));
+
+        Assert.Throws<InvalidDataException>(
+            () => PagesPortJson.ReadIntuitionOverlay(JsonSerializer.SerializeToUtf8Bytes(document)));
+    }
+
     [Fact]
     public void ProjectionRevalidatesABypassConstructedPort()
     {
@@ -174,6 +270,24 @@ public sealed class PortValidationTests
         },
         new[] { new PagesFrozenEdge(Hash('c'), Hash('e')) },
         new[] { new PagesDocumentAnchor("A", "Blueprint/A.html") });
+
+    private static PagesIntuitionOverlay Overlay() => new(
+        PagesSchemas.IntuitionOverlay,
+        Port().ReleaseDigest,
+        new[]
+        {
+            new PagesCandidateRelation(
+                "relation-1",
+                "bridge",
+                "proposed",
+                new[] { "module:A" },
+                new[] { "module:B" },
+                Array.Empty<string>())
+        });
+
+    private static JsonObject Parse(byte[] bytes) =>
+        JsonNode.Parse(bytes)?.AsObject()
+        ?? throw new InvalidOperationException("Test fixture did not serialize to a JSON object.");
 
     private static string Sha(char value) => "sha256:" + new string(value, 64);
     private static string Hash(char value) => "sha256:" + new string(value, 64);

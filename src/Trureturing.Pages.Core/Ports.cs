@@ -10,53 +10,53 @@ public static class PagesSchemas
 }
 
 public sealed record PagesModuleNode(
-    string Id,
-    string Title,
-    string State,
-    int Depth,
-    string RepoPath);
+    [property: JsonRequired] string Id,
+    [property: JsonRequired] string Title,
+    [property: JsonRequired] string State,
+    [property: JsonRequired] int Depth,
+    [property: JsonRequired] string RepoPath);
 
 public sealed record PagesModuleEdge(
-    string Dependency,
-    string Dependent);
+    [property: JsonRequired] string Dependency,
+    [property: JsonRequired] string Dependent);
 
 public sealed record PagesFrozenNode(
-    string FrozenNodeId,
-    string RepoPath,
-    IReadOnlyList<string> DeclarationIds,
-    IReadOnlyList<string> AxiomClosure);
+    [property: JsonRequired] string FrozenNodeId,
+    [property: JsonRequired] string RepoPath,
+    [property: JsonRequired] IReadOnlyList<string> DeclarationIds,
+    [property: JsonRequired] IReadOnlyList<string> AxiomClosure);
 
 public sealed record PagesFrozenEdge(
-    string PrerequisiteFrozenNodeId,
-    string DependentFrozenNodeId);
+    [property: JsonRequired] string PrerequisiteFrozenNodeId,
+    [property: JsonRequired] string DependentFrozenNodeId);
 
 public sealed record PagesDocumentAnchor(
-    string NodeId,
-    string MdbookPath);
+    [property: JsonRequired] string NodeId,
+    [property: JsonRequired] string MdbookPath);
 
 public sealed record PagesTruthReleasePort(
-    string Schema,
-    string ReleaseDigest,
-    string SourceCommit,
-    string SourceTree,
-    IReadOnlyList<PagesModuleNode> ModuleNodes,
-    IReadOnlyList<PagesModuleEdge> ModuleEdges,
-    IReadOnlyList<PagesFrozenNode> FrozenNodes,
-    IReadOnlyList<PagesFrozenEdge> FrozenEdges,
-    IReadOnlyList<PagesDocumentAnchor> DocumentAnchors);
+    [property: JsonRequired] string Schema,
+    [property: JsonRequired] string ReleaseDigest,
+    [property: JsonRequired] string SourceCommit,
+    [property: JsonRequired] string SourceTree,
+    [property: JsonRequired] IReadOnlyList<PagesModuleNode> ModuleNodes,
+    [property: JsonRequired] IReadOnlyList<PagesModuleEdge> ModuleEdges,
+    [property: JsonRequired] IReadOnlyList<PagesFrozenNode> FrozenNodes,
+    [property: JsonRequired] IReadOnlyList<PagesFrozenEdge> FrozenEdges,
+    [property: JsonRequired] IReadOnlyList<PagesDocumentAnchor> DocumentAnchors);
 
 public sealed record PagesCandidateRelation(
-    string RelationId,
-    string RelationType,
-    string Status,
-    IReadOnlyList<string> Inputs,
-    IReadOnlyList<string> Outputs,
-    IReadOnlyList<string> EvidenceRefs);
+    [property: JsonRequired] string RelationId,
+    [property: JsonRequired] string RelationType,
+    [property: JsonRequired] string Status,
+    [property: JsonRequired] IReadOnlyList<string> Inputs,
+    [property: JsonRequired] IReadOnlyList<string> Outputs,
+    [property: JsonRequired] IReadOnlyList<string> EvidenceRefs);
 
 public sealed record PagesIntuitionOverlay(
-    string Schema,
-    string SourceTruthReleaseDigest,
-    IReadOnlyList<PagesCandidateRelation> Relations);
+    [property: JsonRequired] string Schema,
+    [property: JsonRequired] string SourceTruthReleaseDigest,
+    [property: JsonRequired] IReadOnlyList<PagesCandidateRelation> Relations);
 
 public static class PagesPortJson
 {

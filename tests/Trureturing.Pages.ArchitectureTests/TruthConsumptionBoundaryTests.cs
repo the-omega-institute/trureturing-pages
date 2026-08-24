@@ -8,20 +8,34 @@ public sealed class TruthConsumptionBoundaryTests
     public void PagesIngressAndCoreOwnAViewPortAndNotTheUpstreamWire()
     {
         string root = FindRoot();
-        string source = Path.Combine(root, "src");
-        string text = string.Join("\n", new[] { "Trureturing.Pages.Core", "Trureturing.Pages.Cli" }
-            .SelectMany(project => Directory.EnumerateFiles(
-                Path.Combine(source, project), "*.cs", SearchOption.AllDirectories))
-            .OrderBy(path => path, StringComparer.Ordinal)
-            .Select(File.ReadAllText));
+        string[] paths = BoundaryFiles(root).ToArray();
+        string text = string.Join("\n", paths.Select(File.ReadAllText));
 
-        string normalized = Normalize(text);
-        foreach (string token in ForbiddenUpstreamTokens)
+        foreach (string project in BoundaryProjects)
         {
-            Assert.DoesNotContain(token, normalized, StringComparison.Ordinal);
+            Assert.Contains(
+                Path.Combine(root, "src", project, $"{project}.csproj"),
+                paths);
         }
 
+        Assert.Null(FindForbiddenUpstreamToken(new[] { text }));
         Assert.Contains(PagesPortSchema, text, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(
+        "<PackageReference Include=\"Trureturing.Truth.Wire\" />",
+        "trureturingtruth")]
+    [InlineData(
+        "<ProjectReference Include=\"../../truth/StrataLint.TruthGraph.csproj\" />",
+        "stratalinttruthgraph")]
+    public void UpstreamWireDependenciesInProjectFilesAreRejected(
+        string projectFile,
+        string expectedToken)
+    {
+        Assert.Equal(
+            expectedToken,
+            FindForbiddenUpstreamToken(new[] { projectFile }));
     }
 
     [Fact]
@@ -63,6 +77,12 @@ public sealed class TruthConsumptionBoundaryTests
 
     private const string PagesPortSchema = "pages-truth-release-port.v1";
 
+    private static readonly string[] BoundaryProjects =
+    [
+        "Trureturing.Pages.Core",
+        "Trureturing.Pages.Cli"
+    ];
+
     private static readonly string[] ForbiddenUpstreamTokens =
     [
         "stratalinttruthgraph", "stratalinttruthexport",
@@ -73,6 +93,30 @@ public sealed class TruthConsumptionBoundaryTests
 
     private static string Normalize(string value) =>
         new(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+
+    private static IEnumerable<string> BoundaryFiles(string root)
+    {
+        foreach (string project in BoundaryProjects)
+        {
+            string projectDirectory = Path.Combine(root, "src", project);
+            foreach (string path in Directory.EnumerateFiles(
+                projectDirectory,
+                "*.cs",
+                SearchOption.AllDirectories))
+            {
+                yield return path;
+            }
+
+            yield return Path.Combine(projectDirectory, $"{project}.csproj");
+        }
+    }
+
+    private static string? FindForbiddenUpstreamToken(IEnumerable<string> documents)
+    {
+        string normalized = Normalize(string.Join("\n", documents));
+        return ForbiddenUpstreamTokens.FirstOrDefault(token =>
+            normalized.Contains(token, StringComparison.Ordinal));
+    }
 
     private static string FindRoot()
     {
