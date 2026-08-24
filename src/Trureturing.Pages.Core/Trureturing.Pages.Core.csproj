@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Trureturing.Pages.Core</RootNamespace>
+  </PropertyGroup>
+</Project>

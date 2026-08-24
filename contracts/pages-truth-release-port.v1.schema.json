@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-truth-release-port.v1",
+  "title": "Pages truth-release view port",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "release_digest",
+    "source_commit",
+    "source_tree",
+    "module_nodes",
+    "module_edges",
+    "frozen_nodes",
+    "frozen_edges",
+    "document_anchors"
+  ],
+  "properties": {
+    "schema": { "const": "pages-truth-release-port.v1" },
+    "release_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "source_commit": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "source_tree": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "module_nodes": { "type": "array" },
+    "module_edges": { "type": "array" },
+    "frozen_nodes": { "type": "array" },
+    "frozen_edges": { "type": "array" },
+    "document_anchors": { "type": "array" }
+  }
+}
