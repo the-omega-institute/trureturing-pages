@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using Xunit;
 
 namespace Trureturing.Pages.ArchitectureTests;
@@ -8,18 +9,22 @@ public sealed class TruthConsumptionBoundaryTests
     public void PagesIngressAndCoreOwnAViewPortAndNotTheUpstreamWire()
     {
         string root = FindRoot();
-        string[] paths = BoundaryFiles(root).ToArray();
-        string text = string.Join("\n", paths.Select(File.ReadAllText));
+        string[] projectPaths = BoundaryProjectFiles(root).ToArray();
+        string source = string.Join(
+            "\n",
+            BoundarySourceFiles(root).Select(File.ReadAllText));
 
         foreach (string project in BoundaryProjects)
         {
             Assert.Contains(
                 Path.Combine(root, "src", project, $"{project}.csproj"),
-                paths);
+                projectPaths);
         }
 
-        Assert.Null(FindForbiddenUpstreamToken(new[] { text }));
-        Assert.Contains(PagesPortSchema, text, StringComparison.Ordinal);
+        Assert.Null(FindForbiddenUpstreamToken(new[] { source }));
+        Assert.Null(FindForbiddenProjectReference(
+            projectPaths.Select(File.ReadAllText)));
+        Assert.Contains(PagesPortSchema, source, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -35,7 +40,24 @@ public sealed class TruthConsumptionBoundaryTests
     {
         Assert.Equal(
             expectedToken,
-            FindForbiddenUpstreamToken(new[] { projectFile }));
+            FindForbiddenProjectReference(new[] { projectFile }));
+    }
+
+    [Fact]
+    public void XmlEntityEncodedUpstreamPackageReferenceIsRejected()
+    {
+        const string projectFile = """
+            <Project>
+              <ItemGroup>
+                <PackageReference
+                    Include = " Trureturing&#x2E;Truth&#46;Wire " />
+              </ItemGroup>
+            </Project>
+            """;
+
+        Assert.Equal(
+            "trureturingtruth",
+            FindForbiddenProjectReference(new[] { projectFile }));
     }
 
     [Fact]
@@ -94,7 +116,7 @@ public sealed class TruthConsumptionBoundaryTests
     private static string Normalize(string value) =>
         new(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
 
-    private static IEnumerable<string> BoundaryFiles(string root)
+    private static IEnumerable<string> BoundarySourceFiles(string root)
     {
         foreach (string project in BoundaryProjects)
         {
@@ -106,16 +128,50 @@ public sealed class TruthConsumptionBoundaryTests
             {
                 yield return path;
             }
-
-            yield return Path.Combine(projectDirectory, $"{project}.csproj");
         }
     }
+
+    private static IEnumerable<string> BoundaryProjectFiles(string root) =>
+        BoundaryProjects.Select(project => Path.Combine(
+            root,
+            "src",
+            project,
+            $"{project}.csproj"));
 
     private static string? FindForbiddenUpstreamToken(IEnumerable<string> documents)
     {
         string normalized = Normalize(string.Join("\n", documents));
         return ForbiddenUpstreamTokens.FirstOrDefault(token =>
             normalized.Contains(token, StringComparison.Ordinal));
+    }
+
+    private static string? FindForbiddenProjectReference(
+        IEnumerable<string> projectDocuments)
+    {
+        foreach (string projectDocument in projectDocuments)
+        {
+            XDocument project = XDocument.Parse(projectDocument);
+            IEnumerable<XElement> elements = project.Root?.DescendantsAndSelf() ?? [];
+            foreach (XElement reference in elements.Where(element => element.Name.LocalName is
+                         "PackageReference" or "ProjectReference"))
+            {
+                XAttribute? include = reference.Attributes().FirstOrDefault(attribute =>
+                    attribute.Name.LocalName == "Include");
+                if (include is null)
+                {
+                    continue;
+                }
+
+                string? forbiddenToken = FindForbiddenUpstreamToken(
+                    new[] { include.Value });
+                if (forbiddenToken is not null)
+                {
+                    return forbiddenToken;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static string FindRoot()
