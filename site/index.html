@@ -1,5 +1,5 @@
-<!doctype html>
-<!-- Data source: manually approved source-snapshot.v1; build-time injection is TBD. -->
+<!DOCTYPE html>
+<!-- Data source: the blessed source-snapshot.v1 projection in site/data/. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -26,12 +26,11 @@
 
     <section aria-labelledby="dag-status-title">
       <h2 id="dag-status-title">DAG status</h2>
-      <!-- Counts are populated from the approved snapshot during the future injection step. -->
       <div class="status-grid">
-        <div class="status-card status-closed"><span>Closed</span><strong data-count="Closed">&mdash;</strong></div>
-        <div class="status-card status-open"><span>Open</span><strong data-count="Open">&mdash;</strong></div>
-        <div class="status-card status-tail"><span>Tail</span><strong data-count="Tail">&mdash;</strong></div>
-        <div class="status-card status-semantic"><span>Semantic</span><strong data-count="Semantic">&mdash;</strong></div>
+        <div class="status-card status-closed"><span>Closed</span><strong data-count="Closed">670</strong></div>
+        <div class="status-card status-open"><span>Open</span><strong data-count="Open">12</strong></div>
+        <div class="status-card status-tail"><span>Tail</span><strong data-count="Tail">0</strong></div>
+        <div class="status-card status-semantic"><span>Semantic</span><strong data-count="Semantic">7,215</strong></div>
       </div>
     </section>
 
@@ -48,7 +47,7 @@
     <section aria-labelledby="explore-title">
       <h2 id="explore-title">Explore</h2>
       <div class="navigation-grid">
-        <a href="dag.html">DAG <span>Browse and filter frozen node states.</span></a>
+        <a href="dag.html">DAG <span>Explore the real dependency graph in three dimensions.</span></a>
         <a href="theory/">Theory <span>Open the upstream theory-volume index.</span></a>
         <a href="conclusions.html">Conclusions <span>Review provenance-linked highlights.</span></a>
       </div>
@@ -62,12 +61,21 @@
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
       .then((graph) => {
         const snap = graph.source_snapshot || {};
+        const counts = graph.counts || {};
         const set = (field, value) => {
           const el = document.querySelector(`[data-snapshot-field="${field}"]`);
           if (el && value) el.textContent = value;
         };
+        const setCount = (status, value) => {
+          const el = document.querySelector(`[data-count="${status}"]`);
+          if (el && Number.isFinite(value)) el.textContent = value.toLocaleString();
+        };
         set('source-commit', snap.source_commit);
         set('updated-at', snap.approved_at);
+        setCount('Closed', counts.dag_closed);
+        setCount('Open', counts.dag_open);
+        setCount('Tail', counts.dag_tail);
+        setCount('Semantic', counts.dag_semantic);
       })
       .catch(() => { /* keep the static fallback values */ });
   </script>

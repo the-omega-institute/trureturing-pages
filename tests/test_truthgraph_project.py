@@ -1,7 +1,7 @@
 """Tests for lib/truthgraph_project.py — the pages consume logic that projects a real
 trureturing truth-graph into the static DAG display schema. Guards determinism,
-semantic-noise filtering, frontier-first ordering, provenance passthrough, count closure
-(no node silently lost), and fail-closed behaviour on malformed input."""
+semantic-noise filtering, edge retention, structural grouping, frontier-first ordering,
+provenance passthrough, count closure, and fail-closed behaviour on malformed input."""
 import json
 import sys
 import unittest
@@ -16,15 +16,19 @@ SYNTHETIC_TG = {
     "schema_version": 1,
     "truth": {
         "nodes": [
-            {"depth": 0, "gid": "A/Closed", "module_name": "A.Closed", "repo_path": "A/Closed.lean", "state": "closed"},
-            {"depth": 2, "gid": "A/Open", "module_name": "A.Open", "repo_path": "A/Open.lean", "state": "open"},
-            {"depth": 1, "gid": "A/Tail", "module_name": "A.Tail", "repo_path": "A/Tail.lean", "state": "tail"},
-            # a real CLOSED math node with no gid (the umbrella root module) — must be filtered but accounted for
+            {"depth": 0, "gid": "D5/S0/Closed", "module_name": "D5.S0.Closed", "repo_path": "D5/S0/Closed.lean", "state": "closed"},
+            {"depth": 2, "gid": "D5/S1/Open", "module_name": "D5.S1.Open", "repo_path": "D5/S1/Open.lean", "state": "open"},
+            {"depth": 1, "gid": "D5/X_Frontier/Tail", "module_name": "D5.X_Frontier.Tail", "repo_path": "D5/X_Frontier/Tail.lean", "state": "tail"},
+            # a real CLOSED Lean node with no gid (the umbrella root module) — it must remain linkable
             {"depth": 9, "gid": None, "module_name": "Root", "repo_path": "Root.lean", "state": "closed"},
             # a semantic repo-file node — must be filtered as display noise
             {"depth": 0, "gid": None, "module_name": None, "repo_path": ".github/CODEOWNERS", "state": "semantic"},
         ],
-        "edges": [{"dependency": "A/Closed", "dependent": "A/Open"}],
+        "edges": [
+            {"dependency": "D5/S0/Closed.lean", "dependent": "D5/S1/Open.lean"},
+            {"dependency": "D5/S1/Open.lean", "dependent": "Root.lean"},
+            {"dependency": "D5/S0/Closed.lean", "dependent": ".github/CODEOWNERS"},
+        ],
         "state_counts": {"closed": 2, "open": 1, "tail": 1, "semantic": 1},
         "open_blockers": [],
     },
@@ -46,33 +50,64 @@ class TruthGraphProjectTests(unittest.TestCase):
     def test_deterministic(self):
         self.assertEqual(json.dumps(project(SYNTHETIC_TG, SNAP)), json.dumps(project(SYNTHETIC_TG, SNAP)))
 
-    def test_filters_semantic_and_rootless_and_capitalizes_status(self):
+    def test_filters_semantic_but_keeps_gidless_lean_node(self):
         r = project(SYNTHETIC_TG, SNAP)
         self.assertFalse(r["synthetic"])
-        # only the 3 gid-carrying math nodes are shown; semantic + gid-less-closed are filtered
-        self.assertEqual(len(r["nodes"]), 3)
+        self.assertEqual(len(r["nodes"]), 4)
         self.assertEqual({n["status"] for n in r["nodes"]}, {"Closed", "Open", "Tail"})
-        self.assertNotIn(None, [n["id"] for n in r["nodes"]])
+        self.assertIn("Root", [n["id"] for n in r["nodes"]])
 
     def test_frontier_sorted_first(self):
         r = project(SYNTHETIC_TG, SNAP)
-        self.assertEqual([n["status"] for n in r["nodes"]], ["Open", "Tail", "Closed"])
+        self.assertEqual([n["status"] for n in r["nodes"]], ["Open", "Tail", "Closed", "Closed"])
+
+    def test_emits_resolved_edges_and_filters_non_truth_endpoints(self):
+        r = project(SYNTHETIC_TG, SNAP)
+        self.assertEqual(
+            [(e["source"], e["target"]) for e in r["edges"]],
+            [("D5/S0/Closed", "D5/S1/Open"), ("D5/S1/Open", "Root")],
+        )
+        self.assertEqual(r["counts"]["source_edges"], 3)
+        self.assertEqual(r["counts"]["edges"], 2)
+        self.assertEqual(r["counts"]["filtered_edges"], 1)
+
+    def test_adds_layer_and_domain_grouping(self):
+        r = project(SYNTHETIC_TG, SNAP)
+        closed = next(node for node in r["nodes"] if node["id"] == "D5/S0/Closed")
+        root = next(node for node in r["nodes"] if node["id"] == "Root")
+        self.assertEqual((closed["layer"], closed["domain"]), ("D5/S0", "Closed"))
+        self.assertEqual((root["layer"], root["domain"]), ("Root", "Root"))
 
     def test_counts_close(self):
-        # regression for the 682-vs-681 bug: nothing is silently lost.
+        # Regression for the 682-vs-681 bug: the GID-less Lean root remains visible.
         c = project(SYNTHETIC_TG, SNAP)["counts"]
         self.assertEqual(c["shown"], c["shown_closed"] + c["shown_open"] + c["shown_tail"])
-        self.assertEqual(c["dag_closed"] + c["dag_open"] + c["dag_tail"], c["shown"] + c["filtered_no_gid"])
-        self.assertEqual(c["filtered_no_gid"], 1)          # the gid-less closed root
-        self.assertEqual(c["shown_closed"], 1)             # the one closed node WITH a gid
+        self.assertEqual(c["dag_closed"] + c["dag_open"] + c["dag_tail"], c["shown"])
+        self.assertEqual(c["nodes_without_gid"], 1)
+        self.assertEqual(c["shown_closed"], 2)
         self.assertEqual(c["dag_closed"], 2)               # authoritative closed total
-        self.assertEqual(c["edges"], 1)
+        self.assertEqual(c["edges"], 2)
 
     def test_provenance(self):
         s = project(SYNTHETIC_TG, SNAP)["source_snapshot"]
         self.assertEqual(s["source_commit"], "abc123")
         self.assertEqual(s["blessed_by"], "AlyciaBHZ")
         self.assertEqual(s["approved_at"], "2026-08-15T00:00:00Z")
+
+    def test_checked_in_data_is_the_complete_real_dag(self):
+        graph = json.loads((ROOT / "site/data/truth-graph.v1.json").read_text())
+        node_ids = {node["id"] for node in graph["nodes"]}
+        self.assertEqual(len(graph["nodes"]), 682)
+        self.assertEqual(len(graph["edges"]), 669)
+        self.assertEqual(graph["counts"]["shown_closed"], 670)
+        self.assertEqual(graph["counts"]["shown_open"], 12)
+        self.assertEqual(graph["counts"]["filtered_edges"], 0)
+        self.assertEqual(
+            {"D5/S0", "D5/S1", "D5/S3", "D5/X_Frontier", "Root"},
+            {node["layer"] for node in graph["nodes"]},
+        )
+        self.assertTrue(all(node["repo_path"].endswith(".lean") for node in graph["nodes"]))
+        self.assertTrue(all(edge["source"] in node_ids and edge["target"] in node_ids for edge in graph["edges"]))
 
     def test_fail_closed_on_malformed(self):
         with self.assertRaises((KeyError, TypeError)):

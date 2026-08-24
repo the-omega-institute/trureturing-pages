@@ -5,13 +5,16 @@ Input truth-graph schema (produced by StrataLint dag-render):
   {"schema":"stratalint.truth-graph.v1","truth":{"nodes":[{depth,gid,module_name,repo_path,state}],
    "edges":[{dependency,dependent}],"state_counts":{...}}, "documents":{...},"joins":{...},"provenance":{...}}
 
-Display schema (site/data/truth-graph.v1.json), consumed by dag.html's fetch/renderNodes:
+Display schema (site/data/truth-graph.v1.json), consumed by dag.html's graph renderer:
   {"schema_version":"truth-graph.v1","synthetic":false,"source_snapshot":{...},
-   "counts":{...},"nodes":[{"id","title","status","summary","depth"}]}
+   "counts":{...},
+   "nodes":[{"id","gid","title","status","state","summary","depth","repo_path","layer","domain"}],
+   "edges":[{"source","target","dependency","dependent"}]}
 
-The projection keeps the mathematical DAG (closed/open/tail nodes carrying a gid) and drops
-the repository "semantic" file nodes, which are display noise. Deterministic: nodes sorted by
-(status rank, gid) so the same inputs always yield byte-identical output.
+The projection keeps every real Lean truth node (closed/open/tail .lean files), including the
+GID-less umbrella module, and every dependency edge whose endpoints are both kept. Repository
+"semantic" file nodes remain display noise. Deterministic: nodes and edges are sorted so the same
+inputs always yield byte-identical output.
 """
 from __future__ import annotations
 
@@ -30,34 +33,74 @@ def _display_status(state: str) -> str:
     return _STATUS_TITLE.get(state, state.capitalize())
 
 
+def _node_id(node: dict) -> str:
+    """Use the canonical GID, with a stable repo-path fallback for the umbrella module."""
+    gid = node.get("gid")
+    if gid:
+        return gid
+    repo_path = node["repo_path"]
+    return repo_path[:-5] if repo_path.endswith(".lean") else repo_path
+
+
+def _grouping(gid: str | None, repo_path: str) -> tuple[str, str]:
+    """Return tower layer and domain labels derived from the canonical path."""
+    parts = (gid or repo_path.removesuffix(".lean")).split("/")
+    if len(parts) >= 3:
+        return "/".join(parts[:2]), parts[2]
+    return "Root", parts[0]
+
+
 def project(truth_graph: dict, source_snapshot: dict | None = None) -> dict:
     """Return the pages display projection of a real truth-graph dict. Pure + deterministic."""
     truth = truth_graph["truth"]
     raw_nodes = truth["nodes"]
-    math_nodes = [n for n in raw_nodes if n.get("gid") and n.get("state") in _MATH_STATES]
+    math_nodes = [
+        n for n in raw_nodes
+        if n.get("state") in _MATH_STATES and n.get("repo_path", "").endswith(".lean")
+    ]
 
     def render(node: dict) -> dict:
-        gid = node["gid"]
-        module = node.get("module_name") or gid
+        gid = node.get("gid")
+        node_id = _node_id(node)
+        module = node.get("module_name") or gid or node_id
         state = node["state"]
         depth = node.get("depth")
+        repo_path = node["repo_path"]
+        layer, domain = _grouping(gid, repo_path)
         return {
-            "id": gid,
+            "id": node_id,
+            "gid": gid,
             "title": module,
             "status": _display_status(state),
-            "summary": f"{_display_status(state)} · depth {depth} · {node.get('repo_path', '')}".strip(),
+            "state": state,
+            "summary": f"{_display_status(state)} · depth {depth} · {repo_path}",
             "depth": depth,
+            "repo_path": repo_path,
+            "layer": layer,
+            "domain": domain,
         }
 
     nodes = sorted(
         (render(n) for n in math_nodes),
-        key=lambda d: (_STATUS_RANK.get(d["status"].lower(), 9), d["id"]),
+        key=lambda d: (_STATUS_RANK.get(d["state"], 9), d["id"]),
     )
 
-    # Math-state nodes that carry no gid (e.g. the umbrella root module `Trureturing`, which imports
-    # everything and is not itself a theorem) cannot be linked or displayed, so they are filtered out.
-    # Account for them explicitly so the counts stay closed: dag totals == shown + filtered_no_gid.
-    filtered_no_gid = sum(1 for n in raw_nodes if n.get("state") in _MATH_STATES and not n.get("gid"))
+    id_by_path = {node["repo_path"]: _node_id(node) for node in math_nodes}
+    raw_edges = truth.get("edges", [])
+    edges = sorted(
+        (
+            {
+                "source": id_by_path[edge["dependency"]],
+                "target": id_by_path[edge["dependent"]],
+                "dependency": edge["dependency"],
+                "dependent": edge["dependent"],
+            }
+            for edge in raw_edges
+            if edge.get("dependency") in id_by_path and edge.get("dependent") in id_by_path
+        ),
+        key=lambda edge: (edge["source"], edge["target"]),
+    )
+
     shown_by_status = Counter(n["status"] for n in nodes)
     state_counts = truth.get("state_counts", {})
     counts = {
@@ -69,8 +112,10 @@ def project(truth_graph: dict, source_snapshot: dict | None = None) -> dict:
         "dag_open": state_counts.get("open"),
         "dag_tail": state_counts.get("tail"),
         "dag_semantic": state_counts.get("semantic"),
-        "filtered_no_gid": filtered_no_gid,
-        "edges": len(truth.get("edges", [])),
+        "nodes_without_gid": sum(1 for n in math_nodes if not n.get("gid")),
+        "source_edges": len(raw_edges),
+        "filtered_edges": len(raw_edges) - len(edges),
+        "edges": len(edges),
     }
 
     snap = source_snapshot or {}
@@ -88,10 +133,11 @@ def project(truth_graph: dict, source_snapshot: dict | None = None) -> dict:
         "source_snapshot": source_block,
         "counts": counts,
         "note": (
-            f"Showing {len(nodes)} of {len(nodes) + filtered_no_gid} mathematical nodes; "
-            f"{filtered_no_gid} carry no GID (the umbrella root module) and are not listed."
+            f"Showing all {len(nodes)} real Lean truth nodes and {len(edges)} dependency edges; "
+            f"{len(raw_edges) - len(edges)} edges had endpoints outside the display truth set."
         ),
         "nodes": nodes,
+        "edges": edges,
     }
 
 
@@ -138,4 +184,4 @@ if __name__ == "__main__":
     c = r["counts"]
     print(f"projected {c['shown']} shown math nodes "
           f"(closed={c['shown_closed']} open={c['shown_open']} tail={c['shown_tail']}; "
-          f"dag_closed={c['dag_closed']} filtered_no_gid={c['filtered_no_gid']}) -> {out_path}")
+          f"edges={c['edges']} filtered_edges={c['filtered_edges']}) -> {out_path}")
