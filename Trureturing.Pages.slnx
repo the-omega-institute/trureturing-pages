@@ -1,3 +1,10 @@
 <Solution>
-  <Project Path="tests/Trureturing.Pages.ArchitectureTests/Trureturing.Pages.ArchitectureTests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Trureturing.Pages.Core/Trureturing.Pages.Core.csproj" />
+    <Project Path="src/Trureturing.Pages.Cli/Trureturing.Pages.Cli.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Trureturing.Pages.ArchitectureTests/Trureturing.Pages.ArchitectureTests.csproj" />
+    <Project Path="tests/Trureturing.Pages.Tests/Trureturing.Pages.Tests.csproj" />
+  </Folder>
 </Solution>

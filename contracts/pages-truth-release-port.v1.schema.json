@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-truth-release-port.v1",
+  "title": "Pages truth-release view port",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "release_digest", "source_commit", "source_tree", "module_nodes", "module_edges", "frozen_nodes", "frozen_edges", "document_anchors"],
+  "properties": {
+    "schema": { "const": "pages-truth-release-port.v1" },
+    "release_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "source_commit": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "source_tree": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "module_nodes": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "title", "state", "depth", "repo_path"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 }, "title": { "type": "string", "minLength": 1 },
+          "state": { "type": "string", "enum": ["closed", "open", "tail", "semantic"] },
+          "depth": { "type": "integer", "minimum": 0 }, "repo_path": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "module_edges": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["dependency", "dependent"],
+        "properties": {
+          "dependency": { "type": "string", "minLength": 1 }, "dependent": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "frozen_nodes": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["frozen_node_id", "repo_path", "declaration_ids", "axiom_closure"],
+        "properties": {
+          "frozen_node_id": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "repo_path": { "type": "string", "minLength": 1 },
+          "declaration_ids": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+          "axiom_closure": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        }
+      }
+    },
+    "frozen_edges": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["prerequisite_frozen_node_id", "dependent_frozen_node_id"],
+        "properties": {
+          "prerequisite_frozen_node_id": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "dependent_frozen_node_id": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "document_anchors": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["node_id", "mdbook_path"],
+        "properties": {
+          "node_id": { "type": "string", "minLength": 1 }, "mdbook_path": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

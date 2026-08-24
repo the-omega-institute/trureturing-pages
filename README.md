@@ -48,3 +48,22 @@ Open `site/index.html` to inspect the navigation and static skeleton. Pages that
 - Exact visual design and branding are TBD.
 
 The previous L2 reasoning substrate is retained temporarily for reversibility. See [`DEPRECATED.md`](DEPRECATED.md); it is not part of the new site architecture.
+
+
+## Verified release DAG consumer
+
+The next-generation C# consumer is intentionally separated from the upstream wire. An
+upstream adapter, which is still pending and is not wired in this repository, will verify a
+`truth-release.v1` bundle and emit the Pages-owned
+`pages-truth-release-port.v1`. The Pages core then builds:
+
+- a repository/module topology layer;
+- an exact frozen-proof prerequisite layer;
+- bounded per-node neighborhood artifacts;
+- release-to-release learning deltas;
+- an optional, visibly advisory Intuition overlay.
+
+The port and projector live under `src/Trureturing.Pages.Core`; the CLI lives under
+`src/Trureturing.Pages.Cli`. See [`docs/TRUTH_RELEASE_CONSUMPTION.md`](docs/TRUTH_RELEASE_CONSUMPTION.md).
+The legacy Python projection remains a migration oracle until the upstream adapter is
+wired, and it does not own the new consumption contract.
