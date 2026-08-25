@@ -27,6 +27,9 @@ jobs:
       - name: Run fail-closed port and schema contract tests
         run: dotnet test tests/Trureturing.Pages.Tests/Trureturing.Pages.Tests.csproj -c Release --no-build
 
+      - name: Check topology renderer JavaScript
+        run: node --check site/assets/dag.js
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
