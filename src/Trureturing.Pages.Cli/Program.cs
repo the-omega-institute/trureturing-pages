@@ -11,6 +11,7 @@ internal static class PagesCli
             return args.FirstOrDefault() switch
             {
                 "project" => Project(args),
+                "project-topology" => ProjectTopology(args),
                 "delta" => Delta(args),
                 _ => Usage()
             };
@@ -60,6 +61,29 @@ internal static class PagesCli
         return 0;
     }
 
+    private static int ProjectTopology(string[] args)
+    {
+        if (args.Length is < 3 or > 4)
+        {
+            return Usage();
+        }
+
+        PagesCertifiedTopology topology =
+            PagesCertifiedTopologyJson.Read(File.ReadAllBytes(args[1]));
+        PagesIntuitionOverlay? overlay = args.Length == 4 && args[3] != "-"
+            ? PagesPortJson.ReadIntuitionOverlay(File.ReadAllBytes(args[3]))
+            : null;
+        PagesCertifiedTopologyView view =
+            PagesCertifiedTopologyProjection.Build(topology, overlay);
+
+        WriteAtomic(Path.GetFullPath(args[2]), PagesCertifiedTopologyJson.Write(view));
+        Console.WriteLine(
+            $"projected certified topology {topology.SourceTruthReleaseDigest}: " +
+            $"{view.Nodes.Count} nodes, {view.Counts.Edges} certified edges, " +
+            $"{view.Counts.AdvisoryEdges} advisory edges");
+        return 0;
+    }
+
     private static int Delta(string[] args)
     {
         if (args.Length != 4)
@@ -105,6 +129,8 @@ internal static class PagesCli
             "usage:\n" +
             "  Trureturing.Pages.Cli project <pages-truth-release-port.json> " +
             "<output-dir> [<intuition-overlay.json>|-] [radius]\n" +
+            "  Trureturing.Pages.Cli project-topology <certified-topology.json> " +
+            "<output.json> [<intuition-overlay.json>|-]\n" +
             "  Trureturing.Pages.Cli delta <old-port.json> <new-port.json> <output.json>");
         return 2;
     }
