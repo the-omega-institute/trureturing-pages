@@ -7,7 +7,7 @@
     tail: "#b69bff",
     selected: "#7ed8ff"
   };
-  const LAYER_Y = {
+  const LEGACY_LAYER_Y = {
     "D5/S0": -300,
     "D5/S1": -100,
     "D5/S3": 120,
@@ -52,6 +52,18 @@
     return result >>> 0;
   }
 
+  function trueDepth(node) {
+    const value = Number(node.true_depth ?? node.depth);
+    return Number.isFinite(value) && value >= 0 ? value : 0;
+  }
+
+  function verticalPosition(node) {
+    if (sourceGraph.schema_version === "pages-certified-topology-view.v1") {
+      return -trueDepth(node) * 62;
+    }
+    return LEGACY_LAYER_Y[node.layer] ?? 0;
+  }
+
   function seedPosition(node) {
     const domainHash = hash(`${node.layer}/${node.domain}`);
     const nodeHash = hash(node.id);
@@ -59,7 +71,7 @@
     const radius = 120 + (domainHash % 150);
     return {
       x: Math.cos(angle) * radius + (nodeHash % 51) - 25,
-      y: LAYER_Y[node.layer] ?? 0,
+      y: verticalPosition(node),
       z: Math.sin(angle) * radius + ((nodeHash >>> 8) % 51) - 25
     };
   }
@@ -68,20 +80,36 @@
     return typeof endpoint === "object" ? endpoint.id : endpoint;
   }
 
+  function metricRow(name, value) {
+    return value === undefined || value === null
+      ? ""
+      : `<div><dt>${escapeHtml(name)}</dt><dd>${escapeHtml(value)}</dd></div>`;
+  }
+
   function renderDetail(node) {
     if (!node) {
-      detailElement.innerHTML = '<p class="node-detail-empty">Select a node to inspect its proof state, layer, depth, and degree.</p>';
+      detailElement.innerHTML = '<p class="node-detail-empty">Select a node to inspect its certified topology metrics and provenance.</p>';
       return;
     }
+    const axioms = Array.isArray(node.axiom_closure) && node.axiom_closure.length > 0
+      ? node.axiom_closure.join(", ")
+      : "none recorded";
     detailElement.innerHTML = `
       <p class="node-detail-state state-${escapeHtml(node.state)}">${escapeHtml(node.status)}</p>
       <h2>${escapeHtml(node.title)}</h2>
       <p class="node-detail-id">${escapeHtml(node.id)}</p>
       <dl>
-        <div><dt>Layer</dt><dd>${escapeHtml(node.layer)}</dd></div>
-        <div><dt>Domain</dt><dd>${escapeHtml(node.domain)}</dd></div>
-        <div><dt>Depth</dt><dd>${escapeHtml(node.depth)}</dd></div>
-        <div><dt>Degree</dt><dd>${escapeHtml(node.degree)}</dd></div>
+        ${metricRow("Layer", node.layer)}
+        ${metricRow("Domain", node.domain)}
+        ${metricRow("True depth", trueDepth(node))}
+        ${metricRow("Height", node.height)}
+        ${metricRow("In / out degree", node.in_degree === undefined ? node.degree : `${node.in_degree} / ${node.out_degree}`)}
+        ${metricRow("Ancestors / descendants", node.ancestor_count === undefined ? null : `${node.ancestor_count} / ${node.descendant_count}`)}
+        ${metricRow("Structural blast radius", node.structural_blast_radius)}
+        ${metricRow("Dominated nodes", node.dominated_node_count)}
+        ${metricRow("Component", node.component_id)}
+        ${metricRow("Axiom tier", node.axiom_tier ?? "unclassified")}
+        ${metricRow("Axiom closure", axioms)}
       </dl>`;
   }
 
@@ -113,7 +141,12 @@
       degree.set(edge.target, (degree.get(edge.target) || 0) + 1);
     }
     return {
-      nodes: nodes.map((node) => ({ ...node, ...seedPosition(node), fy: LAYER_Y[node.layer] ?? 0, degree: degree.get(node.id) || 0 })),
+      nodes: nodes.map((node) => ({
+        ...node,
+        ...seedPosition(node),
+        fy: verticalPosition(node),
+        degree: degree.get(node.id) || 0
+      })),
       links: edges.map((edge) => ({ ...edge }))
     };
   }
@@ -125,8 +158,18 @@
     const graph = visibleGraph();
     renderer.graphData(graph);
     statusElement.className = "graph-status graph-status-ready";
-    statusElement.textContent = `${graph.nodes.length} nodes | ${graph.links.length} dependency edges`;
+    statusElement.textContent = `${graph.nodes.length} nodes | ${graph.links.length} structural edges`;
     window.setTimeout(() => renderer.zoomToFit(700, 65), 350);
+  }
+
+  function nodeValue(node) {
+    const blast = Number(node.structural_blast_radius);
+    const dominated = Number(node.dominated_node_count);
+    if (Number.isFinite(blast) && blast > 0) {
+      return 1.5 + Math.log2(blast + 1) * 1.15 +
+        (Number.isFinite(dominated) ? Math.log2(dominated + 1) * 0.35 : 0);
+    }
+    return 1.4 + Math.sqrt((node.degree || 0) + 1) * 0.9 + trueDepth(node) * 0.025;
   }
 
   function initializeRenderer(graph) {
@@ -140,17 +183,25 @@
       .nodeLabel((node) => `
         <div class="graph-tooltip">
           <strong>${escapeHtml(node.title)}</strong>
-          <span>${escapeHtml(node.status)} | ${escapeHtml(node.layer)} / ${escapeHtml(node.domain)}</span>
+          <span>${escapeHtml(node.status)} | true depth ${escapeHtml(trueDepth(node))}</span>
+          <span>blast ${escapeHtml(node.structural_blast_radius ?? "n/a")} | dominated ${escapeHtml(node.dominated_node_count ?? "n/a")}</span>
           <span>${escapeHtml(node.id)}</span>
         </div>`)
       .nodeColor((node) => node.id === selectedId ? COLORS.selected : COLORS[node.state] || COLORS.tail)
-      .nodeVal((node) => 1.4 + Math.sqrt((node.degree || 0) + 1) * 0.9 + Math.max(0, node.depth || 0) * 0.025)
+      .nodeVal(nodeValue)
       .nodeResolution(8)
-      .linkColor(() => "rgba(171, 205, 196, 0.34)")
-      .linkWidth((link) => endpointId(link.target) === selectedId || endpointId(link.source) === selectedId ? 1.8 : 0.45)
+      .linkColor((link) => link.layer === "intuition-candidate"
+        ? "rgba(126, 216, 255, 0.68)"
+        : "rgba(171, 205, 196, 0.34)")
+      .linkWidth((link) => {
+        if (endpointId(link.target) === selectedId || endpointId(link.source) === selectedId) return 1.8;
+        return link.layer === "intuition-candidate" ? 1.05 : 0.45;
+      })
       .linkDirectionalArrowLength(2.8)
       .linkDirectionalArrowRelPos(0.88)
-      .linkDirectionalArrowColor(() => "rgba(196, 224, 216, 0.72)")
+      .linkDirectionalArrowColor((link) => link.layer === "intuition-candidate"
+        ? "rgba(126, 216, 255, 0.9)"
+        : "rgba(196, 224, 216, 0.72)")
       .onNodeClick(focusNode)
       .onNodeHover((node) => { graphElement.style.cursor = node ? "pointer" : "grab"; })
       .onBackgroundClick(() => {
@@ -179,7 +230,16 @@
 
   function populateControls(graph) {
     const layers = [...new Set(graph.nodes.map((node) => node.layer))]
-      .sort((left, right) => LAYER_ORDER.indexOf(left) - LAYER_ORDER.indexOf(right));
+      .sort((left, right) => {
+        const leftKnown = LAYER_ORDER.indexOf(left);
+        const rightKnown = LAYER_ORDER.indexOf(right);
+        if (leftKnown >= 0 || rightKnown >= 0) {
+          if (leftKnown < 0) return 1;
+          if (rightKnown < 0) return -1;
+          return leftKnown - rightKnown;
+        }
+        return left.localeCompare(right);
+      });
     layerSelect.append(...layers.map((layer) => {
       const option = document.createElement("option");
       option.value = layer;
@@ -200,9 +260,9 @@
     const snapshot = graph.source_snapshot || {};
     const counts = graph.counts || {};
     document.querySelector("#source-commit").textContent = snapshot.source_commit ? snapshot.source_commit.slice(0, 12) : "unknown";
-    document.querySelector("#blessed-by").textContent = snapshot.blessed_by || "unknown";
-    document.querySelector("#closed-count").textContent = counts.dag_closed ?? counts.shown_closed ?? "-";
-    document.querySelector("#open-count").textContent = counts.dag_open ?? counts.shown_open ?? "-";
+    document.querySelector("#blessed-by").textContent = snapshot.topology_algorithm || snapshot.blessed_by || "unknown";
+    document.querySelector("#closed-count").textContent = counts.nodes ?? counts.dag_closed ?? counts.shown_closed ?? "-";
+    document.querySelector("#open-count").textContent = counts.advisory_edges ?? counts.dag_open ?? counts.shown_open ?? "-";
     document.querySelector("#edge-count").textContent = counts.edges ?? graph.edges.length;
   }
 
@@ -223,7 +283,7 @@
     event.preventDefault();
     const query = queryInput.value.trim().toLowerCase();
     if (!query) {
-      statusElement.textContent = "Enter a node GID or module name.";
+      statusElement.textContent = "Enter a node ID or declaration name.";
       return;
     }
     const nodes = renderer ? renderer.graphData().nodes : [];
@@ -247,11 +307,26 @@
     else renderer.resumeAnimation();
   });
 
-  fetch("data/truth-graph.v1.json")
-    .then((response) => {
-      if (!response.ok) throw new Error(`graph data returned HTTP ${response.status}`);
+  function fetchJson(path) {
+    return fetch(path).then((response) => {
+      if (!response.ok) {
+        const error = new Error(`${path} returned HTTP ${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
       return response.json();
-    })
+    });
+  }
+
+  function loadGraph() {
+    return fetchJson("data/certified-topology.v1.json")
+      .catch((error) => {
+        if (error.status !== 404) throw error;
+        return fetchJson("data/truth-graph.v1.json");
+      });
+  }
+
+  loadGraph()
     .then((graph) => {
       if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
         throw new Error("graph data is missing its nodes or edges array");
@@ -262,11 +337,11 @@
       const visible = visibleGraph();
       initializeRenderer(visible);
       statusElement.className = "graph-status graph-status-ready";
-      statusElement.textContent = `${visible.nodes.length} nodes | ${visible.links.length} dependency edges`;
+      statusElement.textContent = `${visible.nodes.length} nodes | ${visible.links.length} structural edges`;
     })
     .catch((error) => {
       statusElement.className = "graph-status graph-status-error";
-      statusElement.textContent = `Unable to render the truth DAG: ${error.message}`;
-      detailElement.innerHTML = '<p class="node-detail-empty">The graph is temporarily unavailable. The overview and provenance remain readable.</p>';
+      statusElement.textContent = `Unable to render the topology: ${error.message}`;
+      detailElement.innerHTML = '<p class="node-detail-empty">The topology is temporarily unavailable. The overview and provenance remain readable.</p>';
     });
 }());
