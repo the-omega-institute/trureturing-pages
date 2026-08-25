@@ -165,31 +165,38 @@ public static class PagesCertifiedTopologyJson
             $"algorithm must be {PagesTopologySchemas.Algorithm}.");
         RequireSha256(topology.SourceTruthReleaseDigest, "source_truth_release_digest");
         RequireGitPair(topology.SourceCommit, topology.SourceTree);
-        Require(topology.Semantics is not null, "semantics must be present.");
-        Require(topology.Summary is not null, "summary must be present.");
-        Require(topology.Nodes is not null, "nodes must be an array.");
-        Require(topology.Edges is not null, "edges must be an array.");
-        Require(topology.Components is not null, "components must be an array.");
-        Require(topology.Nodes.All(node => node is not null), "nodes cannot contain null.");
-        Require(topology.Edges.All(edge => edge is not null), "edges cannot contain null.");
-        Require(topology.Components.All(component => component is not null),
+
+        _ = topology.Semantics
+            ?? throw new InvalidDataException("semantics must be present.");
+        PagesTopologySummary summary = topology.Summary
+            ?? throw new InvalidDataException("summary must be present.");
+        IReadOnlyList<PagesCertifiedTopologyNode> nodes = topology.Nodes
+            ?? throw new InvalidDataException("nodes must be an array.");
+        IReadOnlyList<PagesCertifiedTopologyEdge> edges = topology.Edges
+            ?? throw new InvalidDataException("edges must be an array.");
+        IReadOnlyList<PagesCertifiedTopologyComponent> components = topology.Components
+            ?? throw new InvalidDataException("components must be an array.");
+
+        Require(nodes.All(node => node is not null), "nodes cannot contain null.");
+        Require(edges.All(edge => edge is not null), "edges cannot contain null.");
+        Require(components.All(component => component is not null),
             "components cannot contain null.");
 
-        RequireUnique(topology.Nodes.Select(node => node.Id), "topology node id");
-        RequireUnique(topology.Nodes.Select(node => node.RepoPath), "topology repo_path");
-        RequireUnique(topology.Components.Select(component => component.Id), "component id");
+        RequireUnique(nodes.Select(node => node.Id), "topology node id");
+        RequireUnique(nodes.Select(node => node.RepoPath), "topology repo_path");
+        RequireUnique(components.Select(component => component.Id), "component id");
 
-        var ids = topology.Nodes.Select(node => node.Id)
+        var ids = nodes.Select(node => node.Id)
             .ToHashSet(StringComparer.Ordinal);
-        var componentIds = topology.Components.Select(component => component.Id)
+        var componentIds = components.Select(component => component.Id)
             .ToHashSet(StringComparer.Ordinal);
         var edgeKeys = new HashSet<(string, string)>();
-        var prerequisitesFromEdges = topology.Nodes.ToDictionary(
+        var prerequisitesFromEdges = nodes.ToDictionary(
             node => node.Id,
             _ => new HashSet<string>(StringComparer.Ordinal),
             StringComparer.Ordinal);
 
-        foreach (PagesCertifiedTopologyEdge edge in topology.Edges)
+        foreach (PagesCertifiedTopologyEdge edge in edges)
         {
             Require(ids.Contains(edge.PrerequisiteId),
                 $"edge prerequisite {edge.PrerequisiteId} is absent.");
@@ -202,16 +209,19 @@ public static class PagesCertifiedTopologyJson
             prerequisitesFromEdges[edge.DependentId].Add(edge.PrerequisiteId);
         }
 
-        foreach (PagesCertifiedTopologyNode node in topology.Nodes)
+        foreach (PagesCertifiedTopologyNode node in nodes)
         {
             RequireSha256(node.Id, "topology node id");
             RequireNonEmpty(node.RepoPath, "topology repo_path");
-            Require(node.Declarations is not null, $"node {node.Id} declarations must be an array.");
-            Require(node.PrerequisiteIds is not null, $"node {node.Id} prerequisite_ids must be an array.");
-            Require(node.AxiomClosure is not null, $"node {node.Id} axiom_closure must be an array.");
-            RequireUnique(node.Declarations, $"declaration in {node.Id}");
-            RequireUnique(node.PrerequisiteIds, $"prerequisite in {node.Id}");
-            RequireUnique(node.AxiomClosure, $"axiom in {node.Id}");
+            IReadOnlyList<string> declarations = node.Declarations
+                ?? throw new InvalidDataException($"node {node.Id} declarations must be an array.");
+            IReadOnlyList<string> prerequisiteIds = node.PrerequisiteIds
+                ?? throw new InvalidDataException($"node {node.Id} prerequisite_ids must be an array.");
+            IReadOnlyList<string> axiomClosure = node.AxiomClosure
+                ?? throw new InvalidDataException($"node {node.Id} axiom_closure must be an array.");
+            RequireUnique(declarations, $"declaration in {node.Id}");
+            RequireUnique(prerequisiteIds, $"prerequisite in {node.Id}");
+            RequireUnique(axiomClosure, $"axiom in {node.Id}");
             Require(componentIds.Contains(node.ComponentId),
                 $"node {node.Id} references absent component {node.ComponentId}.");
             Require(node.Depth >= 0 && node.Height >= 0,
@@ -222,35 +232,35 @@ public static class PagesCertifiedTopologyJson
                 $"node {node.Id} has a negative topology metric.");
             Require(node.StructuralBlastRadius == node.DescendantCount + 1,
                 $"node {node.Id} blast radius is not descendant_count + 1.");
-            Require(node.InDegree == node.PrerequisiteIds.Count,
+            Require(node.InDegree == prerequisiteIds.Count,
                 $"node {node.Id} in_degree disagrees with prerequisite_ids.");
             Require(node.IsRoot == (node.InDegree == 0),
                 $"node {node.Id} root flag disagrees with in_degree.");
             Require(node.IsLeaf == (node.OutDegree == 0),
                 $"node {node.Id} leaf flag disagrees with out_degree.");
-            Require(prerequisitesFromEdges[node.Id].SetEquals(node.PrerequisiteIds),
+            Require(prerequisitesFromEdges[node.Id].SetEquals(prerequisiteIds),
                 $"node {node.Id} prerequisite_ids disagree with certified edges.");
         }
 
-        var byId = topology.Nodes.ToDictionary(node => node.Id, StringComparer.Ordinal);
-        foreach (PagesCertifiedTopologyEdge edge in topology.Edges)
+        var byId = nodes.ToDictionary(node => node.Id, StringComparer.Ordinal);
+        foreach (PagesCertifiedTopologyEdge edge in edges)
         {
             Require(byId[edge.PrerequisiteId].Depth < byId[edge.DependentId].Depth,
                 $"edge {edge.PrerequisiteId} -> {edge.DependentId} violates true depth order.");
         }
 
-        Require(topology.Summary.NodeCount == topology.Nodes.Count,
+        Require(summary.NodeCount == nodes.Count,
             "summary.node_count disagrees with nodes.");
-        Require(topology.Summary.EdgeCount == topology.Edges.Count,
+        Require(summary.EdgeCount == edges.Count,
             "summary.edge_count disagrees with edges.");
-        Require(topology.Summary.RootCount == topology.Nodes.Count(node => node.IsRoot),
+        Require(summary.RootCount == nodes.Count(node => node.IsRoot),
             "summary.root_count disagrees with nodes.");
-        Require(topology.Summary.LeafCount == topology.Nodes.Count(node => node.IsLeaf),
+        Require(summary.LeafCount == nodes.Count(node => node.IsLeaf),
             "summary.leaf_count disagrees with nodes.");
-        Require(topology.Summary.ComponentCount == topology.Components.Count,
+        Require(summary.ComponentCount == components.Count,
             "summary.component_count disagrees with components.");
-        int maximumDepth = topology.Nodes.Count == 0 ? 0 : topology.Nodes.Max(node => node.Depth);
-        Require(topology.Summary.MaximumDepth == maximumDepth,
+        int maximumDepth = nodes.Count == 0 ? 0 : nodes.Max(node => node.Depth);
+        Require(summary.MaximumDepth == maximumDepth,
             "summary.maximum_depth disagrees with nodes.");
     }
 
