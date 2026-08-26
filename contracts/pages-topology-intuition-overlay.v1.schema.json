@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-topology-intuition-overlay.v1",
+  "title": "Pages advisory Intuition overlay for one certified topology",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "source_truth_release_digest",
+    "certified_topology_digest",
+    "relations"
+  ],
+  "properties": {
+    "schema": { "const": "pages-topology-intuition-overlay.v1" },
+    "source_truth_release_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "certified_topology_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "relation_id",
+          "relation_type",
+          "status",
+          "inputs",
+          "outputs",
+          "evidence_refs"
+        ],
+        "properties": {
+          "relation_id": { "type": "string", "minLength": 1 },
+          "relation_type": { "type": "string", "minLength": 1 },
+          "status": {
+            "type": "string",
+            "enum": [
+              "proposed",
+              "evidence-backed",
+              "under-verification",
+              "proved",
+              "refuted",
+              "wall",
+              "duplicate",
+              "trivial",
+              "open"
+            ]
+          },
+          "inputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "outputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}
