@@ -63,6 +63,15 @@ class CertifiedTopologyAdapterTests(unittest.TestCase):
                     with self.assertRaises(TopologyContractError):
                         read_certified_topology(path)
 
+    def test_wrong_schema_version_fails_closed(self):
+        topology = json.loads(FIXTURE.read_text(encoding="utf-8"))
+        topology["schema_version"] = "certified-topology.v2"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "wrong-version.json"
+            path.write_text(json.dumps(topology), encoding="utf-8")
+            with self.assertRaises(TopologyContractError):
+                read_certified_topology(path)
+
     def test_vendored_schema_is_pinned_to_upstream_bytes(self):
         import hashlib
 
