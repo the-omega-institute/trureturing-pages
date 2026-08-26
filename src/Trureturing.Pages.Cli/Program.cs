@@ -68,11 +68,21 @@ internal static class PagesCli
             return Usage();
         }
 
+        byte[] topologyBytes = File.ReadAllBytes(args[1]);
         PagesCertifiedTopology topology =
-            PagesCertifiedTopologyJson.Read(File.ReadAllBytes(args[1]));
-        PagesIntuitionOverlay? overlay = args.Length == 4 && args[3] != "-"
-            ? PagesPortJson.ReadIntuitionOverlay(File.ReadAllBytes(args[3]))
-            : null;
+            PagesCertifiedTopologyJson.Read(topologyBytes);
+
+        PagesIntuitionOverlay? overlay = null;
+        if (args.Length == 4 && args[3] != "-")
+        {
+            PagesTopologyIntuitionOverlay topologyOverlay =
+                PagesTopologyIntuitionOverlayJson.Read(File.ReadAllBytes(args[3]));
+            overlay = PagesTopologyIntuitionOverlayJson.Bind(
+                topologyOverlay,
+                topology,
+                topologyBytes);
+        }
+
         PagesCertifiedTopologyView view =
             PagesCertifiedTopologyProjection.Build(topology, overlay);
 
@@ -130,7 +140,7 @@ internal static class PagesCli
             "  Trureturing.Pages.Cli project <pages-truth-release-port.json> " +
             "<output-dir> [<intuition-overlay.json>|-] [radius]\n" +
             "  Trureturing.Pages.Cli project-topology <certified-topology.json> " +
-            "<output.json> [<intuition-overlay.json>|-]\n" +
+            "<output.json> [<topology-intuition-overlay.json>|-]\n" +
             "  Trureturing.Pages.Cli delta <old-port.json> <new-port.json> <output.json>");
         return 2;
     }
