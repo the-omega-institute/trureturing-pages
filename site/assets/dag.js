@@ -102,9 +102,13 @@
         ${metricRow("Layer", node.layer)}
         ${metricRow("Domain", node.domain)}
         ${metricRow("True depth", trueDepth(node))}
+        ${metricRow("Min / max depth", node.min_depth === undefined ? null : `${node.min_depth} / ${node.max_depth}`)}
         ${metricRow("Height", node.height)}
         ${metricRow("In / out degree", node.in_degree === undefined ? node.degree : `${node.in_degree} / ${node.out_degree}`)}
         ${metricRow("Ancestors / descendants", node.ancestor_count === undefined ? null : `${node.ancestor_count} / ${node.descendant_count}`)}
+        ${metricRow("Descendant cost", node.descendant_cost)}
+        ${metricRow("Normalized reach", node.normalized_reach)}
+        ${metricRow("Dependency betweenness", node.dependency_betweenness)}
         ${metricRow("Structural blast radius", node.structural_blast_radius)}
         ${metricRow("Dominated nodes", node.dominated_node_count)}
         ${metricRow("Component", node.component_id)}
@@ -319,7 +323,7 @@
   }
 
   function loadGraph() {
-    return fetchJson("data/certified-topology.v1.json")
+    return fetchJson("data/certified-topology-view.v1.json")
       .catch((error) => {
         if (error.status !== 404) throw error;
         return fetchJson("data/truth-graph.v1.json");

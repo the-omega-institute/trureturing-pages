@@ -39,6 +39,19 @@ site/
 
 Serve `site/` with any simple local static HTTP server to inspect the site because browsers commonly restrict `fetch()` from `file://` pages. The DAG uses the pinned `3d-force-graph` browser bundle from unpkg and degrades to a readable error state if the renderer or graph data cannot load.
 
+Until the upstream publication exists, the exact `certified-topology.v1` consumer is exercised
+against `tests/fixtures/certified-topology.v1.json`. The fail-closed adapter validates the input
+against the vendored upstream schema, preserves integers and gcd-reduced rationals, and enriches
+the existing DAG rather than reconstructing metrics:
+
+```bash
+python -m lib.certified_topology site/data/truth-graph.v1.json \
+  certified-topology.v1.json site/data/certified-topology-view.v1.json
+```
+
+The renderer prefers that generated view when present and otherwise keeps serving the current
+truth-graph projection.
+
 After a change reaches `dev`, `.github/workflows/pages.yml` uploads `site/` and deploys it with the official GitHub Pages actions. Repository Pages settings must select GitHub Actions as the source before the deployment can publish at `https://the-omega-institute.github.io/trureturing-pages/`.
 
 ## Deferred decisions
