@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.trureturing.org/topology/certified-topology.v1.schema.json",
+  "title": "Trureturing certified topology v1",
+  "description": "Exact structural graph metrics and graph-integrity certificates derived from one verified truth-release.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "truth_release_digest",
+    "algorithm_profile_digest",
+    "producer_commit",
+    "nodes",
+    "cycle_certificate",
+    "dangling_reference_certificate"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "certified-topology.v1"
+    },
+    "truth_release_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "algorithm_profile_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "producer_commit": {
+      "$ref": "#/$defs/gitCommit"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nodeMetrics"
+      }
+    },
+    "cycle_certificate": {
+      "$ref": "#/$defs/cycleCertificate"
+    },
+    "dangling_reference_certificate": {
+      "$ref": "#/$defs/danglingReferenceCertificate"
+    }
+  },
+  "$defs": {
+    "sha256Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gitCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "nodeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reducedNonNegativeRational": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "numerator",
+        "denominator"
+      ],
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "nodeMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "in_degree",
+        "out_degree",
+        "min_depth",
+        "max_depth",
+        "ancestor_count",
+        "descendant_count",
+        "descendant_cost",
+        "normalized_reach",
+        "dependency_betweenness"
+      ],
+      "properties": {
+        "node_id": {
+          "$ref": "#/$defs/nodeId"
+        },
+        "in_degree": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "out_degree": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "min_depth": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "max_depth": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "ancestor_count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "descendant_count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "descendant_cost": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "normalized_reach": {
+          "$ref": "#/$defs/reducedNonNegativeRational"
+        },
+        "dependency_betweenness": {
+          "$ref": "#/$defs/reducedNonNegativeRational"
+        }
+      }
+    },
+    "cycleCertificate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "cycles"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "acyclic",
+            "cycles-detected"
+          ]
+        },
+        "cycles": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/nodeId"
+            }
+          }
+        }
+      }
+    },
+    "danglingReferenceCertificate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "dangling_references"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "complete",
+            "dangling-references-detected"
+          ]
+        },
+        "dangling_references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "existing_node_id"
+            ],
+            "properties": {
+              "existing_node_id": {
+                "$ref": "#/$defs/nodeId"
+              },
+              "missing_dependency_id": {
+                "$ref": "#/$defs/nodeId"
+              },
+              "missing_dependent_id": {
+                "$ref": "#/$defs/nodeId"
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "missing_dependency_id"
+                ]
+              },
+              {
+                "required": [
+                  "missing_dependent_id"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

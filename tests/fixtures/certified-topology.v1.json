@@ -1,0 +1,34 @@
+{
+  "schema_version": "certified-topology.v1",
+  "truth_release_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "algorithm_profile_digest": "sha256:0c93a6ac785ac5a85f99597e513e18689114ae256d15b48708a8ca2ac7454b4c",
+  "producer_commit": "cccccccccccccccccccccccccccccccccccccccc",
+  "nodes": [
+    {
+      "node_id": "D5/S0/Closed",
+      "in_degree": 0,
+      "out_degree": 1,
+      "min_depth": 0,
+      "max_depth": 0,
+      "ancestor_count": 0,
+      "descendant_count": 1,
+      "descendant_cost": 3,
+      "normalized_reach": {
+        "numerator": 1,
+        "denominator": 2
+      },
+      "dependency_betweenness": {
+        "numerator": 7,
+        "denominator": 9
+      }
+    }
+  ],
+  "cycle_certificate": {
+    "status": "acyclic",
+    "cycles": []
+  },
+  "dangling_reference_certificate": {
+    "status": "complete",
+    "dangling_references": []
+  }
+}
