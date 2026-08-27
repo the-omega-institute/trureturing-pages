@@ -1,0 +1,19 @@
+{
+  "schema": "blueprint-index.v1",
+  "entries": [
+    {
+      "gid": "D5/S0/Closed",
+      "projection": {
+        "path": "Blueprint/D5/S0/Closed.md",
+        "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "gid": "D5/S1/Open",
+      "projection": {
+        "path": "Blueprint/D5/S1/Open.md",
+        "sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      }
+    }
+  ]
+}

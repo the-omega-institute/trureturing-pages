@@ -537,6 +537,7 @@ h2 {
 .legend-dot.closed { background: #42c47a; }
 .legend-dot.open { background: #f2ad4a; }
 .legend-dot.tail { background: #b69bff; }
+.legend-dot.semantic { background: #72b7c4; }
 
 .legend-line {
   width: 1rem;

@@ -81,10 +81,15 @@ public sealed class TruthConsumptionBoundaryTests
     }
 
     [Fact]
-    public void RepositoryHasNoAbsoluteLocalPackageFeed()
+    public void RepositoryPackageFeedIsRemoteAndOrganizationScoped()
     {
         string root = FindRoot();
-        Assert.False(File.Exists(Path.Combine(root, "nuget.config")));
+        string configuration = File.ReadAllText(Path.Combine(root, "nuget.config"));
+        Assert.Contains(
+            "https://nuget.pkg.github.com/the-omega-institute/index.json",
+            configuration,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("<add key=\"local", configuration, StringComparison.OrdinalIgnoreCase);
 
         foreach (string path in Directory.EnumerateFiles(
             root,
@@ -97,6 +102,8 @@ public sealed class TruthConsumptionBoundaryTests
                 path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
                     StringComparison.Ordinal) ||
                 path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}",
+                    StringComparison.Ordinal) ||
+                path.Contains($"{Path.DirectorySeparatorChar}__pycache__{Path.DirectorySeparatorChar}",
                     StringComparison.Ordinal))
             {
                 continue;

@@ -1,6 +1,10 @@
 staging/
 __pycache__/
 *.pyc
+bin/
+obj/
+_site/
+artifacts/
 .fkst/machine-profile.toml
 .DS_Store
 __pycache__/
