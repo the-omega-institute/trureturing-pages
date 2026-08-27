@@ -5,6 +5,10 @@ on:
   push:
     branches: [dev]
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   gate:
     runs-on: ubuntu-latest
@@ -16,7 +20,10 @@ jobs:
           global-json-file: global.json
 
       - name: Restore C# projects
-        run: dotnet restore Trureturing.Pages.slnx
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: dotnet restore Trureturing.Pages.slnx --configfile nuget.config
 
       - name: Build C# projects with warnings as errors
         run: dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
@@ -45,3 +52,19 @@ jobs:
 
       - name: Fail-closed regression tests
         run: python -m unittest discover -s tests/red -p 'test_*.py'
+
+      - name: Build the mock truth-release basic DAG
+        run: python -m lib.vertical_smoke build-basic tests/fixtures/truth-release _site
+
+      - name: Run the package-backed topology smoke
+        run: |
+          dotnet tools/Trureturing.Topology.Runner/bin/Release/net10.0/Trureturing.Topology.Runner.dll \
+            tests/fixtures/truth-release/truth-graph.v1.json \
+            sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b0ce7d8d20 \
+            config/algorithm-profile.v1.json \
+            28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b \
+            _site/data/certified-topology.v1.json
+          python -m lib.certified_topology \
+            _site/data/basic-truth-graph.v1.json \
+            _site/data/certified-topology.v1.json \
+            _site/data/certified-topology-view.v1.json

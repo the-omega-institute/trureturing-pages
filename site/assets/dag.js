@@ -5,6 +5,7 @@
     closed: "#42c47a",
     open: "#f2ad4a",
     tail: "#b69bff",
+    semantic: "#72b7c4",
     selected: "#7ed8ff"
   };
   const LEGACY_LAYER_Y = {
@@ -194,16 +195,16 @@
       .nodeColor((node) => node.id === selectedId ? COLORS.selected : COLORS[node.state] || COLORS.tail)
       .nodeVal(nodeValue)
       .nodeResolution(8)
-      .linkColor((link) => link.layer === "intuition-candidate"
+      .linkColor((link) => String(link.layer).startsWith("blueprint-")
         ? "rgba(126, 216, 255, 0.68)"
         : "rgba(171, 205, 196, 0.34)")
       .linkWidth((link) => {
         if (endpointId(link.target) === selectedId || endpointId(link.source) === selectedId) return 1.8;
-        return link.layer === "intuition-candidate" ? 1.05 : 0.45;
+        return String(link.layer).startsWith("blueprint-") ? 1.05 : 0.45;
       })
       .linkDirectionalArrowLength(2.8)
       .linkDirectionalArrowRelPos(0.88)
-      .linkDirectionalArrowColor((link) => link.layer === "intuition-candidate"
+      .linkDirectionalArrowColor((link) => String(link.layer).startsWith("blueprint-")
         ? "rgba(126, 216, 255, 0.9)"
         : "rgba(196, 224, 216, 0.72)")
       .onNodeClick(focusNode)
@@ -265,8 +266,8 @@
     const counts = graph.counts || {};
     document.querySelector("#source-commit").textContent = snapshot.source_commit ? snapshot.source_commit.slice(0, 12) : "unknown";
     document.querySelector("#blessed-by").textContent = snapshot.topology_algorithm || snapshot.blessed_by || "unknown";
-    document.querySelector("#closed-count").textContent = counts.nodes ?? counts.dag_closed ?? counts.shown_closed ?? "-";
-    document.querySelector("#open-count").textContent = counts.advisory_edges ?? counts.dag_open ?? counts.shown_open ?? "-";
+    document.querySelector("#closed-count").textContent = counts.dag_closed ?? counts.shown_closed ?? "-";
+    document.querySelector("#open-count").textContent = counts.dag_open ?? counts.shown_open ?? "-";
     document.querySelector("#edge-count").textContent = counts.edges ?? graph.edges.length;
   }
 

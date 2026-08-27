@@ -1,0 +1,104 @@
+{
+  "schema": "stratalint.truth-graph.v1",
+  "schema_version": 1,
+  "truth": {
+    "nodes": [
+      {
+        "depth": 0,
+        "gid": "D5/S0/Closed",
+        "module_name": "D5.S0.Closed",
+        "repo_path": "D5/S0/Closed.lean",
+        "state": "closed"
+      },
+      {
+        "depth": 1,
+        "gid": "D5/S1/Open",
+        "module_name": "D5.S1.Open",
+        "repo_path": "D5/S1/Open.lean",
+        "state": "open"
+      },
+      {
+        "depth": 2,
+        "gid": "D5/X_Frontier/Tail",
+        "module_name": "D5.X_Frontier.Tail",
+        "repo_path": "D5/X_Frontier/Tail.lean",
+        "state": "tail"
+      },
+      {
+        "depth": 3,
+        "gid": "D5/S3/Semantic",
+        "module_name": "D5.S3.Semantic",
+        "repo_path": "D5/S3/Semantic.lean",
+        "state": "semantic"
+      }
+    ],
+    "edges": [
+      {
+        "dependency": "D5/S0/Closed.lean",
+        "dependent": "D5/S1/Open.lean"
+      },
+      {
+        "dependency": "D5/S1/Open.lean",
+        "dependent": "D5/X_Frontier/Tail.lean"
+      },
+      {
+        "dependency": "D5/X_Frontier/Tail.lean",
+        "dependent": "D5/S3/Semantic.lean"
+      }
+    ],
+    "state_counts": {
+      "closed": 1,
+      "open": 1,
+      "tail": 1,
+      "semantic": 1
+    },
+    "open_blockers": []
+  },
+  "documents": {
+    "document_nodes": [
+      {
+        "gid": "D5/S0/Closed",
+        "receipt": "fixture",
+        "repo_path": "Blueprint/D5/S0/Closed.md"
+      },
+      {
+        "gid": "D5/S1/Open",
+        "receipt": "fixture",
+        "repo_path": "Blueprint/D5/S1/Open.md"
+      }
+    ],
+    "document_edges": {
+      "dependency": [
+        {
+          "dependency": "Blueprint/D5/S0/Closed.md",
+          "dependent": "Blueprint/D5/S1/Open.md"
+        }
+      ],
+      "narrative_reference": []
+    },
+    "describe_nodes": []
+  },
+  "joins": {
+    "truth_anchors": [
+      {
+        "describe_id": "closed-fixture",
+        "document_gid": "D5/S0/Closed",
+        "document_repo_path": "Blueprint/D5/S0/Closed.md",
+        "formal_truth_repo_path": "D5/S0/Closed.lean",
+        "lean_declaration_gid": "D5/S0/Closed.fixture"
+      },
+      {
+        "describe_id": "open-fixture",
+        "document_gid": "D5/S1/Open",
+        "document_repo_path": "Blueprint/D5/S1/Open.md",
+        "formal_truth_repo_path": "D5/S1/Open.lean",
+        "lean_declaration_gid": "D5/S1/Open.fixture"
+      }
+    ]
+  },
+  "provenance": {
+    "fixture": "mock",
+    "dependency_granularity": "module-import"
+  },
+  "deferred_layers": []
+}

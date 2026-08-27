@@ -1,0 +1,16 @@
+{
+  "schema": "source-snapshot.v1",
+  "source_repo": "the-omega-institute/trureturing",
+  "source_commit": "47aa0c2f2ce1b81cf55c7b909b052c9d91a0f2a8",
+  "source_tree": "12081eb9cdc2b7acbe3f218d154fa233dbafeeec",
+  "lean_toolchain": "leanprover/lean4:v4.24.0",
+  "mathlib_rev": "4444444444444444444444444444444444444444",
+  "producer_package_commit": "47aa0c2f2ce1b81cf55c7b909b052c9d91a0f2a8",
+  "truth_graph_sha256": "sha256:93308e5f1296f39a1f0842fc9cd2637f04413672d1c9f2965d1f67096a689160",
+  "raw_lean_report_sha256": "sha256:27f7a765c1b1c277ef645e576d2f41f9654d3eb56934a9e2927951df32107fa8",
+  "dag_md_sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+  "residual_frontier_sha256": "sha256:9c7aad4a8edc9eb09f0cba7278d8b758c071f5abd03b2eec80254fe8fee27a72",
+  "declarations_sha256": "sha256:291eb36c2de5a65865dfea90b5d5fb7b5bc1700b293354b8f234e589f770d96a",
+  "frozen_ledger_head_hash": "sha256:22079bbcce31054dcbd09b31417d3c8edd073f0ed79f2e903cc8d53bd09bdbc5",
+  "frozen_ledger_sequence": 0
+}

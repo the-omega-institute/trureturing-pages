@@ -52,7 +52,22 @@ python -m lib.certified_topology site/data/truth-graph.v1.json \
 The renderer prefers that generated view when present and otherwise keeps serving the current
 truth-graph projection.
 
-After a change reaches `dev`, `.github/workflows/pages.yml` uploads `site/` and deploys it with the official GitHub Pages actions. Repository Pages settings must select GitHub Actions as the source before the deployment can publish at `https://the-omega-institute.github.io/trureturing-pages/`.
+## Vertical deployment smoke
+
+`Deploy truth-release DAG to GitHub Pages` accepts a `truth_release_digest` dispatch input.
+Use `mock` (the default) for the committed seven-artifact fixture. A real digest resolves
+the immutable release mirror produced by base PR #3346. The workflow verifies the bundle,
+renders the basic DAG, runs the exact `Trureturing.Topology` `0.1.0-alpha.1` NuGet package,
+renders the enriched DAG through the Python consumer, enforces monotonic freshness, writes
+the deployment manifest, and deploys the unified site artifact.
+
+See [`docs/VERTICAL_SMOKE.md`](docs/VERTICAL_SMOKE.md) for the package invocation choice,
+security bounds, freshness rule, package authorization gate, and measurement procedure.
+
+On an explicit dispatch, `.github/workflows/pages.yml` builds and uploads the unified site
+state and deploys it with the official GitHub Pages actions. Repository Pages settings must
+select GitHub Actions as the source before the deployment can publish at
+`https://the-omega-institute.github.io/trureturing-pages/`.
 
 ## Deferred decisions
 

@@ -1,0 +1,8 @@
+{
+  "schema_version": "algorithm_profile.v1",
+  "edge_orientation": "dependency->dependent",
+  "shortest_path_convention": "directed-unweighted-all-shortest-paths-equal-split",
+  "normalization_denominator": "N-1",
+  "disconnected_node_behavior": "unreachable-pairs-contribute-zero",
+  "n_le_1_case": "normalized_reach=0/1; dependency_betweenness=0/1"
+}

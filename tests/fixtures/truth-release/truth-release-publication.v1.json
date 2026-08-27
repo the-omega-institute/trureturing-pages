@@ -1,0 +1,8 @@
+{
+  "schema": "truth-release-publication.v1",
+  "release_digest": "sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b0ce7d8d20",
+  "bundle_ref": "sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b0ce7d8d20",
+  "source_commit": "47aa0c2f2ce1b81cf55c7b909b052c9d91a0f2a8",
+  "source_tree": "12081eb9cdc2b7acbe3f218d154fa233dbafeeec",
+  "producer_commit": "47aa0c2f2ce1b81cf55c7b909b052c9d91a0f2a8"
+}
