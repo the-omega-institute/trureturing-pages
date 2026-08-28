@@ -1,0 +1,31 @@
+name: Deploy real committed DAG
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify the committed truth graph is real (not synthetic)
+        run: |
+          set -euo pipefail
+          python3 -c "import json,sys; d=json.load(open('site/data/truth-graph.v1.json')); sys.exit(0 if d.get('synthetic') is False else 1)"
+          echo "real truth-graph.v1.json confirmed (synthetic:false)"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
