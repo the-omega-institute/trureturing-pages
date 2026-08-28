@@ -18,6 +18,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Checkout Blueprint source for human labels
+        uses: actions/checkout@v4
+        with:
+          repository: the-omega-institute/trureturing
+          ref: dev
+          path: _upstream
+          sparse-checkout: Blueprint
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - name: Enrich committed DAG nodes with human Blueprint labels
+        run: python lib/human_labels.py site/data/truth-graph.v1.json site/data/truth-graph.v1.json _upstream/Blueprint
       - name: Verify the committed truth graph is real (not synthetic)
         run: |
           set -euo pipefail
