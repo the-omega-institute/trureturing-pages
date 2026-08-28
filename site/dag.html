@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Truth DAG &middot; trureturing</title>
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/knowledge.css">
   <script defer src="https://unpkg.com/3d-force-graph@1.79.0/dist/3d-force-graph.min.js"></script>
   <script defer src="assets/dag.js"></script>
+  <script defer src="assets/dag-knowledge-link.js"></script>
 </head>
 <body class="dag-page">
   <header class="site-header">
@@ -15,6 +17,7 @@
       <ul>
         <li><a href="index.html">Overview</a></li>
         <li><a href="dag.html" aria-current="page">DAG</a></li>
+        <li><a href="knowledge/index.html">Knowledge</a></li>
         <li><a href="https://the-omega-institute.github.io/trureturing-mdbook/" target="_blank" rel="noopener">Theory &nearr;</a></li>
         <li><a href="conclusions.html">Conclusions</a></li>
       </ul>
@@ -26,7 +29,7 @@
       <div>
         <p class="eyebrow">Kernel-verified dependency structure</p>
         <h1 id="dag-title">Truth DAG</h1>
-        <p class="lede">Explore the frozen Lean tower in three dimensions. Each layer sits at its own height &mdash; foundation below, frontier above &mdash; and every edge points from a dependency to the theorem that rests on it. Select a node to read its interpretation and walk its upstream dependencies.</p>
+        <p class="lede">Explore the frozen Lean tower in three dimensions. Each layer sits at its own height &mdash; foundation below, frontier above &mdash; and every edge points from a dependency to the theorem that rests on it. Select a node to read its interpretation, walk its dependencies, or open its release-bound concept page.</p>
       </div>
       <div class="dag-provenance-group" role="group" aria-label="Published graph provenance">
         <dl class="dag-provenance">
@@ -62,6 +65,7 @@
         </form>
 
         <div class="graph-actions">
+          <a class="graph-knowledge-action" href="knowledge/index.html">Browse concepts</a>
           <button id="fit-graph" type="button" title="Fit every visible node in the viewport">Fit view</button>
           <button id="toggle-motion" type="button" aria-pressed="false" title="Pause or resume graph motion">Pause</button>
         </div>
