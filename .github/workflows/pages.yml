@@ -36,6 +36,16 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Checkout Blueprint source for human labels
+        uses: actions/checkout@v4
+        with:
+          repository: the-omega-institute/trureturing
+          ref: dev
+          path: _upstream
+          sparse-checkout: Blueprint
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -94,6 +104,11 @@ jobs:
 
       - name: Render the basic release DAG
         run: python -m lib.vertical_smoke build-basic '${{ steps.acquire.outputs.bundle }}' _site
+
+      - name: Enrich DAG nodes with human Blueprint labels
+        run: |
+          python lib/human_labels.py _site/data/basic-truth-graph.v1.json _site/data/basic-truth-graph.v1.json _upstream/Blueprint
+          python lib/human_labels.py _site/data/truth-graph.v1.json _site/data/truth-graph.v1.json _upstream/Blueprint
 
       - name: Run and measure the pinned C# topology engine
         shell: bash

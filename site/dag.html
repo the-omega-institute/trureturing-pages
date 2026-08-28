@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Truth DAG &middot; trureturing</title>
   <link rel="stylesheet" href="assets/style.css">
-  <script defer src="https://unpkg.com/3d-force-graph@1.79.0/dist/3d-force-graph.min.js"></script>
   <script defer src="assets/dag.js"></script>
 </head>
 <body class="dag-page">
@@ -26,7 +25,7 @@
       <div>
         <p class="eyebrow">Kernel-verified dependency structure</p>
         <h1 id="dag-title">Truth DAG</h1>
-        <p class="lede">Explore the frozen Lean tower in three dimensions. Edges point from each dependency to the theorem or module that depends on it.</p>
+        <p class="lede">Explore the frozen Lean tower in a structured 2D view. Edges point from each dependency to the theorem or module that depends on it.</p>
       </div>
       <div class="dag-provenance-group" role="group" aria-label="Published graph provenance">
         <dl class="dag-provenance">
@@ -58,28 +57,27 @@
 
         <form id="node-search" class="graph-search" role="search">
           <label for="node-query">Find node</label>
-          <input id="node-query" type="search" list="node-options" placeholder="GID or module name" autocomplete="off">
+          <input id="node-query" type="search" list="node-options" placeholder="Human title or domain" autocomplete="off">
           <datalist id="node-options"></datalist>
-          <button type="submit">Focus</button>
+          <button type="submit">Find</button>
         </form>
 
         <div class="graph-actions">
           <button id="fit-graph" type="button" title="Fit every visible node in the viewport">Fit view</button>
-          <button id="toggle-motion" type="button" aria-pressed="false" title="Pause or resume graph motion">Pause</button>
         </div>
       </div>
 
       <div class="graph-stage">
         <div id="graph" role="img" aria-describedby="graph-description graph-status"></div>
-        <p id="graph-description" class="sr-only">An interactive three-dimensional directed graph. Drag to rotate, scroll to zoom, and select a node to inspect it.</p>
+        <p id="graph-description" class="sr-only">An interactive two-dimensional directed graph. Drag to pan, scroll to zoom, and select a node to inspect it.</p>
         <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading 682 nodes and 669 dependency edges&hellip;</div>
 
         <div class="graph-legend" role="group" aria-label="Graph legend">
           <span><i class="legend-dot closed"></i>Closed</span>
           <span><i class="legend-dot open"></i>Open</span>
           <span><i class="legend-dot tail"></i>Tail</span>
-          <span><i class="legend-dot semantic"></i>Semantic / Blueprint</span>
-          <span><i class="legend-line"></i>Dependency</span>
+          <span><i class="legend-dot semantic"></i>Semantic</span>
+          <span><i class="legend-line"></i>Dependency &rarr; dependent</span>
         </div>
 
         <aside id="node-detail" class="node-detail" aria-live="polite">

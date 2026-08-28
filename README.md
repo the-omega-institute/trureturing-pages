@@ -37,7 +37,7 @@ site/
         `-- _example.md         # renderer smoke fixture only
 ```
 
-Serve `site/` with any simple local static HTTP server to inspect the site because browsers commonly restrict `fetch()` from `file://` pages. The DAG uses the pinned `3d-force-graph` browser bundle from unpkg and degrades to a readable error state if the renderer or graph data cannot load.
+Serve `site/` with any simple local static HTTP server to inspect the site because browsers commonly restrict `fetch()` from `file://` pages. The DAG is rendered by a dependency-free SVG view, so it has no runtime CDN dependency. Nodes are enriched during the Pages workflow by joining `trureturing/Blueprint` at `dev`: Blueprint H1/Abstract/theorem fields are copied when present and all other nodes receive a domain-prefixed path label.
 
 Until the upstream publication exists, the exact `certified-topology.v1` consumer is exercised
 against `tests/fixtures/certified-topology.v1.json`. The fail-closed adapter validates the input
