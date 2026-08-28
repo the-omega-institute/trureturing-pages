@@ -37,7 +37,7 @@
     const params = new URLSearchParams({ id: nodeId });
     if (releaseDigest) params.set("release", releaseDigest);
     const link = existing || document.createElement("a");
-    link.className = "knowledge-read-link";
+    link.className = "knowledge-read-link text-link";
     link.textContent = "Open the full concept page";
     link.href = `knowledge/node.html?${params.toString()}`;
     if (!existing) detail.appendChild(link);
