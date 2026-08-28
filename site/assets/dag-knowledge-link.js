@@ -19,6 +19,11 @@
     });
 
   function nodeIdFromDetail() {
+    // The graph publishes the selected node id as a data attribute; prefer it and
+    // fall back to the rendered "Node ID" row so the link keeps working either way.
+    if (detail.dataset.nodeId) {
+      return detail.dataset.nodeId;
+    }
     const terms = [...detail.querySelectorAll("dt")];
     const term = terms.find((candidate) => candidate.textContent.trim() === "Node ID");
     return term && term.nextElementSibling
