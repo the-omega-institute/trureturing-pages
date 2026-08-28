@@ -12,7 +12,12 @@ import re
 from pathlib import Path
 from typing import Any
 
-from lib.knowledge_pages import annotate_graph, render_knowledge_site
+try:
+    from lib.knowledge_pages import annotate_graph, render_knowledge_site
+except ModuleNotFoundError:
+    # Workflows intentionally support both ``python -m lib.human_labels`` and
+    # direct ``python lib/human_labels.py`` invocation.
+    from knowledge_pages import annotate_graph, render_knowledge_site
 
 
 _H1 = re.compile(r"^#(?!#)\s+(.+?)\s*#*\s*$")
