@@ -35,8 +35,10 @@ jobs:
       - name: Run fail-closed port and schema contract tests
         run: dotnet test tests/Trureturing.Pages.Tests/Trureturing.Pages.Tests.csproj -c Release --no-build
 
-      - name: Check topology renderer JavaScript
-        run: node --check site/assets/dag.js
+      - name: Check knowledge-map JavaScript
+        run: |
+          node --check site/assets/dag.js
+          node --check site/assets/knowledge-map.js
 
       - uses: actions/setup-python@v5
         with:
@@ -56,6 +58,30 @@ jobs:
 
       - name: Build the mock truth-release basic DAG
         run: python -m lib.vertical_smoke build-basic tests/fixtures/truth-release _site
+
+      - name: Render and audit static knowledge pages
+        run: |
+          python lib/human_labels.py \
+            _site/data/truth-graph.v1.json \
+            _site/data/truth-graph.v1.json \
+            tests/fixtures \
+            --blueprint-ref fixture
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("_site")
+          graph = json.loads(
+              (root / "data/truth-graph.v1.json").read_text(encoding="utf-8")
+          )
+          pages = list((root / "knowledge/node").glob("*/index.html"))
+          release_pages = list((root / "release").glob("*/node/*/index.html"))
+          assert len(pages) == len(graph["nodes"])
+          assert len(release_pages) == len(graph["nodes"])
+          assert (root / "knowledge/index.html").is_file()
+          assert (root / "knowledge/index.v1.json").is_file()
+          assert all(node.get("knowledge_page") for node in graph["nodes"])
+          PY
 
       - name: Run the package-backed topology smoke
         run: |

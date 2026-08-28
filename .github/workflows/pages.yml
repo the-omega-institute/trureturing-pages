@@ -36,16 +36,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Checkout Blueprint source for human labels
-        uses: actions/checkout@v4
-        with:
-          repository: the-omega-institute/trureturing
-          ref: dev
-          path: _upstream
-          sparse-checkout: Blueprint
-          sparse-checkout-cone-mode: true
-          persist-credentials: false
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -62,6 +52,7 @@ jobs:
           if [[ -z "$REQUESTED_DIGEST" || "$REQUESTED_DIGEST" == 'mock' ]]; then
             cp -R tests/fixtures/truth-release "$bundle"
             expected='mock'
+            blueprint_ref='dev'
           else
             [[ "$REQUESTED_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] \
               || { printf '%s\n' 'truth_release_digest must be mock or sha256:<64 lowercase hex>' >&2; exit 1; }
@@ -82,11 +73,26 @@ jobs:
           release_digest="$(jq -r '.release_digest' "$RUNNER_TEMP/verified-release.json")"
           source_commit="$(jq -r '.source_commit' "$RUNNER_TEMP/verified-release.json")"
           source_tree="$(jq -r '.source_tree' "$RUNNER_TEMP/verified-release.json")"
+          if [[ "$expected" != 'mock' ]]; then
+            blueprint_ref="$source_commit"
+          fi
           printf 'bundle=%s\n' "$bundle" >> "$GITHUB_OUTPUT"
           printf 'release_digest=%s\n' "$release_digest" >> "$GITHUB_OUTPUT"
           printf 'source_commit=%s\n' "$source_commit" >> "$GITHUB_OUTPUT"
           printf 'source_tree=%s\n' "$source_tree" >> "$GITHUB_OUTPUT"
-          printf 'ACQUIRED release_digest=%s source_commit=%s\n' "$release_digest" "$source_commit"
+          printf 'blueprint_ref=%s\n' "$blueprint_ref" >> "$GITHUB_OUTPUT"
+          printf 'ACQUIRED release_digest=%s source_commit=%s blueprint_ref=%s\n' \
+            "$release_digest" "$source_commit" "$blueprint_ref"
+
+      - name: Checkout Blueprint source at the exact truth-release commit
+        uses: actions/checkout@v4
+        with:
+          repository: the-omega-institute/trureturing
+          ref: ${{ steps.acquire.outputs.blueprint_ref }}
+          path: _upstream
+          sparse-checkout: Blueprint
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -105,10 +111,35 @@ jobs:
       - name: Render the basic release DAG
         run: python -m lib.vertical_smoke build-basic '${{ steps.acquire.outputs.bundle }}' _site
 
-      - name: Enrich DAG nodes with human Blueprint labels
+      - name: Enrich the DAG and render release-bound concept pages
         run: |
-          python lib/human_labels.py _site/data/basic-truth-graph.v1.json _site/data/basic-truth-graph.v1.json _upstream/Blueprint
-          python lib/human_labels.py _site/data/truth-graph.v1.json _site/data/truth-graph.v1.json _upstream/Blueprint
+          python lib/human_labels.py \
+            _site/data/basic-truth-graph.v1.json \
+            _site/data/basic-truth-graph.v1.json \
+            _upstream/Blueprint \
+            --blueprint-ref '${{ steps.acquire.outputs.blueprint_ref }}'
+          python lib/human_labels.py \
+            _site/data/truth-graph.v1.json \
+            _site/data/truth-graph.v1.json \
+            _upstream/Blueprint \
+            --blueprint-ref '${{ steps.acquire.outputs.blueprint_ref }}'
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("_site")
+          graph = json.loads(
+              (root / "data/truth-graph.v1.json").read_text(encoding="utf-8")
+          )
+          current = list((root / "knowledge/node").glob("*/index.html"))
+          immutable = list((root / "release").glob("*/node/*/index.html"))
+          assert len(current) == len(graph["nodes"])
+          assert len(immutable) == len(graph["nodes"])
+          if not graph.get("synthetic"):
+              assert graph["human_labels"]["blueprint_ref"] == (
+                  graph["source_snapshot"]["source_commit"]
+              )
+          PY
 
       - name: Run and measure the pinned C# topology engine
         shell: bash
@@ -185,6 +216,6 @@ jobs:
         with:
           path: _site
 
-      - name: Deploy the unified basic and enriched site state
+      - name: Deploy the unified graph and concept-page state
         id: deployment
         uses: actions/deploy-pages@v4
