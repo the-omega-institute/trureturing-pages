@@ -14,6 +14,7 @@
       <ul>
         <li><a href="index.html" aria-current="page">Overview</a></li>
         <li><a href="dag.html">DAG</a></li>
+        <li><a href="knowledge/">Concepts</a></li>
         <li><a href="https://the-omega-institute.github.io/trureturing-mdbook/" target="_blank" rel="noopener">Theory &nearr;</a></li>
         <li><a href="conclusions.html">Conclusions</a></li>
       </ul>
@@ -22,7 +23,7 @@
 
   <main>
     <h1>trureturing</h1>
-    <p class="lede">A read-only public view of the frozen research DAG, theory volume, and selected conclusions.</p>
+    <p class="lede">A read-only public view of the frozen research DAG, human-readable concept pages, theory volume, and selected conclusions.</p>
 
     <section aria-labelledby="dag-status-title">
       <h2 id="dag-status-title">DAG status</h2>
@@ -47,7 +48,8 @@
     <section aria-labelledby="explore-title">
       <h2 id="explore-title">Explore</h2>
       <div class="navigation-grid">
-        <a href="dag.html">DAG <span>Explore the real dependency graph in three dimensions.</span></a>
+        <a href="dag.html">Truth DAG <span>Explore directed dependency edges and inspect each node in context.</span></a>
+        <a href="knowledge/">Concept index <span>Read static, shareable pages with dependencies, exposition, and exact release provenance.</span></a>
         <a href="https://the-omega-institute.github.io/trureturing-mdbook/" target="_blank" rel="noopener">Theory &nearr; <span>Open the upstream theory-volume index.</span></a>
         <a href="conclusions.html">Conclusions <span>Review provenance-linked highlights.</span></a>
       </div>
@@ -56,7 +58,7 @@
 
   <footer class="site-footer">Read-only presentation of an approved trureturing snapshot.</footer>
   <script>
-    // Keep the published-snapshot fields in sync with the real projected DAG data (single source of truth).
+    // Keep the published-snapshot fields in sync with the real projected DAG data.
     fetch('data/truth-graph.v1.json')
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
       .then((graph) => {
