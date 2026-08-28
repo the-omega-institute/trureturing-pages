@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Truth DAG &middot; trureturing</title>
   <link rel="stylesheet" href="assets/style.css">
+  <script defer src="https://unpkg.com/3d-force-graph@1.79.0/dist/3d-force-graph.min.js"></script>
   <script defer src="assets/dag.js"></script>
 </head>
 <body class="dag-page">
@@ -25,15 +26,15 @@
       <div>
         <p class="eyebrow">Kernel-verified dependency structure</p>
         <h1 id="dag-title">Truth DAG</h1>
-        <p class="lede">Explore the frozen Lean tower as a top-to-bottom dependency graph. Every arrow runs from an upstream dependency to the theorem or module that depends on it.</p>
+        <p class="lede">Explore the frozen Lean tower in three dimensions. Each layer sits at its own height &mdash; foundation below, frontier above &mdash; and every edge points from a dependency to the theorem that rests on it. Select a node to read its interpretation and walk its upstream dependencies.</p>
       </div>
       <div class="dag-provenance-group" role="group" aria-label="Published graph provenance">
         <dl class="dag-provenance">
-          <div><dt>Source</dt><dd id="source-commit">90059ebbb6c</dd></div>
-          <div><dt>Blessed by</dt><dd id="blessed-by">AlyciaBHZ</dd></div>
-          <div><dt>Closed</dt><dd id="closed-count">670</dd></div>
-          <div><dt>Open</dt><dd id="open-count">12</dd></div>
-          <div><dt>Edges</dt><dd id="edge-count">669</dd></div>
+          <div><dt>Source</dt><dd id="source-commit">&hellip;</dd></div>
+          <div><dt>Blessed by</dt><dd id="blessed-by">&hellip;</dd></div>
+          <div><dt>Closed</dt><dd id="closed-count">&ndash;</dd></div>
+          <div><dt>Open</dt><dd id="open-count">&ndash;</dd></div>
+          <div><dt>Edges</dt><dd id="edge-count">&ndash;</dd></div>
         </dl>
       </div>
     </section>
@@ -45,8 +46,6 @@
           <button type="button" data-state="All" aria-pressed="true">All</button>
           <button type="button" data-state="Closed" aria-pressed="false">Closed</button>
           <button type="button" data-state="Open" aria-pressed="false">Open</button>
-          <button type="button" data-state="Tail" aria-pressed="false">Tail</button>
-          <button type="button" data-state="Semantic" aria-pressed="false">Semantic</button>
         </fieldset>
 
         <label class="graph-select">Layer
@@ -57,31 +56,30 @@
 
         <form id="node-search" class="graph-search" role="search">
           <label for="node-query">Find node</label>
-          <input id="node-query" type="search" list="node-options" placeholder="Human title or domain" autocomplete="off">
+          <input id="node-query" type="search" list="node-options" placeholder="id or Blueprint title" autocomplete="off">
           <datalist id="node-options"></datalist>
-          <button type="submit">Find</button>
+          <button type="submit">Focus</button>
         </form>
 
         <div class="graph-actions">
           <button id="fit-graph" type="button" title="Fit every visible node in the viewport">Fit view</button>
+          <button id="toggle-motion" type="button" aria-pressed="false" title="Pause or resume graph motion">Pause</button>
         </div>
       </div>
 
       <div class="graph-stage">
         <div id="graph" role="img" aria-describedby="graph-description graph-status"></div>
-        <p id="graph-description" class="sr-only">An interactive directed acyclic graph arranged by topological depth. Dependencies appear above their dependents. Drag to pan, scroll to zoom, and select a node to inspect its interpretation and upstream dependencies.</p>
-        <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading 682 nodes and 669 dependency edges&hellip;</div>
+        <p id="graph-description" class="sr-only">An interactive three-dimensional directed graph. Drag to rotate, scroll to zoom, and select a node to inspect its interpretation and dependencies.</p>
+        <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading the frozen truth DAG&hellip;</div>
 
         <div class="graph-legend" role="group" aria-label="Graph legend">
           <span><i class="legend-dot closed"></i>Closed</span>
           <span><i class="legend-dot open"></i>Open</span>
-          <span><i class="legend-dot tail"></i>Tail</span>
-          <span><i class="legend-dot semantic"></i>Semantic</span>
-          <span><i class="legend-line"></i>Dependency &darr; dependent</span>
+          <span><i class="legend-line"></i>Dependency</span>
         </div>
 
         <aside id="node-detail" class="node-detail" aria-live="polite">
-          <p class="node-detail-empty">Select a node to reveal its interpretation and upstream dependencies.</p>
+          <p class="node-detail-empty">Select a node to reveal its interpretation and the dependencies it rests on.</p>
         </aside>
       </div>
 
