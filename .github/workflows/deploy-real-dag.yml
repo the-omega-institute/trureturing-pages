@@ -27,9 +27,27 @@ jobs:
           sparse-checkout: Blueprint
           sparse-checkout-cone-mode: true
           persist-credentials: false
-      - name: Enrich committed DAG nodes with human Blueprint labels
-        run: python lib/human_labels.py site/data/truth-graph.v1.json site/data/truth-graph.v1.json _upstream/Blueprint
-      - name: Verify the committed truth graph is real (not synthetic)
+      - name: Enrich committed DAG and render static concept pages
+        run: |
+          python lib/human_labels.py \
+            site/data/truth-graph.v1.json \
+            site/data/truth-graph.v1.json \
+            _upstream/Blueprint \
+            --blueprint-ref dev
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("site")
+          graph = json.loads(
+              (root / "data/truth-graph.v1.json").read_text(encoding="utf-8")
+          )
+          assert len(list((root / "knowledge/node").glob("*/index.html"))) == (
+              len(graph["nodes"])
+          )
+          assert (root / "knowledge/index.html").is_file()
+          PY
+      - name: Verify the committed truth graph is real
         run: |
           set -euo pipefail
           python3 -c "import json,sys; d=json.load(open('site/data/truth-graph.v1.json')); sys.exit(0 if d.get('synthetic') is False else 1)"

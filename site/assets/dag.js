@@ -130,9 +130,13 @@
 
   function renderDetail(node) {
     if (!node) {
+      delete detailElement.dataset.nodeId;
       detailElement.innerHTML = '<p class="node-detail-empty">Select a node to reveal its interpretation and the dependencies it rests on.</p>';
       return;
     }
+    // Publish the selected node id as a stable data attribute so companion overlays
+    // (e.g. the concept-page link) can read it without parsing the rendered markup.
+    detailElement.dataset.nodeId = node.id;
     const parents = relatedNodes(parentsById.get(node.id));
     const children = relatedNodes(childrenById.get(node.id));
     const abstract = node.human_abstract && node.human_abstract !== "None"
