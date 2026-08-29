@@ -1,0 +1,86 @@
+.research-writeback {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.9rem;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.research-writeback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.research-writeback-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.research-writeback-badge {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(250, 204, 21, 0.5);
+  border-radius: 999px;
+  color: #fde68a;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.research-writeback-status,
+.research-writeback-receipt p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.research-writeback-form,
+.research-writeback-receipt {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.research-writeback-form[hidden],
+.research-writeback-receipt[hidden] {
+  display: none;
+}
+
+.research-writeback textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.research-writeback input,
+.research-writeback select,
+.research-writeback textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 0.55rem;
+  padding: 0.58rem 0.65rem;
+  background: rgba(2, 6, 23, 0.75);
+  color: #f8fafc;
+  font: inherit;
+}
+
+.research-writeback code {
+  overflow-wrap: anywhere;
+  color: #93c5fd;
+  font-size: 0.74rem;
+}
+
+.research-writeback-approval {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.research-writeback-approval input {
+  width: auto;
+  margin-top: 0.15rem;
+}
