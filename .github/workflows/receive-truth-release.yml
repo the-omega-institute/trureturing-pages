@@ -1,0 +1,62 @@
+name: Receive published truth release
+
+on:
+  repository_dispatch:
+    types: [truth-release-published]
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: receive-truth-release-${{ github.event.client_payload.truth_release_digest || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch-pages-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate the immutable Base coordinate
+        id: input
+        env:
+          SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository }}
+          TRUTH_RELEASE_DIGEST: ${{ github.event.client_payload.truth_release_digest }}
+          SOURCE_COMMIT: ${{ github.event.client_payload.source_commit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$SOURCE_REPOSITORY" && "$SOURCE_REPOSITORY" != 'the-omega-institute/trureturing' ]]; then
+            printf 'unexpected source_repository: %s\n' "$SOURCE_REPOSITORY" >&2
+            exit 1
+          fi
+          [[ "$TRUTH_RELEASE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] \
+            || { printf '%s\n' 'truth_release_digest must be sha256:<64 lowercase hex>' >&2; exit 1; }
+          if [[ -n "$SOURCE_COMMIT" ]]; then
+            [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]] \
+              || { printf '%s\n' 'source_commit must be a lowercase 40-hex Git object id' >&2; exit 1; }
+          fi
+          printf 'truth_release_digest=%s\n' "$TRUTH_RELEASE_DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch the existing verified Pages pipeline
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRUTH_RELEASE_DIGEST: ${{ steps.input.outputs.truth_release_digest }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run pages.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref dev \
+            -f "truth_release_digest=$TRUTH_RELEASE_DIGEST"
+
+      - name: Record the delegated build coordinate
+        env:
+          TRUTH_RELEASE_DIGEST: ${{ steps.input.outputs.truth_release_digest }}
+        run: |
+          {
+            echo '## Pages release reception'
+            echo
+            echo "- Accepted truth release: \`$TRUTH_RELEASE_DIGEST\`"
+            echo '- Delegated pipeline: `pages.yml` on `dev`'
+            echo '- The delegated pipeline downloads and verifies the bundle, renders the basic DAG, computes certified topology, renders release-bound knowledge pages, checks freshness, and deploys atomically.'
+          } >> "$GITHUB_STEP_SUMMARY"
