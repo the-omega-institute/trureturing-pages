@@ -51,7 +51,10 @@ class ResearchConsoleContractTests(unittest.TestCase):
                 "provider": "trureturingResearchCredential",
             },
         )
-        self.assertEqual(config["profile_revision"], "research-v1-disabled")
+        self.assertEqual(
+            config["profile_revision"],
+            "research-v2-writeback-disabled",
+        )
         self.assertEqual(
             config["evidence_checkout"],
             {
@@ -67,11 +70,12 @@ class ResearchConsoleContractTests(unittest.TestCase):
                 "name": "codex-formal-answer",
                 "repository": "the-omega-institute/trureturing",
                 "path": "skills/codex-formal-answer/SKILL.md",
-                "ref": "b064e24d5e0d98ed5b5007e513dc34b81a38b781",
+                "ref": "8b6887a06076f3ddf1a663fc9e2b1e15b66b1409",
                 "git_blob_sha": "7af641992ac46e3b66f7cfd19ab75d6b8cf7a4a6",
                 "installation": "session-skill-prelude",
             },
         )
+        self.assertIs(config["intuition_submit_enabled"], False)
         self.assertIs(config["formalize_submit_enabled"], False)
 
     def test_contracts_are_strict_and_cover_context_and_configuration(self):
@@ -151,10 +155,11 @@ class ResearchConsoleContractTests(unittest.TestCase):
             "trureturingResearchCredential",
             "skills/codex-formal-answer/SKILL.md",
             "formalize_submit_enabled",
+            "intuition_submit_enabled",
             "source_snapshot.source_commit",
             "session-skill-prelude",
             "profile_revision",
-            "b064e24d5e0d98ed5b5007e513dc34b81a38b781",
+            "8b6887a06076f3ddf1a663fc9e2b1e15b66b1409",
         ):
             self.assertIn(phrase, document)
 
