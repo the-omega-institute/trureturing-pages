@@ -4,11 +4,12 @@
   "cma_origin": "",
   "run_path": "/api/v1/agui/run",
   "environment_profile": "trureturing-research",
-  "profile_revision": "research-v1-disabled",
+  "profile_revision": "research-v2-writeback-disabled",
   "auth": {
     "mode": "bearer-provider",
     "provider": "trureturingResearchCredential"
   },
+  "human_actor_provider": "trureturingResearchActor",
   "evidence_checkout": {
     "repository": "the-omega-institute/trureturing",
     "ref_binding": "release.source_commit",
@@ -19,9 +20,26 @@
     "name": "codex-formal-answer",
     "repository": "the-omega-institute/trureturing",
     "path": "skills/codex-formal-answer/SKILL.md",
-    "ref": "b064e24d5e0d98ed5b5007e513dc34b81a38b781",
+    "ref": "8b6887a06076f3ddf1a663fc9e2b1e15b66b1409",
     "git_blob_sha": "7af641992ac46e3b66f7cfd19ab75d6b8cf7a4a6",
     "installation": "session-skill-prelude"
   },
+  "topology_artifact_path": "data/certified-topology.v1.json",
+  "topology_publication_path": "data/topology-publication.v1.json",
+  "contracts": {
+    "human_intuition_candidate": {
+      "repository": "the-omega-institute/trureturing-intuition",
+      "ref": "18b8e81b1c0db1b6bf37e98e4d9c12c041c5f682",
+      "path": "contracts/human-intuition-candidate.v1.schema.json",
+      "git_blob_sha": "ea9fa69eaa328b3e3f49b0e9bc55f8d7801ea002"
+    },
+    "formalization_request": {
+      "repository": "the-omega-institute/trureturing-formalize",
+      "ref": "8ed943f3e4140c597b563a90be8972528feec0bf",
+      "path": "contracts/formalization-request.v1.schema.json",
+      "git_blob_sha": "90c44950c9b6863deaa15e3b8b53a0b934f81809"
+    }
+  },
+  "intuition_submit_enabled": false,
   "formalize_submit_enabled": false
 }
