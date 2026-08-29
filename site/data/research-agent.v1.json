@@ -1,0 +1,27 @@
+{
+  "schema": "pages-research-agent.v1",
+  "enabled": false,
+  "cma_origin": "",
+  "run_path": "/api/v1/agui/run",
+  "environment_profile": "trureturing-research",
+  "profile_revision": "research-v1-disabled",
+  "auth": {
+    "mode": "bearer-provider",
+    "provider": "trureturingResearchCredential"
+  },
+  "evidence_checkout": {
+    "repository": "the-omega-institute/trureturing",
+    "ref_binding": "release.source_commit",
+    "mount_path": "/truth-source",
+    "read_only": true
+  },
+  "skill": {
+    "name": "codex-formal-answer",
+    "repository": "the-omega-institute/trureturing",
+    "path": "skills/codex-formal-answer/SKILL.md",
+    "ref": "b064e24d5e0d98ed5b5007e513dc34b81a38b781",
+    "git_blob_sha": "7af641992ac46e3b66f7cfd19ab75d6b8cf7a4a6",
+    "installation": "session-skill-prelude"
+  },
+  "formalize_submit_enabled": false
+}

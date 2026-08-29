@@ -6,9 +6,12 @@
   <title>Truth DAG &middot; trureturing</title>
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/knowledge.css">
+  <link rel="stylesheet" href="assets/research-console.css">
   <script defer src="https://unpkg.com/3d-force-graph@1.79.0/dist/3d-force-graph.min.js"></script>
   <script defer src="assets/dag.js"></script>
   <script defer src="assets/dag-knowledge-link.js"></script>
+  <script defer src="assets/research-context.js"></script>
+  <script defer src="assets/research-console.js"></script>
 </head>
 <body class="dag-page">
   <header class="site-header">
@@ -29,7 +32,7 @@
       <div>
         <p class="eyebrow">Kernel-verified dependency structure</p>
         <h1 id="dag-title">Truth DAG</h1>
-        <p class="lede">Explore the frozen Lean tower in three dimensions. Each layer sits at its own height &mdash; foundation below, frontier above &mdash; and every edge points from a dependency to the theorem that rests on it. Select a node to read its interpretation, walk its dependencies, or open its release-bound concept page.</p>
+        <p class="lede">Explore the frozen Lean tower in three dimensions. Each layer sits at its own height &mdash; foundation below, frontier above &mdash; and every edge points from a dependency to the theorem that rests on it. Select a node to read its interpretation, walk its dependencies, or discuss an idea with the release-bound formal research agent.</p>
       </div>
       <div class="dag-provenance-group" role="group" aria-label="Published graph provenance">
         <dl class="dag-provenance">
@@ -71,20 +74,60 @@
         </div>
       </div>
 
-      <div class="graph-stage">
-        <div id="graph" role="img" aria-describedby="graph-description graph-status"></div>
-        <p id="graph-description" class="sr-only">An interactive three-dimensional directed graph. Drag to rotate, scroll to zoom, and select a node to inspect its interpretation and dependencies.</p>
-        <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading the frozen truth DAG&hellip;</div>
+      <div class="graph-research-layout">
+        <div class="graph-stage">
+          <div id="graph" role="img" aria-describedby="graph-description graph-status"></div>
+          <p id="graph-description" class="sr-only">An interactive three-dimensional directed graph. Drag to rotate, scroll to zoom, and select a node to inspect its interpretation and dependencies.</p>
+          <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading the frozen truth DAG&hellip;</div>
 
-        <div class="graph-legend" role="group" aria-label="Graph legend">
-          <span><i class="legend-dot closed"></i>Closed</span>
-          <span><i class="legend-dot open"></i>Open</span>
-          <span><i class="legend-line"></i>Dependency</span>
+          <div class="graph-legend" role="group" aria-label="Graph legend">
+            <span><i class="legend-dot closed"></i>Closed</span>
+            <span><i class="legend-dot open"></i>Open</span>
+            <span><i class="legend-line"></i>Dependency</span>
+          </div>
+
+          <aside id="node-detail" class="node-detail" aria-live="polite">
+            <p class="node-detail-empty">Select a node to reveal its interpretation and the dependencies it rests on.</p>
+          </aside>
         </div>
 
-        <aside id="node-detail" class="node-detail" aria-live="polite">
-          <p class="node-detail-empty">Select a node to reveal its interpretation and the dependencies it rests on.</p>
-        </aside>
+        <section id="research-console" class="research-console" aria-labelledby="research-title">
+          <header class="research-console-header">
+            <div>
+              <p class="eyebrow">Release-bound agent</p>
+              <h2 id="research-title">Formal research</h2>
+            </div>
+            <span id="research-connection" class="research-connection" data-tone="waiting">Loading</span>
+          </header>
+
+          <div id="research-node-context" class="research-node-context">
+            <p class="research-context-empty">Select a theorem or concept in the graph. Its exact node and direct neighborhood will become the agent context.</p>
+          </div>
+
+          <div id="research-transcript" class="research-transcript" aria-live="polite" aria-label="Research conversation"></div>
+          <ul id="research-activity" class="research-activity" aria-label="Agent activity" hidden></ul>
+          <div id="research-approval" class="research-approval" hidden></div>
+          <div id="research-formalize" class="research-formalize" hidden></div>
+
+          <form id="research-form" class="research-composer">
+            <label class="research-field" for="research-mode">
+              <span>Mode</span>
+              <select id="research-mode">
+                <option value="answer">Formalize internally, then answer</option>
+                <option value="prepare-formalization">Prepare an advisory formalization draft</option>
+              </select>
+            </label>
+            <label class="research-field" for="research-prompt">
+              <span>Your idea</span>
+              <textarea id="research-prompt" maxlength="8000" placeholder="For example: could these two constructions share a stronger invariant?" required></textarea>
+            </label>
+            <div class="research-actions">
+              <button id="research-send" class="research-primary" type="submit">Ask the agent</button>
+              <button id="research-retry" class="research-secondary" type="button" hidden>Retry same run</button>
+            </div>
+            <p id="research-form-status" class="research-form-status" data-tone="quiet">Loading the graph and agent configuration.</p>
+          </form>
+        </section>
       </div>
 
       <div role="group" aria-label="Tower layer order">
