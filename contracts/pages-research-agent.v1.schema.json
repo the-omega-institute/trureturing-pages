@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-research-agent.v1",
+  "title": "Pages release-bound research agent configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "enabled",
+    "cma_origin",
+    "run_path",
+    "environment_profile",
+    "profile_revision",
+    "auth",
+    "evidence_checkout",
+    "skill",
+    "formalize_submit_enabled"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pages-research-agent.v1"
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "cma_origin": {
+      "type": "string"
+    },
+    "run_path": {
+      "type": "string",
+      "pattern": "^/api/v1/agui/run$"
+    },
+    "environment_profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "provider"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "same-origin-cookie",
+            "bearer-provider"
+          ]
+        },
+        "provider": {
+          "type": "string"
+        }
+      }
+    },
+    "evidence_checkout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "ref_binding",
+        "mount_path",
+        "read_only"
+      ],
+      "properties": {
+        "repository": {
+          "const": "the-omega-institute/trureturing"
+        },
+        "ref_binding": {
+          "const": "release.source_commit"
+        },
+        "mount_path": {
+          "type": "string",
+          "pattern": "^/[^\u0000]*$"
+        },
+        "read_only": {
+          "const": true
+        }
+      }
+    },
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "repository",
+        "path",
+        "ref",
+        "git_blob_sha",
+        "installation"
+      ],
+      "properties": {
+        "name": {
+          "const": "codex-formal-answer"
+        },
+        "repository": {
+          "const": "the-omega-institute/trureturing"
+        },
+        "path": {
+          "const": "skills/codex-formal-answer/SKILL.md"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "git_blob_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "installation": {
+          "const": "session-skill-prelude"
+        }
+      }
+    },
+    "formalize_submit_enabled": {
+      "type": "boolean"
+    }
+  }
+}

@@ -35,10 +35,16 @@ jobs:
       - name: Run fail-closed port and schema contract tests
         run: dotnet test tests/Trureturing.Pages.Tests/Trureturing.Pages.Tests.csproj -c Release --no-build
 
-      - name: Check knowledge-map JavaScript
+      - name: Check browser JavaScript
         run: |
           node --check site/assets/dag.js
+          node --check site/assets/dag-knowledge-link.js
           node --check site/assets/knowledge-map.js
+          node --check site/assets/research-context.js
+          node --check site/assets/research-console.js
+
+      - name: Run release-bound research client tests
+        run: node tests/js/research-context.test.js
 
       - uses: actions/setup-python@v5
         with:
@@ -80,6 +86,10 @@ jobs:
           assert len(release_pages) == len(graph["nodes"])
           assert (root / "knowledge/index.html").is_file()
           assert (root / "knowledge/index.v1.json").is_file()
+          assert (root / "assets/research-context.js").is_file()
+          assert (root / "assets/research-console.js").is_file()
+          assert (root / "assets/research-console.css").is_file()
+          assert (root / "data/research-agent.v1.json").is_file()
           assert all(node.get("knowledge_page") for node in graph["nodes"])
           PY
 

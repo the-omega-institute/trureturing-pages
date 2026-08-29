@@ -1,0 +1,363 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-research-context.v1",
+  "title": "Release-bound context sent by Pages to a formal research agent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "release",
+    "selected_node",
+    "neighborhood",
+    "human_prompt",
+    "requested_mode",
+    "client"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pages-research-context.v1"
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_key",
+        "truth_release_digest",
+        "truth_graph_sha256",
+        "source_repo",
+        "source_commit",
+        "source_tree",
+        "blessed_by",
+        "approved_at"
+      ],
+      "properties": {
+        "release_key": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "truth_release_digest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "truth_graph_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "source_repo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_tree": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "blessed_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "approved_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "selected_node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "gid",
+        "title",
+        "status",
+        "state",
+        "depth",
+        "layer",
+        "domain",
+        "repo_path",
+        "interpretation",
+        "theorem_label"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "depth": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "layer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "domain": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repo_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "interpretation": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "theorem_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "neighborhood": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prerequisites",
+        "dependents"
+      ],
+      "properties": {
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "gid",
+              "title",
+              "status",
+              "state",
+              "depth",
+              "layer",
+              "domain",
+              "repo_path",
+              "interpretation",
+              "theorem_label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "gid": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "minLength": 1
+              },
+              "state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "depth": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "layer": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "domain": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "repo_path": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "interpretation": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "theorem_label": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "dependents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "gid",
+              "title",
+              "status",
+              "state",
+              "depth",
+              "layer",
+              "domain",
+              "repo_path",
+              "interpretation",
+              "theorem_label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "gid": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "minLength": 1
+              },
+              "state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "depth": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "layer": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "domain": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "repo_path": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "interpretation": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "theorem_label": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "human_prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8000
+    },
+    "requested_mode": {
+      "type": "string",
+      "enum": [
+        "answer",
+        "prepare-formalization",
+        "formalize-submit"
+      ]
+    },
+    "client": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface",
+        "context_version"
+      ],
+      "properties": {
+        "surface": {
+          "const": "trureturing-pages/dag"
+        },
+        "context_version": {
+          "const": "pages-research-context.v1"
+        }
+      }
+    }
+  }
+}
