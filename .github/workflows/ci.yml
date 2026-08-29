@@ -42,9 +42,13 @@ jobs:
           node --check site/assets/knowledge-map.js
           node --check site/assets/research-context.js
           node --check site/assets/research-console.js
+          node --check site/assets/research-writeback.js
+          node --check site/assets/research-writeback-ui.js
 
       - name: Run release-bound research client tests
-        run: node tests/js/research-context.test.js
+        run: |
+          node tests/js/research-context.test.js
+          node tests/js/research-writeback.test.js
 
       - uses: actions/setup-python@v5
         with:
@@ -89,6 +93,9 @@ jobs:
           assert (root / "assets/research-context.js").is_file()
           assert (root / "assets/research-console.js").is_file()
           assert (root / "assets/research-console.css").is_file()
+          assert (root / "assets/research-writeback.js").is_file()
+          assert (root / "assets/research-writeback-ui.js").is_file()
+          assert (root / "assets/research-writeback.css").is_file()
           assert (root / "data/research-agent.v1.json").is_file()
           assert all(node.get("knowledge_page") for node in graph["nodes"])
           PY
