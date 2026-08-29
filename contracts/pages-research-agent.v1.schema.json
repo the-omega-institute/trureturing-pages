@@ -12,8 +12,13 @@
     "environment_profile",
     "profile_revision",
     "auth",
+    "human_actor_provider",
     "evidence_checkout",
     "skill",
+    "topology_artifact_path",
+    "topology_publication_path",
+    "contracts",
+    "intuition_submit_enabled",
     "formalize_submit_enabled"
   ],
   "properties": {
@@ -57,6 +62,10 @@
           "type": "string"
         }
       }
+    },
+    "human_actor_provider": {
+      "type": "string",
+      "minLength": 1
     },
     "evidence_checkout": {
       "type": "object",
@@ -117,8 +126,63 @@
         }
       }
     },
+    "topology_artifact_path": {
+      "const": "data/certified-topology.v1.json"
+    },
+    "topology_publication_path": {
+      "const": "data/topology-publication.v1.json"
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_intuition_candidate",
+        "formalization_request"
+      ],
+      "properties": {
+        "human_intuition_candidate": {
+          "$ref": "#/$defs/contractCoordinate"
+        },
+        "formalization_request": {
+          "$ref": "#/$defs/contractCoordinate"
+        }
+      }
+    },
+    "intuition_submit_enabled": {
+      "type": "boolean"
+    },
     "formalize_submit_enabled": {
       "type": "boolean"
+    }
+  },
+  "$defs": {
+    "contractCoordinate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "ref",
+        "path",
+        "git_blob_sha"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\.\.(?:/|$)).+$"
+        },
+        "git_blob_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
     }
   }
 }
