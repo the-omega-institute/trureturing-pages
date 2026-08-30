@@ -108,7 +108,43 @@ jobs:
             config/algorithm-profile.v1.json \
             28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b \
             _site/data/certified-topology.v1.json
-          python -m lib.certified_topology \
-            _site/data/basic-truth-graph.v1.json \
+
+      - name: Project the release-bound Pages atlas
+        run: |
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            project-atlas \
+            _site/data/truth-graph.v1.json \
             _site/data/certified-topology.v1.json \
+            _site/data/pages-atlas-view.v1.json \
+            _site/data/pages-atlas-manifest.v1.json
+          cp _site/data/pages-atlas-view.v1.json \
             _site/data/certified-topology-view.v1.json
+          cp _site/data/pages-atlas-view.v1.json \
+            _site/data/truth-graph.v1.json
+          cmp _site/data/pages-atlas-view.v1.json \
+            _site/data/certified-topology-view.v1.json
+          cmp _site/data/pages-atlas-view.v1.json \
+            _site/data/truth-graph.v1.json
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("_site/data")
+          graph_bytes = (root / "pages-atlas-view.v1.json").read_bytes()
+          graph = json.loads(graph_bytes)
+          manifest = json.loads(
+              (root / "pages-atlas-manifest.v1.json").read_text()
+          )
+          assert graph["schema_version"] == "pages-atlas-view.v1"
+          assert manifest["schema_version"] == "pages-atlas-manifest.v1"
+          assert manifest["atlas_graph_digest"] == (
+              "sha256:" + hashlib.sha256(graph_bytes).hexdigest()
+          )
+          assert manifest["counts"]["certified_topology_nodes"] == 4
+          assert all(
+              "descendant_cost" in node
+              for node in graph["nodes"]
+              if node["kind"] == "truth"
+          )
+          PY

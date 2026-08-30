@@ -12,6 +12,7 @@ internal static class PagesCli
             {
                 "project" => Project(args),
                 "project-topology" => ProjectTopology(args),
+                "project-atlas" => ProjectAtlas(args),
                 "delta" => Delta(args),
                 _ => Usage()
             };
@@ -94,6 +95,33 @@ internal static class PagesCli
         return 0;
     }
 
+    private static int ProjectAtlas(string[] args)
+    {
+        if (args.Length != 5)
+        {
+            return Usage();
+        }
+
+        PagesAtlasProjectionArtifacts artifacts =
+            PagesAtlasProjection.Build(
+                File.ReadAllBytes(args[1]),
+                File.ReadAllBytes(args[2]));
+
+        WriteAtomic(
+            Path.GetFullPath(args[3]),
+            artifacts.GraphBytes);
+        WriteAtomic(
+            Path.GetFullPath(args[4]),
+            artifacts.ManifestBytes);
+
+        Console.WriteLine(
+            $"projected atlas {artifacts.Manifest.TruthReleaseDigest}: " +
+            $"{artifacts.Manifest.Counts.Nodes} nodes, " +
+            $"{artifacts.Manifest.Counts.Edges} edges, " +
+            $"{artifacts.Manifest.CertifiedTopologyDigest}");
+        return 0;
+    }
+
     private static int Delta(string[] args)
     {
         if (args.Length != 4)
@@ -141,6 +169,8 @@ internal static class PagesCli
             "<output-dir> [<intuition-overlay.json>|-] [radius]\n" +
             "  Trureturing.Pages.Cli project-topology <certified-topology.json> " +
             "<output.json> [<topology-intuition-overlay.json>|-]\n" +
+            "  Trureturing.Pages.Cli project-atlas <pages-truth-release-dag.json> " +
+            "<certified-topology.json> <atlas-view.json> <atlas-manifest.json>\n" +
             "  Trureturing.Pages.Cli delta <old-port.json> <new-port.json> <output.json>");
         return 2;
     }

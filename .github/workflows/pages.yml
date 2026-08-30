@@ -160,12 +160,35 @@ jobs:
           cp "$topology" _site/data/certified-topology.v1.json
           printf 'TOPOLOGY_MEASUREMENT %s\n' "$(jq -c . "$metrics")"
 
-      - name: Render the topology-enriched DAG through the Pages consumer
+      - name: Project one release-bound Pages atlas read model
         run: |
-          python -m lib.certified_topology \
-            _site/data/basic-truth-graph.v1.json \
+          set -euo pipefail
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            project-atlas \
+            _site/data/truth-graph.v1.json \
             _site/data/certified-topology.v1.json \
+            _site/data/pages-atlas-view.v1.json \
+            _site/data/pages-atlas-manifest.v1.json
+          cp _site/data/pages-atlas-view.v1.json \
             _site/data/certified-topology-view.v1.json
+          cp _site/data/pages-atlas-view.v1.json \
+            _site/data/truth-graph.v1.json
+          cmp _site/data/pages-atlas-view.v1.json \
+            _site/data/certified-topology-view.v1.json
+          cmp _site/data/pages-atlas-view.v1.json \
+            _site/data/truth-graph.v1.json
+          jq -e \
+            --arg release '${{ steps.acquire.outputs.release_digest }}' \
+            '.schema_version == "pages-atlas-manifest.v1"
+              and .truth_release_digest == $release
+              and .projection_profile == "pages-atlas-projection-v1"
+              and .graph_path == "data/pages-atlas-view.v1.json"
+              and .topology_atlas_digest == null
+              and .conformation_digest == null' \
+            _site/data/pages-atlas-manifest.v1.json >/dev/null
+
+      - name: Finalize the release-bound Pages deployment
+        run: |
           pages_commit="$(git rev-parse HEAD)"
           pages_tree="$(git rev-parse HEAD^{tree})"
           python -m lib.vertical_smoke finalize \
@@ -216,6 +239,6 @@ jobs:
         with:
           path: _site
 
-      - name: Deploy the unified graph and concept-page state
+      - name: Deploy the unified atlas and concept-page state
         id: deployment
         uses: actions/deploy-pages@v4
