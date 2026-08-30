@@ -2,7 +2,8 @@
 
 ## Purpose
 
-Pages now has one production projection seam between the verified truth release and the browser:
+Pages has one production projection seam between a verified truth-release view
+and the browser:
 
 ```text
 verified truth release
@@ -17,11 +18,13 @@ Trureturing.Pages.Cli project-atlas
         |
         +--> data/pages-atlas-view.v1.json
         +--> data/pages-atlas-manifest.v1.json
-        |
-        +--> byte-identical compatibility aliases
-             data/certified-topology-view.v1.json
-             data/truth-graph.v1.json
+        +--> data/certified-topology-view.v1.json
+             byte-identical projection compatibility path
 ```
+
+The deployment workflow temporarily installs the canonical bytes at the older
+browser path as well. That install-time alias is outside the C# view contract and
+will disappear once all browser clients move to the Atlas manifest.
 
 The C# projector is the owner of the topology-to-Pages join. The legacy Python
 `lib.certified_topology` module remains temporarily as a migration oracle and is
@@ -73,8 +76,7 @@ Topology producer.
 - reserved nullable coordinates for the future Topology Atlas and Pages
   conformation artifacts.
 
-The canonical browser read model is `data/pages-atlas-view.v1.json`. Existing
-consumers continue to read byte-identical aliases during migration.
+The canonical browser read model is `data/pages-atlas-view.v1.json`.
 
 ## Next slices
 

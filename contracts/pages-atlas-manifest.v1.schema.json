@@ -82,14 +82,11 @@
       "prefixItems": [
         {
           "const": "data/certified-topology-view.v1.json"
-        },
-        {
-          "const": "data/truth-graph.v1.json"
         }
       ],
       "items": false,
-      "minItems": 2,
-      "maxItems": 2
+      "minItems": 1,
+      "maxItems": 1
     },
     "counts": {
       "type": "object",

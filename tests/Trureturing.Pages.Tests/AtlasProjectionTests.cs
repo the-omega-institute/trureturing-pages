@@ -111,7 +111,7 @@ public sealed class AtlasProjectionTests
                 .GetProperty("graph_path")
                 .GetString());
         Assert.Equal(
-            2,
+            1,
             manifest.RootElement
                 .GetProperty("compatibility_paths")
                 .GetArrayLength());

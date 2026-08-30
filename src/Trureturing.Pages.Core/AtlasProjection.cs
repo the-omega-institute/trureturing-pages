@@ -48,8 +48,7 @@ public static class PagesAtlasProjection
     public static readonly IReadOnlyList<string>
         CompatibilityGraphPaths =
         [
-            "data/certified-topology-view.v1.json",
-            "data/truth-graph.v1.json"
+            "data/certified-topology-view.v1.json"
         ];
 
     public static PagesAtlasProjectionArtifacts Build(
