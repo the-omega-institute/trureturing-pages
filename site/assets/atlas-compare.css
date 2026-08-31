@@ -1,0 +1,202 @@
+.atlas-compare-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.atlas-compare-action {
+  min-height: 1.8rem;
+  padding: 0.3rem 0.52rem;
+  border: 1px solid #9eabb5;
+  border-radius: 999px;
+  background: #fff;
+  color: #335368;
+  font: 680 0.6rem/1.1 Inter, ui-sans-serif, system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.atlas-compare-action:hover:not(:disabled),
+.atlas-compare-action:focus-visible:not(:disabled),
+.atlas-compare-action[aria-pressed="true"] {
+  border-color: #547aa0;
+  background: #e5eef7;
+  outline: 2px solid rgba(84, 122, 160, 0.16);
+  outline-offset: 2px;
+}
+
+.atlas-compare-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.atlas-compare-panel {
+  position: absolute;
+  z-index: 6;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(42rem, calc(100% - 2rem));
+  max-height: min(70vh, 42rem);
+  overflow: auto;
+  border: 1px solid rgba(150, 182, 170, 0.72);
+  border-radius: 8px;
+  background: rgba(247, 250, 248, 0.97);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.28);
+  color: #263a32;
+  backdrop-filter: blur(12px);
+}
+
+.atlas-compare-panel[hidden] {
+  display: none;
+}
+
+.atlas-compare-panel > header {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid #d1dbd5;
+  background: rgba(247, 250, 248, 0.96);
+}
+
+.atlas-compare-panel > header p {
+  margin: 0;
+}
+
+.atlas-compare-body {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.9rem;
+}
+
+.atlas-compare-body h2,
+.atlas-compare-body h3,
+.atlas-compare-body h4 {
+  margin: 0;
+  color: #172b24;
+}
+
+.atlas-compare-body h2 {
+  font-size: 1.15rem;
+}
+
+.atlas-compare-body h3 {
+  font-size: 0.86rem;
+}
+
+.atlas-compare-body h4 {
+  font-size: 0.72rem;
+}
+
+.atlas-compare-summary,
+.atlas-compare-derived,
+.atlas-compare-empty {
+  margin: 0;
+  color: #57655d;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.atlas-compare-derived {
+  padding: 0.55rem 0.68rem;
+  border-left: 3px solid #9b78c0;
+  background: #f3eef8;
+  color: #604976;
+}
+
+.atlas-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.atlas-compare-list,
+.atlas-interface-list,
+.atlas-path-reader {
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.62rem;
+  border: 1px solid #d7dfda;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.atlas-compare-list ol,
+.atlas-interface-list ol,
+.atlas-path-steps {
+  display: grid;
+  gap: 0.24rem;
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.atlas-compare-list li,
+.atlas-interface-list li,
+.atlas-path-steps li {
+  color: #5b6961;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.atlas-compare-list button,
+.atlas-path-steps button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #2c6653;
+  font: inherit;
+  font-weight: 680;
+  text-align: left;
+  cursor: pointer;
+}
+
+.atlas-compare-list button:hover,
+.atlas-compare-list button:focus-visible,
+.atlas-path-steps button:hover,
+.atlas-path-steps button:focus-visible {
+  color: #173d31;
+  text-decoration: underline;
+  outline: none;
+}
+
+.atlas-path-steps li {
+  display: grid;
+  gap: 0.06rem;
+  padding: 0.25rem 0;
+}
+
+.atlas-path-steps small {
+  color: #86928b;
+  font-size: 0.58rem;
+}
+
+@media (max-width: 78rem) {
+  .atlas-compare-actions {
+    order: 5;
+    flex-basis: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.12rem;
+  }
+}
+
+@media (max-width: 44rem) {
+  .atlas-compare-panel {
+    inset: auto 0.5rem 0.5rem;
+    width: calc(100% - 1rem);
+    max-height: 72vh;
+  }
+
+  .atlas-compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-compare-panel {
+    scroll-behavior: auto;
+  }
+}
