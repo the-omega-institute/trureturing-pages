@@ -14,6 +14,7 @@
   <script defer src="assets/concept-lens.js"></script>
   <script defer src="assets/concept-lens-compat.js"></script>
   <script defer src="assets/atlas-structure-core.js"></script>
+  <script defer src="assets/atlas-semantic-zoom-core.js"></script>
   <script defer src="assets/dag.js"></script>
   <script defer src="assets/research-context.js"></script>
   <script defer src="assets/research-console.js"></script>
@@ -60,7 +61,7 @@
             <strong>Structure</strong><small>Communities and bridges</small>
           </button>
           <button type="button" data-atlas-mode="dependency" aria-pressed="false">
-            <strong>Dependency</strong><small>All certified arrows</small>
+            <strong>Dependency</strong><small>Certified arrows by scale</small>
           </button>
           <button type="button" data-atlas-mode="frontier" aria-pressed="false">
             <strong>Frontier</strong><small>Open surface and support</small>
@@ -94,11 +95,19 @@
         </div>
       </div>
 
+      <div id="atlas-context-bar" class="atlas-context-bar" data-lod="far" role="status" aria-live="polite">
+        <button id="atlas-back" type="button" hidden>All communities</button>
+        <span id="atlas-context-label" class="atlas-context-label">All communities</span>
+        <span class="atlas-context-divider" aria-hidden="true">/</span>
+        <strong id="atlas-lod-indicator" class="atlas-lod-indicator">Atlas overview</strong>
+        <span class="atlas-zoom-hint">Zoom to reveal structural landmarks and certified detail. Selecting a concept opens its bounded neighborhood.</span>
+      </div>
+
       <div class="atlas-layout">
         <div class="graph-stage">
           <div id="graph" role="img" aria-describedby="graph-description graph-status"></div>
           <div id="cluster-overlay" class="atlas-cluster-overlay" aria-label="Topology Atlas communities"></div>
-          <p id="graph-description" class="sr-only">An interactive three-dimensional mathematical structure using fixed coordinates derived from the current Topology Atlas. Structure mode shows communities and certified bridges. Dependency mode shows all certified arrows. Frontier mode shows open concepts and their immediate certified support. Select a node to open its accessible Concept Lens.</p>
+          <p id="graph-description" class="sr-only">An interactive three-dimensional mathematical structure using fixed coordinates derived from the current Topology Atlas. Far view shows structural communities and their certified backbone. Medium view adds foundations, hubs, bridges, interfaces, and frontier landmarks. Near view exposes certified detail. Selecting a node enters a bounded focus neighborhood and opens its accessible Concept Lens.</p>
           <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading and verifying the multiscale Mathematical Atlas&hellip;</div>
 
           <div class="graph-legend atlas-legend" role="group" aria-label="Mathematical Atlas legend">
