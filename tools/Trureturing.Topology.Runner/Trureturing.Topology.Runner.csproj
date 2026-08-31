@@ -4,6 +4,6 @@
     <RootNamespace>Trureturing.Topology.Runner</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Trureturing.Topology" Version="[0.1.0-alpha.1]" />
+    <PackageReference Include="Trureturing.Topology" Version="[0.2.0-alpha.1]" />
   </ItemGroup>
 </Project>
