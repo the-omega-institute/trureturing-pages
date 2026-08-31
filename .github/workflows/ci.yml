@@ -13,40 +13,24 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     env:
-      TOPOLOGY_ATLAS_SOURCE_COMMIT: 53c77bbea42cc3a9baf7ca44f2888cf9850876ff
+      TOPOLOGY_PACKAGE_VERSION: 0.2.0-alpha.1
+      TOPOLOGY_PRODUCER_COMMIT: dbd407d52806b4a87bb3c129f810a10d438a2b53
     steps:
       - uses: actions/checkout@v4
-
-      - name: Checkout the pinned Topology Atlas producer
-        uses: actions/checkout@v4
-        with:
-          repository: the-omega-institute/trureturing-fkst-packages
-          ref: ${{ env.TOPOLOGY_ATLAS_SOURCE_COMMIT }}
-          path: _topology
-          token: ${{ secrets.NUGET_READ_TOKEN }}
-          persist-credentials: false
 
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
 
-      - name: Restore Pages and the pinned Topology Atlas producer
+      - name: Restore the versioned Pages and Topology package graph
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
           NUGET_READ_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
-        run: |
-          dotnet restore Trureturing.Pages.slnx --configfile nuget.config
-          dotnet restore \
-            _topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/Trureturing.Topology.Cli.csproj \
-            --configfile nuget.config
+        run: dotnet restore Trureturing.Pages.slnx --configfile nuget.config
 
-      - name: Build Pages and the pinned Topology Atlas producer
-        run: |
-          dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
-          dotnet build \
-            _topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/Trureturing.Topology.Cli.csproj \
-            -c Release --no-restore --warnaserror
+      - name: Build C# projects with warnings as errors
+        run: dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
 
       - name: Enforce Pages CLI and Core boundary
         run: dotnet test tests/Trureturing.Pages.ArchitectureTests/Trureturing.Pages.ArchitectureTests.csproj -c Release --no-build
@@ -90,28 +74,31 @@ jobs:
       - name: Fail-closed regression tests
         run: python -m unittest discover -s tests/red -p 'test_*.py'
 
-      - name: Verify vendored Topology Atlas contracts and profile
+      - name: Verify the pinned Topology package and vendored Atlas contracts
         run: |
           python - <<'PY'
           import json
+          import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          pairs = (
-              (
-                  Path("contracts/topology-atlas.v1.schema.json"),
-                  Path("_topology/packages/trureturing-topology/contracts/topology-atlas.v1.schema.json"),
-              ),
-              (
-                  Path("contracts/topology-atlas-profile.v1.schema.json"),
-                  Path("_topology/packages/trureturing-topology/contracts/topology-atlas-profile.v1.schema.json"),
-              ),
-          )
-          for local, upstream in pairs:
-              assert json.loads(local.read_text()) == json.loads(upstream.read_text())
+          for path in (
+              Path("contracts/topology-atlas.v1.schema.json"),
+              Path("contracts/topology-atlas-profile.v1.schema.json"),
+          ):
+              value = json.loads(path.read_text())
+              assert value["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
           profile = json.loads(Path("config/topology-atlas-profile.v1.json").read_text())
           assert profile["schema_version"] == "topology-atlas-profile.v1"
           assert profile["top_k"] == 8
           assert profile["cut_bridges_form_boundaries"] is True
+
+          project = ET.parse(
+              "tools/Trureturing.Topology.Runner/Trureturing.Topology.Runner.csproj"
+          )
+          package = project.find(".//PackageReference[@Include='Trureturing.Topology']")
+          assert package is not None
+          assert package.attrib["Version"] == "[0.2.0-alpha.1]"
           PY
 
       - name: Build the mock truth-release basic DAG
@@ -161,32 +148,39 @@ jobs:
       - name: Produce certified topology and the multiscale Topology Atlas
         run: |
           set -euo pipefail
-          topology_cli="_topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/bin/Release/net10.0/Trureturing.Topology.Cli.dll"
+          topology_runner="tools/Trureturing.Topology.Runner/bin/Release/net10.0/Trureturing.Topology.Runner.dll"
           release="sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b0ce7d8d20"
-          dotnet "$topology_cli" certified \
+          dotnet "$topology_runner" certified \
             tests/fixtures/truth-release/truth-graph.v1.json \
             "$release" \
             config/algorithm-profile.v1.json \
-            "$TOPOLOGY_ATLAS_SOURCE_COMMIT" \
+            "$TOPOLOGY_PRODUCER_COMMIT" \
             _site/data/certified-topology.v1.json
-          dotnet "$topology_cli" atlas \
+          dotnet "$topology_runner" atlas \
             tests/fixtures/truth-release/truth-graph.v1.json \
             "$release" \
-            _site/data/certified-topology.v1.json \
             config/algorithm-profile.v1.json \
             config/topology-atlas-profile.v1.json \
-            "$TOPOLOGY_ATLAS_SOURCE_COMMIT" \
+            "$TOPOLOGY_PRODUCER_COMMIT" \
             _site/data/topology-atlas.v1.json
-          dotnet "$topology_cli" atlas \
+          dotnet "$topology_runner" atlas \
             tests/fixtures/truth-release/truth-graph.v1.json \
             "$release" \
-            _site/data/certified-topology.v1.json \
             config/algorithm-profile.v1.json \
             config/topology-atlas-profile.v1.json \
-            "$TOPOLOGY_ATLAS_SOURCE_COMMIT" \
+            "$TOPOLOGY_PRODUCER_COMMIT" \
             "$RUNNER_TEMP/topology-atlas.second.json"
           cmp _site/data/topology-atlas.v1.json \
             "$RUNNER_TEMP/topology-atlas.second.json"
+          jq -e \
+            --arg release "$release" \
+            --arg producer "$TOPOLOGY_PRODUCER_COMMIT" \
+            '.schema_version == "topology-atlas.v1"
+              and .truth_release_digest == $release
+              and .producer_commit == $producer
+              and (.hierarchy | length) == 3
+              and (.node_structure | length) > 0' \
+            _site/data/topology-atlas.v1.json >/dev/null
 
       - name: Project and conform the release-bound multiscale Pages Atlas
         run: |
