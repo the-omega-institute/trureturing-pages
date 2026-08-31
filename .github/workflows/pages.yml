@@ -28,7 +28,8 @@ jobs:
     timeout-minutes: 30
     env:
       TOPOLOGY_VERSION: 0.1.0-alpha.1
-      TOPOLOGY_PRODUCER_COMMIT: 28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b
+      TOPOLOGY_PRODUCER_COMMIT: 53c77bbea42cc3a9baf7ca44f2888cf9850876ff
+      TOPOLOGY_ATLAS_SOURCE_COMMIT: 53c77bbea42cc3a9baf7ca44f2888cf9850876ff
       TRUTH_REPOSITORY: the-omega-institute/trureturing
     steps:
       - uses: actions/checkout@v4
@@ -94,19 +95,35 @@ jobs:
           sparse-checkout-cone-mode: true
           persist-credentials: false
 
+      - name: Checkout the pinned Topology Atlas producer
+        uses: actions/checkout@v4
+        with:
+          repository: the-omega-institute/trureturing-fkst-packages
+          ref: ${{ env.TOPOLOGY_ATLAS_SOURCE_COMMIT }}
+          path: _topology
+          persist-credentials: false
+
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
 
-      - name: Restore the pinned topology package and Pages projects
+      - name: Restore Pages and the pinned Topology Atlas producer
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
           NUGET_READ_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
-        run: dotnet restore Trureturing.Pages.slnx --configfile nuget.config
+        run: |
+          dotnet restore Trureturing.Pages.slnx --configfile nuget.config
+          dotnet restore \
+            _topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/Trureturing.Topology.Cli.csproj \
+            --configfile nuget.config
 
-      - name: Build only Pages and its topology runner
-        run: dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
+      - name: Build Pages and the pinned Topology Atlas producer
+        run: |
+          dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
+          dotnet build \
+            _topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/Trureturing.Topology.Cli.csproj \
+            -c Release --no-restore --warnaserror
 
       - name: Render the basic release DAG
         run: python -m lib.vertical_smoke build-basic '${{ steps.acquire.outputs.bundle }}' _site
@@ -141,16 +158,17 @@ jobs:
               )
           PY
 
-      - name: Run and measure the pinned C# topology engine
+      - name: Produce and measure certified topology
         shell: bash
         run: |
           set -euo pipefail
+          topology_cli="_topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/bin/Release/net10.0/Trureturing.Topology.Cli.dll"
           topology="$RUNNER_TEMP/certified-topology.v1.json"
           metrics="$RUNNER_TEMP/topology-measurement.json"
           /usr/bin/time \
             -f '{"schema":"topology-measurement.v1","elapsed_seconds":%e,"max_rss_kib":%M}' \
             -o "$metrics" \
-            dotnet tools/Trureturing.Topology.Runner/bin/Release/net10.0/Trureturing.Topology.Runner.dll \
+            dotnet "$topology_cli" certified \
               '${{ steps.acquire.outputs.bundle }}/truth-graph.v1.json' \
               '${{ steps.acquire.outputs.release_digest }}' \
               config/algorithm-profile.v1.json \
@@ -160,7 +178,30 @@ jobs:
           cp "$topology" _site/data/certified-topology.v1.json
           printf 'TOPOLOGY_MEASUREMENT %s\n' "$(jq -c . "$metrics")"
 
-      - name: Project and conform one release-bound Pages atlas
+      - name: Produce the deterministic multiscale Topology Atlas
+        shell: bash
+        run: |
+          set -euo pipefail
+          topology_cli="_topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/bin/Release/net10.0/Trureturing.Topology.Cli.dll"
+          dotnet "$topology_cli" atlas \
+            '${{ steps.acquire.outputs.bundle }}/truth-graph.v1.json' \
+            '${{ steps.acquire.outputs.release_digest }}' \
+            _site/data/certified-topology.v1.json \
+            config/algorithm-profile.v1.json \
+            config/topology-atlas-profile.v1.json \
+            "$TOPOLOGY_PRODUCER_COMMIT" \
+            _site/data/topology-atlas.v1.json
+          jq -e \
+            --arg release '${{ steps.acquire.outputs.release_digest }}' \
+            --arg producer "$TOPOLOGY_PRODUCER_COMMIT" \
+            '.schema_version == "topology-atlas.v1"
+              and .truth_release_digest == $release
+              and .producer_commit == $producer
+              and (.hierarchy | length) == 3
+              and (.node_structure | length) > 0' \
+            _site/data/topology-atlas.v1.json >/dev/null
+
+      - name: Project and conform one release-bound multiscale Pages Atlas
         shell: bash
         run: |
           set -euo pipefail
@@ -169,7 +210,8 @@ jobs:
             _site/data/truth-graph.v1.json \
             _site/data/certified-topology.v1.json \
             _site/data/pages-atlas-view.v1.json \
-            _site/data/pages-atlas-manifest.v1.json
+            _site/data/pages-atlas-manifest.v1.json \
+            _site/data/topology-atlas.v1.json
 
           previous="$RUNNER_TEMP/previous-pages-conformation.v1.json"
           previous_arg='-'
@@ -178,9 +220,10 @@ jobs:
           if [[ "$status" == '200' ]]; then
             if jq -e \
               '.schema_version == "pages-conformation.v1"
-                and .layout_profile.name == "pages-hierarchical-fixed-point-v1"
+                and .layout_profile.name == "pages-topology-atlas-fixed-point-v1"
                 and .coordinate_encoding.type == "signed-fixed-point"
-                and .coordinate_encoding.scale == 1000' \
+                and .coordinate_encoding.scale == 1000
+                and .structure_source == "topology-atlas.v1"' \
               "$previous" >/dev/null; then
               previous_arg="$previous"
               printf 'CONFORMATION_ALIGNMENT previous=%s\n' \
@@ -213,23 +256,27 @@ jobs:
           cmp _site/data/pages-atlas-view.v1.json \
             _site/data/truth-graph.v1.json
 
+          topology_atlas_digest="sha256:$(sha256sum _site/data/topology-atlas.v1.json | cut -d ' ' -f 1)"
           conformation_digest="sha256:$(sha256sum _site/data/pages-conformation.v1.json | cut -d ' ' -f 1)"
           jq -e \
             --arg release '${{ steps.acquire.outputs.release_digest }}' \
+            --arg topology_atlas "$topology_atlas_digest" \
             --arg conformation "$conformation_digest" \
             '.schema_version == "pages-atlas-manifest.v1"
               and .truth_release_digest == $release
               and .projection_profile == "pages-atlas-projection-v1"
               and .graph_path == "data/pages-atlas-view.v1.json"
-              and .topology_atlas_digest == null
+              and .topology_atlas_digest == $topology_atlas
               and .conformation_digest == $conformation' \
             _site/data/pages-atlas-manifest.v1.json >/dev/null
           jq -e \
             --arg release '${{ steps.acquire.outputs.release_digest }}' \
+            --arg topology_atlas "$topology_atlas_digest" \
             '.schema_version == "pages-conformation.v1"
               and .truth_release_digest == $release
-              and .structure_source == "pages-fallback-regions"
-              and .layout_profile.name == "pages-hierarchical-fixed-point-v1"
+              and .topology_atlas_digest == $topology_atlas
+              and .structure_source == "topology-atlas.v1"
+              and .layout_profile.name == "pages-topology-atlas-fixed-point-v1"
               and .coordinate_encoding.type == "signed-fixed-point"
               and .coordinate_encoding.scale == 1000
               and .axes.depth_axis == "y"
@@ -288,6 +335,6 @@ jobs:
         with:
           path: _site
 
-      - name: Deploy the unified atlas and concept-page state
+      - name: Deploy the unified multiscale Atlas and concept state
         id: deployment
         uses: actions/deploy-pages@v4
