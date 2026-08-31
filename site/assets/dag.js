@@ -1,37 +1,33 @@
 (function () {
   "use strict";
 
-  const COLORS = {
-    closed: "#42c47a",
-    open: "#f2ad4a",
-    tail: "#b69bff",
-    semantic: "#8aa0b4",
-    selected: "#7ed8ff"
-  };
-  const LAYER_ORDER = ["D5/S0", "D5/S1", "D5/S3", "D5/X_Frontier", "Root", "Blueprint"];
-  const CERTIFIED_LAYERS = new Set([
-    "truth-dependency",
-    "module-import",
-    "frozen-prerequisite"
-  ]);
-
+  const Atlas = window.TrureturingAtlasStructure;
   const graphElement = document.querySelector("#graph");
   const statusElement = document.querySelector("#graph-status");
   const detailElement = document.querySelector("#node-detail");
-  const layerSelect = document.querySelector("#layer-filter");
+  const clusterSelect = document.querySelector("#cluster-filter");
   const queryInput = document.querySelector("#node-query");
   const searchForm = document.querySelector("#node-search");
   const fitButton = document.querySelector("#fit-graph");
   const resetButton = document.querySelector("#reset-view");
+  const clusterOverlay = document.querySelector("#cluster-overlay");
   const stateButtons = [...document.querySelectorAll("[data-state]")];
+  const modeButtons = [...document.querySelectorAll("[data-atlas-mode]")];
+  const reduceMotion = window.matchMedia
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let renderer = null;
-  let sourceGraph = { nodes: [], edges: [] };
+  let sourceGraph = null;
+  let manifest = null;
   let conformation = null;
+  let model = null;
   let positionById = new Map();
+  let activeMode = "structure";
   let activeState = "All";
-  let activeLayer = "All";
+  let activeCluster = "All";
   let selectedId = null;
+  let currentNodeIds = new Set();
+  let hullRecords = [];
   let initialFitDone = false;
 
   function escapeHtml(value) {
@@ -41,71 +37,6 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
-  }
-
-  function humanTitle(node) {
-    if (node.human_title && node.human_title !== "None") return node.human_title;
-    const leaf = String(node.repo_path || node.title || node.id || "Concept")
-      .replace(/\.lean$/, "")
-      .split("/")
-      .pop();
-    const words = leaf
-      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-      .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2");
-    return node.domain && node.domain.toLowerCase() !== words.toLowerCase()
-      ? `${node.domain}: ${words}`
-      : words;
-  }
-
-  function endpointId(endpoint) {
-    return typeof endpoint === "object" ? endpoint.id : endpoint;
-  }
-
-  function trueDepth(node) {
-    for (const value of [node.true_depth, node.max_depth, node.depth]) {
-      const parsed = Number(value);
-      if (Number.isInteger(parsed) && parsed >= 0) return parsed;
-    }
-    return 0;
-  }
-
-  function nodeColor(node) {
-    if (node.id === selectedId) return COLORS.selected;
-    return COLORS[node.state] || COLORS.semantic;
-  }
-
-  function nodeValue(node) {
-    if (node.kind !== "truth") return 1.35;
-    const cost = Number(node.descendant_cost);
-    const structuralCost = Number.isFinite(cost) && cost >= 0 ? cost : 0;
-    return 1.7 + Math.log1p(structuralCost) * 1.12;
-  }
-
-  function edgeAuthority(edge) {
-    const layer = String(edge.layer || "");
-    const status = String(edge.status || "");
-    if (layer === "intuition-candidate" || status === "proposed" || status === "advisory") {
-      return "advisory";
-    }
-    if (CERTIFIED_LAYERS.has(layer) || status === "certified") return "certified";
-    if (layer.startsWith("blueprint-")) return "authored";
-    if (layer.includes("affinity") || layer.includes("structural")) return "derived";
-    return "authored";
-  }
-
-  function linkColor(link) {
-    const selected = endpointId(link.source) === selectedId || endpointId(link.target) === selectedId;
-    if (selected) return "rgba(126, 216, 255, 0.72)";
-    const authority = link.authority || edgeAuthority(link);
-    if (authority === "advisory") return "rgba(202, 166, 255, 0.42)";
-    if (authority === "authored") return "rgba(222, 190, 116, 0.34)";
-    if (authority === "derived") return "rgba(139, 166, 202, 0.24)";
-    return "rgba(171, 205, 196, 0.34)";
-  }
-
-  function linkWidth(link) {
-    if (endpointId(link.source) === selectedId || endpointId(link.target) === selectedId) return 1.9;
-    return (link.authority || edgeAuthority(link)) === "certified" ? 0.52 : 0.3;
   }
 
   function scalePoint(point, scale) {
@@ -118,7 +49,7 @@
 
   async function sha256Digest(text) {
     if (!window.crypto || !window.crypto.subtle || typeof TextEncoder !== "function") {
-      throw new Error("This browser cannot verify the conformation digest.");
+      throw new Error("This browser cannot verify the Atlas digests.");
     }
     const bytes = new TextEncoder().encode(text);
     const digest = await window.crypto.subtle.digest("SHA-256", bytes);
@@ -133,11 +64,18 @@
     return response.text();
   }
 
-  function validateBoundState(graphText, graph, manifest, conformationText, layout) {
+  async function validateBoundState(
+    graphText,
+    graph,
+    atlasManifest,
+    conformationText,
+    layout
+  ) {
+    if (!Atlas) throw new Error("The Atlas structure model did not load.");
     if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
       throw new Error("Atlas data is missing its nodes or edges array.");
     }
-    if (!manifest || manifest.schema_version !== "pages-atlas-manifest.v1") {
+    if (!atlasManifest || atlasManifest.schema_version !== "pages-atlas-manifest.v1") {
       throw new Error("Atlas manifest has an unsupported schema.");
     }
     if (!layout || layout.schema_version !== "pages-conformation.v1") {
@@ -150,9 +88,9 @@
     if (!Number.isInteger(scale) || scale <= 0) {
       throw new Error("Conformation coordinate scale is invalid.");
     }
-    if (layout.truth_release_digest !== manifest.truth_release_digest
-        || layout.atlas_graph_digest !== manifest.atlas_graph_digest
-        || layout.certified_topology_digest !== manifest.certified_topology_digest) {
+    if (layout.truth_release_digest !== atlasManifest.truth_release_digest
+        || layout.atlas_graph_digest !== atlasManifest.atlas_graph_digest
+        || layout.certified_topology_digest !== atlasManifest.certified_topology_digest) {
       throw new Error("Conformation and Atlas manifest use different release bindings.");
     }
     const release = graph.source_snapshot && graph.source_snapshot.truth_release_digest;
@@ -160,38 +98,48 @@
       throw new Error("Conformation is bound to a different truth release.");
     }
 
-    return Promise.all([
+    const topologyDigest = atlasManifest.topology_atlas_digest;
+    if (topologyDigest) {
+      if (!graph.topology_atlas || graph.topology_atlas.digest !== topologyDigest) {
+        throw new Error("The graph does not carry the manifest-bound Topology Atlas.");
+      }
+      if (layout.topology_atlas_digest !== topologyDigest
+          || layout.structure_source !== "topology-atlas.v1") {
+        throw new Error("The conformation does not use the manifest-bound Topology Atlas.");
+      }
+    }
+
+    const [graphDigest, layoutDigest] = await Promise.all([
       sha256Digest(graphText),
       sha256Digest(conformationText)
-    ]).then(([graphDigest, layoutDigest]) => {
-      if (graphDigest !== manifest.atlas_graph_digest) {
-        throw new Error("Atlas graph bytes do not match the manifest digest.");
-      }
-      if (layoutDigest !== manifest.conformation_digest) {
-        throw new Error("Conformation bytes do not match the manifest digest.");
-      }
-      if (!Array.isArray(layout.nodes) || layout.nodes.length !== graph.nodes.length) {
-        throw new Error("Conformation does not close over every displayed node.");
-      }
+    ]);
+    if (graphDigest !== atlasManifest.atlas_graph_digest) {
+      throw new Error("Atlas graph bytes do not match the manifest digest.");
+    }
+    if (layoutDigest !== atlasManifest.conformation_digest) {
+      throw new Error("Conformation bytes do not match the manifest digest.");
+    }
+    if (!Array.isArray(layout.nodes) || layout.nodes.length !== graph.nodes.length) {
+      throw new Error("Conformation does not close over every displayed node.");
+    }
 
-      const positions = new Map();
-      for (const record of layout.nodes) {
-        if (!record || typeof record.node_id !== "string" || positions.has(record.node_id)) {
-          throw new Error("Conformation contains an invalid or duplicate node coordinate.");
-        }
-        const point = scalePoint(record.aligned, scale);
-        if (![point.x, point.y, point.z].every(Number.isFinite)) {
-          throw new Error(`Conformation coordinate is invalid for ${record.node_id}.`);
-        }
-        positions.set(record.node_id, point);
+    const positions = new Map();
+    for (const record of layout.nodes) {
+      if (!record || typeof record.node_id !== "string" || positions.has(record.node_id)) {
+        throw new Error("Conformation contains an invalid or duplicate node coordinate.");
       }
-      for (const node of graph.nodes) {
-        if (!positions.has(node.id)) {
-          throw new Error(`Conformation has no coordinate for ${node.id}.`);
-        }
+      const point = scalePoint(record.aligned, scale);
+      if (![point.x, point.y, point.z].every(Number.isFinite)) {
+        throw new Error(`Conformation coordinate is invalid for ${record.node_id}.`);
       }
-      return positions;
-    });
+      positions.set(record.node_id, point);
+    }
+    for (const node of graph.nodes) {
+      if (!positions.has(node.id)) {
+        throw new Error(`Conformation has no coordinate for ${node.id}.`);
+      }
+    }
+    return positions;
   }
 
   async function loadBoundState() {
@@ -201,27 +149,56 @@
       fetchText("data/pages-conformation.v1.json")
     ]);
     const graph = JSON.parse(graphText);
-    const manifest = JSON.parse(manifestText);
+    const atlasManifest = JSON.parse(manifestText);
     const layout = JSON.parse(conformationText);
     const positions = await validateBoundState(
       graphText,
       graph,
-      manifest,
+      atlasManifest,
       conformationText,
       layout
     );
-    return { graph, manifest, layout, positions };
+    return { graph, atlasManifest, layout, positions };
   }
 
-  function visibleGraph() {
-    const nodes = sourceGraph.nodes.filter((node) =>
-      (activeState === "All" || node.status === activeState)
-      && (activeLayer === "All" || node.layer === activeLayer));
-    const ids = new Set(nodes.map((node) => node.id));
-    const edges = sourceGraph.edges.filter((edge) =>
-      ids.has(endpointId(edge.source)) && ids.has(endpointId(edge.target)));
+  function nodeColor(node) {
+    return Atlas.clusterColor(
+      node.atlas_cluster_id,
+      node.state || node.status,
+      node.id === selectedId
+    );
+  }
+
+  function linkColor(link) {
+    return Atlas.linkColor({
+      ...link,
+      source: Atlas.endpointId(link.source),
+      target: Atlas.endpointId(link.target)
+    }, selectedId);
+  }
+
+  function linkWidth(link) {
+    return Atlas.linkWidth({
+      ...link,
+      source: Atlas.endpointId(link.source),
+      target: Atlas.endpointId(link.target)
+    }, selectedId);
+  }
+
+  function currentView() {
+    return Atlas.graphView(model, {
+      mode: activeMode,
+      state: activeState,
+      clusterId: activeCluster,
+      selectedId
+    });
+  }
+
+  function rendererData() {
+    const view = currentView();
+    currentNodeIds = view.nodeIds;
     return {
-      nodes: nodes.map((node) => {
+      nodes: view.nodes.map((node) => {
         const position = positionById.get(node.id);
         return {
           ...node,
@@ -233,31 +210,52 @@
           fz: position.z
         };
       }),
-      links: edges.map((edge) => ({
-        ...edge,
-        source: endpointId(edge.source),
-        target: endpointId(edge.target),
-        authority: edgeAuthority(edge)
-      }))
+      links: view.edges.map((edge) => ({ ...edge }))
     };
   }
 
-  function publishSelection(node) {
+  function structureSourceLabel() {
+    return model && model.hasTopologyAtlas
+      ? "Topology Atlas structure"
+      : "Pages fallback regions";
+  }
+
+  function statusText(data) {
+    const label = activeMode === "structure"
+      ? "structure backbone"
+      : activeMode === "dependency"
+        ? "certified dependencies"
+        : "formalization frontier";
+    return `${data.nodes.length} concepts | ${data.links.length} visible relations | ${label}`;
+  }
+
+  function refreshGraph({ clearSelection = false, fit = false } = {}) {
+    if (!renderer || !model) return;
+    if (clearSelection) publishSelection(null, false);
+    const data = rendererData();
+    renderer.graphData(data)
+      .nodeColor(nodeColor)
+      .nodeVal(Atlas.nodeValue)
+      .linkColor(linkColor)
+      .linkWidth(linkWidth);
+    rebuildClusterOverlay();
+    statusElement.className = "graph-status graph-status-ready";
+    statusElement.textContent = statusText(data);
+    if (fit) window.setTimeout(() => renderer.zoomToFit(500, 70), 80);
+  }
+
+  function publishSelection(node, refresh = true) {
     selectedId = node ? node.id : null;
     if (node) {
       detailElement.dataset.nodeId = node.id;
-      const params = new URLSearchParams({ node: node.id });
+      const params = new URLSearchParams({ node: node.id, mode: activeMode });
       window.history.replaceState(null, "", `#${params.toString()}`);
     } else {
       delete detailElement.dataset.nodeId;
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      const params = new URLSearchParams({ mode: activeMode });
+      window.history.replaceState(null, "", `#${params.toString()}`);
     }
-    if (renderer) {
-      renderer
-        .nodeColor(nodeColor)
-        .linkColor(linkColor)
-        .linkWidth(linkWidth);
-    }
+    if (refresh && renderer) refreshGraph();
   }
 
   function liveNode(id) {
@@ -268,36 +266,54 @@
   function focusNode(node) {
     if (!node || !renderer) return;
     publishSelection(node);
-    const distance = 145;
-    const length = Math.hypot(node.x || 0, node.y || 0, node.z || 0) || 1;
+    const focused = liveNode(node.id) || node;
+    const distance = 150;
+    const length = Math.hypot(focused.x || 0, focused.y || 0, focused.z || 0) || 1;
     const ratio = 1 + distance / length;
     renderer.cameraPosition(
       {
-        x: (node.x || 0) * ratio,
-        y: (node.y || 0) * ratio,
-        z: (node.z || 0) * ratio
+        x: (focused.x || 0) * ratio,
+        y: (focused.y || 0) * ratio,
+        z: (focused.z || 0) * ratio
       },
-      node,
-      700
+      focused,
+      reduceMotion ? 0 : 700
     );
+  }
+
+  function setMode(mode, fit) {
+    if (!Atlas.MODES.has(mode)) return;
+    activeMode = mode;
+    modeButtons.forEach((button) => button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.atlasMode === activeMode)
+    ));
+    refreshGraph({ clearSelection: true, fit });
   }
 
   function focusById(id) {
     let node = liveNode(id);
     if (!node) {
       activeState = "All";
-      activeLayer = "All";
+      activeCluster = "All";
       stateButtons.forEach((button) => button.setAttribute(
         "aria-pressed",
         String(button.dataset.state === "All")
       ));
-      layerSelect.value = "All";
-      renderer.graphData(visibleGraph());
+      if (clusterSelect) clusterSelect.value = "All";
+      if (activeMode === "frontier") {
+        activeMode = "structure";
+        modeButtons.forEach((button) => button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.atlasMode === activeMode)
+        ));
+      }
+      refreshGraph();
       node = liveNode(id);
     }
     if (node) {
       focusNode(node);
-      statusElement.textContent = `Focused ${humanTitle(node)} in the stable release conformation.`;
+      statusElement.textContent = `Focused ${Atlas.humanTitle(node)} in ${structureSourceLabel()}.`;
     }
   }
 
@@ -314,42 +330,49 @@
     renderer.cameraPosition(
       scalePoint(preset.position, scale),
       scalePoint(preset.look_at, scale),
-      700
+      reduceMotion ? 0 : 700
     );
   }
 
-  function applyFilters() {
-    if (!renderer) return;
-    publishSelection(null);
-    const graph = visibleGraph();
-    renderer.graphData(graph);
-    statusElement.className = "graph-status graph-status-ready";
-    statusElement.textContent = `${graph.nodes.length} concepts | ${graph.links.length} relations | fixed release conformation`;
-    window.setTimeout(() => renderer.zoomToFit(500, 70), 80);
-  }
-
-  function initializeRenderer(graph) {
+  function initializeRenderer(data) {
     if (typeof window.ForceGraph3D !== "function") {
-      throw new Error("The 3D renderer could not be loaded. Use the static Library while the renderer is unavailable.");
+      throw new Error("The 3D renderer could not be loaded. Use the static Library while it is unavailable.");
     }
 
     renderer = window.ForceGraph3D()(graphElement)
       .backgroundColor("#07100e")
       .showNavInfo(false)
-      .nodeLabel((node) => `
-        <div class="graph-tooltip">
-          <strong>${escapeHtml(humanTitle(node))}</strong>
-          <span>${escapeHtml(node.status)} &middot; certified depth ${escapeHtml(trueDepth(node))}</span>
-          <span>Stable release conformation</span>
-        </div>`)
+      .nodeLabel((node) => {
+        const cluster = node.atlas_cluster_label || "Unclassified structure";
+        const role = node.structural_role
+          ? node.structural_role.replaceAll("-", " ")
+          : "concept";
+        return `
+          <div class="graph-tooltip">
+            <strong>${escapeHtml(Atlas.humanTitle(node))}</strong>
+            <span>${escapeHtml(node.status || node.state)} · ${escapeHtml(role)}</span>
+            <span>${escapeHtml(cluster)} · depth ${escapeHtml(Atlas.trueDepth(node))}</span>
+          </div>`;
+      })
       .nodeColor(nodeColor)
-      .nodeVal(nodeValue)
-      .nodeResolution(10)
+      .nodeVal(Atlas.nodeValue)
+      .nodeResolution(12)
       .linkColor(linkColor)
       .linkWidth(linkWidth)
-      .linkDirectionalArrowLength((link) => (link.authority === "certified" ? 2.8 : 1.8))
+      .linkCurvature((link) => link.cluster_relation === "inter-cluster" ? 0.12 : 0)
+      .linkDirectionalArrowLength((link) => link.authority === "certified" ? 2.8 : 0)
       .linkDirectionalArrowRelPos(0.9)
       .linkDirectionalArrowColor(linkColor)
+      .linkDirectionalParticles((link) =>
+        !reduceMotion
+        && selectedId
+        && link.authority === "certified"
+        && (Atlas.endpointId(link.source) === selectedId
+          || Atlas.endpointId(link.target) === selectedId)
+          ? 2
+          : 0)
+      .linkDirectionalParticleWidth(1.2)
+      .linkDirectionalParticleColor(() => "rgba(126,216,255,0.92)")
       .onNodeClick(focusNode)
       .onNodeHover((node) => {
         graphElement.style.cursor = node ? "pointer" : "grab";
@@ -367,49 +390,116 @@
     const resize = () => {
       renderer.width(graphElement.clientWidth);
       renderer.height(graphElement.clientHeight);
+      updateClusterOverlay();
     };
     new ResizeObserver(resize).observe(graphElement);
     resize();
-    renderer.graphData(graph);
+    renderer.graphData(data);
   }
 
-  function populateControls(graph) {
-    const layers = [...new Set(graph.nodes.map((node) => node.layer).filter(Boolean))]
-      .sort((left, right) => {
-        const leftIndex = LAYER_ORDER.indexOf(left);
-        const rightIndex = LAYER_ORDER.indexOf(right);
-        return (leftIndex < 0 ? Number.MAX_SAFE_INTEGER : leftIndex)
-          - (rightIndex < 0 ? Number.MAX_SAFE_INTEGER : rightIndex)
-          || left.localeCompare(right);
-      });
-    layerSelect.append(...layers.map((layer) => {
-      const option = document.createElement("option");
-      option.value = layer;
-      option.textContent = layer;
-      return option;
-    }));
+  function rebuildClusterOverlay() {
+    if (!clusterOverlay || !model) return;
+    clusterOverlay.replaceChildren();
+    hullRecords = [];
+    const descriptors = Atlas.clusterDescriptors(model, currentNodeIds);
+    descriptors.forEach((descriptor, index) => {
+      if (descriptor.memberCount < 2 && activeCluster !== descriptor.cluster_id) return;
+      const hull = document.createElement("div");
+      hull.className = "atlas-cluster-hull";
+      hull.dataset.clusterId = descriptor.cluster_id;
+      hull.style.setProperty("--cluster-hue", Atlas.clusterHue(descriptor.cluster_id).toFixed(1));
+      if (descriptor.cluster_id === activeCluster) hull.classList.add("is-active");
 
-    const options = graph.nodes
+      const label = document.createElement("button");
+      label.type = "button";
+      label.className = "atlas-cluster-label";
+      if (index >= 24 && descriptor.cluster_id !== activeCluster) {
+        label.classList.add("is-secondary");
+      }
+      label.textContent = `${descriptor.display_label || "Structural community"} · ${descriptor.memberCount}`;
+      label.addEventListener("click", (event) => {
+        event.stopPropagation();
+        activeCluster = descriptor.cluster_id;
+        if (clusterSelect) clusterSelect.value = activeCluster;
+        refreshGraph({ clearSelection: true, fit: true });
+      });
+      hull.append(label);
+      clusterOverlay.append(hull);
+      hullRecords.push({ descriptor, hull });
+    });
+    updateClusterOverlay();
+  }
+
+  function updateClusterOverlay() {
+    if (!clusterOverlay || !renderer) return;
+    const visible = activeMode === "structure" && hullRecords.length > 0;
+    clusterOverlay.hidden = !visible;
+    if (!visible) return;
+
+    const live = new Map(renderer.graphData().nodes.map((node) => [node.id, node]));
+    for (const { descriptor, hull } of hullRecords) {
+      const points = descriptor.members
+        .map((id) => live.get(id))
+        .filter(Boolean)
+        .map((node) => renderer.graph2ScreenCoords(node.x, node.y, node.z))
+        .filter((point) => point && Number.isFinite(point.x) && Number.isFinite(point.y));
+      if (!points.length) {
+        hull.hidden = true;
+        continue;
+      }
+      hull.hidden = false;
+      const minX = Math.min(...points.map((point) => point.x));
+      const maxX = Math.max(...points.map((point) => point.x));
+      const minY = Math.min(...points.map((point) => point.y));
+      const maxY = Math.max(...points.map((point) => point.y));
+      const padding = 24 + Math.min(34, Math.sqrt(points.length) * 3);
+      hull.style.left = `${minX - padding}px`;
+      hull.style.top = `${minY - padding}px`;
+      hull.style.width = `${Math.max(64, maxX - minX + 2 * padding)}px`;
+      hull.style.height = `${Math.max(54, maxY - minY + 2 * padding)}px`;
+    }
+  }
+
+  function populateControls() {
+    if (clusterSelect) {
+      const descriptors = Atlas.clusterDescriptors(
+        model,
+        new Set(sourceGraph.nodes.map((node) => node.id))
+      );
+      clusterSelect.append(...descriptors.map((cluster) => {
+        const option = document.createElement("option");
+        option.value = cluster.cluster_id;
+        option.textContent = `${cluster.display_label || "Structural community"} (${cluster.memberCount})`;
+        return option;
+      }));
+    }
+
+    const options = sourceGraph.nodes
       .slice()
-      .sort((left, right) => humanTitle(left).localeCompare(humanTitle(right)))
+      .sort((left, right) => Atlas.humanTitle(left).localeCompare(Atlas.humanTitle(right)))
       .map((node) => {
         const option = document.createElement("option");
         option.value = node.id;
-        option.label = humanTitle(node);
+        option.label = Atlas.humanTitle(node);
         return option;
       });
     document.querySelector("#node-options").append(...options);
   }
 
-  function updateSummary(graph) {
-    const counts = graph.counts || {};
+  function updateSummary() {
+    const summary = Atlas.structuralSummary(model);
+    const counts = sourceGraph.counts || {};
     const setText = (selector, value) => {
       const element = document.querySelector(selector);
-      if (element) element.textContent = value;
+      if (element) element.textContent = String(value);
     };
-    setText("#closed-count", counts.dag_closed ?? counts.closed ?? "-");
-    setText("#open-count", counts.dag_open ?? counts.open ?? "-");
-    setText("#edge-count", counts.edges ?? graph.edges.length);
+    setText("#release-status", model.hasTopologyAtlas ? "Verified structure" : "Fallback structure");
+    setText("#concept-count", counts.truth_nodes
+      ?? sourceGraph.nodes.filter((node) => node.kind === "truth").length);
+    setText("#cluster-count", summary.clusters);
+    setText("#bridge-count", summary.cutBridges);
+    setText("#frontier-count", sourceGraph.nodes.filter((node) =>
+      String(node.state || node.status || "").toLowerCase() === "open").length);
   }
 
   detailElement.addEventListener("click", (event) => {
@@ -426,14 +516,20 @@
         "aria-pressed",
         String(candidate === button)
       ));
-      applyFilters();
+      refreshGraph({ clearSelection: true, fit: true });
     });
   });
 
-  layerSelect.addEventListener("change", () => {
-    activeLayer = layerSelect.value;
-    applyFilters();
+  modeButtons.forEach((button) => {
+    button.addEventListener("click", () => setMode(button.dataset.atlasMode, true));
   });
+
+  if (clusterSelect) {
+    clusterSelect.addEventListener("change", () => {
+      activeCluster = clusterSelect.value;
+      refreshGraph({ clearSelection: true, fit: true });
+    });
+  }
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -444,13 +540,11 @@
     }
     const node = sourceGraph.nodes.find((candidate) => candidate.id.toLowerCase() === query)
       || sourceGraph.nodes.find((candidate) =>
-        humanTitle(candidate).toLowerCase().includes(query)
-        || candidate.id.toLowerCase().includes(query));
-    if (node) {
-      focusById(node.id);
-    } else {
-      statusElement.textContent = `No concept matches "${queryInput.value.trim()}".`;
-    }
+        Atlas.humanTitle(candidate).toLowerCase().includes(query)
+        || candidate.id.toLowerCase().includes(query)
+        || String(candidate.structural_role || "").includes(query));
+    if (node) focusById(node.id);
+    else statusElement.textContent = `No concept matches "${queryInput.value.trim()}".`;
   });
 
   fitButton.addEventListener("click", () => renderer && renderer.zoomToFit(500, 70));
@@ -459,21 +553,37 @@
   loadBoundState()
     .then((state) => {
       sourceGraph = state.graph;
+      manifest = state.atlasManifest;
       conformation = state.layout;
       positionById = state.positions;
-      populateControls(sourceGraph);
-      updateSummary(sourceGraph);
-      const visible = visibleGraph();
-      initializeRenderer(visible);
+      model = Atlas.createModel(sourceGraph, conformation);
+      populateControls();
+      updateSummary();
+
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const requestedMode = hash.get("mode");
+      if (requestedMode && Atlas.MODES.has(requestedMode)) activeMode = requestedMode;
+      modeButtons.forEach((button) => button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.atlasMode === activeMode)
+      ));
+
+      const data = rendererData();
+      initializeRenderer(data);
+      rebuildClusterOverlay();
+      window.setInterval(updateClusterOverlay, 120);
       statusElement.className = "graph-status graph-status-ready";
-      statusElement.textContent = `${visible.nodes.length} concepts | ${visible.links.length} relations | fixed release conformation`;
+      statusElement.textContent = `${statusText(data)} | ${structureSourceLabel()}`;
+
+      const requestedNode = hash.get("node");
+      if (requestedNode) window.setTimeout(() => focusById(requestedNode), 100);
     })
     .catch((error) => {
       statusElement.className = "graph-status graph-status-error";
       statusElement.textContent = `Unable to verify the Mathematical Atlas: ${error.message}`;
       const fallback = document.createElement("p");
       fallback.className = "node-detail-empty";
-      fallback.textContent = "The interactive conformation is unavailable. The static Library remains readable and release-bound.";
+      fallback.textContent = "The interactive structure is unavailable. The static Library remains readable and release-bound.";
       detailElement.replaceChildren(fallback);
     });
 }());
