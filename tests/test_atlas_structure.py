@@ -74,18 +74,27 @@ class AtlasStructureSurfaceTests(unittest.TestCase):
         self.assertIn("pointer-events: auto", styles)
         self.assertNotIn("eval(", runtime)
 
-    def test_ci_and_deployment_pin_one_topology_atlas_producer_coordinate(self):
-        expected = "53c77bbea42cc3a9baf7ca44f2888cf9850876ff"
+    def test_ci_and_deployment_pin_one_versioned_topology_atlas_package(self):
+        expected_version = "0.2.0-alpha.1"
+        expected_producer = "dbd407d52806b4a87bb3c129f810a10d438a2b53"
         ci = self.read(".github/workflows/ci.yml")
         deploy = self.read(".github/workflows/pages.yml")
+        project = self.read(
+            "tools/Trureturing.Topology.Runner/Trureturing.Topology.Runner.csproj"
+        )
         for workflow in (ci, deploy):
-            self.assertIn(expected, workflow)
-            self.assertIn("trureturing-fkst-packages", workflow)
+            self.assertIn(expected_version, workflow)
+            self.assertIn(expected_producer, workflow)
+            self.assertIn("Trureturing.Topology.Runner.dll", workflow)
             self.assertIn("topology-atlas.v1.json", workflow)
             self.assertIn("config/topology-atlas-profile.v1.json", workflow)
             self.assertIn("pages-topology-atlas-fixed-point-v1", workflow)
-        self.assertEqual(ci.count("TOPOLOGY_ATLAS_SOURCE_COMMIT:"), 1)
-        self.assertEqual(deploy.count("TOPOLOGY_ATLAS_SOURCE_COMMIT:"), 1)
+            self.assertNotIn("Checkout the pinned Topology Atlas producer", workflow)
+            self.assertNotIn("_topology/", workflow)
+        self.assertIn('Include="Trureturing.Topology"', project)
+        self.assertIn('Version="[0.2.0-alpha.1]"', project)
+        self.assertEqual(ci.count("TOPOLOGY_PRODUCER_COMMIT:"), 1)
+        self.assertEqual(deploy.count("TOPOLOGY_PRODUCER_COMMIT:"), 1)
 
     def test_vendored_contracts_and_profile_are_present(self):
         for relative in (
