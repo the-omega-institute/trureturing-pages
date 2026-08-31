@@ -1,0 +1,18 @@
+{
+  "schema_version": "topology-atlas-profile.v1",
+  "top_k": 8,
+  "affinity_weights": {
+    "direct_dependency": 4,
+    "shared_ancestor_jaccard": 3,
+    "shared_descendant_jaccard": 3,
+    "undirected_path_reciprocal": 2,
+    "deepest_common_prerequisite_depth": 2
+  },
+  "minimum_affinity": {
+    "numerator": 1,
+    "denominator": 14
+  },
+  "hub_min_total_degree": 4,
+  "hub_min_descendant_count": 8,
+  "cut_bridges_form_boundaries": true
+}
