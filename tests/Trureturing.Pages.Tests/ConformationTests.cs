@@ -178,11 +178,14 @@ public sealed class ConformationTests
 
         string valid = Encoding.UTF8.GetString(
             ManifestBytes(graph, Release('a')));
-        byte[] rebound = Encoding.UTF8.GetBytes(
-            valid.Replace(
-                "\"conformation_digest\": null",
-                $"\"conformation_digest\": \"{Digest(Encoding.UTF8.GetBytes("occupied"))}\"",
-                StringComparison.Ordinal));
+        string occupiedDigest = Digest(
+            Encoding.UTF8.GetBytes("occupied"));
+        string reboundText = valid.Replace(
+            "\"conformation_digest\":null",
+            $"\"conformation_digest\":\"{occupiedDigest}\"",
+            StringComparison.Ordinal);
+        Assert.NotEqual(valid, reboundText);
+        byte[] rebound = Encoding.UTF8.GetBytes(reboundText);
         InvalidDataException occupied = Assert.Throws<InvalidDataException>(() =>
             PagesConformation.Build(graph, rebound));
         Assert.Contains(
