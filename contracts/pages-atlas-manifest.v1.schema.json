@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-atlas-manifest.v1",
+  "title": "TrueTurning Pages atlas projection manifest v1",
+  "description": "Binds one Pages atlas read model to an exact truth release, certified-topology artifact, and projection profile.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "truth_release_digest",
+    "source_commit",
+    "source_tree",
+    "input_graph_digest",
+    "certified_topology_digest",
+    "atlas_graph_digest",
+    "certified_topology_profile_digest",
+    "topology_producer_commit",
+    "topology_atlas_digest",
+    "conformation_digest",
+    "projection_profile",
+    "graph_path",
+    "compatibility_paths",
+    "counts"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "pages-atlas-manifest.v1"
+    },
+    "truth_release_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "source_commit": {
+      "$ref": "#/$defs/gitObject"
+    },
+    "source_tree": {
+      "$ref": "#/$defs/gitObject"
+    },
+    "input_graph_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "certified_topology_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "atlas_graph_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "certified_topology_profile_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "topology_producer_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "topology_atlas_digest": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/sha256Digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "conformation_digest": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/sha256Digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "projection_profile": {
+      "const": "pages-atlas-projection-v1"
+    },
+    "graph_path": {
+      "const": "data/pages-atlas-view.v1.json"
+    },
+    "compatibility_paths": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "data/certified-topology-view.v1.json"
+        }
+      ],
+      "items": false,
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nodes",
+        "truth_nodes",
+        "edges",
+        "certified_topology_nodes"
+      ],
+      "properties": {
+        "nodes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "truth_nodes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "edges": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "certified_topology_nodes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gitObject": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

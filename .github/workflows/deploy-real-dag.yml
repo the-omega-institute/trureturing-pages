@@ -1,60 +1,60 @@
-name: Deploy real committed DAG
+name: Delegate release-bound Pages deployment
+
 on:
   workflow_dispatch:
+    inputs:
+      truth_release_digest:
+        description: "sha256 release digest, or mock for the committed smoke fixture"
+        required: false
+        default: mock
+        type: string
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: pages-deploy
-  cancel-in-progress: false
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Checkout Blueprint source for human labels
-        uses: actions/checkout@v4
-        with:
-          repository: the-omega-institute/trureturing
-          ref: dev
-          path: _upstream
-          sparse-checkout: Blueprint
-          sparse-checkout-cone-mode: true
-          persist-credentials: false
-      - name: Enrich committed DAG and render static concept pages
-        run: |
-          python lib/human_labels.py \
-            site/data/truth-graph.v1.json \
-            site/data/truth-graph.v1.json \
-            _upstream/Blueprint \
-            --blueprint-ref dev
-          python - <<'PY'
-          import json
-          from pathlib import Path
+  actions: write
 
-          root = Path("site")
-          graph = json.loads(
-              (root / "data/truth-graph.v1.json").read_text(encoding="utf-8")
-          )
-          assert len(list((root / "knowledge/node").glob("*/index.html"))) == (
-              len(graph["nodes"])
-          )
-          assert (root / "knowledge/index.html").is_file()
-          PY
-      - name: Verify the committed truth graph is real
+concurrency:
+  group: delegate-pages-${{ inputs.truth_release_digest || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate the release coordinate
+        id: input
+        env:
+          TRUTH_RELEASE_DIGEST: ${{ inputs.truth_release_digest || 'mock' }}
+        shell: bash
         run: |
           set -euo pipefail
-          python3 -c "import json,sys; d=json.load(open('site/data/truth-graph.v1.json')); sys.exit(0 if d.get('synthetic') is False else 1)"
-          echo "real truth-graph.v1.json confirmed (synthetic:false)"
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-      - id: deploy
-        uses: actions/deploy-pages@v4
+          if [[ "$TRUTH_RELEASE_DIGEST" != 'mock' ]]; then
+            [[ "$TRUTH_RELEASE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] \
+              || { printf '%s\n' 'truth_release_digest must be mock or sha256:<64 lowercase hex>' >&2; exit 1; }
+          fi
+          printf 'truth_release_digest=%s\n' \
+            "$TRUTH_RELEASE_DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch the canonical release-bound pipeline
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRUTH_RELEASE_DIGEST: ${{ steps.input.outputs.truth_release_digest }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run pages.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref dev \
+            -f "truth_release_digest=$TRUTH_RELEASE_DIGEST"
+
+      - name: Record the delegated coordinate
+        env:
+          TRUTH_RELEASE_DIGEST: ${{ steps.input.outputs.truth_release_digest }}
+        run: |
+          {
+            echo '## Delegated Pages deployment'
+            echo
+            echo "- Release coordinate: \`$TRUTH_RELEASE_DIGEST\`"
+            echo '- Canonical build and deployment workflow: `pages.yml` on `dev`'
+            echo '- This workflow performs no projection or direct deployment.'
+          } >> "$GITHUB_STEP_SUMMARY"

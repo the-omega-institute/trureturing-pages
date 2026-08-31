@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Data source: the blessed source-snapshot.v1 projection in site/data/. -->
+<!-- Data source: the release-bound Pages Atlas projection in site/data/. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -13,73 +13,73 @@
     <nav aria-label="Primary navigation">
       <ul>
         <li><a href="index.html" aria-current="page">Overview</a></li>
-        <li><a href="dag.html">DAG</a></li>
-        <li><a href="knowledge/">Concepts</a></li>
+        <li><a href="dag.html">Atlas</a></li>
+        <li><a href="knowledge/">Library</a></li>
         <li><a href="https://the-omega-institute.github.io/trureturing-mdbook/" target="_blank" rel="noopener">Theory &nearr;</a></li>
-        <li><a href="conclusions.html">Conclusions</a></li>
+        <li><a href="conclusions.html">History</a></li>
       </ul>
     </nav>
   </header>
 
   <main>
+    <p class="eyebrow">Mathematics as navigable structure</p>
     <h1>trureturing</h1>
-    <p class="lede">A read-only public view of the frozen research DAG, human-readable concept pages, theory volume, and selected conclusions.</p>
+    <p class="lede">Explore how formal concepts depend on one another, enter any node through its human-readable Concept Lens, follow the logic upstream and downstream, and begin release-bound research directly from the structure.</p>
 
-    <section aria-labelledby="dag-status-title">
-      <h2 id="dag-status-title">DAG status</h2>
+    <section aria-labelledby="atlas-status-title">
+      <h2 id="atlas-status-title">Current mathematical Atlas</h2>
       <div class="status-grid">
+        <div class="status-card"><span>Release</span><strong data-release-state>Loading</strong></div>
         <div class="status-card status-closed"><span>Closed</span><strong data-count="Closed">670</strong></div>
         <div class="status-card status-open"><span>Open</span><strong data-count="Open">12</strong></div>
-        <div class="status-card status-tail"><span>Tail</span><strong data-count="Tail">0</strong></div>
-        <div class="status-card status-semantic"><span>Semantic</span><strong data-count="Semantic">7,215</strong></div>
+        <div class="status-card status-semantic"><span>Concepts</span><strong data-count="Concepts">682</strong></div>
       </div>
     </section>
 
-    <section aria-labelledby="snapshot-title">
-      <h2 id="snapshot-title">Published snapshot</h2>
-      <dl class="snapshot-meta">
-        <dt>Source commit</dt>
-        <dd data-snapshot-field="source-commit">90059ebbb6c1d61da93690723af581145b88bad1</dd>
-        <dt>Last updated</dt>
-        <dd data-snapshot-field="updated-at">2026-08-14T19:23:24Z</dd>
-      </dl>
-    </section>
-
     <section aria-labelledby="explore-title">
-      <h2 id="explore-title">Explore</h2>
+      <h2 id="explore-title">Enter the structure</h2>
       <div class="navigation-grid">
-        <a href="dag.html">Truth DAG <span>Explore directed dependency edges and inspect each node in context.</span></a>
-        <a href="knowledge/">Concept index <span>Read static, shareable pages with dependencies, exposition, and exact release provenance.</span></a>
-        <a href="https://the-omega-institute.github.io/trureturing-mdbook/" target="_blank" rel="noopener">Theory &nearr; <span>Open the upstream theory-volume index.</span></a>
-        <a href="conclusions.html">Conclusions <span>Review provenance-linked highlights.</span></a>
+        <a href="dag.html">Mathematical Atlas <span>Navigate the 3D structure, open a Concept Lens, inspect exact dependency paths, and start research without leaving the graph.</span></a>
+        <a href="knowledge/">Static Library <span>Use durable, shareable concept pages when WebGL is unavailable or a fixed permalink is needed.</span></a>
+        <a href="https://the-omega-institute.github.io/trureturing-mdbook/" target="_blank" rel="noopener">Theory &nearr; <span>Read the authored theory volume and longer mathematical exposition.</span></a>
+        <a href="conclusions.html">Release history <span>Review selected conclusions and, later, how the mathematical structure changes between releases.</span></a>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">Read-only presentation of an approved trureturing snapshot.</footer>
+  <footer class="site-footer">A read-only human research surface over verified TrueTurning releases.</footer>
   <script>
-    // Keep the published-snapshot fields in sync with the real projected DAG data.
-    fetch('data/truth-graph.v1.json')
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
-      .then((graph) => {
-        const snap = graph.source_snapshot || {};
-        const counts = graph.counts || {};
-        const set = (field, value) => {
-          const el = document.querySelector(`[data-snapshot-field="${field}"]`);
-          if (el && value) el.textContent = value;
-        };
-        const setCount = (status, value) => {
-          const el = document.querySelector(`[data-count="${status}"]`);
-          if (el && Number.isFinite(value)) el.textContent = value.toLocaleString();
-        };
-        set('source-commit', snap.source_commit);
-        set('updated-at', snap.approved_at);
-        setCount('Closed', counts.dag_closed);
-        setCount('Open', counts.dag_open);
-        setCount('Tail', counts.dag_tail);
-        setCount('Semantic', counts.dag_semantic);
-      })
-      .catch(() => { /* keep the static fallback values */ });
+    (async () => {
+      const paths = ['data/pages-atlas-view.v1.json', 'data/truth-graph.v1.json'];
+      let graph = null;
+      for (const path of paths) {
+        try {
+          const response = await fetch(path, { cache: 'no-store' });
+          if (!response.ok) continue;
+          graph = await response.json();
+          break;
+        } catch (_) { /* try compatibility path */ }
+      }
+      if (!graph) return;
+      const snap = graph.source_snapshot || {};
+      const counts = graph.counts || {};
+      const release = String(snap.truth_release_digest || '');
+      const releaseState = document.querySelector('[data-release-state]');
+      if (releaseState) {
+        releaseState.textContent = /^sha256:[0-9a-f]{64}$/.test(release)
+          ? 'Verified'
+          : 'Preview';
+      }
+      const setCount = (status, value) => {
+        const target = document.querySelector(`[data-count="${status}"]`);
+        if (target && Number.isFinite(Number(value))) {
+          target.textContent = Number(value).toLocaleString();
+        }
+      };
+      setCount('Closed', counts.dag_closed);
+      setCount('Open', counts.dag_open);
+      setCount('Concepts', counts.nodes ?? graph.nodes.length);
+    })();
   </script>
 </body>
 </html>

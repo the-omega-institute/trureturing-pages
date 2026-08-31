@@ -37,6 +37,9 @@ jobs:
 
       - name: Check browser JavaScript
         run: |
+          for source in site/assets/concept-lens*.js; do
+            node --check "$source"
+          done
           node --check site/assets/dag.js
           node --check site/assets/dag-knowledge-link.js
           node --check site/assets/knowledge-map.js
@@ -45,8 +48,9 @@ jobs:
           node --check site/assets/research-writeback.js
           node --check site/assets/research-writeback-ui.js
 
-      - name: Run release-bound research client tests
+      - name: Run Atlas and release-bound research client tests
         run: |
+          node tests/js/concept-lens.test.js
           node tests/js/research-context.test.js
           node tests/js/research-writeback.test.js
 
@@ -90,12 +94,20 @@ jobs:
           assert len(release_pages) == len(graph["nodes"])
           assert (root / "knowledge/index.html").is_file()
           assert (root / "knowledge/index.v1.json").is_file()
-          assert (root / "assets/research-context.js").is_file()
-          assert (root / "assets/research-console.js").is_file()
-          assert (root / "assets/research-console.css").is_file()
-          assert (root / "assets/research-writeback.js").is_file()
-          assert (root / "assets/research-writeback-ui.js").is_file()
-          assert (root / "assets/research-writeback.css").is_file()
+          for asset in (
+              "concept-lens.js",
+              "concept-lens-core.js",
+              "concept-lens-runtime.js",
+              "concept-lens-compat.js",
+              "concept-lens.css",
+              "research-context.js",
+              "research-console.js",
+              "research-console.css",
+              "research-writeback.js",
+              "research-writeback-ui.js",
+              "research-writeback.css",
+          ):
+              assert (root / "assets" / asset).is_file(), asset
           assert (root / "data/research-agent.v1.json").is_file()
           assert all(node.get("knowledge_page") for node in graph["nodes"])
           PY
@@ -108,7 +120,43 @@ jobs:
             config/algorithm-profile.v1.json \
             28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b \
             _site/data/certified-topology.v1.json
-          python -m lib.certified_topology \
-            _site/data/basic-truth-graph.v1.json \
+
+      - name: Project the release-bound Pages atlas
+        run: |
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            project-atlas \
+            _site/data/truth-graph.v1.json \
             _site/data/certified-topology.v1.json \
+            _site/data/pages-atlas-view.v1.json \
+            _site/data/pages-atlas-manifest.v1.json
+          cp _site/data/pages-atlas-view.v1.json \
             _site/data/certified-topology-view.v1.json
+          cp _site/data/pages-atlas-view.v1.json \
+            _site/data/truth-graph.v1.json
+          cmp _site/data/pages-atlas-view.v1.json \
+            _site/data/certified-topology-view.v1.json
+          cmp _site/data/pages-atlas-view.v1.json \
+            _site/data/truth-graph.v1.json
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("_site/data")
+          graph_bytes = (root / "pages-atlas-view.v1.json").read_bytes()
+          graph = json.loads(graph_bytes)
+          manifest = json.loads(
+              (root / "pages-atlas-manifest.v1.json").read_text()
+          )
+          assert graph["schema_version"] == "pages-atlas-view.v1"
+          assert manifest["schema_version"] == "pages-atlas-manifest.v1"
+          assert manifest["atlas_graph_digest"] == (
+              "sha256:" + hashlib.sha256(graph_bytes).hexdigest()
+          )
+          assert manifest["counts"]["certified_topology_nodes"] == 4
+          assert all(
+              "descendant_cost" in node
+              for node in graph["nodes"]
+              if node["kind"] == "truth"
+          )
+          PY
