@@ -160,7 +160,8 @@ jobs:
           cp "$topology" _site/data/certified-topology.v1.json
           printf 'TOPOLOGY_MEASUREMENT %s\n' "$(jq -c . "$metrics")"
 
-      - name: Project one release-bound Pages atlas read model
+      - name: Project and conform one release-bound Pages atlas
+        shell: bash
         run: |
           set -euo pipefail
           dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
@@ -168,6 +169,40 @@ jobs:
             _site/data/truth-graph.v1.json \
             _site/data/certified-topology.v1.json \
             _site/data/pages-atlas-view.v1.json \
+            _site/data/pages-atlas-manifest.v1.json
+
+          previous="$RUNNER_TEMP/previous-pages-conformation.v1.json"
+          previous_arg='-'
+          previous_url="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/data/pages-conformation.v1.json?run=${GITHUB_RUN_ID}"
+          status="$(curl -sS -L --max-filesize 16777216 -o "$previous" -w '%{http_code}' "$previous_url")"
+          if [[ "$status" == '200' ]]; then
+            if jq -e \
+              '.schema_version == "pages-conformation.v1"
+                and .layout_profile.name == "pages-hierarchical-fixed-point-v1"
+                and .coordinate_encoding.type == "signed-fixed-point"
+                and .coordinate_encoding.scale == 1000' \
+              "$previous" >/dev/null; then
+              previous_arg="$previous"
+              printf 'CONFORMATION_ALIGNMENT previous=%s\n' \
+                "sha256:$(sha256sum "$previous" | cut -d ' ' -f 1)"
+            else
+              printf '%s\n' 'Existing Pages conformation uses an incompatible profile; starting from intrinsic placement.'
+            fi
+          elif [[ "$status" != '404' ]]; then
+            printf 'cannot establish previous Pages conformation: HTTP %s\n' "$status" >&2
+            exit 1
+          fi
+
+          cp _site/data/pages-atlas-manifest.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json"
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            conform-atlas \
+            _site/data/pages-atlas-view.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json" \
+            _site/data/pages-conformation.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
+            "$previous_arg"
+          mv "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
             _site/data/pages-atlas-manifest.v1.json
           cp _site/data/pages-atlas-view.v1.json \
             _site/data/certified-topology-view.v1.json
@@ -177,15 +212,29 @@ jobs:
             _site/data/certified-topology-view.v1.json
           cmp _site/data/pages-atlas-view.v1.json \
             _site/data/truth-graph.v1.json
+
+          conformation_digest="sha256:$(sha256sum _site/data/pages-conformation.v1.json | cut -d ' ' -f 1)"
           jq -e \
             --arg release '${{ steps.acquire.outputs.release_digest }}' \
+            --arg conformation "$conformation_digest" \
             '.schema_version == "pages-atlas-manifest.v1"
               and .truth_release_digest == $release
               and .projection_profile == "pages-atlas-projection-v1"
               and .graph_path == "data/pages-atlas-view.v1.json"
               and .topology_atlas_digest == null
-              and .conformation_digest == null' \
+              and .conformation_digest == $conformation' \
             _site/data/pages-atlas-manifest.v1.json >/dev/null
+          jq -e \
+            --arg release '${{ steps.acquire.outputs.release_digest }}' \
+            '.schema_version == "pages-conformation.v1"
+              and .truth_release_digest == $release
+              and .structure_source == "pages-fallback-regions"
+              and .layout_profile.name == "pages-hierarchical-fixed-point-v1"
+              and .coordinate_encoding.type == "signed-fixed-point"
+              and .coordinate_encoding.scale == 1000
+              and .axes.depth_axis == "y"
+              and .axes.depth_step == 180000' \
+            _site/data/pages-conformation.v1.json >/dev/null
 
       - name: Finalize the release-bound Pages deployment
         run: |
