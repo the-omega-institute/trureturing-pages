@@ -2,6 +2,7 @@
   "use strict";
 
   const Atlas = window.TrureturingAtlasStructure;
+  const Semantic = window.TrureturingAtlasSemanticZoom;
   const graphElement = document.querySelector("#graph");
   const statusElement = document.querySelector("#graph-status");
   const detailElement = document.querySelector("#node-detail");
@@ -11,6 +12,10 @@
   const fitButton = document.querySelector("#fit-graph");
   const resetButton = document.querySelector("#reset-view");
   const clusterOverlay = document.querySelector("#cluster-overlay");
+  const contextBar = document.querySelector("#atlas-context-bar");
+  const contextLabel = document.querySelector("#atlas-context-label");
+  const lodIndicator = document.querySelector("#atlas-lod-indicator");
+  const backButton = document.querySelector("#atlas-back");
   const stateButtons = [...document.querySelectorAll("[data-state]")];
   const modeButtons = [...document.querySelectorAll("[data-atlas-mode]")];
   const reduceMotion = window.matchMedia
@@ -26,9 +31,14 @@
   let activeState = "All";
   let activeCluster = "All";
   let selectedId = null;
+  let automaticLod = "far";
+  let effectiveLod = "far";
+  let atlasRadius = 1;
   let currentNodeIds = new Set();
   let hullRecords = [];
+  let clusterHistory = [];
   let initialFitDone = false;
+  let semanticRefreshInProgress = false;
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -72,6 +82,7 @@
     layout
   ) {
     if (!Atlas) throw new Error("The Atlas structure model did not load.");
+    if (!Semantic) throw new Error("The semantic zoom model did not load.");
     if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
       throw new Error("Atlas data is missing its nodes or edges array.");
     }
@@ -185,13 +196,22 @@
     }, selectedId);
   }
 
-  function currentView() {
-    return Atlas.graphView(model, {
+  function viewOptions() {
+    return {
       mode: activeMode,
       state: activeState,
       clusterId: activeCluster,
       selectedId
-    });
+    };
+  }
+
+  function currentView() {
+    effectiveLod = Semantic.effectiveLevel(
+      automaticLod,
+      selectedId,
+      activeCluster
+    );
+    return Semantic.graphView(model, viewOptions(), effectiveLod);
   }
 
   function rendererData() {
@@ -226,7 +246,42 @@
       : activeMode === "dependency"
         ? "certified dependencies"
         : "formalization frontier";
-    return `${data.nodes.length} concepts | ${data.links.length} visible relations | ${label}`;
+    return `${data.nodes.length} concepts | ${data.links.length} visible relations | ${label} | ${Semantic.levelLabel(effectiveLod)}`;
+  }
+
+  function currentClusterLabel() {
+    if (!model || activeCluster === "All") return "All communities";
+    const cluster = model.clusterById.get(activeCluster);
+    return cluster && cluster.display_label
+      ? cluster.display_label
+      : "Selected structural community";
+  }
+
+  function updateContextBar() {
+    if (!contextBar) return;
+    contextBar.dataset.lod = effectiveLod;
+    graphElement.dataset.lod = effectiveLod;
+    if (lodIndicator) lodIndicator.textContent = Semantic.levelLabel(effectiveLod);
+    if (contextLabel) {
+      if (selectedId && model && model.nodeById.has(selectedId)) {
+        contextLabel.textContent = `Concept · ${Atlas.humanTitle(model.nodeById.get(selectedId))}`;
+      } else {
+        contextLabel.textContent = currentClusterLabel();
+      }
+    }
+    if (backButton) {
+      backButton.hidden = !selectedId && activeCluster === "All";
+      backButton.textContent = selectedId ? "Back to structure" : "All communities";
+    }
+  }
+
+  function syncUrl() {
+    const params = new URLSearchParams();
+    params.set("mode", activeMode);
+    params.set("lod", automaticLod);
+    if (activeCluster !== "All") params.set("cluster", activeCluster);
+    if (selectedId) params.set("node", selectedId);
+    window.history.replaceState(null, "", `#${params.toString()}`);
   }
 
   function refreshGraph({ clearSelection = false, fit = false } = {}) {
@@ -239,6 +294,8 @@
       .linkColor(linkColor)
       .linkWidth(linkWidth);
     rebuildClusterOverlay();
+    updateContextBar();
+    syncUrl();
     statusElement.className = "graph-status graph-status-ready";
     statusElement.textContent = statusText(data);
     if (fit) window.setTimeout(() => renderer.zoomToFit(500, 70), 80);
@@ -246,16 +303,13 @@
 
   function publishSelection(node, refresh = true) {
     selectedId = node ? node.id : null;
-    if (node) {
-      detailElement.dataset.nodeId = node.id;
-      const params = new URLSearchParams({ node: node.id, mode: activeMode });
-      window.history.replaceState(null, "", `#${params.toString()}`);
-    } else {
-      delete detailElement.dataset.nodeId;
-      const params = new URLSearchParams({ mode: activeMode });
-      window.history.replaceState(null, "", `#${params.toString()}`);
-    }
+    if (node) detailElement.dataset.nodeId = node.id;
+    else delete detailElement.dataset.nodeId;
     if (refresh && renderer) refreshGraph();
+    else {
+      updateContextBar();
+      syncUrl();
+    }
   }
 
   function liveNode(id) {
@@ -291,11 +345,22 @@
     refreshGraph({ clearSelection: true, fit });
   }
 
+  function setCluster(clusterId, { remember = true, fit = true } = {}) {
+    const next = clusterId && clusterId !== "All" && model.clusterById.has(clusterId)
+      ? clusterId
+      : "All";
+    if (remember && activeCluster !== next) clusterHistory.push(activeCluster);
+    activeCluster = next;
+    if (clusterSelect) clusterSelect.value = activeCluster;
+    refreshGraph({ clearSelection: true, fit });
+  }
+
   function focusById(id) {
     let node = liveNode(id);
     if (!node) {
       activeState = "All";
       activeCluster = "All";
+      clusterHistory = [];
       stateButtons.forEach((button) => button.setAttribute(
         "aria-pressed",
         String(button.dataset.state === "All")
@@ -319,12 +384,14 @@
 
   function resetCamera() {
     if (!renderer || !conformation) return;
+    automaticLod = "far";
     const scale = Number(conformation.coordinate_encoding.scale);
     const preset = Array.isArray(conformation.camera_presets)
       ? conformation.camera_presets.find((item) => item.name === "overview")
       : null;
     if (!preset) {
       renderer.zoomToFit(700, 70);
+      refreshGraph();
       return;
     }
     renderer.cameraPosition(
@@ -332,6 +399,7 @@
       scalePoint(preset.look_at, scale),
       reduceMotion ? 0 : 700
     );
+    refreshGraph();
   }
 
   function initializeRenderer(data) {
@@ -401,7 +469,9 @@
     if (!clusterOverlay || !model) return;
     clusterOverlay.replaceChildren();
     hullRecords = [];
-    const descriptors = Atlas.clusterDescriptors(model, currentNodeIds);
+    clusterOverlay.dataset.lod = effectiveLod;
+    const structuralNodeIds = Semantic.baseNodeIds(model, viewOptions());
+    const descriptors = Atlas.clusterDescriptors(model, structuralNodeIds);
     descriptors.forEach((descriptor, index) => {
       if (descriptor.memberCount < 2 && activeCluster !== descriptor.cluster_id) return;
       const hull = document.createElement("div");
@@ -409,6 +479,9 @@
       hull.dataset.clusterId = descriptor.cluster_id;
       hull.style.setProperty("--cluster-hue", Atlas.clusterHue(descriptor.cluster_id).toFixed(1));
       if (descriptor.cluster_id === activeCluster) hull.classList.add("is-active");
+      if (activeCluster !== "All" && descriptor.cluster_id !== activeCluster) {
+        hull.classList.add("is-muted");
+      }
 
       const label = document.createElement("button");
       label.type = "button";
@@ -419,9 +492,7 @@
       label.textContent = `${descriptor.display_label || "Structural community"} · ${descriptor.memberCount}`;
       label.addEventListener("click", (event) => {
         event.stopPropagation();
-        activeCluster = descriptor.cluster_id;
-        if (clusterSelect) clusterSelect.value = activeCluster;
-        refreshGraph({ clearSelection: true, fit: true });
+        setCluster(descriptor.cluster_id);
       });
       hull.append(label);
       clusterOverlay.append(hull);
@@ -432,16 +503,19 @@
 
   function updateClusterOverlay() {
     if (!clusterOverlay || !renderer) return;
-    const visible = activeMode === "structure" && hullRecords.length > 0;
+    const visible = activeMode === "structure"
+      && hullRecords.length > 0
+      && (effectiveLod === "far"
+        || effectiveLod === "medium"
+        || activeCluster !== "All");
     clusterOverlay.hidden = !visible;
     if (!visible) return;
 
-    const live = new Map(renderer.graphData().nodes.map((node) => [node.id, node]));
     for (const { descriptor, hull } of hullRecords) {
       const points = descriptor.members
-        .map((id) => live.get(id))
+        .map((id) => positionById.get(id))
         .filter(Boolean)
-        .map((node) => renderer.graph2ScreenCoords(node.x, node.y, node.z))
+        .map((point) => renderer.graph2ScreenCoords(point.x, point.y, point.z))
         .filter((point) => point && Number.isFinite(point.x) && Number.isFinite(point.y));
       if (!points.length) {
         hull.hidden = true;
@@ -457,6 +531,46 @@
       hull.style.top = `${minY - padding}px`;
       hull.style.width = `${Math.max(64, maxX - minX + 2 * padding)}px`;
       hull.style.height = `${Math.max(54, maxY - minY + 2 * padding)}px`;
+    }
+  }
+
+  function cameraDistance() {
+    if (!renderer || typeof renderer.camera !== "function"
+        || typeof renderer.controls !== "function") return null;
+    const camera = renderer.camera();
+    const controls = renderer.controls();
+    if (!camera || !camera.position || !controls || !controls.target) return null;
+    return Math.hypot(
+      camera.position.x - controls.target.x,
+      camera.position.y - controls.target.y,
+      camera.position.z - controls.target.z
+    );
+  }
+
+  function updateSemanticZoom() {
+    if (!renderer || !model || semanticRefreshInProgress || selectedId) {
+      updateClusterOverlay();
+      return;
+    }
+    const distance = cameraDistance();
+    if (distance === null) {
+      updateClusterOverlay();
+      return;
+    }
+    const next = Semantic.levelFromCamera(
+      distance,
+      atlasRadius,
+      automaticLod
+    );
+    if (next !== automaticLod) {
+      automaticLod = next;
+      semanticRefreshInProgress = true;
+      refreshGraph();
+      window.setTimeout(() => {
+        semanticRefreshInProgress = false;
+      }, 120);
+    } else {
+      updateClusterOverlay();
     }
   }
 
@@ -526,8 +640,20 @@
 
   if (clusterSelect) {
     clusterSelect.addEventListener("change", () => {
-      activeCluster = clusterSelect.value;
-      refreshGraph({ clearSelection: true, fit: true });
+      setCluster(clusterSelect.value);
+    });
+  }
+
+  if (backButton) {
+    backButton.addEventListener("click", () => {
+      if (selectedId) {
+        publishSelection(null);
+        return;
+      }
+      const previous = clusterHistory.length
+        ? clusterHistory.pop()
+        : "All";
+      setCluster(previous, { remember: false });
     });
   }
 
@@ -557,12 +683,22 @@
       conformation = state.layout;
       positionById = state.positions;
       model = Atlas.createModel(sourceGraph, conformation);
+      atlasRadius = Semantic.canonicalRadius(positionById);
       populateControls();
       updateSummary();
 
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
       const requestedMode = hash.get("mode");
       if (requestedMode && Atlas.MODES.has(requestedMode)) activeMode = requestedMode;
+      const requestedLod = hash.get("lod");
+      if (["far", "medium", "near"].includes(requestedLod)) {
+        automaticLod = requestedLod;
+      }
+      const requestedCluster = hash.get("cluster");
+      if (requestedCluster && model.clusterById.has(requestedCluster)) {
+        activeCluster = requestedCluster;
+        if (clusterSelect) clusterSelect.value = requestedCluster;
+      }
       modeButtons.forEach((button) => button.setAttribute(
         "aria-pressed",
         String(button.dataset.atlasMode === activeMode)
@@ -571,9 +707,11 @@
       const data = rendererData();
       initializeRenderer(data);
       rebuildClusterOverlay();
-      window.setInterval(updateClusterOverlay, 120);
+      window.setInterval(updateSemanticZoom, 160);
       statusElement.className = "graph-status graph-status-ready";
       statusElement.textContent = `${statusText(data)} | ${structureSourceLabel()}`;
+      updateContextBar();
+      syncUrl();
 
       const requestedNode = hash.get("node");
       if (requestedNode) window.setTimeout(() => focusById(requestedNode), 100);
