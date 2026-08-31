@@ -11,6 +11,7 @@ class ConceptLensSurfaceTests(unittest.TestCase):
         self.assertIn('class="atlas-layout"', page)
         self.assertIn('id="node-detail" class="node-detail concept-lens"', page)
         self.assertIn('assets/concept-lens.js', page)
+        self.assertIn('assets/concept-lens-compat.js', page)
         self.assertIn('assets/concept-lens.css', page)
         self.assertNotIn('assets/dag-knowledge-link.js', page)
         self.assertIn('aria-label="Concept Lens"', page)
@@ -37,10 +38,12 @@ class ConceptLensSurfaceTests(unittest.TestCase):
         self.assertIn("Audit details", runtime)
 
     def test_concept_lens_uses_safe_dom_construction_and_one_selection_owner(self):
-        loader = (ROOT / "site" / "assets" / "concept-lens.js").read_text(encoding="utf-8")
-        core = (ROOT / "site" / "assets" / "concept-lens-core.js").read_text(encoding="utf-8")
-        runtime = (ROOT / "site" / "assets" / "concept-lens-runtime.js").read_text(encoding="utf-8")
-        combined = loader + core + runtime
+        assets = ROOT / "site" / "assets"
+        loader = (assets / "concept-lens.js").read_text(encoding="utf-8")
+        core = (assets / "concept-lens-core.js").read_text(encoding="utf-8")
+        runtime = (assets / "concept-lens-runtime.js").read_text(encoding="utf-8")
+        compat = (assets / "concept-lens-compat.js").read_text(encoding="utf-8")
+        combined = loader + core + runtime + compat
         self.assertNotIn(".innerHTML", combined)
         self.assertIn('document.createElementNS(namespace, "svg")', runtime)
         self.assertIn('data-panel', runtime)
@@ -51,6 +54,7 @@ class ConceptLensSurfaceTests(unittest.TestCase):
         self.assertNotIn('removeAttribute("data-node-id")', runtime)
         self.assertIn('concept-lens-core.js', loader)
         self.assertIn('concept-lens-runtime.js', loader)
+        self.assertIn('childList: true', compat)
 
 
 if __name__ == "__main__":
