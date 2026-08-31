@@ -27,9 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      TOPOLOGY_VERSION: 0.1.0-alpha.1
-      TOPOLOGY_PRODUCER_COMMIT: 53c77bbea42cc3a9baf7ca44f2888cf9850876ff
-      TOPOLOGY_ATLAS_SOURCE_COMMIT: 53c77bbea42cc3a9baf7ca44f2888cf9850876ff
+      TOPOLOGY_VERSION: 0.2.0-alpha.1
+      TOPOLOGY_PRODUCER_COMMIT: dbd407d52806b4a87bb3c129f810a10d438a2b53
       TRUTH_REPOSITORY: the-omega-institute/trureturing
     steps:
       - uses: actions/checkout@v4
@@ -95,35 +94,19 @@ jobs:
           sparse-checkout-cone-mode: true
           persist-credentials: false
 
-      - name: Checkout the pinned Topology Atlas producer
-        uses: actions/checkout@v4
-        with:
-          repository: the-omega-institute/trureturing-fkst-packages
-          ref: ${{ env.TOPOLOGY_ATLAS_SOURCE_COMMIT }}
-          path: _topology
-          persist-credentials: false
-
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
 
-      - name: Restore Pages and the pinned Topology Atlas producer
+      - name: Restore the versioned Pages and Topology package graph
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
           NUGET_READ_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
-        run: |
-          dotnet restore Trureturing.Pages.slnx --configfile nuget.config
-          dotnet restore \
-            _topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/Trureturing.Topology.Cli.csproj \
-            --configfile nuget.config
+        run: dotnet restore Trureturing.Pages.slnx --configfile nuget.config
 
-      - name: Build Pages and the pinned Topology Atlas producer
-        run: |
-          dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
-          dotnet build \
-            _topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/Trureturing.Topology.Cli.csproj \
-            -c Release --no-restore --warnaserror
+      - name: Build Pages and its package-backed Topology runner
+        run: dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
 
       - name: Render the basic release DAG
         run: python -m lib.vertical_smoke build-basic '${{ steps.acquire.outputs.bundle }}' _site
@@ -162,13 +145,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          topology_cli="_topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/bin/Release/net10.0/Trureturing.Topology.Cli.dll"
+          topology_runner="tools/Trureturing.Topology.Runner/bin/Release/net10.0/Trureturing.Topology.Runner.dll"
           topology="$RUNNER_TEMP/certified-topology.v1.json"
           metrics="$RUNNER_TEMP/topology-measurement.json"
           /usr/bin/time \
             -f '{"schema":"topology-measurement.v1","elapsed_seconds":%e,"max_rss_kib":%M}' \
             -o "$metrics" \
-            dotnet "$topology_cli" certified \
+            dotnet "$topology_runner" certified \
               '${{ steps.acquire.outputs.bundle }}/truth-graph.v1.json' \
               '${{ steps.acquire.outputs.release_digest }}' \
               config/algorithm-profile.v1.json \
@@ -182,11 +165,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          topology_cli="_topology/packages/trureturing-topology/src/Trureturing.Topology.Cli/bin/Release/net10.0/Trureturing.Topology.Cli.dll"
-          dotnet "$topology_cli" atlas \
+          topology_runner="tools/Trureturing.Topology.Runner/bin/Release/net10.0/Trureturing.Topology.Runner.dll"
+          dotnet "$topology_runner" atlas \
             '${{ steps.acquire.outputs.bundle }}/truth-graph.v1.json' \
             '${{ steps.acquire.outputs.release_digest }}' \
-            _site/data/certified-topology.v1.json \
             config/algorithm-profile.v1.json \
             config/topology-atlas-profile.v1.json \
             "$TOPOLOGY_PRODUCER_COMMIT" \
