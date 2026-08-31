@@ -41,7 +41,6 @@ jobs:
             node --check "$source"
           done
           node --check site/assets/dag.js
-          node --check site/assets/dag-knowledge-link.js
           node --check site/assets/knowledge-map.js
           node --check site/assets/research-context.js
           node --check site/assets/research-console.js
@@ -121,13 +120,36 @@ jobs:
             28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b \
             _site/data/certified-topology.v1.json
 
-      - name: Project the release-bound Pages atlas
+      - name: Project and conform the release-bound Pages atlas
         run: |
+          set -euo pipefail
           dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
             project-atlas \
             _site/data/truth-graph.v1.json \
             _site/data/certified-topology.v1.json \
             _site/data/pages-atlas-view.v1.json \
+            _site/data/pages-atlas-manifest.v1.json
+          cp _site/data/pages-atlas-manifest.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json"
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            conform-atlas \
+            _site/data/pages-atlas-view.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json" \
+            _site/data/pages-conformation.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
+            -
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            conform-atlas \
+            _site/data/pages-atlas-view.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json" \
+            "$RUNNER_TEMP/pages-conformation.second.json" \
+            "$RUNNER_TEMP/pages-atlas-manifest.second.json" \
+            -
+          cmp _site/data/pages-conformation.v1.json \
+            "$RUNNER_TEMP/pages-conformation.second.json"
+          cmp "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
+            "$RUNNER_TEMP/pages-atlas-manifest.second.json"
+          mv "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
             _site/data/pages-atlas-manifest.v1.json
           cp _site/data/pages-atlas-view.v1.json \
             _site/data/certified-topology-view.v1.json
@@ -144,19 +166,39 @@ jobs:
 
           root = Path("_site/data")
           graph_bytes = (root / "pages-atlas-view.v1.json").read_bytes()
+          conformation_bytes = (root / "pages-conformation.v1.json").read_bytes()
           graph = json.loads(graph_bytes)
           manifest = json.loads(
               (root / "pages-atlas-manifest.v1.json").read_text()
           )
+          conformation = json.loads(conformation_bytes)
           assert graph["schema_version"] == "pages-atlas-view.v1"
           assert manifest["schema_version"] == "pages-atlas-manifest.v1"
+          assert conformation["schema_version"] == "pages-conformation.v1"
           assert manifest["atlas_graph_digest"] == (
               "sha256:" + hashlib.sha256(graph_bytes).hexdigest()
           )
-          assert manifest["counts"]["certified_topology_nodes"] == 4
-          assert all(
-              "descendant_cost" in node
-              for node in graph["nodes"]
-              if node["kind"] == "truth"
+          assert manifest["conformation_digest"] == (
+              "sha256:" + hashlib.sha256(conformation_bytes).hexdigest()
           )
+          assert conformation["truth_release_digest"] == manifest["truth_release_digest"]
+          assert conformation["atlas_graph_digest"] == manifest["atlas_graph_digest"]
+          assert conformation["certified_topology_digest"] == manifest["certified_topology_digest"]
+          assert conformation["layout_profile"]["name"] == "pages-hierarchical-fixed-point-v1"
+          assert conformation["coordinate_encoding"] == {
+              "type": "signed-fixed-point",
+              "scale": 1000,
+          }
+          assert conformation["axes"] == {
+              "depth_axis": "y",
+              "depth_step": 180000,
+          }
+          assert len(conformation["nodes"]) == len(graph["nodes"])
+          coordinates = {node["node_id"]: node for node in conformation["nodes"]}
+          assert set(coordinates) == {node["id"] for node in graph["nodes"]}
+          for node in graph["nodes"]:
+              depth = node.get("true_depth", node.get("max_depth", node.get("depth", 0)))
+              assert coordinates[node["id"]]["aligned"]["y"] == depth * 180000
+          assert all(region["authority"] == "pages-derived-fallback"
+                     for region in conformation["regions"])
           PY
