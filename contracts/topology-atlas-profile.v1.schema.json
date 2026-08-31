@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "topology-atlas-profile.v1",
+  "title": "Trureturing topology atlas algorithm profile v1",
+  "description": "Content-addressed conventions for deterministic multiscale topology-atlas derivation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "top_k",
+    "affinity_weights",
+    "minimum_affinity",
+    "hub_min_total_degree",
+    "hub_min_descendant_count",
+    "cut_bridges_form_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "topology-atlas-profile.v1"
+    },
+    "top_k": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
+    },
+    "affinity_weights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "direct_dependency",
+        "shared_ancestor_jaccard",
+        "shared_descendant_jaccard",
+        "undirected_path_reciprocal",
+        "deepest_common_prerequisite_depth"
+      ],
+      "properties": {
+        "direct_dependency": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "shared_ancestor_jaccard": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "shared_descendant_jaccard": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "undirected_path_reciprocal": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "deepest_common_prerequisite_depth": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "minimum_affinity": {
+      "$ref": "#/$defs/reducedNonNegativeRational"
+    },
+    "hub_min_total_degree": {
+      "$ref": "#/$defs/nonNegativeInteger"
+    },
+    "hub_min_descendant_count": {
+      "$ref": "#/$defs/nonNegativeInteger"
+    },
+    "cut_bridges_form_boundaries": {
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reducedNonNegativeRational": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "numerator",
+        "denominator"
+      ],
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}
