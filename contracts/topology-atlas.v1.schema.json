@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "topology-atlas.v1",
+  "title": "Trureturing topology atlas v1",
+  "description": "Deterministic multiscale structural relations derived from one complete certified topology and its verified truth graph.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "truth_release_digest",
+    "certified_topology_digest",
+    "certified_algorithm_profile_digest",
+    "algorithm_profile_digest",
+    "producer_commit",
+    "clusters",
+    "node_structure",
+    "edge_structure",
+    "structural_affinities",
+    "hierarchy"
+  ],
+  "properties": {
+    "schema_version": { "const": "topology-atlas.v1" },
+    "truth_release_digest": { "$ref": "#/$defs/sha256Digest" },
+    "certified_topology_digest": { "$ref": "#/$defs/sha256Digest" },
+    "certified_algorithm_profile_digest": { "$ref": "#/$defs/sha256Digest" },
+    "algorithm_profile_digest": { "$ref": "#/$defs/sha256Digest" },
+    "producer_commit": { "$ref": "#/$defs/gitCommit" },
+    "clusters": { "type": "array", "items": { "$ref": "#/$defs/cluster" } },
+    "node_structure": { "type": "array", "items": { "$ref": "#/$defs/nodeStructure" } },
+    "edge_structure": { "type": "array", "items": { "$ref": "#/$defs/edgeStructure" } },
+    "structural_affinities": { "type": "array", "items": { "$ref": "#/$defs/structuralAffinity" } },
+    "hierarchy": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/hierarchyLevel" }
+    }
+  },
+  "$defs": {
+    "sha256Digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "gitCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "nodeId": { "type": "string", "minLength": 1 },
+    "clusterId": { "type": "string", "pattern": "^cluster:sha256:[0-9a-f]{64}$" },
+    "nonNegativeInteger": { "type": "integer", "minimum": 0 },
+    "positiveInteger": { "type": "integer", "minimum": 1 },
+    "reducedNonNegativeRational": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 0 },
+        "denominator": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "nodeIdArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nodeId" }
+    },
+    "clusterIdArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/clusterId" }
+    },
+    "cluster": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cluster_id", "parent_cluster_id", "level", "level_name",
+        "member_node_ids", "representative_node_ids", "boundary_node_ids",
+        "root_node_ids", "depth_min", "depth_max", "internal_edge_count",
+        "external_edge_count"
+      ],
+      "properties": {
+        "cluster_id": { "$ref": "#/$defs/clusterId" },
+        "parent_cluster_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/clusterId" },
+            { "type": "null" }
+          ]
+        },
+        "level": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "level_name": {
+          "enum": ["weak-component", "bridge-block", "affinity-community"]
+        },
+        "member_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodeIdArray" },
+            { "minItems": 1 }
+          ]
+        },
+        "representative_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodeIdArray" },
+            { "minItems": 1, "maxItems": 3 }
+          ]
+        },
+        "boundary_node_ids": { "$ref": "#/$defs/nodeIdArray" },
+        "root_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodeIdArray" },
+            { "minItems": 1 }
+          ]
+        },
+        "depth_min": { "$ref": "#/$defs/nonNegativeInteger" },
+        "depth_max": { "$ref": "#/$defs/nonNegativeInteger" },
+        "internal_edge_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "external_edge_count": { "$ref": "#/$defs/nonNegativeInteger" }
+      }
+    },
+    "nodeStructure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id", "component_id", "cluster_path", "articulation_status",
+        "dominator_coverage_count", "dominator_coverage", "boundary_score",
+        "k_core_level", "depth", "height", "structural_role"
+      ],
+      "properties": {
+        "node_id": { "$ref": "#/$defs/nodeId" },
+        "component_id": { "$ref": "#/$defs/clusterId" },
+        "cluster_path": {
+          "allOf": [
+            { "$ref": "#/$defs/clusterIdArray" },
+            { "minItems": 3, "maxItems": 3 }
+          ]
+        },
+        "articulation_status": { "enum": ["ordinary", "articulation-point"] },
+        "dominator_coverage_count": { "$ref": "#/$defs/positiveInteger" },
+        "dominator_coverage": { "$ref": "#/$defs/reducedNonNegativeRational" },
+        "boundary_score": { "$ref": "#/$defs/reducedNonNegativeRational" },
+        "k_core_level": { "$ref": "#/$defs/nonNegativeInteger" },
+        "depth": { "$ref": "#/$defs/nonNegativeInteger" },
+        "height": { "$ref": "#/$defs/nonNegativeInteger" },
+        "structural_role": {
+          "enum": [
+            "foundation", "hub", "bridge", "interface", "specialized-leaf",
+            "frontier-adjacent", "internal"
+          ]
+        }
+      }
+    },
+    "edgeStructure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dependency_id", "dependent_id", "edge_betweenness", "is_cut_bridge",
+        "cluster_relation", "source_cluster_id", "target_cluster_id",
+        "dependency_span"
+      ],
+      "properties": {
+        "dependency_id": { "$ref": "#/$defs/nodeId" },
+        "dependent_id": { "$ref": "#/$defs/nodeId" },
+        "edge_betweenness": { "$ref": "#/$defs/reducedNonNegativeRational" },
+        "is_cut_bridge": { "type": "boolean" },
+        "cluster_relation": { "enum": ["intra-cluster", "inter-cluster"] },
+        "source_cluster_id": { "$ref": "#/$defs/clusterId" },
+        "target_cluster_id": { "$ref": "#/$defs/clusterId" },
+        "dependency_span": { "$ref": "#/$defs/positiveInteger" }
+      }
+    },
+    "structuralAffinity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_node_id", "neighbor_node_id", "rank", "mutual_top_k",
+        "direct_dependency", "shared_ancestor_jaccard",
+        "shared_descendant_jaccard", "undirected_path_distance",
+        "deepest_common_prerequisite_depth", "combined_rank"
+      ],
+      "properties": {
+        "source_node_id": { "$ref": "#/$defs/nodeId" },
+        "neighbor_node_id": { "$ref": "#/$defs/nodeId" },
+        "rank": { "$ref": "#/$defs/positiveInteger" },
+        "mutual_top_k": { "type": "boolean" },
+        "direct_dependency": { "type": "boolean" },
+        "shared_ancestor_jaccard": { "$ref": "#/$defs/reducedNonNegativeRational" },
+        "shared_descendant_jaccard": { "$ref": "#/$defs/reducedNonNegativeRational" },
+        "undirected_path_distance": { "$ref": "#/$defs/positiveInteger" },
+        "deepest_common_prerequisite_depth": {
+          "oneOf": [
+            { "$ref": "#/$defs/nonNegativeInteger" },
+            { "type": "null" }
+          ]
+        },
+        "combined_rank": { "$ref": "#/$defs/reducedNonNegativeRational" }
+      }
+    },
+    "hierarchyLevel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "name", "cluster_ids"],
+      "properties": {
+        "level": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "name": { "enum": ["weak-component", "bridge-block", "affinity-community"] },
+        "cluster_ids": { "$ref": "#/$defs/clusterIdArray" }
+      }
+    }
+  }
+}
