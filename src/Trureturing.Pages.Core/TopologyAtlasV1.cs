@@ -337,7 +337,8 @@ internal static class PagesTopologyAtlasReader
                 path,
                 minimum: 3,
                 maximum: 3,
-                clusterIds: true);
+                clusterIds: true,
+                requireSorted: false);
             string articulation = PagesStrictJson.RequiredString(
                 value,
                 "articulation_status",
@@ -764,13 +765,19 @@ internal static class PagesTopologyAtlasReader
     {
         const string prefix = "cluster:sha256:";
         if (value.Length != prefix.Length + 64 ||
-            !value.StartsWith(prefix, StringComparison.Ordinal) ||
-            value.AsSpan(prefix.Length).Any(character =>
-                character is not (>= '0' and <= '9') and
-                not (>= 'a' and <= 'f')))
+            !value.StartsWith(prefix, StringComparison.Ordinal))
         {
             throw new InvalidDataException(
                 $"{path} must use cluster:sha256:<64 lowercase hex>.");
+        }
+        foreach (char character in value.AsSpan(prefix.Length))
+        {
+            if (character is not (>= '0' and <= '9') and
+                not (>= 'a' and <= 'f'))
+            {
+                throw new InvalidDataException(
+                    $"{path} must use cluster:sha256:<64 lowercase hex>.");
+            }
         }
     }
 
@@ -797,7 +804,8 @@ internal static class PagesTopologyAtlasReader
         string path,
         int minimum = 0,
         int? maximum = null,
-        bool clusterIds = false)
+        bool clusterIds = false,
+        bool requireSorted = true)
     {
         JsonElement values = PagesStrictJson.RequiredProperty(
             parent,
@@ -832,11 +840,14 @@ internal static class PagesTopologyAtlasReader
             throw new InvalidDataException(
                 $"{path}.{name} has an invalid item count.");
         }
-        string[] sorted = result.Order(StringComparer.Ordinal).ToArray();
-        if (!result.SequenceEqual(sorted))
+        if (requireSorted)
         {
-            throw new InvalidDataException(
-                $"{path}.{name} must use ordinal canonical ordering.");
+            string[] sorted = result.Order(StringComparer.Ordinal).ToArray();
+            if (!result.SequenceEqual(sorted))
+            {
+                throw new InvalidDataException(
+                    $"{path}.{name} must use ordinal canonical ordering.");
+            }
         }
         return result.ToArray();
     }
@@ -859,12 +870,17 @@ internal static class PagesTopologyAtlasReader
     private static bool RequiredBoolean(
         JsonElement parent,
         string name,
-        string path) =>
-        PagesStrictJson.RequiredProperty(
-            parent,
-            name,
-            JsonValueKind.True,
-            path).GetBoolean();
+        string path)
+    {
+        if (!parent.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind is not JsonValueKind.True and
+            not JsonValueKind.False)
+        {
+            throw new InvalidDataException(
+                $"{path}.{name} must be a boolean.");
+        }
+        return value.GetBoolean();
+    }
 
     private static long? OptionalNonNegativeInt64(
         JsonElement parent,
