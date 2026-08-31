@@ -38,6 +38,8 @@ jobs:
       - name: Check browser JavaScript
         run: |
           node --check site/assets/concept-lens.js
+          node --check site/assets/concept-lens-core.js
+          node --check site/assets/concept-lens-runtime.js
           node --check site/assets/dag.js
           node --check site/assets/dag-knowledge-link.js
           node --check site/assets/knowledge-map.js
@@ -93,6 +95,8 @@ jobs:
           assert (root / "knowledge/index.html").is_file()
           assert (root / "knowledge/index.v1.json").is_file()
           assert (root / "assets/concept-lens.js").is_file()
+          assert (root / "assets/concept-lens-core.js").is_file()
+          assert (root / "assets/concept-lens-runtime.js").is_file()
           assert (root / "assets/concept-lens.css").is_file()
           assert (root / "assets/research-context.js").is_file()
           assert (root / "assets/research-console.js").is_file()

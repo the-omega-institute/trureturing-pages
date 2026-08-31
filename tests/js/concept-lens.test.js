@@ -1,7 +1,7 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const Lens = require("../../site/assets/concept-lens.js");
+const Lens = require("../../site/assets/concept-lens-core.js");
 
 const graph = {
   source_snapshot: {
