@@ -35,7 +35,11 @@ class ResearchConsoleContractTests(unittest.TestCase):
             'id="research-retry"',
         ):
             self.assertIn(element_id, html)
-        self.assertIn('class="graph-research-layout"', html)
+        self.assertIn('class="research-console research-drawer"', html)
+        self.assertIn('id="research-backdrop"', html)
+        self.assertIn('aria-modal="true"', html)
+        self.assertRegex(html, r'id="research-console"[^>]+hidden')
+        self.assertNotIn('class="graph-research-layout"', html)
 
     def test_runtime_configuration_is_disabled_and_binds_base_skill(self):
         config = json.loads(self.read("site/data/research-agent.v1.json"))

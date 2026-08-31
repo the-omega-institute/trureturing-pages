@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Truth DAG &middot; trureturing</title>
+  <title>Mathematical Atlas &middot; trureturing</title>
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/knowledge.css">
   <link rel="stylesheet" href="assets/research-console.css">
   <link rel="stylesheet" href="assets/research-writeback.css">
+  <link rel="stylesheet" href="assets/concept-lens.css">
   <script defer src="https://unpkg.com/3d-force-graph@1.79.0/dist/3d-force-graph.min.js"></script>
+  <script defer src="assets/concept-lens.js"></script>
   <script defer src="assets/dag.js"></script>
-  <script defer src="assets/dag-knowledge-link.js"></script>
   <script defer src="assets/research-context.js"></script>
   <script defer src="assets/research-console.js"></script>
   <script defer src="assets/research-writeback.js"></script>
@@ -22,33 +23,33 @@
     <nav aria-label="Primary navigation">
       <ul>
         <li><a href="index.html">Overview</a></li>
-        <li><a href="dag.html" aria-current="page">DAG</a></li>
-        <li><a href="knowledge/index.html">Knowledge</a></li>
+        <li><a href="dag.html" aria-current="page">Atlas</a></li>
+        <li><a href="knowledge/index.html">Library</a></li>
         <li><a href="https://the-omega-institute.github.io/trureturing-mdbook/" target="_blank" rel="noopener">Theory &nearr;</a></li>
-        <li><a href="conclusions.html">Conclusions</a></li>
+        <li><a href="conclusions.html">History</a></li>
       </ul>
     </nav>
   </header>
 
   <main class="dag-main">
-    <section class="dag-heading" aria-labelledby="dag-title">
+    <section class="dag-heading atlas-heading" aria-labelledby="atlas-title">
       <div>
-        <p class="eyebrow">Kernel-verified dependency structure</p>
-        <h1 id="dag-title">Truth DAG</h1>
-        <p class="lede">Explore the frozen Lean tower in three dimensions. Each layer sits at its own height &mdash; foundation below, frontier above &mdash; and every edge points from a dependency to the theorem that rests on it. Select a node to read its interpretation, walk its dependencies, or discuss an idea with the release-bound formal research agent.</p>
+        <p class="eyebrow">Interactive mathematical structure</p>
+        <h1 id="atlas-title">Mathematical Atlas</h1>
+        <p class="lede">Select any concept to read its human explanation, inspect the exact ideas it is built from, follow what it enables, open the relevant theory documents, or begin release-bound research without leaving the graph.</p>
       </div>
-      <div class="dag-provenance-group" role="group" aria-label="Published graph provenance">
-        <dl class="dag-provenance">
-          <div><dt>Source</dt><dd id="source-commit">&hellip;</dd></div>
-          <div><dt>Blessed by</dt><dd id="blessed-by">&hellip;</dd></div>
+      <div class="dag-provenance-group" role="group" aria-label="Published Atlas summary">
+        <dl class="dag-provenance atlas-summary">
+          <div><dt>State</dt><dd id="release-status">Loading</dd></div>
+          <div><dt>Concepts</dt><dd id="concept-count">&ndash;</dd></div>
           <div><dt>Closed</dt><dd id="closed-count">&ndash;</dd></div>
           <div><dt>Open</dt><dd id="open-count">&ndash;</dd></div>
-          <div><dt>Edges</dt><dd id="edge-count">&ndash;</dd></div>
+          <div><dt>Dependencies</dt><dd id="edge-count">&ndash;</dd></div>
         </dl>
       </div>
     </section>
 
-    <section class="dag-workspace" aria-label="Interactive truth graph">
+    <section class="dag-workspace" aria-label="Interactive mathematical Atlas">
       <div class="graph-toolbar">
         <fieldset class="graph-segments">
           <legend class="sr-only">Filter by proof state</legend>
@@ -57,83 +58,52 @@
           <button type="button" data-state="Open" aria-pressed="false">Open</button>
         </fieldset>
 
-        <label class="graph-select">Layer
+        <label class="graph-select">Region
           <select id="layer-filter">
-            <option value="All">All layers</option>
+            <option value="All">All regions</option>
           </select>
         </label>
 
         <form id="node-search" class="graph-search" role="search">
-          <label for="node-query">Find node</label>
-          <input id="node-query" type="search" list="node-options" placeholder="id or Blueprint title" autocomplete="off">
+          <label for="node-query">Find concept</label>
+          <input id="node-query" type="search" list="node-options" placeholder="Concept, domain, or theorem" autocomplete="off">
           <datalist id="node-options"></datalist>
           <button type="submit">Focus</button>
         </form>
 
         <div class="graph-actions">
-          <a class="graph-knowledge-action" href="knowledge/index.html">Browse concepts</a>
-          <button id="fit-graph" type="button" title="Fit every visible node in the viewport">Fit view</button>
+          <a class="graph-knowledge-action" href="knowledge/index.html">Static library</a>
+          <button id="fit-graph" type="button" title="Fit every visible concept in the viewport">Fit view</button>
           <button id="toggle-motion" type="button" aria-pressed="false" title="Pause or resume graph motion">Pause</button>
         </div>
       </div>
 
-      <div class="graph-research-layout">
+      <div class="atlas-layout">
         <div class="graph-stage">
           <div id="graph" role="img" aria-describedby="graph-description graph-status"></div>
-          <p id="graph-description" class="sr-only">An interactive three-dimensional directed graph. Drag to rotate, scroll to zoom, and select a node to inspect its interpretation and dependencies.</p>
-          <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading the frozen truth DAG&hellip;</div>
+          <p id="graph-description" class="sr-only">An interactive three-dimensional mathematical graph. Drag to rotate, scroll to zoom, and select a node to open its Concept Lens. The Concept Lens contains an accessible local directed graph and equivalent relation lists.</p>
+          <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading the Mathematical Atlas&hellip;</div>
 
-          <div class="graph-legend" role="group" aria-label="Graph legend">
+          <div class="graph-legend" role="group" aria-label="Graph relation legend">
             <span><i class="legend-dot closed"></i>Closed</span>
             <span><i class="legend-dot open"></i>Open</span>
-            <span><i class="legend-line"></i>Dependency</span>
+            <span><i class="legend-line relation-certified"></i>Certified dependency</span>
+            <span><i class="legend-line relation-authored"></i>Authored link</span>
+            <span><i class="legend-line relation-advisory"></i>Advisory candidate</span>
           </div>
-
-          <aside id="node-detail" class="node-detail" aria-live="polite">
-            <p class="node-detail-empty">Select a node to reveal its interpretation and the dependencies it rests on.</p>
-          </aside>
         </div>
 
-        <section id="research-console" class="research-console" aria-labelledby="research-title">
-          <header class="research-console-header">
-            <div>
-              <p class="eyebrow">Release-bound agent</p>
-              <h2 id="research-title">Formal research</h2>
-            </div>
-            <span id="research-connection" class="research-connection" data-tone="waiting">Loading</span>
-          </header>
-
-          <div id="research-node-context" class="research-node-context">
-            <p class="research-context-empty">Select a theorem or concept in the graph. Its exact node and direct neighborhood will become the agent context.</p>
+        <aside id="node-detail" class="node-detail concept-lens" tabindex="-1" aria-live="polite" aria-label="Concept Lens">
+          <div class="concept-lens-empty">
+            <p class="eyebrow">Concept Lens</p>
+            <h2>Select a concept</h2>
+            <p>Click any node to read its human explanation, inspect certified prerequisites and consequences, open related documents, or begin release-bound research.</p>
+            <small>The global 3D Atlas provides structure. The local 2D view provides exact dependency direction.</small>
           </div>
-
-          <div id="research-transcript" class="research-transcript" aria-live="polite" aria-label="Research conversation"></div>
-          <ul id="research-activity" class="research-activity" aria-label="Agent activity" hidden></ul>
-          <div id="research-approval" class="research-approval" hidden></div>
-          <div id="research-formalize" class="research-formalize" hidden></div>
-
-          <form id="research-form" class="research-composer">
-            <label class="research-field" for="research-mode">
-              <span>Mode</span>
-              <select id="research-mode">
-                <option value="answer">Formalize internally, then answer</option>
-                <option value="prepare-formalization">Prepare an advisory formalization draft</option>
-              </select>
-            </label>
-            <label class="research-field" for="research-prompt">
-              <span>Your idea</span>
-              <textarea id="research-prompt" maxlength="8000" placeholder="For example: could these two constructions share a stronger invariant?" required></textarea>
-            </label>
-            <div class="research-actions">
-              <button id="research-send" class="research-primary" type="submit">Ask the agent</button>
-              <button id="research-retry" class="research-secondary" type="button" hidden>Retry same run</button>
-            </div>
-            <p id="research-form-status" class="research-form-status" data-tone="quiet">Loading the graph and agent configuration.</p>
-          </form>
-        </section>
+        </aside>
       </div>
 
-      <div role="group" aria-label="Tower layer order">
+      <div role="group" aria-label="Current proof-layer order">
         <ol class="layer-key">
           <li><span>S0</span>Foundation</li>
           <li><span>S1</span>Construction</li>
@@ -144,6 +114,48 @@
     </section>
   </main>
 
-  <footer class="site-footer">Real frozen-truth DAG projected from the blessed trureturing source snapshot.</footer>
+  <button id="research-backdrop" class="research-backdrop" type="button" aria-label="Close research workspace" hidden></button>
+  <section id="research-console" class="research-console research-drawer" role="dialog" aria-modal="true" aria-labelledby="research-title" tabindex="-1" hidden>
+    <header class="research-console-header">
+      <div>
+        <p class="eyebrow">Release-bound agent</p>
+        <h2 id="research-title">Formal research</h2>
+      </div>
+      <div class="research-header-actions">
+        <span id="research-connection" class="research-connection" data-tone="waiting">Loading</span>
+        <button id="research-close" class="research-console-close" type="button" aria-label="Close research workspace">Close</button>
+      </div>
+    </header>
+
+    <div id="research-node-context" class="research-node-context">
+      <p class="research-context-empty">Select a theorem or concept in the graph. Its exact node and direct neighborhood will become the agent context.</p>
+    </div>
+
+    <div id="research-transcript" class="research-transcript" aria-live="polite" aria-label="Research conversation"></div>
+    <ul id="research-activity" class="research-activity" aria-label="Agent activity" hidden></ul>
+    <div id="research-approval" class="research-approval" hidden></div>
+    <div id="research-formalize" class="research-formalize" hidden></div>
+
+    <form id="research-form" class="research-composer">
+      <label class="research-field" for="research-mode">
+        <span>Mode</span>
+        <select id="research-mode">
+          <option value="answer">Formalize internally, then answer</option>
+          <option value="prepare-formalization">Prepare an advisory formalization draft</option>
+        </select>
+      </label>
+      <label class="research-field" for="research-prompt">
+        <span>Your idea</span>
+        <textarea id="research-prompt" maxlength="8000" placeholder="For example: could these two constructions share a stronger invariant?" required></textarea>
+      </label>
+      <div class="research-actions">
+        <button id="research-send" class="research-primary" type="submit">Ask the agent</button>
+        <button id="research-retry" class="research-secondary" type="button" hidden>Retry same run</button>
+      </div>
+      <p id="research-form-status" class="research-form-status" data-tone="quiet">Loading the graph and agent configuration.</p>
+    </form>
+  </section>
+
+  <footer class="site-footer">Release-bound mathematical structure with a static Library fallback.</footer>
 </body>
 </html>
