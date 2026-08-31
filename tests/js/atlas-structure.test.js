@@ -106,3 +106,4 @@ assert.equal(summary.cutBridges, 1);
 assert.equal(summary.affinityEdges, 1);
 
 console.log("atlas-structure tests passed");
+require("./atlas-semantic-zoom.test.js");
