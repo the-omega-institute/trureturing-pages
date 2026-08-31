@@ -23,6 +23,7 @@ jobs:
           repository: the-omega-institute/trureturing-fkst-packages
           ref: ${{ env.TOPOLOGY_ATLAS_SOURCE_COMMIT }}
           path: _topology
+          token: ${{ secrets.NUGET_READ_TOKEN }}
           persist-credentials: false
 
       - uses: actions/setup-dotnet@v4
