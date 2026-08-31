@@ -13,6 +13,7 @@ internal static class PagesCli
                 "project" => Project(args),
                 "project-topology" => ProjectTopology(args),
                 "project-atlas" => ProjectAtlas(args),
+                "conform-atlas" => ConformAtlas(args),
                 "delta" => Delta(args),
                 _ => Usage()
             };
@@ -122,6 +123,38 @@ internal static class PagesCli
         return 0;
     }
 
+    private static int ConformAtlas(string[] args)
+    {
+        if (args.Length is < 5 or > 6)
+        {
+            return Usage();
+        }
+
+        byte[] graphBytes = File.ReadAllBytes(args[1]);
+        byte[] manifestBytes = File.ReadAllBytes(args[2]);
+        byte[] previousBytes = args.Length == 6 && args[5] != "-"
+            ? File.ReadAllBytes(args[5])
+            : [];
+        PagesConformationArtifacts artifacts = PagesConformation.Build(
+            graphBytes,
+            manifestBytes,
+            previousBytes);
+
+        WriteAtomic(
+            Path.GetFullPath(args[3]),
+            artifacts.ConformationBytes);
+        WriteAtomic(
+            Path.GetFullPath(args[4]),
+            artifacts.BoundManifestBytes);
+
+        Console.WriteLine(
+            $"conformed atlas {artifacts.Conformation.TruthReleaseDigest}: " +
+            $"{artifacts.Conformation.Nodes.Count} nodes, " +
+            $"{artifacts.Conformation.Regions.Count} fallback regions, " +
+            artifacts.ConformationDigest);
+        return 0;
+    }
+
     private static int Delta(string[] args)
     {
         if (args.Length != 4)
@@ -171,6 +204,9 @@ internal static class PagesCli
             "<output.json> [<topology-intuition-overlay.json>|-]\n" +
             "  Trureturing.Pages.Cli project-atlas <pages-truth-release-dag.json> " +
             "<certified-topology.json> <atlas-view.json> <atlas-manifest.json>\n" +
+            "  Trureturing.Pages.Cli conform-atlas <atlas-view.json> " +
+            "<atlas-manifest.json> <conformation.json> <bound-manifest.json> " +
+            "[<previous-conformation.json>|-]\n" +
             "  Trureturing.Pages.Cli delta <old-port.json> <new-port.json> <output.json>");
         return 2;
     }
