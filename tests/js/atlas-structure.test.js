@@ -51,6 +51,11 @@ const structure = Atlas.graphView(model, {
   selectedId: null
 });
 assert.deepEqual(structure.edges.map((edge) => `${edge.source}->${edge.target}`), ["B->C"]);
+assert.equal(
+  structure.edges.some((edge) => edge.authority === "derived"),
+  false,
+  "derived affinities stay hidden until an endpoint is selected"
+);
 
 const selectedStructure = Atlas.graphView(model, {
   mode: "structure",
@@ -60,7 +65,13 @@ const selectedStructure = Atlas.graphView(model, {
 });
 assert.deepEqual(
   selectedStructure.edges.map((edge) => `${edge.source}->${edge.target}`).sort(),
-  ["A->B", "A->C", "doc->A"].sort()
+  ["A->B", "A->C", "B->C", "doc->A"].sort()
+);
+assert.equal(
+  selectedStructure.edges.some((edge) =>
+    edge.source === "A" && edge.target === "C" && edge.authority === "derived"),
+  true,
+  "the selected structural affinity becomes visible without becoming certified"
 );
 
 const dependency = Atlas.graphView(model, {
