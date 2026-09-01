@@ -1,0 +1,36 @@
+name: topology-history-gate
+
+on:
+  pull_request:
+    paths:
+      - "site/assets/topology-history*.js"
+      - "site/assets/topology-history.css"
+      - "site/conclusions.html"
+      - "contracts/pages-topology-history.v1.schema.json"
+      - "lib/topology_history.py"
+      - "tests/js/topology-history.test.js"
+      - "tests/test_topology_history.py"
+      - ".github/workflows/pages.yml"
+      - ".github/workflows/topology-history.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check browser JavaScript
+        run: |
+          node --check site/assets/topology-history-core.js
+          node --check site/assets/topology-history.js
+      - name: Run stable identity history tests
+        run: |
+          node tests/js/topology-history.test.js
+          python -m unittest tests.test_topology_history
+      - name: Compile history builder
+        run: python -m compileall -q lib/topology_history.py tests/test_topology_history.py
