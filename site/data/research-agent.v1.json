@@ -4,7 +4,7 @@
   "cma_origin": "",
   "run_path": "/api/v1/agui/run",
   "environment_profile": "trureturing-research",
-  "profile_revision": "research-v3-structural-observation-disabled",
+  "profile_revision": "research-v2-writeback-disabled",
   "auth": {
     "mode": "bearer-provider",
     "provider": "trureturingResearchCredential"
