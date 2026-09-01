@@ -37,7 +37,7 @@
     if (pattern && result.some((value) => !pattern.test(value))) {
       throw new TypeError(`${name} contains an invalid identity`);
     }
-    result.sort((left, right) => left.localeCompare(right, "en", { sensitivity: "variant" }));
+    result.sort((left, right) => left < right ? -1 : left > right ? 1 : 0);
     for (let index = 1; index < result.length; index += 1) {
       if (result[index - 1] === result[index]) {
         throw new TypeError(`${name} contains a duplicate identity`);
@@ -56,8 +56,8 @@
       }
       return { dependency_id: dependency, dependent_id: dependent };
     }).sort((left, right) =>
-      left.dependency_id.localeCompare(right.dependency_id, "en", { sensitivity: "variant" })
-      || left.dependent_id.localeCompare(right.dependent_id, "en", { sensitivity: "variant" }));
+      (left.dependency_id < right.dependency_id ? -1 : left.dependency_id > right.dependency_id ? 1 : 0)
+      || (left.dependent_id < right.dependent_id ? -1 : left.dependent_id > right.dependent_id ? 1 : 0));
     for (let index = 1; index < result.length; index += 1) {
       const previous = result[index - 1];
       const current = result[index];
