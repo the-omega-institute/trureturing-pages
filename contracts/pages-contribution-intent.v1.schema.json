@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-contribution-intent.v1",
+  "title": "Pages contribution routing intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "intent_id", "intent_content"],
+  "properties": {
+    "schema": { "const": "pages-contribution-intent.v1" },
+    "intent_id": { "$ref": "#/$defs/digest" },
+    "intent_content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "admission_ref",
+        "research_context_ref",
+        "truth_release_digest",
+        "route",
+        "actor",
+        "attribution",
+        "confirmation",
+        "created_at"
+      ],
+      "properties": {
+        "admission_ref": { "$ref": "#/$defs/digest" },
+        "research_context_ref": { "$ref": "#/$defs/digest" },
+        "truth_release_digest": { "$ref": "#/$defs/digest" },
+        "route": { "enum": ["github-user-pr", "anonymous-system-pr"] },
+        "actor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "subject_ref",
+            "github_connection_ref",
+            "github_login",
+            "anonymous_session_ref"
+          ],
+          "properties": {
+            "subject_ref": { "$ref": "#/$defs/digest" },
+            "github_connection_ref": { "$ref": "#/$defs/nullableDigest" },
+            "github_login": {
+              "oneOf": [
+                { "type": "string", "pattern": "^[A-Za-z0-9-]{1,39}$" },
+                { "type": "null" }
+              ]
+            },
+            "anonymous_session_ref": { "$ref": "#/$defs/nullableDigest" }
+          }
+        },
+        "attribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["commit_author_mode", "pull_request_owner_mode", "public_credit_mode"],
+          "properties": {
+            "commit_author_mode": { "enum": ["connected-github-user", "system-service"] },
+            "pull_request_owner_mode": { "enum": ["connected-github-user", "system-service"] },
+            "public_credit_mode": { "enum": ["github-user", "anonymous-research-id"] }
+          }
+        },
+        "confirmation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["explicit", "statement", "confirmed_at"],
+          "properties": {
+            "explicit": { "const": true },
+            "statement": {
+              "enum": [
+                "I approve creation of one contributor-owned pull request after I review the generated diff.",
+                "I approve one system-owned formalization attempt and pull request under an anonymous research identifier."
+              ]
+            },
+            "confirmed_at": { "type": "string", "format": "date-time" }
+          }
+        },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "nullableDigest": {
+      "oneOf": [
+        { "$ref": "#/$defs/digest" },
+        { "type": "null" }
+      ]
+    }
+  }
+}
