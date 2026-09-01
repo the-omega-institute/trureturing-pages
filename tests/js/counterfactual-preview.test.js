@@ -21,19 +21,19 @@ const payload = {
       operation: "add-edge",
       node_id: null,
       stable_node_id: null,
-      dependency_id: "A",
-      dependent_id: "X",
-      stable_dependency_id: "gid:A",
-      stable_dependent_id: "candidate:X"
+      dependency_id: "X",
+      dependent_id: "B",
+      stable_dependency_id: "candidate:X",
+      stable_dependent_id: "gid:B"
     },
     {
       operation: "add-edge",
       node_id: null,
       stable_node_id: null,
-      dependency_id: "X",
-      dependent_id: "B",
-      stable_dependency_id: "candidate:X",
-      stable_dependent_id: "gid:B"
+      dependency_id: "A",
+      dependent_id: "X",
+      stable_dependency_id: "gid:A",
+      stable_dependent_id: "candidate:X"
     },
     {
       operation: "add-node",
