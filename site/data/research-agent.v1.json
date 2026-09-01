@@ -4,12 +4,14 @@
   "cma_origin": "",
   "run_path": "/api/v1/agui/run",
   "environment_profile": "trureturing-research",
-  "profile_revision": "research-v2-writeback-disabled",
+  "profile_revision": "research-v3-structural-observation-disabled",
   "auth": {
     "mode": "bearer-provider",
     "provider": "trureturingResearchCredential"
   },
   "human_actor_provider": "trureturingResearchActor",
+  "topology_atlas_input_receipt_ref": null,
+  "topology_atlas_input_receipt_provider": "trureturingTopologyAtlasInputReceipt",
   "evidence_checkout": {
     "repository": "the-omega-institute/trureturing",
     "ref_binding": "release.source_commit",
@@ -33,6 +35,12 @@
       "path": "contracts/human-intuition-candidate.v1.schema.json",
       "git_blob_sha": "ea9fa69eaa328b3e3f49b0e9bc55f8d7801ea002"
     },
+    "human_structure_observation": {
+      "repository": "the-omega-institute/trureturing-intuition",
+      "ref": "5df43cb710255b0ba52e82b89312605e9f13fa0e",
+      "path": "contracts/human-structure-observation.v1.schema.json",
+      "git_blob_sha": "8c9741ee6c0ff282d4c98f895cc660308887016d"
+    },
     "formalization_request": {
       "repository": "the-omega-institute/trureturing-formalize",
       "ref": "8ed943f3e4140c597b563a90be8972528feec0bf",
@@ -41,5 +49,6 @@
     }
   },
   "intuition_submit_enabled": false,
-  "formalize_submit_enabled": false
+  "formalize_submit_enabled": false,
+  "structure_observation_submit_enabled": false
 }
