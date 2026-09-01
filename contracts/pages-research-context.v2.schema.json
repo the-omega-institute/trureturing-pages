@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-research-context.v2",
+  "title": "Release-bound bounded structural context for research requests",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "context_id", "context_content"],
+  "properties": {
+    "schema": { "const": "pages-research-context.v2" },
+    "context_id": { "$ref": "#/$defs/digest" },
+    "context_content": { "$ref": "#/$defs/content" }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "node": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "nodes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "cluster": {
+      "type": "string",
+      "pattern": "^cluster:sha256:[0-9a-f]{64}$"
+    },
+    "clusters": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/cluster" }
+    },
+    "certifiedEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dependency_id",
+        "dependent_id",
+        "is_cut_bridge",
+        "cluster_relation"
+      ],
+      "properties": {
+        "dependency_id": { "$ref": "#/$defs/node" },
+        "dependent_id": { "$ref": "#/$defs/node" },
+        "is_cut_bridge": { "type": "boolean" },
+        "cluster_relation": {
+          "oneOf": [
+            { "enum": ["intra-cluster", "inter-cluster"] },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selected_node_ids",
+        "selected_stable_node_ids",
+        "selected_cluster_ids",
+        "selected_certified_edges",
+        "selected_path_ref"
+      ],
+      "properties": {
+        "selected_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodes" },
+            { "maxItems": 16 }
+          ]
+        },
+        "selected_stable_node_ids": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "$ref": "#/$defs/node" }
+        },
+        "selected_cluster_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/clusters" },
+            { "maxItems": 8 }
+          ]
+        },
+        "selected_certified_edges": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/certifiedEdge" }
+        },
+        "selected_path_ref": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "neighborhood": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hop_limit",
+        "shared_prerequisite_node_ids",
+        "shared_consequence_node_ids"
+      ],
+      "properties": {
+        "hop_limit": { "const": 3 },
+        "shared_prerequisite_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodes" },
+            { "maxItems": 64 }
+          ]
+        },
+        "shared_consequence_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodes" },
+            { "maxItems": 64 }
+          ]
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_cluster_id",
+        "target_cluster_id",
+        "dependency_id",
+        "dependent_id",
+        "is_cut_bridge"
+      ],
+      "properties": {
+        "source_cluster_id": { "$ref": "#/$defs/cluster" },
+        "target_cluster_id": { "$ref": "#/$defs/cluster" },
+        "dependency_id": { "$ref": "#/$defs/node" },
+        "dependent_id": { "$ref": "#/$defs/node" },
+        "is_cut_bridge": { "type": "boolean" }
+      }
+    },
+    "affinityWitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_node_id",
+        "neighbor_node_id",
+        "shared_prerequisite_node_ids",
+        "shared_consequence_node_ids",
+        "deepest_common_prerequisite_node_ids"
+      ],
+      "properties": {
+        "source_node_id": { "$ref": "#/$defs/node" },
+        "neighbor_node_id": { "$ref": "#/$defs/node" },
+        "shared_prerequisite_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodes" },
+            { "maxItems": 16 }
+          ]
+        },
+        "shared_consequence_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodes" },
+            { "maxItems": 16 }
+          ]
+        },
+        "deepest_common_prerequisite_node_ids": {
+          "allOf": [
+            { "$ref": "#/$defs/nodes" },
+            { "maxItems": 16 }
+          ]
+        }
+      }
+    },
+    "preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_ref",
+        "valuation_ref",
+        "counterfactual_ref",
+        "classification",
+        "accepted",
+        "cycle_risk",
+        "authority"
+      ],
+      "properties": {
+        "candidate_ref": { "$ref": "#/$defs/digest" },
+        "valuation_ref": { "$ref": "#/$defs/digest" },
+        "counterfactual_ref": { "$ref": "#/$defs/digest" },
+        "classification": { "type": "string", "minLength": 1 },
+        "accepted": { "type": "boolean" },
+        "cycle_risk": { "type": "boolean" },
+        "authority": { "const": "advisory" }
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selectedNodes",
+        "selectedClusters",
+        "selectedEdges",
+        "neighborhood",
+        "interfaces",
+        "affinities",
+        "witnessNodes",
+        "hops"
+      ],
+      "properties": {
+        "selectedNodes": { "const": 16 },
+        "selectedClusters": { "const": 8 },
+        "selectedEdges": { "const": 64 },
+        "neighborhood": { "const": 64 },
+        "interfaces": { "const": 64 },
+        "affinities": { "const": 32 },
+        "witnessNodes": { "const": 16 },
+        "hops": { "const": 3 }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "certified_dependency",
+        "topology_structure",
+        "affinity_witness",
+        "counterfactual_preview",
+        "pages_coordinates_included",
+        "local_exploration_offsets_included"
+      ],
+      "properties": {
+        "certified_dependency": { "const": "truth" },
+        "topology_structure": { "const": "deterministic-derived" },
+        "affinity_witness": { "const": "deterministic-derived" },
+        "counterfactual_preview": { "const": "advisory" },
+        "pages_coordinates_included": { "const": false },
+        "local_exploration_offsets_included": { "const": false }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "truth_release_digest",
+        "certified_topology_digest",
+        "topology_atlas_digest",
+        "pages_conformation_digest",
+        "topology_atlas_evidence_digest",
+        "selection",
+        "certified_neighborhood",
+        "cluster_interfaces",
+        "affinity_witnesses",
+        "counterfactual_preview",
+        "evidence_status",
+        "bounds",
+        "authority"
+      ],
+      "properties": {
+        "truth_release_digest": { "$ref": "#/$defs/digest" },
+        "certified_topology_digest": { "$ref": "#/$defs/digest" },
+        "topology_atlas_digest": { "$ref": "#/$defs/digest" },
+        "pages_conformation_digest": { "$ref": "#/$defs/digest" },
+        "topology_atlas_evidence_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        },
+        "selection": { "$ref": "#/$defs/selection" },
+        "certified_neighborhood": { "$ref": "#/$defs/neighborhood" },
+        "cluster_interfaces": {
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/interface" }
+        },
+        "affinity_witnesses": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "$ref": "#/$defs/affinityWitness" }
+        },
+        "counterfactual_preview": {
+          "oneOf": [
+            { "$ref": "#/$defs/preview" },
+            { "type": "null" }
+          ]
+        },
+        "evidence_status": {
+          "enum": [
+            "topology-atlas-evidence-bound",
+            "topology-atlas-evidence-unavailable"
+          ]
+        },
+        "bounds": { "$ref": "#/$defs/bounds" },
+        "authority": { "$ref": "#/$defs/authority" }
+      }
+    }
+  }
+}
