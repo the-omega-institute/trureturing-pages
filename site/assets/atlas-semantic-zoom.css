@@ -1,3 +1,5 @@
+@import url("atlas-exploration.css");
+
 .atlas-context-bar {
   display: flex;
   align-items: center;
