@@ -1,0 +1,140 @@
+name: finalize-topology-history
+
+on:
+  push:
+    branches:
+      - feat/topology-atlas-history
+    paths:
+      - .github/workflows/finalize-topology-history.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/topology-atlas-history
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Wire History, publish optional manifests, and validate the Pages stack
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin feat/topology-atlas-history
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path("site/conclusions.html")
+          text = page.read_text(encoding="utf-8")
+          style = '  <link rel="stylesheet" href="assets/topology-history.css">\n'
+          if "assets/topology-history.css" not in text:
+              text = text.replace("</head>", style + "</head>", 1)
+          scripts = (
+              '  <script defer src="assets/topology-history-core.js"></script>\n'
+              '  <script defer src="assets/topology-history.js"></script>\n'
+          )
+          if "assets/topology-history-core.js" not in text:
+              text = text.replace("</body>", scripts + "</body>", 1)
+          page.write_text(text, encoding="utf-8")
+
+          styles = Path("site/assets/topology-history.css")
+          css = styles.read_text(encoding="utf-8")
+          css = css.replace("border: 1px solid #9cab a2;\n", "")
+          styles.write_text(css, encoding="utf-8")
+
+          core = Path("site/assets/topology-history-core.js")
+          js = core.read_text(encoding="utf-8")
+          old = '''    const numerator = count(item.numerator, `${name}.numerator`);
+    const denominator = count(item.denominator, `${name}.denominator`);
+    if (denominator === 0) throw new TypeError(`${name}.denominator must be positive`);
+    return { numerator, denominator };'''
+          new = '''    const numerator = count(item.numerator, `${name}.numerator`);
+    const denominator = count(item.denominator, `${name}.denominator`);
+    if (denominator === 0) throw new TypeError(`${name}.denominator must be positive`);
+    const gcd = (left, right) => {
+      let a = left;
+      let b = right;
+      while (b) [a, b] = [b, a % b];
+      return a;
+    };
+    if (numerator > denominator || gcd(numerator, denominator) !== 1) {
+      throw new TypeError(`${name} must be a reduced rational in [0,1]`);
+    }
+    return { numerator, denominator };'''
+          js = js.replace(old, new)
+          core.write_text(js, encoding="utf-8")
+
+          workflow = Path(".github/workflows/pages.yml")
+          if workflow.exists():
+              value = workflow.read_text(encoding="utf-8")
+              anchor = "      - name: Finalize the release-bound Pages deployment\n"
+              if anchor not in value:
+                  raise SystemExit("Pages deployment finalization anchor is missing")
+              step = '''      - name: Publish Topology Atlas history when exact delta artifacts are present
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t deltas < <(find _site/data -maxdepth 1 -type f -name 'topology-atlas-delta*.json' -print | sort)
+          if [[ "${#deltas[@]}" -eq 0 ]]; then
+            printf '%s\n' 'No exact Topology Atlas delta is present; history remains explicitly unavailable.'
+          else
+            args=()
+            for delta in "${deltas[@]}"; do args+=(--delta "$delta"); done
+            python -m lib.topology_history \
+              --current-atlas-manifest _site/data/pages-atlas-manifest.v1.json \
+              "${args[@]}" \
+              --output _site/data/pages-topology-history.v1.json
+          fi
+
+'''
+              if "Publish Topology Atlas history when exact delta artifacts are present" not in value:
+                  value = value.replace(anchor, step + anchor, 1)
+              workflow.write_text(value, encoding="utf-8")
+          PY
+          node --check site/assets/topology-history-core.js
+          node --check site/assets/topology-history.js
+          node tests/js/topology-history.test.js
+          python -m unittest tests.test_topology_history
+          for test in \
+            tests/js/structure-observation.test.js \
+            tests/js/counterfactual-preview.test.js \
+            tests/js/research-context-v2.test.js; do
+            [[ ! -f "$test" ]] || node "$test"
+          done
+          for module in \
+            tests.test_structure_observation \
+            tests.test_counterfactual_preview \
+            tests.test_research_context_v2; do
+            file="${module//.//}.py"
+            [[ ! -f "$file" ]] || python -m unittest "$module"
+          done
+          python -m compileall -q lib/topology_history.py tests/test_topology_history.py
+          rm -f \
+            .github/workflows/bootstrap-structure-observation.yml \
+            .github/workflows/open-save-observation-pr.yml \
+            .github/workflows/finalize-save-observation.yml \
+            .github/workflows/finalize-counterfactual-preview.yml \
+            .github/workflows/finalize-research-context-v2.yml \
+            .github/workflows/finalize-topology-history.yml
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(pages): finalize stable topology atlas history"
+          fi
+          for attempt in 1 2 3; do
+            if git push origin HEAD:feat/topology-atlas-history; then break; fi
+            git pull --rebase origin feat/topology-atlas-history
+            if [[ "$attempt" == 3 ]]; then exit 1; fi
+          done
+          pr="$(gh pr list --head feat/topology-atlas-history --state open --json number --jq '.[0].number // empty')"
+          if [[ -n "$pr" ]]; then
+            gh pr comment "$pr" --body "Current-head validation passed for stable node and edge transitions, cluster lineage, frontier movement, content-addressed history manifests, optional deployment publication, and the inherited observation, preview, and structural research-context stack."
+          fi
