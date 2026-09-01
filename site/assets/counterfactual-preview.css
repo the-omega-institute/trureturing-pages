@@ -1,0 +1,193 @@
+.counterfactual-preview-overlay {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.counterfactual-edge,
+.counterfactual-path-change,
+.counterfactual-interface {
+  vector-effect: non-scaling-stroke;
+  fill: none;
+  pointer-events: none;
+}
+
+.counterfactual-edge {
+  stroke-width: 2.2;
+  stroke-dasharray: 7 5;
+}
+
+.counterfactual-add-edge {
+  stroke: rgba(189, 144, 246, 0.92);
+}
+
+.counterfactual-remove-edge {
+  stroke: rgba(236, 121, 105, 0.92);
+  stroke-dasharray: 3 4;
+}
+
+.counterfactual-path-change {
+  stroke: rgba(111, 203, 226, 0.78);
+  stroke-width: 5;
+  stroke-dasharray: 2 7;
+}
+
+.counterfactual-interface {
+  stroke-width: 13;
+  stroke-linecap: round;
+  stroke-dasharray: 1 12;
+  opacity: 0.28;
+}
+
+.counterfactual-interface.counterfactual-added {
+  stroke: rgba(112, 217, 170, 0.92);
+}
+
+.counterfactual-interface.counterfactual-removed {
+  stroke: rgba(229, 120, 103, 0.92);
+}
+
+.counterfactual-ghost-node {
+  fill: rgba(196, 153, 247, 0.32);
+  stroke: rgba(221, 190, 255, 0.98);
+  stroke-width: 2;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.counterfactual-ghost-label,
+.counterfactual-path-label,
+.counterfactual-remove-label {
+  paint-order: stroke;
+  stroke: rgba(5, 13, 11, 0.94);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  fill: #f2e8ff;
+  font: 700 11px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.counterfactual-path-label {
+  fill: #cbeef5;
+}
+
+.counterfactual-remove-label {
+  fill: #ffb8ad;
+  font-size: 18px;
+}
+
+.counterfactual-preview-panel {
+  position: absolute;
+  z-index: 7;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: min(22rem, calc(100% - 1.6rem));
+  padding: 0.8rem;
+  border: 1px solid rgba(194, 161, 230, 0.66);
+  border-radius: 0.65rem;
+  background: rgba(8, 18, 15, 0.94);
+  box-shadow: 0 0.7rem 2.2rem rgba(0, 0, 0, 0.25);
+  color: #edf5f1;
+  backdrop-filter: blur(8px);
+}
+
+.counterfactual-preview-panel[hidden] {
+  display: none;
+}
+
+.counterfactual-preview-panel header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(213, 226, 219, 0.16);
+}
+
+.counterfactual-preview-panel h2 {
+  margin: 0.12rem 0 0;
+  font-size: 1rem;
+}
+
+.counterfactual-preview-panel button {
+  min-height: 1.9rem;
+  padding: 0.32rem 0.55rem;
+  border: 1px solid rgba(222, 204, 240, 0.48);
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1e8fa;
+  font: inherit;
+  font-size: 0.67rem;
+  cursor: pointer;
+}
+
+.counterfactual-preview-panel button:hover,
+.counterfactual-preview-panel button:focus-visible {
+  background: rgba(222, 204, 240, 0.15);
+  outline: 2px solid rgba(222, 204, 240, 0.23);
+  outline-offset: 2px;
+}
+
+.counterfactual-preview-classification {
+  margin: 0.7rem 0;
+  color: #dfc7f5;
+  font-size: 0.75rem;
+  font-weight: 720;
+  text-transform: capitalize;
+}
+
+.counterfactual-preview-panel[data-classification="rejected-cycle"] {
+  border-color: rgba(240, 122, 105, 0.78);
+}
+
+.counterfactual-preview-panel[data-classification="rejected-cycle"]
+.counterfactual-preview-classification {
+  color: #ffb6aa;
+}
+
+.counterfactual-preview-summary {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) auto;
+  gap: 0.3rem 0.7rem;
+  margin: 0;
+  font-size: 0.68rem;
+}
+
+.counterfactual-preview-summary dt {
+  color: #aebeb6;
+}
+
+.counterfactual-preview-summary dd {
+  margin: 0;
+  color: #f3f7f5;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.counterfactual-preview-boundary {
+  margin: 0.72rem 0 0;
+  padding-top: 0.62rem;
+  border-top: 1px solid rgba(213, 226, 219, 0.16);
+  color: #9caaa3;
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 48rem) {
+  .counterfactual-preview-panel {
+    top: auto;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    width: calc(100% - 1rem);
+    box-sizing: border-box;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .counterfactual-preview-panel {
+    backdrop-filter: none;
+  }
+}
