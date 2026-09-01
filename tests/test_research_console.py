@@ -15,14 +15,16 @@ class ResearchConsoleContractTests(unittest.TestCase):
         expected = [
             'assets/research-console.css',
             'assets/research-context.js',
+            'assets/research-context-v2-core.js',
+            'assets/research-context-v2.js',
+            'assets/cma-research-routing-core.js',
+            'assets/cma-research-routing.js',
             'assets/research-console.js',
         ]
         for asset in expected:
             self.assertIn(asset, html)
-        self.assertLess(
-            html.index('assets/research-context.js'),
-            html.index('assets/research-console.js'),
-        )
+        for left, right in zip(expected[1:], expected[2:]):
+            self.assertLess(html.index(left), html.index(right))
         for element_id in (
             'id="research-console"',
             'id="research-node-context"',
@@ -41,12 +43,20 @@ class ResearchConsoleContractTests(unittest.TestCase):
         self.assertRegex(html, r'id="research-console"[^>]+hidden')
         self.assertNotIn('class="graph-research-layout"', html)
 
-    def test_runtime_configuration_is_disabled_and_binds_base_skill(self):
+    def test_runtime_configuration_is_fail_closed_and_binds_cma(self):
         config = json.loads(self.read("site/data/research-agent.v1.json"))
         self.assertEqual(config["schema"], "pages-research-agent.v1")
         self.assertIs(config["enabled"], False)
-        self.assertEqual(config["cma_origin"], "")
+        self.assertEqual(config["cma_origin"], "https://bot.chrono-ai.fun")
         self.assertEqual(config["run_path"], "/api/v1/agui/run")
+        self.assertEqual(
+            config["capabilities_path"],
+            "/api/v1/agui/capabilities",
+        )
+        self.assertEqual(
+            config["research_endpoint"],
+            "https://bot.chrono-ai.fun/api/v1/agui/run",
+        )
         self.assertEqual(config["environment_profile"], "trureturing-research")
         self.assertEqual(
             config["auth"],
@@ -57,7 +67,7 @@ class ResearchConsoleContractTests(unittest.TestCase):
         )
         self.assertEqual(
             config["profile_revision"],
-            "research-v2-writeback-disabled",
+            "research-v3-admission-routing",
         )
         self.assertEqual(
             config["evidence_checkout"],
@@ -81,6 +91,7 @@ class ResearchConsoleContractTests(unittest.TestCase):
         )
         self.assertIs(config["intuition_submit_enabled"], False)
         self.assertIs(config["formalize_submit_enabled"], False)
+        self.assertIs(config["structure_observation_submit_enabled"], False)
 
     def test_contracts_are_strict_and_cover_context_and_configuration(self):
         context = json.loads(
@@ -118,17 +129,28 @@ class ResearchConsoleContractTests(unittest.TestCase):
             "release.source_commit",
         )
         self.assertEqual(
-            agent["properties"]["run_path"]["pattern"],
-            "^/api/v1/agui/run$",
+            agent["properties"]["run_path"]["const"],
+            "/api/v1/agui/run",
+        )
+        self.assertEqual(
+            agent["properties"]["research_context_schema"]["const"],
+            "pages-research-context.v2",
+        )
+        self.assertEqual(
+            agent["properties"]["admission"]["properties"]["requested_mode"]["const"],
+            "formalization-admission",
         )
 
     def test_browser_transport_keeps_credentials_ephemeral_and_uses_explicit_ids(self):
         source = self.read("site/assets/research-console.js")
+        routing = self.read("site/assets/cma-research-routing.js")
         self.assertIn("const token = await provider();", source)
         self.assertIn("headers.Authorization = `Bearer ${token.trim()}`;", source)
         self.assertNotIn("localStorage.setItem(\"token", source)
-        self.assertNotIn("sessionStorage.setItem", source)
         self.assertNotIn("document.cookie", source)
+        self.assertNotIn("access_token", routing)
+        self.assertNotIn("refresh_token", routing)
+        self.assertNotIn("client_secret", routing)
         self.assertIn("runId: Context.opaqueId(\"run\")", source)
         self.assertIn("environmentProfile: config.environment_profile", source)
         self.assertIn("config.profile_revision", source)
@@ -141,6 +163,7 @@ class ResearchConsoleContractTests(unittest.TestCase):
 
     def test_context_builder_sends_a_bounded_neighborhood_and_marks_data_untrusted(self):
         source = self.read("site/assets/research-context.js")
+        routing = self.read("site/assets/cma-research-routing.js")
         self.assertIn("prerequisiteIds", source)
         self.assertIn("dependentIds", source)
         self.assertNotIn("full_graph", source)
@@ -150,6 +173,8 @@ class ResearchConsoleContractTests(unittest.TestCase):
         )
         self.assertIn("Keep the internal assertion register and hidden reasoning private.", source)
         self.assertIn("Do not mutate the repository", source)
+        self.assertIn("local formalization-admission capability", routing)
+        self.assertIn("Do not infer or manufacture an admission", routing)
 
     def test_handoff_document_names_the_deployment_owner_actions(self):
         document = self.read("docs/RESEARCH_CONSOLE.md")
