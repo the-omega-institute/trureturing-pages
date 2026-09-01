@@ -66,7 +66,7 @@
       clusterIds,
       edges: Observation.selectedCertifiedEdges(state.graph, nodeIds),
       pathRef: null,
-      gesture: clusterId && !selected ? "cluster-peel" : "selection",
+      gesture: "selection",
       sourceNodeIds: nodeIds,
       targetNodeIds: [],
       sourceClusterIds: clusterIds,
@@ -328,9 +328,18 @@
     window.addEventListener("trureturing:atlas-comparison-changed", refreshSelection);
     window.addEventListener("trureturing:certified-path-selected", (event) => {
       const detailValue = event.detail || {};
+      const snapshot = exactSelection();
+      state.selectedNodeIds = snapshot.nodeIds;
+      state.selectedClusterIds = snapshot.clusterIds;
+      state.selectedEdges = snapshot.edges;
       state.selectedPathRef = detailValue.path_ref || null;
       state.gesture = "path-inspection";
-      refreshSelection();
+      state.sourceNodeIds = snapshot.sourceNodeIds;
+      state.targetNodeIds = snapshot.targetNodeIds;
+      state.sourceClusterIds = snapshot.sourceClusterIds;
+      state.targetClusterIds = snapshot.targetClusterIds;
+      updateButton();
+      updatePreview();
     });
   }
 
