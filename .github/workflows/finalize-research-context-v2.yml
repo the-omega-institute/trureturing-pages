@@ -1,0 +1,118 @@
+name: finalize-research-context-v2
+
+on:
+  push:
+    branches:
+      - feat/research-context-v2
+    paths:
+      - .github/workflows/finalize-research-context-v2.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/research-context-v2
+          fetch-depth: 0
+      - name: Wire the full Pages stack and validate structural context
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin feat/research-context-v2
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path("site/dag.html")
+          text = page.read_text(encoding="utf-8")
+          css_anchor = '  <link rel="stylesheet" href="assets/atlas-structure.css">\n'
+          if css_anchor not in text:
+              raise SystemExit("Atlas stylesheet anchor is missing")
+          styles = [
+              '  <link rel="stylesheet" href="assets/structure-observation.css">\n',
+              '  <link rel="stylesheet" href="assets/counterfactual-preview.css">\n',
+              '  <link rel="stylesheet" href="assets/research-context-v2.css">\n',
+          ]
+          addition = "".join(item for item in styles if item.strip() not in text)
+          if addition:
+              text = text.replace(css_anchor, css_anchor + addition, 1)
+
+          dag = '  <script defer src="assets/dag.js"></script>\n'
+          if dag not in text:
+              raise SystemExit("Atlas runtime anchor is missing")
+          before_dag = [
+              '  <script defer src="assets/counterfactual-preview-core.js"></script>\n',
+              '  <script defer src="assets/counterfactual-preview-runtime.js"></script>\n',
+          ]
+          addition = "".join(item for item in before_dag if item.strip() not in text)
+          if addition:
+              text = text.replace(dag, addition + dag, 1)
+          after_dag = [
+              '  <script defer src="assets/structure-observation-core.js"></script>\n',
+              '  <script defer src="assets/structure-observation-runtime.js"></script>\n',
+          ]
+          addition = "".join(item for item in after_dag if item.strip() not in text)
+          if addition:
+              text = text.replace(dag, dag + addition, 1)
+
+          research = '  <script defer src="assets/research-context.js"></script>\n'
+          console = '  <script defer src="assets/research-console.js"></script>\n'
+          if research not in text or console not in text:
+              raise SystemExit("Research runtime anchors are missing")
+          context_assets = [
+              '  <script defer src="assets/research-context-v2-core.js"></script>\n',
+              '  <script defer src="assets/research-context-v2.js"></script>\n',
+          ]
+          addition = "".join(item for item in context_assets if item.strip() not in text)
+          if addition:
+              text = text.replace(research, research + addition, 1)
+          page.write_text(text, encoding="utf-8")
+          PY
+          for source in \
+            site/assets/structure-observation-core.js \
+            site/assets/structure-observation-runtime.js \
+            site/assets/counterfactual-preview-core.js \
+            site/assets/counterfactual-preview-runtime.js \
+            site/assets/research-context-v2-core.js \
+            site/assets/research-context-v2.js; do
+            node --check "$source"
+          done
+          node tests/js/structure-observation.test.js
+          node tests/js/counterfactual-preview.test.js
+          node tests/js/research-context-v2.test.js
+          python -m unittest tests.test_structure_observation
+          python -m unittest tests.test_counterfactual_preview
+          python -m unittest tests.test_research_context_v2
+          rm -f \
+            .github/workflows/bootstrap-structure-observation.yml \
+            .github/workflows/open-save-observation-pr.yml \
+            .github/workflows/finalize-save-observation.yml \
+            .github/workflows/finalize-counterfactual-preview.yml \
+            .github/workflows/finalize-research-context-v2.yml
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(pages): finalize structural research context v2"
+          fi
+          for attempt in 1 2 3; do
+            if git push origin HEAD:feat/research-context-v2; then break; fi
+            git pull --rebase origin feat/research-context-v2
+            if [[ "$attempt" == 3 ]]; then exit 1; fi
+          done
+          pr="$(gh pr list --head feat/research-context-v2 --state open --json number --jq '.[0].number // empty')"
+          if [[ -z "$pr" ]]; then
+            gh pr create \
+              --base feat/counterfactual-preview \
+              --head feat/research-context-v2 \
+              --title "feat(pages): bind research requests to structural context v2" \
+              --draft \
+              --body "Attach bounded selected nodes, stable identities, clusters, certified edges and paths, shared prerequisites and consequences, cluster interfaces, affinity witnesses, and advisory counterfactual references to explicitly compatible research endpoints. Coordinates, drag offsets, prompts, and human notes are excluded. Current-head stacked tests pass. No auto-merge."
+          else
+            gh pr comment "$pr" --body "Current-head validation passed across explicit observations, ghost counterfactual previews, and pages-research-context.v2. Injection remains capability-gated and excludes all presentation coordinates and local offsets."
+          fi
