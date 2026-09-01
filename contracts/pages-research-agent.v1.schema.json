@@ -9,9 +9,15 @@
     "enabled",
     "cma_origin",
     "run_path",
+    "capabilities_path",
+    "research_endpoint",
+    "research_context_schema",
     "environment_profile",
     "profile_revision",
     "auth",
+    "identity",
+    "admission",
+    "contribution",
     "human_actor_provider",
     "topology_atlas_input_receipt_ref",
     "topology_atlas_input_receipt_provider",
@@ -25,191 +31,165 @@
     "structure_observation_submit_enabled"
   ],
   "properties": {
-    "schema": {
-      "const": "pages-research-agent.v1"
-    },
-    "enabled": {
-      "type": "boolean"
-    },
-    "cma_origin": {
-      "type": "string"
-    },
-    "run_path": {
-      "type": "string",
-      "pattern": "^/api/v1/agui/run$"
-    },
-    "environment_profile": {
-      "type": "string",
-      "minLength": 1
-    },
-    "profile_revision": {
-      "type": "string",
-      "minLength": 1
-    },
+    "schema": { "const": "pages-research-agent.v1" },
+    "enabled": { "type": "boolean" },
+    "cma_origin": { "type": "string", "pattern": "^https://[^/]+$" },
+    "run_path": { "const": "/api/v1/agui/run" },
+    "capabilities_path": { "const": "/api/v1/agui/capabilities" },
+    "research_endpoint": { "type": "string", "pattern": "^https://[^/]+/api/v1/agui/run$" },
+    "research_context_schema": { "const": "pages-research-context.v2" },
+    "environment_profile": { "type": "string", "minLength": 1 },
+    "profile_revision": { "type": "string", "minLength": 1 },
     "auth": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "mode",
-        "provider"
-      ],
+      "required": ["mode", "provider"],
       "properties": {
-        "mode": {
-          "type": "string",
-          "enum": [
-            "same-origin-cookie",
-            "bearer-provider"
-          ]
+        "mode": { "enum": ["same-origin-cookie", "bearer-provider"] },
+        "provider": { "type": "string", "minLength": 1 }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github", "anonymous"],
+      "properties": {
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["credential_provider", "connect_url", "transport"],
+          "properties": {
+            "credential_provider": { "type": "string", "minLength": 1 },
+            "connect_url": { "type": "string", "pattern": "^https://[^/]+/auth/login$" },
+            "transport": { "const": "nyxid-bearer" }
+          }
         },
-        "provider": {
-          "type": "string"
+        "anonymous": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["credential_provider", "session_provider", "transport"],
+          "properties": {
+            "credential_provider": { "type": "string", "minLength": 1 },
+            "session_provider": { "type": "string", "minLength": 1 },
+            "transport": { "const": "sponsored-bearer" }
+          }
         }
       }
     },
-    "human_actor_provider": {
-      "type": "string",
-      "minLength": 1
-    },
-    "topology_atlas_input_receipt_ref": {
-      "oneOf": [
-        {
-          "$ref": "#/$defs/sha256Digest"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "topology_atlas_input_receipt_provider": {
-      "type": "string",
-      "minLength": 1
-    },
-    "evidence_checkout": {
+    "admission": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "repository",
-        "ref_binding",
-        "mount_path",
-        "read_only"
+        "enabled",
+        "requested_mode",
+        "state_path",
+        "policy_profile",
+        "contract_path",
+        "admitted_decisions"
       ],
       "properties": {
-        "repository": {
-          "const": "the-omega-institute/trureturing"
-        },
-        "ref_binding": {
-          "const": "release.source_commit"
-        },
-        "mount_path": {
-          "type": "string",
-          "pattern": "^/[^\u0000]*$"
-        },
-        "read_only": {
-          "const": true
+        "enabled": { "type": "boolean" },
+        "requested_mode": { "const": "formalization-admission" },
+        "state_path": { "const": "/formalizationAdmission" },
+        "policy_profile": { "const": "pages-formalization-admission-v1" },
+        "contract_path": { "const": "contracts/pages-formalization-admission.v1.schema.json" },
+        "admitted_decisions": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "enum": ["formalization-candidate", "priority-candidate"] }
         }
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "contract_path", "github", "anonymous"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "contract_path": { "const": "contracts/pages-contribution-intent.v1.schema.json" },
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["route", "actor_provider", "publisher"],
+          "properties": {
+            "route": { "const": "github-user-pr" },
+            "actor_provider": { "type": "string", "minLength": 1 },
+            "publisher": { "const": "cma-trigger-contributor-fork" }
+          }
+        },
+        "anonymous": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["route", "actor_provider", "publisher"],
+          "properties": {
+            "route": { "const": "anonymous-system-pr" },
+            "actor_provider": { "type": "string", "minLength": 1 },
+            "publisher": { "const": "trureturing-system-service" }
+          }
+        }
+      }
+    },
+    "human_actor_provider": { "type": "string", "minLength": 1 },
+    "topology_atlas_input_receipt_ref": {
+      "oneOf": [
+        { "$ref": "#/$defs/sha256Digest" },
+        { "type": "null" }
+      ]
+    },
+    "topology_atlas_input_receipt_provider": { "type": "string", "minLength": 1 },
+    "evidence_checkout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "ref_binding", "mount_path", "read_only"],
+      "properties": {
+        "repository": { "const": "the-omega-institute/trureturing" },
+        "ref_binding": { "const": "release.source_commit" },
+        "mount_path": { "type": "string", "pattern": "^/[^\u0000]*$" },
+        "read_only": { "const": true }
       }
     },
     "skill": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name",
-        "repository",
-        "path",
-        "ref",
-        "git_blob_sha",
-        "installation"
-      ],
+      "required": ["name", "repository", "path", "ref", "git_blob_sha", "installation"],
       "properties": {
-        "name": {
-          "const": "codex-formal-answer"
-        },
-        "repository": {
-          "const": "the-omega-institute/trureturing"
-        },
-        "path": {
-          "const": "skills/codex-formal-answer/SKILL.md"
-        },
-        "ref": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{40}$"
-        },
-        "git_blob_sha": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{40}$"
-        },
-        "installation": {
-          "const": "session-skill-prelude"
-        }
+        "name": { "const": "codex-formal-answer" },
+        "repository": { "const": "the-omega-institute/trureturing" },
+        "path": { "const": "skills/codex-formal-answer/SKILL.md" },
+        "ref": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "git_blob_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "installation": { "const": "session-skill-prelude" }
       }
     },
-    "topology_artifact_path": {
-      "const": "data/certified-topology.v1.json"
-    },
-    "topology_publication_path": {
-      "const": "data/topology-publication.v1.json"
-    },
+    "topology_artifact_path": { "const": "data/certified-topology.v1.json" },
+    "topology_publication_path": { "const": "data/topology-publication.v1.json" },
     "contracts": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "human_intuition_candidate",
-        "human_structure_observation",
-        "formalization_request"
-      ],
+      "required": ["human_intuition_candidate", "human_structure_observation", "formalization_request"],
       "properties": {
-        "human_intuition_candidate": {
-          "$ref": "#/$defs/contractCoordinate"
-        },
-        "human_structure_observation": {
-          "$ref": "#/$defs/contractCoordinate"
-        },
-        "formalization_request": {
-          "$ref": "#/$defs/contractCoordinate"
-        }
+        "human_intuition_candidate": { "$ref": "#/$defs/contractCoordinate" },
+        "human_structure_observation": { "$ref": "#/$defs/contractCoordinate" },
+        "formalization_request": { "$ref": "#/$defs/contractCoordinate" }
       }
     },
-    "intuition_submit_enabled": {
-      "type": "boolean"
-    },
-    "formalize_submit_enabled": {
-      "type": "boolean"
-    },
-    "structure_observation_submit_enabled": {
-      "type": "boolean"
-    }
+    "intuition_submit_enabled": { "type": "boolean" },
+    "formalize_submit_enabled": { "type": "boolean" },
+    "structure_observation_submit_enabled": { "type": "boolean" }
   },
   "$defs": {
-    "sha256Digest": {
-      "type": "string",
-      "pattern": "^sha256:[0-9a-f]{64}$"
-    },
+    "sha256Digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
     "contractCoordinate": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "repository",
-        "ref",
-        "path",
-        "git_blob_sha"
-      ],
+      "required": ["repository", "ref", "path", "git_blob_sha"],
       "properties": {
-        "repository": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
-        },
-        "ref": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{40}$"
-        },
-        "path": {
-          "type": "string",
-          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
-        },
-        "git_blob_sha": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{40}$"
-        }
+        "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+        "ref": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+        "git_blob_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
       }
     }
   }
