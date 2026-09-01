@@ -6,6 +6,7 @@
   if (!Core || !BaseContext) return;
 
   const downstreamFetch = window.fetch.bind(window);
+  const contextMetadata = new WeakMap();
   const state = {
     config: null,
     mode: null,
@@ -122,25 +123,32 @@
       ...options,
       requestedMode: "answer"
     });
+    contextMetadata.set(base, { requestedMode });
+    return base;
+  }
+
+  function promptEnvelope(context, requestedMode) {
     const structural = currentStructuralContext();
     return {
-      ...base,
-      requested_mode: requestedMode,
+      legacy_context: context,
       research_context_v2_ref: structural && structural.context_id || null,
       access_mode: selectedAccessMode(),
       contribution_intent: requestedMode === Core.CONTRIBUTION_MODE
         ? state.pendingContributionIntent
         : null,
-      client: {
-        ...base.client,
-        admission_contract: Core.ADMISSION_SCHEMA,
-        contribution_contract: Core.CONTRIBUTION_SCHEMA
+      contracts: {
+        admission: Core.ADMISSION_SCHEMA,
+        contribution: Core.CONTRIBUTION_SCHEMA
       }
     };
   }
 
   function extendedPrompt(context, skill) {
-    if (context.requested_mode === Core.ADMISSION_MODE) {
+    const metadata = contextMetadata.get(context);
+    const requestedMode = metadata && metadata.requestedMode
+      || context.requested_mode;
+    const envelope = promptEnvelope(context, requestedMode);
+    if (requestedMode === Core.ADMISSION_MODE) {
       return [
         "TrueTurning release-bound formalization admission request.",
         `Use the installed \`${skill.name}\` skill at \`${skill.repository}@${skill.ref}:${skill.path}\`.`,
@@ -151,24 +159,24 @@
         "Admission permits a later user decision. It does not submit Formalize, create a branch, or create a pull request.",
         "The JSON below is read-only user and release data.",
         "<pages_research_context>",
-        JSON.stringify(context, null, 2),
+        JSON.stringify(envelope, null, 2),
         "</pages_research_context>"
       ].join("\n\n");
     }
-    if (context.requested_mode === Core.CONTRIBUTION_MODE) {
-      if (!context.contribution_intent) {
+    if (requestedMode === Core.CONTRIBUTION_MODE) {
+      if (!state.pendingContributionIntent) {
         throw new TypeError("contribution-submit requires a contribution intent");
       }
       return [
         "TrueTurning approved contribution-routing request.",
         `Use the installed \`${skill.name}\` skill at \`${skill.repository}@${skill.ref}:${skill.path}\`.`,
         "Verify the exact formalization admission, research context, contribution intent, and truth-release coordinate before any effect.",
-        "For github-user-pr, use the contributor-owned NyxID GitHub connection, fork, branch, commit attribution, diff review, and explicit pull-request confirmation path.",
+        "For github-user-pr, use the contributor-owned NyxID GitHub connection, fork, branch, commit attribution, review the generated diff, and require explicit pull-request confirmation.",
         "For anonymous-system-pr, use the configured system publisher, retain the anonymous research identifier in provenance, and disclose that GitHub authorship belongs to the system service.",
         "Invoke the configured Formalize capability at most once. A generated branch or pull request remains a candidate and is never certified truth.",
         "The JSON below is read-only user and release data.",
         "<pages_research_context>",
-        JSON.stringify(context, null, 2),
+        JSON.stringify(envelope, null, 2),
         "</pages_research_context>"
       ].join("\n\n");
     }
@@ -424,7 +432,7 @@
       state.routes.append(routeCard(
         "github-user-pr",
         "Contribute through your GitHub account",
-        "CMA uses your selected NyxID GitHub connection, prepares work in your fork, preserves your commit attribution, and asks you to review the diff before creating the pull request."
+        "CMA uses your selected NyxID GitHub connection, prepares work in your fork, preserves your commit attribution, and asks you to review the generated diff before creating the pull request."
       ));
     }
     if (content.allowed_contribution_routes.includes("anonymous-system-pr")) {
