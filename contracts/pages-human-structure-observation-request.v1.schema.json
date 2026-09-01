@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-human-structure-observation-request.v1",
+  "title": "Explicit Pages request to create one Intuition human structure observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "observation_schema",
+    "observation_content"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pages-human-structure-observation-request.v1"
+    },
+    "observation_schema": {
+      "const": "human-structure-observation.v1"
+    },
+    "observation_content": {
+      "$ref": "#/$defs/content"
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gitObject": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "nodeIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      }
+    },
+    "clusterIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^cluster:sha256:[0-9a-f]{64}$"
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dependency_id", "dependent_id"],
+      "properties": {
+        "dependency_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "dependent_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selected_node_ids",
+        "selected_cluster_ids",
+        "selected_edges",
+        "selected_path_ref"
+      ],
+      "properties": {
+        "selected_node_ids": {
+          "$ref": "#/$defs/nodeIds"
+        },
+        "selected_cluster_ids": {
+          "$ref": "#/$defs/clusterIds"
+        },
+        "selected_edges": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/edge"
+          }
+        },
+        "selected_path_ref": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "gesture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "source_node_ids",
+        "target_node_ids",
+        "source_cluster_ids",
+        "target_cluster_ids"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "selection",
+            "compare",
+            "bring-together",
+            "cluster-peel",
+            "path-inspection",
+            "frontier-mark"
+          ]
+        },
+        "source_node_ids": {
+          "$ref": "#/$defs/nodeIds"
+        },
+        "target_node_ids": {
+          "$ref": "#/$defs/nodeIds"
+        },
+        "source_cluster_ids": {
+          "$ref": "#/$defs/clusterIds"
+        },
+        "target_cluster_ids": {
+          "$ref": "#/$defs/clusterIds"
+        }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "topology_atlas_input_receipt_ref",
+        "truth_release_digest",
+        "certified_topology_digest",
+        "topology_atlas_digest",
+        "pages_conformation_digest",
+        "research_context_digest",
+        "source_commit",
+        "source_tree",
+        "source_surface",
+        "human_actor",
+        "selection",
+        "gesture",
+        "human_note",
+        "privacy_class",
+        "explicitly_saved",
+        "created_at"
+      ],
+      "properties": {
+        "topology_atlas_input_receipt_ref": {
+          "$ref": "#/$defs/digest"
+        },
+        "truth_release_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "certified_topology_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "topology_atlas_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "pages_conformation_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "research_context_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        },
+        "source_commit": {
+          "$ref": "#/$defs/gitObject"
+        },
+        "source_tree": {
+          "$ref": "#/$defs/gitObject"
+        },
+        "source_surface": {
+          "const": "trureturing-pages"
+        },
+        "human_actor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "selection": {
+          "$ref": "#/$defs/selection"
+        },
+        "gesture": {
+          "$ref": "#/$defs/gesture"
+        },
+        "human_note": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000
+        },
+        "privacy_class": {
+          "enum": [
+            "private-research",
+            "team-research",
+            "public-candidate"
+          ]
+        },
+        "explicitly_saved": {
+          "const": true
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
