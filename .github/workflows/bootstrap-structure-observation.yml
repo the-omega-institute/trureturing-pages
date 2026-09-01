@@ -1,0 +1,54 @@
+name: bootstrap-structure-observation-assets
+
+on:
+  push:
+    branches:
+      - feat/save-structural-observations
+    paths:
+      - .github/workflows/bootstrap-structure-observation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/save-structural-observations
+          fetch-depth: 0
+      - name: Wire observation assets without replacing stacked Atlas markup
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path("site/dag.html")
+          text = page.read_text(encoding="utf-8")
+          style = '  <link rel="stylesheet" href="assets/structure-observation.css">\n'
+          if style.strip() not in text:
+              anchor = '  <link rel="stylesheet" href="assets/atlas-structure.css">\n'
+              if anchor not in text:
+                  raise SystemExit("atlas stylesheet anchor is missing")
+              text = text.replace(anchor, anchor + style, 1)
+
+          core = '  <script defer src="assets/structure-observation-core.js"></script>\n'
+          runtime = '  <script defer src="assets/structure-observation-runtime.js"></script>\n'
+          if core.strip() not in text or runtime.strip() not in text:
+              anchor = '  <script defer src="assets/dag.js"></script>\n'
+              if anchor not in text:
+                  raise SystemExit("Atlas runtime anchor is missing")
+              addition = ""
+              if core.strip() not in text:
+                  addition += core
+              if runtime.strip() not in text:
+                  addition += runtime
+              text = text.replace(anchor, anchor + addition, 1)
+          page.write_text(text, encoding="utf-8")
+          PY
+          git rm .github/workflows/bootstrap-structure-observation.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/dag.html
+          git commit -m "feat(pages): load explicit structural observation workflow"
+          git push origin HEAD:feat/save-structural-observations
