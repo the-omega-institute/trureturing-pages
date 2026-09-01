@@ -37,7 +37,7 @@ class CounterfactualPreviewTests(unittest.TestCase):
         self.assertIn("different release coordinates", core)
         self.assertIn("Accepted preview cannot carry cycle risk", core)
         self.assertIn("Ghost geometry and predicted deltas", runtime)
-        self.assertIn("does not change the release conformation", runtime)
+        self.assertIn("do not change the release conformation", runtime)
         self.assertNotIn("formalize", core.lower())
 
     def test_preview_contract_forbids_coordinates(self):
