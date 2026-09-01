@@ -8,10 +8,13 @@
   <link rel="stylesheet" href="assets/knowledge.css">
   <link rel="stylesheet" href="assets/research-console.css">
   <link rel="stylesheet" href="assets/research-writeback.css">
+  <link rel="stylesheet" href="assets/cma-research-routing.css">
   <link rel="stylesheet" href="assets/concept-lens.css">
   <link rel="stylesheet" href="assets/atlas-structure.css">
   <link rel="stylesheet" href="assets/structure-observation.css">
   <link rel="stylesheet" href="assets/atlas-observation.css">
+  <link rel="stylesheet" href="assets/counterfactual-preview.css">
+  <link rel="stylesheet" href="assets/research-context-v2.css">
   <script defer src="https://unpkg.com/3d-force-graph@1.79.0/dist/3d-force-graph.min.js"></script>
   <script defer src="assets/concept-lens.js"></script>
   <script defer src="assets/concept-lens-compat.js"></script>
@@ -22,10 +25,16 @@
   <script defer src="assets/atlas-observation-core.js"></script>
   <script defer src="assets/atlas-exploration-runtime.js"></script>
   <script defer src="assets/atlas-compare-runtime.js"></script>
+  <script defer src="assets/counterfactual-preview-core.js"></script>
+  <script defer src="assets/counterfactual-preview-runtime.js"></script>
   <script defer src="assets/dag.js"></script>
   <script defer src="assets/structure-observation-core.js"></script>
   <script defer src="assets/structure-observation-runtime.js"></script>
   <script defer src="assets/research-context.js"></script>
+  <script defer src="assets/research-context-v2-core.js"></script>
+  <script defer src="assets/research-context-v2.js"></script>
+  <script defer src="assets/cma-research-routing-core.js"></script>
+  <script defer src="assets/cma-research-routing.js"></script>
   <script defer src="assets/research-console.js"></script>
   <script defer src="assets/research-writeback.js"></script>
   <script defer src="assets/atlas-observation-runtime.js"></script>
@@ -155,8 +164,8 @@
   <section id="research-console" class="research-console research-drawer" role="dialog" aria-modal="true" aria-labelledby="research-title" tabindex="-1" hidden>
     <header class="research-console-header">
       <div>
-        <p class="eyebrow">Release-bound agent</p>
-        <h2 id="research-title">Formal research</h2>
+        <p class="eyebrow">Release-bound CMA</p>
+        <h2 id="research-title">Explore, evaluate, then formalize</h2>
       </div>
       <div class="research-header-actions">
         <span id="research-connection" class="research-connection" data-tone="waiting">Loading</span>
@@ -165,7 +174,7 @@
     </header>
 
     <div id="research-node-context" class="research-node-context">
-      <p class="research-context-empty">Select a theorem or concept in the graph. Its exact node and direct neighborhood will become the agent context.</p>
+      <p class="research-context-empty">Select a theorem or concept in the graph. Its exact structural context will become the CMA conversation context.</p>
     </div>
 
     <div id="research-transcript" class="research-transcript" aria-live="polite" aria-label="Research conversation"></div>
@@ -175,21 +184,21 @@
 
     <form id="research-form" class="research-composer">
       <label class="research-field" for="research-mode">
-        <span>Mode</span>
+        <span>Next step</span>
         <select id="research-mode">
-          <option value="answer">Formalize internally, then answer</option>
-          <option value="prepare-formalization">Prepare an advisory formalization draft</option>
+          <option value="answer">Discuss and understand</option>
+          <option value="formalization-admission">Check whether this should be formalized</option>
         </select>
       </label>
       <label class="research-field" for="research-prompt">
         <span>Your idea</span>
-        <textarea id="research-prompt" maxlength="8000" placeholder="For example: could these two structures share a stronger invariant?" required></textarea>
+        <textarea id="research-prompt" maxlength="8000" placeholder="Ask about the selected structure, compare concepts, or state a possible theorem." required></textarea>
       </label>
       <div class="research-actions">
-        <button id="research-send" class="research-primary" type="submit">Ask the agent</button>
+        <button id="research-send" class="research-primary" type="submit">Send to CMA</button>
         <button id="research-retry" class="research-secondary" type="button" hidden>Retry same run</button>
       </div>
-      <p id="research-form-status" class="research-form-status" data-tone="quiet">Loading the graph and agent configuration.</p>
+      <p id="research-form-status" class="research-form-status" data-tone="quiet">Loading the release-bound CMA configuration.</p>
     </form>
   </section>
 
