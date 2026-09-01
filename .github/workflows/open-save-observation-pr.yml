@@ -1,0 +1,71 @@
+name: open-save-observation-pr
+
+on:
+  push:
+    branches:
+      - feat/save-structural-observations
+    paths:
+      - .github/workflows/open-save-observation-pr.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/save-structural-observations
+          fetch-depth: 0
+      - name: Remove one-shot workflow and open the stacked pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          base="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/28" --jq '.head.ref' 2>/dev/null || true)"
+          if [[ -z "$base" ]]; then
+            base='feat/spatial-atlas-exploration'
+          fi
+          git rm .github/workflows/open-save-observation-pr.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(pages): remove one-shot PR bootstrap"
+          git push origin HEAD:feat/save-structural-observations
+          existing="$(gh pr list --head feat/save-structural-observations --state open --json number --jq '.[0].number // empty')"
+          if [[ -z "$existing" ]]; then
+            cat > "$RUNNER_TEMP/body.md" <<'EOF'
+          ## Purpose
+
+          Add the only explicit transition from local Atlas exploration into a saved human structural observation. Ordinary navigation, hover, camera movement, semantic zoom, drag, peel, comparison and path reading remain transient until the user presses `Save observation`.
+
+          ## Delivered
+
+          - `pages-human-structure-observation-request.v1` contract aligned with Intuition `human-structure-observation.v1` content;
+          - explicit Save observation action, accessible dialog, human note, actor and privacy fields;
+          - exact release, certified topology, Topology Atlas, Pages conformation and registered Atlas receipt coordinates;
+          - node, cluster, certified-edge, comparison and selected-path capture;
+          - fail-closed submission through the release-published `structure_observation_endpoint`;
+          - no client-assigned canonical observation identity. The trusted intake computes it;
+          - no automatic capture from drag, zoom, hover or camera state;
+          - session-only actor convenience, with no observation payload persisted locally;
+          - independent JavaScript and Python integration tests.
+
+          ## Authority boundary
+
+          - saving records human research evidence only;
+          - no candidate edit, valuation, Formalize request or Base write is created;
+          - derived affinity remains distinct from certified dependency;
+          - local spatial offsets and camera coordinates are excluded from the request;
+          - when the release does not publish an exact Intuition endpoint and Atlas receipt, the action stays disabled.
+
+          Draft pending current-head CI. No auto-merge.
+          EOF
+            gh pr create \
+              --base "$base" \
+              --head feat/save-structural-observations \
+              --title "feat(pages): explicitly save structural observations" \
+              --body-file "$RUNNER_TEMP/body.md" \
+              --draft
+          fi
