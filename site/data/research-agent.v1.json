@@ -1,13 +1,53 @@
 {
   "schema": "pages-research-agent.v1",
   "enabled": false,
-  "cma_origin": "",
+  "cma_origin": "https://bot.chrono-ai.fun",
   "run_path": "/api/v1/agui/run",
+  "capabilities_path": "/api/v1/agui/capabilities",
+  "research_endpoint": "https://bot.chrono-ai.fun/api/v1/agui/run",
+  "research_context_schema": "pages-research-context.v2",
   "environment_profile": "trureturing-research",
-  "profile_revision": "research-v2-writeback-disabled",
+  "profile_revision": "research-v3-admission-routing",
   "auth": {
     "mode": "bearer-provider",
     "provider": "trureturingResearchCredential"
+  },
+  "identity": {
+    "github": {
+      "credential_provider": "trureturingGitHubResearchCredential",
+      "connect_url": "https://bot.chrono-ai.fun/auth/login",
+      "transport": "nyxid-bearer"
+    },
+    "anonymous": {
+      "credential_provider": "trureturingAnonymousResearchCredential",
+      "session_provider": "trureturingAnonymousResearchSession",
+      "transport": "sponsored-bearer"
+    }
+  },
+  "admission": {
+    "enabled": true,
+    "requested_mode": "formalization-admission",
+    "state_path": "/formalizationAdmission",
+    "policy_profile": "pages-formalization-admission-v1",
+    "contract_path": "contracts/pages-formalization-admission.v1.schema.json",
+    "admitted_decisions": [
+      "formalization-candidate",
+      "priority-candidate"
+    ]
+  },
+  "contribution": {
+    "enabled": true,
+    "contract_path": "contracts/pages-contribution-intent.v1.schema.json",
+    "github": {
+      "route": "github-user-pr",
+      "actor_provider": "trureturingGitHubContributionActor",
+      "publisher": "cma-trigger-contributor-fork"
+    },
+    "anonymous": {
+      "route": "anonymous-system-pr",
+      "actor_provider": "trureturingAnonymousContributionActor",
+      "publisher": "trureturing-system-service"
+    }
   },
   "human_actor_provider": "trureturingResearchActor",
   "topology_atlas_input_receipt_ref": null,
@@ -42,10 +82,10 @@
       "git_blob_sha": "8c9741ee6c0ff282d4c98f895cc660308887016d"
     },
     "formalization_request": {
-      "repository": "the-omega-institute/trureturing-formalize",
-      "ref": "8ed943f3e4140c597b563a90be8972528feec0bf",
-      "path": "contracts/formalization-request.v1.schema.json",
-      "git_blob_sha": "90c44950c9b6863deaa15e3b8b53a0b934f81809"
+      "repository": "the-omega-institute/trureturing-fkst-packages",
+      "ref": "463d45a866bd1bfe199f942d570b50e7ae3d6122",
+      "path": "contracts/formalization-request.v2.schema.json",
+      "git_blob_sha": "793a5a0ac79c5dd5cf3210887f6dba0d6a0e492b"
     }
   },
   "intuition_submit_enabled": false,
