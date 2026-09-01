@@ -13,13 +13,16 @@
     "profile_revision",
     "auth",
     "human_actor_provider",
+    "topology_atlas_input_receipt_ref",
+    "topology_atlas_input_receipt_provider",
     "evidence_checkout",
     "skill",
     "topology_artifact_path",
     "topology_publication_path",
     "contracts",
     "intuition_submit_enabled",
-    "formalize_submit_enabled"
+    "formalize_submit_enabled",
+    "structure_observation_submit_enabled"
   ],
   "properties": {
     "schema": {
@@ -64,6 +67,20 @@
       }
     },
     "human_actor_provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "topology_atlas_input_receipt_ref": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256Digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "topology_atlas_input_receipt_provider": {
       "type": "string",
       "minLength": 1
     },
@@ -137,10 +154,14 @@
       "additionalProperties": false,
       "required": [
         "human_intuition_candidate",
+        "human_structure_observation",
         "formalization_request"
       ],
       "properties": {
         "human_intuition_candidate": {
+          "$ref": "#/$defs/contractCoordinate"
+        },
+        "human_structure_observation": {
           "$ref": "#/$defs/contractCoordinate"
         },
         "formalization_request": {
@@ -153,9 +174,16 @@
     },
     "formalize_submit_enabled": {
       "type": "boolean"
+    },
+    "structure_observation_submit_enabled": {
+      "type": "boolean"
     }
   },
   "$defs": {
+    "sha256Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
     "contractCoordinate": {
       "type": "object",
       "additionalProperties": false,
