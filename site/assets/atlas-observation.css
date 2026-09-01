@@ -1,0 +1,256 @@
+.atlas-observation-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.atlas-observation-action,
+.atlas-observation-close,
+.atlas-observation-primary,
+.atlas-observation-secondary {
+  min-height: 2rem;
+  padding: 0.38rem 0.7rem;
+  border: 1px solid #8ca99d;
+  border-radius: 4px;
+  background: #fff;
+  color: #214a3c;
+  font: 680 0.66rem/1.15 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.atlas-observation-action:hover:not(:disabled),
+.atlas-observation-action:focus-visible:not(:disabled),
+.atlas-observation-close:hover,
+.atlas-observation-close:focus-visible,
+.atlas-observation-secondary:hover,
+.atlas-observation-secondary:focus-visible {
+  border-color: #315f50;
+  background: #e9f3ef;
+  outline: 2px solid rgba(49, 95, 80, 0.18);
+  outline-offset: 2px;
+}
+
+.atlas-observation-action:disabled,
+.atlas-observation-primary:disabled,
+.atlas-observation-secondary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.atlas-observation-primary {
+  border-color: #285948;
+  background: #285948;
+  color: #fff;
+}
+
+.atlas-observation-primary:hover:not(:disabled),
+.atlas-observation-primary:focus-visible:not(:disabled) {
+  background: #183f32;
+  outline: 2px solid rgba(40, 89, 72, 0.2);
+  outline-offset: 2px;
+}
+
+.atlas-observation-panel {
+  position: absolute;
+  z-index: 8;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  gap: 0.8rem;
+  width: min(27rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 1rem;
+  overflow: auto;
+  border: 1px solid rgba(139, 184, 166, 0.62);
+  border-radius: 7px;
+  background: rgba(247, 251, 249, 0.98);
+  box-shadow: 0 1.3rem 3.8rem rgba(2, 13, 10, 0.34);
+  color: #22352e;
+}
+
+.atlas-observation-panel[hidden] {
+  display: none;
+}
+
+.atlas-observation-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.atlas-observation-header h2 {
+  margin: 0.12rem 0 0;
+  font-size: 1rem;
+}
+
+.atlas-observation-header .eyebrow {
+  margin: 0;
+}
+
+.atlas-observation-close {
+  flex: 0 0 auto;
+  min-height: 1.8rem;
+  padding: 0.3rem 0.56rem;
+}
+
+.atlas-observation-summary {
+  margin: 0;
+  padding: 0.65rem 0.72rem;
+  border-left: 3px solid #557f70;
+  background: #edf5f1;
+  color: #365148;
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.atlas-observation-form {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.atlas-observation-field {
+  display: grid;
+  gap: 0.28rem;
+  color: #30463e;
+  font-size: 0.67rem;
+  font-weight: 700;
+}
+
+.atlas-observation-field small {
+  color: #75837d;
+  font-size: 0.58rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.atlas-observation-field input,
+.atlas-observation-field select,
+.atlas-observation-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.48rem 0.55rem;
+  border: 1px solid #b2c1ba;
+  border-radius: 4px;
+  background: #fff;
+  color: #1e312a;
+  font: 500 0.72rem/1.35 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.atlas-observation-field textarea {
+  min-height: 6.5rem;
+  resize: vertical;
+}
+
+.atlas-observation-field input:focus,
+.atlas-observation-field select:focus,
+.atlas-observation-field textarea:focus {
+  border-color: #3d705e;
+  outline: 2px solid rgba(61, 112, 94, 0.16);
+  outline-offset: 1px;
+}
+
+.atlas-observation-confirm {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.48rem;
+  color: #3e524a;
+  font-size: 0.65rem;
+  line-height: 1.4;
+}
+
+.atlas-observation-confirm input {
+  margin-top: 0.12rem;
+}
+
+.atlas-observation-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.atlas-observation-status {
+  min-height: 1.1rem;
+  margin: 0;
+  color: #65746e;
+  font-size: 0.63rem;
+  line-height: 1.45;
+}
+
+.atlas-observation-receipt {
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #d4dfda;
+}
+
+.atlas-observation-receipt[hidden] {
+  display: none;
+}
+
+.atlas-observation-receipt strong {
+  color: #214c3d;
+}
+
+.atlas-observation-receipt code {
+  overflow-wrap: anywhere;
+  color: #4f655c;
+  font-size: 0.61rem;
+}
+
+.atlas-observation-receipt p {
+  margin: 0;
+  color: #67776f;
+  font-size: 0.64rem;
+  line-height: 1.45;
+}
+
+.atlas-observation-artifact {
+  border: 1px solid #d3ded8;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.atlas-observation-artifact summary {
+  padding: 0.48rem 0.58rem;
+  color: #355148;
+  font-size: 0.64rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.atlas-observation-artifact pre {
+  max-height: 15rem;
+  margin: 0;
+  padding: 0.65rem;
+  overflow: auto;
+  border-top: 1px solid #e0e7e3;
+  color: #263c34;
+  font-size: 0.58rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 78rem) {
+  .atlas-observation-actions {
+    order: 5;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 44rem) {
+  .atlas-observation-panel {
+    inset: 0.5rem;
+    width: auto;
+    max-height: calc(100% - 1rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-observation-action,
+  .atlas-observation-panel {
+    transition: none;
+  }
+}
