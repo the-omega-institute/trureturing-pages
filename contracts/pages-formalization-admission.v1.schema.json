@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-formalization-admission.v1",
+  "title": "Pages formalization admission decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "admission_id", "admission_content"],
+  "properties": {
+    "schema": { "const": "pages-formalization-admission.v1" },
+    "admission_id": { "$ref": "#/$defs/digest" },
+    "admission_content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "research_context_ref",
+        "truth_release_digest",
+        "topology_atlas_digest",
+        "pages_conformation_digest",
+        "question_digest",
+        "decision",
+        "formalization_allowed",
+        "reason_codes",
+        "missing_inputs",
+        "reuse_candidates",
+        "value_vector",
+        "allowed_contribution_routes",
+        "policy_profile",
+        "expires_at"
+      ],
+      "properties": {
+        "research_context_ref": { "$ref": "#/$defs/digest" },
+        "truth_release_digest": { "$ref": "#/$defs/digest" },
+        "topology_atlas_digest": { "$ref": "#/$defs/nullableDigest" },
+        "pages_conformation_digest": { "$ref": "#/$defs/digest" },
+        "question_digest": { "$ref": "#/$defs/digest" },
+        "decision": {
+          "enum": [
+            "discussion-only",
+            "needs-clarification",
+            "reuse-existing",
+            "formalization-candidate",
+            "priority-candidate",
+            "declined-policy",
+            "rate-limited"
+          ]
+        },
+        "formalization_allowed": { "type": "boolean" },
+        "reason_codes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "clear-mathematical-target",
+              "exact-release-bound",
+              "falsifiable",
+              "missing-target-statement",
+              "missing-assumptions",
+              "missing-falsifier",
+              "existing-result-reusable",
+              "duplicate-result-found",
+              "structural-bridge-value",
+              "frontier-value",
+              "downstream-reuse-value",
+              "verification-route-available",
+              "verification-cost-too-high",
+              "unsafe-assumption-request",
+              "insufficient-evidence",
+              "service-budget-exhausted"
+            ]
+          }
+        },
+        "missing_inputs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 512 }
+        },
+        "reuse_candidates": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["declaration_id", "source", "match_basis"],
+            "properties": {
+              "declaration_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+              "source": { "enum": ["project", "mathlib"] },
+              "match_basis": {
+                "enum": ["exact-statement", "exact-name", "specialization", "composition-candidate", "lexical-candidate"]
+              }
+            }
+          }
+        },
+        "value_vector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "novelty",
+            "structural_reach",
+            "reuse",
+            "frontier_closure",
+            "verification_readiness",
+            "uncertainty"
+          ],
+          "properties": {
+            "novelty": { "$ref": "#/$defs/dimension" },
+            "structural_reach": { "$ref": "#/$defs/dimension" },
+            "reuse": { "$ref": "#/$defs/dimension" },
+            "frontier_closure": { "$ref": "#/$defs/dimension" },
+            "verification_readiness": { "$ref": "#/$defs/dimension" },
+            "uncertainty": { "$ref": "#/$defs/dimension" }
+          }
+        },
+        "allowed_contribution_routes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["github-user-pr", "anonymous-system-pr"] }
+        },
+        "policy_profile": { "const": "pages-formalization-admission-v1" },
+        "expires_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "nullableDigest": {
+      "oneOf": [
+        { "$ref": "#/$defs/digest" },
+        { "type": "null" }
+      ]
+    },
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value", "evidence_refs"],
+      "properties": {
+        "status": { "enum": ["open", "measured"] },
+        "value": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 1000 },
+            { "type": "null" }
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/digest" }
+        }
+      }
+    }
+  }
+}
