@@ -1,0 +1,33 @@
+.research-context-v2-status {
+  margin: 0.55rem 0 0;
+  padding: 0.45rem 0.58rem;
+  border-left: 3px solid #81958a;
+  background: #f1f5f2;
+  color: #536159;
+  font-size: 0.66rem;
+  line-height: 1.42;
+}
+
+.research-context-v2-status[data-tone="ready"] {
+  border-left-color: #39745f;
+  background: #e9f3ee;
+  color: #285748;
+}
+
+.research-context-v2-status[data-tone="disabled"] {
+  border-left-color: #9a8451;
+  background: #f6f1e4;
+  color: #695a36;
+}
+
+.research-context-v2-status[data-tone="error"] {
+  border-left-color: #a45149;
+  background: #f8eae8;
+  color: #7a3934;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research-context-v2-status {
+    transition: none;
+  }
+}
