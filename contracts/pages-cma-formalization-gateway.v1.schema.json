@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-cma-formalization-gateway.v1",
+  "title": "Pages CMA formalization gateway configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "enabled",
+    "gateway_origin",
+    "session_path",
+    "github_login_path",
+    "gate_path",
+    "submit_path",
+    "contribution_routes"
+  ],
+  "properties": {
+    "schema": { "const": "pages-cma-formalization-gateway.v1" },
+    "enabled": { "type": "boolean" },
+    "gateway_origin": { "type": "string", "maxLength": 2048 },
+    "session_path": { "const": "/v1/session" },
+    "github_login_path": { "const": "/v1/auth/github/start" },
+    "gate_path": { "const": "/v1/formalization/gate" },
+    "submit_path": { "const": "/v1/formalization/submit" },
+    "contribution_routes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github_user", "anonymous_service"],
+      "properties": {
+        "github_user": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "credential_location", "attribution"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "credential_location": { "const": "server-session" },
+            "attribution": { "const": "authenticated-github-user" }
+          }
+        },
+        "anonymous_service": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "credential_location", "attribution"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "credential_location": { "const": "service-custody" },
+            "attribution": { "const": "trureturing-service" }
+          }
+        }
+      }
+    }
+  }
+}
