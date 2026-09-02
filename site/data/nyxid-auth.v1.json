@@ -1,0 +1,17 @@
+{
+  "schema": "pages-nyxid-auth.v1",
+  "enabled": false,
+  "issuer": "https://nyx-api.chrono-ai.fun",
+  "client_id": "",
+  "redirect_path": "auth/callback.html",
+  "scopes": [
+    "openid",
+    "profile"
+  ],
+  "discovery_path": "/.well-known/openid-configuration",
+  "token_leeway_seconds": 30,
+  "transaction_ttl_seconds": 600,
+  "storage_namespace": "trureturing.pages.nyxid",
+  "token_storage": "session-only-access-token",
+  "refresh_tokens": false
+}
