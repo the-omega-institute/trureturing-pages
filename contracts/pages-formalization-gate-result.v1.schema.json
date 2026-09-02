@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-formalization-gate-result.v1",
+  "title": "Typed formalization-worth decision returned to Pages",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "gate_id", "gate_content"],
+  "properties": {
+    "schema": { "const": "pages-formalization-gate-result.v1" },
+    "gate_id": { "$ref": "#/$defs/digest" },
+    "gate_content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "truth_release_digest",
+        "decision",
+        "formalization_allowed",
+        "value_vector",
+        "reasons",
+        "missing_inputs",
+        "reuse_candidates",
+        "allowed_contribution_routes",
+        "evaluated_at",
+        "expires_at"
+      ],
+      "properties": {
+        "request_id": { "type": "string", "pattern": "^gate_request_[A-Za-z0-9_-]{1,112}$" },
+        "truth_release_digest": { "$ref": "#/$defs/digest" },
+        "decision": { "enum": ["accept", "needs-clarification", "defer", "duplicate", "reject"] },
+        "formalization_allowed": { "type": "boolean" },
+        "value_vector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "novelty",
+            "structural_leverage",
+            "reuse_value",
+            "frontier_closure",
+            "verification_readiness",
+            "uncertainty"
+          ],
+          "properties": {
+            "novelty": { "$ref": "#/$defs/score" },
+            "structural_leverage": { "$ref": "#/$defs/score" },
+            "reuse_value": { "$ref": "#/$defs/score" },
+            "frontier_closure": { "$ref": "#/$defs/score" },
+            "verification_readiness": { "$ref": "#/$defs/score" },
+            "uncertainty": { "$ref": "#/$defs/score" }
+          }
+        },
+        "reasons": { "$ref": "#/$defs/textArray" },
+        "missing_inputs": { "$ref": "#/$defs/textArray" },
+        "reuse_candidates": { "$ref": "#/$defs/textArray" },
+        "allowed_contribution_routes": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 2,
+          "items": { "enum": ["github-user", "anonymous-service"] }
+        },
+        "evaluated_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "score": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0, "maximum": 1000 },
+        { "type": "null" }
+      ]
+    },
+    "textArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 64,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    }
+  }
+}
