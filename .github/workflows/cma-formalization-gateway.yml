@@ -1,0 +1,62 @@
+name: cma-formalization-gateway
+
+on:
+  pull_request:
+    paths:
+      - site/dag.html
+      - site/assets/cma-formalization-gateway-core.js
+      - site/assets/cma-formalization-gateway.js
+      - site/assets/cma-formalization-gateway.css
+      - site/data/cma-formalization-gateway.v1.json
+      - contracts/pages-cma-formalization-gateway.v1.schema.json
+      - contracts/pages-formalization-gate-request.v1.schema.json
+      - contracts/pages-formalization-gate-result.v1.schema.json
+      - contracts/pages-formalization-submission.v1.schema.json
+      - tests/js/cma-formalization-gateway.test.js
+      - tests/test_cma_formalization_gateway.py
+      - .github/workflows/cma-formalization-gateway.yml
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check JavaScript
+        run: |
+          node --check site/assets/cma-formalization-gateway-core.js
+          node --check site/assets/cma-formalization-gateway.js
+          node tests/js/cma-formalization-gateway.test.js
+
+      - name: Check schemas and browser integration
+        run: python -m unittest tests.test_cma_formalization_gateway
+
+      - name: Parse every new JSON contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          paths = [
+              Path('site/data/cma-formalization-gateway.v1.json'),
+              Path('contracts/pages-cma-formalization-gateway.v1.schema.json'),
+              Path('contracts/pages-formalization-gate-request.v1.schema.json'),
+              Path('contracts/pages-formalization-gate-result.v1.schema.json'),
+              Path('contracts/pages-formalization-submission.v1.schema.json'),
+          ]
+          for path in paths:
+              json.loads(path.read_text(encoding='utf-8'))
+          PY
+
+      - name: Refuse browser credential custody
+        run: |
+          ! grep -R -n -E 'localStorage.*(token|secret)|github_token|personal_access_token|BEGIN .*PRIVATE KEY' \
+            site/assets/cma-formalization-gateway*.js \
+            site/data/cma-formalization-gateway.v1.json
