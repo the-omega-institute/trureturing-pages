@@ -134,7 +134,7 @@ async function signedIdToken(privateKey, publicJwk, claims) {
   assert.equal(callback.state, transaction.state);
   assert.throws(
     () => Core.parseCallback(`${transaction.redirect_uri}#access_token=forbidden`),
-    /must never arrive/
+    /forbidden URL components|must never arrive/
   );
   const validatedTransaction = Core.validateTransaction(
     transaction,
