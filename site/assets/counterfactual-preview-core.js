@@ -70,12 +70,12 @@
   function operationKey(value) {
     return [
       value.operation,
-      value.stable_node_id || "",
-      value.stable_dependency_id || "",
-      value.stable_dependent_id || "",
       value.node_id || "",
       value.dependency_id || "",
-      value.dependent_id || ""
+      value.dependent_id || "",
+      value.stable_node_id || "",
+      value.stable_dependency_id || "",
+      value.stable_dependent_id || ""
     ].join("\u0000");
   }
 

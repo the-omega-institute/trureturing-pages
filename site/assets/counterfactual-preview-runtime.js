@@ -94,7 +94,7 @@
       </header>
       <p data-preview-classification class="counterfactual-preview-classification"></p>
       <dl data-preview-summary class="counterfactual-preview-summary"></dl>
-      <p class="counterfactual-preview-boundary">Ghost geometry and predicted deltas do not change the release conformation or certify a dependency.</p>`;
+      <p class="counterfactual-preview-boundary">Ghost geometry and predicted deltas are advisory. This preview does not change the release conformation or certify a dependency.</p>`;
     panel.querySelector("[data-preview-clear]").addEventListener("click", clear);
     stage.append(panel);
     state.panel = panel;
