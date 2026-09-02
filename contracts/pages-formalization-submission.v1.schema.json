@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-formalization-submission.v1",
+  "title": "Explicitly approved Pages formalization submission",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request", "gate_result", "explicit_approval", "approved_at"],
+  "properties": {
+    "schema": { "const": "pages-formalization-submission.v1" },
+    "request": { "$ref": "pages-formalization-gate-request.v1.schema.json" },
+    "gate_result": { "$ref": "pages-formalization-gate-result.v1.schema.json" },
+    "explicit_approval": { "const": true },
+    "approved_at": { "type": "string", "format": "date-time" }
+  }
+}

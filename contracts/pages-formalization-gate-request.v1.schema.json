@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-formalization-gate-request.v1",
+  "title": "Release-bound request for the CMA and Intuition formalization gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request_id", "request_content"],
+  "properties": {
+    "schema": { "const": "pages-formalization-gate-request.v1" },
+    "request_id": { "type": "string", "pattern": "^gate_request_[A-Za-z0-9_-]{1,112}$" },
+    "request_content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release",
+        "certified_topology_digest",
+        "topology_atlas_digest",
+        "pages_conformation_digest",
+        "selection",
+        "statement",
+        "public_summary",
+        "contribution_route",
+        "action",
+        "privacy_class",
+        "relation_authority",
+        "requested_at"
+      ],
+      "properties": {
+        "release": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["truth_release_digest", "source_repo", "source_commit", "source_tree"],
+          "properties": {
+            "truth_release_digest": { "$ref": "#/$defs/digest" },
+            "source_repo": { "const": "the-omega-institute/trureturing" },
+            "source_commit": { "$ref": "#/$defs/gitObject" },
+            "source_tree": {
+              "oneOf": [
+                { "$ref": "#/$defs/gitObject" },
+                { "type": "null" }
+              ]
+            }
+          }
+        },
+        "certified_topology_digest": { "$ref": "#/$defs/nullableDigest" },
+        "topology_atlas_digest": { "$ref": "#/$defs/nullableDigest" },
+        "pages_conformation_digest": { "$ref": "#/$defs/nullableDigest" },
+        "selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["selected_node", "certified_prerequisites", "certified_dependents"],
+          "properties": {
+            "selected_node": { "$ref": "#/$defs/node" },
+            "certified_prerequisites": {
+              "type": "array",
+              "maxItems": 128,
+              "items": { "$ref": "#/$defs/node" }
+            },
+            "certified_dependents": {
+              "type": "array",
+              "maxItems": 128,
+              "items": { "$ref": "#/$defs/node" }
+            }
+          }
+        },
+        "statement": { "type": "string", "minLength": 20, "maxLength": 8000 },
+        "public_summary": { "type": "string", "minLength": 12, "maxLength": 1000 },
+        "contribution_route": { "enum": ["github-user", "anonymous-service"] },
+        "action": {
+          "enum": [
+            "add-abstraction",
+            "add-bridge",
+            "add-counterexample",
+            "add-definition-package",
+            "add-premise",
+            "add-subgoal",
+            "change-representation",
+            "formalize-open-node",
+            "reroot"
+          ]
+        },
+        "privacy_class": { "enum": ["private-research", "public-contribution"] },
+        "relation_authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["certified", "derived", "advisory"],
+          "properties": {
+            "certified": { "const": "truth-release-dependency" },
+            "derived": { "const": "topology-derived-structure" },
+            "advisory": { "const": "cma-or-intuition-candidate" }
+          }
+        },
+        "requested_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "nullableDigest": {
+      "oneOf": [
+        { "$ref": "#/$defs/digest" },
+        { "type": "null" }
+      ]
+    },
+    "gitObject": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "gid",
+        "title",
+        "state",
+        "structural_role",
+        "cluster_id",
+        "descendant_count"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "gid": { "type": ["string", "null"], "maxLength": 512 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "state": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "structural_role": { "type": ["string", "null"], "maxLength": 128 },
+        "cluster_id": { "type": ["string", "null"], "maxLength": 128 },
+        "descendant_count": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    }
+  }
+}

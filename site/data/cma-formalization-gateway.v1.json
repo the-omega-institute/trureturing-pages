@@ -1,0 +1,21 @@
+{
+  "schema": "pages-cma-formalization-gateway.v1",
+  "enabled": false,
+  "gateway_origin": "",
+  "session_path": "/v1/session",
+  "github_login_path": "/v1/auth/github/start",
+  "gate_path": "/v1/formalization/gate",
+  "submit_path": "/v1/formalization/submit",
+  "contribution_routes": {
+    "github_user": {
+      "enabled": false,
+      "credential_location": "server-session",
+      "attribution": "authenticated-github-user"
+    },
+    "anonymous_service": {
+      "enabled": false,
+      "credential_location": "service-custody",
+      "attribution": "trureturing-service"
+    }
+  }
+}
