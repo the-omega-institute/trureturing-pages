@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-nyxid-auth.v1",
+  "title": "TrueTurning Pages NyxID public-client authentication configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "enabled",
+    "issuer",
+    "client_id",
+    "redirect_path",
+    "scopes",
+    "discovery_path",
+    "token_leeway_seconds",
+    "transaction_ttl_seconds",
+    "storage_namespace",
+    "token_storage",
+    "refresh_tokens"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pages-nyxid-auth.v1"
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "issuer": {
+      "type": "string",
+      "pattern": "^https://[^/?#]+$"
+    },
+    "client_id": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "redirect_path": {
+      "const": "auth/callback.html"
+    },
+    "scopes": {
+      "const": [
+        "openid",
+        "profile"
+      ]
+    },
+    "discovery_path": {
+      "const": "/.well-known/openid-configuration"
+    },
+    "token_leeway_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120
+    },
+    "transaction_ttl_seconds": {
+      "type": "integer",
+      "minimum": 60,
+      "maximum": 900
+    },
+    "storage_namespace": {
+      "const": "trureturing.pages.nyxid"
+    },
+    "token_storage": {
+      "const": "session-only-access-token"
+    },
+    "refresh_tokens": {
+      "const": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "then": {
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      }
+    }
+  ]
+}
