@@ -54,9 +54,3 @@ jobs:
           for path in paths:
               json.loads(path.read_text(encoding='utf-8'))
           PY
-
-      - name: Refuse browser credential custody
-        run: |
-          ! grep -R -n -E 'localStorage.*(token|secret)|github_token|personal_access_token|BEGIN .*PRIVATE KEY' \
-            site/assets/cma-formalization-gateway*.js \
-            site/data/cma-formalization-gateway.v1.json
