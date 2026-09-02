@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/knowledge.css">
   <link rel="stylesheet" href="assets/research-console.css">
+  <link rel="stylesheet" href="assets/nyxid-auth.css">
   <link rel="stylesheet" href="assets/research-writeback.css">
   <link rel="stylesheet" href="assets/concept-lens.css">
   <link rel="stylesheet" href="assets/atlas-structure.css">
@@ -34,6 +35,8 @@
   <script defer src="assets/research-context-v2-core.js"></script>
   <script defer src="assets/research-context-v2.js"></script>
   <script defer src="assets/cma-formalization-gateway-core.js"></script>
+  <script defer src="assets/nyxid-auth-core.js"></script>
+  <script defer src="assets/nyxid-auth.js"></script>
   <script defer src="assets/research-console.js"></script>
   <script defer src="assets/cma-formalization-gateway.js"></script>
   <script defer src="assets/research-writeback.js"></script>
@@ -168,6 +171,14 @@
         <h2 id="research-title">Formal research</h2>
       </div>
       <div class="research-header-actions">
+        <div id="nyxid-auth-control" class="nyxid-auth-control" data-state="loading" aria-live="polite">
+          <div class="nyxid-auth-copy">
+            <span id="nyxid-auth-status">Loading NyxID identity configuration</span>
+            <strong id="nyxid-auth-user" hidden></strong>
+          </div>
+          <button id="nyxid-auth-sign-in" type="button" disabled>Sign in with NyxID</button>
+          <button id="nyxid-auth-disconnect" type="button" hidden>Disconnect</button>
+        </div>
         <span id="research-connection" class="research-connection" data-tone="waiting">Loading</span>
         <button id="research-close" class="research-console-close" type="button" aria-label="Close research workspace">Close</button>
       </div>
@@ -199,6 +210,25 @@
         <button id="research-retry" class="research-secondary" type="button" hidden>Retry same run</button>
       </div>
       <p id="research-form-status" class="research-form-status" data-tone="quiet">Loading the graph and agent configuration.</p>
+      <fieldset id="research-auth-gate" class="research-auth-gate" disabled>
+        <legend class="sr-only">NyxID-authenticated research controls</legend>
+        <label class="research-field" for="research-mode">
+          <span>Mode</span>
+          <select id="research-mode">
+            <option value="answer">Formalize internally, then answer</option>
+            <option value="prepare-formalization">Prepare an advisory formalization draft</option>
+          </select>
+        </label>
+        <label class="research-field" for="research-prompt">
+          <span>Your idea</span>
+          <textarea id="research-prompt" maxlength="8000" placeholder="For example: could these two constructions share a stronger invariant?" required></textarea>
+        </label>
+        <div class="research-actions">
+          <button id="research-send" class="research-primary" type="submit">Ask the agent</button>
+          <button id="research-retry" class="research-secondary" type="button" hidden>Retry same run</button>
+        </div>
+        <p id="research-form-status" class="research-form-status" data-tone="quiet">Sign in with NyxID to begin release-bound research.</p>
+      </fieldset>
     </form>
   </section>
 
