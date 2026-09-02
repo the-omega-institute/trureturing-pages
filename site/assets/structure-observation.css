@@ -1,0 +1,165 @@
+.save-structure-observation {
+  border-color: #6d5c91 !important;
+  background: #f3eef9 !important;
+  color: #4d376d !important;
+}
+
+.save-structure-observation:hover:not(:disabled),
+.save-structure-observation:focus-visible:not(:disabled) {
+  border-color: #4f3576 !important;
+  background: #e9def5 !important;
+}
+
+.save-structure-observation:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.structure-observation-dialog {
+  width: min(42rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  border: 1px solid #a89ab8;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 1.4rem 4rem rgba(28, 19, 39, 0.28);
+  color: #1e2823;
+}
+
+.structure-observation-dialog::backdrop {
+  background: rgba(5, 12, 10, 0.58);
+  backdrop-filter: blur(2px);
+}
+
+.structure-observation-form {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+}
+
+.structure-observation-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #e2dbe9;
+  padding-bottom: 0.8rem;
+}
+
+.structure-observation-heading h2 {
+  margin: 0.16rem 0 0;
+  font-size: 1.25rem;
+}
+
+.structure-observation-heading button,
+.structure-observation-actions button {
+  min-height: 2.15rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #a69cac;
+  border-radius: 0.4rem;
+  background: #fff;
+  color: #403949;
+  font: inherit;
+  cursor: pointer;
+}
+
+.structure-observation-preview {
+  margin: 0;
+  padding: 0.68rem 0.76rem;
+  border-left: 3px solid #8062a4;
+  background: #f5f1f9;
+  color: #4c3c5c;
+  font-size: 0.78rem;
+}
+
+.structure-observation-field {
+  display: grid;
+  gap: 0.34rem;
+  color: #49534d;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.structure-observation-field input,
+.structure-observation-field select,
+.structure-observation-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.62rem 0.68rem;
+  border: 1px solid #b6beb9;
+  border-radius: 0.42rem;
+  background: #fff;
+  color: #17211d;
+  font: 500 0.82rem/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.structure-observation-field textarea {
+  resize: vertical;
+}
+
+.structure-observation-field input:focus,
+.structure-observation-field select:focus,
+.structure-observation-field textarea:focus {
+  border-color: #725395;
+  outline: 3px solid rgba(114, 83, 149, 0.15);
+}
+
+.structure-observation-status {
+  min-height: 1.3rem;
+  margin: 0;
+  color: #68736d;
+  font-size: 0.72rem;
+}
+
+.structure-observation-status[data-tone="waiting"] {
+  color: #665522;
+}
+
+.structure-observation-status[data-tone="ready"] {
+  color: #24603e;
+}
+
+.structure-observation-status[data-tone="error"] {
+  color: #8a342c;
+}
+
+.structure-observation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  padding-top: 0.2rem;
+}
+
+.structure-observation-actions .structure-observation-primary {
+  border-color: #553875;
+  background: #553875;
+  color: #fff;
+  font-weight: 760;
+}
+
+.structure-observation-actions .structure-observation-primary:hover,
+.structure-observation-actions .structure-observation-primary:focus-visible {
+  background: #40275e;
+}
+
+@media (max-width: 40rem) {
+  .structure-observation-dialog {
+    width: calc(100vw - 1rem);
+    max-height: calc(100vh - 1rem);
+  }
+
+  .structure-observation-form {
+    padding: 0.8rem;
+  }
+
+  .structure-observation-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .structure-observation-dialog::backdrop {
+    backdrop-filter: none;
+  }
+}

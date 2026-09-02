@@ -9,13 +9,32 @@
   <link rel="stylesheet" href="assets/research-console.css">
   <link rel="stylesheet" href="assets/research-writeback.css">
   <link rel="stylesheet" href="assets/concept-lens.css">
+  <link rel="stylesheet" href="assets/atlas-structure.css">
+  <link rel="stylesheet" href="assets/structure-observation.css">
+  <link rel="stylesheet" href="assets/atlas-observation.css">
+  <link rel="stylesheet" href="assets/counterfactual-preview.css">
+  <link rel="stylesheet" href="assets/research-context-v2.css">
   <script defer src="https://unpkg.com/3d-force-graph@1.79.0/dist/3d-force-graph.min.js"></script>
   <script defer src="assets/concept-lens.js"></script>
   <script defer src="assets/concept-lens-compat.js"></script>
+  <script defer src="assets/atlas-structure-core.js"></script>
+  <script defer src="assets/atlas-semantic-zoom-core.js"></script>
+  <script defer src="assets/atlas-exploration-core.js"></script>
+  <script defer src="assets/atlas-compare-core.js"></script>
+  <script defer src="assets/atlas-observation-core.js"></script>
+  <script defer src="assets/atlas-exploration-runtime.js"></script>
+  <script defer src="assets/atlas-compare-runtime.js"></script>
+  <script defer src="assets/counterfactual-preview-core.js"></script>
+  <script defer src="assets/counterfactual-preview-runtime.js"></script>
   <script defer src="assets/dag.js"></script>
+  <script defer src="assets/structure-observation-core.js"></script>
+  <script defer src="assets/structure-observation-runtime.js"></script>
   <script defer src="assets/research-context.js"></script>
+  <script defer src="assets/research-context-v2-core.js"></script>
+  <script defer src="assets/research-context-v2.js"></script>
   <script defer src="assets/research-console.js"></script>
   <script defer src="assets/research-writeback.js"></script>
+  <script defer src="assets/atlas-observation-runtime.js"></script>
   <script defer src="assets/research-writeback-ui.js"></script>
 </head>
 <body class="dag-page">
@@ -37,37 +56,50 @@
       <div>
         <p class="eyebrow">Interactive mathematical structure</p>
         <h1 id="atlas-title">Mathematical Atlas</h1>
-        <p class="lede">Select any concept to read its human explanation, inspect the exact ideas it is built from, follow what it enables, open the relevant theory documents, or begin release-bound research without leaving the graph.</p>
+        <p class="lede">See the theory as nested structural communities, follow the certified bridges between them, then enter any concept to understand its exact prerequisites, consequences, documents, and research frontier.</p>
       </div>
-      <div class="dag-provenance-group" role="group" aria-label="Published Atlas summary">
+      <div class="dag-provenance-group" role="group" aria-label="Published Atlas structural summary">
         <dl class="dag-provenance atlas-summary">
           <div><dt>State</dt><dd id="release-status">Loading</dd></div>
           <div><dt>Concepts</dt><dd id="concept-count">&ndash;</dd></div>
-          <div><dt>Closed</dt><dd id="closed-count">&ndash;</dd></div>
-          <div><dt>Open</dt><dd id="open-count">&ndash;</dd></div>
-          <div><dt>Dependencies</dt><dd id="edge-count">&ndash;</dd></div>
+          <div><dt>Communities</dt><dd id="cluster-count">&ndash;</dd></div>
+          <div><dt>Cut bridges</dt><dd id="bridge-count">&ndash;</dd></div>
+          <div><dt>Open frontier</dt><dd id="frontier-count">&ndash;</dd></div>
         </dl>
       </div>
     </section>
 
     <section class="dag-workspace" aria-label="Interactive mathematical Atlas">
-      <div class="graph-toolbar">
-        <fieldset class="graph-segments">
+      <div class="graph-toolbar atlas-toolbar">
+        <fieldset class="atlas-mode-switcher">
+          <legend class="sr-only">Atlas view mode</legend>
+          <button type="button" data-atlas-mode="structure" aria-pressed="true">
+            <strong>Structure</strong><small>Communities and bridges</small>
+          </button>
+          <button type="button" data-atlas-mode="dependency" aria-pressed="false">
+            <strong>Dependency</strong><small>Certified arrows by scale</small>
+          </button>
+          <button type="button" data-atlas-mode="frontier" aria-pressed="false">
+            <strong>Frontier</strong><small>Open surface and support</small>
+          </button>
+        </fieldset>
+
+        <fieldset class="graph-segments atlas-state-filter">
           <legend class="sr-only">Filter by proof state</legend>
           <button type="button" data-state="All" aria-pressed="true">All</button>
           <button type="button" data-state="Closed" aria-pressed="false">Closed</button>
           <button type="button" data-state="Open" aria-pressed="false">Open</button>
         </fieldset>
 
-        <label class="graph-select">Region
-          <select id="layer-filter">
-            <option value="All">All regions</option>
+        <label class="graph-select atlas-cluster-select">Community
+          <select id="cluster-filter">
+            <option value="All">All communities</option>
           </select>
         </label>
 
         <form id="node-search" class="graph-search" role="search">
           <label for="node-query">Find concept</label>
-          <input id="node-query" type="search" list="node-options" placeholder="Concept, domain, or theorem" autocomplete="off">
+          <input id="node-query" type="search" list="node-options" placeholder="Concept, theorem, or structural role" autocomplete="off">
           <datalist id="node-options"></datalist>
           <button type="submit">Focus</button>
         </form>
@@ -75,21 +107,30 @@
         <div class="graph-actions">
           <a class="graph-knowledge-action" href="knowledge/index.html">Static library</a>
           <button id="fit-graph" type="button" title="Fit every visible concept in the viewport">Fit view</button>
-          <button id="toggle-motion" type="button" aria-pressed="false" title="Pause or resume graph motion">Pause</button>
+          <button id="reset-view" type="button" title="Return to the release-defined overview camera">Reset view</button>
         </div>
+      </div>
+
+      <div id="atlas-context-bar" class="atlas-context-bar" data-lod="far" role="status" aria-live="polite">
+        <button id="atlas-back" type="button" hidden>All communities</button>
+        <span id="atlas-context-label" class="atlas-context-label">All communities</span>
+        <span class="atlas-context-divider" aria-hidden="true">/</span>
+        <strong id="atlas-lod-indicator" class="atlas-lod-indicator">Atlas overview</strong>
+        <span class="atlas-zoom-hint">Zoom to reveal structural landmarks and certified detail. Selecting a concept opens its bounded neighborhood.</span>
       </div>
 
       <div class="atlas-layout">
         <div class="graph-stage">
           <div id="graph" role="img" aria-describedby="graph-description graph-status"></div>
-          <p id="graph-description" class="sr-only">An interactive three-dimensional mathematical graph. Drag to rotate, scroll to zoom, and select a node to open its Concept Lens. The Concept Lens contains an accessible local directed graph and equivalent relation lists.</p>
-          <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading the Mathematical Atlas&hellip;</div>
+          <div id="cluster-overlay" class="atlas-cluster-overlay" aria-label="Topology Atlas communities"></div>
+          <p id="graph-description" class="sr-only">An interactive three-dimensional mathematical structure using fixed release coordinates. Far view shows structural communities and their certified backbone. Medium view adds foundations, hubs, bridges, interfaces, and frontier landmarks. Near view exposes certified detail. Selecting a node enters a bounded focus neighborhood. Dragging adds a temporary local exploration offset without changing the canonical conformation. Shift while choosing a second concept opens comparison of their certified paths. Explicit comparison, peel, or selection gestures can be saved only through the Save observation action.</p>
+          <div id="graph-status" class="graph-status" role="status" aria-live="polite">Loading and verifying the multiscale Mathematical Atlas&hellip;</div>
 
-          <div class="graph-legend" role="group" aria-label="Graph relation legend">
-            <span><i class="legend-dot closed"></i>Closed</span>
-            <span><i class="legend-dot open"></i>Open</span>
+          <div class="graph-legend atlas-legend" role="group" aria-label="Mathematical Atlas legend">
+            <span><i class="legend-cluster"></i>Topology community</span>
             <span><i class="legend-line relation-certified"></i>Certified dependency</span>
-            <span><i class="legend-line relation-authored"></i>Authored link</span>
+            <span><i class="legend-line relation-bridge"></i>Cut bridge or interface</span>
+            <span><i class="legend-line relation-derived"></i>Selected structural affinity</span>
             <span><i class="legend-line relation-advisory"></i>Advisory candidate</span>
           </div>
         </div>
@@ -99,17 +140,18 @@
             <p class="eyebrow">Concept Lens</p>
             <h2>Select a concept</h2>
             <p>Click any node to read its human explanation, inspect certified prerequisites and consequences, open related documents, or begin release-bound research.</p>
-            <small>The global 3D Atlas provides structure. The local 2D view provides exact dependency direction.</small>
+            <small>The global 3D Atlas provides multiscale structure. The local 2D view provides exact dependency direction.</small>
           </div>
         </aside>
       </div>
 
-      <div role="group" aria-label="Current proof-layer order">
-        <ol class="layer-key">
-          <li><span>S0</span>Foundation</li>
-          <li><span>S1</span>Construction</li>
-          <li><span>S3</span>Derived theory</li>
-          <li><span>X</span>Frontier</li>
+      <div role="group" aria-label="Structural role guide">
+        <ol class="structure-key">
+          <li><span class="role-glyph role-foundation"></span><b>Foundation</b> deep reusable basis</li>
+          <li><span class="role-glyph role-hub"></span><b>Hub</b> broad downstream reuse</li>
+          <li><span class="role-glyph role-bridge"></span><b>Bridge</b> load-bearing connection</li>
+          <li><span class="role-glyph role-interface"></span><b>Interface</b> crosses communities</li>
+          <li><span class="role-glyph role-frontier"></span><b>Frontier</b> adjacent to open work</li>
         </ol>
       </div>
     </section>
@@ -147,7 +189,7 @@
       </label>
       <label class="research-field" for="research-prompt">
         <span>Your idea</span>
-        <textarea id="research-prompt" maxlength="8000" placeholder="For example: could these two constructions share a stronger invariant?" required></textarea>
+        <textarea id="research-prompt" maxlength="8000" placeholder="For example: could these two structures share a stronger invariant?" required></textarea>
       </label>
       <div class="research-actions">
         <button id="research-send" class="research-primary" type="submit">Ask the agent</button>

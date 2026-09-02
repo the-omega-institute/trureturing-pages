@@ -1,0 +1,324 @@
+.topology-history {
+  margin: 1.2rem auto;
+  padding: 1rem;
+  border: 1px solid #c8d1cb;
+  background: #f8faf8;
+}
+
+.topology-history-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #d5ddd8;
+}
+
+.topology-history-heading h2 {
+  margin: 0.16rem 0 0;
+  color: #183128;
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+}
+
+.topology-history-lede {
+  max-width: 54rem;
+  margin: 0.45rem 0 0;
+  color: #647169;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.topology-history-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+
+.topology-history-filters button {
+  min-height: 2rem;
+  padding: 0.35rem 0.62rem;
+  border: 1px solid #9cab a2;
+  border-color: #9caba2;
+  border-radius: 999px;
+  background: #fff;
+  color: #35463d;
+  font: 700 0.65rem/1 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.topology-history-filters button[aria-pressed="true"] {
+  border-color: #285847;
+  background: #285847;
+  color: #fff;
+}
+
+.topology-history-filters button:hover,
+.topology-history-filters button:focus-visible {
+  border-color: #285847;
+  outline: 2px solid rgba(40, 88, 71, 0.17);
+  outline-offset: 2px;
+}
+
+.topology-history-status {
+  margin: 0.9rem 0;
+  padding: 0.55rem 0.65rem;
+  border-left: 3px solid #85958c;
+  background: #eef2ef;
+  color: #58665e;
+  font-size: 0.72rem;
+}
+
+.topology-history-status[data-tone="ready"] {
+  border-left-color: #3d755f;
+  background: #e8f3ed;
+  color: #285745;
+}
+
+.topology-history-status[data-tone="error"] {
+  border-left-color: #a75149;
+  background: #f8e8e6;
+  color: #7b3934;
+}
+
+.topology-history-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 0 1rem;
+  padding: 1px;
+  background: #ccd5cf;
+}
+
+.topology-history-summary > div {
+  min-width: 0;
+  padding: 0.65rem;
+  background: #fff;
+}
+
+.topology-history-summary dt {
+  color: #6c786f;
+  font-size: 0.62rem;
+  font-weight: 720;
+}
+
+.topology-history-summary dd {
+  margin: 0.28rem 0 0;
+  color: #1d332a;
+  font-size: 0.78rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.topology-history-timeline {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.topology-history-release {
+  padding: 0.85rem;
+  border: 1px solid #c9d2cc;
+  border-left: 4px solid #4d806c;
+  background: #fff;
+}
+
+.topology-history-release > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.65rem;
+}
+
+.topology-history-release h3 {
+  margin: 0.12rem 0 0;
+  color: #1d342b;
+  font-size: 1rem;
+}
+
+.topology-history-coordinate {
+  margin: 0.28rem 0 0;
+  color: #758179;
+  font: 500 0.63rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.topology-history-digest {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.42rem;
+  border: 1px solid #d5ddd8;
+  background: #f5f7f5;
+  color: #5f6c64;
+  font-size: 0.6rem;
+}
+
+.topology-history-group {
+  margin-top: 0.45rem;
+  border: 1px solid #d8dfdb;
+}
+
+.topology-history-group > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.6rem;
+  background: #f3f6f4;
+  color: #31443b;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.topology-history-group > summary span {
+  min-width: 1.55rem;
+  padding: 0.16rem 0.35rem;
+  border-radius: 999px;
+  background: #dfe8e3;
+  color: #385448;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.topology-history-list {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 1px;
+  background: #e1e7e3;
+  list-style: none;
+}
+
+.topology-history-row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.25fr) minmax(11rem, 1fr);
+  align-items: center;
+  gap: 0.55rem 0.8rem;
+  min-width: 0;
+  padding: 0.52rem 0.6rem;
+  background: #fff;
+  color: #45534b;
+  font-size: 0.66rem;
+}
+
+.topology-history-identity,
+.topology-history-movement {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.topology-history-identity code,
+.topology-history-movement code,
+.topology-history-node {
+  min-width: 0;
+  overflow: hidden;
+  color: #2f4a3e;
+  font: 600 0.61rem/1.35 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topology-history-node[href] {
+  color: #245c82;
+  text-decoration: underline;
+  text-decoration-color: rgba(36, 92, 130, 0.32);
+  text-underline-offset: 2px;
+}
+
+.topology-history-relation {
+  flex: 0 0 auto;
+  padding: 0.17rem 0.38rem;
+  border: 1px solid #aebbb3;
+  border-radius: 999px;
+  background: #edf2ef;
+  color: #526159;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.relation-added,
+.relation-entered-frontier,
+.relation-new,
+.relation-continuation {
+  border-color: #83b49e;
+  background: #e5f3ec;
+  color: #2d644e;
+}
+
+.relation-retired,
+.relation-removed,
+.relation-left-frontier {
+  border-color: #d0a099;
+  background: #f9e9e6;
+  color: #88483f;
+}
+
+.relation-split,
+.relation-merge,
+.relation-reorganization {
+  border-color: #b5a173;
+  background: #f6efdc;
+  color: #705d2d;
+}
+
+.topology-history-row-detail {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #78837d;
+  line-height: 1.45;
+}
+
+.topology-history-empty,
+.topology-history-truncated {
+  margin: 0.55rem;
+  color: #79857e;
+  font-size: 0.66rem;
+}
+
+@media (max-width: 78rem) {
+  .topology-history-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 54rem) {
+  .topology-history-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .topology-history-filters {
+    justify-content: flex-start;
+  }
+
+  .topology-history-row {
+    grid-template-columns: 1fr;
+  }
+
+  .topology-history-row-detail {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 34rem) {
+  .topology-history {
+    padding: 0.65rem;
+  }
+
+  .topology-history-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .topology-history-release > header {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topology-history * {
+    scroll-behavior: auto !important;
+  }
+}

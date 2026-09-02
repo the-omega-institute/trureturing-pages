@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Trureturing.Pages.Core;
 
 return PagesCli.Run(args);
@@ -13,6 +14,7 @@ internal static class PagesCli
                 "project" => Project(args),
                 "project-topology" => ProjectTopology(args),
                 "project-atlas" => ProjectAtlas(args),
+                "conform-atlas" => ConformAtlas(args),
                 "delta" => Delta(args),
                 _ => Usage()
             };
@@ -97,15 +99,21 @@ internal static class PagesCli
 
     private static int ProjectAtlas(string[] args)
     {
-        if (args.Length != 5)
+        if (args.Length is < 5 or > 6)
         {
             return Usage();
         }
 
-        PagesAtlasProjectionArtifacts artifacts =
-            PagesAtlasProjection.Build(
-                File.ReadAllBytes(args[1]),
-                File.ReadAllBytes(args[2]));
+        byte[] graphBytes = File.ReadAllBytes(args[1]);
+        byte[] certifiedTopologyBytes = File.ReadAllBytes(args[2]);
+        PagesAtlasProjectionArtifacts artifacts = args.Length == 6 && args[5] != "-"
+            ? PagesTopologyAtlasProjection.Build(
+                graphBytes,
+                certifiedTopologyBytes,
+                File.ReadAllBytes(args[5]))
+            : PagesAtlasProjection.Build(
+                graphBytes,
+                certifiedTopologyBytes);
 
         WriteAtomic(
             Path.GetFullPath(args[3]),
@@ -114,12 +122,63 @@ internal static class PagesCli
             Path.GetFullPath(args[4]),
             artifacts.ManifestBytes);
 
+        string structure = artifacts.Manifest.TopologyAtlasDigest is null
+            ? "certified topology only"
+            : "multiscale topology atlas";
         Console.WriteLine(
             $"projected atlas {artifacts.Manifest.TruthReleaseDigest}: " +
             $"{artifacts.Manifest.Counts.Nodes} nodes, " +
-            $"{artifacts.Manifest.Counts.Edges} edges, " +
-            $"{artifacts.Manifest.CertifiedTopologyDigest}");
+            $"{artifacts.Manifest.Counts.Edges} relations, " +
+            $"{structure}, {artifacts.Manifest.CertifiedTopologyDigest}");
         return 0;
+    }
+
+    private static int ConformAtlas(string[] args)
+    {
+        if (args.Length is < 5 or > 6)
+        {
+            return Usage();
+        }
+
+        byte[] graphBytes = File.ReadAllBytes(args[1]);
+        byte[] manifestBytes = File.ReadAllBytes(args[2]);
+        byte[] previousBytes = args.Length == 6 && args[5] != "-"
+            ? File.ReadAllBytes(args[5])
+            : [];
+        bool hasTopologyAtlas = HasTopologyAtlas(manifestBytes);
+        PagesConformationArtifacts artifacts = hasTopologyAtlas
+            ? PagesTopologyAtlasConformation.Build(
+                graphBytes,
+                manifestBytes,
+                previousBytes)
+            : PagesConformation.Build(
+                graphBytes,
+                manifestBytes,
+                previousBytes);
+
+        WriteAtomic(
+            Path.GetFullPath(args[3]),
+            artifacts.ConformationBytes);
+        WriteAtomic(
+            Path.GetFullPath(args[4]),
+            artifacts.BoundManifestBytes);
+
+        Console.WriteLine(
+            $"conformed atlas {artifacts.Conformation.TruthReleaseDigest}: " +
+            $"{artifacts.Conformation.Nodes.Count} nodes, " +
+            $"{artifacts.Conformation.Regions.Count} regions, " +
+            $"{artifacts.Conformation.StructureSource}, " +
+            artifacts.ConformationDigest);
+        return 0;
+    }
+
+    private static bool HasTopologyAtlas(byte[] manifestBytes)
+    {
+        using JsonDocument document = JsonDocument.Parse(manifestBytes);
+        return document.RootElement.TryGetProperty(
+                "topology_atlas_digest",
+                out JsonElement digest) &&
+            digest.ValueKind == JsonValueKind.String;
     }
 
     private static int Delta(string[] args)
@@ -170,7 +229,11 @@ internal static class PagesCli
             "  Trureturing.Pages.Cli project-topology <certified-topology.json> " +
             "<output.json> [<topology-intuition-overlay.json>|-]\n" +
             "  Trureturing.Pages.Cli project-atlas <pages-truth-release-dag.json> " +
-            "<certified-topology.json> <atlas-view.json> <atlas-manifest.json>\n" +
+            "<certified-topology.json> <atlas-view.json> <atlas-manifest.json> " +
+            "[<topology-atlas.json>|-]\n" +
+            "  Trureturing.Pages.Cli conform-atlas <atlas-view.json> " +
+            "<atlas-manifest.json> <conformation.json> <bound-manifest.json> " +
+            "[<previous-conformation.json>|-]\n" +
             "  Trureturing.Pages.Cli delta <old-port.json> <new-port.json> <output.json>");
         return 2;
     }

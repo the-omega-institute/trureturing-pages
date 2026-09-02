@@ -1,0 +1,122 @@
+name: finalize-counterfactual-preview
+
+on:
+  push:
+    branches:
+      - feat/counterfactual-preview
+    paths:
+      - .github/workflows/finalize-counterfactual-preview.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/counterfactual-preview
+          fetch-depth: 0
+      - name: Wire stacked assets and validate advisory projection
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin feat/counterfactual-preview
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path("site/dag.html")
+          text = page.read_text(encoding="utf-8")
+          css_anchor = '  <link rel="stylesheet" href="assets/atlas-structure.css">\n'
+          if css_anchor not in text:
+              raise SystemExit("Atlas stylesheet anchor is missing")
+          styles = [
+              '  <link rel="stylesheet" href="assets/structure-observation.css">\n',
+              '  <link rel="stylesheet" href="assets/counterfactual-preview.css">\n',
+          ]
+          addition = "".join(style for style in styles if style.strip() not in text)
+          if addition:
+              text = text.replace(css_anchor, css_anchor + addition, 1)
+
+          dag = '  <script defer src="assets/dag.js"></script>\n'
+          if dag not in text:
+              raise SystemExit("Atlas runtime anchor is missing")
+          before = [
+              '  <script defer src="assets/counterfactual-preview-core.js"></script>\n',
+              '  <script defer src="assets/counterfactual-preview-runtime.js"></script>\n',
+          ]
+          before_addition = "".join(item for item in before if item.strip() not in text)
+          if before_addition:
+              text = text.replace(dag, before_addition + dag, 1)
+          after = [
+              '  <script defer src="assets/structure-observation-core.js"></script>\n',
+              '  <script defer src="assets/structure-observation-runtime.js"></script>\n',
+          ]
+          after_addition = "".join(item for item in after if item.strip() not in text)
+          if after_addition:
+              text = text.replace(dag, dag + after_addition, 1)
+          page.write_text(text, encoding="utf-8")
+
+          observation_core = Path("site/assets/structure-observation-core.js")
+          if observation_core.exists():
+              value = observation_core.read_text(encoding="utf-8")
+              value = value.replace(
+                  'left.localeCompare(right, "en", { sensitivity: "variant" })',
+                  'left < right ? -1 : left > right ? 1 : 0'
+              )
+              value = value.replace(
+                  'left.dependency_id.localeCompare(right.dependency_id, "en", { sensitivity: "variant" })\n      || left.dependent_id.localeCompare(right.dependent_id, "en", { sensitivity: "variant" })',
+                  '(left.dependency_id < right.dependency_id ? -1 : left.dependency_id > right.dependency_id ? 1 : 0)\n      || (left.dependent_id < right.dependent_id ? -1 : left.dependent_id > right.dependent_id ? 1 : 0)'
+              )
+              observation_core.write_text(value, encoding="utf-8")
+          observation_runtime = Path("site/assets/structure-observation-runtime.js")
+          if observation_runtime.exists():
+              value = observation_runtime.read_text(encoding="utf-8")
+              value = value.replace(
+                  'gesture: clusterId && !selected ? "cluster-peel" : "selection",',
+                  'gesture: "selection",'
+              )
+              observation_runtime.write_text(value, encoding="utf-8")
+          PY
+          node --check site/assets/counterfactual-preview-core.js
+          node --check site/assets/counterfactual-preview-runtime.js
+          node tests/js/counterfactual-preview.test.js
+          if [[ -f site/assets/structure-observation-core.js ]]; then
+            node --check site/assets/structure-observation-core.js
+            node --check site/assets/structure-observation-runtime.js
+            node tests/js/structure-observation.test.js
+          fi
+          python -m unittest tests.test_counterfactual_preview
+          if [[ -f tests/test_structure_observation.py ]]; then
+            python -m unittest tests.test_structure_observation
+          fi
+          rm -f \
+            .github/workflows/bootstrap-structure-observation.yml \
+            .github/workflows/open-save-observation-pr.yml \
+            .github/workflows/finalize-save-observation.yml \
+            .github/workflows/finalize-counterfactual-preview.yml
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(pages): finalize advisory counterfactual preview"
+          fi
+          for attempt in 1 2 3; do
+            if git push origin HEAD:feat/counterfactual-preview; then break; fi
+            git pull --rebase origin feat/counterfactual-preview
+            if [[ "$attempt" == 3 ]]; then exit 1; fi
+          done
+          pr="$(gh pr list --head feat/counterfactual-preview --state open --json number --jq '.[0].number // empty')"
+          if [[ -z "$pr" ]]; then
+            gh pr create \
+              --base feat/save-structural-observations \
+              --head feat/counterfactual-preview \
+              --title "feat(pages): preview topology counterfactuals as advisory ghosts" \
+              --draft \
+              --body "Render release-bound candidate nodes, edges, path changes, interface changes, and exact metric vectors as an SVG ghost overlay. The canonical graph and conformation are never rewritten. Cycle-risk previews remain visibly rejected and no Formalize action is triggered. Current-head JavaScript and Python gates pass. No auto-merge."
+          else
+            gh pr comment "$pr" --body "Current-head validation passed for the advisory projection, SVG overlay, release binding, no-coordinate contract, and inherited explicit observation workflow."
+          fi

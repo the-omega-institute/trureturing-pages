@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-topology-history.v1",
+  "title": "Content-addressed chain of cross-release Topology Atlas deltas",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "current_truth_release_digest",
+    "entries"
+  ],
+  "properties": {
+    "schema": { "const": "pages-topology-history.v1" },
+    "current_truth_release_digest": { "$ref": "#/$defs/digest" },
+    "entries": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "delta_path",
+        "delta_digest",
+        "from_truth_release_digest",
+        "to_truth_release_digest",
+        "from_topology_atlas_digest",
+        "to_topology_atlas_digest"
+      ],
+      "properties": {
+        "delta_path": {
+          "type": "string",
+          "pattern": "^data/[A-Za-z0-9._/-]+\\.json$",
+          "maxLength": 512
+        },
+        "delta_digest": { "$ref": "#/$defs/digest" },
+        "from_truth_release_digest": { "$ref": "#/$defs/digest" },
+        "to_truth_release_digest": { "$ref": "#/$defs/digest" },
+        "from_topology_atlas_digest": { "$ref": "#/$defs/digest" },
+        "to_topology_atlas_digest": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

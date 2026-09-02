@@ -12,6 +12,9 @@ permissions:
 jobs:
   gate:
     runs-on: ubuntu-latest
+    env:
+      TOPOLOGY_PACKAGE_VERSION: 0.2.0-alpha.1
+      TOPOLOGY_PRODUCER_COMMIT: dbd407d52806b4a87bb3c129f810a10d438a2b53
     steps:
       - uses: actions/checkout@v4
 
@@ -19,7 +22,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restore C# projects
+      - name: Restore the versioned Pages and Topology package graph
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -40,8 +43,8 @@ jobs:
           for source in site/assets/concept-lens*.js; do
             node --check "$source"
           done
+          node --check site/assets/atlas-structure-core.js
           node --check site/assets/dag.js
-          node --check site/assets/dag-knowledge-link.js
           node --check site/assets/knowledge-map.js
           node --check site/assets/research-context.js
           node --check site/assets/research-console.js
@@ -50,6 +53,7 @@ jobs:
 
       - name: Run Atlas and release-bound research client tests
         run: |
+          node tests/js/atlas-structure.test.js
           node tests/js/concept-lens.test.js
           node tests/js/research-context.test.js
           node tests/js/research-writeback.test.js
@@ -69,6 +73,33 @@ jobs:
 
       - name: Fail-closed regression tests
         run: python -m unittest discover -s tests/red -p 'test_*.py'
+
+      - name: Verify the pinned Topology package and vendored Atlas contracts
+        run: |
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          for path in (
+              Path("contracts/topology-atlas.v1.schema.json"),
+              Path("contracts/topology-atlas-profile.v1.schema.json"),
+          ):
+              value = json.loads(path.read_text())
+              assert value["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
+          profile = json.loads(Path("config/topology-atlas-profile.v1.json").read_text())
+          assert profile["schema_version"] == "topology-atlas-profile.v1"
+          assert profile["top_k"] == 8
+          assert profile["cut_bridges_form_boundaries"] is True
+
+          project = ET.parse(
+              "tools/Trureturing.Topology.Runner/Trureturing.Topology.Runner.csproj"
+          )
+          package = project.find(".//PackageReference[@Include='Trureturing.Topology']")
+          assert package is not None
+          assert package.attrib["Version"] == "[0.2.0-alpha.1]"
+          PY
 
       - name: Build the mock truth-release basic DAG
         run: python -m lib.vertical_smoke build-basic tests/fixtures/truth-release _site
@@ -95,6 +126,8 @@ jobs:
           assert (root / "knowledge/index.html").is_file()
           assert (root / "knowledge/index.v1.json").is_file()
           for asset in (
+              "atlas-structure-core.js",
+              "atlas-structure.css",
               "concept-lens.js",
               "concept-lens-core.js",
               "concept-lens-runtime.js",
@@ -112,22 +145,74 @@ jobs:
           assert all(node.get("knowledge_page") for node in graph["nodes"])
           PY
 
-      - name: Run the package-backed topology smoke
+      - name: Produce certified topology and the multiscale Topology Atlas
         run: |
-          dotnet tools/Trureturing.Topology.Runner/bin/Release/net10.0/Trureturing.Topology.Runner.dll \
+          set -euo pipefail
+          topology_runner="tools/Trureturing.Topology.Runner/bin/Release/net10.0/Trureturing.Topology.Runner.dll"
+          release="sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b0ce7d8d20"
+          dotnet "$topology_runner" certified \
             tests/fixtures/truth-release/truth-graph.v1.json \
-            sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b0ce7d8d20 \
+            "$release" \
             config/algorithm-profile.v1.json \
-            28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b \
+            "$TOPOLOGY_PRODUCER_COMMIT" \
             _site/data/certified-topology.v1.json
+          dotnet "$topology_runner" atlas \
+            tests/fixtures/truth-release/truth-graph.v1.json \
+            "$release" \
+            config/algorithm-profile.v1.json \
+            config/topology-atlas-profile.v1.json \
+            "$TOPOLOGY_PRODUCER_COMMIT" \
+            _site/data/topology-atlas.v1.json
+          dotnet "$topology_runner" atlas \
+            tests/fixtures/truth-release/truth-graph.v1.json \
+            "$release" \
+            config/algorithm-profile.v1.json \
+            config/topology-atlas-profile.v1.json \
+            "$TOPOLOGY_PRODUCER_COMMIT" \
+            "$RUNNER_TEMP/topology-atlas.second.json"
+          cmp _site/data/topology-atlas.v1.json \
+            "$RUNNER_TEMP/topology-atlas.second.json"
+          jq -e \
+            --arg release "$release" \
+            --arg producer "$TOPOLOGY_PRODUCER_COMMIT" \
+            '.schema_version == "topology-atlas.v1"
+              and .truth_release_digest == $release
+              and .producer_commit == $producer
+              and (.hierarchy | length) == 3
+              and (.node_structure | length) > 0' \
+            _site/data/topology-atlas.v1.json >/dev/null
 
-      - name: Project the release-bound Pages atlas
+      - name: Project and conform the release-bound multiscale Pages Atlas
         run: |
+          set -euo pipefail
           dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
             project-atlas \
             _site/data/truth-graph.v1.json \
             _site/data/certified-topology.v1.json \
             _site/data/pages-atlas-view.v1.json \
+            _site/data/pages-atlas-manifest.v1.json \
+            _site/data/topology-atlas.v1.json
+          cp _site/data/pages-atlas-manifest.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json"
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            conform-atlas \
+            _site/data/pages-atlas-view.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json" \
+            _site/data/pages-conformation.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
+            -
+          dotnet src/Trureturing.Pages.Cli/bin/Release/net10.0/Trureturing.Pages.Cli.dll \
+            conform-atlas \
+            _site/data/pages-atlas-view.v1.json \
+            "$RUNNER_TEMP/pages-atlas-manifest.unbound.json" \
+            "$RUNNER_TEMP/pages-conformation.second.json" \
+            "$RUNNER_TEMP/pages-atlas-manifest.second.json" \
+            -
+          cmp _site/data/pages-conformation.v1.json \
+            "$RUNNER_TEMP/pages-conformation.second.json"
+          cmp "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
+            "$RUNNER_TEMP/pages-atlas-manifest.second.json"
+          mv "$RUNNER_TEMP/pages-atlas-manifest.bound.json" \
             _site/data/pages-atlas-manifest.v1.json
           cp _site/data/pages-atlas-view.v1.json \
             _site/data/certified-topology-view.v1.json
@@ -144,19 +229,50 @@ jobs:
 
           root = Path("_site/data")
           graph_bytes = (root / "pages-atlas-view.v1.json").read_bytes()
+          conformation_bytes = (root / "pages-conformation.v1.json").read_bytes()
+          topology_atlas_bytes = (root / "topology-atlas.v1.json").read_bytes()
           graph = json.loads(graph_bytes)
-          manifest = json.loads(
-              (root / "pages-atlas-manifest.v1.json").read_text()
-          )
+          manifest = json.loads((root / "pages-atlas-manifest.v1.json").read_text())
+          conformation = json.loads(conformation_bytes)
+          atlas = json.loads(topology_atlas_bytes)
+          graph_digest = "sha256:" + hashlib.sha256(graph_bytes).hexdigest()
+          conformation_digest = "sha256:" + hashlib.sha256(conformation_bytes).hexdigest()
+          topology_atlas_digest = "sha256:" + hashlib.sha256(topology_atlas_bytes).hexdigest()
+
           assert graph["schema_version"] == "pages-atlas-view.v1"
-          assert manifest["schema_version"] == "pages-atlas-manifest.v1"
-          assert manifest["atlas_graph_digest"] == (
-              "sha256:" + hashlib.sha256(graph_bytes).hexdigest()
-          )
-          assert manifest["counts"]["certified_topology_nodes"] == 4
-          assert all(
-              "descendant_cost" in node
-              for node in graph["nodes"]
-              if node["kind"] == "truth"
-          )
+          assert graph["topology_atlas"]["digest"] == topology_atlas_digest
+          assert len(graph["cluster_hierarchy"]) == 3
+          assert len(graph["clusters"]) == len(atlas["clusters"])
+          truth_nodes = [node for node in graph["nodes"] if node["kind"] == "truth"]
+          assert all(node["atlas_structure_source"] == "topology-atlas.v1" for node in truth_nodes)
+          assert all(node["atlas_cluster_id"].startswith("cluster:sha256:") for node in truth_nodes)
+          assert all(node["structural_role"] for node in truth_nodes)
+          assert any(edge.get("edge_structure_source") == "topology-atlas.v1"
+                     for edge in graph["edges"])
+
+          assert manifest["atlas_graph_digest"] == graph_digest
+          assert manifest["topology_atlas_digest"] == topology_atlas_digest
+          assert manifest["conformation_digest"] == conformation_digest
+          assert conformation["truth_release_digest"] == manifest["truth_release_digest"]
+          assert conformation["atlas_graph_digest"] == graph_digest
+          assert conformation["topology_atlas_digest"] == topology_atlas_digest
+          assert conformation["structure_source"] == "topology-atlas.v1"
+          assert conformation["layout_profile"]["name"] == "pages-topology-atlas-fixed-point-v1"
+          assert conformation["coordinate_encoding"] == {
+              "type": "signed-fixed-point",
+              "scale": 1000,
+          }
+          assert conformation["axes"] == {
+              "depth_axis": "y",
+              "depth_step": 180000,
+          }
+          coordinates = {node["node_id"]: node for node in conformation["nodes"]}
+          assert set(coordinates) == {node["id"] for node in graph["nodes"]}
+          for node in graph["nodes"]:
+              depth = node.get("true_depth", node.get("max_depth", node.get("depth", 0)))
+              assert coordinates[node["id"]]["aligned"]["y"] == depth * 180000
+          assert any(region["authority"] == "topology-atlas-derived"
+                     for region in conformation["regions"])
+          assert any(region["authority"] == "pages-derived-fallback"
+                     for region in conformation["regions"])
           PY

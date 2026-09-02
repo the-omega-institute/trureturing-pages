@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-conformation.v1",
+  "title": "TrueTurning Pages deterministic knowledge conformation v1",
+  "description": "A presentation-only, release-bound fixed-point projection of one Pages Atlas graph. Coordinates do not carry mathematical authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "truth_release_digest",
+    "atlas_graph_digest",
+    "certified_topology_digest",
+    "topology_atlas_digest",
+    "layout_profile",
+    "structure_source",
+    "previous_conformation_digest",
+    "coordinate_encoding",
+    "axes",
+    "regions",
+    "nodes",
+    "camera_presets"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "pages-conformation.v1"
+    },
+    "truth_release_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "atlas_graph_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "certified_topology_digest": {
+      "$ref": "#/$defs/sha256Digest"
+    },
+    "topology_atlas_digest": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/sha256Digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "layout_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "digest"
+      ],
+      "properties": {
+        "name": {
+          "const": "pages-hierarchical-fixed-point-v1"
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256Digest"
+        }
+      }
+    },
+    "structure_source": {
+      "enum": [
+        "pages-fallback-regions",
+        "topology-atlas"
+      ]
+    },
+    "previous_conformation_digest": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/sha256Digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coordinate_encoding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "scale"
+      ],
+      "properties": {
+        "type": {
+          "const": "signed-fixed-point"
+        },
+        "scale": {
+          "const": 1000
+        }
+      }
+    },
+    "axes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "depth_axis",
+        "depth_step"
+      ],
+      "properties": {
+        "depth_axis": {
+          "const": "y"
+        },
+        "depth_step": {
+          "const": 180000
+        }
+      }
+    },
+    "regions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/region"
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "camera_presets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cameraPreset"
+      }
+    }
+  },
+  "$defs": {
+    "sha256Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        },
+        "z": {
+          "type": "integer"
+        }
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "region_id",
+        "label",
+        "authority",
+        "member_node_ids",
+        "intrinsic_centroid",
+        "aligned_centroid",
+        "depth_min",
+        "depth_max"
+      ],
+      "properties": {
+        "region_id": {
+          "type": "string",
+          "pattern": "^region:sha256:[0-9a-f]{64}$"
+        },
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "authority": {
+          "const": "pages-derived-fallback"
+        },
+        "member_node_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "intrinsic_centroid": {
+          "$ref": "#/$defs/point"
+        },
+        "aligned_centroid": {
+          "$ref": "#/$defs/point"
+        },
+        "depth_min": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "depth_max": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "region_id",
+        "true_depth",
+        "intrinsic",
+        "aligned",
+        "movement_reasons"
+      ],
+      "properties": {
+        "node_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "region_id": {
+          "type": "string",
+          "pattern": "^region:sha256:[0-9a-f]{64}$"
+        },
+        "true_depth": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "intrinsic": {
+          "$ref": "#/$defs/point"
+        },
+        "aligned": {
+          "$ref": "#/$defs/point"
+        },
+        "movement_reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "intrinsic-placement",
+              "retained-node-alignment",
+              "certified-depth-changed",
+              "intrinsic-structure-changed",
+              "new-node-neighborhood-seed"
+            ]
+          }
+        }
+      }
+    },
+    "cameraPreset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "position",
+        "look_at"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "position": {
+          "$ref": "#/$defs/point"
+        },
+        "look_at": {
+          "$ref": "#/$defs/point"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pages-counterfactual-preview.v1",
+  "title": "Pages advisory projection of one exact Topology counterfactual valuation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "candidate_ref",
+    "valuation_ref",
+    "truth_release_digest",
+    "topology_atlas_digest",
+    "counterfactual_ref",
+    "accepted",
+    "cycle_risk",
+    "classification",
+    "authority",
+    "operations",
+    "metrics",
+    "affected_node_ids",
+    "affected_stable_node_ids",
+    "touched_cluster_ids",
+    "path_changes",
+    "interface_changes"
+  ],
+  "properties": {
+    "schema": { "const": "pages-counterfactual-preview.v1" },
+    "candidate_ref": { "$ref": "#/$defs/digest" },
+    "valuation_ref": { "$ref": "#/$defs/digest" },
+    "truth_release_digest": { "$ref": "#/$defs/digest" },
+    "topology_atlas_digest": { "$ref": "#/$defs/digest" },
+    "counterfactual_ref": { "$ref": "#/$defs/digest" },
+    "accepted": { "type": "boolean" },
+    "cycle_risk": { "type": "boolean" },
+    "classification": {
+      "enum": [
+        "rejected-cycle",
+        "rejected-topology",
+        "structural-upside",
+        "mixed-structural-risk",
+        "structural-risk",
+        "no-measured-gain"
+      ]
+    },
+    "authority": { "const": "advisory" },
+    "operations": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/operation" }
+    },
+    "metrics": { "$ref": "#/$defs/metrics" },
+    "affected_node_ids": { "$ref": "#/$defs/nodeIds" },
+    "affected_stable_node_ids": { "$ref": "#/$defs/nodeIds" },
+    "touched_cluster_ids": { "$ref": "#/$defs/clusterIds" },
+    "path_changes": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/pathChange" }
+    },
+    "interface_changes": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/interfaceChange" }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "node": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "nullableNode": {
+      "oneOf": [
+        { "$ref": "#/$defs/node" },
+        { "type": "null" }
+      ]
+    },
+    "nodeIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "cluster": {
+      "type": "string",
+      "pattern": "^cluster:sha256:[0-9a-f]{64}$"
+    },
+    "clusterIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/cluster" }
+    },
+    "nonNegativeInteger": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        { "type": "string", "pattern": "^(?:0|[1-9][0-9]*)$" }
+      ]
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "node_id",
+        "stable_node_id",
+        "dependency_id",
+        "dependent_id",
+        "stable_dependency_id",
+        "stable_dependent_id"
+      ],
+      "properties": {
+        "operation": { "enum": ["add-node", "add-edge", "remove-edge"] },
+        "node_id": { "$ref": "#/$defs/nullableNode" },
+        "stable_node_id": { "$ref": "#/$defs/nullableNode" },
+        "dependency_id": { "$ref": "#/$defs/nullableNode" },
+        "dependent_id": { "$ref": "#/$defs/nullableNode" },
+        "stable_dependency_id": { "$ref": "#/$defs/nullableNode" },
+        "stable_dependent_id": { "$ref": "#/$defs/nullableNode" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reachability_gain",
+        "reachability_loss",
+        "path_compression",
+        "shortest_path_change_count",
+        "new_cut_bridge_count",
+        "removed_cut_bridge_count",
+        "new_interface_count",
+        "removed_interface_count",
+        "cycle_witness_count",
+        "affected_stable_node_count",
+        "touched_cluster_count",
+        "edit_operation_count"
+      ],
+      "properties": {
+        "reachability_gain": { "$ref": "#/$defs/nonNegativeInteger" },
+        "reachability_loss": { "$ref": "#/$defs/nonNegativeInteger" },
+        "path_compression": { "$ref": "#/$defs/nonNegativeInteger" },
+        "shortest_path_change_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "new_cut_bridge_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "removed_cut_bridge_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "new_interface_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "removed_interface_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "cycle_witness_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "affected_stable_node_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "touched_cluster_count": { "$ref": "#/$defs/nonNegativeInteger" },
+        "edit_operation_count": { "$ref": "#/$defs/nonNegativeInteger" }
+      }
+    },
+    "pathChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_node_id",
+        "target_node_id",
+        "before_distance",
+        "after_distance"
+      ],
+      "properties": {
+        "source_node_id": { "$ref": "#/$defs/node" },
+        "target_node_id": { "$ref": "#/$defs/node" },
+        "before_distance": {
+          "oneOf": [
+            { "$ref": "#/$defs/nonNegativeInteger" },
+            { "type": "null" }
+          ]
+        },
+        "after_distance": {
+          "oneOf": [
+            { "$ref": "#/$defs/nonNegativeInteger" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "interfaceChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_cluster_id", "target_cluster_id", "relation"],
+      "properties": {
+        "source_cluster_id": { "$ref": "#/$defs/cluster" },
+        "target_cluster_id": { "$ref": "#/$defs/cluster" },
+        "relation": { "enum": ["added", "removed"] }
+      }
+    }
+  }
+}
