@@ -57,7 +57,7 @@ truth-graph projection.
 `Deploy truth-release DAG to GitHub Pages` accepts a `truth_release_digest` dispatch input.
 Use `mock` (the default) for the committed seven-artifact fixture. A real digest resolves
 the immutable release mirror produced by base PR #3346. The workflow verifies the bundle,
-renders the basic DAG, runs the exact `Trureturing.Topology` `0.1.0-alpha.1` NuGet package,
+renders the basic DAG, runs the exact `Trureturing.Topology` `0.2.0-alpha.1` NuGet package,
 renders the enriched DAG through the Python consumer, enforces monotonic freshness, writes
 the deployment manifest, and deploys the unified site artifact.
 
