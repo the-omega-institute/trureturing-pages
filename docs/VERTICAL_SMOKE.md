@@ -8,7 +8,7 @@ The Pages deployment is one serialized, fail-closed state machine:
 3. Render `basic-truth-graph.v1.json` with Closed, Open, Tail, Semantic, Blueprint,
    dependency, narrative-reference, and truth-anchor data.
 4. Run the tiny Pages-owned C# runner against the exact
-   `Trureturing.Topology` `[0.1.0-alpha.1]` NuGet package and pinned algorithm profile.
+   `Trureturing.Topology` `[0.2.0-alpha.1]` NuGet package and pinned algorithm profile.
 5. Pass `certified-topology.v1.json` through the existing Python contract consumer to
    produce `certified-topology-view.v1.json`.
 6. Bind both views in `deployment-manifest.v1.json`, compare it to the live manifest,
@@ -20,14 +20,14 @@ runner or consumer failure stops the single job before `upload-pages-artifact`.
 
 ## Topology invocation
 
-The upstream CLI at tag `v0.1.0-alpha.1` is intentionally non-packable. Pages therefore
+The upstream CLI at tag `v0.2.0-alpha.1` is intentionally non-packable. Pages therefore
 owns a small API adapter in `tools/Trureturing.Topology.Runner` rather than requiring a
 second repository PR and a later package tag. The adapter calls the published library API:
 
 `StrataLintTruthGraphReader -> TopologyBindings.FromAlgorithmProfile -> TopologyCalculator.Compute -> CertifiedTopologySerializer`
 
-The package version is an exact NuGet range, `[0.1.0-alpha.1]`. Its producer commit is
-`28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b`. No topology source is vendored here.
+The package version is an exact NuGet range, `[0.2.0-alpha.1]`. Its producer commit is
+`dbd407d52806b4a87bb3c129f810a10d438a2b53`. No topology source is vendored here.
 
 ## Monotonic deployment
 

@@ -13,8 +13,8 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOPOLOGY_VERSION = "0.1.0-alpha.1"
-TOPOLOGY_PRODUCER_COMMIT = "28375f4a25fec6fd4777da1d7a7b1b8a9e0d8f3b"
+TOPOLOGY_VERSION = "0.2.0-alpha.1"
+TOPOLOGY_PRODUCER_COMMIT = "dbd407d52806b4a87bb3c129f810a10d438a2b53"
 ALGORITHM_PROFILE = ROOT / "config" / "algorithm-profile.v1.json"
 ARTIFACT_KEYS = (
     "source_snapshot",
