@@ -305,11 +305,26 @@
     selectedId = node ? node.id : null;
     if (node) detailElement.dataset.nodeId = node.id;
     else delete detailElement.dataset.nodeId;
-    if (refresh && renderer) refreshGraph();
+    // A selection change only alters highlighting, not the visible node/link set.
+    // Re-apply the colour/width accessors so the selection restyles, but never
+    // re-issue graphData(): setting graphData reheats the force engine and makes
+    // the pinned conformation drift on every click. View changes (mode / cluster /
+    // lod) still call refreshGraph(), because those actually change the node set.
+    if (refresh && renderer) restyleGraph();
     else {
       updateContextBar();
       syncUrl();
     }
+  }
+
+  function restyleGraph() {
+    if (!renderer || !model) return;
+    renderer
+      .nodeColor(nodeColor)
+      .linkColor(linkColor)
+      .linkWidth(linkWidth);
+    updateContextBar();
+    syncUrl();
   }
 
   function liveNode(id) {
