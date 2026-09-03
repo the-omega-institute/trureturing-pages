@@ -697,6 +697,25 @@
       manifest = state.atlasManifest;
       conformation = state.layout;
       positionById = state.positions;
+      // Normalize the conformation to a stable display radius. The topology
+      // package's raw coordinate magnitude changes between releases (0.2.0 spans
+      // ~1000x more than 0.1.0), which left the fixed-size nodes as invisible
+      // dust after zoomToFit. Rescale every position so the point cloud always
+      // fills the same display radius; node sizing and camera framing then work
+      // at any topology scale.
+      {
+        const DISPLAY_RADIUS = 1200;
+        const rawRadius = Semantic.canonicalRadius(positionById) || 1;
+        const displayScale = DISPLAY_RADIUS / rawRadius;
+        if (Number.isFinite(displayScale) && displayScale > 0
+            && Math.abs(displayScale - 1) > 1e-6) {
+          for (const point of positionById.values()) {
+            point.x *= displayScale;
+            point.y *= displayScale;
+            point.z *= displayScale;
+          }
+        }
+      }
       model = Atlas.createModel(sourceGraph, conformation);
       atlasRadius = Semantic.canonicalRadius(positionById);
       populateControls();
