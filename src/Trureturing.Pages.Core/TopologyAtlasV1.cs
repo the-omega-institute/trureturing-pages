@@ -244,7 +244,8 @@ internal static class PagesTopologyAtlasReader
                 "representative_node_ids",
                 path,
                 minimum: 1,
-                maximum: 3);
+                maximum: 3,
+                requireSorted: false);
             string[] boundaries = RequiredStringArray(
                 value,
                 "boundary_node_ids",
