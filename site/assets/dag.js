@@ -518,10 +518,13 @@
 
   function updateClusterOverlay() {
     if (!clusterOverlay || !renderer) return;
+    // The default far overview shows the clean graph; community hulls are drawn
+    // only once the viewer zooms in (medium) or focuses a single cluster.
+    // Projecting every cluster's member bounding box at the far zoom produced a
+    // few enormous overlapping bubbles that dominated the initial view.
     const visible = activeMode === "structure"
       && hullRecords.length > 0
-      && (effectiveLod === "far"
-        || effectiveLod === "medium"
+      && (effectiveLod === "medium"
         || activeCluster !== "All");
     clusterOverlay.hidden = !visible;
     if (!visible) return;
