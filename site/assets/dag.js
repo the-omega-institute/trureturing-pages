@@ -150,6 +150,41 @@
         throw new Error(`Conformation has no coordinate for ${node.id}.`);
       }
     }
+    // Normalize the pinned layout to a fixed display radius, centered at the
+    // origin. The conformation's raw coordinate encoding is not a display scale
+    // (the 0.2.0 depth-stratified encoding spans a range large enough to push
+    // nodes off-screen and collapse zoomToFit to a dot), so rescale every point
+    // to a stable on-screen size while preserving the exact relative layout.
+    const DISPLAY_RADIUS = 1200;
+    let cx = 0;
+    let cy = 0;
+    let cz = 0;
+    for (const point of positions.values()) {
+      cx += point.x;
+      cy += point.y;
+      cz += point.z;
+    }
+    const count = positions.size;
+    if (count > 0) {
+      cx /= count;
+      cy /= count;
+      cz /= count;
+      let maxRadius = 0;
+      for (const point of positions.values()) {
+        const radius = Math.hypot(point.x - cx, point.y - cy, point.z - cz);
+        if (radius > maxRadius) maxRadius = radius;
+      }
+      if (maxRadius > 0) {
+        const factor = DISPLAY_RADIUS / maxRadius;
+        for (const [id, point] of positions) {
+          positions.set(id, {
+            x: (point.x - cx) * factor,
+            y: (point.y - cy) * factor,
+            z: (point.z - cz) * factor
+          });
+        }
+      }
+    }
     return positions;
   }
 
