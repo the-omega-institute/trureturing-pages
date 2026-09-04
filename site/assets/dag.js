@@ -704,16 +704,35 @@
       // fills the same display radius; node sizing and camera framing then work
       // at any topology scale.
       {
-        const DISPLAY_RADIUS = 1200;
-        const rawRadius = Semantic.canonicalRadius(positionById) || 1;
-        const displayScale = DISPLAY_RADIUS / rawRadius;
-        if (Number.isFinite(displayScale) && displayScale > 0
-            && Math.abs(displayScale - 1) > 1e-6) {
-          for (const point of positionById.values()) {
-            point.x *= displayScale;
-            point.y *= displayScale;
-            point.z *= displayScale;
-          }
+        // The release-bound conformation is a thin depth-stratified disc (its
+        // vertical axis spans only ~1/6 of the horizontal plane), so a uniform
+        // rescale renders it nearly flat. Normalize each axis independently to a
+        // shared span so the structure gains real volume — the depth layers pull
+        // apart vertically and the graph reads as a legible 3D body rather than a
+        // flat sheet. This is a deterministic O(n) transform (no in-browser force
+        // simulation), so it stays fast at the full node count.
+        const DISPLAY_SPAN = 2200;
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        let minZ = Infinity, maxZ = -Infinity;
+        for (const point of positionById.values()) {
+          if (point.x < minX) minX = point.x;
+          if (point.x > maxX) maxX = point.x;
+          if (point.y < minY) minY = point.y;
+          if (point.y > maxY) maxY = point.y;
+          if (point.z < minZ) minZ = point.z;
+          if (point.z > maxZ) maxZ = point.z;
+        }
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+        const centerZ = (minZ + maxZ) / 2;
+        const scaleX = DISPLAY_SPAN / ((maxX - minX) || 1);
+        const scaleY = DISPLAY_SPAN / ((maxY - minY) || 1);
+        const scaleZ = DISPLAY_SPAN / ((maxZ - minZ) || 1);
+        for (const point of positionById.values()) {
+          point.x = (point.x - centerX) * scaleX;
+          point.y = (point.y - centerY) * scaleY;
+          point.z = (point.z - centerZ) * scaleZ;
         }
       }
       model = Atlas.createModel(sourceGraph, conformation);
