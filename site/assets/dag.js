@@ -298,7 +298,7 @@
     syncUrl();
     statusElement.className = "graph-status graph-status-ready";
     statusElement.textContent = statusText(data);
-    if (fit) window.setTimeout(() => renderer.zoomToFit(500, 70), 80);
+    if (fit) window.setTimeout(() => renderer.zoomToFit(500, 45), 80);
   }
 
   function publishSelection(node, refresh = true) {
@@ -398,22 +398,14 @@
   }
 
   function resetCamera() {
-    if (!renderer || !conformation) return;
+    if (!renderer) return;
     automaticLod = "far";
-    const scale = Number(conformation.coordinate_encoding.scale);
-    const preset = Array.isArray(conformation.camera_presets)
-      ? conformation.camera_presets.find((item) => item.name === "overview")
-      : null;
-    if (!preset) {
-      renderer.zoomToFit(700, 70);
-      refreshGraph();
-      return;
-    }
-    renderer.cameraPosition(
-      scalePoint(preset.position, scale),
-      scalePoint(preset.look_at, scale),
-      reduceMotion ? 0 : 700
-    );
+    // Always frame the actual rendered node cloud. The conformation's camera
+    // presets are expressed in the raw release coordinate space, which no longer
+    // matches the per-axis-normalized display positions — using them left the
+    // graph as a tiny speck far off-center. zoomToFit frames whatever geometry is
+    // on screen with a tight padding so the structure fills the viewport.
+    renderer.zoomToFit(reduceMotion ? 0 : 600, 45);
     refreshGraph();
   }
 
@@ -439,6 +431,7 @@
       })
       .nodeColor(nodeColor)
       .nodeVal(Atlas.nodeValue)
+      .nodeRelSize(6)
       .nodeResolution(12)
       .linkColor(linkColor)
       .linkWidth(linkWidth)
@@ -691,7 +684,7 @@
     else statusElement.textContent = `No concept matches "${queryInput.value.trim()}".`;
   });
 
-  fitButton.addEventListener("click", () => renderer && renderer.zoomToFit(500, 70));
+  fitButton.addEventListener("click", () => renderer && renderer.zoomToFit(500, 45));
   if (resetButton) resetButton.addEventListener("click", resetCamera);
 
   loadBoundState()
