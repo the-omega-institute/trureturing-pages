@@ -33,6 +33,12 @@ together using vendored `d3-force-3d`. The deterministic simulation runs in a We
 Worker and stops before rendering. Family positions are editorial composition,
 not a metric of inter-family similarity. The About dialog states this boundary.
 
+The `atlas-dependency-scaffold-v2` layout selects a deterministic primary parent
+from existing same-family proof dependencies, weighted by actual reuse and
+downstream support. Depth and curved local targets give each family an internal
+skeleton. Secondary parents and all original relations remain available; the
+display skeleton does not change mathematical provenance.
+
 The overview shows mathematical nodes and certified dependencies. Selecting a
 concept adds its documents and structural connections. Proof, affinity, document,
 advisory, and authored relationships remain separately classified; topic membership
@@ -58,6 +64,20 @@ path in the public experience; each concept links to related Research dossiers.
 The advanced console remains available at `dag.html`. See
 [Living knowledge](LIVING_KNOWLEDGE.md) for the four-view information architecture.
 
+Selection colors distinguish the selected concept, upstream foundations,
+downstream consequences, documents and affinity. The camera frames nearby direct
+neighbors around the selected concept; this framing does not truncate the full
+relationship set. Previous view restores the exact camera and exploration state,
+including on mobile. Adaptive landmark labels prioritize selected concepts and
+avoid controls and other labels.
+
+At overview distance, directed cross-family proof dependencies are aggregated
+into curved bundles with exact counts. Selecting a bundle exposes every original
+source/target pair. Close zoom expands the individual dependencies, and the bundle
+toggle exposes them at any distance. Lighting, restrained distance fog and node
+resolution adapt to the camera. Semantic overlays load after graph readiness and
+share the existing renderer. They do not add another canvas or layout simulation.
+
 The Connections tab embeds an interactive relationship map. Generated Wiki pages
 provide All relations, Proof paths, Structural affinity, and Documents views,
 with zoom, fit, selected-node focus, expansion, and node navigation. Dagre lays out
@@ -70,6 +90,9 @@ release history, authentication callback, and both current and immutable Wiki
 pages. `lib.knowledge_pages` generates a compact, hash-bound relationship artifact
 per release. The Pages workflow regenerates Wiki pages after the final Atlas is
 enriched, preserving structural affinities and manifest-bound source graph bytes.
+Desktop headers use a shared three-column grid: brand left, navigation centered
+in the viewport and status right. Mobile uses a fixed two-row arrangement with
+centered navigation in the second row, across current and immutable pages.
 
 ## Research questions and module state
 
@@ -88,6 +111,11 @@ Atlas and Library but are not research targets merely because of their state.
 Gold nodes denote research anchors; a closed foundation can support an open
 research question. A missing, corrupt or mismatched catalog reports unavailable
 research and never falls back to guessing from module status.
+
+Wireframe question markers and dashed authored associations form a separate
+research overlay. Selecting a marker opens its released foundations and links to
+the dossier's missing bridges and proposed approach. Neither a marker nor its
+dashed connections represent a certified proof or an inferred solution.
 
 No Topology contract extension is required for this source-backed view. Topology
 continues to supply proof structure; authored research classification comes from
@@ -112,6 +140,16 @@ Changes to public layout semantics must increment `LAYOUT_PROFILE` in
 `site/assets/atlas-startup.mjs`; the deploy step regenerates artifacts for every
 release and Pages build. The original certified Topology conformation remains
 separate from these editorial display coordinates.
+
+Release-change highlights compare verified architecture snapshots and, when
+available, release-bound Library history. New concepts are green, content updates
+amber, and new proof edges carry directional emphasis. The changes panel also
+records removals. A single real release is explicitly a baseline: its change
+toggle is disabled, and no growth is invented. Incompatible analysis profiles
+cannot produce comparable architecture changes; absent edge history is unknown,
+not a zero count. Daily source activity remains distinct from Truth releases.
+The optional short emphasis runs once per release per browser session and respects
+reduced-motion preferences.
 
 Run `node tools/benchmark_atlas.cjs` with Playwright available through `NODE_PATH`.
 `ATLAS_URL` selects a local or public Atlas. The benchmark reports cold/repeat
@@ -147,6 +185,9 @@ With those packages available to Node and the preview server running:
 node tests/browser/atlas-public.cjs
 node tests/browser/atlas-research.cjs
 node tests/browser/atlas-startup.cjs
+node tests/browser/atlas-visual.cjs
+node tests/browser/atlas-release-changes.cjs
+node tests/browser/header-alignment.cjs
 node tests/browser/pages-theme.cjs
 node tests/browser/architecture.cjs
 python3 -m unittest discover -s tests -p 'test_*.py'
@@ -159,6 +200,18 @@ camera motion, view modes, and responsive layouts.
 The shared-page suite also verifies complete relationships, category filters,
 retained context, interactive 2D graphs, current/immutable navigation, Library
 search/pagination, no-JavaScript fallbacks, and the theme on every owned page type.
+The visual suite checks real dependency bundles, camera restoration, research
+markers and responsive label collisions. The release-change browser suite uses
+an isolated two-release test fixture; that fixture is never deployed as history.
+
+The additional Three.js exports are pinned in `tools/three-atlas-entry.mjs` and
+`site/assets/vendor/README.md`. With `three@0.184.0` and `esbuild@0.25.5` installed
+in the build toolchain, rebuild the vendor module with:
+
+```bash
+esbuild tools/three-atlas-entry.mjs --bundle --format=esm --minify \
+  --outfile=site/assets/vendor/three-atlas.mjs --legal-comments=inline
+```
 
 ## Remaining design work
 
