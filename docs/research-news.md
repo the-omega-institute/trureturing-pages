@@ -38,6 +38,22 @@ Truth release. The renderer checks module presence separately, and even when
 present links the resolution claim to its pinned evidence. This catalog does
 not replace upstream typed `OpenProblemResolutionClaim` validation.
 
+The structured interface improvement is submitted as
+[trureturing PR #6221](https://github.com/the-omega-institute/trureturing/pull/6221).
+It adds `nodes[].open_problem_resolution.declaration_gid` to the existing
+`scribe-describe-report-v2` JSON and its corresponding text record. A Describe
+node ID names an editorial block and must not be used to infer a Lean theorem
+selector. The new field carries the exact declaration selected by the typed
+statement, consistent with the existing Markdown marker.
+
+This PR is submitted for upstream review, not merged or consumed by Pages yet.
+The current release importer below remains in use. A future structured-report
+importer must check report status and findings and tie the report, dossiers,
+declaration and Frozen evidence to the same captured source commit. It must
+also retain the external statement and exact proved/refuted scope: report
+validation alone cannot establish that a Lean statement answers that question.
+Neither importer makes mdBook a synchronization dependency.
+
 `lib/problem_resolutions.py` also imports emitted
 `scribe-open-problem-resolution-v1` Markdown comments from Blueprint files at
 the release's pinned source commit. Bindings must name an existing problem,
