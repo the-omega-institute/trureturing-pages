@@ -1,0 +1,807 @@
+{
+  "schema_version": "pages-research-catalog.v1",
+  "revision": "2026-09-07.2",
+  "source_repo": "the-omega-institute/trureturing",
+  "source_commit": "89231f9140ce2138a4e74d4d03421c724149ac24",
+  "reviewed": "2026-09-07",
+  "review_scope": "Round 2 checks versioned arXiv sources and selected upstream source declarations. New families have per-family repository pins. Source-reported results are not independently verified proofs, and this is not an exhaustive literature or in-flight formalization audit. Unannotated legacy dossiers remain not rechecked. Proposed subproblems remain proposals.",
+  "families": [
+    {
+      "id": "golden-ratio-base4-dfao-minimality",
+      "title": "Is the 22-state base-4 golden-ratio DFAO minimal?",
+      "area": "Automata",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2405.02727",
+      "anchors": [
+        "D5/S0/Conventions/WDigits",
+        "D5/S1/Words/ZeckendorfOrder",
+        "D5/S1/Words/ZeckendorfBeattyBridge"
+      ],
+      "question": "Must every leading-zero-invariant DFAO that produces the correct golden-ratio digit on all Zeckendorf encodings of 4^i have at least 22 states?",
+      "foothold": "Canonical digits, exact ordering and the Beatty bridge supply arithmetic inputs without floating-point phi.",
+      "gap": "Minimizing the full valid-input machine does not establish minimality on the sparse powers-of-four language.",
+      "next_step": "Verify the published transition table and exact input/output conventions before searching for a smaller machine.",
+      "success": "An all-powers correctness proof for a machine with at most 21 states, or a sound lower-bound certificate excluding every such machine.",
+      "keywords": [
+        "黄金",
+        "自动机",
+        "四次幂",
+        "4^i",
+        "Walnut",
+        "Myhill-Nerode"
+      ],
+      "targets": [
+        {
+          "id": "dfao-sparse-distinguishability",
+          "title": "A sparse-language distinguishability certificate",
+          "kind": "bridge",
+          "question": "Can 22 prefixes be found such that every pair has a common suffix making both completed words legal power inputs with different required outputs?",
+          "gap": "Each separation witness must constrain both words inside the sparse domain. Full-language Myhill-Nerode witnesses may be irrelevant here.",
+          "next_step": "Build exact labelled prefix trees; search for a 22-clique of pairwise incompatible prefixes and retain both completed power inputs for every edge.",
+          "success": "A checked finite incompatibility certificate plus a proof that it forces 22 distinct states. Failure to find a clique leaves other lower-bound methods open.",
+          "related": [
+            "polynomial-successor-certificate"
+          ]
+        },
+        {
+          "id": "dfao-finite-unsat",
+          "title": "A finite, replayable 21-state UNSAT obstruction",
+          "kind": "certificate",
+          "question": "Can a finite set of exact power-input digit constraints already exclude all DFAOs with at most 21 states under the chosen conventions?",
+          "gap": "A solver verdict needs a proof-checking and encoding-soundness bridge. A SAT candidate still requires all-powers verification.",
+          "next_step": "Encode a bounded labelled sample, export an independently checkable UNSAT certificate, and account for state renaming and leading-zero invariance.",
+          "success": "Every globally correct DFAO must satisfy the sample; a sound finite UNSAT certificate therefore proves the lower bound. Finite sample completeness is unnecessary for this direction.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "mub-six-fourth-basis",
+      "title": "Can four mutually unbiased bases exist in dimension six?",
+      "area": "Quantum geometry",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2410.23997",
+      "anchors": [
+        "D5/S3/Quantum/Tomography/RankOneContextCommutator",
+        "D5/S3/Quantum/Tomography/CompleteContextTomography",
+        "D5/S3/Quantum/Tomography/ComplementaryContextProbabilityPythagoras"
+      ],
+      "question": "Does a family of four orthonormal bases of complex dimension six exist with every cross-basis squared inner product equal to 1/6?",
+      "foothold": "Rank-one contexts, overlaps and complementary-context identities express nearby exact geometry.",
+      "gap": "Conditional tomography identities assume the family. A complete seven-basis design identity does not automatically constrain a four-basis family.",
+      "next_step": "Establish the exact basis/context correspondence, then express all cross-basis compatibility equations in one coordinate system.",
+      "success": "An exact four-basis construction or a nonexistence proof covering the whole feasible set, with no unverified classification assumed.",
+      "keywords": [
+        "六维",
+        "互无偏基",
+        "MUB",
+        "Hadamard",
+        "projector"
+      ],
+      "targets": [
+        {
+          "id": "mub-basis-context",
+          "title": "An exact basis-to-projector bridge",
+          "kind": "bridge",
+          "question": "Can orthonormal bases modulo individual phases be represented faithfully as labelled complete rank-one projector contexts, preserving the MUB overlap condition?",
+          "gap": "Rank-one, completeness, orthogonality, labelling and phase equivalence all need explicit hypotheses.",
+          "next_step": "Formalize both directions and prove trace(P_i Q_j) = |inner(v_i,w_j)|^2, using the repository context definitions.",
+          "success": "A proved correspondence at dimension six that translates the four-basis feasible set without adding a two-design assumption.",
+          "related": []
+        },
+        {
+          "id": "mub-joint-compatibility",
+          "title": "A certificate for joint Hadamard compatibility",
+          "kind": "certificate",
+          "question": "Can an independently verified order-six Hadamard parameterization support a complete exact exclusion or construction for three Hadamards relative to the identity basis?",
+          "gap": "A classification claim alone leaves pairwise and joint compatibility to prove. Numerical near-solutions do not satisfy exact equations.",
+          "next_step": "First check parameterization coverage and exceptional branches, then express every required cross-Gram modulus equation and seek exact certificates.",
+          "success": "An exact solution or branch-covering exclusion with proved coverage. Treat the dossier-mentioned classification preprint as unverified input until checked.",
+          "related": []
+        },
+        {
+          "id": "mub-projector-sos-scope",
+          "title": "Which projector-coordinate constraint could exclude four bases?",
+          "kind": "route-test",
+          "question": "After checking the vector-coordinate obstruction, can a faithful projector formulation impose a dimension-six constraint stronger than m <= d+1?",
+          "gap": "The existing elementary projector bound permits four, five, six and seven bases at d=6. No stronger exclusion is supplied by that bound.",
+          "next_step": "Track polynomial degree before and after P=vv*. First reproduce the stated separation, then test exact certificates for a genuinely stronger constraint.",
+          "success": "A scope-correct formalization of the reported obstruction or a new certificate for the four-basis feasible set. Failure of one encoding is not nonexistence.",
+          "related": [
+            "mub-basis-context",
+            "sic-fiducial-orbit"
+          ]
+        }
+      ],
+      "updates": [
+        {
+          "arxiv_id": "2606.13903",
+          "version": "v1",
+          "title": "Degree-Four Vector-Coordinate SoS Cannot Detect the MUB Upper Bound",
+          "submitted": "2026-06-11",
+          "revised": "2026-06-11",
+          "checked": "2026-09-07",
+          "locator": "Sections 8 to 10; consequences for Randomstrasse101 Open Problem 23",
+          "status": "route-obstruction",
+          "note": "The preprint reports a degree-four obstruction for the two specified vector-coordinate encodings. Centered projectors recover m <= d+1, which still allows four bases in dimension six. Neither result decides the fourth-basis question; no independent proof replay is claimed."
+        }
+      ]
+    },
+    {
+      "id": "base-phi-negative-prefix-trident",
+      "title": "Do negative base-phi prefixes obey the trident classification?",
+      "area": "Golden numeration",
+      "scope": "theorem",
+      "doi": "10.48550/arXiv.2305.08349",
+      "anchors": [
+        "D5/S0/Conventions/WDigits",
+        "D5/S1/Words/ReturnWords/GoldenReturnWordsExact",
+        "D5/S1/Words/ReturnWords/GoldenOccurrenceGaps",
+        "D5/S1/Deficit/ZeckendorfDisplacementReading"
+      ],
+      "question": "Is each admissible negative-prefix occurrence sequence one Lucas-parameterized V_F, V_G or V_H component, or an allowed union of three components?",
+      "foothold": "Exact golden return itineraries, gap spectra and Beatty displacement identities provide candidate tools.",
+      "gap": "Negative-position base-phi digits need a value-preserving conversion, followed by an identification with the specific subshifts in the paper.",
+      "next_step": "Port the two-sided expansion and the three sequence families with explicit union and multiplicity conventions.",
+      "success": "The classification for every admissible prefix, or an exact necessary-invariant violation excluding all permitted parameterizations.",
+      "keywords": [
+        "负位",
+        "黄金",
+        "trident",
+        "Lucas",
+        "Sturmian"
+      ],
+      "targets": [
+        {
+          "id": "negative-prefix-transducer",
+          "title": "A bounded-state negative-prefix transducer",
+          "kind": "bridge",
+          "question": "For each fixed prefix length m, can a finite-state transducer read canonical Zeckendorf input and output the first m negative-position base-phi digits?",
+          "gap": "Contractive intuition is insufficient: carry residues and a uniform reachable-state bound for fixed m need proof.",
+          "next_step": "Compute exact Z[phi] residue traces, propose a state invariant, and prove transition closure and output correctness.",
+          "success": "A finite machine with a proof for every canonical input at fixed m. Finite samples alone establish neither the state bound nor correctness.",
+          "related": [
+            "polynomial-carry-window"
+          ]
+        },
+        {
+          "id": "negative-prefix-return-itinerary",
+          "title": "From negative cylinders to exact return itineraries",
+          "kind": "bridge",
+          "question": "Can each negative-prefix cylinder be identified with the paper's F, G or H itinerary, or its allowed three-component interleaving?",
+          "gap": "Existing golden-word return theorems apply only after the cylinder/subshift identification is established.",
+          "next_step": "Start with one admissible single-component prefix; derive its gap word and Lucas parameters by exact desubstitution.",
+          "success": "A quantified cylinder-to-itinerary equality and Lucas-parameter recursion. Record any violated gap or return-word invariant.",
+          "related": []
+        },
+        {
+          "id": "phi-kimberling-conversion-check",
+          "title": "Use the proved Kimberling criterion as a conversion check",
+          "kind": "bridge",
+          "question": "Can the exponent-doubling criterion in Shallit and Vukusic Theorem 5 be transported faithfully to the repository's exact two-sided phi representation?",
+          "gap": "The criterion is reported proved externally. Its formalization needs the same canonical digit and symmetry conventions and does not settle the trident conjecture.",
+          "next_step": "Port the symmetry and integer-value predicates, replay the exact algebraic criterion, and use it as a regression case for two-sided digit conversion.",
+          "success": "A faithful theorem-level bridge to a known result, with no claim of a new conjecture resolution.",
+          "related": [
+            "negative-prefix-transducer"
+          ]
+        }
+      ],
+      "updates": [
+        {
+          "arxiv_id": "2509.16150",
+          "version": "v2",
+          "title": "New properties of the φ-representation of integers",
+          "submitted": "2025-09-19",
+          "revised": "2026-03-11",
+          "checked": "2026-09-07",
+          "locator": "Section 2, Lemmas 2 and 3, Theorem 5 (Kimberling conjecture)",
+          "status": "proved-in-source",
+          "note": "The paper reports a proof of the exponent-doubling criterion for symmetric phi-representations. It supplies a conversion test case, not a proof of the general negative-prefix trident classification. The arXiv revision is March 2026, not its HTML generation date."
+        }
+      ]
+    },
+    {
+      "id": "ordered-zeckendorf-long-game-strategy",
+      "title": "Does the Ordered Zeckendorf Long Game Strategy maximize length?",
+      "area": "Rewriting games",
+      "scope": "theorem",
+      "doi": "10.48550/arXiv.2508.20222",
+      "anchors": [
+        "D5/S1/Digit/Raw",
+        "D5/S1/Digit/Carry",
+        "D5/S0/Rewriting/NewmanConfluence",
+        "D5/S0/Rewriting/NormalFormFunction"
+      ],
+      "question": "Among legal terminal runs starting from n copies of F_1, does the specified Long Game Strategy attain maximum length?",
+      "foothold": "Value-preserving rewrites and canonical normal forms supply the forgetful arithmetic structure.",
+      "gap": "Ordered states, the exact game orientation, path length and the meaning of arbitrary switch order require separate treatment.",
+      "next_step": "Define the five ordered moves and resolve whether all switch tie choices are intended to be equally optimal.",
+      "success": "A longest-path proof for the precise strategy semantics, or two exact legal runs witnessing a failure.",
+      "keywords": [
+        "游戏",
+        "最长",
+        "LGS",
+        "Bellman",
+        "confluence"
+      ],
+      "targets": [
+        {
+          "id": "lgs-switch-order",
+          "title": "Does switch-order freedom preserve LGS length?",
+          "kind": "route-test",
+          "question": "Do all allowed switch tie choices lead to the same LGS terminal length from the specified initial states?",
+          "gap": "The universal LGS statement depends on this interpretation; normal-form uniqueness does not imply equal run lengths.",
+          "next_step": "Enumerate exact ordered states and all switch tie choices for bounded n; retain differing lengths and full move traces.",
+          "success": "A switch-order independence proof, or an exact counterexample requiring a deterministic or existential reformulation.",
+          "related": [
+            "game-path-measures"
+          ]
+        },
+        {
+          "id": "lgs-bellman-exchange",
+          "title": "Height-preserving local exchanges for LGS",
+          "kind": "bridge",
+          "question": "Can each LGS priority choice be shown to attain an argmax successor of the longest-remaining-path Bellman recursion?",
+          "gap": "The game DAG needs its own termination proof. Local exchange lemmas may fail even when global optimality survives.",
+          "next_step": "Test swap-first, leftmost-one merge and rightmost-split exchanges against exact state heights; save both suffix witnesses at the first failure.",
+          "success": "Proved height dominance for every reachable strategy state, followed by well-founded induction. A failed exchange refutes that route only.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "random-zeckendorf-game-gaussianity",
+      "title": "Do random Zeckendorf game lengths have a Gaussian limit?",
+      "area": "Probability",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2210.11038",
+      "anchors": [
+        "D5/S1/Digit/Raw",
+        "D5/S1/Digit/Normalize",
+        "D5/S0/Asymptotics/WeightedProbability/FiniteProductCapture",
+        "D5/S0/Asymptotics/WeightedProbability/SecondMomentCoherence"
+      ],
+      "question": "Under a precisely specified random game measure, does the centered, variance-normalized length converge to a Gaussian?",
+      "foothold": "Finite weighted probability, event counts and moments support exact bounded game calculations.",
+      "gap": "Uniform terminal-path sampling and locally uniform move sampling give different measures. A limit theorem needs dependence control and nondegenerate variance.",
+      "next_step": "Define both path measures exactly; prioritize the dossier's locally uniform mixing question with explicit quantifiers.",
+      "success": "A limit theorem with its hypotheses discharged. Histograms and finite moment agreement remain empirical evidence.",
+      "keywords": [
+        "随机",
+        "高斯",
+        "CLT",
+        "mixing",
+        "regeneration"
+      ],
+      "targets": [
+        {
+          "id": "game-path-measures",
+          "title": "Two exact game-length generating functions",
+          "kind": "bridge",
+          "question": "Can exact finite recursions distinguish uniform terminal-path sampling from locally uniform successor sampling on the game DAG?",
+          "gap": "Move multiplicities and suffix-path counts affect transition weights. Treating the measures as interchangeable changes the target.",
+          "next_step": "Compute both rational generating functions independently on small value-preserving state DAGs, with the terminal state contributing 1.",
+          "success": "Proved recursions, normalization and moment identities for both measures, including an explicit comparison example.",
+          "related": [
+            "lgs-switch-order"
+          ]
+        },
+        {
+          "id": "game-regenerative-barrier",
+          "title": "A uniform regenerative-barrier estimate",
+          "kind": "research-question",
+          "question": "Can a canonical digit barrier bound the dependence of separated split indicators uniformly over initial input size?",
+          "gap": "Finite carry locality need not survive conditioning on entire random histories. The relevant mixing-CLT summability and variance hypotheses must be checked explicitly.",
+          "next_step": "Search exact history pairs that share a proposed barrier, then measure and bound influence-crossing events under the chosen measure.",
+          "success": "An explicit uniform mixing estimate strong enough for the selected CLT, or a minimal history pair invalidating the proposed barrier.",
+          "related": [
+            "negative-prefix-transducer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wall-sun-sun-golden-unit-lift",
+      "title": "Can a prime have equal Fibonacci periods modulo p and p²?",
+      "area": "Arithmetic",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2603.25343",
+      "anchors": [
+        "D5/S0/Carrier/Units",
+        "D5/S1/Scale/Fibonacci",
+        "D5/S3/Arith/FibonacciRank",
+        "D5/S3/Arith/GoldenApparition",
+        "D5/S3/Arith/GoldenPrimeSplitting"
+      ],
+      "question": "Does a prime p exist with pi(p) = pi(p²), where pi is the Pisano period? The infinitely-many assertion is a separate stronger question.",
+      "foothold": "Golden-unit powers, Fibonacci coordinates, apparition ranks and split/inert arithmetic connect the mod-p side.",
+      "gap": "The exceptional lift from p to p² is missing. A finite search with no examples does not refute existence.",
+      "next_step": "Identify recurrence period, matrix order and golden-unit order before studying the first lift defect.",
+      "success": "A verified prime witness or a universal nonexistence proof. Keep local bridge theorems separate from the global existence question.",
+      "keywords": [
+        "素数",
+        "Pisano",
+        "Wall-Sun-Sun",
+        "WSS",
+        "p-adic"
+      ],
+      "targets": [
+        {
+          "id": "pisano-matrix-order",
+          "title": "Pisano period as matrix and golden-unit order",
+          "kind": "bridge",
+          "question": "For m >= 2, can the pair-recurrence period be proved equal to the multiplicative order of A = [[0,1],[1,1]] over Z/mZ and of its golden-unit representation?",
+          "gap": "Matrix order concerns the whole matrix, so equality with the orbit period needs proof; invertibility and indexing must be explicit.",
+          "next_step": "Prove the Fibonacci formula for A^n and compare the return condition (F_n,F_(n+1)) = (0,1) modulo m.",
+          "success": "A reusable equivalence for all m >= 2, with small-modulus conventions stated and checked.",
+          "related": []
+        },
+        {
+          "id": "pisano-first-lift-defect",
+          "title": "The first-lift defect criterion modulo p²",
+          "kind": "bridge",
+          "question": "With r = pi(p) and A^r = I + pB modulo p², is pi(p²) equal to r exactly when B vanishes modulo p, and otherwise equal to pr?",
+          "gap": "The argument requires the reduction-order relation and a justified calculation of the order of I+pB, including small primes.",
+          "next_step": "Define B as a residue class, prove the kernel-order dichotomy, and cross-check recurrence and matrix computations independently.",
+          "success": "A proved local lift dichotomy with every prime case covered. This does not settle whether a vanishing defect ever occurs.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "zeckendorf-polynomial-maximum-order-complexity",
+      "title": "How large is maximum order complexity along polynomial inputs?",
+      "area": "Sequence complexity",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2106.09959",
+      "anchors": [
+        "D5/S0/Conventions/WDigits",
+        "D5/S1/Digit/Carry",
+        "D5/S1/Digit/Normalize",
+        "D5/S1/Words/Complexity/MorseHedlund"
+      ],
+      "question": "For the parity of the Zeckendorf digit sum along n², can maximum order complexity of the first N terms be bounded above by C N^(1/4) for all sufficiently large N?",
+      "foothold": "Canonical digit normalization and factor tools support exact repeated-block analysis.",
+      "gap": "Factor complexity is a different invariant. The upper bound needs a uniform successor-determinism or carry-state argument.",
+      "next_step": "Implement the exact finite repeated-block criterion before attempting an effective carry-window bound.",
+      "success": "A quantified upper bound with constants and threshold, or a counterexample to a stated effective bound. Finite scaling plots do not settle the exponent.",
+      "keywords": [
+        "复杂度",
+        "多项式",
+        "feedback",
+        "DAWG",
+        "carry"
+      ],
+      "targets": [
+        {
+          "id": "polynomial-successor-certificate",
+          "title": "An exact successor-collision certificate",
+          "kind": "certificate",
+          "question": "Can finite maximum order complexity be certified by equal-length block collisions and their following bits, including degenerate constant-prefix cases?",
+          "gap": "Off-by-one conventions and special zero-memory cases must match the source definition.",
+          "next_step": "Cross-check a naive implementation against a suffix-based method; emit equal blocks with unequal successors for every claimed lower bound.",
+          "success": "A proved finite criterion and replayable witnesses, independent of any conjectured asymptotic exponent.",
+          "related": [
+            "dfao-sparse-distinguishability"
+          ]
+        },
+        {
+          "id": "polynomial-carry-window",
+          "title": "Can bounded carry state force the next parity bit?",
+          "kind": "research-question",
+          "question": "For square inputs, can a history of length O(N^(1/4)) determine enough boundary carry information to determine the next Zeckendorf digit-sum parity?",
+          "gap": "Unbounded carry propagation and noninjective history-to-state maps are possible obstructions.",
+          "next_step": "Track exact normalization of 2nh+h² at Fibonacci/Lucas scales, then search for equal observed histories with conflicting next bits.",
+          "success": "An explicit uniform boundary-state theorem implying the upper bound, or exact witness pairs falsifying the proposed window.",
+          "related": [
+            "negative-prefix-transducer",
+            "dfao-sparse-distinguishability"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weil-ground-mode-xi-limit",
+      "title": "Do genuine lowest Weil modes converge to Xi?",
+      "area": "Weil spectra",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2511.22755",
+      "anchors": [
+        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
+      ],
+      "question": "Do suitably normalized Fourier transforms of genuine lowest Weil modes converge locally uniformly to the Riemann Xi function as the physical support grows?",
+      "foothold": "FixedScaleWeilQuadraticForm exposes the actual finite prime-power and Archimedean multiplier. Its zero-sum formula has explicit convergence and ZeroData premises; it supplies no ground-mode limit.",
+      "gap": "An explicit prolate model and a finite-window certificate leave actual-mode identification, full-space coercivity and a growing-window comparison to establish.",
+      "next_step": "Reuse the existing Weil research lanes. Match operator domains, physical window, normalization and Fourier convention before comparing any two certificates.",
+      "success": "A quantitative estimate for the same genuine family tending to zero on every compact set, combined with the correctly normalized model limit. A fixed-window residual is one input.",
+      "keywords": [
+        "Weil",
+        "黎曼",
+        "最低模态",
+        "Xi",
+        "prolate",
+        "spectral gap"
+      ],
+      "targets": [
+        {
+          "id": "weil-same-family-residual",
+          "title": "Compare one genuine mode and its actual candidate",
+          "kind": "certificate",
+          "question": "Can a full-space residual and complement-coercivity certificate bound the Fourier error for the same physical Weil operator and prolate trial?",
+          "gap": "A retained matrix residual leaves an exterior term. Domain error and candidate normalization must be paid separately.",
+          "next_step": "Check the existing numerical and proof-script outputs before creating another certificate; assemble prime, pole, Gamma and tail terms with one set of parameters.",
+          "success": "An independently replayable fixed-window bound with every premise identified. It should not be relabelled as a uniform all-window theorem.",
+          "related": [
+            "weil-moving-window-rate"
+          ]
+        },
+        {
+          "id": "weil-moving-window-rate",
+          "title": "A physical-window rate for the true mode error",
+          "kind": "research-question",
+          "question": "Can arithmetic cancellation and complement coercivity control the actual-mode Fourier error along an unbounded sequence of support windows?",
+          "gap": "Increasing numerical precision or an exterior cutoff does not reduce the physical error by itself; gaps may deteriorate with the window.",
+          "next_step": "Separate the physical window, finite matrix dimension and numerical tail cutoff. Seek bounds uniform over each target compact set with an explicit vanishing budget.",
+          "success": "A rate for the genuine family with all growth terms retained, or an obstruction to the particular proposed estimate.",
+          "related": [
+            "suzuki-unconditional-shift"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2511.22755",
+        "version": "v1",
+        "title": "Zeta Spectral Triples",
+        "submitted": "2025-11-27",
+        "revised": "2025-11-27",
+        "checked": "2026-09-07",
+        "locator": "Sections 7 and 8; the explicit-model limit and the actual lowest-mode approximation",
+        "status": "open-in-source",
+        "note": "This is a 2025 source rechecked alongside the June 2026 Suzuki paper. The explicit model limit and convergence of genuine lowest modes are separate. Finite spectral agreement is not an all-scale proof."
+      },
+      "updates": [
+        {
+          "arxiv_id": "2606.09096",
+          "version": "v1",
+          "title": "Weil's quadratic form via the screw function",
+          "submitted": "2026-06-08",
+          "revised": "2026-06-08",
+          "checked": "2026-09-07",
+          "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
+          "status": "conditional-route",
+          "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
+        }
+      ]
+    },
+    {
+      "id": "suzuki-boundary-characteristic-limit",
+      "title": "Does Suzuki's boundary characteristic satisfy the zeta limit?",
+      "area": "Weil spectra",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2606.09096",
+      "anchors": [
+        "D5/S3/Weil/FiniteResolventClarkIdentity",
+        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
+      ],
+      "question": "Can theta(a) and a nonvanishing normalization make W(a,theta;z) approach z² xi(1/2-iz)/xi'(1/2-iz) in the sense intended by equation (1.12)?",
+      "foothold": "FiniteResolventClarkIdentity transports an explicitly supplied paired atomic spectrum. The fixed-scale Weil multiplier is another input. Neither identifies the actual boundary characteristic or its limiting measure.",
+      "gap": "The spectral shift lambda < lambda_a, the physical characteristic function and the treatment of poles in compact-uniform convergence need explicit control.",
+      "next_step": "First resolve the analytic meaning of the meromorphic quotient and normalization. Then identify the paper's W with a repository operator construction without supplying zeta zeros as spectral input.",
+      "success": "A precise faithful limit statement and proof without RH premises. The conditional implication in Corollary 1.6 is already a source result.",
+      "keywords": [
+        "Suzuki",
+        "screw function",
+        "Clark",
+        "Fredholm",
+        "boundary characteristic",
+        "螺旋函数",
+        "Weil"
+      ],
+      "targets": [
+        {
+          "id": "suzuki-boundary-identification",
+          "title": "Identify the actual finite-window characteristic",
+          "kind": "bridge",
+          "question": "Can the paper's deficiency-space boundary characteristic be identified with a resolvent or Fredholm construction using the genuine screw kernel?",
+          "gap": "A finite atomic measure chosen to look like a Clark measure does not establish this identification.",
+          "next_step": "Fix the domain, boundary convention and inner product; derive the relevant boundary function and measure rather than assume their desired expansion.",
+          "success": "An operator-to-characteristic identity on a specified analytic domain with normalization constants retained.",
+          "related": [
+            "weil-same-family-residual"
+          ]
+        },
+        {
+          "id": "suzuki-unconditional-shift",
+          "title": "Control the spectral shift without assuming RH",
+          "kind": "research-question",
+          "question": "Can the shift needed to define the window Hilbert spaces be controlled as a grows, without assuming positivity of every Weil window?",
+          "gap": "The source's global Hilbert-space heuristic assumes RH. Finiteness of prime terms at each fixed a gives no uniform estimate.",
+          "next_step": "Use explicit lower bounds and compare shifted constructions on common test-function cores; track any effect on characteristic zeros and normalization.",
+          "success": "A shift-control lemma with unconditional hypotheses useful for the proposed limit, or a precise failure of a proposed normalization.",
+          "related": [
+            "weil-moving-window-rate"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2606.09096",
+        "version": "v1",
+        "title": "Weil's quadratic form via the screw function",
+        "submitted": "2026-06-08",
+        "revised": "2026-06-08",
+        "checked": "2026-09-07",
+        "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
+        "status": "conditional-route",
+        "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
+      },
+      "updates": []
+    },
+    {
+      "id": "balan-wang-universal-stability",
+      "title": "Is real phase retrieval exponentially ill-conditioned at 2M-1 measurements?",
+      "area": "Phase retrieval",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2603.29571",
+      "anchors": [
+        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
+      ],
+      "question": "For every full-spark real (2M-1)-by-M matrix, M>1, do universal C>0 and beta in (0,1) bound omega(A) by C times the maximum row norm times beta^M?",
+      "foothold": "IsNormalizedRankOneProjection and trace-overlap geometry supply a quadratic-readout vocabulary. A full-spark rectangular frame, its singular values and the modulus measurement map still need an explicit bridge.",
+      "gap": "The Gaussian asymptotic reported in July is a random-matrix result. The target quantifies over every admissible deterministic matrix.",
+      "next_step": "Reduce the full-spark omega definition to minimum singular value over square row submatrices, retaining row scaling, then test candidate deterministic inequalities.",
+      "success": "A universal normalized bound for all dimensions and frames, or a family refuting all proposed universal constants. A finite numerical example cannot decide the asymptotic claim.",
+      "keywords": [
+        "phase retrieval",
+        "相位恢复",
+        "稳定性",
+        "Balan",
+        "Wang",
+        "full-spark",
+        "singular value"
+      ],
+      "targets": [
+        {
+          "id": "omega-full-spark-reduction",
+          "title": "An exact square-submatrix formulation of omega",
+          "kind": "bridge",
+          "question": "Under full spark at N=2M-1, is omega(A) exactly the minimum of sigma_min(A_T) over M-row sets T?",
+          "gap": "The source definition also allows larger row sets; its equivalence needs a rank and Loewner-order argument.",
+          "next_step": "Formalize rectangular row restriction and the variational least singular value. Preserve M>1 and the source's complement-rank convention.",
+          "success": "A reusable equivalence with a row-rescaling test and exact small cases. This is a formalization bridge, not a new resolution.",
+          "related": [
+            "phase-intensity-lift"
+          ]
+        },
+        {
+          "id": "omega-deterministic-decay",
+          "title": "A deterministic obstruction stronger than a Gaussian example",
+          "kind": "research-question",
+          "question": "Can row-subset geometry force an exponentially small least singular value uniformly over every normalized full-spark frame?",
+          "gap": "Average-case small-ball estimates and the existence of a badly conditioned example do not imply a worst-case upper bound.",
+          "next_step": "Compare extremal deterministic families using certified spectral intervals; seek a packing, determinant or partition argument with dimension-independent constants.",
+          "success": "A uniform inequality or a counterfamily for a stated effective bound, with numerical probes kept separate from the universal claim.",
+          "related": [
+            "circulant-primal-dual-certificate"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2603.29571",
+        "version": "v1",
+        "title": "Randomstrasse101: Open Problems of 2025",
+        "submitted": "2026-03-31",
+        "revised": "2026-03-31",
+        "checked": "2026-09-07",
+        "locator": "Entry 10, Definition 10.1 and Conjecture 20",
+        "status": "open-in-source",
+        "note": "Conjecture 20 is the universal full-spark statement. The lower-case n in the displayed complement-rank formula is read as the column dimension M; the normalized domain is stated explicitly here."
+      },
+      "updates": [
+        {
+          "arxiv_id": "2607.06249",
+          "version": "v1",
+          "title": "Extreme least singular values of Gaussian row submatrices and a phase retrieval stability problem",
+          "submitted": "2026-07-07",
+          "revised": "2026-07-07",
+          "checked": "2026-09-07",
+          "locator": "Abstract and main Gaussian row-submatrix theorem; N=2m-1 specialization",
+          "status": "proved-in-source",
+          "note": "The source reports omega(A_m)=4^(-m+o_P(m)) for real Gaussian matrices. This addresses the Gaussian question in Open Problem 21, not the universal deterministic Conjecture 20. Its proof has not been independently replayed here."
+        }
+      ]
+    },
+    {
+      "id": "complex-phase-retrieval-probability",
+      "title": "Does injectivity at 4M-5 complex measurements become rare?",
+      "area": "Phase retrieval",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2603.29571",
+      "anchors": [
+        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
+      ],
+      "question": "For M>=2 and a Haar-random M-plane in C^(4M-5), let p_M be the probability that x modulo global phase maps injectively to |Ax|². Is p_M<1 for each M, and does p_M tend to zero?",
+      "foothold": "The repository's rank-one projection predicates and trace geometry are a foothold for lifting intensity measurements to Hermitian matrices. They do not provide the random-frame probability theorem.",
+      "gap": "Generic injectivity, existence of one exceptional injective frame, and injectivity probability are distinct. The old universal 4M-4 necessity statement is already false.",
+      "next_step": "Encode the measurement kernel on actual differences xx* - yy*. Define the Grassmannian measure and bad event before relying on dimension counts.",
+      "success": "A nonzero bad-event probability for each M and a separate asymptotic bound proving the limit. An isolated example does not establish a probability.",
+      "keywords": [
+        "Vinzant",
+        "Grassmannian",
+        "global phase",
+        "相位",
+        "injectivity",
+        "4M-5"
+      ],
+      "targets": [
+        {
+          "id": "phase-intensity-lift",
+          "title": "A faithful Hermitian lift of equal-intensity pairs",
+          "kind": "bridge",
+          "question": "Is equal intensity equivalent to the linear measurement map annihilating xx* - yy*, with zero difference exactly global-phase equivalence?",
+          "gap": "Unnormalized signals and the zero vector need explicit treatment. Arbitrary rank-two matrices are not automatically differences with the required inertia.",
+          "next_step": "Prove the trace identity and represent the difference cone exactly; relate normalized nonzero signals to the rank-one projector predicate.",
+          "success": "A bidirectional statement preserving all signals, not just unit-norm or generic vectors.",
+          "related": [
+            "mub-basis-context"
+          ]
+        },
+        {
+          "id": "phase-bad-event-probability",
+          "title": "From an algebraic witness to positive probability",
+          "kind": "research-question",
+          "question": "Can a noninjective-frame witness be extended to a positive-measure set at the critical measurement count?",
+          "gap": "A single real-algebraic solution may lie in a measure-zero stratum. Dimension counting alone does not settle transversality or probability.",
+          "next_step": "Analyze the rank-two difference incidence set on a concrete Grassmannian chart and verify a local persistence or measure argument.",
+          "success": "A proved positive-measure bad set for a stated dimension or a uniform probabilistic estimate; retain the distinction between the two conjecture clauses.",
+          "related": [
+            "omega-deterministic-decay"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2603.29571",
+        "version": "v1",
+        "title": "Randomstrasse101: Open Problems of 2025",
+        "submitted": "2026-03-31",
+        "revised": "2026-03-31",
+        "checked": "2026-09-07",
+        "locator": "Entry 10, Conjecture 19(a,b)",
+        "status": "open-in-source",
+        "note": "The statement is recorded in the checked survey. The 11-measurement example in C^4 refutes the older necessity claim, not these two probability clauses. This entry does not assert exhaustive absence of later work."
+      },
+      "updates": []
+    },
+    {
+      "id": "sic-povm-all-dimensions",
+      "title": "Do SIC-POVMs exist in every positive dimension?",
+      "area": "Quantum geometry",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2603.29571",
+      "anchors": [
+        "D5/S3/Quantum/Algebra/WeylDisplacementTrace",
+        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
+      ],
+      "question": "Does every positive dimension d admit d² unit vectors forming an equiangular tight frame, equivalently a SIC-POVM?",
+      "foothold": "WeylDisplacementTrace supplies displacement trace orthogonality; the rank-one projector predicate supplies individual projectors. A displacement basis alone does not construct a SIC fiducial.",
+      "gap": "For d>1 the target requires squared overlaps 1/(d+1) and sum of rank-one projectors dI. This is distinct from the MUB version of Zauner's conjecture.",
+      "next_step": "Connect the existing displacement operators to a precisely normalized fiducial system, keeping every extra symmetry and number-theoretic premise explicit.",
+      "success": "An unconditional construction in every dimension. Exact isolated dimensions or a construction under Stark-type assumptions retain their narrower scope.",
+      "keywords": [
+        "SIC",
+        "POVM",
+        "Zauner",
+        "Weyl",
+        "Heisenberg",
+        "量子设计",
+        "Stark"
+      ],
+      "targets": [
+        {
+          "id": "sic-fiducial-orbit",
+          "title": "From a verified fiducial to a SIC orbit",
+          "kind": "bridge",
+          "question": "Can exact displacement-overlap equations for a unit fiducial imply the d²-vector equiangular tight-frame and POVM identities?",
+          "gap": "Trace orthogonality is available but the orbit normalization, distinctness and identity resolution must be derived.",
+          "next_step": "Use the existing displacement composition and trace owners; derive twirling and the orbit Gram entries rather than introducing another Weyl convention.",
+          "success": "A conditional fiducial-to-SIC theorem with d and phase conventions explicit, plus exact low-dimensional checks.",
+          "related": [
+            "mub-basis-context"
+          ]
+        },
+        {
+          "id": "sic-exact-fiducial-certificate",
+          "title": "An exact certificate behind a numerical SIC candidate",
+          "kind": "certificate",
+          "question": "Can a proposed algebraic fiducial be certified against all required overlap and normalization equations?",
+          "gap": "A small floating residual does not establish equality or existence. An imposed order-three symmetry narrows the search class.",
+          "next_step": "Use explicit number-field embeddings and exact polynomial reductions; list which equations and embedding choices are certified.",
+          "success": "A verified instance with its dimension and assumptions, never presented as the universal existence theorem.",
+          "related": [
+            "mub-joint-compatibility"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2603.29571",
+        "version": "v1",
+        "title": "Randomstrasse101: Open Problems of 2025",
+        "submitted": "2026-03-31",
+        "revised": "2026-03-31",
+        "checked": "2026-09-07",
+        "locator": "Entry 11, Definition 11.2 and Conjecture 24",
+        "status": "open-in-source",
+        "note": "The survey records the SIC existence conjecture and conditional number-theoretic progress. Neither those assumptions nor the MUB conjecture are identified with an unconditional all-dimension SIC proof."
+      },
+      "updates": []
+    },
+    {
+      "id": "random-circulant-lovasz-theta",
+      "title": "Does the expected Lovasz number of random circulants approach sqrt(n)?",
+      "area": "Fourier and optimization",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2603.29571",
+      "anchors": [
+        "D5/S3/Fourier/FinitePoisson"
+      ],
+      "question": "For dense undirected random circulant graphs with independent Bernoulli(1/2) choices of nonzero step pairs {k,-k}, is E theta(G)=(1+o(1)) sqrt(n)?",
+      "foothold": "FinitePoisson supplies standard characters and the character-group equivalence on ZMod n. This is the correct finite Fourier group for circulant symmetrization.",
+      "gap": "The finite Fourier reduction does not remove the remaining probabilistic loss. A theta SDP, normalization bridge and random-graph model must be connected explicitly.",
+      "next_step": "Derive the cyclic averaging and Fourier-diagonal reduction with the repository character convention; then attach sound primal and dual bounds.",
+      "success": "A proof of the expected leading constant, or a rigorous conflicting asymptotic. Numerical optimization on finitely many graph sizes is exploratory.",
+      "keywords": [
+        "Lovasz",
+        "theta",
+        "circulant",
+        "循环图",
+        "傅立叶",
+        "SDP",
+        "LP"
+      ],
+      "targets": [
+        {
+          "id": "circulant-fourier-reduction",
+          "title": "A normalization-safe circulant theta reduction",
+          "kind": "bridge",
+          "question": "Can cyclic averaging identify the theta SDP with a finite Fourier positivity problem without changing its optimum?",
+          "gap": "The SDP uses trace one while a scaled first-row LP can use x_0=1. Confusing these conventions changes the objective by n.",
+          "next_step": "Prove averaging preserves PSD, edge constraints and objective, then derive eigenvalues using the existing ZMod characters, with sign and scale recorded.",
+          "success": "A bidirectional feasible-point translation and equality of objectives under the chosen normalization.",
+          "related": [
+            "sic-fiducial-orbit"
+          ]
+        },
+        {
+          "id": "circulant-primal-dual-certificate",
+          "title": "Certified bounds for a concrete circulant graph",
+          "kind": "certificate",
+          "question": "Can explicit primal and dual witnesses give rigorous theta bounds for a supplied circulant graph?",
+          "gap": "Solver tolerance and approximate Fourier eigenvalues can falsely certify feasibility. Real algebraic or interval enclosures need a soundness theorem.",
+          "next_step": "Construct exact small-graph witnesses and certified residual margins; test graph-complement and scaling conventions independently.",
+          "success": "Replayable upper and lower bounds with all rounding budgets. These are finite footholds for the expectation conjecture.",
+          "related": [
+            "dfao-finite-unsat"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2603.29571",
+        "version": "v1",
+        "title": "Randomstrasse101: Open Problems of 2025",
+        "submitted": "2026-03-31",
+        "revised": "2026-03-31",
+        "checked": "2026-09-07",
+        "locator": "Entry 9, equation (11), Conjecture 18 and the following paragraph",
+        "status": "open-in-source",
+        "note": "The survey gives an O(sqrt(n log log n)) upper estimate and the sharper leading-constant conjecture. Its arXiv submission date is 31 March 2026; HTML generation in August is not a new arXiv version."
+      },
+      "updates": []
+    }
+  ]
+}
