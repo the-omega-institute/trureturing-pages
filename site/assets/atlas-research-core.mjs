@@ -10,12 +10,13 @@ export function researchIndex(model, snapshot, graphDigest, source) {
   )
     throw new Error("Research catalog does not bind this Atlas release.");
   const problems = new Map();
+  const resolved = new Map();
   const byNode = new Map();
   for (const problem of snapshot.problems) {
     if (
       typeof problem?.slug !== "string" ||
       !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(problem.slug) ||
-      problems.has(problem.slug) ||
+      (problems.has(problem.slug) || resolved.has(problem.slug)) ||
       typeof problem.title !== "string" ||
       !problem.title.trim() ||
       !["theorem", "window", "wall"].includes(problem.triage) ||
@@ -31,13 +32,25 @@ export function researchIndex(model, snapshot, graphDigest, source) {
     const missing = problem.motivation_gids.filter(
       (id) => !anchors.includes(id),
     );
+    if (problem.resolution) {
+      const record = problem.resolution;
+      if (!["proved", "refuted"].includes(record.kind) ||
+          record.evidence !== "source-recorded-markdown" ||
+          typeof record.declaration_gid !== "string" ||
+          typeof record.source_path !== "string" ||
+          !record.source_path.startsWith("Blueprint/") || !record.source_path.endsWith(".md") ||
+          !record.declaration_gid.startsWith(record.source_path.slice(10, -3) + "."))
+        throw new Error("Invalid source resolution record.");
+      resolved.set(problem.slug, { ...problem, anchors, missing });
+      continue;
+    }
     problems.set(problem.slug, { ...problem, anchors, missing });
     for (const id of anchors) {
       if (!byNode.has(id)) byNode.set(id, []);
       byNode.get(id).push(problem.slug);
     }
   }
-  return { problems, byNode };
+  return { problems, resolved, byNode };
 }
 
 export async function loadResearch(base, model, graphDigest, source) {

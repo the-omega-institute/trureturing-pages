@@ -182,6 +182,11 @@ const stored = (page) =>
       await page.screenshot({
         path: path.join(output, `research-workbench-${width}.png`),
       });
+      await page.locator("#resolved-questions").scrollIntoViewIfNeeded();
+      assert.equal(await page.locator(".resolved-question").count(), 3);
+      assert.equal(await page.locator(".resolved-question[data-problem-slug]").count(), 0);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      await page.screenshot({ path: path.join(output, `resolved-questions-${width}.png`) });
     }
     await page.locator(".rw-frontier-targets a").first().click();
     await page.locator("#research-bank[open] .rw-card[open]").waitFor();
@@ -214,6 +219,24 @@ const stored = (page) =>
       await fs.readFile(await (await unsavedDownload).path(), "utf8"),
     );
     assert.equal(unsaved.entries["dfao-finite-unsat"].note, "Unsaved evidence");
+    const resolved = await context.newPage();
+    await resolved.route("**/conjectures.html", async route => {
+      const response = await route.fetch();
+      const html = (await response.text()).replace('id="resolved-bosma-conjecture-17"',
+        'id="resolved-bosma-conjecture-17" data-problem-slug="golden-ratio-base4-dfao-minimality" data-resolution-kind="proved"');
+      await route.fulfill({ response, body: html });
+    });
+    await resolved.goto(`${root}/conjectures.html#rp=dfao-finite-unsat`);
+    await resolved.locator("#question-dfao-finite-unsat[open]").waitFor();
+    assert.equal(await resolved.locator(".rw-frontier-question").count(), 12);
+    assert.equal(await resolved.locator(".rw-frontier-targets a").count(), 26);
+    assert.equal(await resolved.locator(".rw-card").count(), 41);
+    assert.match(await resolved.locator(".rw-heading").innerText(), /12 open questions.*26 proposed targets/);
+    assert.equal(await resolved.locator("#note-dfao-finite-unsat").inputValue(), "Imported evidence");
+    assert.match(await resolved.locator("#question-dfao-finite-unsat").innerText(), /Parent resolved \/ target needs reassessment/);
+    assert.match(await resolved.locator("#question-golden-ratio-base4-dfao-minimality > summary").innerText(), /Source-recorded proved/);
+    await resolved.locator("#question-dfao-finite-unsat").getByRole("link", { name: "Parent result / no completion asserted for this target" }).click();
+    assert.equal(new URL(resolved.url()).hash, "#resolved-bosma-conjecture-17");
     assert.deepEqual(errors, []);
     console.log(
       "PASS: actual HTTP modules, 41 targets, native persistence and reload, cross-tab note/field preservation, import/export, private-note exclusion, literature filters, permalinks, original dossiers, three widths and catalog-failure fallback.",

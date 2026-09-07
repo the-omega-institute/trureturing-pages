@@ -131,6 +131,19 @@ def source_material(repo: Path, commit: str) -> tuple[list[dict], dict[str, str]
             objects[path.decode()] = object_id
     problems = [parse_problem(git(repo, "show", f"{commit}:{path}").decode(), Path(path).name)
                 for path in sorted(objects) if path.startswith("Problems/") and path.count("/") == 1 and path.endswith(".md")]
+    try:
+        matches = git(repo, "grep", "-l", "-z", "-F", "scribe-open-problem-resolution-v", commit, "--", "Blueprint/*.md")
+    except subprocess.CalledProcessError as error:
+        if error.returncode != 1:
+            raise
+        matches = b""
+    blueprints = {}
+    for match in matches.split(b"\0"):
+        if match:
+            path = match.decode().removeprefix(commit + ":")
+            blueprints[path] = git(repo, "show", f"{commit}:{path}").decode()
+    from lib.problem_resolutions import bind_resolutions
+    problems = bind_resolutions(problems, blueprints, objects)
     return problems, objects
 
 
@@ -193,9 +206,13 @@ def render_research(snapshot: dict, output: Path, entry: dict):
         slug = problem["slug"]
         source_label = problem.get("doi") or "arXiv:" + problem["arxiv_id"]
         source_url = "https://doi.org/" + quote(problem["doi"], safe="/") if problem.get("doi") else "https://arxiv.org/abs/" + problem["arxiv_id"]
+        resolution = problem.get("resolution")
+        route_label = "Source-recorded " + resolution["kind"] if resolution else "Proposed route"
+        status_label = "Repository record: " + resolution["kind"] if resolution else "Our route: proposed"
+        resolution_link = f'<a href="{repo}/blob/{commit}/{resolution["source_path"]}">Resolution source: {esc(resolution["declaration_gid"])}</a>' if resolution else ""
         anchors = [nodes[gid] for gid in problem["motivation_gids"] if gid in nodes]
         families = sorted({str(n.get("domain", "Unclassified")) for n in anchors})
-        rows.append(f'<a class="problem-row" href="research/{slug}/" data-triage="{problem["triage"]}" data-gids="{esc(json.dumps(problem["motivation_gids"]))}" data-search="{esc((problem["title"] + " " + " ".join(families) + " " + problem["sections"]["Problem"] + " " + source_label).lower())}"><span class="problem-number">{len(rows)+1:02}</span><div><p class="eyebrow">{esc(" / ".join(families[:3]))}</p><h2>{esc(problem["title"])}</h2><p>{esc(triage[problem["triage"]])} <span class="route-chip">Proposed route</span></p></div><span class="problem-anchor-count">{len(anchors)}<small>released anchors</small></span><i data-lucide="arrow-up-right"></i></a>')
+        rows.append(f'<a class="problem-row" href="research/{slug}/" data-triage="{problem["triage"]}" data-gids="{esc(json.dumps(problem["motivation_gids"]))}" data-search="{esc((problem["title"] + " " + " ".join(families) + " " + problem["sections"]["Problem"] + " " + source_label).lower())}"><span class="problem-number">{len(rows)+1:02}</span><div><p class="eyebrow">{esc(" / ".join(families[:3]))}</p><h2>{esc(problem["title"])}</h2><p>{esc(triage[problem["triage"]])} <span class="route-chip">{esc(route_label)}</span></p></div><span class="problem-anchor-count">{len(anchors)}<small>released anchors</small></span><i data-lucide="arrow-up-right"></i></a>')
         root = "../../"
         links = []
         for gid in problem["motivation_gids"]:
@@ -207,11 +224,14 @@ def render_research(snapshot: dict, output: Path, entry: dict):
         for name in SECTIONS:
             section_id = name.lower()
             sections.append(f'<section id="{section_id}" class="dossier-section"><p class="eyebrow">{esc(name)}</p><h2>{labels[name]}</h2><div class="prose">{MARKDOWN.render(problem["sections"][name])}</div></section>')
-        body = f'''<main class="dossier-layout"><aside class="dossier-toc"><a href="{root}conjectures.html">All conjectures</a><p class="eyebrow">PROBLEM DOSSIER</p><nav aria-label="Problem sections">{''.join(f'<a href="#{name.lower()}">{labels[name]}</a>' for name in SECTIONS)}</nav><a href="{root}evolution.html">Evolution</a></aside><article class="dossier-main"><header class="dossier-heading"><p class="eyebrow">RESEARCH / {esc(triage[problem['triage']])}</p><h1>{esc(problem['title'])}</h1><div class="dossier-status"><span>Literature status: not rechecked</span><span>Our route: proposed</span></div><div class="dossier-source"><a href="{esc(source_url)}">{esc(source_label)}</a><a href="{repo}/blob/{commit}/Problems/{slug}.md">Source dossier</a><a href="{root}library-history.html#release={snapshot['truth_release_digest']}">Release {snapshot['truth_release_digest'][7:19]}</a></div></header><section class="bridge-section"><div class="section-heading"><div><p class="eyebrow">RELEASED FOUNDATIONS / PROPOSED CONNECTION</p><h2>Research connections</h2></div><span>{len(anchors)} released anchors</span></div><div class="research-map" data-problem-map="{slug}" data-snapshot-path="{entry['path']}" data-snapshot-digest="{entry['digest']}"></div><details><summary>All source anchors ({len(links)})</summary><ul class="anchor-list">{''.join(links)}</ul></details></section>{''.join(sections)}<section class="dossier-section" id="research-history"><h2>Dossier &amp; anchor history</h2><div data-problem-history="{slug}">Loading release observations...</div></section></article></main>'''
+        body = f'''<main class="dossier-layout"><aside class="dossier-toc"><a href="{root}conjectures.html">All conjectures</a><p class="eyebrow">PROBLEM DOSSIER</p><nav aria-label="Problem sections">{''.join(f'<a href="#{name.lower()}">{labels[name]}</a>' for name in SECTIONS)}</nav><a href="{root}evolution.html">Evolution</a></aside><article class="dossier-main"><header class="dossier-heading"><p class="eyebrow">RESEARCH / {esc(triage[problem['triage']])}</p><h1>{esc(problem['title'])}</h1><div class="dossier-status"><span>Literature status: not rechecked</span><span>{esc(status_label)}</span></div><div class="dossier-source">{resolution_link}<a href="{esc(source_url)}">{esc(source_label)}</a><a href="{repo}/blob/{commit}/Problems/{slug}.md">Source dossier</a><a href="{root}library-history.html#release={snapshot['truth_release_digest']}">Release {snapshot['truth_release_digest'][7:19]}</a></div></header><section class="bridge-section"><div class="section-heading"><div><p class="eyebrow">RELEASED FOUNDATIONS / PROPOSED CONNECTION</p><h2>Research connections</h2></div><span>{len(anchors)} released anchors</span></div><div class="research-map" data-problem-map="{slug}" data-snapshot-path="{entry['path']}" data-snapshot-digest="{entry['digest']}"></div><details><summary>All source anchors ({len(links)})</summary><ul class="anchor-list">{''.join(links)}</ul></details></section>{''.join(sections)}<section class="dossier-section" id="research-history"><h2>Dossier &amp; anchor history</h2><div data-problem-history="{slug}">Loading release observations...</div></section></article></main>'''
         write(output / "research" / slug / "index.html", page_shell(problem["title"], root, body))
     body = f'''<main class="site-main research-home"><header class="page-heading"><div><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH FRONTIER</p><h1>Conjectures</h1><p class="lede">Open questions. Missing bridges. The next proof.</p></div><a class="console-link" href="research.html">Research news <i data-lucide="arrow-up-right"></i></a></header><div class="research-stats"><div><strong>{len(problems)}</strong><span>Source-backed dossiers</span></div><div><strong>{len({gid for p in problems for gid in p['motivation_gids'] if gid in nodes})}</strong><span>Released foundations</span></div><div><strong>{snapshot['truth_release_digest'][7:19]}</strong><span>Truth release</span></div></div><div class="research-browser"><aside><label for="research-search">Find a question</label><input type="search" id="research-search" placeholder="Problem, field, or source"><label for="research-triage">Research scope</label><select id="research-triage"><option value="">All targets</option><option value="theorem">Focused target</option><option value="window">Exploratory</option><option value="wall">Long horizon</option></select><p id="research-count" role="status">{len(problems)} dossiers</p><a id="research-clear-node" href="conjectures.html" hidden>All conjectures</a><div class="research-activity"><p class="eyebrow">DEVELOPMENT</p><a href="{repo}/commits/dev/">Daily Lean activity <i data-lucide="arrow-up-right"></i></a><small>Source branch activity / not a Truth release</small></div><a href="library-history.html">Release archive</a></aside><section class="problem-list" aria-label="Research questions">{''.join(rows) or '<p>No research dossiers in this source release.</p>'}<p id="research-empty" hidden>No questions match these filters.</p></section></div></main>'''
-    write(output / "conjectures.html", page_shell("Conjectures", "", body))
-    from lib.research_news import render_news
+    from lib.research_news import render_news, resolved_questions
+    destinations = '<nav class="conjecture-destinations" aria-label="Question views"><a href="#research-workbench">Research directions</a><a href="#resolved-questions">Resolved questions</a><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">mdBook registry <i data-lucide="arrow-up-right"></i></a></nav>'
+    body = body.replace('</header>', '</header>' + destinations, 1).replace('</main>', resolved_questions(snapshot) + '</main>')
+    bank = page_shell("Conjectures", "", body).replace('</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>')
+    write(output / "conjectures.html", bank)
     render_news(output, snapshot, page_shell)
     history_body = '<main class="site-main"><header class="page-heading"><div><p class="eyebrow">LIBRARY / CONTENT ARCHIVE</p><h1>Library history</h1><p id="library-history-status" class="lede" role="status">Verifying release archive...</p></div><a href="knowledge/">Current Library</a></header><div class="archive-toolbar"><label for="archive-release">Release</label><select id="archive-release" disabled></select><label for="archive-search">Find a concept</label><input id="archive-search" type="search" placeholder="Title, domain, or ID" disabled></div><div id="archive-summary"></div><div id="archive-nodes" class="archive-list"></div><button id="archive-more" type="button" hidden>Show more</button></main>'
     write(output / "library-history.html", page_shell("Library history", "", history_body, "Library"))
@@ -233,9 +253,11 @@ def content_timeline(archived: list) -> dict:
             problem = after or before
             changed = [gid for gid in problem["motivation_gids"] if previous_nodes.get(gid, {}).get("content_digest") != current_nodes.get(gid, {}).get("content_digest")]
             dossier_changed = bool(before and after and before["source_digest"] != after["source_digest"])
-            if index == 0 or not before or not after or changed or dossier_changed:
-                event = "Baseline" if index == 0 else "Added" if not before else "Absent" if not after else "Dossier changed" if dossier_changed else "Anchors changed"
-                problems.setdefault(slug, []).append({"observation": index, "event": event, "present": bool(after), "changed_anchors": changed if index else [], "review": "Reassessment needed" if index and after and changed else "Proposed route"})
+            resolution_changed = bool(before and after and before.get("resolution") != after.get("resolution"))
+            if index == 0 or not before or not after or changed or dossier_changed or resolution_changed:
+                event = "Baseline" if index == 0 else "Added" if not before else "Absent" if not after else "Resolution changed" if resolution_changed else "Dossier changed" if dossier_changed else "Anchors changed"
+                review = "Source-recorded " + after["resolution"]["kind"] if after and after.get("resolution") else "Reassessment needed" if index and after and (changed or resolution_changed) else "Proposed route"
+                problems.setdefault(slug, []).append({"observation": index, "event": event, "present": bool(after), "changed_anchors": changed if index else [], "review": review})
         previous_nodes, previous_problems = current_nodes, current_problems
     return {"schema_version": "pages-content-timeline.v1", "nodes": nodes, "problems": problems}
 

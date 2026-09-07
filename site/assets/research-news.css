@@ -1,6 +1,28 @@
 .research-news {
   padding-top: 38px;
 }
+.conjecture-destinations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 0 0 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.resolved-questions {
+  margin-top: 40px;
+  scroll-margin-top: 110px;
+}
+.resolved-questions h2 { margin: 0; font-size: 26px; }
+.resolved-question-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.resolved-question { border-top: 1px solid var(--border); padding: 22px 0; scroll-margin-top: 110px; min-width: 0; }
+.resolved-question h3 { font-size: 20px; font-weight: 500; line-height: 1.4; margin: 8px 0 16px; }
+.resolved-question small { color: var(--muted); }
+.resolved-question .news-links { margin-top: 18px; }
+@media (max-width: 800px) {
+  .resolved-question-list { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
 .news-heading {
   padding-bottom: 30px;
 }

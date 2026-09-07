@@ -839,7 +839,7 @@ function selectProblem(slug) {
   frameNodes(currentNodes);
 }
 function renderResearch(root) {
-  appendRecentResults(root, state.graph.nodes);
+  appendRecentResults(root, state.graph.nodes, state.research?.resolved);
   root.append(
     el("p", "eyebrow", "RESEARCH / CURRENT RELEASE"),
     el("h2", "", "Open questions"),

@@ -1,6 +1,6 @@
 let catalog;
 
-export async function appendRecentResults(root, nodes) {
+export async function appendRecentResults(root, nodes, recorded = new Map()) {
   const section = document.createElement("section");
   section.className = "frontier-results";
   section.setAttribute("aria-label", "Recent resolutions");
@@ -32,6 +32,20 @@ export async function appendRecentResults(root, nodes) {
       );
       state.textContent = `${item.kind === "proved" ? "Proved" : "Refuted"} in Lean / ${item.date} / ${present ? "module in current release" : "awaiting Truth release"}`;
       copy.append(title, state);
+      link.append(copy);
+      section.append(link);
+    }
+    for (const problem of recorded.values()) {
+      if (results.some(item => `${item.module}.${item.declaration}` === problem.resolution.declaration_gid)) continue;
+      const link = document.createElement("a");
+      link.className = "concept-row";
+      link.href = `research.html#${problem.slug}`;
+      const copy = document.createElement("span");
+      const title = document.createElement("strong");
+      title.textContent = problem.title;
+      const status = document.createElement("small");
+      status.textContent = `Source-recorded ${problem.resolution.kind} / current release snapshot`;
+      copy.append(title, status);
       link.append(copy);
       section.append(link);
     }

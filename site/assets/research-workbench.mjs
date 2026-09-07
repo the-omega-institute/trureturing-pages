@@ -21,6 +21,10 @@ export async function mountResearchWorkbench() {
   const known = new Set(entries.map(item => item.id));
   const released = new Map([...home.querySelectorAll(".problem-row")].map(row =>
     [new URL(row.href).pathname.split("/").filter(Boolean).at(-1), row.href]));
+  const resolutions = new Map([...home.querySelectorAll(".resolved-question[data-problem-slug]")]
+    .filter(row => ["proved", "refuted"].includes(row.dataset.resolutionKind))
+    .map(row => [row.dataset.problemSlug, { kind: row.dataset.resolutionKind, href: `#${row.id}` }]));
+  const activeFamilies = catalog.families.filter(family => !resolutions.has(family.id));
   let notes = emptyNotes(catalog.revision), storageWarning = "";
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -41,7 +45,7 @@ export async function mountResearchWorkbench() {
   host.id = "research-workbench"; host.setAttribute("aria-labelledby", "workbench-title");
   const heading = el("div", undefined, "rw-heading"), title = el("h2", "Our research directions");
   title.id = "workbench-title";
-  heading.append(title, el("p", `${new Set(catalog.families.map(f => f.area)).size} fields / ${catalog.families.length} open questions & conjectural routes / ${entries.length - catalog.families.length} proposed targets`));
+  heading.append(title, el("p", `${new Set(activeFamilies.map(f => f.area)).size} fields / ${activeFamilies.length} open questions & conjectural routes / ${activeFamilies.reduce((sum, family) => sum + family.targets.length, 0)} proposed targets`));
   const boundary = el("p", "Catalog and browser notes are advisory. Released proofs, source dossiers and their history remain separate below.", "rw-boundary");
   const provenance = el("details", undefined, "rw-provenance");
   provenance.append(el("summary", `Source review: ${catalog.reviewed} / per-question repository pins`),
@@ -87,10 +91,10 @@ export async function mountResearchWorkbench() {
   const directions = el("div", undefined, "rw-directions");
   const areaNav = el("nav", undefined, "rw-area-nav");
   areaNav.setAttribute("aria-label", "Research fields");
-  const areas = [...new Set(catalog.families.map(f => f.area))];
+  const areas = [...new Set(activeFamilies.map(f => f.area))];
   const areaIcons = ["workflow", "orbit", "binary", "git-branch", "chart-no-axes-combined", "hash", "scan-line", "waves", "focus", "chart-network"];
   for (const [index, area] of areas.entries()) {
-    const families = catalog.families.filter(f => f.area === area);
+    const families = activeFamilies.filter(f => f.area === area);
     const id = `research-field-${index + 1}`;
     const areaLink = link(area, `#${id}`);
     areaLink.append(el("small", String(families.length)));
@@ -196,12 +200,15 @@ export async function mountResearchWorkbench() {
   }
   function renderCard(item) {
     const saved = notes.entries[item.id] || { stage: "unstarted", starred: false, note: "" };
+    const resolution = resolutions.get(item.familyId);
     const card = el("details", undefined, "rw-card"); card.id = `question-${item.id}`;
     card.dataset.questionId = item.id;
     const summary = el("summary"), label = el("div", undefined, "rw-card-label");
     label.append(el("span", `${item.area} / ${KINDS[item.kind]}`, "rw-eyebrow"), el("h3", item.title));
     const stageText = el("span", `My progress: ${STAGES[saved.stage]}`, "rw-stage");
     summary.append(label, stageText);
+    if (resolution) summary.append(el("span", item.id === item.familyId
+      ? `Source-recorded ${resolution.kind}` : "Parent resolved / target needs reassessment", "rw-source-badge"));
     if (item.source || item.updates.length) summary.append(el("span",
       item.source ? `Source ${item.source.arxiv_id}${item.source.version}` : "Related literature update", "rw-source-badge"));
     card.append(summary);
@@ -209,6 +216,9 @@ export async function mountResearchWorkbench() {
     body.append(el("p", item.question, "rw-question"));
     const info = el("p", `${SCOPES[item.scope]} / ${item.kind === "open-question" ? (item.source ? SOURCE_STATES[item.source.status] : "Parent literature status: not rechecked") : "Proposed target, no completion asserted"}`, "rw-meta");
     body.append(info);
+    if (resolution) body.append(link(item.id === item.familyId
+      ? `Source-recorded ${resolution.kind}: result and scope`
+      : "Parent result / no completion asserted for this target", resolution.href));
     if (item.id !== item.familyId) body.append(link(`Parent: ${item.familyTitle}`, questionURL(location.href, item.familyId)));
     detailText(body, "Why this belongs in trureturing", item.foothold);
     detailText(body, "Research gap to recheck", item.gap);

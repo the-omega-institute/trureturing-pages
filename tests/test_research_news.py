@@ -18,6 +18,11 @@ class ResearchNewsTests(unittest.TestCase):
             bank = (output / "conjectures.html").read_text()
             self.assertNotIn('class="site-main research-home"', news)
             self.assertIn('class="site-main research-home"', bank)
+            self.assertEqual(bank.count('class="resolved-question"'), 3)
+            self.assertIn('id="resolved-bosma-conjecture-17"', bank)
+            self.assertNotIn('data-problem-slug=', bank)
+            self.assertIn("trureturing-mdbook/open-problems.html", bank)
+            self.assertIn('href="conjectures.html#resolved-bosma-conjecture-17"', news)
             self.assertIn("Team-reported", news)
             self.assertIn("Official results have not been announced", news)
             self.assertEqual(news.count("Upstream Frozen / not in current Truth release"), 3)
@@ -42,3 +47,22 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertIn('href="https://doi.org/10.1051/ita/2026032"', (output / "research/test-question/index.html").read_text())
         with self.assertRaisesRegex(ValueError, "DOI"):
             parse_problem(source.replace("10.1051/ita/2026032", "javascript:alert(1)"), "test-question.md")
+
+    def test_new_release_resolution_is_discovered_without_editorial_entry(self):
+        problem = parse_problem(problem_source(), "test-question.md")
+        problem["resolution"] = {"kind": "refuted", "declaration_gid": "D5/S1/Example.result",
+                                 "source_path": "Blueprint/D5/S1/Example.md", "evidence": "source-recorded-markdown"}
+        snapshot = {"graph": graph(), "problems": [problem], "truth_release_digest": "sha256:" + "a" * 64}
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
+            news = (output / "research.html").read_text()
+            bank = (output / "conjectures.html").read_text()
+            dossier = (output / "research/test-question/index.html").read_text()
+            self.assertIn('id="test-question"', news)
+            self.assertIn("Refuted / source record", news)
+            self.assertIn('id="resolved-test-question"', bank)
+            self.assertIn('data-problem-slug="test-question" data-resolution-kind="refuted"', bank)
+            self.assertIn("Repository record: refuted", dossier)
+            self.assertNotIn("Our route: proposed", dossier)
+            self.assertIn("D5/S1/Example.result", dossier)
