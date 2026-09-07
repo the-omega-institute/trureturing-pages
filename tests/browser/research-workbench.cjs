@@ -183,7 +183,7 @@ const stored = (page) =>
         path: path.join(output, `research-workbench-${width}.png`),
       });
       await page.locator("#resolved-questions").scrollIntoViewIfNeeded();
-      assert.equal(await page.locator(".resolved-question").count(), 3);
+      assert.equal(await page.locator(".resolved-question").count(), 4);
       assert.equal(await page.locator(".resolved-question[data-problem-slug]").count(), 0);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await page.screenshot({ path: path.join(output, `resolved-questions-${width}.png`) });

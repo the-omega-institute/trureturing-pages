@@ -87,8 +87,8 @@ Frozen record, or mdBook main branch was edited.
 The live mdBook inspected during this audit pins
 `069ec31868931e4fdffb9d60bb69d026981b0a9c` and already displays **10 dossiers and
 2 recorded resolutions**, for Bosma and Thue-Morse. The earlier observation of
-7 dossiers and 0 records is historical, not the current state. This audit does
-not independently review the Thue-Morse mathematics or request changes to it.
+7 dossiers and 0 records is historical, not the current state. The follow-up
+below also checks Thue-Morse, completing the recorded mdBook resolution list.
 
 Freshly fetched upstream `origin/dev` at
 `4a03a56b99778eb9d4ce1e31ae52b44fdab1aff1` still has no problem dossiers or emitted
@@ -108,3 +108,43 @@ is insufficient grounds for an issue claiming that an external open problem
 has been resolved. The exact external statement and the formal conclusion must
 be compared first. Mathematical resolution and historical novelty remain
 separate claims.
+
+## Follow-up: audit the results actually listed by mdBook
+
+The owner clarified that the task is to audit mdBook's recorded resolutions
+and import the valid results into Pages. On re-fetching the public page, the
+same two records remain: Bosma (already displayed and audited above), and
+Thue-Morse (newly added to Pages after the checks below). No other mdBook entry
+is marked proved/refuted in this snapshot. Existing Pages results remain.
+
+### Thue-Morse reduced abelian odd recurrence
+
+- [Original paper, definitions (4)-(5)](https://arxiv.org/html/2509.16034v1#S1)
+  and [section 3's proposed recurrence](https://arxiv.org/html/2509.16034v1#S3).
+- [Pinned Lean source](https://github.com/the-omega-institute/trureturing/blob/b9afa2151caf868e9018c02df14489bc7e409da8/D5/S1/Words/Complexity/ThueMorseReducedAbelianOdd.lean)
+  and [merged proof PR #5816](https://github.com/the-omega-institute/trureturing/pull/5816).
+- The paper defines reduction by collapsing maximal constant runs. Two reduced
+  words are equivalent when they have the same length and character
+  multiplicities. Lean uses `List.destutter` and Parikh vectors; equality of
+  these vectors implies both required properties. The public bridge
+  `reducedParikh_eq_parikh_runCompress` connects its arithmetic encoding to the
+  literal compressed factor. Its factors quantify over **all natural starts**,
+  not a sampled prefix. Zero-based binary parity is the source word with its
+  one-based indices shifted by one.
+- `reducedAbelianComplexity_odd (n : Nat)` proves `R(2*n+1) = R(n+1)` without
+  additional hypotheses. A bijection on reduced class codes reflects run
+  counts and uses complementary factors to cover odd starting positions.
+- Fresh re-elaboration of this exact pinned file with Lean v4.33.0 exited 0;
+  all package revisions matched the pin's manifest. Printed axiom closures
+  are exactly `propext`, `Classical.choice`, `Quot.sound`. The original PR also
+  has successful canonical Lean report and admission checks. Dependency build
+  artifacts were reused, as in the earlier audit.
+- **Conclusion:** the odd recurrence proposed by the paper is proved. This
+  does not settle its full recursion, even-index recursion, equation (11),
+  the nonzero sign of the even-index difference, or non-k-automaticity. The
+  power-of-two corollary is not counted as another resolved open problem.
+
+Pages adds this as a reviewed manual result immediately. Long-term automation
+should use the upstream typed resolution report directly, independently of
+mdBook. The upstream interface PR adds the missing exact declaration identity
+to that existing JSON report rather than creating a second problem registry.

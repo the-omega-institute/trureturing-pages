@@ -20,8 +20,8 @@ fs.mkdirSync(output, { recursive: true });
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`${root}/research.html`);
       assert.equal(await page.locator(".news-paper").count(), 3);
-      assert.equal(await page.locator(".news-result").count(), 3);
-      assert.equal(await page.getByRole("link", { name: "Proof explanation", exact: true }).count(), 3);
+      assert.equal(await page.locator(".news-result").count(), 4);
+      assert.equal(await page.getByRole("link", { name: "Proof explanation", exact: true }).count(), 4);
       for (const href of await page.getByRole("link", { name: "Proof explanation", exact: true }).evaluateAll(links => links.map(link => link.href))) {
         assert.match(href, /github\.com\/the-omega-institute\/trureturing\/blob\/[a-f0-9]{40}\/Blueprint\//);
       }
