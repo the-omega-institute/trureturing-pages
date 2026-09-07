@@ -1,0 +1,354 @@
+{
+  "schema_version": "pages-research-catalog.v1",
+  "revision": "2026-09-07.1",
+  "source_repo": "the-omega-institute/trureturing",
+  "source_commit": "89231f9140ce2138a4e74d4d03421c724149ac24",
+  "reviewed": "2026-09-07",
+  "review_scope": "Repository dossiers reviewed. Literature resolution status and current formalization progress have not been independently rechecked. All child targets are proposed research work.",
+  "families": [
+    {
+      "id": "golden-ratio-base4-dfao-minimality",
+      "title": "Is the 22-state base-4 golden-ratio DFAO minimal?",
+      "area": "Automata",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2405.02727",
+      "anchors": [
+        "D5/S0/Conventions/WDigits",
+        "D5/S1/Words/ZeckendorfOrder",
+        "D5/S1/Words/ZeckendorfBeattyBridge"
+      ],
+      "question": "Must every leading-zero-invariant DFAO that produces the correct golden-ratio digit on all Zeckendorf encodings of 4^i have at least 22 states?",
+      "foothold": "Canonical digits, exact ordering and the Beatty bridge supply arithmetic inputs without floating-point phi.",
+      "gap": "Minimizing the full valid-input machine does not establish minimality on the sparse powers-of-four language.",
+      "next_step": "Verify the published transition table and exact input/output conventions before searching for a smaller machine.",
+      "success": "An all-powers correctness proof for a machine with at most 21 states, or a sound lower-bound certificate excluding every such machine.",
+      "keywords": [
+        "黄金",
+        "自动机",
+        "四次幂",
+        "4^i",
+        "Walnut",
+        "Myhill-Nerode"
+      ],
+      "targets": [
+        {
+          "id": "dfao-sparse-distinguishability",
+          "title": "A sparse-language distinguishability certificate",
+          "kind": "bridge",
+          "question": "Can 22 prefixes be found such that every pair has a common suffix making both completed words legal power inputs with different required outputs?",
+          "gap": "Each separation witness must constrain both words inside the sparse domain. Full-language Myhill-Nerode witnesses may be irrelevant here.",
+          "next_step": "Build exact labelled prefix trees; search for a 22-clique of pairwise incompatible prefixes and retain both completed power inputs for every edge.",
+          "success": "A checked finite incompatibility certificate plus a proof that it forces 22 distinct states. Failure to find a clique leaves other lower-bound methods open.",
+          "related": [
+            "polynomial-successor-certificate"
+          ]
+        },
+        {
+          "id": "dfao-finite-unsat",
+          "title": "A finite, replayable 21-state UNSAT obstruction",
+          "kind": "certificate",
+          "question": "Can a finite set of exact power-input digit constraints already exclude all DFAOs with at most 21 states under the chosen conventions?",
+          "gap": "A solver verdict needs a proof-checking and encoding-soundness bridge. A SAT candidate still requires all-powers verification.",
+          "next_step": "Encode a bounded labelled sample, export an independently checkable UNSAT certificate, and account for state renaming and leading-zero invariance.",
+          "success": "Every globally correct DFAO must satisfy the sample; a sound finite UNSAT certificate therefore proves the lower bound. Finite sample completeness is unnecessary for this direction.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "mub-six-fourth-basis",
+      "title": "Can four mutually unbiased bases exist in dimension six?",
+      "area": "Quantum geometry",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2410.23997",
+      "anchors": [
+        "D5/S3/Quantum/Tomography/RankOneContextCommutator",
+        "D5/S3/Quantum/Tomography/CompleteContextTomography",
+        "D5/S3/Quantum/Tomography/ComplementaryContextProbabilityPythagoras"
+      ],
+      "question": "Does a family of four orthonormal bases of complex dimension six exist with every cross-basis squared inner product equal to 1/6?",
+      "foothold": "Rank-one contexts, overlaps and complementary-context identities express nearby exact geometry.",
+      "gap": "Conditional tomography identities assume the family. A complete seven-basis design identity does not automatically constrain a four-basis family.",
+      "next_step": "Establish the exact basis/context correspondence, then express all cross-basis compatibility equations in one coordinate system.",
+      "success": "An exact four-basis construction or a nonexistence proof covering the whole feasible set, with no unverified classification assumed.",
+      "keywords": [
+        "六维",
+        "互无偏基",
+        "MUB",
+        "Hadamard",
+        "projector"
+      ],
+      "targets": [
+        {
+          "id": "mub-basis-context",
+          "title": "An exact basis-to-projector bridge",
+          "kind": "bridge",
+          "question": "Can orthonormal bases modulo individual phases be represented faithfully as labelled complete rank-one projector contexts, preserving the MUB overlap condition?",
+          "gap": "Rank-one, completeness, orthogonality, labelling and phase equivalence all need explicit hypotheses.",
+          "next_step": "Formalize both directions and prove trace(P_i Q_j) = |inner(v_i,w_j)|^2, using the repository context definitions.",
+          "success": "A proved correspondence at dimension six that translates the four-basis feasible set without adding a two-design assumption.",
+          "related": []
+        },
+        {
+          "id": "mub-joint-compatibility",
+          "title": "A certificate for joint Hadamard compatibility",
+          "kind": "certificate",
+          "question": "Can an independently verified order-six Hadamard parameterization support a complete exact exclusion or construction for three Hadamards relative to the identity basis?",
+          "gap": "A classification claim alone leaves pairwise and joint compatibility to prove. Numerical near-solutions do not satisfy exact equations.",
+          "next_step": "First check parameterization coverage and exceptional branches, then express every required cross-Gram modulus equation and seek exact certificates.",
+          "success": "An exact solution or branch-covering exclusion with proved coverage. Treat the dossier-mentioned classification preprint as unverified input until checked.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "base-phi-negative-prefix-trident",
+      "title": "Do negative base-phi prefixes obey the trident classification?",
+      "area": "Golden numeration",
+      "scope": "theorem",
+      "doi": "10.48550/arXiv.2305.08349",
+      "anchors": [
+        "D5/S0/Conventions/WDigits",
+        "D5/S1/Words/ReturnWords/GoldenReturnWordsExact",
+        "D5/S1/Words/ReturnWords/GoldenOccurrenceGaps",
+        "D5/S1/Deficit/ZeckendorfDisplacementReading"
+      ],
+      "question": "Is each admissible negative-prefix occurrence sequence one Lucas-parameterized V_F, V_G or V_H component, or an allowed union of three components?",
+      "foothold": "Exact golden return itineraries, gap spectra and Beatty displacement identities provide candidate tools.",
+      "gap": "Negative-position base-phi digits need a value-preserving conversion, followed by an identification with the specific subshifts in the paper.",
+      "next_step": "Port the two-sided expansion and the three sequence families with explicit union and multiplicity conventions.",
+      "success": "The classification for every admissible prefix, or an exact necessary-invariant violation excluding all permitted parameterizations.",
+      "keywords": [
+        "负位",
+        "黄金",
+        "trident",
+        "Lucas",
+        "Sturmian"
+      ],
+      "targets": [
+        {
+          "id": "negative-prefix-transducer",
+          "title": "A bounded-state negative-prefix transducer",
+          "kind": "bridge",
+          "question": "For each fixed prefix length m, can a finite-state transducer read canonical Zeckendorf input and output the first m negative-position base-phi digits?",
+          "gap": "Contractive intuition is insufficient: carry residues and a uniform reachable-state bound for fixed m need proof.",
+          "next_step": "Compute exact Z[phi] residue traces, propose a state invariant, and prove transition closure and output correctness.",
+          "success": "A finite machine with a proof for every canonical input at fixed m. Finite samples alone establish neither the state bound nor correctness.",
+          "related": [
+            "polynomial-carry-window"
+          ]
+        },
+        {
+          "id": "negative-prefix-return-itinerary",
+          "title": "From negative cylinders to exact return itineraries",
+          "kind": "bridge",
+          "question": "Can each negative-prefix cylinder be identified with the paper's F, G or H itinerary, or its allowed three-component interleaving?",
+          "gap": "Existing golden-word return theorems apply only after the cylinder/subshift identification is established.",
+          "next_step": "Start with one admissible single-component prefix; derive its gap word and Lucas parameters by exact desubstitution.",
+          "success": "A quantified cylinder-to-itinerary equality and Lucas-parameter recursion. Record any violated gap or return-word invariant.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "ordered-zeckendorf-long-game-strategy",
+      "title": "Does the Ordered Zeckendorf Long Game Strategy maximize length?",
+      "area": "Rewriting games",
+      "scope": "theorem",
+      "doi": "10.48550/arXiv.2508.20222",
+      "anchors": [
+        "D5/S1/Digit/Raw",
+        "D5/S1/Digit/Carry",
+        "D5/S0/Rewriting/NewmanConfluence",
+        "D5/S0/Rewriting/NormalFormFunction"
+      ],
+      "question": "Among legal terminal runs starting from n copies of F_1, does the specified Long Game Strategy attain maximum length?",
+      "foothold": "Value-preserving rewrites and canonical normal forms supply the forgetful arithmetic structure.",
+      "gap": "Ordered states, the exact game orientation, path length and the meaning of arbitrary switch order require separate treatment.",
+      "next_step": "Define the five ordered moves and resolve whether all switch tie choices are intended to be equally optimal.",
+      "success": "A longest-path proof for the precise strategy semantics, or two exact legal runs witnessing a failure.",
+      "keywords": [
+        "游戏",
+        "最长",
+        "LGS",
+        "Bellman",
+        "confluence"
+      ],
+      "targets": [
+        {
+          "id": "lgs-switch-order",
+          "title": "Does switch-order freedom preserve LGS length?",
+          "kind": "route-test",
+          "question": "Do all allowed switch tie choices lead to the same LGS terminal length from the specified initial states?",
+          "gap": "The universal LGS statement depends on this interpretation; normal-form uniqueness does not imply equal run lengths.",
+          "next_step": "Enumerate exact ordered states and all switch tie choices for bounded n; retain differing lengths and full move traces.",
+          "success": "A switch-order independence proof, or an exact counterexample requiring a deterministic or existential reformulation.",
+          "related": [
+            "game-path-measures"
+          ]
+        },
+        {
+          "id": "lgs-bellman-exchange",
+          "title": "Height-preserving local exchanges for LGS",
+          "kind": "bridge",
+          "question": "Can each LGS priority choice be shown to attain an argmax successor of the longest-remaining-path Bellman recursion?",
+          "gap": "The game DAG needs its own termination proof. Local exchange lemmas may fail even when global optimality survives.",
+          "next_step": "Test swap-first, leftmost-one merge and rightmost-split exchanges against exact state heights; save both suffix witnesses at the first failure.",
+          "success": "Proved height dominance for every reachable strategy state, followed by well-founded induction. A failed exchange refutes that route only.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "random-zeckendorf-game-gaussianity",
+      "title": "Do random Zeckendorf game lengths have a Gaussian limit?",
+      "area": "Probability",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2210.11038",
+      "anchors": [
+        "D5/S1/Digit/Raw",
+        "D5/S1/Digit/Normalize",
+        "D5/S0/Asymptotics/WeightedProbability/FiniteProductCapture",
+        "D5/S0/Asymptotics/WeightedProbability/SecondMomentCoherence"
+      ],
+      "question": "Under a precisely specified random game measure, does the centered, variance-normalized length converge to a Gaussian?",
+      "foothold": "Finite weighted probability, event counts and moments support exact bounded game calculations.",
+      "gap": "Uniform terminal-path sampling and locally uniform move sampling give different measures. A limit theorem needs dependence control and nondegenerate variance.",
+      "next_step": "Define both path measures exactly; prioritize the dossier's locally uniform mixing question with explicit quantifiers.",
+      "success": "A limit theorem with its hypotheses discharged. Histograms and finite moment agreement remain empirical evidence.",
+      "keywords": [
+        "随机",
+        "高斯",
+        "CLT",
+        "mixing",
+        "regeneration"
+      ],
+      "targets": [
+        {
+          "id": "game-path-measures",
+          "title": "Two exact game-length generating functions",
+          "kind": "bridge",
+          "question": "Can exact finite recursions distinguish uniform terminal-path sampling from locally uniform successor sampling on the game DAG?",
+          "gap": "Move multiplicities and suffix-path counts affect transition weights. Treating the measures as interchangeable changes the target.",
+          "next_step": "Compute both rational generating functions independently on small value-preserving state DAGs, with the terminal state contributing 1.",
+          "success": "Proved recursions, normalization and moment identities for both measures, including an explicit comparison example.",
+          "related": [
+            "lgs-switch-order"
+          ]
+        },
+        {
+          "id": "game-regenerative-barrier",
+          "title": "A uniform regenerative-barrier estimate",
+          "kind": "research-question",
+          "question": "Can a canonical digit barrier bound the dependence of separated split indicators uniformly over initial input size?",
+          "gap": "Finite carry locality need not survive conditioning on entire random histories. The relevant mixing-CLT summability and variance hypotheses must be checked explicitly.",
+          "next_step": "Search exact history pairs that share a proposed barrier, then measure and bound influence-crossing events under the chosen measure.",
+          "success": "An explicit uniform mixing estimate strong enough for the selected CLT, or a minimal history pair invalidating the proposed barrier.",
+          "related": [
+            "negative-prefix-transducer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wall-sun-sun-golden-unit-lift",
+      "title": "Can a prime have equal Fibonacci periods modulo p and p²?",
+      "area": "Arithmetic",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2603.25343",
+      "anchors": [
+        "D5/S0/Carrier/Units",
+        "D5/S1/Scale/Fibonacci",
+        "D5/S3/Arith/FibonacciRank",
+        "D5/S3/Arith/GoldenApparition",
+        "D5/S3/Arith/GoldenPrimeSplitting"
+      ],
+      "question": "Does a prime p exist with pi(p) = pi(p²), where pi is the Pisano period? The infinitely-many assertion is a separate stronger question.",
+      "foothold": "Golden-unit powers, Fibonacci coordinates, apparition ranks and split/inert arithmetic connect the mod-p side.",
+      "gap": "The exceptional lift from p to p² is missing. A finite search with no examples does not refute existence.",
+      "next_step": "Identify recurrence period, matrix order and golden-unit order before studying the first lift defect.",
+      "success": "A verified prime witness or a universal nonexistence proof. Keep local bridge theorems separate from the global existence question.",
+      "keywords": [
+        "素数",
+        "Pisano",
+        "Wall-Sun-Sun",
+        "WSS",
+        "p-adic"
+      ],
+      "targets": [
+        {
+          "id": "pisano-matrix-order",
+          "title": "Pisano period as matrix and golden-unit order",
+          "kind": "bridge",
+          "question": "For m >= 2, can the pair-recurrence period be proved equal to the multiplicative order of A = [[0,1],[1,1]] over Z/mZ and of its golden-unit representation?",
+          "gap": "Matrix order concerns the whole matrix, so equality with the orbit period needs proof; invertibility and indexing must be explicit.",
+          "next_step": "Prove the Fibonacci formula for A^n and compare the return condition (F_n,F_(n+1)) = (0,1) modulo m.",
+          "success": "A reusable equivalence for all m >= 2, with small-modulus conventions stated and checked.",
+          "related": []
+        },
+        {
+          "id": "pisano-first-lift-defect",
+          "title": "The first-lift defect criterion modulo p²",
+          "kind": "bridge",
+          "question": "With r = pi(p) and A^r = I + pB modulo p², is pi(p²) equal to r exactly when B vanishes modulo p, and otherwise equal to pr?",
+          "gap": "The argument requires the reduction-order relation and a justified calculation of the order of I+pB, including small primes.",
+          "next_step": "Define B as a residue class, prove the kernel-order dichotomy, and cross-check recurrence and matrix computations independently.",
+          "success": "A proved local lift dichotomy with every prime case covered. This does not settle whether a vanishing defect ever occurs.",
+          "related": []
+        }
+      ]
+    },
+    {
+      "id": "zeckendorf-polynomial-maximum-order-complexity",
+      "title": "How large is maximum order complexity along polynomial inputs?",
+      "area": "Sequence complexity",
+      "scope": "window",
+      "doi": "10.48550/arXiv.2106.09959",
+      "anchors": [
+        "D5/S0/Conventions/WDigits",
+        "D5/S1/Digit/Carry",
+        "D5/S1/Digit/Normalize",
+        "D5/S1/Words/Complexity/MorseHedlund"
+      ],
+      "question": "For the parity of the Zeckendorf digit sum along n², can maximum order complexity of the first N terms be bounded above by C N^(1/4) for all sufficiently large N?",
+      "foothold": "Canonical digit normalization and factor tools support exact repeated-block analysis.",
+      "gap": "Factor complexity is a different invariant. The upper bound needs a uniform successor-determinism or carry-state argument.",
+      "next_step": "Implement the exact finite repeated-block criterion before attempting an effective carry-window bound.",
+      "success": "A quantified upper bound with constants and threshold, or a counterexample to a stated effective bound. Finite scaling plots do not settle the exponent.",
+      "keywords": [
+        "复杂度",
+        "多项式",
+        "feedback",
+        "DAWG",
+        "carry"
+      ],
+      "targets": [
+        {
+          "id": "polynomial-successor-certificate",
+          "title": "An exact successor-collision certificate",
+          "kind": "certificate",
+          "question": "Can finite maximum order complexity be certified by equal-length block collisions and their following bits, including degenerate constant-prefix cases?",
+          "gap": "Off-by-one conventions and special zero-memory cases must match the source definition.",
+          "next_step": "Cross-check a naive implementation against a suffix-based method; emit equal blocks with unequal successors for every claimed lower bound.",
+          "success": "A proved finite criterion and replayable witnesses, independent of any conjectured asymptotic exponent.",
+          "related": [
+            "dfao-sparse-distinguishability"
+          ]
+        },
+        {
+          "id": "polynomial-carry-window",
+          "title": "Can bounded carry state force the next parity bit?",
+          "kind": "research-question",
+          "question": "For square inputs, can a history of length O(N^(1/4)) determine enough boundary carry information to determine the next Zeckendorf digit-sum parity?",
+          "gap": "Unbounded carry propagation and noninjective history-to-state maps are possible obstructions.",
+          "next_step": "Track exact normalization of 2nh+h² at Fibonacci/Lucas scales, then search for equal observed histories with conflicting next bits.",
+          "success": "An explicit uniform boundary-state theorem implying the upper bound, or exact witness pairs falsifying the proposed window.",
+          "related": [
+            "negative-prefix-transducer",
+            "dfao-sparse-distinguishability"
+          ]
+        }
+      ]
+    }
+  ]
+}
