@@ -39,6 +39,8 @@ fs.mkdirSync(output, { recursive: true });
       ),
     );
     assert.equal(await page.locator(".research-question").count(), 7);
+    await page.locator('.frontier-results a[href="research.html#bosma-conjecture-17"]').waitFor();
+    assert.equal(await page.locator(".frontier-results a").count(), 3);
     assert.doesNotMatch(
       await page.locator("#wiki-content").innerText(),
       /Paper Generator|Values Producer/,
@@ -72,7 +74,7 @@ fs.mkdirSync(output, { recursive: true });
       "true",
     );
     await page
-      .locator("#wiki-content .concept-row:not(.research-question)")
+      .locator("#wiki-content button.concept-row:not(.research-question)")
       .first()
       .click();
     assert.ok(

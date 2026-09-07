@@ -23,6 +23,7 @@ import {
   evolutionPanel,
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
+import { appendRecentResults } from "./atlas-results.mjs";
 import { loadStartup } from "./atlas-startup.mjs";
 import {
   structuralScaffold,
@@ -838,6 +839,7 @@ function selectProblem(slug) {
   frameNodes(currentNodes);
 }
 function renderResearch(root) {
+  appendRecentResults(root, state.graph.nodes);
   root.append(
     el("p", "eyebrow", "RESEARCH / CURRENT RELEASE"),
     el("h2", "", "Open questions"),
@@ -947,8 +949,8 @@ function renderResearch(root) {
       );
     }
   }
-  const research = el("a", "research-link", "Research Library");
-  research.href = "research.html";
+  const research = el("a", "research-link", "Conjectures & research notebook");
+  research.href = "conjectures.html";
   research.append(icon("arrow-up-right"));
   root.append(research);
 }
@@ -1374,7 +1376,7 @@ function renderArticle(root) {
     root.append(link);
   }
   const research = el("a", "research-link", "Related research questions");
-  research.href = `research.html#node=${encodeURIComponent(node.id)}`;
+  research.href = `conjectures.html#node=${encodeURIComponent(node.id)}`;
   research.append(icon("arrow-up-right"));
   root.append(research);
 }

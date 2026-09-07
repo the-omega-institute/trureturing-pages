@@ -6,6 +6,7 @@ const routes = [
   "knowledge/",
   "evolution.html",
   "research.html",
+  "conjectures.html",
   "library-history.html",
   "library-version.html",
   "conclusions.html",
@@ -46,7 +47,7 @@ const routes = [
             .locator("a")
             .allTextContents()
             .then((items) => items.map((s) => s.trim())),
-          ["Explore", "Library", "Evolution", "Research"],
+          ["Explore", "Research", "Library", "Evolution"],
         );
         const header = page.locator("body > header").first();
         const brand = await header.locator(".brand").boundingBox();

@@ -1,0 +1,93 @@
+{
+  "schema_version": "pages-research-news.v1",
+  "reviewed": "2026-09-07",
+  "publications": [
+    {
+      "id": "eqt2",
+      "title": "A Certificate-Producing Cascade for Equational Implication: The SAIR EQT2 Stage 2 Solver",
+      "authors": "Haobo Ma, Wenlin Zhang, Manuel Israel C\u00e1zares",
+      "date": "2026-09-01",
+      "venue": "arXiv:2609.00706",
+      "status": "Preprint / official results pending",
+      "url": "https://arxiv.org/abs/2609.00706",
+      "image": "assets/publications/eqt2.jpg",
+      "summary": "A proof-producing cascade for equational implication. Positive answers produce Lean proofs; negative answers produce countermodels checked by the competition judge.",
+      "highlight": "All evaluation question banks correct",
+      "qualification": "Team-reported result, 7 September 2026. Official results have not been announced; this is not an official ranking or independent confirmation of hidden-set performance.",
+      "evidence": "The preprint records accepted certificates for all 1,889 rows across six public sets, agreement on 800 published Stage 1 evaluation-distribution problems, 100 accepted canonical Marathon rows, and 200 accepted hosted playground rows. These are separate measurements and are not added together."
+    },
+    {
+      "id": "zeckendorf",
+      "title": "Canonical Zeckendorf Normalization and sharp iteration depth of the Berstel Adder",
+      "authors": "Haobo Ma, Wenlin Zhang",
+      "date": "2026-08-13",
+      "venue": "RAIRO - Theoretical Informatics and Applications 60, 29",
+      "status": "Published / journal article",
+      "url": "https://www.rairo-ita.org/articles/ita/abs/2026/01/ita20260032/ita20260032.html",
+      "doi": "10.1051/ita/2026032",
+      "summary": "Exact limits on least-significant-digit-first Zeckendorf normalization, maximal prefix erasure, and sharp iteration depth for Berstel recoding. The published article distinguishes the classical ten-state presentation from its six-state output-delay quotient.",
+      "highlight": "From Fibonacci structure to exact computational bounds",
+      "evidence": "Publication title, authors, date and scope verified against the publisher's Crossref record for DOI 10.1051/ita/2026032."
+    },
+    {
+      "id": "routing",
+      "title": "Mechanism-level routing failure in LLMs over Lean-verified algebraic structures",
+      "authors": "Manuel Israel C\u00e1zares, Wenlin Zhang, Haobo Ma",
+      "date": "2026-07-05",
+      "venue": "arXiv:2607.04534",
+      "status": "Preprint / empirical study",
+      "url": "https://arxiv.org/abs/2607.04534",
+      "image": "assets/publications/routing.jpg",
+      "summary": "An empirical study of how language models select proof mechanisms over Lean-verified algebraic objects. Mechanism-bearing evidence improves routing, while truth prediction and proof-mechanism classification show different failure patterns.",
+      "highlight": "Correct verdicts can still select the wrong proof mechanism",
+      "evidence": "The main study uses 22 FiberRing items; a six-item cross-corpus extension provides a small cross-module check. Reported effects describe this experimental corpus."
+    }
+  ],
+  "results": [
+    {
+      "id": "pochhammer-conjecture-6-5",
+      "title": "Pochhammer Conjecture 6.5: a quadratic counterexample range",
+      "field": "Real-rooted polynomials",
+      "date": "2026-09-06",
+      "kind": "refuted",
+      "module": "D5/S3/Zeros/PochhammerDeformation/QuadraticInterval",
+      "declaration": "quadratic_conjecture_refutation",
+      "pr": 5859,
+      "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
+      "statement_id": "sha256:adf16034b6b75357f9feaee180f1e570626f00f86a3eb3125487a55155a65486",
+      "source_url": "https://arxiv.org/abs/2608.03723",
+      "summary": "An exact degree-two classification yields a counterexample range to the conjectured strict upper bound.",
+      "scope": "For a > 0, c2(a) = (sqrt(a^2+a) - a)/2 satisfies c2(a) < 2a exactly when a > 1/24. Thus 0 < a <= 1/24 refutes the k = 1 strict upper bound. This does not settle the higher-degree classification."
+    },
+    {
+      "id": "chamberland-dilcher-conjecture-2-1",
+      "title": "Chamberland-Dilcher Conjecture 2.1: consecutive zero blocks",
+      "field": "Integer sequences",
+      "date": "2026-09-06",
+      "kind": "proved",
+      "module": "D5/S1/Digit/AlternatingFloorSqrtZeroBlocks",
+      "declaration": "conjecture21",
+      "pr": 5914,
+      "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
+      "statement_id": "sha256:cace4bac173c51d8c4fc5d46b5931c06670548e15fceacfc58c0db99e98f9016",
+      "source_url": "https://arxiv.org/abs/2510.26291v1",
+      "summary": "An explicit construction locates consecutive zero blocks in an alternating sum of floor square roots.",
+      "scope": "The formal result proves the stated zero blocks and their disjointness for eligible labels and odd positive n, with an explicit bridge to the natural square-root floor. Source: section 2, equation 2.3 and Conjecture 2.1."
+    },
+    {
+      "id": "bosma-conjecture-17",
+      "title": "Bosma et al. Conjecture 17: the greedy three-sumfree sequence",
+      "field": "Combinatorics / integer sequences",
+      "date": "2026-09-06",
+      "kind": "proved",
+      "module": "D5/S1/Words/Sumfree/GreedyThreeSumfreeTwoParameter",
+      "declaration": "conjecture17",
+      "pr": 5862,
+      "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
+      "statement_id": "sha256:b747816e9a11f6361787befcf7759518443240b42e431c5b3b9dbc58252007bb",
+      "source_url": "https://arxiv.org/abs/2503.04122",
+      "summary": "A universal periodic formula characterizes the literal greedy sequence starting from 1, g and g+d.",
+      "scope": "Proved for all natural parameters 2 <= d and d+1 <= g, including all four exceptions and inclusive residue bounds in the published statement. This is Conjecture 17, not the different g+1 third-seed problem in Conjecture 16."
+    }
+  ]
+}

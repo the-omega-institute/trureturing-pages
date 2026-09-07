@@ -20,7 +20,7 @@ const stored = (page) =>
       second = await context.newPage();
     const open = async (p) => {
       p.on("pageerror", (error) => errors.push(error.message));
-      await p.goto(`${root}/research.html`);
+      await p.goto(`${root}/conjectures.html`);
       await p.locator(".rw-direction").first().waitFor();
       assert.equal(await p.locator(".rw-direction").count(), 10);
       assert.equal(await p.locator(".rw-frontier-question").count(), 13);
@@ -156,7 +156,7 @@ const stored = (page) =>
     );
     await page.locator("#research-release-dossiers > summary").click();
     assert.equal(await page.locator(".problem-row:visible").count(), 7);
-    await page.goto(`${root}/research.html`);
+    await page.goto(`${root}/conjectures.html`);
     await page.locator(".rw-frontier-question").first().waitFor();
     for (const width of [1512, 390, 320]) {
       await page.setViewportSize({ width, height: width < 700 ? 844 : 982 });
@@ -185,7 +185,7 @@ const stored = (page) =>
     }
     await page.locator(".rw-frontier-targets a").first().click();
     await page.locator("#research-bank[open] .rw-card[open]").waitFor();
-    await page.goto(`${root}/research.html`);
+    await page.goto(`${root}/conjectures.html`);
     await page.getByRole("link", { name: "Search questions", exact: true }).click();
     await page.locator("#rw-q").fill("Suzuki");
     assert.ok(await page.locator(".rw-card").count() > 0);
@@ -194,7 +194,7 @@ const stored = (page) =>
     await unavailable.route("**/research-catalog.json", (route) =>
       route.abort(),
     );
-    await unavailable.goto(`${root}/research.html`);
+    await unavailable.goto(`${root}/conjectures.html`);
     await unavailable.locator(".rw-load-error").waitFor();
     assert.equal(await unavailable.locator(".problem-row:visible").count(), 7);
     const denied = await context.newPage();
@@ -203,7 +203,7 @@ const stored = (page) =>
         throw new DOMException("Test quota denial", "QuotaExceededError");
       };
     });
-    await denied.goto(`${root}/research.html#rp=dfao-finite-unsat`);
+    await denied.goto(`${root}/conjectures.html#rp=dfao-finite-unsat`);
     await denied.locator("#note-dfao-finite-unsat").fill("Unsaved evidence");
     await denied.getByText(/Browser storage unavailable or full/).waitFor();
     const unsavedDownload = denied.waitForEvent("download");

@@ -160,7 +160,7 @@ def relation_category(layer: str) -> str:
 
 
 def site_header(root: str, active: str = "Library") -> str:
-    links = [("Explore", "atlas.html"), ("Library", "knowledge/"), ("Evolution", "evolution.html"), ("Research", "research.html")]
+    links = [("Explore", "atlas.html"), ("Research", "research.html"), ("Library", "knowledge/"), ("Evolution", "evolution.html")]
     nav = "".join(f'<a href="{root}{path}"' + (' aria-current="page"' if label == active else '') + f'>{label}</a>' for label, path in links)
     return f'<header class="knowledge-header"><a class="brand" href="{root}index.html">trureturing</a><nav aria-label="Primary navigation">{nav}</nav><span class="header-coordinate">MATHEMATICAL ATLAS</span></header>'
 
@@ -192,7 +192,7 @@ def node_page(
     current = f' <a href="../../../../knowledge/node/{slug}/">Current view</a>' if immutable else ""
     banner = f'<div class="release-banner">Immutable release view{current}</div>' if immutable else ""
     dag = root + "atlas.html#node=" + quote(node_id, safe="")
-    research = root + "research.html#node=" + quote(node_id, safe="")
+    research = root + "conjectures.html#node=" + quote(node_id, safe="")
     proof_parents = [item for item in parents if relation_category(item[1]) == "proof"]
     proof_children = [item for item in children if relation_category(item[1]) == "proof"]
     documents = [item for item in parents + children if relation_category(item[1]) == "document"]

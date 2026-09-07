@@ -18,7 +18,7 @@ const nodeId = "D5/S0/Tower/GoldenGapZeckendorf";
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   try {
-    await page.goto(`${root}/research.html`);
+    await page.goto(`${root}/conjectures.html`);
     await page.waitForFunction(
       () =>
         document.querySelector("#research-search") &&
@@ -61,7 +61,7 @@ const nodeId = "D5/S0/Tower/GoldenGapZeckendorf";
       ),
       false,
     );
-    await page.goto(`${root}/research.html`);
+    await page.goto(`${root}/conjectures.html`);
     await page.screenshot({ path: path.join(output, "research-mobile.png") });
     assert.equal(
       await page.evaluate(

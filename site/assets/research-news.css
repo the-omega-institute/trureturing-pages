@@ -1,0 +1,234 @@
+.research-news {
+  padding-top: 38px;
+}
+.news-heading {
+  padding-bottom: 30px;
+}
+.news-heading h1 {
+  font-size: 48px;
+  margin: 8px 0;
+}
+.news-lede {
+  font-size: 20px;
+  color: #d4e2e1;
+  margin: 0 0 20px;
+}
+.news-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 26px;
+  align-items: center;
+  font-size: 13px;
+}
+.news-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.news-index {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px 38px;
+  border-block: 1px solid var(--border);
+  padding: 18px 0;
+}
+.news-index a {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+.news-index strong {
+  font:
+    26px ui-monospace,
+    monospace;
+  color: #e8c474;
+}
+.news-index > span {
+  margin-left: auto;
+  font:
+    11px ui-monospace,
+    monospace;
+  color: var(--muted);
+}
+.news-section {
+  padding-top: 38px;
+  scroll-margin-top: 100px;
+}
+.news-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+}
+.news-section h2 {
+  font-size: 26px;
+  margin: 0;
+}
+.news-section-heading > a {
+  font-size: 13px;
+}
+.news-result {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 32px;
+  padding: 26px 0;
+  border-top: 1px solid var(--border);
+  scroll-margin-top: 110px;
+}
+.news-result h3,
+.news-paper h3 {
+  font-size: 23px;
+  line-height: 1.35;
+  margin: 5px 0 12px;
+  font-weight: 500;
+}
+.news-result p,
+.news-paper p {
+  max-width: 80ch;
+  margin: 8px 0 14px;
+}
+.news-result-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding-top: 4px;
+}
+.news-result-meta time {
+  color: var(--muted);
+  font:
+    12px ui-monospace,
+    monospace;
+}
+.news-status {
+  border-left: 2px solid currentColor;
+  padding-left: 10px;
+  font-size: 12px;
+}
+.news-status.proved {
+  color: #8cdbb5;
+}
+.news-status.refuted {
+  color: #e6a0bb;
+}
+.news-release-state {
+  color: #e8c474;
+  font-size: 12px;
+}
+.research-news details {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.research-news summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.research-news details p,
+.research-news code {
+  overflow-wrap: anywhere;
+}
+.news-paper {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 36px;
+  border-top: 1px solid var(--border);
+  padding: 32px 0;
+  scroll-margin-top: 110px;
+}
+.paper-preview {
+  display: block;
+  width: 170px;
+  height: 240px;
+  background: white;
+  border: 1px solid #52656a;
+  overflow: hidden;
+}
+.paper-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.journal-mark {
+  width: 170px;
+  min-height: 240px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  border: 1px solid #637875;
+  background: #dce9e5;
+  color: #102c27;
+}
+.journal-mark strong {
+  font-size: 26px;
+}
+.journal-mark span,
+.journal-mark a {
+  font-size: 11px;
+  color: #244b42;
+}
+.paper-authors,
+.paper-venue {
+  color: var(--muted);
+  font-size: 13px;
+}
+.paper-highlight {
+  color: #8cdbb5;
+  font-weight: 600;
+}
+.news-qualification {
+  padding-left: 12px;
+  border-left: 2px solid #e8c474;
+  color: #e8c474;
+  font-size: 13px;
+}
+.research-news .eyebrow {
+  font-size: 10px;
+  margin: 0 0 6px;
+}
+@media (max-width: 640px) {
+  .news-heading h1 {
+    font-size: 36px;
+  }
+  .news-lede {
+    font-size: 17px;
+  }
+  .news-index {
+    gap: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .news-index > span {
+    margin-left: 0;
+  }
+  .news-result {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .news-result-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .news-paper {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .paper-preview {
+    width: 113px;
+    height: 160px;
+  }
+  .journal-mark {
+    width: 150px;
+    min-height: 180px;
+  }
+  .news-result h3,
+  .news-paper h3 {
+    font-size: 20px;
+  }
+}
