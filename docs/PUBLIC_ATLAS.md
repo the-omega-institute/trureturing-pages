@@ -93,6 +93,30 @@ No Topology contract extension is required for this source-backed view. Topology
 continues to supply proof structure; authored research classification comes from
 the release's source catalog and must not be inferred by topology metrics.
 
+## Startup performance
+
+`tools/build_atlas_startup.mjs` runs the existing deterministic public layout
+during each Pages deployment. It publishes `data/atlas-startup.v1.json` and
+digest-addressed gzip artifacts containing the original graph bytes and all
+node positions. The browser revalidates the small mutable manifest and startup
+index, then reuses immutable graph/layout bytes from its HTTP cache. Compressed
+artifact hashes, the original graph hash, release binding, layout profile and
+complete finite node coordinates are checked before rendering. No graph nodes,
+relationship categories or Wiki content are removed for this optimization.
+
+Research and history load after the graph becomes interactive. Research has an
+explicit pending state; slow or failed research cannot delay the main Atlas.
+An older deployment without the startup index retains the verified graph and
+worker-layout path. Invalid artifacts do not silently use unverified positions.
+Changes to public layout semantics must increment `LAYOUT_PROFILE` in
+`site/assets/atlas-startup.mjs`; the deploy step regenerates artifacts for every
+release and Pages build. The original certified Topology conformation remains
+separate from these editorial display coordinates.
+
+Run `node tools/benchmark_atlas.cjs` with Playwright available through `NODE_PATH`.
+`ATLAS_URL` selects a local or public Atlas. The benchmark reports cold/repeat
+navigation readiness, layout-worker duration and resource transfer sizes.
+
 ## Local preview
 
 ```bash
@@ -122,6 +146,7 @@ With those packages available to Node and the preview server running:
 ```bash
 node tests/browser/atlas-public.cjs
 node tests/browser/atlas-research.cjs
+node tests/browser/atlas-startup.cjs
 node tests/browser/pages-theme.cjs
 node tests/browser/architecture.cjs
 python3 -m unittest discover -s tests -p 'test_*.py'

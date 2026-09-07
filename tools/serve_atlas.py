@@ -30,6 +30,10 @@ def prepare():
         if digest != manifest[key]:
             raise ValueError(f"Cached {name} does not match the manifest; remove artifacts/atlas-preview/data and retry.")
     from lib.knowledge_pages import render_knowledge_site
+    subprocess.run([
+        "node", str(ROOT / "tools/build_atlas_startup.mjs"),
+        str(data / "pages-atlas-view.v1.json"), str(data / "pages-atlas-manifest.v1.json"), str(CACHE),
+    ], check=True)
     print("Rendering local Wiki pages from the verified Atlas...", flush=True)
     render_knowledge_site(json.loads((data / "pages-atlas-view.v1.json").read_text()), CACHE)
     subprocess.run([

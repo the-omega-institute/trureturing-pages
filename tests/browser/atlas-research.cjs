@@ -24,6 +24,9 @@ fs.mkdirSync(output, { recursive: true });
     await page
       .getByRole("button", { name: "Open questions", exact: true })
       .click();
+    await page.waitForFunction(
+      () => window.atlasDiagnostics?.().researchQuestions === 7,
+    );
     let diagnostics = await page.evaluate(() => window.atlasDiagnostics());
     assert.equal(diagnostics.selected, null);
     assert.equal(diagnostics.researchQuestions, 7);
@@ -61,6 +64,7 @@ fs.mkdirSync(output, { recursive: true });
     assert.ok(new URL(page.url()).hash.includes(`problem=${slug}`));
     await page.reload();
     await page.waitForFunction(() => window.atlasDiagnostics?.().problem);
+    await page.locator(`[data-problem="${slug}"]`).waitFor();
     assert.equal(
       await page
         .locator(`[data-problem="${slug}"]`)
@@ -113,7 +117,7 @@ fs.mkdirSync(output, { recursive: true });
       route.fulfill({ status: 503, body: "Unavailable" }),
     );
     await page.goto(`${root}/atlas.html#mode=frontier`);
-    await page.waitForFunction(() => window.atlasDiagnostics);
+    await page.waitForFunction(() => window.atlasDiagnostics?.().researchError);
     diagnostics = await page.evaluate(() => window.atlasDiagnostics());
     assert.ok(diagnostics.researchError);
     assert.equal(diagnostics.nodes, 0);

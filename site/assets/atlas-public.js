@@ -7,7 +7,6 @@ import {
   neighborhood,
   searchNodes,
   title,
-  verifyGraph,
   viewFor,
   architectureLayout,
 } from "./atlas-public-core.mjs";
@@ -24,6 +23,7 @@ import {
   evolutionPanel,
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
+import { loadStartup } from "./atlas-startup.mjs";
 
 const $ = (selector) => document.querySelector(selector);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -53,6 +53,7 @@ const state = {
   research: null,
   researchError: null,
   problem: null,
+  startup: null,
 };
 const icon = (name) => {
   const el = document.createElement("i");
@@ -291,6 +292,8 @@ function renderGraph() {
       : state.problem
         ? "No released foundations for this question"
         : "No released research foundations";
+  if (state.mode === "frontier" && !state.research && !state.researchError)
+    $("#view-caption").textContent = "Loading research catalog...";
   if (state.mode === "dependency")
     $("#view-caption").textContent =
       `${METRICS[state.metric]} / module dependencies / ${format(view.nodes.length)} nodes`;
@@ -509,6 +512,12 @@ function renderResearch(root) {
     el("p", "eyebrow", "RESEARCH / CURRENT RELEASE"),
     el("h2", "", "Open questions"),
   );
+  if (!state.research && !state.researchError) {
+    const message = el("p", "wiki-intro", "Loading research catalog...");
+    message.setAttribute("role", "status");
+    root.append(message);
+    return;
+  }
   if (state.researchError) {
     const message = el(
       "p",
@@ -1005,66 +1014,41 @@ function showSearch() {
 
 async function load() {
   icons();
-  const fetchText = async (path) => {
-    const response = await fetch(path, { cache: "no-store" });
-    if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`);
-    return response.text();
-  };
-  const [graphText, manifestText] = await Promise.all([
-    fetchText("data/pages-atlas-view.v1.json"),
-    fetchText("data/pages-atlas-manifest.v1.json"),
-  ]);
-  const digest = async (text) =>
-    "sha256:" +
-    [
-      ...new Uint8Array(
-        await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)),
-      ),
-    ]
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-  state.graph = await verifyGraph(graphText, JSON.parse(manifestText), digest);
-  state.graphDigest = JSON.parse(manifestText).atlas_graph_digest;
+  const startup = await loadStartup(new URL("./", location.href));
+  const { manifest } = startup;
+  state.graph = startup.graph;
+  state.graphDigest = manifest.atlas_graph_digest;
+  state.startup = startup.timing;
   state.model = createPublicModel(state.graph);
-  try {
-    state.research = await loadResearch(
-      new URL("./", location.href),
-      state.model,
-      JSON.parse(manifestText).atlas_graph_digest,
-      state.graph.source_snapshot,
-    );
-  } catch (error) {
-    state.researchError = error.message;
-  }
   state.architecture = analyzeArchitecture(state.graph);
-  state.history = [
-    snapshotFromGraph(state.graph, JSON.parse(manifestText).atlas_graph_digest),
-  ];
+  state.history = [snapshotFromGraph(state.graph, state.graphDigest)];
   if (!state.model.nodes.length)
     throw new Error("This release has no mathematical concepts.");
   $("#loading-message").textContent = "Assembling the concept families";
-  state.positions = await new Promise((resolve, reject) => {
-    const worker = new Worker(
-      new URL("./atlas-public-worker.mjs", import.meta.url),
-      { type: "module" },
-    );
-    worker.onmessage = ({ data }) => {
-      if (data.positions) {
+  state.positions =
+    startup.positions ||
+    (await new Promise((resolve, reject) => {
+      const worker = new Worker(
+        new URL("./atlas-public-worker.mjs", import.meta.url),
+        { type: "module" },
+      );
+      worker.onmessage = ({ data }) => {
+        if (data.positions) {
+          worker.terminate();
+          resolve(data.positions);
+        } else if (data.error) {
+          worker.terminate();
+          reject(new Error(data.error));
+        } else
+          $("#loading-detail").textContent =
+            `${Math.round(data.progress * 100)}% / ${format(state.model.nodes.length)} concepts`;
+      };
+      worker.onerror = () => {
         worker.terminate();
-        resolve(data.positions);
-      } else if (data.error) {
-        worker.terminate();
-        reject(new Error(data.error));
-      } else
-        $("#loading-detail").textContent =
-          `${Math.round(data.progress * 100)}% / ${format(state.model.nodes.length)} concepts`;
-    };
-    worker.onerror = () => {
-      worker.terminate();
-      reject(new Error("The layout worker could not start."));
-    };
-    worker.postMessage(state.graph);
-  });
+        reject(new Error("The layout worker could not start."));
+      };
+      worker.postMessage(state.graph);
+    }));
   state.structurePositions = state.positions;
   state.architecturePositions = architectureLayout(
     state.model,
@@ -1136,7 +1120,7 @@ async function load() {
     state.mode = initial.get("mode");
   if (state.mode === "frontier") {
     state.family = null;
-    if (state.research?.problems.has(initial.get("problem")))
+    if (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(initial.get("problem") || ""))
       state.problem = initial.get("problem");
   }
   if (Object.hasOwn(METRICS, initial.get("metric")))
@@ -1177,6 +1161,7 @@ async function load() {
   renderGraph();
   renderWiki();
   $("#loading").hidden = true;
+  state.startup.readyMs = performance.now();
   requestAnimationFrame(() => {
     frameNodes(currentNodes);
     if (initial.get("node")) selectNode(initial.get("node"));
@@ -1200,6 +1185,7 @@ async function load() {
     researchQuestions: state.research?.problems.size || 0,
     researchAnchors: state.research?.byNode.size || 0,
     researchError: state.researchError,
+    startup: state.startup,
     relatedNodes: state.related?.ids.size || 0,
     relatedEdges: state.related?.edges.length || 0,
     metric: state.metric,
@@ -1220,10 +1206,36 @@ async function load() {
     ),
     camera: state.renderer.camera().position.toArray(),
   });
+  // Research and history enrich an already interactive map.
+  setTimeout(() => {
+    loadResearch(
+      new URL("./", location.href),
+      state.model,
+      state.graphDigest,
+      state.graph.source_snapshot,
+    )
+      .then((research) => {
+        state.research = research;
+        if (state.problem && !research.problems.has(state.problem))
+          state.problem = null;
+      })
+      .catch((error) => {
+        state.researchError = error.message;
+      })
+      .finally(() => {
+        if (state.mode === "frontier") {
+          renderGraph();
+          renderWiki();
+          if (!state.selected) frameNodes(currentNodes);
+        } else {
+          state.renderer.nodeColor(color).nodeVal(nodeSize);
+        }
+      });
+  }, 0);
   loadHistory(
     new URL("./", location.href),
     state.graph.source_snapshot.truth_release_digest,
-    JSON.parse(manifestText).atlas_graph_digest,
+    state.graphDigest,
   )
     .then((snapshots) => {
       if (snapshots.length) state.history = snapshots;

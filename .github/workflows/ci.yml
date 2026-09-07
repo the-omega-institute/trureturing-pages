@@ -55,6 +55,8 @@ jobs:
           node --check site/assets/atlas-public.js
           node --check site/assets/atlas-public-core.mjs
           node --check site/assets/atlas-public-worker.mjs
+          node --check site/assets/atlas-startup.mjs
+          node --check tools/build_atlas_startup.mjs
           node --check site/assets/graph-relations.js
           node --check site/assets/relation-map.js
           node --check site/assets/relation-map-worker.js
@@ -78,6 +80,7 @@ jobs:
         run: |
           node tests/js/atlas-structure.test.js
           node --test tests/js/atlas-public.test.mjs
+          node --test tests/js/atlas-startup.test.mjs
           node --test tests/js/architecture.test.mjs
           node --test tests/js/evolution.test.mjs
           node tests/js/concept-lens.test.js

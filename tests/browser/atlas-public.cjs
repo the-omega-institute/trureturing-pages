@@ -252,6 +252,9 @@ fs.mkdirSync(output, { recursive: true });
     }
     assert.equal(errors.length, 0, errors.join("\n"));
     const failedPage = await browser.newPage();
+    await failedPage.route("**/data/atlas-startup.v1.json", (route) =>
+      route.fulfill({ status: 404, body: "" }),
+    );
     await failedPage.route("**/data/pages-atlas-view.v1.json", (route) =>
       route.fulfill({ contentType: "application/json", body: "{}" }),
     );

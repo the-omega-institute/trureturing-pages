@@ -270,6 +270,12 @@ jobs:
               and .axes.depth_step == 180000' \
             _site/data/pages-conformation.v1.json >/dev/null
 
+      - name: Precompute public Atlas layout and cacheable startup artifacts
+        run: >-
+          node tools/build_atlas_startup.mjs
+          _site/data/pages-atlas-view.v1.json
+          _site/data/pages-atlas-manifest.v1.json _site
+
       - name: Render Wiki relationships from the final verified Atlas
         run: >-
           python -m lib.knowledge_pages
