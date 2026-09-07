@@ -1,88 +1,129 @@
 # Research conjecture workbench
 
-The research index now has a Pages-owned, advisory question bank above the existing
-release-bound dossiers. The bank contains seven source questions and fourteen
-proposed subproblems grounded in `trureturing/Problems`. It adds no Lean declarations,
-truth states, archive observations, generated graph edges or release promotions.
+The Research index has a Pages-owned advisory bank above the release-bound
+source dossiers. Revision `2026-09-07.2` contains **13 source questions and 28
+proposed subproblems**. It preserves all 21 IDs from the first revision. No Lean
+statements, proof states, release observations or certified graph edges change.
 
 ## Content and provenance
 
-Edit `site/assets/research-catalog.json`. The first revision records the seven
-upstream dossiers at commit `89231f9140ce2138a4e74d4d03421c724149ac24`. Its review
-covers repository dossiers, not a fresh literature-resolution audit or a complete
-review of current development PRs. Existing or newly completed formalizations
-must be checked before treating any listed gap as still missing.
+Edit `site/assets/research-catalog.json`. The seven original dossier families
+retain upstream commit `89231f9140ce2138a4e74d4d03421c724149ac24`. Six new arXiv
+families use per-family `source_commit` at
+`05c05729c5cb073dbeb215d8148813db4470952d`. Their repository anchors were read at
+that commit. Presence of a source file is not a kernel/release certification.
+Existing and in-flight work must be checked before starting any proposed target.
 
-Each family has a stable ID matching its upstream dossier, a complete DOI,
-explicit repository anchors, a question, a repository foothold, a gap to recheck,
-a concrete next step and a progress criterion. Child targets distinguish bridges,
-certificates, route tests and research questions. They are proposals; their
-completion is never inferred from a parent theorem or a matching source path.
-Related targets are suggested connections, not dependency edges.
+Every entry gives a question, repository foothold, gap to recheck, next step and
+progress criterion. Child targets distinguish bridges, certificates, route tests
+and research questions. Related links are suggestions, not dependency edges.
+The finite-UNSAT target retains the correct implication: a sound finite sample
+obstruction suffices for a state lower bound; a SAT candidate needs all-input
+correctness.
 
-The seven families cover sparse base-4 DFAO minimality, dimension-six MUBs,
-negative base-phi prefixes, ordered and random Zeckendorf games, Wall-Sun-Sun
-period lifts and polynomial-subsequence maximum order complexity. The finite
-UNSAT target deliberately uses the correct implication: a sound finite sample
-obstruction suffices for a lower bound, while a finite SAT candidate still needs
-an all-input correctness proof.
+A new arXiv family has `source` metadata: `arxiv_id`, exact `version`, title,
+`submitted`, `revised`, `checked`, `locator`, `status`, and a scope note. Its DOI
+must match the arXiv ID. Its source link points to that version on arXiv, never to
+an invented `Problems/<slug>.md`. Existing dossier links remain unchanged.
+Optional `updates` attach subsequent results without changing the parent status.
+Children display this information as a **family source**, not as a claim that the
+paper explicitly conjectures every proposed child target.
 
-To add a family or target, provide every required field, keep IDs unique, link
-only existing target IDs, and use a pinned upstream commit. Update the catalog
-revision and review date when rechecking sources. Run the tests below. Validation
-rejects unsafe anchor paths, incomplete content and unresolved related IDs.
+Source labels distinguish an open question in the checked text, a conjectural
+limit with a conditional implication, a reported result, a route obstruction and
+context. Only the first two can be a primary open-question source. Reported
+proofs have not been independently verified here. A source reading is not an
+exhaustive proof of continued openness. Unannotated legacy dossiers remain not
+rechecked. The original release dossier and its historical status are untouched.
+
+## arXiv review, 7 September 2026
+
+| Checked version | Submitted / revised | Location and use |
+|---|---|---|
+| [Zeta Spectral Triples, 2511.22755v1](https://arxiv.org/abs/2511.22755v1) | 2025-11-27 / same | Sections 7-8: genuine lowest-mode comparison, distinct from the explicit model limit. |
+| [Suzuki, 2606.09096v1](https://arxiv.org/abs/2606.09096v1) | 2026-06-08 / same | Corollary 1.6, equation (1.12), and Section 7: boundary-characteristic limit. The limit is conjectural; the Section 7 heuristic assumes RH. |
+| [Randomstrasse101, 2603.29571v1](https://arxiv.org/abs/2603.29571v1) | 2026-03-31 / same | Conjectures 18, 19(a,b), 20 and 24: circulant theta, complex phase-retrieval probability, universal real stability and SIC existence. |
+| [Shmalo, 2607.06249v1](https://arxiv.org/abs/2607.06249v1) | 2026-07-07 / same | Gaussian least-singular-value asymptotics; a reported answer to the Gaussian case, not the universal deterministic conjecture. |
+| [Sarkar, 2606.13903v1](https://arxiv.org/abs/2606.13903v1) | 2026-06-11 / same | Sections 8-10, Corollaries 9.1-9.2: obstruction for the two specified vector-coordinate degree-four SoS encodings; projector bound has a different scope. |
+| [Shallit and Vukusic, 2509.16150v2](https://arxiv.org/abs/2509.16150v2) | 2025-09-19 / 2026-03-11 | Section 2, Lemmas 2-3 and Theorem 5: the solved Kimberling problem provides a conversion test, not a new trident proof. |
+
+The six new families add twelve subproblems. The MUB and negative-base-phi
+families receive one further target each, giving twenty new entries overall.
+The review used submission histories and relevant full-text HTML sections, not
+HTML generation dates. In particular, the Randomstrasse manuscript was submitted
+in March; an August HTML generation timestamp is not a later arXiv version.
+This is a selected, repository-connected literature pass, not a complete search
+of arXiv or all current development PRs.
+
+The new repository connections use five inspected sources:
+
+- `D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm`: finite-scale multiplier;
+  convergence/ZeroData premises remain explicit.
+- `D5/S3/Weil/FiniteResolventClarkIdentity`: supplied atomic-spectrum transport;
+  the actual boundary-operator identification remains a separate task.
+- `D5/S3/Quantum/Tomography/RankOneContextCommutator`: rank-one predicates and
+  overlaps; arbitrary frame recovery is not already supplied by a context.
+- `D5/S3/Quantum/Algebra/WeylDisplacementTrace`: trace orthogonality, not an
+  already constructed SIC fiducial.
+- `D5/S3/Fourier/FinitePoisson`: cyclic characters, not a theta-SDP solver or
+  probabilistic bound.
+
+Additions retain the important quantifier distinctions. A Gaussian asymptotic
+cannot close a universal full-spark claim. A projector bound `m <= d+1` does not
+exclude four bases in dimension six. The MUB and SIC versions of Zauner's
+conjecture are distinct. Suzuki's meromorphic quotient and compact-limit wording
+must be interpreted precisely before formalizing the proposed limit.
 
 ## Browsing and personal progress
 
-Search covers questions, next steps, DOI, anchor paths and bilingual keywords.
-Field, type, horizon, personal stage and shortlist filters compose. Advanced
-filters fold on narrow screens. Shared links use `#rp=<id>`; filter state uses
-`rq`, `ra`, `rk`, `rh`, `rs`, `ro` and `rw`. Existing `#node=<gid>` entrypoints
-also filter the curated anchors. A question permalink clears hiding filters.
+Search includes questions, next steps, DOI, anchors, bilingual keywords and source
+metadata. Field, type, horizon, literature, personal-stage and shortlist filters
+compose. Literature filters select new arXiv families, related updates, or entries
+not rechecked this round. Latest-paper sorting uses the largest recorded paper
+revision date; it never sorts by review date or page-generation time.
 
-The notebook uses only `trureturing.pages.research-notes.v1` in localStorage.
-Stages are Not started, Reading, Working, Blocked and Ready for review. These are
-personal workflow labels, with no Proved or Complete state. Notes, shortlist and
-stage persist in that browser. They do not synchronize across people or devices.
-Export and import use `pages-research-notes.v1`. Import validates the complete
-file before merging known IDs, rejects files above 1 MB, preserves unaffected
-entries and reports unknown IDs. Imported entries replace the corresponding
-local entries. A different catalog revision requests source reassessment.
+Shared links use `#rp=<id>`. Filters use `rq`, `ra`, `rk`, `rh`, `rs`, `rl`, `ro`
+and `rw`. Existing `#node=<gid>` entrypoints still filter source anchors. A direct
+question link clears hiding filters. Advanced filters fold on narrow screens.
 
-The GitHub progress link opens a prefilled upstream issue form containing public
-catalog text only. It neither submits the issue nor transmits local notes.
-Use a reviewed repository record for shared progress and proof evidence.
+The notebook keeps `trureturing.pages.research-notes.v1` in localStorage.
+Stages remain Not started, Reading, Working, Blocked and Ready for review.
+No local action promotes a proof. These records do not synchronize across people
+or devices. JSON export/import uses `pages-research-notes.v1`; import validates the
+whole file before replacing matching entries, rejects files above 1 MB, preserves
+unaffected entries and reports unknown IDs. A different catalog revision requests
+source reassessment. All first-round notebook IDs remain valid.
 
-## Integration and failure behavior
+The GitHub link opens a prefilled issue form with public catalog text only. It
+neither submits the issue nor transmits personal notes.
 
-`living-library.js` is a small bootstrap. Existing handlers move verbatim to
-`living-library-release.js`, retaining their relative imports and behavior.
-The workbench loads only on `.research-home`, uses no external runtime dependency
-and does not alter dossier detail pages. The original server-rendered listing,
-release graph links and history remain under an expandable archive section.
-A catalog failure leaves that original listing untouched. Source dossiers remain
-usable without the optional enhancement. All catalog and note text is rendered
-through DOM text APIs, never inserted as HTML.
+## Integration, validation and failure behavior
 
-The archive schema, release verifier, source parser and publication pipeline are
-unchanged. In particular, this change does not handle upstream frontmatter
-migrations or claim a new deployment has occurred.
+The existing bootstrap and byte-preserved release handlers are unchanged. The
+workbench loads only on `.research-home`. Catalog failure leaves the original
+server-rendered list available. All metadata and notes use DOM text APIs, never
+HTML interpolation. No additional runtime dependency, release parser, archive
+schema, publication workflow or upstream frontmatter migration is introduced.
 
-## Checks
+Validation rejects invalid IDs, unsafe anchors, dangling related targets,
+nonexistent calendar dates, reversed source chronology, malformed arXiv versions,
+DOI mismatches and solved-result sources masquerading as open parent questions.
 
 ```sh
 node --test tests/research-workbench.test.mjs
 python tests/research_workbench_browser.py --chromium /usr/bin/chromium
 ```
 
-The Node suite exercises catalog integrity, pinned links, related targets,
-search/filter/sort behavior, notebook round trips and invalid imports, stable
-permalinks and the finite-UNSAT implication. It requires no added dependencies.
+The 23 Node tests cover those contracts, all original behavior, source filters
+and ordering, link destinations and preservation of first-round notebook IDs.
+The Chromium suite uses an offline DOM fixture with fetch/storage doubles and
+adapted asset loading. It exercises the actual DOM/filter/notebook code and CSS,
+source labels/URLs, imports/exports, old-note restoration, hash navigation, mobile
+overflow and catalog/storage failure paths. `--screenshots <directory>` saves
+fixture captures. It does not exercise native localStorage persistence, network
+module loading, the release graph or the full deployed site.
 
-The optional Python smoke test requires Playwright and an installed Chromium.
-It runs an offline DOM fixture with in-memory catalog and storage doubles, using
-the workbench's DOM code and styles. It checks filtering, restored notebook state,
-import/export, hash navigation, mobile overflow, failed catalog loading and
-storage-denial handling. It does not validate native localStorage persistence,
-network delivery, the full production site or a truth-release archive.
-`--screenshots <directory>` saves desktop and mobile fixture captures.
+A local-HTTP smoke attempt in the authoring environment was blocked by Chromium
+administration policy before loading the page. The offline suite passed; that
+result is not substituted for production or native-storage verification. No
+full-site CI, Lean compilation, independent proof review or deployment is claimed.

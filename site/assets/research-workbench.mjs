@@ -1,5 +1,5 @@
 import { STORAGE_KEY, STAGES, KINDS, SCOPES, validateCatalog, validateNotes,
-  emptyNotes, selectEntries, sourceURL, questionURL } from "./research-workbench-core.mjs";
+  emptyNotes, selectEntries, sourceURL, questionURL, SOURCE_STATES, arxivURL } from "./research-workbench-core.mjs";
 
 const el = (tag, text, className) => {
   const node = document.createElement(tag);
@@ -44,8 +44,8 @@ export async function mountResearchWorkbench() {
   heading.append(title, el("p", `${catalog.families.length} source questions / ${entries.length - catalog.families.length} proposed subproblems. Each target has a repository foothold and a concrete next step.`));
   const boundary = el("p", "Catalog and browser notes are advisory. Released proofs, source dossiers and their history remain separate below.", "rw-boundary");
   const provenance = el("details", undefined, "rw-provenance");
-  provenance.append(el("summary", `Repository review: ${catalog.reviewed} / source ${catalog.source_commit.slice(0, 12)}`),
-    el("p", catalog.review_scope), link("Pinned source commit", `https://github.com/${catalog.source_repo}/commit/${catalog.source_commit}`));
+  provenance.append(el("summary", `Source review: ${catalog.reviewed} / per-question repository pins`),
+    el("p", catalog.review_scope), link("Legacy dossier source commit", `https://github.com/${catalog.source_repo}/commit/${catalog.source_commit}`));
   const tools = el("div", undefined, "rw-tools"), filters = {};
   const field = (name, label, options) => {
     const wrap = el("div", undefined, "rw-field"), caption = el("label", label);
@@ -61,7 +61,8 @@ export async function mountResearchWorkbench() {
   field("kind", "Question type", [["", "All question types"], ...Object.entries(KINDS)]);
   field("scope", "Horizon", [["", "All horizons"], ...Object.entries(SCOPES)]);
   field("stage", "My progress", [["", "All local stages"], ...Object.entries(STAGES)]);
-  field("sort", "Sort", [["family", "Source families"], ["recent", "Recently updated notes"], ["title", "Title"]]);
+  field("literature", "Literature", [["", "All source records"], ["new", "New arXiv questions"], ["updates", "Related source updates"], ["unreviewed", "Not rechecked this round"]]);
+  field("sort", "Sort", [["family", "Source families"], ["literature", "Latest paper revision"], ["recent", "Recently updated notes"], ["title", "Title"]]);
   const advanced = el("details", undefined, "rw-advanced");
   const advancedSummary = el("summary", "Filter and sort");
   const filterGrid = el("div", undefined, "rw-filter-grid");
@@ -79,7 +80,7 @@ export async function mountResearchWorkbench() {
   const cards = el("div", undefined, "rw-cards"); cards.id = "rw-cards";
   const empty = el("p", "No questions match. Clear filters or select another field.", "rw-empty"); empty.hidden = true;
   let visible = [], selectedNode = "", focusId = "";
-  const paramNames = { q: "rq", area: "ra", kind: "rk", scope: "rh", stage: "rs", sort: "ro" };
+  const paramNames = { q: "rq", area: "ra", kind: "rk", scope: "rh", stage: "rs", sort: "ro", literature: "rl" };
   function readURL() {
     const params = new URLSearchParams(location.hash.slice(1));
     for (const [name, key] of Object.entries(paramNames))
@@ -116,6 +117,20 @@ export async function mountResearchWorkbench() {
   function detailText(parent, label, value) {
     parent.append(el("h4", label), el("p", value));
   }
+  function sourceRecord(source, label) {
+    const record = el("section", undefined, "rw-literature");
+    record.append(el("h4", label), el("p", SOURCE_STATES[source.status], "rw-source-status"));
+    record.append(link(`${source.title} / arXiv:${source.arxiv_id}${source.version}`, arxivURL(source)));
+    record.append(el("p", source.locator, "rw-source-locator"));
+    const dates = el("p", undefined, "rw-source-dates");
+    for (const [key, caption] of [["submitted", "Submitted"], ["revised", "Revised"], ["checked", "Checked"]]) {
+      if (dates.childNodes.length) dates.append(document.createTextNode(" / "));
+      const time = el("time", source[key]); time.dateTime = source[key];
+      dates.append(document.createTextNode(`${caption}: `), time);
+    }
+    record.append(dates, el("p", source.note));
+    return record;
+  }
   function renderCard(item) {
     const saved = notes.entries[item.id] || { stage: "unstarted", starred: false, note: "" };
     const card = el("details", undefined, "rw-card"); card.id = `question-${item.id}`;
@@ -123,22 +138,27 @@ export async function mountResearchWorkbench() {
     const summary = el("summary"), label = el("div", undefined, "rw-card-label");
     label.append(el("span", `${item.area} / ${KINDS[item.kind]}`, "rw-eyebrow"), el("h3", item.title));
     const stageText = el("span", `My progress: ${STAGES[saved.stage]}`, "rw-stage");
-    summary.append(label, stageText); card.append(summary);
+    summary.append(label, stageText);
+    if (item.source || item.updates.length) summary.append(el("span",
+      item.source ? `Source ${item.source.arxiv_id}${item.source.version}` : "Related literature update", "rw-source-badge"));
+    card.append(summary);
     const body = el("div", undefined, "rw-card-body");
     body.append(el("p", item.question, "rw-question"));
-    const info = el("p", `${SCOPES[item.scope]} / ${item.kind === "open-question" ? "Literature status: recheck required" : "Proposed target, no completion asserted"}`, "rw-meta");
+    const info = el("p", `${SCOPES[item.scope]} / ${item.kind === "open-question" ? (item.source ? SOURCE_STATES[item.source.status] : "Parent literature status: not rechecked") : "Proposed target, no completion asserted"}`, "rw-meta");
     body.append(info);
     if (item.id !== item.familyId) body.append(link(`Parent: ${item.familyTitle}`, questionURL(location.href, item.familyId)));
     detailText(body, "Why this belongs in trureturing", item.foothold);
-    detailText(body, "Dossier gap to recheck", item.gap);
+    detailText(body, "Research gap to recheck", item.gap);
     detailText(body, "Next concrete step", item.next_step);
     detailText(body, "What would count as progress", item.success);
+    if (item.source) body.append(sourceRecord(item.source, "Family source / exact question location"));
+    for (const update of item.updates) body.append(sourceRecord(update, "Related literature update / scope matters"));
     const sources = el("div", undefined, "rw-links");
-    sources.append(link("Pinned source dossier", sourceURL(item)), link(`DOI: ${item.doi}`, `https://doi.org/${item.doi}`));
+    sources.append(link(item.source ? "Pinned arXiv source" : "Pinned source dossier", sourceURL(item)), link(`DOI: ${item.doi}`, `https://doi.org/${item.doi}`));
     if (released.has(item.familyId)) sources.append(link("Released dossier and history", released.get(item.familyId)));
     body.append(sources);
     const anchors = el("details", undefined, "rw-anchors"), list = el("ul");
-    anchors.append(el("summary", `${item.anchors.length} repository source anchors (release status separate)`));
+    anchors.append(el("summary", `${item.anchors.length} repository anchors at ${item.sourceCommit.slice(0, 12)} (release status separate)`));
     for (const gid of item.anchors) { const li = el("li"); li.append(link(gid, sourceURL(item, gid))); list.append(li); }
     anchors.append(list); body.append(anchors);
     if (item.related.length) {
@@ -170,7 +190,7 @@ export async function mountResearchWorkbench() {
   function render() {
     const criteria = Object.fromEntries(Object.entries(filters).map(([key, input]) => [key, input.value]));
     visible = selectEntries(entries, { ...criteria, starred: stars.checked, node: selectedNode }, notes.entries);
-    const activeFilters = [filters.area, filters.kind, filters.scope, filters.stage].filter(input => input.value).length;
+    const activeFilters = [filters.area, filters.kind, filters.scope, filters.stage, filters.literature].filter(input => input.value).length;
     advancedSummary.textContent = `Filter and sort${activeFilters ? ` / ${activeFilters} active` : ""}`;
     count.textContent = `${visible.length} of ${entries.length} questions and targets${selectedNode ? " / selected source anchor" : ""}`;
     empty.hidden = visible.length > 0;
