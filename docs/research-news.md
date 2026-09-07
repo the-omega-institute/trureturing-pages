@@ -85,9 +85,9 @@ source-bound states appear. The reviewed manual results are already displayed.
 
 Before requesting any solved-problem registration, compare the exact external
 statement with the formal definitions, assumptions and conclusion. A Frozen
-lemma alone does not establish that the external question was resolved. See
-[the 7 September resolution audit](resolution-audit-2026-09-07.md) for the
-source comparisons, fresh Lean checks, and corrected current registration status.
+lemma alone does not establish that the external question was resolved.
+Keep working audit notes local; publish the result's exact scope and primary
+paper, Lean declaration and proof links in the editorial catalog.
 
 The mdBook links follow development; pinned Blueprint, Lean and Frozen sources
 remain available through the proof record. News updates can be deployed against

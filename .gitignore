@@ -5,6 +5,7 @@ bin/
 obj/
 _site/
 artifacts/
+/local-private/
 .fkst/machine-profile.toml
 .DS_Store
 __pycache__/
