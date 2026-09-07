@@ -43,13 +43,20 @@ IDs, saved notes and links remain available. Child targets require reassessment;
 the parent result does not establish their completion. Library history records
 binding additions, changes and removals even if the dossier text is unchanged.
 
-Upstream registration and mdBook's shared registry are tracked separately in
+The two source-checked results still awaiting upstream registration and mdBook
+publication are tracked separately in
 [trureturing #6179](https://github.com/the-omega-institute/trureturing/issues/6179)
 and [trureturing-mdbook #4](https://github.com/the-omega-institute/trureturing-mdbook/issues/4).
 An absent resolution binding means unregistered evidence, not a mathematical
 claim that the question remains unsolved. Pages does not write to either source
 repository. A future release must include those registrations before the new
 source-bound states appear in production.
+
+Before requesting any solved-problem registration, compare the exact external
+statement with the formal definitions, assumptions and conclusion. A Frozen
+lemma alone does not establish that the external question was resolved. See
+[the 7 September resolution audit](resolution-audit-2026-09-07.md) for the
+source comparisons, fresh Lean checks, and corrected current registration status.
 
 The mdBook links follow development; pinned Blueprint, Lean and Frozen sources
 remain available through the proof record. News updates can be deployed against
