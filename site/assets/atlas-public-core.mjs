@@ -9,6 +9,7 @@ import {
 } from "./vendor/d3-force-3d.mjs";
 import "./graph-relations.js";
 import { analyzeArchitecture } from "./architecture-core.mjs";
+import { researchScope } from "./atlas-research-core.mjs";
 const Relations = globalThis.TrureturingRelations;
 
 // Editorial navigation only. Upstream topology and proof authority remain intact.
@@ -193,14 +194,13 @@ export function viewFor(
     depth = "all",
     types = Relations.TYPES,
     context = true,
+    research = null,
+    problem = null,
   } = {},
 ) {
   let nodes = model.nodes;
   if (mode === "frontier") {
-    const ids = new Set();
-    nodes
-      .filter(isOpen)
-      .forEach((n) => neighborhood(model, n.id).forEach((id) => ids.add(id)));
+    const ids = researchScope(model, research, problem);
     nodes = nodes.filter((n) => ids.has(n.id));
   }
   if (family) nodes = nodes.filter((n) => n.family === family);

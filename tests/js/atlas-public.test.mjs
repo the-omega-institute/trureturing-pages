@@ -8,6 +8,7 @@ import {
   verifyGraph,
   viewFor,
 } from "../../site/assets/atlas-public-core.mjs";
+import { researchIndex } from "../../site/assets/atlas-research-core.mjs";
 
 const graph = {
   source_snapshot: { truth_release_digest: "sha256:release" },
@@ -69,17 +70,87 @@ test("focus retains proof lineage, affinities and documents across a family filt
   assert.equal(view.edges[0].source, "A");
   assert.equal(view.edges[0].target, "B");
 });
-test("open questions include their support and empty frontiers remain empty", () => {
+test("open modules never become research questions without an authored dossier", () => {
   const model = createPublicModel(graph);
-  assert.deepEqual(
-    viewFor(model, { mode: "frontier" }).nodes.map((n) => n.id),
-    ["A", "B"],
-  );
-  const closed = createPublicModel({
+  assert.equal(viewFor(model, { mode: "frontier" }).nodes.length, 0);
+});
+test("research shows closed foundations and transitive proof prerequisites, not unrelated tooling or affinity", () => {
+  const model = createPublicModel({
     ...graph,
-    nodes: graph.nodes.map((n) => ({ ...n, state: "closed" })),
+    nodes: [
+      ...graph.nodes,
+      { id: "base", kind: "truth", state: "closed" },
+      { id: "PaperGenerator", kind: "truth", state: "open" },
+    ],
+    edges: [
+      ...graph.edges,
+      { source: "base", target: "A", layer: "truth-dependency" },
+    ],
   });
-  assert.equal(viewFor(closed, { mode: "frontier" }).nodes.length, 0);
+  const snapshot = {
+    schema_version: "pages-library-snapshot.v1",
+    truth_release_digest: "sha256:release",
+    atlas_graph_digest: "graph",
+    graph: { source_snapshot: graph.source_snapshot },
+    problems: [
+      {
+        slug: "first-question",
+        title: "First question",
+        triage: "wall",
+        motivation_gids: ["B", "missing"],
+      },
+      {
+        slug: "second-question",
+        title: "Second question",
+        triage: "theorem",
+        motivation_gids: ["C"],
+      },
+    ],
+  };
+  const research = researchIndex(
+    model,
+    snapshot,
+    "graph",
+    graph.source_snapshot,
+  );
+  assert.deepEqual(research.problems.get("first-question").missing, [
+    "missing",
+  ]);
+  assert.deepEqual(
+    viewFor(model, {
+      mode: "frontier",
+      research,
+      problem: "first-question",
+    }).nodes.map((n) => n.id),
+    ["A", "B", "base"],
+  );
+  assert.deepEqual(
+    viewFor(model, {
+      mode: "frontier",
+      research,
+      problem: "second-question",
+    }).nodes.map((n) => n.id),
+    ["C"],
+  );
+  assert.equal(model.byId.get("C").state, "closed");
+  assert.deepEqual(
+    viewFor(model, { mode: "frontier", research }).nodes.map((n) => n.id),
+    ["A", "B", "base", "C"],
+  );
+  const focus = viewFor(model, { mode: "frontier", research, selected: "B" });
+  assert.ok(
+    focus.nodes.some((n) => n.id === "doc"),
+    "Explicit selection keeps document and affinity relationships",
+  );
+  for (const invalid of [
+    { ...snapshot, truth_release_digest: "another" },
+    { ...snapshot, atlas_graph_digest: "another" },
+    { ...snapshot, graph: { source_snapshot: { source_commit: "another" } } },
+    { ...snapshot, problems: [...snapshot.problems, snapshot.problems[0]] },
+  ])
+    assert.throws(() =>
+      researchIndex(model, invalid, "graph", graph.source_snapshot),
+    );
 });
 test("search can find concepts absent from the current family and exact ids rank first", () => {
   const model = createPublicModel(graph);
@@ -134,13 +205,11 @@ test("full lineage includes every ancestor and consequence without hop or count 
     kind: "truth",
     domain: "Quantum",
   }));
-  const edges = nodes
-    .slice(1)
-    .map((n, i) => ({
-      source: `n${i}`,
-      target: n.id,
-      layer: "truth-dependency",
-    }));
+  const edges = nodes.slice(1).map((n, i) => ({
+    source: `n${i}`,
+    target: n.id,
+    layer: "truth-dependency",
+  }));
   const model = createPublicModel({ nodes, edges });
   const full = viewFor(model, { selected: "n65", context: false });
   assert.equal(full.nodes.length, 130);

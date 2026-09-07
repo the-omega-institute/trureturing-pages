@@ -23,11 +23,13 @@ import {
   domainDistribution,
   evolutionPanel,
 } from "./architecture-ui.mjs";
+import { loadResearch } from "./atlas-research-core.mjs";
 
 const $ = (selector) => document.querySelector(selector);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const state = {
   graph: null,
+  graphDigest: null,
   model: null,
   positions: null,
   renderer: null,
@@ -48,6 +50,9 @@ const state = {
   architecturePositions: null,
   history: [],
   historyError: null,
+  research: null,
+  researchError: null,
+  problem: null,
 };
 const icon = (name) => {
   const el = document.createElement("i");
@@ -79,7 +84,9 @@ function color(node) {
   if (node.id === state.selected) return "#ffffff";
   if (state.selected && !state.neighbors.has(node.id)) return "#253036";
   if (node.kind !== "truth") return "#82b5e0";
-  return isOpen(node) ? "#fff1ad" : familyFor(node).color;
+  return state.research?.byNode.has(node.id)
+    ? "#fff1ad"
+    : familyFor(node).color;
 }
 function edgeColor(edge) {
   const from = endpoint(edge.source),
@@ -123,7 +130,9 @@ function nodeSize(node) {
   const degree =
     state.model.parents.get(node.id).size +
     state.model.children.get(node.id).size;
-  return isOpen(node) ? 20 : 5 + Math.min(20, degree * 1.6);
+  return state.research?.byNode.has(node.id)
+    ? 20
+    : 5 + Math.min(20, degree * 1.6);
 }
 function stopRotation() {
   state.rotating = false;
@@ -135,6 +144,8 @@ function syncUrl() {
   if (state.family) params.set("family", state.family);
   if (state.selected) params.set("node", state.selected);
   if (state.mode !== "structure") params.set("mode", state.mode);
+  if (state.mode === "frontier" && state.problem)
+    params.set("problem", state.problem);
   if (state.metric !== "reach") params.set("metric", state.metric);
   if (state.depth !== "all") params.set("depth", state.depth);
   if (!state.context) params.set("context", "0");
@@ -148,6 +159,11 @@ function syncUrl() {
 }
 function setMode(mode) {
   if (!state.model) return;
+  if (mode === "frontier" || state.mode === "frontier") {
+    state.selected = null;
+    state.family = null;
+    state.problem = null;
+  }
   state.mode = mode;
   state.positions =
     mode === "dependency"
@@ -168,6 +184,7 @@ function setFamily(id) {
   state.selected = null;
   state.neighbors.clear();
   state.mode = "structure";
+  state.problem = null;
   state.positions = state.structurePositions;
   stopRotation();
   renderGraph();
@@ -261,9 +278,19 @@ function renderGraph() {
   $("#architecture-controls").hidden = state.mode !== "dependency";
   const family = FAMILIES.find((f) => f.id === state.family);
   $("#view-caption").textContent =
-    `${family?.name || (state.mode === "frontier" ? "Open questions & their prerequisites" : "All concept families")} / ${format(view.nodes.length)} concepts`;
+    `${family?.name || "All concept families"} / ${format(view.nodes.length)} concepts`;
+  if (state.mode === "frontier") {
+    const count = state.problem ? 1 : state.research?.problems.size || 0;
+    $("#view-caption").textContent = state.researchError
+      ? "Research catalog unavailable"
+      : `${count} research questions / ${format(view.nodes.length)} foundations & prerequisites`;
+  }
   if (!view.nodes.length)
-    $("#view-caption").textContent = "No open questions in this release";
+    $("#view-caption").textContent = state.researchError
+      ? "Research catalog unavailable"
+      : state.problem
+        ? "No released foundations for this question"
+        : "No released research foundations";
   if (state.mode === "dependency")
     $("#view-caption").textContent =
       `${METRICS[state.metric]} / module dependencies / ${format(view.nodes.length)} nodes`;
@@ -466,6 +493,125 @@ function nodeButton(node, subtitle) {
   b.append(copy, icon("arrow-up-right"));
   return b;
 }
+function selectProblem(slug) {
+  state.problem = slug;
+  state.selected = null;
+  state.family = null;
+  state.mode = "frontier";
+  state.positions = state.structurePositions;
+  stopRotation();
+  renderGraph();
+  renderWiki();
+  frameNodes(currentNodes);
+}
+function renderResearch(root) {
+  root.append(
+    el("p", "eyebrow", "RESEARCH / CURRENT RELEASE"),
+    el("h2", "", "Open questions"),
+  );
+  if (state.researchError) {
+    const message = el(
+      "p",
+      "wiki-intro",
+      "Research catalog unavailable for this release.",
+    );
+    message.setAttribute("role", "status");
+    const retry = action(
+      "Retry research catalog",
+      "research-link",
+      async () => {
+        retry.disabled = true;
+        try {
+          state.research = await loadResearch(
+            new URL("./", location.href),
+            state.model,
+            state.graphDigest,
+            state.graph.source_snapshot,
+          );
+          state.researchError = null;
+        } catch (error) {
+          state.researchError = error.message;
+        }
+        selectProblem(null);
+      },
+    );
+    root.append(message, retry);
+  } else {
+    root.append(
+      el(
+        "p",
+        "wiki-intro",
+        `${state.research.problems.size} source-backed questions / ${state.research.byNode.size} released foundations`,
+      ),
+    );
+    const list = el("div", "research-question-list");
+    list.setAttribute("aria-label", "Research questions");
+    for (const problem of state.research.problems.values()) {
+      const button = action("", "concept-row research-question", () =>
+        selectProblem(problem.slug),
+      );
+      button.dataset.problem = problem.slug;
+      button.setAttribute(
+        "aria-pressed",
+        String(state.problem === problem.slug),
+      );
+      const copy = el("span");
+      const scope = {
+        theorem: "Focused target",
+        window: "Exploratory",
+        wall: "Long horizon",
+      }[problem.triage];
+      copy.append(
+        el("strong", "", problem.title),
+        el("small", "", `${scope} / ${problem.anchors.length} foundations`),
+      );
+      button.append(copy, icon("chevron-right"));
+      list.append(button);
+    }
+    root.append(list);
+    if (!state.research.problems.size)
+      root.append(
+        el("p", "wiki-intro", "No research dossiers in this release."),
+      );
+    const problem = state.research.problems.get(state.problem);
+    if (problem) {
+      root.append(el("div", "wiki-divider"));
+      const dossier = el(
+        "a",
+        "research-link",
+        "Question, missing bridges & proposed route",
+      );
+      dossier.href = `research/${problem.slug}/`;
+      dossier.append(icon("arrow-up-right"));
+      root.append(
+        dossier,
+        el("h3", "section-label spaced", "RELEASED FOUNDATIONS"),
+      );
+      problem.anchors.forEach((id) =>
+        root.append(
+          nodeButton(state.model.byId.get(id), "Research foundation"),
+        ),
+      );
+      if (problem.missing.length)
+        root.append(
+          el(
+            "p",
+            "wiki-intro",
+            `${problem.missing.length} source anchors absent from this release graph.`,
+          ),
+        );
+      root.append(
+        action("All research questions", "research-link", () =>
+          selectProblem(null),
+        ),
+      );
+    }
+  }
+  const research = el("a", "research-link", "Research Library");
+  research.href = "research.html";
+  research.append(icon("arrow-up-right"));
+  root.append(research);
+}
 function renderWiki() {
   wikiMap?.destroy();
   wikiMap = null;
@@ -483,6 +629,11 @@ function renderWiki() {
   root.scrollTop = 0;
   if (!state.selected && state.mode === "dependency") {
     renderArchitectureOverview(root);
+    icons();
+    return;
+  }
+  if (!state.selected && state.mode === "frontier") {
+    renderResearch(root);
     icons();
     return;
   }
@@ -575,6 +726,13 @@ function renderWiki() {
 }
 function renderArticle(root) {
   const node = state.model.byId.get(state.selected);
+  if (state.mode === "frontier") {
+    root.append(
+      action("Research questions", "article-family", () =>
+        selectProblem(state.problem),
+      ),
+    );
+  }
   const family = familyFor(node);
   const model = window.TrureturingConceptLensCore.createModel(
     state.graph,
@@ -593,7 +751,7 @@ function renderArticle(root) {
       "span",
       closed ? "status-closed" : "status-open",
       isOpen(node)
-        ? "Open question"
+        ? "Open module"
         : closed
           ? "Proven"
           : node.status || node.state || "Unspecified",
@@ -816,6 +974,13 @@ function renderArticle(root) {
     el("p", "", state.graph.source_snapshot.truth_release_digest),
   );
   root.append(audit);
+  for (const slug of state.research?.byNode.get(node.id) || []) {
+    const problem = state.research.problems.get(slug);
+    const link = el("a", "research-link", problem.title);
+    link.href = `research/${problem.slug}/`;
+    link.append(icon("arrow-up-right"));
+    root.append(link);
+  }
   const research = el("a", "research-link", "Related research questions");
   research.href = `research.html#node=${encodeURIComponent(node.id)}`;
   research.append(icon("arrow-up-right"));
@@ -859,7 +1024,18 @@ async function load() {
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
   state.graph = await verifyGraph(graphText, JSON.parse(manifestText), digest);
+  state.graphDigest = JSON.parse(manifestText).atlas_graph_digest;
   state.model = createPublicModel(state.graph);
+  try {
+    state.research = await loadResearch(
+      new URL("./", location.href),
+      state.model,
+      JSON.parse(manifestText).atlas_graph_digest,
+      state.graph.source_snapshot,
+    );
+  } catch (error) {
+    state.researchError = error.message;
+  }
   state.architecture = analyzeArchitecture(state.graph);
   state.history = [
     snapshotFromGraph(state.graph, JSON.parse(manifestText).atlas_graph_digest),
@@ -958,6 +1134,11 @@ async function load() {
     state.family = initial.get("family");
   if (["dependency", "frontier"].includes(initial.get("mode")))
     state.mode = initial.get("mode");
+  if (state.mode === "frontier") {
+    state.family = null;
+    if (state.research?.problems.has(initial.get("problem")))
+      state.problem = initial.get("problem");
+  }
   if (Object.hasOwn(METRICS, initial.get("metric")))
     state.metric = initial.get("metric");
   $("#architecture-metric").value = state.metric;
@@ -986,6 +1167,12 @@ async function load() {
   resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe($("#graph"));
   resizeObserver.observe($(".atlas-header"));
+  let researchResize;
+  window.addEventListener("resize", () => {
+    clearTimeout(researchResize);
+    if (state.mode === "frontier")
+      researchResize = setTimeout(() => frameNodes(currentNodes), 100);
+  });
   resize();
   renderGraph();
   renderWiki();
@@ -1009,6 +1196,10 @@ async function load() {
     selected: state.selected,
     family: state.family,
     mode: state.mode,
+    problem: state.problem,
+    researchQuestions: state.research?.problems.size || 0,
+    researchAnchors: state.research?.byNode.size || 0,
+    researchError: state.researchError,
     relatedNodes: state.related?.ids.size || 0,
     relatedEdges: state.related?.edges.length || 0,
     metric: state.metric,

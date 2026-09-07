@@ -71,6 +71,28 @@ pages. `lib.knowledge_pages` generates a compact, hash-bound relationship artifa
 per release. The Pages workflow regenerates Wiki pages after the final Atlas is
 enriched, preserving structural affinities and manifest-bound source graph bytes.
 
+## Research questions and module state
+
+The Atlas `frontier` mode reads the same digest-verified Library snapshot as
+Research, bound to the exact Atlas graph, Truth release and source commit.
+`Problems/*.md` supplies question titles, triage and `motivation_gids`; these
+authored links identify released foundations, not new proof dependencies.
+All source dossiers remain listed, including those with missing graph anchors.
+Selecting a question scopes the map to its released anchors and transitive proof
+prerequisites. Selecting a concept still exposes its complete relationships.
+
+Module `state=open` means an unfinished module. It does not establish a
+mathematical open problem: the release also contains engineering frontier
+modules such as PaperGenerator and ValuesProducer. These remain in the full
+Atlas and Library but are not research targets merely because of their state.
+Gold nodes denote research anchors; a closed foundation can support an open
+research question. A missing, corrupt or mismatched catalog reports unavailable
+research and never falls back to guessing from module status.
+
+No Topology contract extension is required for this source-backed view. Topology
+continues to supply proof structure; authored research classification comes from
+the release's source catalog and must not be inferred by topology metrics.
+
 ## Local preview
 
 ```bash
@@ -99,6 +121,7 @@ With those packages available to Node and the preview server running:
 
 ```bash
 node tests/browser/atlas-public.cjs
+node tests/browser/atlas-research.cjs
 node tests/browser/pages-theme.cjs
 node tests/browser/architecture.cjs
 python3 -m unittest discover -s tests -p 'test_*.py'

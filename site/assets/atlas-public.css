@@ -735,6 +735,25 @@ svg.lucide {
 .status-open {
   color: #edcc7d;
 }
+
+.research-question[aria-pressed="true"] {
+  background: #182626;
+  box-shadow: inset 2px 0 #edc66d;
+}
+.research-question strong {
+  overflow-wrap: anywhere;
+}
+.research-question-list {
+  margin-top: 16px;
+}
+button.research-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
 .wiki-tabs {
   display: flex;
   border-bottom: 1px solid #334148;
