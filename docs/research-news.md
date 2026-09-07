@@ -5,6 +5,20 @@ the existing release-bound Library build. Its editorial source is
 `site/assets/research-news.json`. The Atlas frontier reads the same catalog
 only when opened; news does not alter certified graph nodes or edges.
 
+## Independent consumers
+
+Upstream supplies Pages and mdBook independently. Pages consumes upstream
+release/source data directly; it does not fetch mdBook HTML or a mdBook registry
+to discover, validate or publish results. mdBook is optional further reading.
+Primary proof explanations link directly to pinned upstream Blueprint sources.
+
+Reviewed results can be published immediately through the manually maintained
+`site/assets/research-news.json`, including before any upstream problem binding,
+new Truth release, or mdBook publication. Each manual entry must carry its exact
+external scope and pinned proof evidence. Research, Conjectures and the Atlas
+results list use that same catalog. Later release records merge by declaration
+identity without duplicating the result; release membership remains separate.
+
 ## Adding a record
 
 - Publications carry the exact current title, authors, publication date,
@@ -43,14 +57,15 @@ IDs, saved notes and links remain available. Child targets require reassessment;
 the parent result does not establish their completion. Library history records
 binding additions, changes and removals even if the dossier text is unchanged.
 
-The two source-checked results still awaiting upstream registration and mdBook
-publication are tracked separately in
-[trureturing #6179](https://github.com/the-omega-institute/trureturing/issues/6179)
-and [trureturing-mdbook #4](https://github.com/the-omega-institute/trureturing-mdbook/issues/4).
+The two source-checked results awaiting upstream registration for automatic
+Pages synchronization are tracked in
+[trureturing #6179](https://github.com/the-omega-institute/trureturing/issues/6179).
+The mdBook tracking issue #4 is withdrawn: mdBook publication is independent
+and is not a prerequisite for Pages.
 An absent resolution binding means unregistered evidence, not a mathematical
 claim that the question remains unsolved. Pages does not write to either source
-repository. A future release must include those registrations before the new
-source-bound states appear in production.
+repository. A future release must include those registrations before its
+source-bound states appear. The reviewed manual results are already displayed.
 
 Before requesting any solved-problem registration, compare the exact external
 statement with the formal definitions, assumptions and conclusion. A Frozen

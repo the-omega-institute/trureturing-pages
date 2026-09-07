@@ -9,6 +9,11 @@ fs.mkdirSync(output, { recursive: true });
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   try {
     const page = await browser.newPage();
+    const bookRequests = [];
+    await page.route("**/trureturing-mdbook/**", route => {
+      bookRequests.push(route.request().url());
+      return route.abort();
+    });
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     for (const width of [1512, 900, 390, 320]) {
@@ -16,6 +21,10 @@ fs.mkdirSync(output, { recursive: true });
       await page.goto(`${root}/research.html`);
       assert.equal(await page.locator(".news-paper").count(), 3);
       assert.equal(await page.locator(".news-result").count(), 3);
+      assert.equal(await page.getByRole("link", { name: "Proof explanation", exact: true }).count(), 3);
+      for (const href of await page.getByRole("link", { name: "Proof explanation", exact: true }).evaluateAll(links => links.map(link => link.href))) {
+        assert.match(href, /github\.com\/the-omega-institute\/trureturing\/blob\/[a-f0-9]{40}\/Blueprint\//);
+      }
       assert.equal(await page.locator("#research-workbench").count(), 0);
       assert.ok(await page.locator(".news-qualification").isVisible());
       await page.locator("#publications").scrollIntoViewIfNeeded();
@@ -47,6 +56,7 @@ fs.mkdirSync(output, { recursive: true });
     await page.evaluate(() => (location.hash = "research-bank"));
     await page.waitForURL("**/conjectures.html#research-bank");
     assert.deepEqual(errors, []);
+    assert.deepEqual(bookRequests, [], "Pages renders results without requesting mdBook data");
     const offline = await browser.newContext({ javaScriptEnabled: false });
     const plain = await offline.newPage();
     await plain.goto(`${root}/research.html`);

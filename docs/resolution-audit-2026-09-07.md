@@ -99,8 +99,9 @@ limited to those two verified, source-matched results:
 - [trureturing #6179](https://github.com/the-omega-institute/trureturing/issues/6179):
   register the two exact questions and their typed proved/refuted associations.
 - [mdBook #4](https://github.com/the-omega-institute/trureturing-mdbook/issues/4):
-  follow those accepted upstream associations into the generated registry;
-  no missing-proof allegation and no duplicate Bosma registration.
+  withdrawn after the owner's architecture clarification. Pages and mdBook
+  consume upstream independently; no mdBook registration or publication is
+  required for Pages to display these reviewed results manually.
 
 An upstream verified lemma, a conditional route, or an unbound dossier alone
 is insufficient grounds for an issue claiming that an external open problem
