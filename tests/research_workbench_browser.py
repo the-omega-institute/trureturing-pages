@@ -59,6 +59,9 @@ main{max-width:1200px;margin:auto}h1{font-size:42px}a{color:#acd7ee}.problem-row
             }''', {"catalog":catalog,"saved":saved,"failure":failure,"denied":denied})
             page.add_script_tag(content=core + "\n" + ui + "\nwindow.mountFixture = mountResearchWorkbench;")
             result = page.evaluate("async()=>{try{await mountFixture();return 'ok';}catch(error){return error.message;}}")
+            if result == "ok":
+                page.locator("#research-bank > summary").click()
+                page.locator(".rw-advanced > summary").click()
             return page, result
 
         page, result = mount()

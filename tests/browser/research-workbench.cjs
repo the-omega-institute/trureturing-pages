@@ -2,7 +2,7 @@ const { chromium } = require("playwright");
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8767";
+const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
 const key = "trureturing.pages.research-notes.v1";
 const output = path.resolve("artifacts/atlas-preview/screenshots");
 const stored = (page) =>
@@ -21,8 +21,13 @@ const stored = (page) =>
     const open = async (p) => {
       p.on("pageerror", (error) => errors.push(error.message));
       await p.goto(`${root}/research.html`);
-      await p.locator(".rw-card").first().waitFor();
+      await p.locator(".rw-direction").first().waitFor();
+      assert.equal(await p.locator(".rw-direction").count(), 10);
+      assert.equal(await p.locator(".rw-frontier-question").count(), 13);
+      assert.equal(await p.locator(".rw-frontier-targets a").count(), 28);
+      assert.equal(await p.locator("#rw-q").isVisible(), false);
       assert.equal(await p.locator(".rw-card").count(), 41);
+      await p.locator("#research-bank > summary").click();
     };
     await open(page);
     await open(second);
@@ -78,6 +83,7 @@ const stored = (page) =>
       );
     }, key);
     await page.reload();
+    await page.locator("#research-bank > summary").click();
     await page.locator("#question-dfao-finite-unsat > summary").click();
     assert.equal(
       await page.locator("#stage-dfao-finite-unsat").inputValue(),
@@ -112,28 +118,25 @@ const stored = (page) =>
         },
       },
     };
-    await page
-      .locator('input[type="file"]')
-      .setInputFiles({
-        name: "notebook.json",
-        mimeType: "application/json",
-        buffer: Buffer.from(JSON.stringify(imported)),
-      });
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "notebook.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(imported)),
+    });
     await page.getByText(/Imported 1 entries/).waitFor();
     assert.equal(
       (await stored(page)).entries["mub-basis-context"].note,
       "Second tab evidence",
     );
     const before = await stored(page);
-    await page
-      .locator('input[type="file"]')
-      .setInputFiles({
-        name: "invalid.json",
-        mimeType: "application/json",
-        buffer: Buffer.from("{}"),
-      });
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "invalid.json",
+      mimeType: "application/json",
+      buffer: Buffer.from("{}"),
+    });
     await page.getByText(/Import rejected/).waitFor();
     assert.deepEqual(await stored(page), before);
+    await page.locator(".rw-advanced > summary").click();
     await page.locator("#rw-literature").selectOption("new");
     await page.locator("#rw-kind").selectOption("open-question");
     assert.equal(await page.locator(".rw-card").count(), 6);
@@ -153,8 +156,10 @@ const stored = (page) =>
     );
     await page.locator("#research-release-dossiers > summary").click();
     assert.equal(await page.locator(".problem-row:visible").count(), 7);
+    await page.goto(`${root}/research.html`);
+    await page.locator(".rw-frontier-question").first().waitFor();
     for (const width of [1512, 390, 320]) {
-      await page.setViewportSize({ width, height: 982 });
+      await page.setViewportSize({ width, height: width < 700 ? 844 : 982 });
       await page.evaluate(() => scrollTo(0, 0));
       await page.waitForTimeout(150);
       assert.equal(
@@ -165,10 +170,26 @@ const stored = (page) =>
       );
       const nav = await page.locator("body > header nav").boundingBox();
       assert.ok(Math.abs(nav.x + nav.width / 2 - width / 2) < 1);
+      const question = await page
+        .locator(".rw-frontier-question h4")
+        .first()
+        .boundingBox();
+      assert.ok(
+        question.y + question.height < (width < 700 ? 844 : 982),
+        "A real research question appears in the first viewport",
+      );
+      assert.equal(await page.locator("#rw-q").isVisible(), false);
       await page.screenshot({
         path: path.join(output, `research-workbench-${width}.png`),
       });
     }
+    await page.locator(".rw-frontier-targets a").first().click();
+    await page.locator("#research-bank[open] .rw-card[open]").waitFor();
+    await page.goto(`${root}/research.html`);
+    await page.getByRole("link", { name: "Search questions", exact: true }).click();
+    await page.locator("#rw-q").fill("Suzuki");
+    assert.ok(await page.locator(".rw-card").count() > 0);
+    assert.ok(await page.locator(".rw-card").count() < 41);
     const unavailable = await context.newPage();
     await unavailable.route("**/research-catalog.json", (route) =>
       route.abort(),

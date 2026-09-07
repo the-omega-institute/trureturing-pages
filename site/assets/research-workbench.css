@@ -1,7 +1,10 @@
 /* Scoped to the advisory workbench; release and graph styles remain untouched. */
 .research-workbench { --rw-surface:#101720; --rw-border:#354452; --rw-muted:#b3c0cc; margin:2rem 0; color:#edf3f7; }
-.rw-heading h2 { margin:0 0 .5rem; font-size:clamp(1.6rem,3vw,2.3rem); letter-spacing:-.025em; }
+.rw-heading h2 { margin:0 0 .5rem; font-size:26px; letter-spacing:0; }
 .rw-heading p { color:var(--rw-muted); max-width:80ch; line-height:1.65; }
+.rw-heading { position:relative; padding-right:48px; }
+.research-workbench .rw-search-link { position:absolute; right:0; top:0; display:grid; place-items:center; width:40px; height:40px; color:#acd7ee; }
+.rw-search-link svg { width:19px; height:19px; }
 .rw-boundary { padding:.9rem 1rem; border-left:3px solid #8cbaa6; background:var(--rw-surface); line-height:1.6; }
 .rw-provenance { margin:1rem 0 1.5rem; color:var(--rw-muted); font-size:.9rem; }
 .rw-provenance summary, .rw-anchors summary { cursor:pointer; padding:.4rem 0; }
@@ -24,11 +27,11 @@
 .rw-count { margin:.75rem 0 .4rem; font-weight:650; }
 .rw-storage-status { margin:0 0 1.25rem; color:var(--rw-muted); font-size:.85rem; line-height:1.5; }
 .rw-cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; align-items:start; }
-.rw-card { min-width:0; border:1px solid var(--rw-border); border-radius:10px; background:var(--rw-surface); overflow-wrap:anywhere; }
+.rw-card { min-width:0; border:1px solid var(--rw-border); border-radius:6px; background:var(--rw-surface); overflow-wrap:anywhere; }
 .rw-card > summary { cursor:pointer; padding:1rem 1.15rem; list-style-position:inside; }
 .rw-card > summary::marker { color:#acd7ee; }
 .rw-card-label { display:inline; }
-.rw-eyebrow { display:block; margin:.3rem 0 .5rem; color:#b6cfdf; font-size:.72rem; font-weight:650; letter-spacing:.045em; text-transform:uppercase; }
+.rw-eyebrow { display:block; margin:.3rem 0 .5rem; color:#b6cfdf; font-size:.72rem; font-weight:650; letter-spacing:0; text-transform:uppercase; }
 .rw-card h3 { margin:0 0 .8rem; font-size:1.05rem; line-height:1.5; color:#f3f6fa; }
 .rw-stage { display:inline-block; font-size:.75rem; border:1px solid #4d6371; border-radius:4px; padding:.2rem .5rem; color:#d1e0e9; }
 .rw-card[open] { grid-column:1/-1; border-color:#8caabd; }
@@ -59,3 +62,30 @@
 .rw-literature { border-left:2px solid #789b8c; background:#132029; padding:.5rem 1rem 1rem; margin:1.2rem 0; font-size:.9rem; }
 .rw-literature .rw-source-status { color:#bddfcc; font-weight:600; }
 .rw-literature .rw-source-dates, .rw-source-locator { color:#b3c0cc; font-size:.8rem; }
+
+.rw-area-nav { display:flex; flex-wrap:wrap; gap:10px 22px; padding:16px 0 22px; border-bottom:1px solid var(--rw-border); }
+.rw-area-nav a { display:flex; gap:8px; align-items:baseline; font-size:13px; text-decoration:none; }
+.rw-area-nav small { color:var(--rw-muted); font-size:11px; }
+.rw-directions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:48px; }
+.rw-direction { min-width:0; border-bottom:1px solid var(--rw-border); padding:26px 0; scroll-margin-top:24px; }
+.rw-direction-title { display:flex; align-items:center; gap:10px; font-size:16px; color:var(--direction-accent); margin:0 0 18px; }
+.rw-direction-title svg { width:20px; height:20px; flex-shrink:0; }
+.rw-frontier-question + .rw-frontier-question { margin-top:26px; padding-top:22px; border-top:1px solid #263039; }
+.rw-frontier-meta { font-size:11px; color:var(--rw-muted); margin:0 0 8px; }
+.rw-frontier-question h4 { font-size:20px; line-height:1.45; margin:0 0 16px; overflow-wrap:anywhere; }
+.rw-frontier-question h4 a { color:#edf3f7; text-decoration:none; }
+.rw-frontier-question h4 a:hover { color:var(--direction-accent); }
+.rw-next-label { font-size:11px; color:var(--direction-accent); margin:0 0 5px; }
+.rw-next-step { font-size:14px; color:#b9c7ce; line-height:1.65; margin:0 0 15px; }
+.rw-frontier-targets { display:grid; gap:8px; border-left:2px solid var(--direction-accent); padding-left:13px; }
+.rw-frontier-targets a { font-size:12px; line-height:1.5; text-decoration:none; }
+.rw-bank { margin-top:30px; padding:18px 0; border-bottom:1px solid var(--rw-border); }
+.rw-bank > summary { cursor:pointer; font-size:18px; padding:4px 0 18px; }
+@media(max-width:700px) {
+  .rw-directions { grid-template-columns:1fr; }
+  .rw-area-nav { gap:8px 16px; padding-top:8px; }
+  .rw-area-nav a { font-size:12px; }
+  .rw-heading h2 { font-size:23px; }
+  .rw-heading p { font-size:13px; }
+  .rw-frontier-question h4 { font-size:18px; }
+}

@@ -39,9 +39,9 @@ export async function mountResearchWorkbench() {
   document.head.append(css);
   const host = el("section", undefined, "research-workbench");
   host.id = "research-workbench"; host.setAttribute("aria-labelledby", "workbench-title");
-  const heading = el("div", undefined, "rw-heading"), title = el("h2", "Conjecture workbench");
+  const heading = el("div", undefined, "rw-heading"), title = el("h2", "Our research directions");
   title.id = "workbench-title";
-  heading.append(title, el("p", `${catalog.families.length} source questions / ${entries.length - catalog.families.length} proposed subproblems. Each target has a repository foothold and a concrete next step.`));
+  heading.append(title, el("p", `${new Set(catalog.families.map(f => f.area)).size} fields / ${catalog.families.length} open questions & conjectural routes / ${entries.length - catalog.families.length} proposed targets`));
   const boundary = el("p", "Catalog and browser notes are advisory. Released proofs, source dossiers and their history remain separate below.", "rw-boundary");
   const provenance = el("details", undefined, "rw-provenance");
   provenance.append(el("summary", `Source review: ${catalog.reviewed} / per-question repository pins`),
@@ -68,8 +68,7 @@ export async function mountResearchWorkbench() {
   const filterGrid = el("div", undefined, "rw-filter-grid");
   for (const field of [...tools.children].slice(1)) filterGrid.append(field);
   advanced.append(advancedSummary, filterGrid); tools.append(advanced);
-  const wide = matchMedia("(min-width: 761px)"); advanced.open = wide.matches;
-  wide.addEventListener("change", event => { advanced.open = event.matches; });
+  advanced.open = false;
   const actions = el("div", undefined, "rw-actions");
   const starLabel = el("label", undefined, "rw-checkbox"), stars = el("input");
   stars.type = "checkbox"; stars.id = "rw-starred";
@@ -78,6 +77,41 @@ export async function mountResearchWorkbench() {
   const status = el("p", storageWarning || "Personal progress is saved in this browser only. Export to move it between devices.", "rw-storage-status");
   status.id = "rw-storage-status"; status.setAttribute("role", "status");
   const cards = el("div", undefined, "rw-cards"); cards.id = "rw-cards";
+  const browser = el("details", undefined, "rw-bank"); browser.id = "research-bank";
+  browser.append(el("summary", "Question bank & notebook"));
+  const searchLink = link("", "#research-bank"); searchLink.className = "rw-search-link";
+  searchLink.title = "Search questions"; searchLink.setAttribute("aria-label", "Search questions");
+  const searchIcon = el("i"); searchIcon.dataset.lucide = "search"; searchLink.append(searchIcon);
+  searchLink.addEventListener("click", () => { browser.open = true; requestAnimationFrame(() => filters.q.focus()); });
+  heading.append(searchLink);
+  const directions = el("div", undefined, "rw-directions");
+  const areaNav = el("nav", undefined, "rw-area-nav");
+  areaNav.setAttribute("aria-label", "Research fields");
+  const areas = [...new Set(catalog.families.map(f => f.area))];
+  const areaIcons = ["workflow", "orbit", "binary", "git-branch", "chart-no-axes-combined", "hash", "scan-line", "waves", "focus", "chart-network"];
+  for (const [index, area] of areas.entries()) {
+    const families = catalog.families.filter(f => f.area === area);
+    const id = `research-field-${index + 1}`;
+    const areaLink = link(area, `#${id}`);
+    areaLink.append(el("small", String(families.length)));
+    areaNav.append(areaLink);
+    const section = el("section", undefined, "rw-direction"); section.id = id;
+    const areaHeading = el("h3", undefined, "rw-direction-title");
+    const symbol = el("i"); symbol.dataset.lucide = areaIcons[index % areaIcons.length];
+    areaHeading.append(symbol, document.createTextNode(area));
+    section.style.setProperty("--direction-accent", ["#81cdbf", "#bba6df", "#e3c579", "#b8d780", "#8cbbdf"][index % 5]);
+    section.append(areaHeading);
+    for (const family of families) {
+      const question = el("article", undefined, "rw-frontier-question");
+      const name = el("h4"); name.append(link(family.title, questionURL(location.href, family.id)));
+      question.append(el("p", `${SCOPES[family.scope]} / ${family.source?.status === "conditional-route" ? "Conjectural route" : "Source question"}`, "rw-frontier-meta"), name);
+      question.append(el("p", "Proposed next step", "rw-next-label"), el("p", family.next_step, "rw-next-step"));
+      const targets = el("div", undefined, "rw-frontier-targets");
+      for (const target of family.targets) targets.append(link(target.title, questionURL(location.href, target.id)));
+      question.append(targets); section.append(question);
+    }
+    directions.append(section);
+  }
   const empty = el("p", "No questions match. Clear filters or select another field.", "rw-empty"); empty.hidden = true;
   let visible = [], selectedNode = "", focusId = "";
   const paramNames = { q: "rq", area: "ra", kind: "rk", scope: "rh", stage: "rs", sort: "ro", literature: "rl" };
@@ -92,6 +126,10 @@ export async function mountResearchWorkbench() {
       // A direct link takes precedence over stale filters, including node filters.
       for (const [name, input] of Object.entries(filters)) input.value = name === "sort" ? "family" : "";
       stars.checked = false; selectedNode = "";
+    }
+    if (location.hash === "#research-bank" || focusId || selectedNode || Object.values(paramNames).some(key => params.has(key)) || params.has("q") || params.has("rw")) {
+      browser.open = true;
+      advanced.open = Object.entries(filters).some(([name, input]) => name !== "q" && name !== "sort" && input.value);
     }
   }
   function writeURL() {
@@ -261,7 +299,9 @@ export async function mountResearchWorkbench() {
     finally { input.value = ""; }
   });
   actions.append(starLabel, reset, pick, download, button("Import notebook", () => input.click()), input);
-  host.append(heading, boundary, provenance, tools, actions, count, status, cards, empty);
+  browser.append(tools, actions, count, status, cards, empty);
+  provenance.append(boundary);
+  host.append(heading, areaNav, directions, browser, provenance);
   for (const [name, control] of Object.entries(filters)) control.addEventListener(name === "q" ? "input" : "change", () => { writeURL(); render(); });
   stars.addEventListener("change", () => { writeURL(); render(); });
   window.addEventListener("hashchange", () => { readURL(); render(); });
@@ -274,4 +314,5 @@ export async function mountResearchWorkbench() {
     oldStats.before(host, archive); archive.append(oldStats, oldBrowser);
   } else home.append(host);
   readURL(); render();
+  window.lucide?.createIcons();
 }

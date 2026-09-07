@@ -76,6 +76,15 @@ must be interpreted precisely before formalizing the proposed limit.
 
 ## Browsing and personal progress
 
+The public entry prioritizes research directions. Ten fields organize thirteen
+source questions and their proposed next steps, with direct links to all
+twenty-eight child targets. Field navigation, questions and routes appear before
+the collapsed question bank. This grouping is derived from catalog metadata;
+personal notebook stages do not establish public team activity or priority.
+Search, filters and notebook import/export live in the expandable question bank.
+Question permalinks and filter URLs automatically open that bank. Review metadata
+and release-bound dossiers remain available below it.
+
 Search includes questions, next steps, DOI, anchors, bilingual keywords and source
 metadata. Field, type, horizon, literature, personal-stage and shortlist filters
 compose. Literature filters select new arXiv families, related updates, or entries
