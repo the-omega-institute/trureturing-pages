@@ -54,22 +54,22 @@ jobs:
           core = Path("site/assets/topology-history-core.js")
           js = core.read_text(encoding="utf-8")
           old = '''    const numerator = count(item.numerator, `${name}.numerator`);
-    const denominator = count(item.denominator, `${name}.denominator`);
-    if (denominator === 0) throw new TypeError(`${name}.denominator must be positive`);
-    return { numerator, denominator };'''
+              const denominator = count(item.denominator, `${name}.denominator`);
+              if (denominator === 0) throw new TypeError(`${name}.denominator must be positive`);
+              return { numerator, denominator };'''
           new = '''    const numerator = count(item.numerator, `${name}.numerator`);
-    const denominator = count(item.denominator, `${name}.denominator`);
-    if (denominator === 0) throw new TypeError(`${name}.denominator must be positive`);
-    const gcd = (left, right) => {
-      let a = left;
-      let b = right;
-      while (b) [a, b] = [b, a % b];
-      return a;
-    };
-    if (numerator > denominator || gcd(numerator, denominator) !== 1) {
-      throw new TypeError(`${name} must be a reduced rational in [0,1]`);
-    }
-    return { numerator, denominator };'''
+              const denominator = count(item.denominator, `${name}.denominator`);
+              if (denominator === 0) throw new TypeError(`${name}.denominator must be positive`);
+              const gcd = (left, right) => {
+                let a = left;
+                let b = right;
+                while (b) [a, b] = [b, a % b];
+                return a;
+              };
+              if (numerator > denominator || gcd(numerator, denominator) !== 1) {
+                throw new TypeError(`${name} must be a reduced rational in [0,1]`);
+              }
+              return { numerator, denominator };'''
           js = js.replace(old, new)
           core.write_text(js, encoding="utf-8")
 
@@ -79,23 +79,23 @@ jobs:
               anchor = "      - name: Finalize the release-bound Pages deployment\n"
               if anchor not in value:
                   raise SystemExit("Pages deployment finalization anchor is missing")
-              step = '''      - name: Publish Topology Atlas history when exact delta artifacts are present
-        shell: bash
-        run: |
-          set -euo pipefail
-          mapfile -t deltas < <(find _site/data -maxdepth 1 -type f -name 'topology-atlas-delta*.json' -print | sort)
-          if [[ "${#deltas[@]}" -eq 0 ]]; then
-            printf '%s\n' 'No exact Topology Atlas delta is present; history remains explicitly unavailable.'
-          else
-            args=()
-            for delta in "${deltas[@]}"; do args+=(--delta "$delta"); done
-            python -m lib.topology_history \
-              --current-atlas-manifest _site/data/pages-atlas-manifest.v1.json \
-              "${args[@]}" \
-              --output _site/data/pages-topology-history.v1.json
-          fi
+              step = r'''      - name: Publish Topology Atlas history when exact delta artifacts are present
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    mapfile -t deltas < <(find _site/data -maxdepth 1 -type f -name 'topology-atlas-delta*.json' -print | sort)
+                    if [[ "${#deltas[@]}" -eq 0 ]]; then
+                      printf '%s\n' 'No exact Topology Atlas delta is present; history remains explicitly unavailable.'
+                    else
+                      args=()
+                      for delta in "${deltas[@]}"; do args+=(--delta "$delta"); done
+                      python -m lib.topology_history \
+                        --current-atlas-manifest _site/data/pages-atlas-manifest.v1.json \
+                        "${args[@]}" \
+                        --output _site/data/pages-topology-history.v1.json
+                    fi
 
-'''
+          '''
               if "Publish Topology Atlas history when exact delta artifacts are present" not in value:
                   value = value.replace(anchor, step + anchor, 1)
               workflow.write_text(value, encoding="utf-8")
