@@ -10,6 +10,7 @@ import {
 import "./graph-relations.js";
 import { analyzeArchitecture } from "./architecture-core.mjs";
 import { researchScope } from "./atlas-research-core.mjs";
+import { structuralScaffold } from "./atlas-visual-core.mjs";
 const Relations = globalThis.TrureturingRelations;
 
 // Editorial navigation only. Upstream topology and proof authority remain intact.
@@ -262,6 +263,11 @@ export function searchNodes(model, query, limit = 8) {
 
 export function computeLayout(model, progress = () => {}) {
   const positions = {};
+  const architecture = analyzeArchitecture({
+    nodes: model.nodes,
+    edges: model.edges,
+  });
+  const scaffold = structuralScaffold(model, architecture);
   for (const [familyIndex, family] of model.families.entries()) {
     const members = family.nodes.map((n) => ({
       id: n.id,
@@ -279,36 +285,61 @@ export function computeLayout(model, progress = () => {}) {
           {
             x: Math.cos(angle) * r,
             y: Math.sin(angle) * r * 0.82,
-            z: Math.sin(i * 1.73) * radius * 0.36,
+            z: Math.sin(i * 1.73) * radius * 0.62,
           },
         ];
+      }),
+    );
+    const topicDepths = new Map(
+      topics.map((topic) => {
+        const values = members
+          .filter((n) => n.topic === topic)
+          .map((n) => scaffold.depth.get(n.id));
+        return [topic, [Math.min(...values), Math.max(...values)]];
       }),
     );
     members.forEach((n) => {
       const a = anchors.get(n.topic);
       const seed = hash(n.id);
-      n.x = a.x + ((seed % 101) - 50) * 0.28;
-      n.y = a.y + (((seed >>> 8) % 101) - 50) * 0.28;
-      n.z = a.z + (((seed >>> 16) % 101) - 50) * 0.28;
+      const [low, high] = topicDepths.get(n.topic);
+      const rank =
+        high > low
+          ? Math.log1p(scaffold.depth.get(n.id) - low) / Math.log1p(high - low)
+          : 0.5;
+      const importance = Math.min(1, scaffold.score(n.id) / 14);
+      const extension = 0.65 + rank * 0.65 - importance * 0.18;
+      const fold = Math.sin(rank * Math.PI * 1.5) * radius * 0.16;
+      n.target = {
+        x: a.x * extension - (a.y / radius) * fold,
+        y: a.y * extension + (rank - 0.5) * 48,
+        z: a.z * extension + fold,
+      };
+      n.x = n.target.x + ((seed % 101) - 50) * 0.18;
+      n.y = n.target.y + (((seed >>> 8) % 101) - 50) * 0.18;
+      n.z = n.target.z + (((seed >>> 16) % 101) - 50) * 0.18;
     });
     const ids = new Set(members.map((n) => n.id));
     const links = model.edges
       .filter((e) => ids.has(e.source) && ids.has(e.target))
-      .map((e) => ({ source: e.source, target: e.target }));
+      .map((e) => ({
+        source: e.source,
+        target: e.target,
+        spine: scaffold.spine.has(e.relationId),
+      }));
     const simulation = forceSimulation(members, 3)
       .stop()
       .force(
         "link",
         forceLink(links)
           .id((n) => n.id)
-          .distance(13)
-          .strength(0.65),
+          .distance((e) => (e.spine ? 10 : 16))
+          .strength((e) => (e.spine ? 0.9 : 0.45)),
       )
       .force("charge", forceManyBody().strength(-9).distanceMax(75))
       .force("collision", forceCollide(3.1).iterations(2))
-      .force("x", forceX((n) => anchors.get(n.topic).x).strength(0.085))
-      .force("y", forceY((n) => anchors.get(n.topic).y).strength(0.085))
-      .force("z", forceZ((n) => anchors.get(n.topic).z).strength(0.1));
+      .force("x", forceX((n) => n.target.x).strength(0.18))
+      .force("y", forceY((n) => n.target.y).strength(0.2))
+      .force("z", forceZ((n) => n.target.z).strength(0.18));
     simulation.tick(150);
     const center = family.position;
     members.forEach((n) => {

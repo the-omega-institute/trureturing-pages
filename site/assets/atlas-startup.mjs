@@ -3,7 +3,7 @@ import { sha256 } from "./architecture-core.mjs";
 
 export const STARTUP_SCHEMA = "pages-atlas-startup.v1";
 export const LAYOUT_SCHEMA = "pages-public-layout.v1";
-export const LAYOUT_PROFILE = "atlas-editorial-families-v1";
+export const LAYOUT_PROFILE = "atlas-dependency-scaffold-v2";
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 
 export function validateStartup(index, manifest) {

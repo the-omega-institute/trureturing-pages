@@ -43,7 +43,7 @@ export function researchIndex(model, snapshot, graphDigest, source) {
 export async function loadResearch(base, model, graphDigest, source) {
   const library = await loadLibrary(base);
   const snapshot = await library.snapshot(library.index.entries.length - 1);
-  return researchIndex(model, snapshot, graphDigest, source);
+  return { ...researchIndex(model, snapshot, graphDigest, source), library };
 }
 
 // Authored research anchors are not open modules or new proof dependencies.

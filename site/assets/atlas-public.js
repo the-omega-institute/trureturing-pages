@@ -24,6 +24,15 @@ import {
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
 import { loadStartup } from "./atlas-startup.mjs";
+import {
+  structuralScaffold,
+  focusRole,
+  ROLE_COLORS,
+  relationBundles,
+  researchMarkers,
+  visualLevel,
+} from "./atlas-visual-core.mjs";
+import { loadReleaseHighlights } from "./atlas-changes.mjs";
 
 const $ = (selector) => document.querySelector(selector);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -54,6 +63,23 @@ const state = {
   researchError: null,
   problem: null,
   startup: null,
+  scaffold: null,
+  viewHistory: [],
+  bundle: null,
+  bundles: [],
+  showBundles: true,
+  layers: null,
+  layerError: null,
+  bundlesVisible: false,
+  dragging: false,
+  historyLoaded: false,
+  changesStarted: false,
+  changes: null,
+  changeError: null,
+  showChanges: false,
+  changesPanel: false,
+  changePulseUntil: 0,
+  lod: "overview",
 };
 const icon = (name) => {
   const el = document.createElement("i");
@@ -80,10 +106,21 @@ let nodeLabels = [];
 let lastLabelUpdate = 0;
 let resizeObserver;
 let wikiMap = null;
+let sceneLabels = [];
 
 function color(node) {
-  if (node.id === state.selected) return "#ffffff";
-  if (state.selected && !state.neighbors.has(node.id)) return "#253036";
+  if (state.selected)
+    return ROLE_COLORS[
+      focusRole(node.id, state.selected, state.related, state.model)
+    ];
+  if (state.showChanges && state.changes?.added.has(node.id)) return "#9aefc0";
+  if (state.showChanges && state.changes?.changed.has(node.id))
+    return "#efb27e";
+  if (
+    state.bundle &&
+    !state.bundles.find((b) => b.key === state.bundle)?.ids.has(node.id)
+  )
+    return "#253036";
   if (node.kind !== "truth") return "#82b5e0";
   return state.research?.byNode.has(node.id)
     ? "#fff1ad"
@@ -92,6 +129,12 @@ function color(node) {
 function edgeColor(edge) {
   const from = endpoint(edge.source),
     to = endpoint(edge.target);
+  if (
+    !state.selected &&
+    state.showChanges &&
+    state.changes?.edgesAdded.has(JSON.stringify([from, to]))
+  )
+    return "#9aefc0";
   if (state.selected) {
     if (!state.related?.edgeIds.has(edge.relationId)) return "#1e292f";
     if (edge.category !== "proof")
@@ -118,7 +161,11 @@ function edgeWidth(edge) {
         ? 0.95
         : 0.48
       : 0.1;
-  return state.mode === "dependency" ? 0.58 : 0.3;
+  return state.mode === "dependency"
+    ? 0.58
+    : state.scaffold.spine.has(edge.relationId)
+      ? 0.72
+      : 0.16;
 }
 function nodeSize(node) {
   if (state.mode === "dependency" && state.architecture.metrics.has(node.id)) {
@@ -131,9 +178,12 @@ function nodeSize(node) {
   const degree =
     state.model.parents.get(node.id).size +
     state.model.children.get(node.id).size;
-  return state.research?.byNode.has(node.id)
-    ? 20
-    : 5 + Math.min(20, degree * 1.6);
+  return (
+    5 +
+    Math.min(46, state.scaffold.score(node.id) * 2.8) +
+    (state.research?.byNode.has(node.id) ? 8 : 0) +
+    Math.min(8, degree)
+  );
 }
 function stopRotation() {
   state.rotating = false;
@@ -145,6 +195,7 @@ function syncUrl() {
   if (state.family) params.set("family", state.family);
   if (state.selected) params.set("node", state.selected);
   if (state.mode !== "structure") params.set("mode", state.mode);
+  if (state.bundle) params.set("bundle", state.bundle);
   if (state.mode === "frontier" && state.problem)
     params.set("problem", state.problem);
   if (state.metric !== "reach") params.set("metric", state.metric);
@@ -166,6 +217,8 @@ function setMode(mode) {
     state.problem = null;
   }
   state.mode = mode;
+  state.bundle = null;
+  state.changesPanel = false;
   state.positions =
     mode === "dependency"
       ? state.architecturePositions
@@ -182,6 +235,8 @@ function setMode(mode) {
 function setFamily(id) {
   if (!state.model) return;
   state.family = id;
+  state.changesPanel = false;
+  state.bundle = null;
   state.selected = null;
   state.neighbors.clear();
   state.mode = "structure";
@@ -194,6 +249,8 @@ function setFamily(id) {
 }
 function selectNode(id) {
   if (!state.model?.byId.has(id)) return;
+  rememberView();
+  state.bundle = null;
   const node = state.model.byId.get(id);
   const wasVisible = currentNodes.some((n) => n.id === id);
   state.selected = id;
@@ -213,16 +270,96 @@ function selectNode(id) {
   $("#concept-query").setAttribute("aria-expanded", "false");
   renderGraph();
   renderWiki();
-  frameNodes(
-    [...state.neighbors].map((key) => state.model.byId.get(key)),
-    320,
-  );
+  focusSelection();
   $("#back-to-all").hidden = false;
   $("#view-caption").textContent =
     `${state.neighbors.size} related nodes / ${state.related.edges.length} relations`;
 }
+function rememberView() {
+  if (!state.renderer) return;
+  state.viewHistory.push({
+    family: state.family,
+    selected: state.selected,
+    problem: state.problem,
+    mode: state.mode,
+    tab: state.tab,
+    context: state.context,
+    depth: state.depth,
+    bundle: state.bundle,
+    changesPanel: state.changesPanel,
+    types: [...state.types],
+    camera: state.renderer.camera().position.clone(),
+    target: state.renderer.controls().target.clone(),
+  });
+  if (state.viewHistory.length > 12) state.viewHistory.shift();
+  $("#previous-view").disabled = false;
+}
+function previousView() {
+  const previous = state.viewHistory.pop();
+  if (!previous) return;
+  const { camera, target, ...settings } = previous;
+  Object.assign(state, settings);
+  state.positions =
+    state.mode === "dependency"
+      ? state.architecturePositions
+      : state.structurePositions;
+  stopRotation();
+  renderGraph();
+  renderWiki();
+  state.renderer.cameraPosition(camera, target, reducedMotion ? 0 : 550);
+  $("#previous-view").disabled = !state.viewHistory.length;
+}
+function focusSelection() {
+  const origin = state.positions[state.selected];
+  const distance = (id) => {
+    const p = state.positions[id];
+    return (
+      (p.x - origin.x) ** 2 + (p.y - origin.y) ** 2 + (p.z - origin.z) ** 2
+    );
+  };
+  const direct = [...neighborhood(state.model, state.selected)]
+    .filter((id) => state.neighbors.has(id))
+    .sort((a, b) => distance(a) - distance(b))
+    .slice(0, 12);
+  frameNodes(
+    [state.selected, ...direct].map((id) => state.model.byId.get(id)),
+    290,
+    origin,
+  );
+}
+function renderSelectionSummary() {
+  const root = $("#selection-summary");
+  root.hidden = !state.selected;
+  root.replaceChildren();
+  if (!state.selected) return;
+  root.append(el("strong", "", title(state.model.byId.get(state.selected))));
+  const facts = el("div", "selection-facts");
+  for (const [role, label, count] of [
+    ["upstream", "foundations", state.related.upstream.size],
+    ["downstream", "consequences", state.related.downstream.size],
+    [
+      "document",
+      "documents",
+      [...state.neighbors].filter(
+        (id) => state.model.byId.get(id)?.kind !== "truth",
+      ).length,
+    ],
+  ]) {
+    const fact = el("span", "", `${count} ${label}`);
+    fact.style.color = ROLE_COLORS[role];
+    facts.append(fact);
+  }
+  root.append(facts);
+}
 function arrowLength(edge) {
   if (edge.category !== "proof") return 0;
+  if (
+    state.showChanges &&
+    state.changes?.edgesAdded.has(
+      JSON.stringify([endpoint(edge.source), endpoint(edge.target)]),
+    )
+  )
+    return 3;
   return state.selected &&
     (endpoint(edge.source) === state.selected ||
       endpoint(edge.target) === state.selected)
@@ -269,7 +406,8 @@ function renderGraph() {
           : 0,
     )
     .linkDirectionalArrowLength(arrowLength)
-    .linkDirectionalParticles(particles);
+    .linkDirectionalParticles(particles)
+    .linkVisibility(linkVisible);
   document
     .querySelectorAll("[data-mode]")
     .forEach((b) =>
@@ -277,6 +415,7 @@ function renderGraph() {
     );
   $("#back-to-all").hidden = !state.family && !state.selected;
   $("#architecture-controls").hidden = state.mode !== "dependency";
+  $("#research-edge-key").hidden = state.mode !== "frontier";
   const family = FAMILIES.find((f) => f.id === state.family);
   $("#view-caption").textContent =
     `${family?.name || "All concept families"} / ${format(view.nodes.length)} concepts`;
@@ -301,12 +440,149 @@ function renderGraph() {
     item.hidden =
       !state.selected || !state.types.includes(item.dataset.edgeKey);
   });
+  renderSelectionSummary();
+  rebuildScene(view.edges);
   buildLabels();
   syncUrl();
 }
-function frameNodes(nodes, minimumSpan = 0) {
+function linkVisible(edge) {
+  if (!state.bundlesVisible || edge.category !== "proof") return true;
+  const a = state.model.byId.get(endpoint(edge.source)),
+    b = state.model.byId.get(endpoint(edge.target));
+  return a.family === b.family || `${a.family}:${b.family}` === state.bundle;
+}
+function updateVisualLevel() {
+  if (!state.renderer) return;
+  const level = visualLevel(
+    state.renderer
+      .camera()
+      .position.distanceTo(state.renderer.controls().target),
+    Boolean(state.selected),
+  );
+  if (level !== state.lod) {
+    state.lod = level;
+    state.renderer.nodeResolution(level === "overview" ? 7 : 12);
+    updateLabels();
+  }
+  if (!state.layers) return;
+  state.layers.updateCamera();
+  const visible =
+    state.showBundles &&
+    state.mode === "structure" &&
+    !state.selected &&
+    !state.dragging &&
+    !state.showChanges &&
+    state.renderer
+      .camera()
+      .position.distanceTo(state.renderer.controls().target) > 700;
+  state.layers.setBundlesVisible(visible);
+  if (visible !== state.bundlesVisible) {
+    state.bundlesVisible = visible;
+    state.renderer.linkVisibility(linkVisible);
+  }
+}
+function rebuildScene(edges = viewFor(state.model, state).edges) {
+  if (!state.layers) return;
+  const markers = researchMarkers(
+    state.research,
+    state.positions,
+    state.problem,
+  );
+  const descriptors = [
+    ...state.layers.rebuildBundles(
+      relationBundles(state.model, edges),
+      state.positions,
+      FAMILIES,
+      state.bundle,
+    ),
+    ...state.layers.rebuildResearch(
+      markers,
+      state.positions,
+      state.mode === "frontier",
+    ),
+  ];
+  state.layers.rebuildChanges(
+    state.changes,
+    state.positions,
+    new Set(currentNodes.map((n) => n.id)),
+    state.showChanges,
+  );
+  state.layers.rebuildFocus(
+    state.selected ? state.positions[state.selected] : null,
+  );
+  $("#scene-labels").replaceChildren();
+  sceneLabels = descriptors.map((item) => {
+    const isResearch = item.type === "research";
+    const label = action(
+      isResearch ? item.title : `${format(item.count)} links`,
+      isResearch ? "research-marker-label" : "bundle-label",
+      () => (isResearch ? selectProblem(item.key) : selectBundle(item.key)),
+    );
+    label.dataset.sceneKind = item.type;
+    label.dataset.sceneKey = item.key;
+    label.title = `${item.title}: ${item.count} ${isResearch ? "released foundations" : "proof dependencies"}`;
+    if (isResearch)
+      label.append(el("small", "", "Research target / proposed route"));
+    label.setAttribute("aria-label", label.title);
+    $("#scene-labels").append(label);
+    return { ...item, label };
+  });
+  updateVisualLevel();
+}
+function selectBundle(key) {
+  if (!state.bundles.some((b) => b.key === key)) return;
+  rememberView();
+  state.bundle = key;
+  state.changesPanel = false;
+  state.family = null;
+  state.selected = null;
+  state.problem = null;
+  state.mode = "structure";
+  state.positions = state.structurePositions;
+  stopRotation();
+  renderGraph();
+  renderWiki();
+  frameNodes(
+    [...state.bundles.find((b) => b.key === key).ids].map((id) =>
+      state.model.byId.get(id),
+    ),
+    380,
+  );
+}
+function renderBundle(root) {
+  const bundle = state.bundles.find((b) => b.key === state.bundle);
+  const from = FAMILIES.find((f) => f.id === bundle.source),
+    to = FAMILIES.find((f) => f.id === bundle.target);
+  root.append(
+    el("p", "eyebrow", "CROSS-FAMILY DEPENDENCIES"),
+    el("h2", "", from.name),
+    el(
+      "p",
+      "wiki-intro",
+      `to ${to.name} / ${bundle.edges.length} proof dependencies`,
+    ),
+  );
+  const list = el("div", "bundle-relations");
+  for (const edge of bundle.edges) {
+    const row = el("div", "bundle-relation");
+    row.append(
+      nodeButton(state.model.byId.get(edge.source), "Foundation"),
+      icon("arrow-down"),
+      nodeButton(state.model.byId.get(edge.target), "Consequence"),
+    );
+    list.append(row);
+  }
+  root.append(list);
+}
+function frameNodes(nodes, minimumSpan = 0, anchor = null) {
   if (!nodes.length) return;
   const points = nodes.map((n) => state.positions[n.id]);
+  if (state.mode === "frontier" && !state.selected)
+    points.push(
+      ...researchMarkers(state.research, state.positions, state.problem).map(
+        (item) => item.point,
+      ),
+    );
   const extent = (axis) => [
     Math.min(...points.map((p) => p[axis])),
     Math.max(...points.map((p) => p[axis])),
@@ -324,14 +600,19 @@ function frameNodes(nodes, minimumSpan = 0) {
   const bottomInset = compact ? 28 : 70;
   const availableHeight = Math.max(100, height - topInset - bottomInset);
   const span = Math.max(
-    (x1 - x0 + 140) / (width / height),
-    ((y1 - y0 + 90) * height) / availableHeight,
+    ((anchor ? 2 * Math.max(anchor.x - x0, x1 - anchor.x) : x1 - x0) + 140) /
+      (width / height),
+    (((anchor ? 2 * Math.max(anchor.y - y0, y1 - anchor.y) : y1 - y0) + 90) *
+      height) /
+      availableHeight,
     minimumSpan,
   );
   const distance = span / (2 * tangent) + (z1 - z0) * 0.55;
   const center = {
-    x: (x0 + x1) / 2,
-    y: (y0 + y1) / 2 + (span * (topInset - bottomInset)) / (2 * height),
+    x: anchor?.x ?? (x0 + x1) / 2,
+    y:
+      (anchor?.y ?? (y0 + y1) / 2) +
+      (span * (topInset - bottomInset)) / (2 * height),
     z: (z0 + z1) / 2,
   };
   state.renderer.cameraPosition(
@@ -388,10 +669,22 @@ function updateLabels() {
   if (state.selected)
     candidates = [...state.neighbors]
       .map((id) => state.model.byId.get(id))
-      .sort(
-        (a, b) =>
-          Number(b.id === state.selected) - Number(a.id === state.selected),
-      )
+      .sort((a, b) => {
+        const weight = (n) =>
+          n.id === state.selected
+            ? 10
+            : state.model.parents.get(state.selected).has(n.id)
+              ? 5
+              : state.model.children.get(state.selected).has(n.id)
+                ? 4
+                : n.kind === "truth"
+                  ? 2
+                  : 1;
+        return (
+          weight(b) - weight(a) ||
+          state.scaffold.score(b.id) - state.scaffold.score(a.id)
+        );
+      })
       .slice(0, 10);
   else if (state.mode === "dependency")
     candidates = rankedNodes(
@@ -407,7 +700,15 @@ function updateLabels() {
           state.model.children.get(b.id).size -
           state.model.children.get(a.id).size,
       )
-      .slice(0, 6);
+      .slice(0, state.lod === "detail" ? 14 : 6);
+  else if (state.mode === "structure" && state.lod !== "overview")
+    candidates = currentNodes
+      .filter((n) => state.scaffold.landmarks.has(n.id))
+      .sort((a, b) => state.scaffold.score(b.id) - state.scaffold.score(a.id))
+      .slice(
+        0,
+        window.innerWidth <= 700 ? 6 : state.lod === "detail" ? 18 : 10,
+      );
   if (state.hover && !candidates.some((n) => n.id === state.hover))
     candidates.unshift(state.model.byId.get(state.hover));
   for (const node of candidates.filter(Boolean)) {
@@ -417,6 +718,7 @@ function updateLabels() {
       () => selectNode(node.id),
     );
     label.title = title(node);
+    if (state.selected) label.style.setProperty("--node-accent", color(node));
     $("#node-labels").append(label);
     nodeLabels.push({ label, node });
   }
@@ -429,7 +731,7 @@ function positionLabels() {
   const graphBounds = $("#graph").getBoundingClientRect();
   const occupied = [
     ...document.querySelectorAll(
-      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom",
+      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom, .selection-summary",
     ),
   ]
     .filter((item) => !item.hidden && getComputedStyle(item).display !== "none")
@@ -442,7 +744,7 @@ function positionLabels() {
         h: r.height,
       };
     });
-  const project = (label, p, isNode = false) => {
+  const project = (label, p, isNode = false, keepInside = false) => {
     const screen = state.renderer.graph2ScreenCoords(p.x, p.y, p.z);
     const camera = state.renderer.camera();
     const direction = camera.getWorldDirection(camera.position.clone());
@@ -453,8 +755,16 @@ function positionLabels() {
       0;
     const labelWidth = label.offsetWidth,
       labelHeight = label.offsetHeight;
-    const x = screen.x - labelWidth / 2,
-      y = screen.y + (isNode ? 12 : -labelHeight);
+    const x = keepInside
+        ? Math.max(
+            16,
+            Math.min(screen.x - labelWidth / 2, width - labelWidth - 16),
+          )
+        : screen.x - labelWidth / 2,
+      y =
+        keepInside && screen.y + labelHeight + 12 > height - 65
+          ? screen.y - labelHeight - 12
+          : screen.y + (isNode ? 12 : -labelHeight);
     const box = { x, y, w: labelWidth, h: labelHeight };
     const collides = occupied.some(
       (b) =>
@@ -468,22 +778,40 @@ function positionLabels() {
     const topInset = compact ? 85 : window.innerWidth <= 900 ? 200 : 142;
     const visible =
       front &&
-      x > 16 &&
-      x + box.w < width - 16 &&
+      x >= 16 &&
+      x + box.w <= width - 16 &&
       y > topInset &&
       y + box.h < height - (compact ? 12 : 65) &&
       !collides;
-    label.style.visibility = visible ? "visible" : "hidden";
+    const anchored =
+      !keepInside ||
+      (screen.x >= 8 &&
+        screen.x < width - 8 &&
+        screen.y >= 12 &&
+        screen.y < height - 12);
+    label.style.visibility = visible && anchored ? "visible" : "hidden";
     label.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
-    if (visible) occupied.push(box);
+    if (visible && anchored) occupied.push(box);
   };
   nodeLabels.forEach(({ label, node }) =>
     project(label, state.positions[node.id], true),
   );
+  sceneLabels
+    .filter((item) => item.type === "research")
+    .forEach(({ label, point }) => {
+      label.hidden = state.mode !== "frontier";
+      if (!label.hidden) project(label, point, true, true);
+    });
   familyLabels.forEach(({ label, point }) => {
     label.hidden = Boolean(state.selected);
     if (!state.selected) project(label, point);
   });
+  sceneLabels
+    .filter((item) => item.type === "bundle")
+    .forEach(({ label, point }) => {
+      label.hidden = !state.bundlesVisible;
+      if (!label.hidden) project(label, point, true);
+    });
 }
 
 function nodeButton(node, subtitle) {
@@ -497,6 +825,8 @@ function nodeButton(node, subtitle) {
   return b;
 }
 function selectProblem(slug) {
+  state.changesPanel = false;
+  state.bundle = null;
   state.problem = slug;
   state.selected = null;
   state.family = null;
@@ -594,6 +924,7 @@ function renderResearch(root) {
       dossier.append(icon("arrow-up-right"));
       root.append(
         dossier,
+        researchPath(problem),
         el("h3", "section-label spaced", "RELEASED FOUNDATIONS"),
       );
       problem.anchors.forEach((id) =>
@@ -621,6 +952,24 @@ function renderResearch(root) {
   research.append(icon("arrow-up-right"));
   root.append(research);
 }
+function researchPath(problem) {
+  const root = el("div", "research-path");
+  root.append(
+    el("span", "", `${problem.anchors.length} released foundations`),
+    icon("arrow-down"),
+  );
+  for (const [section, label] of [
+    ["gap", "Missing bridges"],
+    ["route", "Proposed approach"],
+  ]) {
+    const link = el("a", "", label);
+    link.href = `research/${problem.slug}/#${section}`;
+    root.append(link);
+    if (section === "gap") root.append(icon("arrow-down"));
+  }
+  root.append(el("small", "", "Literature status: not rechecked"));
+  return root;
+}
 function renderWiki() {
   wikiMap?.destroy();
   wikiMap = null;
@@ -636,6 +985,16 @@ function renderWiki() {
     Boolean(state.selected || state.family),
   );
   root.scrollTop = 0;
+  if (state.changesPanel && !state.selected) {
+    renderChanges(root);
+    icons();
+    return;
+  }
+  if (state.bundle && !state.selected) {
+    renderBundle(root);
+    icons();
+    return;
+  }
   if (!state.selected && state.mode === "dependency") {
     renderArchitectureOverview(root);
     icons();
@@ -726,6 +1085,30 @@ function renderWiki() {
         )
         .slice(0, 3);
       featured.forEach((n) => root.append(nodeButton(n)));
+      root.append(
+        el("div", "wiki-divider"),
+        el("h3", "section-label", "FAMILY CONNECTIONS"),
+      );
+      const more = el("details", "bundle-index-more");
+      more.append(
+        el("summary", "", `All connections / ${state.bundles.length}`),
+      );
+      state.bundles.forEach((bundle, index) => {
+        const from = FAMILIES.find((f) => f.id === bundle.source),
+          to = FAMILIES.find((f) => f.id === bundle.target);
+        const button = action("", "concept-row bundle-choice", () =>
+          selectBundle(bundle.key),
+        );
+        button.dataset.bundle = bundle.key;
+        const copy = el("span");
+        copy.append(
+          el("strong", "", `${from.name} to ${to.name}`),
+          el("small", "", `${bundle.edges.length} proof dependencies`),
+        );
+        button.append(copy, icon("arrow-up-right"));
+        (index < 4 ? root : more).append(button);
+      });
+      root.append(more);
     }
     root.append(
       el("p", "wiki-footnote", "Topic grouping / editorial navigation"),
@@ -1021,6 +1404,8 @@ async function load() {
   state.startup = startup.timing;
   state.model = createPublicModel(state.graph);
   state.architecture = analyzeArchitecture(state.graph);
+  state.scaffold = structuralScaffold(state.model, state.architecture);
+  state.bundles = relationBundles(state.model);
   state.history = [snapshotFromGraph(state.graph, state.graphDigest)];
   if (!state.model.nodes.length)
     throw new Error("This release has no mathematical concepts.");
@@ -1092,13 +1477,19 @@ async function load() {
       updateLabels();
     })
     .onNodeDrag(() => {
+      state.dragging = true;
+      state.layers?.setDragging(true);
+      updateVisualLevel();
       stopRotation();
     })
     .onNodeDragEnd((node) => {
+      state.dragging = false;
+      state.layers?.setDragging(false);
       node.fx = node.x;
       node.fy = node.y;
       node.fz = node.z;
       state.positions[node.id] = { x: node.x, y: node.y, z: node.z };
+      rebuildScene();
       buildLabels();
     })
     .onBackgroundClick(() => {
@@ -1112,12 +1503,20 @@ async function load() {
   controls.minDistance = 65;
   controls.maxDistance = 6500;
   controls.addEventListener("start", stopRotation);
-  controls.addEventListener("change", positionLabels);
+  controls.addEventListener("change", () => {
+    updateVisualLevel();
+    positionLabels();
+  });
   const initial = new URLSearchParams(location.hash.slice(1));
   if (FAMILIES.some((f) => f.id === initial.get("family")))
     state.family = initial.get("family");
   if (["dependency", "frontier"].includes(initial.get("mode")))
     state.mode = initial.get("mode");
+  if (
+    state.mode === "structure" &&
+    state.bundles.some((b) => b.key === initial.get("bundle"))
+  )
+    state.bundle = initial.get("bundle");
   if (state.mode === "frontier") {
     state.family = null;
     if (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(initial.get("problem") || ""))
@@ -1171,6 +1570,14 @@ async function load() {
       positionLabels();
       lastLabelUpdate = time;
     }
+    if (state.changePulseUntil > time)
+      state.layers?.pulseChanges((1 + Math.sin(time * 0.003)) / 2);
+    else if (state.changePulseUntil) {
+      state.changePulseUntil = 0;
+      state.showChanges = false;
+      $("#toggle-changes").setAttribute("aria-pressed", "false");
+      renderGraph();
+    }
     requestAnimationFrame(animateLabels);
   };
   requestAnimationFrame(animateLabels);
@@ -1186,6 +1593,22 @@ async function load() {
     researchAnchors: state.research?.byNode.size || 0,
     researchError: state.researchError,
     startup: state.startup,
+    visuals: {
+      ...state.layers?.diagnostics(),
+      error: state.layerError,
+      bundle: state.bundle,
+      spineEdges: state.scaffold.spine.size,
+      lod: state.lod,
+    },
+    changes: state.changes
+      ? {
+          kind: state.changes.kind,
+          added: state.changes.added.size,
+          changed: state.changes.changed.size,
+          edgesAdded: state.changes.edgesAdded.size,
+          active: state.showChanges,
+        }
+      : null,
     relatedNodes: state.related?.ids.size || 0,
     relatedEdges: state.related?.edges.length || 0,
     metric: state.metric,
@@ -1206,6 +1629,30 @@ async function load() {
     ),
     camera: state.renderer.camera().position.toArray(),
   });
+  import("./atlas-scene.mjs")
+    .then(({ createAtlasScene }) => {
+      state.layers = createAtlasScene(state.renderer, $("#graph"), {
+        select(item) {
+          if (item.type === "bundle") selectBundle(item.key);
+          else if (item.type === "research") selectProblem(item.key);
+        },
+        hover(item, event) {
+          const tooltip = $("#scene-tooltip");
+          tooltip.hidden = !item;
+          if (!item) return;
+          tooltip.textContent = `${item.title} / ${item.count} ${item.type === "research" ? "released foundations / research association" : "proof dependencies"}`;
+          const rect = $("#graph").getBoundingClientRect();
+          tooltip.style.left = `${Math.min(Math.max(16, event.clientX - rect.x + 12), rect.width - 296)}px`;
+          tooltip.style.top = `${Math.min(event.clientY - rect.y + 16, rect.height - 110)}px`;
+        },
+      });
+      $("#toggle-bundles").disabled = false;
+      rebuildScene();
+      positionLabels();
+    })
+    .catch((error) => {
+      state.layerError = error.message;
+    });
   // Research and history enrich an already interactive map.
   setTimeout(() => {
     loadResearch(
@@ -1216,11 +1663,13 @@ async function load() {
     )
       .then((research) => {
         state.research = research;
+        updateReleaseChanges();
         if (state.problem && !research.problems.has(state.problem))
           state.problem = null;
       })
       .catch((error) => {
         state.researchError = error.message;
+        $("#release-change-note").textContent = "Change history unavailable";
       })
       .finally(() => {
         if (state.mode === "frontier") {
@@ -1239,14 +1688,98 @@ async function load() {
   )
     .then((snapshots) => {
       if (snapshots.length) state.history = snapshots;
+      state.historyLoaded = true;
+      updateReleaseChanges();
       if (state.tab === "architecture" || state.mode === "dependency")
         renderWiki();
     })
     .catch((error) => {
       state.historyError = `History verification failed: ${error.message}`;
+      $("#release-change-note").textContent = "Change history unavailable";
       if (state.tab === "architecture" || state.mode === "dependency")
         renderWiki();
     });
+}
+
+function updateReleaseChanges() {
+  if (!state.historyLoaded || !state.research?.library || state.changesStarted)
+    return;
+  state.changesStarted = true;
+  loadReleaseHighlights(state.history, state.research.library)
+    .then((changes) => {
+      state.changes = changes;
+      const button = $("#toggle-changes"),
+        note = $("#release-change-note");
+      button.disabled = changes.kind !== "comparable";
+      const label =
+        changes.kind === "baseline"
+          ? "Baseline release"
+          : changes.kind === "analysis-changed"
+            ? "Analysis profile changed"
+            : `+${changes.added.size} nodes / ${changes.changed.size} updated / ${changes.edgesKnown ? `+${changes.edgesAdded.size}` : "Unrecorded"} dependencies`;
+      button.title = label;
+      note.textContent =
+        changes.kind === "comparable"
+          ? `+${changes.added.size} / ${changes.changed.size} updated`
+          : label;
+      note.title = label;
+      const key = `atlas-seen-release:${changes.release}`;
+      let seen = true;
+      try {
+        seen = sessionStorage.getItem(key) === "1";
+        sessionStorage.setItem(key, "1");
+      } catch {}
+      if (
+        !seen &&
+        !reducedMotion &&
+        changes.kind === "comparable" &&
+        (changes.added.size || changes.changed.size || changes.edgesAdded.size)
+      ) {
+        state.showChanges = true;
+        state.changePulseUntil = performance.now() + 9000;
+        button.setAttribute("aria-pressed", "true");
+        renderGraph();
+      }
+    })
+    .catch((error) => {
+      state.changeError = error.message;
+      $("#release-change-note").textContent = "Change history unavailable";
+    });
+}
+function renderChanges(root) {
+  const changes = state.changes;
+  root.append(
+    el("p", "eyebrow", "LATEST TRUTH RELEASE"),
+    el("h2", "", "What changed"),
+    el(
+      "p",
+      "wiki-intro",
+      `+${changes.added.size} concepts / ${changes.changed.size} content updates / ${changes.edgesKnown ? `+${changes.edgesAdded.size}` : "Unrecorded"} dependencies`,
+    ),
+  );
+  for (const [label, ids] of [
+    ["NEW CONCEPTS", changes.added],
+    ["UPDATED CONTENT", changes.changed],
+  ]) {
+    root.append(el("h3", "section-label spaced", `${label} / ${ids.size}`));
+    for (const id of ids) root.append(nodeButton(state.model.byId.get(id)));
+  }
+  if (!changes.contentKnown)
+    root.append(
+      el("p", "wiki-intro", "Comparable content history is unavailable."),
+    );
+  root.append(
+    el(
+      "p",
+      "wiki-intro",
+      `${changes.retired.size} concepts absent from this release / ${changes.edgesRemoved?.length ?? "Unknown"} removed dependencies`,
+    ),
+  );
+  const evolution = el("a", "research-link", "Across releases");
+  evolution.href = "evolution.html#view=time";
+  const library = el("a", "research-link", "Content history");
+  library.href = "library-history.html";
+  root.append(evolution, library);
 }
 
 function renderArchitectureOverview(root) {
@@ -1371,6 +1904,25 @@ function renderArchitectureNode(root, node) {
 
 $("#architecture-metric").addEventListener("change", (event) => {
   state.metric = event.target.value;
+  renderGraph();
+  renderWiki();
+});
+$("#previous-view").addEventListener("click", previousView);
+$("#toggle-bundles").addEventListener("click", () => {
+  state.showBundles = !state.showBundles;
+  $("#toggle-bundles").setAttribute("aria-pressed", String(state.showBundles));
+  updateVisualLevel();
+  positionLabels();
+});
+$("#toggle-changes").addEventListener("click", () => {
+  if (state.changes?.kind !== "comparable") return;
+  rememberView();
+  state.changePulseUntil = 0;
+  state.showChanges = !state.showChanges;
+  state.changesPanel = state.showChanges;
+  state.selected = null;
+  state.bundle = null;
+  $("#toggle-changes").setAttribute("aria-pressed", String(state.showChanges));
   renderGraph();
   renderWiki();
 });
