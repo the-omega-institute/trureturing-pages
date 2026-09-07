@@ -25,6 +25,7 @@ const nodeId = "D5/S0/Tower/GoldenGapZeckendorf";
         document.querySelector("svg.lucide"),
     );
     assert.equal(await page.locator(".problem-row").count(), 7);
+    await page.locator("#research-release-dossiers > summary").click();
     await page.getByLabel("Find a question").fill("automaton");
     assert.ok((await page.locator(".problem-row:visible").count()) >= 1);
     await page.getByLabel("Find a question").fill("");

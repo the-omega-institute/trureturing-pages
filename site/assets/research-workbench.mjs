@@ -106,13 +106,38 @@ export async function mountResearchWorkbench() {
     const url = new URL(location.href); url.hash = params.toString();
     history.replaceState(null, "", url); focusId = "";
   }
+  let writes = Promise.resolve();
+  let pending = {};
+  function saveNotes() {
+    const save = () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const latest = raw ? validateNotes(JSON.parse(raw), known).notes : emptyNotes(catalog.revision);
+        const merged = { ...notes.entries, ...latest.entries };
+        for (const [id, patch] of Object.entries(pending)) merged[id] = { ...merged[id], ...patch };
+        notes = { ...emptyNotes(catalog.revision), entries: merged };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+        pending = {};
+        status.textContent = "Saved in this browser. Shared progress requires a GitHub record.";
+        return true;
+      } catch {
+        status.textContent = "Browser storage unavailable or full. Your changes remain in memory; export them before leaving.";
+        return false;
+      }
+    };
+    // Serialize read/merge/write across tabs; only edited fields replace stored values.
+    writes = writes.then(() => navigator.locks ? navigator.locks.request(STORAGE_KEY, save) : save())
+      .catch(() => { status.textContent = "Notebook saving failed. Export your in-memory changes before leaving."; return false; });
+    return writes;
+  }
   function persist(id, patch) {
     const prior = notes.entries[id] || { stage: "unstarted", starred: false, note: "" };
-    notes.entries[id] = { ...prior, ...patch, updated: new Date().toISOString() };
+    const update = { ...patch, updated: new Date().toISOString() };
+    notes.entries[id] = { ...prior, ...update };
+    pending[id] = { ...pending[id], ...update };
     notes.catalog_revision = catalog.revision;
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-      status.textContent = "Saved in this browser. Shared progress requires a GitHub record.";
-    } catch { status.textContent = "Browser storage unavailable or full. Your changes remain in memory; export them before leaving."; }
+    status.textContent = "Saving in this browser...";
+    saveNotes();
   }
   function detailText(parent, label, value) {
     parent.append(el("h4", label), el("p", value));
@@ -211,7 +236,8 @@ export async function mountResearchWorkbench() {
     const item = candidates[Math.floor(Math.random() * candidates.length)];
     location.href = questionURL(location.href, item.id);
   });
-  const download = button("Export notebook", () => {
+  const download = button("Export notebook", async () => {
+    await saveNotes();
     const blob = new Blob([JSON.stringify(notes, null, 2) + "\n"], { type: "application/json" });
     const url = URL.createObjectURL(blob), a = link("Download", url);
     a.download = "trureturing-research-notebook.json"; a.click();
@@ -225,11 +251,11 @@ export async function mountResearchWorkbench() {
       const imported = validateNotes(JSON.parse(await file.text()), known);
       // Validate the entire file before changing any current entry.
       notes.entries = { ...notes.entries, ...imported.notes.entries };
+      for (const [id, entry] of Object.entries(imported.notes.entries)) pending[id] = { ...entry };
       let message = `Imported ${Object.keys(imported.notes.entries).length} entries; ${imported.skipped} unknown IDs skipped.`;
       if (imported.notes.catalog_revision !== catalog.revision) message += " Catalog revisions differ; recheck sources.";
       notes.catalog_revision = catalog.revision;
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); }
-      catch { message += " Storage unavailable; export before leaving."; }
+      if (!await saveNotes()) message += " Storage unavailable; export before leaving.";
       status.textContent = message; render();
     } catch (error) { status.textContent = `Import rejected; existing notes unchanged. ${error.message}`; }
     finally { input.value = ""; }

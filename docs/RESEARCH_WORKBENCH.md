@@ -94,6 +94,12 @@ whole file before replacing matching entries, rejects files above 1 MB, preserve
 unaffected entries and reports unknown IDs. A different catalog revision requests
 source reassessment. All first-round notebook IDs remain valid.
 
+Saving merges edited fields with the latest stored notebook. On browsers with
+Web Locks, read/merge/write operations serialize across tabs so an older tab
+cannot erase another tab's unrelated notes or progress. Export waits for pending
+saves and includes the latest stored entries. The fallback merges immediately
+when Web Locks are unavailable; cross-tab atomicity then depends on the browser.
+
 The GitHub link opens a prefilled issue form with public catalog text only. It
 neither submits the issue nor transmits personal notes.
 
@@ -112,6 +118,7 @@ DOI mismatches and solved-result sources masquerading as open parent questions.
 ```sh
 node --test tests/research-workbench.test.mjs
 python tests/research_workbench_browser.py --chromium /usr/bin/chromium
+ATLAS_ORIGIN=http://127.0.0.1:8767 node tests/browser/research-workbench.cjs
 ```
 
 The 23 Node tests cover those contracts, all original behavior, source filters
@@ -127,3 +134,9 @@ A local-HTTP smoke attempt in the authoring environment was blocked by Chromium
 administration policy before loading the page. The offline suite passed; that
 result is not substituted for production or native-storage verification. No
 full-site CI, Lean compilation, independent proof review or deployment is claimed.
+
+The integration review adds the Node contracts to CI and a native Chrome suite
+against a local HTTP preview with the verified release. It covers actual module
+loading, native localStorage, reload, two-tab saves and field preservation,
+import/export, literature filters, question links, original dossier access,
+centered headers at 1512/390/320 pixels, and the catalog failure fallback.

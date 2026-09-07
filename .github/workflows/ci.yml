@@ -71,6 +71,9 @@ jobs:
           node --check site/assets/evolution-map.js
           node --check site/assets/library-core.mjs
           node --check site/assets/living-library.js
+          node --check site/assets/living-library-release.js
+          node --check site/assets/research-workbench.mjs
+          node --check site/assets/research-workbench-core.mjs
           node --check site/assets/library-version.js
           node --check tools/build_architecture_history.mjs
           node --check site/assets/knowledge-map.js
@@ -86,6 +89,7 @@ jobs:
           node --test tests/js/atlas-startup.test.mjs
           node --test tests/js/atlas-visual.test.mjs
           node --test tests/js/atlas-changes.test.mjs
+          node --test tests/research-workbench.test.mjs
           node --test tests/js/architecture.test.mjs
           node --test tests/js/evolution.test.mjs
           node tests/js/concept-lens.test.js
