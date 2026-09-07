@@ -18,6 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install content parsers
+        run: python -m pip install -r requirements.txt
+
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
@@ -45,6 +52,22 @@ jobs:
           done
           node --check site/assets/atlas-structure-core.js
           node --check site/assets/dag.js
+          node --check site/assets/atlas-public.js
+          node --check site/assets/atlas-public-core.mjs
+          node --check site/assets/atlas-public-worker.mjs
+          node --check site/assets/graph-relations.js
+          node --check site/assets/relation-map.js
+          node --check site/assets/relation-map-worker.js
+          node --check site/assets/knowledge-page.js
+          node --check site/assets/architecture-core.mjs
+          node --check site/assets/architecture-ui.mjs
+          node --check site/assets/architecture-history.js
+          node --check site/assets/evolution-core.mjs
+          node --check site/assets/evolution-map.js
+          node --check site/assets/library-core.mjs
+          node --check site/assets/living-library.js
+          node --check site/assets/library-version.js
+          node --check tools/build_architecture_history.mjs
           node --check site/assets/knowledge-map.js
           node --check site/assets/research-context.js
           node --check site/assets/research-console.js
@@ -54,6 +77,9 @@ jobs:
       - name: Run Atlas and release-bound research client tests
         run: |
           node tests/js/atlas-structure.test.js
+          node --test tests/js/atlas-public.test.mjs
+          node --test tests/js/architecture.test.mjs
+          node --test tests/js/evolution.test.mjs
           node tests/js/concept-lens.test.js
           node tests/js/research-context.test.js
           node tests/js/research-writeback.test.js

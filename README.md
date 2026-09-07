@@ -1,12 +1,40 @@
 # trureturing-pages
 
-`trureturing-pages` is the public, read-only static presentation site for trureturing. Its first version presents three views:
+`trureturing-pages` presents a living, release-bound mathematical knowledge system:
 
-- DAG status
-- the theory volume
-- selected important conclusions
+- Explore: the spatial Atlas and concept-family structure.
+- Library: concept Wiki, authored content, and immutable release versions.
+- Evolution: dependency lineage and changes across verified releases.
+- Research: source-backed questions, missing bridges, proposed routes, and development activity.
 
 The site is plain HTML, CSS, and client-side JavaScript. It has no frontend build step.
+
+## Public Atlas preview
+
+`site/atlas.html` is the public concept-family view with a 3D graph and concept
+Wiki. `site/dag.html` retains the advanced analysis console. To preview against a
+verified copy of the current published release, run:
+
+```bash
+python3 -m venv /tmp/pages-venv
+/tmp/pages-venv/bin/pip install -r requirements.txt
+/tmp/pages-venv/bin/python tools/serve_atlas.py --port 8765
+```
+
+Open `http://127.0.0.1:8765/atlas.html`. See [Public Atlas](docs/PUBLIC_ATLAS.md)
+for the visualization decisions, local-data boundary, and verification commands.
+The preview generates the Library and all concept Wiki pages locally, including
+complete relationship maps and the shared site theme. Open
+`http://127.0.0.1:8765/knowledge/` to browse them.
+The Dependencies mode ranks architectural support and cross-domain reuse.
+`http://127.0.0.1:8765/evolution.html` tracks verified release observations; the
+publication workflow preserves historical snapshots across deployments. See
+[Architecture evolution](docs/ARCHITECTURE_EVOLUTION.md) for metric scope and
+the distinction between module imports and theorem-use counts. Preview startup
+requires Python 3, Node.js 20 or later, and the sibling `trureturing` checkout
+containing the published source commit. Research is generated at `research.html`;
+content history is at `library-history.html`. See [Living knowledge](docs/LIVING_KNOWLEDGE.md)
+for the two update clocks, archive format, research evidence boundaries, and tests.
 
 ## Truth boundary
 

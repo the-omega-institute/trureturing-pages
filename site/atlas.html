@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090c10" />
+    <title>trureturing | Mathematical Atlas</title>
+    <link rel="stylesheet" href="assets/atlas-public.css" />
+    <link rel="stylesheet" href="assets/relation-map.css" />
+    <link rel="stylesheet" href="assets/architecture.css" />
+    <link rel="stylesheet" href="assets/site-theme.css" />
+    <script defer src="assets/vendor/3d-force-graph.min.js"></script>
+    <script defer src="assets/vendor/lucide.min.js"></script>
+    <script defer src="assets/concept-lens-core.js"></script>
+    <script defer src="assets/vendor/d3.min.js"></script>
+    <script defer src="assets/relation-map.js"></script>
+    <script type="module" src="assets/atlas-public.js"></script>
+  </head>
+  <body class="site-themed">
+    <header class="atlas-header">
+      <a class="brand" href="index.html"
+        ><span class="brand-mark" aria-hidden="true">t.</span>trureturing<span
+          class="brand-divider"
+        ></span
+        ><span class="product-name">ATLAS</span></a
+      >
+      <nav aria-label="Primary navigation">
+        <a href="atlas.html" aria-current="page">Explore</a
+        ><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a
+        ><a href="research.html">Research <i data-lucide="arrow-up-right"></i></a>
+      </nav>
+      <span class="release-state" id="release-state">Connecting</span>
+    </header>
+    <main class="atlas-app">
+      <section class="universe" aria-label="Mathematical concept atlas">
+        <div
+          id="graph"
+          aria-label="Interactive three-dimensional concept graph"
+        ></div>
+        <div class="atlas-heading">
+          <p class="eyebrow">THE OMEGA INSTITUTE</p>
+          <h1>Mathematical Atlas<span>.</span></h1>
+          <p class="atlas-counts" id="atlas-counts">
+            Loading published mathematics
+          </p>
+        </div>
+        <form class="search" id="concept-search" role="search">
+          <i data-lucide="search"></i
+          ><input
+            id="concept-query"
+            type="search"
+            placeholder="Find a concept"
+            aria-label="Find a concept"
+            autocomplete="off"
+            aria-controls="search-results"
+            aria-expanded="false"
+          />
+          <button
+            type="submit"
+            class="icon-button"
+            title="Search concepts"
+            aria-label="Search concepts"
+          >
+            <i data-lucide="arrow-right"></i>
+          </button>
+          <div id="search-results" class="search-results" hidden></div>
+        </form>
+        <div class="view-controls" role="group" aria-label="Graph view">
+          <div class="segmented">
+            <button data-mode="structure" aria-pressed="true">Structure</button
+            ><button data-mode="dependency" aria-pressed="false">
+              Dependencies</button
+            ><button data-mode="frontier" aria-pressed="false">
+              Open questions
+            </button>
+          </div>
+          <div id="architecture-controls" class="architecture-controls" hidden>
+            <label for="architecture-metric">Node weight</label>
+            <select id="architecture-metric" aria-label="Architecture metric">
+              <option value="reach">Downstream support</option>
+              <option value="direct">Direct reuse</option>
+              <option value="coverage">Domain coverage</option>
+            </select>
+          </div>
+        </div>
+        <div
+          id="family-labels"
+          class="family-labels"
+          aria-label="Concept families"
+        ></div>
+        <div
+          id="node-labels"
+          class="node-labels"
+          aria-label="Highlighted concepts"
+        ></div>
+        <div class="graph-tools" role="toolbar" aria-label="Camera controls">
+          <button
+            class="icon-button"
+            id="zoom-in"
+            title="Zoom in"
+            aria-label="Zoom in"
+          >
+            <i data-lucide="plus"></i>
+          </button>
+          <button
+            class="icon-button"
+            id="zoom-out"
+            title="Zoom out"
+            aria-label="Zoom out"
+          >
+            <i data-lucide="minus"></i>
+          </button>
+          <span></span
+          ><button
+            class="icon-button"
+            id="reset-camera"
+            title="Return to all concepts"
+            aria-label="Return to all concepts"
+          >
+            <i data-lucide="scan"></i>
+          </button>
+          <button
+            class="icon-button"
+            id="rotate-camera"
+            title="Rotate structure"
+            aria-label="Rotate structure"
+            aria-pressed="false"
+          >
+            <i data-lucide="orbit"></i>
+          </button>
+        </div>
+        <button id="back-to-all" class="back-to-all" hidden>
+          <i data-lucide="arrow-left"></i>All concepts
+        </button>
+        <div class="atlas-bottom">
+          <span id="view-caption">Concept families</span>
+          <div class="edge-key">
+            <span class="key-line"></span>Proof dependency
+            <span data-edge-key="affinity" hidden
+              ><i class="key-line" style="background: #d7a0ca"></i
+              >Affinity</span
+            >
+            <span data-edge-key="document" hidden
+              ><i class="key-line" style="background: #82b5e0"></i
+              >Documents</span
+            >
+            <span class="key-open"></span>Open
+          </div>
+          <button
+            id="about-atlas"
+            class="icon-button"
+            title="About this map"
+            aria-label="About this map"
+          >
+            <i data-lucide="info"></i>
+          </button>
+        </div>
+        <div id="loading" class="loading" role="status">
+          <span class="loading-symbol"></span
+          ><strong id="loading-message">Verifying the published graph</strong
+          ><span id="loading-detail">Mathematical Atlas</span>
+        </div>
+        <div id="map-note" class="map-note" hidden>
+          <strong>About this map</strong>
+          <p>
+            Colors group concepts into editorial topic families. Position
+            reflects topic grouping and proof connections, not a mathematical
+            measure of similarity. Proof dependencies, structural affinity and
+            document links retain their distinct authority and colors.
+          </p>
+          <p id="release-note"></p>
+          <button id="close-note">Close</button>
+        </div>
+      </section>
+      <aside class="wiki" id="wiki" aria-label="Concept wiki">
+        <div class="wiki-bar">
+          <span><i data-lucide="book-open"></i>CONCEPT WIKI</span
+          ><button
+            class="icon-button"
+            id="close-wiki"
+            title="Close concept"
+            aria-label="Close concept"
+            hidden
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div id="wiki-content" class="wiki-content" aria-live="polite">
+          <p class="eyebrow">THE COLLECTION</p>
+          <h2>A connected body<br />of mathematics.</h2>
+          <div class="wiki-divider"></div>
+          <p class="muted">Loading concept families...</p>
+        </div>
+      </aside>
+    </main>
+  </body>
+</html>

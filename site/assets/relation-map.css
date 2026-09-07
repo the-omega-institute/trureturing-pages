@@ -1,0 +1,205 @@
+.relation-viewer {
+  border: 1px solid #2d414a;
+  border-radius: 6px;
+  background: #0b1116;
+  overflow: hidden;
+  min-width: 0;
+}
+.relation-map-toolbar {
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 12px;
+  border-bottom: 1px solid #26363f;
+  background: #121b22;
+}
+.relation-map-toolbar > span {
+  font:
+    10px/1.5 ui-monospace,
+    monospace;
+  color: #99b1b8;
+  overflow-wrap: anywhere;
+}
+.relation-map-tools {
+  display: flex;
+  flex-shrink: 0;
+}
+.relation-map-tools .icon-button {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: #a3bfc5;
+  padding: 0;
+  cursor: pointer;
+}
+.relation-map-tools .icon-button svg {
+  width: 15px;
+  height: 15px;
+}
+.relation-map-tools .icon-button:hover {
+  color: #91efdb;
+  background: #243c44;
+}
+.relation-map-viewport {
+  height: 400px;
+  min-width: 0;
+  touch-action: none;
+}
+.relation-map-viewport > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+.relation-map-viewport > svg:active {
+  cursor: grabbing;
+}
+.relation-map-node {
+  cursor: pointer;
+}
+.relation-map-node rect {
+  fill: #152229;
+  stroke: #405f68;
+  stroke-width: 1.2;
+}
+.relation-map-node text {
+  fill: #dcebed;
+  font:
+    11px Arial,
+    sans-serif;
+  pointer-events: none;
+}
+.relation-map-node.is-selected rect {
+  fill: #194137;
+  stroke: #91e9d4;
+  stroke-width: 2;
+}
+.relation-map-node:hover rect,
+.relation-map-node:focus-visible rect {
+  stroke: #eecb79;
+  stroke-width: 2;
+}
+.relation-map-node:focus {
+  outline: none;
+}
+.relation-viewer.is-compact .relation-map-viewport {
+  height: 235px;
+}
+.relation-viewer.is-compact .relation-map-toolbar {
+  flex-wrap: wrap;
+  padding: 5px 8px;
+  gap: 4px;
+}
+.relation-viewer.is-expanded {
+  position: fixed;
+  inset: 24px;
+  z-index: 200;
+  height: auto;
+  box-shadow: 0 0 0 100vmax #020607d9;
+  display: flex;
+  flex-direction: column;
+}
+.relation-viewer.is-expanded .relation-map-viewport {
+  height: auto;
+  flex: 1;
+  min-height: 0;
+}
+.relationship-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0;
+  color: #adc2c8;
+  font-size: 11px;
+}
+.relationship-controls select {
+  max-width: 100%;
+  border: 1px solid #40555e;
+  border-radius: 4px;
+  color: #d8e8e9;
+  background: #162229;
+  padding: 7px 8px;
+  font: inherit;
+}
+.relationship-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+}
+.relationship-controls input {
+  accent-color: #7edbc3;
+}
+.relationship-key {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+  color: #9bafb6;
+  font-size: 10px;
+}
+.relationship-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.relationship-key i {
+  width: 19px;
+  border-top: 2px solid #80cbbd;
+}
+.relationship-key .affinity {
+  border-top-style: dashed;
+  border-color: #d7a0ca;
+}
+.relationship-key .document {
+  border-top-style: dotted;
+  border-color: #82b5e0;
+}
+.relationship-key .advisory {
+  border-top-style: dashed;
+  border-color: #e5c26c;
+}
+.relationship-categories {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+.relationship-categories button {
+  min-height: 32px;
+  border: 1px solid #344a53;
+  background: #111c22;
+  color: #a2b7bd;
+  font:
+    11px Arial,
+    sans-serif;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.relationship-categories button[aria-selected="true"] {
+  color: #b1f6e3;
+  border-color: #4b8c7c;
+  background: #1b3832;
+}
+@media (max-width: 700px) {
+  .relation-viewer.is-expanded {
+    inset: 10px;
+  }
+  .relation-map-viewport {
+    height: 320px;
+  }
+  .relation-map-toolbar {
+    gap: 5px;
+    padding: 5px 8px;
+  }
+  .relation-map-toolbar > span {
+    font-size: 9px;
+  }
+}

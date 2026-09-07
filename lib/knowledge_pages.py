@@ -85,7 +85,7 @@ def relation_list(
         return '<p class="knowledge-empty">None recorded in this release.</p>'
     rows = []
     for node_id, layer in sorted(
-        items, key=lambda item: (title(nodes[item[0]]).casefold(), item)
+        set(items), key=lambda item: (title(nodes[item[0]]).casefold(), item)
     ):
         node = nodes[node_id]
         rows.append(
@@ -102,41 +102,67 @@ def mini_graph(
     children: list[tuple[str, str]],
     nodes: dict[str, dict[str, Any]],
 ) -> str:
-    upstream = [nodes[item[0]] for item in parents[:4]]
-    downstream = [nodes[item[0]] for item in children[:4]]
+    upstream = [nodes[key] for key in dict.fromkeys(item[0] for item in parents)]
+    downstream = [nodes[key] for key in dict.fromkeys(item[0] for item in children)]
+    import textwrap
+    columns = 3
+    center_y = 30 + ((len(upstream) + columns - 1) // columns) * 92
+    downstream_y = center_y + 122
+    height = downstream_y + max(1, (len(downstream) + columns - 1) // columns) * 92
     def boxes(items: list[dict[str, Any]], y: int, kind: str) -> str:
         if not items:
             return ""
-        gap = 840 / (len(items) + 1)
         output = []
         for index, item in enumerate(items):
-            x = gap * (index + 1) - 65
+            x = 20 + (index % columns) * 280
+            row_y = y + (index // columns) * 92
+            lines = textwrap.wrap(title(item), width=31)[:3]
+            text = "".join(f'<text x="125" y="{24 + line_index * 15}" text-anchor="middle">{esc(line)}</text>' for line_index, line in enumerate(lines))
             output.append(
                 f'<a href="../{stable_file_name(item["id"])}/">'
-                f'<g class="mini-node {kind}" transform="translate({x:.0f} {y})">'
-                f'<rect width="130" height="42" rx="9"/><text x="65" y="25" '
-                f'text-anchor="middle">{esc(title(item)[:20])}</text></g></a>'
+                f'<g class="mini-node {kind}" transform="translate({x:.0f} {row_y})">'
+                f'<title>{esc(title(item))}</title><rect width="250" height="68" rx="5"/>{text}</g></a>'
             )
         return "".join(output)
     lines = []
     for index in range(len(upstream)):
-        x = 840 / (len(upstream) + 1) * (index + 1)
-        lines.append(f'<path d="M{x:.0f} 66 L420 142"/>')
+        x = 145 + (index % columns) * 280
+        y = 24 + (index // columns) * 92 + 68
+        lines.append(f'<path d="M{x} {y} L420 {center_y}"/>')
     for index in range(len(downstream)):
-        x = 840 / (len(downstream) + 1) * (index + 1)
-        lines.append(f'<path d="M420 184 L{x:.0f} 258"/>')
+        x = 145 + (index % columns) * 280
+        y = downstream_y + (index // columns) * 92
+        lines.append(f'<path d="M420 {center_y + 68} L{x} {y}"/>')
     center = (
-        '<g class="mini-node current" transform="translate(355 142)">'
-        f'<rect width="130" height="42" rx="9"/><text x="65" y="25" '
-        f'text-anchor="middle">{esc(title(node)[:20])}</text></g>'
+        f'<g class="mini-node current" transform="translate(295 {center_y})">'
+        f'<title>{esc(title(node))}</title><rect width="250" height="68" rx="5"/>'
+        + "".join(f'<text x="125" y="{24 + i * 15}" text-anchor="middle">{esc(line)}</text>' for i, line in enumerate(textwrap.wrap(title(node), width=31)[:3])) + '</g>'
     )
     return (
         '<div class="mini-graph-shell"><svg class="mini-graph" '
-        'viewBox="0 0 840 324" aria-label="Direct dependency neighborhood">'
+        f'viewBox="0 0 840 {height}" role="img" aria-label="Direct dependency neighborhood">'
         '<g class="mini-edges">' + "".join(lines) + "</g>"
         + boxes(upstream, 24, "upstream") + center
-        + boxes(downstream, 258, "downstream") + "</svg></div>"
+        + boxes(downstream, downstream_y, "downstream") + "</svg></div>"
     )
+
+
+def relation_category(layer: str) -> str:
+    if "intuition" in layer:
+        return "advisory"
+    if layer.startswith("blueprint-"):
+        return "document"
+    if "affinity" in layer:
+        return "affinity"
+    if layer in ("truth-dependency", "module-import", "frozen-prerequisite", "dependency"):
+        return "proof"
+    return "authored"
+
+
+def site_header(root: str, active: str = "Library") -> str:
+    links = [("Explore", "atlas.html"), ("Library", "knowledge/"), ("Evolution", "evolution.html"), ("Research", "research.html")]
+    nav = "".join(f'<a href="{root}{path}"' + (' aria-current="page"' if label == active else '') + f'>{label}</a>' for label, path in links)
+    return f'<header class="knowledge-header"><a class="brand" href="{root}index.html">trureturing</a><nav aria-label="Primary navigation">{nav}</nav><span class="header-coordinate">MATHEMATICAL ATLAS</span></header>'
 
 
 def source_snapshot(graph: dict[str, Any]) -> dict[str, str]:
@@ -156,6 +182,7 @@ def node_page(
     children: list[tuple[str, str]],
     nodes: dict[str, dict[str, Any]],
     immutable: bool,
+    relation_digest: str = "",
 ) -> str:
     snap = source_snapshot(graph)
     node_id = str(node["id"])
@@ -164,13 +191,21 @@ def node_page(
     index = "../../../../knowledge/" if immutable else "../../"
     current = f' <a href="../../../../knowledge/node/{slug}/">Current view</a>' if immutable else ""
     banner = f'<div class="release-banner">Immutable release view{current}</div>' if immutable else ""
-    dag = root + "dag.html#node=" + quote(node_id, safe="")
+    dag = root + "atlas.html#node=" + quote(node_id, safe="")
+    research = root + "research.html#node=" + quote(node_id, safe="")
+    proof_parents = [item for item in parents if relation_category(item[1]) == "proof"]
+    proof_children = [item for item in children if relation_category(item[1]) == "proof"]
+    documents = [item for item in parents + children if relation_category(item[1]) == "document"]
+    affinity = [item for item in parents + children if relation_category(item[1]) == "affinity"]
+    other = [item for item in parents + children if relation_category(item[1]) in ("advisory", "authored")]
+    _, release_key = release_coordinate(graph)
+    relations_url = f'{root}release/{release_key}/relations.v1.json'
     authored = node.get("exposition_authority") == "blueprint-authored"
     abstract = node.get("human_abstract") or (
         "No authored Blueprint abstract is available for this node."
     )
     theorem = (
-        f'<section class="knowledge-theorem"><b>Authored theorem label</b>'
+        f'<section class="knowledge-theorem"><b>THEOREM</b>'
         f'<p>{esc(node["human_theorem"])}</p></section>'
         if node.get("human_theorem") else ""
     )
@@ -196,30 +231,56 @@ def node_page(
     )
     authority = "Authored exposition" if authored else "Path-derived label"
     state = str(node.get("state") or "").lower()
+    evolution_link = (
+        f'<a class="toc-atlas" href="{root}evolution.html#node={quote(node_id, safe="")}">'
+        'Architecture evolution <i data-lucide="arrow-up-right"></i></a>'
+        if node.get("kind", "truth") == "truth" else ""
+    )
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title(node))} · trureturing knowledge</title>
-<link rel="stylesheet" href="{root}assets/knowledge.css"></head>
-<body class="knowledge-node-page">{banner}
-<header class="knowledge-header"><a class="brand" href="{root}index.html">trureturing</a>
-<nav><a href="{index}">Concept index</a><a href="{dag}">Open in DAG</a></nav></header>
-<main class="knowledge-main"><article class="knowledge-article">
-<header class="knowledge-hero"><div><p class="eyebrow">Human view of certified structure</p>
+<meta name="theme-color" content="#090c10">
+<link rel="stylesheet" href="{root}assets/knowledge.css">
+<link rel="stylesheet" href="{root}assets/relation-map.css">
+<link rel="stylesheet" href="{root}assets/site-theme.css">
+<script defer src="{root}assets/vendor/lucide.min.js"></script>
+<script defer src="{root}assets/vendor/d3.min.js"></script>
+<script defer src="{root}assets/graph-relations.js"></script>
+<script defer src="{root}assets/relation-map.js"></script>
+<script defer src="{root}assets/knowledge-page.js"></script><script type="module" src="{root}assets/living-library.js"></script><link rel="stylesheet" href="{root}assets/living-library.css"></head>
+<body class="knowledge-node-page site-themed" data-site-root="{root}" data-node-id="{esc(node_id)}" data-relations-url="{esc(relations_url)}" data-relations-digest="{esc(relation_digest)}" data-release-digest="{esc(snap['release'])}">{site_header(root)}{banner}
+<main class="knowledge-main knowledge-layout">
+<aside class="knowledge-toc"><a class="toc-back" href="{index}">All concepts</a><p class="eyebrow">CONCEPT WIKI</p>
+<nav aria-label="On this page"><a href="#overview">Overview</a><a href="#relationships">Relationship maps</a><a href="#proof-paths">Proof paths</a><a href="#references">Related knowledge</a><a href="#content-history">Content history</a><a href="#provenance">Provenance</a></nav>
+<div class="toc-coordinate"><span>{esc(node.get('domain'))}</span><strong>{esc(node.get('status') or node.get('state'))}</strong><small>RELEASE {esc(snap['release'].removeprefix('sha256:')[:12])}</small></div>
+<a class="toc-atlas" href="{dag}">Open in Atlas <i data-lucide="arrow-up-right"></i></a>
+{evolution_link}</aside>
+<article class="knowledge-article">
+<header class="knowledge-hero" id="overview"><div><p class="eyebrow">{esc(node.get('domain'))} / CONCEPT</p>
 <h1>{esc(title(node))}</h1><p class="knowledge-lede">{esc(abstract)}</p></div>
 <div class="status-stack"><span class="status-chip {esc(state)}">{esc(node.get("status"))}</span>
-<span class="authority-chip">{authority}</span></div></header>{theorem}
-<section class="knowledge-section"><div class="section-heading"><div>
-<p class="section-kicker">Certified topology</p><h2>Direct dependency neighborhood</h2>
-</div><a class="text-link" href="{dag}">Explore full map</a></div>
-{mini_graph(node, parents, children, nodes)}</section>
-<div class="knowledge-columns"><section class="knowledge-section">
-<p class="section-kicker">Upstream</p><h2>Depends on</h2>{relation_list(parents, nodes)}
-</section><section class="knowledge-section"><p class="section-kicker">Downstream</p>
-<h2>Feeds into</h2>{relation_list(children, nodes)}</section></div>
-<section class="knowledge-section provenance-section"><div class="section-heading">
+<span class="authority-chip">{authority}</span></div></header>
+<div class="concept-metrics"><div><span>DIRECT PREREQUISITES</span><strong>{len(set(key for key, _ in proof_parents))}</strong></div><div><span>DIRECT CONSEQUENCES</span><strong>{len(set(key for key, _ in proof_children))}</strong></div><div><span>PROOF DEPTH</span><strong>{esc(node.get('true_depth', node.get('depth', 0)))}</strong></div><div><span>DOCUMENT LINKS</span><strong>{len(set(key for key, _ in documents))}</strong></div></div>{theorem}
+<section class="knowledge-section" id="relationships"><div class="section-heading"><div>
+<p class="section-kicker">RELATIONSHIP ATLAS</p><h2>Every connection, in context.</h2>
+</div><a class="text-link" href="{dag}">Explore in 3D <i data-lucide="arrow-up-right"></i></a></div>
+<div class="relationship-categories" role="tablist" aria-label="Relationship map type">
+<button role="tab" aria-selected="true" data-relationship-type="all">All relations</button><button role="tab" aria-selected="false" data-relationship-type="proof">Proof paths</button><button role="tab" aria-selected="false" data-relationship-type="affinity">Structural affinity</button><button role="tab" aria-selected="false" data-relationship-type="document">Documents</button></div>
+<div class="relationship-controls"><label>Range <select id="knowledge-range" aria-label="Relationship range"><option value="1">Direct</option><option value="2">Two hops</option><option value="all" selected>Full lineage</option></select></label><span id="knowledge-map-status" role="status">Direct recorded relationships</span></div>
+<div id="knowledge-relation-map"></div><div data-relation-fallback>{mini_graph(node, proof_parents, proof_children, nodes)}</div>
+<div class="relationship-key"><span><i></i>Proof dependency</span><span><i class="affinity"></i>Structural affinity</span><span><i class="document"></i>Document link</span></div></section>
+<div class="knowledge-columns" id="proof-paths"><section class="knowledge-section">
+<p class="section-kicker">Certified topology / UPSTREAM</p><h2>Prerequisites</h2><div data-rel-list="upstream">{relation_list(proof_parents, nodes)}</div>
+</section><section class="knowledge-section"><p class="section-kicker">Certified topology / DOWNSTREAM</p>
+<h2>Consequences</h2><div data-rel-list="downstream">{relation_list(proof_children, nodes)}</div></section></div>
+<section class="knowledge-section" id="references"><p class="section-kicker">RELATED KNOWLEDGE</p><h2>Structural connections</h2><div data-rel-list="affinity">{relation_list(affinity, nodes)}</div>
+<h2 class="reference-heading">Documents &amp; exposition</h2><div data-rel-list="document">{relation_list(documents, nodes)}</div>
+<details class="other-relations"><summary>Other authored &amp; advisory relationships</summary><div data-rel-list="other">{relation_list(other, nodes)}</div></details></section>
+<section class="knowledge-section" id="content-history"><p class="section-kicker">LIBRARY / RELEASE VERSIONS</p><h2>Content history</h2><div data-content-history="{esc(node_id)}">Loading release versions...</div><a href="{root}library-history.html#node={quote(node_id, safe='')}">Browse the archive</a></section>
+<section class="knowledge-section provenance-section" id="provenance"><div class="section-heading">
 <div><p class="section-kicker">Certified provenance</p><h2>Exact release coordinate</h2></div>
-<div class="source-actions">{source}</div></div><dl class="knowledge-metadata">{rows}</dl></section>
+<div class="source-actions">{source}<a href="{research}">Research workspace</a></div></div><dl class="knowledge-metadata">{rows}</dl></section>
 <section class="authority-note"><h2>Authority boundary</h2><p>Dependency edges,
 status, and source coordinates come from the verified release and certified topology.
 Blueprint exposition is labeled separately. A fallback title carries no additional
@@ -237,38 +298,36 @@ def index_page(graph: dict[str, Any], nodes: list[dict[str, Any]]) -> str:
         )).casefold()
         rows.append(
             f'<a class="concept-row" href="node/{stable_file_name(node["id"])}/" '
-            f'data-search="{esc(search)}"><span class="concept-state '
+            f'data-search="{esc(search)}" data-domain="{esc(node.get("domain") or "Other")}" data-kind="{esc(node.get("kind") or "truth")}"><span class="concept-state '
             f'{esc(str(node.get("state") or "").lower())}"></span><span>'
             f'<strong>{esc(title(node))}</strong><small>{esc(node.get("domain"))} · '
             f'{esc(node.get("status"))}</small></span><em>Depth '
             f'{esc(node.get("true_depth", node.get("depth", 0)))}</em></a>'
         )
+    domains = "".join(f'<option value="{esc(domain)}">{esc(domain)}</option>' for domain in sorted({str(node.get("domain") or "Other") for node in nodes}))
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Concept index · trureturing</title>
-<link rel="stylesheet" href="../assets/knowledge.css"></head>
-<body class="knowledge-index-page"><header class="knowledge-header">
-<a class="brand" href="../index.html">trureturing</a><nav>
-<a href="../dag.html">Interactive DAG</a><a href="index.v1.json">Index data</a></nav></header>
+<meta name="theme-color" content="#090c10"><link rel="stylesheet" href="../assets/knowledge.css">
+<link rel="stylesheet" href="../assets/site-theme.css"><script defer src="../assets/vendor/lucide.min.js"></script><script defer src="../assets/knowledge-page.js"></script></head>
+<body class="knowledge-index-page site-themed">{site_header('../')}
 <main class="knowledge-main"><section class="knowledge-index-hero">
-<p class="eyebrow">Human-readable formal knowledge</p><h1>Concept index</h1>
-<p>Static, shareable views of every visible truth node with release-bound structure
-and separately labeled Blueprint exposition.</p><dl class="index-stats">
-<div><dt>Nodes</dt><dd>{len(nodes)}</dd></div>
+<p class="eyebrow">THE COLLECTION / WIKI</p><h1>Concept Library<span>.</span></h1>
+<p>Formal mathematics, its connections, and the ideas behind each proof.</p><dl class="index-stats">
+<div><dt>Concepts &amp; documents</dt><dd>{len(nodes):,}</dd></div>
 <div><dt>Truth release</dt><dd>{esc(snap["release"])}</dd></div>
 <div><dt>Source</dt><dd>{esc(snap["commit"][:12] or "unavailable")}</dd></div></dl></section>
 <section class="concept-browser"><div class="concept-toolbar">
 <label for="concept-search">Find a concept</label>
 <input id="concept-search" type="search" placeholder="Title, domain, path, or node ID">
-<span id="concept-count">{len(nodes)} concepts</span></div>
-<div class="concept-list">{"".join(rows)}</div></section></main>
+<select id="concept-domain" aria-label="Filter by domain"><option value="">All domains</option>{domains}</select>
+<select id="concept-kind" aria-label="Filter by entry type"><option value="">All entries</option><option value="truth">Mathematical concepts</option><option value="blueprint">Documents</option></select></div>
+<div class="library-results-bar"><span id="concept-count">{len(nodes)} entries</span><a href="../library-history.html">Content &amp; release history <i data-lucide="history"></i></a><a href="../conclusions.html">Selected conclusions</a></div>
+<div class="concept-list">{"".join(rows)}</div><p id="library-empty" hidden>No entries match these filters.</p>
+<div class="library-pagination" hidden><button type="button" id="library-previous" aria-label="Previous results" title="Previous results"><i data-lucide="arrow-left"></i></button><span id="library-page"></span><button type="button" id="library-next" aria-label="Next results" title="Next results"><i data-lucide="arrow-right"></i></button></div></section></main>
 <footer class="knowledge-footer">Generated from the graph used by the interactive DAG.</footer>
-<script>(()=>{{const i=document.querySelector("#concept-search");
-const r=[...document.querySelectorAll(".concept-row")],c=document.querySelector("#concept-count");
-i.addEventListener("input",()=>{{const q=i.value.trim().toLowerCase();let n=0;
-for(const x of r){{x.hidden=!!q&&!x.dataset.search.includes(q);if(!x.hidden)n++;}}
-c.textContent=`${{n}} concept${{n===1?"":"s"}}`;}});}})();</script></body></html>
+</body></html>
 """
 
 
@@ -280,7 +339,8 @@ def write(path: Path, content: str) -> None:
 
 
 def render_knowledge_site(
-    graph: dict[str, Any], site_root: str | Path
+    graph: dict[str, Any], site_root: str | Path, immutable_only: bool = False,
+    archive_snapshot_digest: str | None = None,
 ) -> dict[str, Any]:
     annotate_graph(graph)
     root = Path(site_root)
@@ -288,17 +348,38 @@ def render_knowledge_site(
     by_id = {node["id"]: node for node in nodes}
     parents, children = relation_maps(graph)
     _, release_key = release_coordinate(graph)
+    ordered = sorted(nodes, key=lambda item: item["id"])
+    offsets = {node["id"]: index for index, node in enumerate(ordered)}
+    relation_data = {
+        "schema_version": "pages-knowledge-relations.v1",
+        "truth_release_digest": release_coordinate(graph)[0],
+        "nodes": [{"id": node["id"], "title": title(node), "kind": node.get("kind") or "truth", "domain": node.get("domain"), "state": node.get("state"), "status": node.get("status"), "slug": stable_file_name(node["id"])} for node in ordered],
+        "edges": [[offsets[endpoint(edge["source"])] , offsets[endpoint(edge["target"])], edge.get("layer") or "dependency", edge.get("status") or ""] for edge in graph.get("edges", []) if endpoint(edge["source"]) in offsets and endpoint(edge["target"]) in offsets],
+    }
+    relation_text = json.dumps(relation_data, ensure_ascii=False, separators=(",", ":")) + "\n"
+    relation_digest = "sha256:" + hashlib.sha256(relation_text.encode()).hexdigest()
+    write(root / f"release/{release_key}/relations.v1.json", relation_text)
     current = root / "knowledge/node"
     frozen = root / f"release/{release_key}/node"
-    for directory in (current, frozen):
+    for directory in ((frozen,) if immutable_only else (current, frozen)):
         if directory.exists():
             shutil.rmtree(directory)
         directory.mkdir(parents=True)
     for node_id, node in sorted(by_id.items()):
         slug = stable_file_name(node_id)
         args = (graph, node, parents[node_id], children[node_id], by_id)
-        write(current / slug / "index.html", node_page(*args, immutable=False))
-        write(frozen / slug / "index.html", node_page(*args, immutable=True))
+        if not immutable_only:
+            write(current / slug / "index.html", node_page(*args, immutable=False, relation_digest=relation_digest))
+        if archive_snapshot_digest:
+            if not _DIGEST.fullmatch(archive_snapshot_digest):
+                raise ValueError("Archived Wiki requires a snapshot digest.")
+            target = '../../../../library-version.html#snapshot=' + quote(archive_snapshot_digest, safe='') + '&node=' + quote(node_id, safe='')
+            redirect = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title(node))} | Archived Library</title><link rel="stylesheet" href="../../../../assets/site-theme.css"><script>location.replace(new URL({json.dumps(target)}, location.href));</script></head><body class="site-themed"><main class="site-main"><h1>{esc(title(node))}</h1><a href="{esc(target)}">Read immutable release version</a><p>{esc(release_coordinate(graph)[0])}</p></main></body></html>'''
+            write(frozen / slug / "index.html", redirect)
+        else:
+            write(frozen / slug / "index.html", node_page(*args, immutable=True, relation_digest=relation_digest))
+    if immutable_only:
+        return {"release_digest": release_coordinate(graph)[0]}
     write(root / "knowledge/index.html", index_page(graph, nodes))
     snap = source_snapshot(graph)
     index = {
@@ -333,3 +414,21 @@ def render_knowledge_site(
         }, indent=2) + "\n",
     )
     return index
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("graph", type=Path)
+    parser.add_argument("site", type=Path)
+    parser.add_argument("--manifest", type=Path)
+    args = parser.parse_args()
+    graph_bytes = args.graph.read_bytes()
+    graph = json.loads(graph_bytes)
+    if args.manifest:
+        manifest = json.loads(args.manifest.read_bytes())
+        if "sha256:" + hashlib.sha256(graph_bytes).hexdigest() != manifest["atlas_graph_digest"]:
+            raise ValueError("Atlas graph does not match its manifest")
+        if release_coordinate(graph)[0] != manifest["truth_release_digest"]:
+            raise ValueError("Atlas graph and manifest use different releases")
+    render_knowledge_site(graph, args.site)
