@@ -71,6 +71,7 @@
 .research-editorial .result-content :is(h2, h3) { font-family: Georgia, "Times New Roman", serif; }
 .research-editorial .result-lede { color: #475258; }
 .research-editorial .result-equations { color: #2e4e44; border-color: #699584; }
+.research-editorial .prose, .research-editorial .prose .katex { color: #2e4e44; }
 .research-editorial .result-example figcaption { color: #596366; }
 .research-editorial .result-sequence li { background: #e8edf0; color: #364448; border-color: #b1bfc3; }
 .research-editorial .result-sequence li.marked { color: #24503c; background: #e0eee5; border-color: #6f9d7d; }

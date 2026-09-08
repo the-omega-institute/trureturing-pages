@@ -26,6 +26,21 @@ fs.mkdirSync(shots, { recursive: true });
         assert.equal(await page.locator(".knowledge-header [aria-current=page]").innerText(), "Research");
         await page.locator(".result-equations .katex").first().waitFor();
         assert.equal(await page.locator(".katex-error").count(), 0);
+        const formulaContrast = await page.locator(".prose .katex").evaluateAll(nodes => {
+          const luminance = color => {
+            const channels = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(v => {
+              const s = v / 255;
+              return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+            });
+            return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+          };
+          const background = luminance(getComputedStyle(document.body).backgroundColor);
+          return nodes.map(node => {
+            const foreground = luminance(getComputedStyle(node).color);
+            return (Math.max(background, foreground) + 0.05) / (Math.min(background, foreground) + 0.05);
+          });
+        });
+        assert.ok(formulaContrast.every(ratio => ratio >= 4.5), "All result formulas must remain readable on their page background");
         assert.equal(await page.getByRole("link", { name: `Development PR #${item.pr}`, exact: true }).isVisible(), false);
         assert.equal(await page.locator("#question").count(), 1);
         assert.equal(await page.locator("#scope").count(), 1);
