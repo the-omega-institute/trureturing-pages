@@ -37,19 +37,19 @@ export async function mountMillenniumEntry() {
   const title = el('h2', 'Millennium Problems'); title.id = 'millennium-entry-title';
   section.setAttribute('aria-labelledby', title.id);
   section.append(el('p', 'CONJECTURES / DEDICATED RESEARCH MAPS', 'mm-eyebrow'), title,
-    el('p', '每道题一张研究图。查看已有对象、待补桥梁，以及不同路线共有的前置。'),
-    link('打开 RH 研究 DAG', 'millennium.html?problem=rh'));
+    el('p', 'One research map for each problem. Inspect known objects, missing bridges, and prerequisites shared by different routes.'),
+    link('Open the RH research DAG', 'millennium.html?problem=rh'));
   const anchor = home.querySelector('.conjecture-destinations') || home.querySelector('.page-heading');
   if (anchor) anchor.after(section); else home.prepend(section);
   try {
     const data = await loadData(), cards = el('nav', undefined, 'mm-entry-cards'); cards.setAttribute('aria-label','Millennium problem maps');
     for (const p of data.problems) {
       const a = link('', `millennium.html?problem=${p.id}`);
-      a.append(el('strong', p.title), el('span', p.id === 'rh' ? `${p.formulations.length} 个规格 · ${p.families.length} 个族` : '独立起始图 · 库内待盘点'));
-      if (p.scientific_state === 'solved') a.append(el('small', '科学界已解决：Poincaré'));
+      a.append(el('strong', p.title), el('span', p.id === 'rh' ? `${p.formulations.length} specifications · ${p.families.length} families` : 'Independent starter map · Repository inventory pending'));
+      if (p.scientific_state === 'solved') a.append(el('small', 'Solved in the mathematical literature: Poincare'));
       cards.append(a);
     }
-    section.append(cards, el('small', '人工目录与候选状态不改变 Truth release。高复用节点不自动成为数学不动点。'));
+    section.append(cards, el('small', 'This manual catalogue and its candidate states do not change the Truth release. High-reuse nodes are not automatically mathematical fixed points.'));
   } catch {
     section.append(el('p', '目录暂不可用。现有题库与发布证明仍可正常浏览。', 'mm-warning'));
   }
