@@ -2,7 +2,7 @@ import { STATES, EDGE_KINDS, inflate, sourceURL, readRoute, routeURL, counts,
   indexGraph, closure, commonInputs, reuse, layout, expandFamily, validateNotebook } from './millennium-core.mjs';
 
 const KEY = 'trureturing.millennium.notebook.v1';
-const DIRECTIONS = { unassessed: '未核验', conditional: '条件性桥梁', candidate: '候选脚本', identity: '根命题' };
+const DIRECTIONS = { unassessed: 'Unassessed', conditional: 'Conditional bridge', candidate: 'Candidate script', identity: 'Root statement' };
 const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
 const link = (text, href) => Object.assign(el('a', text), { href });
 const button = (text, action, cls) => { const b = el('button', text, cls); b.type = 'button'; b.addEventListener('click', action); return b; };

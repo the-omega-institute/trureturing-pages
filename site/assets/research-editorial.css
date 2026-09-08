@@ -30,6 +30,10 @@
 .site-themed.research-editorial .header-coordinate > a:hover { color: #28554c; }
 .site-themed.research-editorial .site-footer { background: #edf0f2; color: #60666c; border-color: var(--border); }
 .site-themed.research-editorial .site-main { max-width: 1220px; }
+.site-themed.research-editorial .research-home { color: #232629; }
+.site-themed.research-editorial .research-home .page-heading .lede { color: #4e565a; }
+.site-themed.research-editorial .research-home .console-link { color: #28554c; }
+.site-themed.research-editorial .research-home .research-stats { border-color: var(--border); }
 .research-editorial .research-news { padding-top: 48px; }
 .research-editorial .news-heading { padding-bottom: 42px; }
 .research-editorial .news-heading h1 { font: 56px/1.15 Georgia, "Times New Roman", serif; margin: 18px 0; }
