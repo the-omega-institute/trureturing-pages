@@ -1,0 +1,90 @@
+{
+  "pochhammer-conjecture-6-5": {
+    "source_sha256": "e7dc888d7d8fa5bf7ef4547700de81f04e23dbc697db69d4bebcb3e89d5012e2",
+    "theorem_lines": [251, 270],
+    "definition_lines": [[36, 50]],
+    "source_label": "Conjecture 6.5, arXiv:2608.03723v1",
+    "question": "Apply the paper's linear operator to (x+t)^n. Which shifts t make every complex root real and place it in [-1,0]? Conjecture 6.5 proposes an interval for every even degree, together with the strict bound 0 < c_(2k)(a) < 2a for every a > 0.",
+    "finding": "The degree-two interval can be determined exactly. Its endpoint violates the proposed strict upper bound throughout 0 < a <= 1/24, so the conjecture as stated is false.",
+    "formulas": ["c_2(a)=\\frac{\\sqrt{a^2+a}-a}{2}", "c_2(a)<2a\\quad\\Longleftrightarrow\\quad a>\\frac{1}{24}"],
+    "example": {
+      "title": "One exact counterexample",
+      "text": "Take a = 1/24 and t = 1/8 = 3a. The transformed quadratic has a double root at -3/5, inside [-1,0]. Thus t belongs to M_2(a), although the conjectured strict bound would place its upper endpoint below 3a.",
+      "formulas": ["\\mathcal L_{1/24}\\bigl((x+1/8)^2\\bigr)=\\frac{(5x+3)^2}{576}", "c_2(1/24)=1/12=2a"],
+      "rows": []
+    },
+    "steps": [
+      {"title": "Construct the actual operator", "body": "Define the linear map on the falling Pochhammer basis and prove that it has the action required by the paper. The root condition quantifies over all complex roots.", "declaration": "lOp_definition"},
+      {"title": "Classify the quadratic interval", "body": "Compute the transformed quadratic. Its discriminant and endpoint values give the exact allowed interval of shifts, and hence the closed form for c2.", "declaration": "quadratic_interval_closed_form"},
+      {"title": "Locate the sharp threshold", "body": "For positive a, the strict inequality reduces to sqrt(a^2+a) < 5a, which holds exactly when a > 1/24. Equality at the endpoint already refutes the strict conjecture.", "declaration": "quadratic_conjecture_refutation"}
+    ],
+    "boundary": "This refutes the universal conjecture through its degree-two strict bound. It does not classify higher degrees or settle the separate monotonicity and limiting-value questions.",
+    "notation": "lOp is the paper's operator; m2 is its degree-two admissible shift set; c2 is minus the infimum of that set. The closed form is proved from these definitions, not assumed."
+  },
+  "chamberland-dilcher-conjecture-2-1": {
+    "source_sha256": "e7fa178819e673cb2648457bf0656b04d01ba5e3ba920f035e4677965241f725",
+    "theorem_lines": [168, 186],
+    "definition_lines": [[16, 21]],
+    "source_label": "Equation (2.3) and Conjecture 2.1, arXiv:2510.26291v1",
+    "question": "For an odd positive integer n, compare the two floor square roots at each index from 1 to (n-1)/2. If one difference has value delta >= 2, must there be a corresponding block of delta-1 consecutive zero differences, with different labels receiving disjoint blocks?",
+    "finding": "Yes. An explicit start position constructs every required block simultaneously. All its entries are zero, it stays inside the source range, and blocks for distinct eligible labels do not overlap.",
+    "formulas": ["d_n(\\ell)=\\lfloor\\sqrt{2\\ell n}\\rfloor-\\lfloor\\sqrt{(2\\ell-1)n}\\rfloor", "s(\\lambda)=\\frac{n-1}{2}+1+\\lambda-\\lfloor\\sqrt{2\\lambda n}\\rfloor"],
+    "example": {
+      "title": "The pattern at n = 33",
+      "text": "The value 3 at label 1 supplies zeros at positions 10 and 11. The values 2 at labels 2 and 3 supply the zeros at positions 8 and 6. These are the disjoint blocks in the paper's example.",
+      "formulas": [],
+      "rows": [{"label": "d33, positions 1 to 16", "values": [3, 2, 2, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1], "marked": [5, 7, 9, 10]}]
+    },
+    "steps": [
+      {"title": "Match the floor-square-root definition", "body": "Prove that the natural-square-root encoding agrees with the paper's real floor expression on its index domain, including the subtraction.", "declaration": "d_eq_floor_real_sqrt"},
+      {"title": "Construct each zero block", "body": "Complementary indices put both radicands between the same consecutive squares. Their floor square roots therefore agree at every point of the constructed block.", "declaration": "zero_block"},
+      {"title": "Prove the blocks are disjoint", "body": "If two blocks shared an index, its complementary square-root value would recover the same original label. Distinct labels therefore cannot share a point.", "declaration": "blocks_disjoint"}
+    ],
+    "boundary": "This proves Conjecture 2.1 on the index domain defined in equation (2.3). The paper already contains a proof of its alternating-sum identity; that earlier identity is not presented here as a new result.",
+    "notation": "d n l is the floor difference. blockStart n lam is the explicit construction. The existential function s in conjecture21 selects all block starts at once."
+  },
+  "bosma-conjecture-17": {
+    "source_sha256": "f85cf9d4f3cd1c21d2d3146e988ed91769cb3f9251f3949cb4b875701305da6d",
+    "theorem_lines": [520, 523],
+    "definition_lines": [[438, 444]],
+    "source_label": "Conjecture 17, Journal of Integer Sequences 28 (2025), Article 25.3.8",
+    "question": "Start with 1, g and g+d. Repeatedly append the smallest larger integer that is not a sum of three distinct earlier entries. For every d >= 2 and g >= d+1, does one periodic membership formula describe this infinite sequence?",
+    "finding": "Yes. Apart from four explicitly listed values, membership is determined by an inclusive interval of residues modulo 5g+2d, together with the lower cutoff g+d. The theorem covers every admissible parameter pair and every natural candidate value.",
+    "formulas": ["m=5g+2d,\\qquad E=\\{1,g,2g+d-1,2g+d\\}", "z\\in S_{1,g,g+d}\\iff z\\in E\\;\\lor\\;\\bigl(z\\ge g+d\\;\\land\\;g+d-2\\le z\\bmod m\\le2g+d-2\\bigr)"],
+    "example": {
+      "title": "From a greedy rule to a repeating structure",
+      "text": "For g = 3 and d = 2, the modulus is 19. After the initial entries, the accepted residues are 3, 4, 5 and 6. The displayed finite prefix illustrates the all-parameter theorem.",
+      "formulas": [],
+      "rows": [{"label": "S(1,3,5), first 15 terms", "values": [1, 3, 5, 6, 7, 8, 22, 23, 24, 25, 41, 42, 43, 44, 60], "marked": [6, 7, 8, 9, 10, 11, 12, 13, 14]}]
+    },
+    "steps": [
+      {"title": "Describe accepted and forbidden blocks", "body": "Show that the candidate periodic blocks are three-sumfree and that every excluded later value is a sum of three distinct accepted values.", "declaration": "restricted_three_sum_eq_complement"},
+      {"title": "Connect to the literal greedy process", "body": "The construction uses the least admissible next integer. A prefix invariant connects that process to a scan of candidate values, so the result concerns the actual greedy sequence.", "declaration": "conjecture17"},
+      {"title": "Read off the universal formula", "body": "The resulting characterization includes all four exceptional values and both inclusive residue bounds for all d >= 2 and g >= d+1.", "declaration": "s_eq_A"}
+    ],
+    "boundary": "The reference is the published Conjecture 17, with z >= g+d. The early arXiv version numbers it Conjecture 6 and prints z > g+d, which would omit the third seed. This result does not resolve the separate g+1 third-seed family in Conjecture 16.",
+    "notation": "greedyPrefix stores each prefix in reverse order; S g d z means that z occurs in one such prefix. The theorem's modulus and residue bounds are the membership formula itself."
+  },
+  "thue-morse-reduced-abelian-odd": {
+    "source_sha256": "83c07d9a519f88c99485f090e7f988bf5774f32061de9961748a619a22642b18",
+    "theorem_lines": [497, 506],
+    "definition_lines": [[15, 29], [492, 494]],
+    "source_label": "Section 3, Campbell-Currie-Rampersad, arXiv:2509.16034v1",
+    "question": "Take every factor of a fixed length in the infinite Thue-Morse word. Collapse each maximal run of equal symbols, then group the reduced words by their counts of zeros and ones. How does the number of classes change with the factor length?",
+    "finding": "At every odd length 2n+1, the number of reduced abelian classes equals the count at length n+1. This proves the odd recurrence proposed in section 3, for all nonnegative n and all natural starting positions.",
+    "formulas": ["R(2n+1)=R(n+1)\\qquad(n\\ge0)", "R(2^k+1)=3\\qquad(k\\ge0)"],
+    "example": {
+      "title": "What a reduced class counts",
+      "text": "The first seven symbols form 0110100. Compressing constant runs gives 01010, with three zeros and two ones. R counts distinct pairs across all starts, not just this prefix. The displayed reduction is one example, not a finite test of the theorem.",
+      "formulas": [],
+      "rows": [{"label": "Factor, start 0", "values": [0, 1, 1, 0, 1, 0, 0], "marked": []}, {"label": "Reduced word", "values": [0, 1, 0, 1, 0], "marked": [0, 1, 2, 3, 4]}, {"label": "Counts (zeros, ones)", "values": [3, 2], "marked": []}]
+    },
+    "steps": [
+      {"title": "Connect the encoding to literal reduction", "body": "Use run compression and character counts to identify exactly the equivalence classes in the paper. Equality of counts also gives equality of reduced lengths.", "declaration": "reducedParikh_eq_parikh_runCompress"},
+      {"title": "Count through a bijection", "body": "Encode a class by its run count and, when needed, its initial symbol. A reflection of class codes, using complementary factors for odd starts, gives equal cardinalities at the two lengths.", "declaration": "reducedAbelianComplexity_odd"},
+      {"title": "Iterate the odd recurrence", "body": "Together with R(2) = 3, the recurrence gives R(2^k+1) = 3. This is a corollary of the same result, not a second resolved problem.", "declaration": "reducedAbelianComplexity_two_pow_add_one"}
+    ],
+    "boundary": "The full recursion remains outside this result. It does not prove the even-index recurrence, equation (11), the sign of the nonzero even-index difference, or non-k-automaticity.",
+    "notation": "factor length start ranges over all natural starts. runCompress uses List.destutter; parikh records character counts. R is the cardinality of the finite set of reduced abelian classes."
+  }
+}

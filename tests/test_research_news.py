@@ -2,9 +2,11 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from lib.living_library import parse_problem, render_research
 from lib.research_news import CATALOG, result_records
+from lib.research_results import ASSETS, STORIES, proof_source
 from tests.test_living_library import graph, problem_source
 
 
@@ -31,14 +33,52 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertIn('id="thue-morse-reduced-abelian-odd"', news)
             self.assertIn("This does not settle the full recursion", news)
             self.assertIn("0 &lt; a &lt;= 1/24", news)
-            self.assertIn("Proof explanation", news)
-            self.assertIn("/blob/b9afa2151caf868e9018c02df14489bc7e409da8/Blueprint/", news)
+            self.assertEqual(news.count('>Read result <'), 4)
+            self.assertEqual(news.count('>Lean theorem <'), 4)
+            self.assertIn('href="results/bosma-conjecture-17/"', bank)
+            self.assertIn('https://cs.uwaterloo.ca/journals/JIS/VOL28/Fokkink/fokkink9.pdf', news)
             self.assertTrue((output / "research/test-question/index.html").exists())
             self.assertIn('href="../../conjectures.html"', (output / "research/test-question/index.html").read_text())
             for item in json.loads(CATALOG.read_text())["publications"]:
                 self.assertIn(item["url"], news)
                 if item.get("image"):
                     self.assertTrue((CATALOG.parent.parent / item["image"]).is_file())
+
+    def test_result_pages_include_exact_pinned_code_and_local_downloads(self):
+        snapshot = {"graph": graph(), "problems": [], "truth_release_digest": "sha256:" + "a" * 64}
+        stories = json.loads(STORIES.read_text())
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
+            for item in json.loads(CATALOG.read_text())["results"]:
+                with self.subTest(result=item["id"]):
+                    html = (output / "results" / item["id"] / "index.html").read_text()
+                    source, theorem, _ = proof_source(item, stories[item["id"]])
+                    self.assertIn('aria-current="page">Research', html)
+                    self.assertIn('href="../../research.html#results"', html)
+                    self.assertIn('id="result-theorem"', html)
+                    from lib.knowledge_pages import esc
+                    self.assertIn(esc(theorem), html)
+                    self.assertIn(esc(stories[item["id"]]["boundary"]), html)
+                    self.assertNotIn("resolution-audit", html)
+                    self.assertEqual((output / "assets/proofs" / (item["id"] + ".lean")).read_bytes(), source.encode())
+                    self.assertIn('summary>Repository &amp; verification record', html)
+                    self.assertIn(f'Development PR #{item["pr"]}', html)
+
+    def test_edited_source_and_truncated_theorem_fail_build(self):
+        item = json.loads(CATALOG.read_text())["results"][0]
+        story = json.loads(STORIES.read_text())[item["id"]]
+        truncated = {**story, "theorem_lines": [251, 269]}
+        with self.assertRaisesRegex(ValueError, "ends inside"):
+            proof_source(item, truncated)
+        with tempfile.TemporaryDirectory() as temp:
+            assets = Path(temp)
+            (assets / "proofs").mkdir()
+            path = Path("proofs") / (item["id"] + ".lean")
+            (assets / path).write_bytes((ASSETS / path).read_bytes() + b"\n-- edited\n")
+            with patch("lib.research_results.ASSETS", assets):
+                with self.assertRaisesRegex(ValueError, "digest mismatch"):
+                    proof_source(item, story)
 
     def test_doi_sources_render_without_changing_legacy_metadata(self):
         old = parse_problem(problem_source(), "test-question.md")

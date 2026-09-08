@@ -55,6 +55,7 @@ jobs:
           node --check site/assets/atlas-public.js
           node --check site/assets/atlas-results.mjs
           node --check site/assets/research-news.mjs
+          node --check site/assets/research-result.mjs
           node --check site/assets/atlas-public-core.mjs
           node --check site/assets/atlas-public-worker.mjs
           node --check site/assets/atlas-startup.mjs

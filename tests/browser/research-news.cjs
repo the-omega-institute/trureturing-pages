@@ -21,9 +21,10 @@ fs.mkdirSync(output, { recursive: true });
       await page.goto(`${root}/research.html`);
       assert.equal(await page.locator(".news-paper").count(), 3);
       assert.equal(await page.locator(".news-result").count(), 4);
-      assert.equal(await page.getByRole("link", { name: "Proof explanation", exact: true }).count(), 4);
-      for (const href of await page.getByRole("link", { name: "Proof explanation", exact: true }).evaluateAll(links => links.map(link => link.href))) {
-        assert.match(href, /github\.com\/the-omega-institute\/trureturing\/blob\/[a-f0-9]{40}\/Blueprint\//);
+      assert.equal(await page.getByRole("link", { name: "Read result", exact: true }).count(), 4);
+      for (const href of await page.getByRole("link", { name: "Read result", exact: true }).evaluateAll(links => links.map(link => link.href))) {
+        assert.equal(new URL(href).origin, new URL(root).origin);
+        assert.match(new URL(href).pathname, /\/results\/[^/]+\/$/);
       }
       assert.equal(await page.locator("#research-workbench").count(), 0);
       assert.ok(await page.locator(".news-qualification").isVisible());

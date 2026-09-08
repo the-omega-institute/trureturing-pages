@@ -1,6 +1,6 @@
 {
   "schema_version": "pages-research-news.v1",
-  "reviewed": "2026-09-07",
+  "reviewed": "2026-09-08",
   "publications": [
     {
       "id": "eqt2",
@@ -55,7 +55,7 @@
       "pr": 5859,
       "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
       "statement_id": "sha256:adf16034b6b75357f9feaee180f1e570626f00f86a3eb3125487a55155a65486",
-      "source_url": "https://arxiv.org/abs/2608.03723",
+      "source_url": "https://arxiv.org/html/2608.03723v1#S6.count5",
       "summary": "An exact degree-two classification yields a counterexample range to the conjectured strict upper bound.",
       "scope": "For a > 0, c2(a) = (sqrt(a^2+a) - a)/2 satisfies c2(a) < 2a exactly when a > 1/24. Thus 0 < a <= 1/24 refutes the k = 1 strict upper bound. This does not settle the higher-degree classification."
     },
@@ -70,7 +70,7 @@
       "pr": 5914,
       "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
       "statement_id": "sha256:cace4bac173c51d8c4fc5d46b5931c06670548e15fceacfc58c0db99e98f9016",
-      "source_url": "https://arxiv.org/abs/2510.26291v1",
+      "source_url": "https://arxiv.org/html/2510.26291v1#S2.Thmtheorem1",
       "summary": "An explicit construction locates consecutive zero blocks in an alternating sum of floor square roots.",
       "scope": "The formal result proves the stated zero blocks and their disjointness for eligible labels and odd positive n, with an explicit bridge to the natural square-root floor. Source: section 2, equation 2.3 and Conjecture 2.1."
     },
@@ -85,7 +85,7 @@
       "pr": 5862,
       "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
       "statement_id": "sha256:b747816e9a11f6361787befcf7759518443240b42e431c5b3b9dbc58252007bb",
-      "source_url": "https://arxiv.org/abs/2503.04122",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL28/Fokkink/fokkink9.pdf",
       "summary": "A universal periodic formula characterizes the literal greedy sequence starting from 1, g and g+d.",
       "scope": "Proved for all natural parameters 2 <= d and d+1 <= g, including all four exceptions and inclusive residue bounds in the published statement. This is Conjecture 17, not the different g+1 third-seed problem in Conjecture 16."
     },

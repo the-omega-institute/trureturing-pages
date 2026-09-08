@@ -10,7 +10,9 @@ only when opened; news does not alter certified graph nodes or edges.
 Upstream supplies Pages and mdBook independently. Pages consumes upstream
 release/source data directly; it does not fetch mdBook HTML or a mdBook registry
 to discover, validate or publish results. mdBook is optional further reading.
-Primary proof explanations link directly to pinned upstream Blueprint sources.
+Reviewed results lead to an English explanation on Pages. Primary papers and
+pinned Lean sources remain directly accessible; development PRs are secondary
+provenance links.
 
 Reviewed results can be published immediately through the manually maintained
 `site/assets/research-news.json`, including before any upstream problem binding,
@@ -32,6 +34,27 @@ identity without duplicating the result; release membership remains separate.
 - Preview images are actual PDF first pages; record their source in
   `site/assets/publications/README.md`. Never use an older manuscript's title or
   conclusions to describe a revised journal article.
+
+## Result pages
+
+`lib/research_results.py` generates `results/<id>/` for editorial records with
+an entry in `site/assets/result-stories.json`. Each page contains the external
+question, exact finding, a concrete example, an English proof outline, scope,
+the original Lean theorem and its proof, definitions and the complete module.
+The PR and Frozen metadata live in a secondary provenance disclosure.
+
+Files in `site/assets/proofs/` are verbatim copies from the editorial record's
+fixed upstream commit. Copy from that commit, compare bytes, and record the
+file's SHA-256 in the story. Rendering fails on a digest mismatch, an invalid
+line range, a different resolving declaration or a truncated theorem excerpt.
+Source files are available as local downloads, independently of GitHub or
+mdBook availability. The theorem excerpt depends on the complete module and
+its Lean/Mathlib environment; it is not a standalone proof file.
+
+Keep the story, source, digest and excerpt coordinates together when updating
+evidence. The editorial scope must still be checked against the original
+paper. Generated release records without a reviewed story keep their source
+links and do not acquire a fabricated English proof outline.
 
 Frozen editorial evidence does not itself establish membership in the current
 Truth release. The renderer checks module presence separately, and even when
@@ -96,6 +119,7 @@ the current Truth release without manufacturing a new release observation.
 ## Routes
 
 - `research.html`: publications and resolutions, readable without JavaScript.
+- `results/<id>/`: English result explanation and pinned Lean source.
 - `conjectures.html`: field-first question bank, local notebook and resolved
   questions with links to exact scope and mdBook explanations.
 - `research/<slug>/`: existing immutable-source problem dossier routes.
@@ -107,3 +131,5 @@ the current Truth release without manufacturing a new release observation.
 Verify with `python -m unittest tests.test_research_news` and the browser suites
 `research-news.cjs`, `research-workbench.cjs`, `atlas-research.cjs`,
 `living-library.cjs`, and `header-alignment.cjs` against a prepared preview.
+`research-results.cjs` checks the four result pages, copy/download behavior,
+source bytes, formulas and responsive layouts.
