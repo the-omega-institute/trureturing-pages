@@ -162,7 +162,7 @@ def relation_category(layer: str) -> str:
 def site_header(root: str, active: str = "Library") -> str:
     links = [("Explore", "atlas.html"), ("Research", "research.html"), ("Library", "knowledge/"), ("Evolution", "evolution.html")]
     nav = "".join(f'<a href="{root}{path}"' + (' aria-current="page"' if label == active else '') + f'>{label}</a>' for label, path in links)
-    return f'<header class="knowledge-header"><a class="brand" href="{root}index.html">trureturing</a><nav aria-label="Primary navigation">{nav}</nav><span class="header-coordinate">MATHEMATICAL ATLAS</span></header>'
+    return f'<header class="knowledge-header"><a class="brand" href="{root}index.html">trureturing</a><nav aria-label="Primary navigation">{nav}</nav><span class="header-coordinate"><a href="https://github.com/the-omega-institute/trureturing" target="_blank" rel="noreferrer">GitHub <i data-lucide="arrow-up-right"></i></a><span class="coordinate-label">MATHEMATICAL ATLAS</span></span></header>'
 
 
 def source_snapshot(graph: dict[str, Any]) -> dict[str, str]:

@@ -157,6 +157,10 @@
   color: #94aab0;
   white-space: nowrap;
 }
+.header-coordinate > a { display: inline-flex; align-items: center; gap: 5px; color: inherit; text-decoration: none; }
+.header-coordinate > a:hover { color: #9be8cf; }
+.header-coordinate > a svg { width: 11px; height: 11px; }
+.coordinate-label { margin-left: 18px; }
 .site-themed .header-coordinate::before {
   content: "";
   display: inline-block;

@@ -191,7 +191,8 @@ def read_remote(base: str, path: str, optional=False) -> bytes | None:
 def page_shell(title: str, root: str, body: str, active="Research", appearance=None) -> str:
     theme = " research-editorial" if appearance == "editorial" else ""
     color = "#f7f8fa" if appearance == "editorial" else "#090c10"
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="{color}"><title>{esc(title)} | trureturing</title>
+    critical = '<style>html,body{background:#f7f8fa;color:#232629}body{transition:background-color .24s ease,color .24s ease}</style>' if appearance == "editorial" else ''
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="{color}"><title>{esc(title)} | trureturing</title>{critical}
 <link rel="stylesheet" href="{root}assets/site-theme.css"><link rel="stylesheet" href="{root}assets/relation-map.css"><link rel="stylesheet" href="{root}assets/vendor/katex/katex.min.css"><link rel="stylesheet" href="{root}assets/living-library.css">
 <script defer src="{root}assets/vendor/lucide.min.js"></script><script defer src="{root}assets/vendor/d3.min.js"></script><script defer src="{root}assets/vendor/katex/katex.min.js"></script><script defer src="{root}assets/graph-relations.js"></script><script defer src="{root}assets/relation-map.js"></script><script type="module" src="{root}assets/living-library.js"></script></head><body class="site-themed living-page{theme}" data-site-root="{root}">{site_header(root, active)}{body}<footer class="site-footer">THE OMEGA INSTITUTE / LIVING MATHEMATICS <a href="{root}dag.html">Analysis console</a></footer></body></html>'''
 
