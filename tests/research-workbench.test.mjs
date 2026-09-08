@@ -18,9 +18,9 @@ const legacyIds = [
   "zeckendorf-polynomial-maximum-order-complexity", "polynomial-successor-certificate", "polynomial-carry-window",
 ];
 
-test("thirteen families and twenty-eight proposed subproblems have unique IDs", () => {
-  assert.equal(data.families.length, 13); assert.equal(entries.length, 41);
-  assert.equal(entries.filter(e => e.kind === "open-question").length, 13);
+test("sixteen families and thirty-four proposed subproblems have unique IDs", () => {
+  assert.equal(data.families.length, 16); assert.equal(entries.length, 50);
+  assert.equal(entries.filter(e => e.kind === "open-question").length, 16);
   assert.equal(ids.size, entries.length);
 });
 test("source links are pinned without inventing upstream dossiers", () => {
@@ -118,23 +118,23 @@ test("all twenty-one legacy IDs and their old notebooks survive the expansion", 
   const result=validateNotes(n,ids);
   assert.equal(result.skipped,0);assert.equal(Object.keys(result.notes.entries).length,21);
 });
-test("six new parent questions have complete versioned primary sources", () => {
+test("nine parent questions have complete versioned primary sources", () => {
   const added=data.families.filter(f=>f.source);
-  assert.equal(added.length,6);
+  assert.equal(added.length,9);
   for(const f of added){
     assert.match(f.source_commit,/^[a-f0-9]{40}$/);
     validateSource(f.source,data.reviewed);
     assert.ok(f.targets.every(t=>entries.find(e=>e.id===t.id).source===f.source));
   }
 });
-test("six unique checked arXiv versions back primary questions and updates", () => {
+test("nine unique checked arXiv versions back primary questions and updates", () => {
   const records=data.families.flatMap(f=>[f.source,...(f.updates||[])]).filter(Boolean);
   assert.deepEqual([...new Set(records.map(s=>s.arxiv_id+s.version))].sort(),
-    ["2509.16150v2","2511.22755v1","2603.29571v1","2606.09096v1","2606.13903v1","2607.06249v1"]);
+    ["2503.04122v1","2509.16034v1","2509.16150v2","2511.22755v1","2603.29571v1","2606.09096v1","2606.13903v1","2607.06249v1","2608.03723v1"]);
 });
 test("source dates are real calendar dates with ordered chronology", () => {
   for(const change of [s=>s.submitted="2026-02-30",s=>s.checked="2026-9-7",
-    s=>s.revised="2027-01-01",s=>s.submitted="2026-09-08",s=>s.checked="2026-09-08"]){
+    s=>s.revised="2027-01-01",s=>s.submitted="2026-09-09",s=>s.checked="2026-09-09"]){
     const s=source();change(s);assert.throws(()=>validateSource(s,data.reviewed));
   }
 });
@@ -159,15 +159,15 @@ test("per-family pins and source updates are validated", () => {
 });
 test("literature filters compose without changing personal progress", () => {
   const added=selectEntries(entries,{literature:"new",kind:"open-question"});
-  assert.equal(added.length,6);
-  assert.equal(selectEntries(entries,{literature:"new"}).length,18);
+  assert.equal(added.length,9);
+  assert.equal(selectEntries(entries,{literature:"new"}).length,27);
   assert.ok(selectEntries(entries,{literature:"updates"}).every(e=>e.updates.length));
   assert.ok(selectEntries(entries,{literature:"unreviewed"}).every(e=>!e.source&&!e.updates.length));
   assert.equal(selectEntries(entries,{literature:"unknown"}).length,0);
 });
 test("paper revision sorting does not use review dates or HTML generation dates", () => {
   const sorted=selectEntries(entries,{sort:"literature"});
-  assert.equal(latestSourceDate(sorted[0]),"2026-07-07");
+  assert.equal(latestSourceDate(sorted[0]),"2026-08-04");
   assert.equal(latestSourceDate(sorted.at(-1)),"");
   const survey=entries.find(e=>e.id==="sic-povm-all-dimensions");
   assert.equal(latestSourceDate(survey),"2026-03-31");
@@ -183,4 +183,20 @@ test("reported results do not resolve parent conjectures", () => {
   assert.equal(mub.updates[0].status,"route-obstruction");
   assert.equal(mub.source,undefined);
   assert.match(entries.find(e=>e.id==="mub-projector-sos-scope").success,/four|4/);
+});
+
+test("completed results connect to distinct unfinished families and targets", async () => {
+  const results=JSON.parse(await readFile(new URL("../site/assets/research-news.json",import.meta.url))).results;
+  const followups=data.families.filter(f=>f.builds_on);
+  assert.equal(followups.length,3);
+  for(const family of followups){
+    assert.ok(results.some(r=>r.id===family.builds_on));
+    assert.notEqual(family.id,family.builds_on);
+    assert.ok(family.targets.every(t=>entries.find(e=>e.id===t.id).buildsOn===family.builds_on));
+    assert.equal(family.source.status,"open-in-source");
+  }
+  const bad=copy();bad.families[0].builds_on="../../unsafe";
+  assert.throws(()=>validateCatalog(bad),/result connection/);
+  assert.match(entries.find(e=>e.id==="greedy-three-sumfree-third-seed-one").gap,/violates.*d>=2/);
+  assert.match(entries.find(e=>e.id==="pochhammer-higher-even-intervals").gap,/original conjunction is false/);
 });

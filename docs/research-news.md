@@ -37,6 +37,26 @@ identity without duplicating the result; release membership remains separate.
 
 ## Result pages
 
+Research and result pages use the opt-in `research-editorial` appearance:
+neutral light surfaces, serif reading headings and restrained state colors.
+The shared header retains its existing grid and responsive alignment. Atlas,
+Library and the Conjectures workbench retain their existing appearance.
+
+The Conjectures overview leads with three follow-up families connected by
+`builds_on` to completed result IDs: Thue-Morse even recurrence/automaticity,
+the remaining Pochhammer higher-degree clauses, and Bosma's separate g+1 seed
+family. These add six proposed targets, bringing the catalog to 16 families
+and 34 targets. Existing notebook IDs and storage keys are retained. Each
+connection is a research foothold, not a resolution of the new family.
+Future source-recorded resolutions remove the corresponding family from the
+active follow-up overview; notebook records remain available for reassessment.
+
+`builds_on` names must resolve to a reviewed result story at build time. Both
+the result pages and Conjectures generate reciprocal links from that field.
+Chamberland-Dilcher receives no invented open variant simply to populate this
+section. The source records state what remains outside the verified result;
+they are not an exhaustive claim about all later literature or ongoing work.
+
 `lib/research_results.py` generates `results/<id>/` for editorial records with
 an entry in `site/assets/result-stories.json`. Each page contains the external
 question, exact finding, a concrete example, an English proof outline, scope,

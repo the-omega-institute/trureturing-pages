@@ -73,6 +73,8 @@ export function validateCatalog(data) {
     entries.push(item);
   };
   for (const f of data.families) {
+    if (f.builds_on !== undefined && (typeof f.builds_on !== "string" || !slug.test(f.builds_on)))
+      throw new Error("Invalid result connection.");
     if (!own(SCOPES, f.scope) || !/^10\.48550\/arXiv\.\d{4}\.\d{4,5}(?:v\d+)?$/.test(f.doi))
       throw new Error("Invalid research scope or DOI.");
     if (f.source_commit !== undefined && (typeof f.source_commit !== "string" ||
@@ -104,7 +106,7 @@ export function validateCatalog(data) {
     const shared = { familyId: f.id, familyTitle: f.title, area: f.area, scope: f.scope,
       doi: f.doi, anchors: f.anchors, foothold: f.foothold, keywords: f.keywords,
       sourceCommit: f.source_commit || data.source_commit, reviewed: data.reviewed,
-      source: f.source, updates: f.updates || [] };
+      source: f.source, updates: f.updates || [], buildsOn: f.builds_on };
     register({ ...f, ...shared, kind: "open-question", related: f.targets.map(t => t.id) });
     for (const t of f.targets) register({ ...t, ...shared });
   }

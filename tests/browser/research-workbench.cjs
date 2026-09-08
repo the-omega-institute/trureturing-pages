@@ -22,11 +22,12 @@ const stored = (page) =>
       p.on("pageerror", (error) => errors.push(error.message));
       await p.goto(`${root}/conjectures.html`);
       await p.locator(".rw-direction").first().waitFor();
-      assert.equal(await p.locator(".rw-direction").count(), 10);
-      assert.equal(await p.locator(".rw-frontier-question").count(), 13);
-      assert.equal(await p.locator(".rw-frontier-targets a").count(), 28);
+      assert.equal(await p.locator(".rw-direction").count(), 12);
+      assert.equal(await p.locator(".rw-frontier-question").count(), 16);
+      assert.equal(await p.locator(".rw-frontier-targets a").count(), 34);
       assert.equal(await p.locator("#rw-q").isVisible(), false);
-      assert.equal(await p.locator(".rw-card").count(), 41);
+      assert.equal(await p.locator(".rw-card").count(), 50);
+      assert.equal(await p.locator(".result-followup").count(), 3);
       await p.locator("#research-bank > summary").click();
     };
     await open(page);
@@ -139,14 +140,14 @@ const stored = (page) =>
     await page.locator(".rw-advanced > summary").click();
     await page.locator("#rw-literature").selectOption("new");
     await page.locator("#rw-kind").selectOption("open-question");
-    assert.equal(await page.locator(".rw-card").count(), 6);
+    assert.equal(await page.locator(".rw-card").count(), 9);
     await page.evaluate(() => {
       location.hash = "rp=suzuki-boundary-characteristic-limit";
     });
     await page
       .locator("#question-suzuki-boundary-characteristic-limit[open]")
       .waitFor();
-    assert.equal(await page.locator(".rw-card").count(), 41);
+    assert.equal(await page.locator(".rw-card").count(), 50);
     assert.equal(
       await page
         .locator("#question-suzuki-boundary-characteristic-limit")
@@ -171,7 +172,7 @@ const stored = (page) =>
       const nav = await page.locator("body > header nav").boundingBox();
       assert.ok(Math.abs(nav.x + nav.width / 2 - width / 2) < 1);
       const question = await page
-        .locator(".rw-frontier-question h4")
+        .locator(".result-followup h3")
         .first()
         .boundingBox();
       assert.ok(
@@ -194,7 +195,7 @@ const stored = (page) =>
     await page.getByRole("link", { name: "Search questions", exact: true }).click();
     await page.locator("#rw-q").fill("Suzuki");
     assert.ok(await page.locator(".rw-card").count() > 0);
-    assert.ok(await page.locator(".rw-card").count() < 41);
+    assert.ok(await page.locator(".rw-card").count() < 50);
     const unavailable = await context.newPage();
     await unavailable.route("**/research-catalog.json", (route) =>
       route.abort(),
@@ -228,10 +229,10 @@ const stored = (page) =>
     });
     await resolved.goto(`${root}/conjectures.html#rp=dfao-finite-unsat`);
     await resolved.locator("#question-dfao-finite-unsat[open]").waitFor();
-    assert.equal(await resolved.locator(".rw-frontier-question").count(), 12);
-    assert.equal(await resolved.locator(".rw-frontier-targets a").count(), 26);
-    assert.equal(await resolved.locator(".rw-card").count(), 41);
-    assert.match(await resolved.locator(".rw-heading").innerText(), /12 open questions.*26 proposed targets/);
+    assert.equal(await resolved.locator(".rw-frontier-question").count(), 15);
+    assert.equal(await resolved.locator(".rw-frontier-targets a").count(), 32);
+    assert.equal(await resolved.locator(".rw-card").count(), 50);
+    assert.match(await resolved.locator(".rw-heading").innerText(), /15 open questions.*32 proposed targets/);
     assert.equal(await resolved.locator("#note-dfao-finite-unsat").inputValue(), "Imported evidence");
     assert.match(await resolved.locator("#question-dfao-finite-unsat").innerText(), /Parent resolved \/ target needs reassessment/);
     assert.match(await resolved.locator("#question-golden-ratio-base4-dfao-minimality > summary").innerText(), /Source-recorded proved/);
@@ -239,7 +240,7 @@ const stored = (page) =>
     assert.equal(new URL(resolved.url()).hash, "#resolved-bosma-conjecture-17");
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: actual HTTP modules, 41 targets, native persistence and reload, cross-tab note/field preservation, import/export, private-note exclusion, literature filters, permalinks, original dossiers, three widths and catalog-failure fallback.",
+      "PASS: actual HTTP modules, 50 entries, native persistence and reload, cross-tab note/field preservation, import/export, private-note exclusion, literature filters, permalinks, original dossiers, three widths and catalog-failure fallback.",
     );
   } finally {
     await browser.close();

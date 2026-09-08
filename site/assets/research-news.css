@@ -1,6 +1,16 @@
 .research-news {
   padding-top: 38px;
 }
+.result-followups { padding: 8px 0 28px; margin-bottom: 24px; scroll-margin-top: 95px; }
+.result-followups h2 { font-size: 26px; margin: 0; }
+.followup-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.result-followup { min-width: 0; padding-top: 20px; border-top: 2px solid #5c8c80; }
+.result-followup h3 { font-size: 19px; font-weight: 500; line-height: 1.45; margin: 10px 0 16px; }
+.result-followup p { font-size: 13px; color: var(--muted); }
+.result-followup .eyebrow { font-size: 10px; }
+.followup-targets { display: grid; gap: 12px; margin: 20px 0; font-size: 12px; }
+.followup-origin { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; }
+@media (max-width: 800px) { .followup-grid { grid-template-columns: minmax(0, 1fr); } }
 .conjecture-destinations {
   display: flex;
   flex-wrap: wrap;

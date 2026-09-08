@@ -110,6 +110,7 @@ export async function mountResearchWorkbench() {
       const name = el("h4"); name.append(link(family.title, questionURL(location.href, family.id)));
       question.append(el("p", `${SCOPES[family.scope]} / ${family.source?.status === "conditional-route" ? "Conjectural route" : "Source question"}`, "rw-frontier-meta"), name);
       question.append(el("p", "Proposed next step", "rw-next-label"), el("p", family.next_step, "rw-next-step"));
+      if (family.builds_on) question.append(link("Related completed result", `results/${family.builds_on}/`));
       const targets = el("div", undefined, "rw-frontier-targets");
       for (const target of family.targets) targets.append(link(target.title, questionURL(location.href, target.id)));
       question.append(targets); section.append(question);
@@ -221,6 +222,7 @@ export async function mountResearchWorkbench() {
       : "Parent result / no completion asserted for this target", resolution.href));
     if (item.id !== item.familyId) body.append(link(`Parent: ${item.familyTitle}`, questionURL(location.href, item.familyId)));
     detailText(body, "Why this belongs in trureturing", item.foothold);
+    if (item.buildsOn) body.append(link("Read the completed result behind this direction", `results/${item.buildsOn}/`));
     detailText(body, "Research gap to recheck", item.gap);
     detailText(body, "Next concrete step", item.next_step);
     detailText(body, "What would count as progress", item.success);

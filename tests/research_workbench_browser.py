@@ -69,13 +69,13 @@ main{max-width:1200px;margin:auto}h1{font-size:42px}a{color:#acd7ee}.problem-row
         expect(page.locator(".rw-card")).to_have_count(total)
         expect(page.locator("#research-release-dossiers .problem-row")).to_have_count(len(legacy))
         page.locator("#rw-literature").select_option("new")
-        expect(page.locator(".rw-card")).to_have_count(18)
+        expect(page.locator(".rw-card")).to_have_count(27)
         page.locator("#rw-kind").select_option("open-question")
-        expect(page.locator(".rw-card")).to_have_count(6)
+        expect(page.locator(".rw-card")).to_have_count(9)
         assert "rl=new" in page.evaluate("location.hash")
         page.get_by_role("button",name="Clear filters",exact=True).click()
         page.locator("#rw-sort").select_option("literature")
-        assert page.locator(".rw-card").first.get_attribute("data-question-id").startswith(("balan-","omega-"))
+        assert page.locator(".rw-card").first.get_attribute("data-question-id").startswith("pochhammer-")
         page.evaluate("location.hash='rp=suzuki-boundary-characteristic-limit'")
         card = page.locator("#question-suzuki-boundary-characteristic-limit")
         expect(card).to_have_attribute("open", "")
@@ -147,7 +147,7 @@ main{max-width:1200px;margin:auto}h1{font-size:42px}a{color:#acd7ee}.problem-row
         expect(denied.locator("#rw-storage-status")).to_contain_text("remain in memory")
         assert not errors, errors
         browser.close()
-    print("PASS: offline Chromium DOM, 41 cards, literature filters, source links, old notebook restore, import/export, hash navigation, mobile overflow and failure controls")
+    print(f"PASS: offline Chromium DOM, {total} cards, literature filters, source links, old notebook restore, import/export, hash navigation, mobile overflow and failure controls")
 
 
 if __name__ == "__main__":

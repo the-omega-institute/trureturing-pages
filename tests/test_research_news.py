@@ -6,11 +6,18 @@ from unittest.mock import patch
 
 from lib.living_library import parse_problem, render_research
 from lib.research_news import CATALOG, result_records
-from lib.research_results import ASSETS, STORIES, proof_source
+from lib.research_results import ASSETS, STORIES, proof_source, render_followups
 from tests.test_living_library import graph, problem_source
 
 
 class ResearchNewsTests(unittest.TestCase):
+    def test_a_future_resolution_leaves_the_followup_overview(self):
+        problem = {"slug": "thue-morse-reduced-abelian-even", "resolution": {"kind": "proved"}}
+        html = render_followups({"problems": [problem]})
+        self.assertEqual(html.count('class="result-followup"'), 2)
+        self.assertNotIn('href="#rp=thue-morse-reduced-abelian-even"', html)
+        self.assertIn('href="#rp=pochhammer-higher-even-intervals"', html)
+
     def test_news_and_bank_have_distinct_routes_and_preserve_dossiers(self):
         snapshot = {"graph": graph(), "problems": [parse_problem(problem_source(), "test-question.md")], "truth_release_digest": "sha256:" + "a" * 64}
         with tempfile.TemporaryDirectory() as temp:
@@ -25,6 +32,10 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertNotIn('data-problem-slug=', bank)
             self.assertIn("Reviewed result / pinned upstream proof", bank)
             self.assertNotIn("release binding not recorded", bank)
+            self.assertEqual(bank.count('class="result-followup"'), 3)
+            self.assertIn('href="#rp=thue-morse-even-difference"', bank)
+            self.assertIn('class="site-themed living-page research-editorial"', news)
+            self.assertNotIn('class="site-themed living-page research-editorial"', bank)
             self.assertIn("trureturing-mdbook/open-problems.html", bank)
             self.assertIn('href="conjectures.html#resolved-bosma-conjecture-17"', news)
             self.assertIn("Team-reported", news)
@@ -64,6 +75,10 @@ class ResearchNewsTests(unittest.TestCase):
                     self.assertEqual((output / "assets/proofs" / (item["id"] + ".lean")).read_bytes(), source.encode())
                     self.assertIn('summary>Repository &amp; verification record', html)
                     self.assertIn(f'Development PR #{item["pr"]}', html)
+                    self.assertIn('class="site-themed living-page research-editorial"', html)
+                    if item['id'] != 'chamberland-dilcher-conjecture-2-1':
+                        self.assertIn('What comes next', html)
+                        self.assertIn('../../conjectures.html#rp=', html)
 
     def test_edited_source_and_truncated_theorem_fail_build(self):
         item = json.loads(CATALOG.read_text())["results"][0]
