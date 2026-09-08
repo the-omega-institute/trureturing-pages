@@ -39,7 +39,7 @@ const fetch = async url => {
   return new Response(JSON.stringify(window.mmTest.payload), {status:200, headers:{'Content-Type':'application/json'}});
 };
 '''
-SHELL = re.sub(r'<script\b[^>]*>.*?</script>', '', (ROOT/'site/millennium.html').read_text(), flags=re.S)
+SHELL = re.sub(r'<script\b[^>]*>.*?</script>', '', (ROOT/'site/millennium.html').read_text(), flags=re.S | re.I)
 SHELL = re.sub(r'<link\b[^>]*>', '', SHELL)
 ENTRY = '''<html><head><meta charset="utf-8"></head><body><main class="research-home">
 <header class="page-heading"><h1>Conjectures</h1></header><nav class="conjecture-destinations">Existing navigation</nav>

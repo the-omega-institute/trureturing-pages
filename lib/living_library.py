@@ -234,7 +234,7 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     from lib.research_results import render_followups
     destinations = '<nav class="conjecture-destinations" aria-label="Question views"><a href="#research-workbench">Research directions</a><a href="#resolved-questions">Resolved questions</a><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">Further reading / mdBook <i data-lucide="arrow-up-right"></i></a></nav>'
     body = body.replace('</header>', '</header>' + destinations + render_followups(snapshot), 1).replace('</main>', resolved_questions(snapshot) + '</main>')
-    bank = page_shell("Conjectures", "", body).replace('</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>')
+    bank = page_shell("Conjectures", "", body, appearance="editorial").replace('</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>')
     write(output / "conjectures.html", bank)
     render_news(output, snapshot, page_shell)
     history_body = '<main class="site-main"><header class="page-heading"><div><p class="eyebrow">LIBRARY / CONTENT ARCHIVE</p><h1>Library history</h1><p id="library-history-status" class="lede" role="status">Verifying release archive...</p></div><a href="knowledge/">Current Library</a></header><div class="archive-toolbar"><label for="archive-release">Release</label><select id="archive-release" disabled></select><label for="archive-search">Find a concept</label><input id="archive-search" type="search" placeholder="Title, domain, or ID" disabled></div><div id="archive-summary"></div><div id="archive-nodes" class="archive-list"></div><button id="archive-more" type="button" hidden>Show more</button></main>'

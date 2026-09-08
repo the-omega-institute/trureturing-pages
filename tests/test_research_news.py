@@ -35,7 +35,7 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertEqual(bank.count('class="result-followup"'), 3)
             self.assertIn('href="#rp=thue-morse-even-difference"', bank)
             self.assertIn('class="site-themed living-page research-editorial"', news)
-            self.assertNotIn('class="site-themed living-page research-editorial"', bank)
+            self.assertIn('class="site-themed living-page research-editorial"', bank)
             self.assertIn("trureturing-mdbook/open-problems.html", bank)
             self.assertIn('href="conjectures.html#resolved-bosma-conjecture-17"', news)
             self.assertIn("Team-reported", news)

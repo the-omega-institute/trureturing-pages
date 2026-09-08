@@ -74,9 +74,21 @@ export async function mountMillennium() {
   let maySave = !storageMessage.startsWith('旧笔记');
   function save() {
     if (!maySave) return false;
-    try { notebook.revision = data.revision; localStorage.setItem(KEY,JSON.stringify(notebook)); return true; }
+    try {
+      const latest = localStorage.getItem(KEY);
+      if (latest) {
+        const parsed = validateNotebook(JSON.parse(latest), data);
+        notebook.entries = {...parsed.entries, ...notebook.entries};
+      }
+      notebook.revision = data.revision; localStorage.setItem(KEY,JSON.stringify(notebook)); return true;
+    }
     catch { storageMessage = '保存失败，笔记仅在内存中。请在离开前导出。'; maySave = false; return false; }
   }
+  window.addEventListener('storage', event => {
+    if (event.key !== KEY || !event.newValue) return;
+    try { const incoming = validateNotebook(JSON.parse(event.newValue), data); notebook.entries = {...notebook.entries, ...incoming.entries}; render(); }
+    catch { /* Ignore malformed records from another tab. */ }
+  });
   const announce = text => { const n = document.getElementById('mm-message'); if (n) n.textContent = text; };
   function navigate(changes, replace = false) {
     const href = routeURL(location.href, changes);
@@ -229,7 +241,9 @@ export async function mountMillennium() {
     for(const [value,label] of [[c.specifications,'已编目规格'],[c.families,'判据族'],[c.states.source,'定位到源码的节点'],[c.states.candidate,'候选脚本节点']]){
       const stat=el('div');stat.append(el('strong',String(value)),el('span',label));stats.append(stat);
     }
-    main.append(head,stats,el('p',`人工快照 ${data.reviewed} · ${data.revision}。本图没有附带 kernel 核验回执，不给出“RH 完成百分比”。`,'mm-boundary'));
+    const progress=el('section',undefined,'mm-progress');
+    [[c.states.source,'源码已定位','可追溯到固定提交，仍不等于本页重新核验'],[c.states.candidate,'候选桥梁','已有候选脚本或研究连接，待补完整证明'],[c.states.open,'开放缺口','明确记录的解析或形式化义务']].forEach(([value,label,note])=>{const card=el('article');card.append(el('strong',String(value)),el('span',label),el('span',note));progress.append(card);});
+    main.append(head,stats,progress,el('p',`人工快照 ${data.reviewed} · ${data.revision}。本图没有附带 kernel 核验回执，不给出“RH 完成百分比”。`,'mm-boundary'));
     if(p.coverage==='starter')main.append(el('p','本题目前是有来源的问题结构起始图。源码、等价形式和证明依赖尚未盘点；不会从其他问题的进度推断本题已完成。','mm-warning'));
     const tabs=el('nav',undefined,'mm-tabs');tabs.setAttribute('aria-label','研究图视图');
     for(const [id,label] of [['map','路线 DAG'],['catalogue','等价目录'],['shared','共享核心']]){
@@ -273,7 +287,8 @@ export async function mountMillennium() {
       const legend=el('div',undefined,'mm-legend');
       for(const [state,label] of Object.entries(STATES).filter(([s])=>s!=='verified'))legend.append(el('span',label,`mm-badge mm-state-${state}`));
       content.append(legend,el('p','箭头：研究支撑 → 待补桥梁 → 判据族 → 目标。虚线表示待构造连接；点线仅组织问题。等价关系不画成环，也不自动传播“已证明”状态。','mm-fine'));
-      const work=el('div',undefined,'mm-work');work.append(renderGraph(p,graph,visible,common),detail(p,graph,route.node));content.append(work);
+      const detailId = route.view === 'shared' ? p.goal : route.node;
+      const work=el('div',undefined,'mm-work');work.append(renderGraph(p,graph,visible,common),detail(p,graph,detailId));content.append(work);
       if(route.view==='shared' && p.coverage==='curated'){
         const list=el('section',undefined,'mm-reuse');list.append(el('h2','按本图可达判据族排列的复用节点'),el('p','只计人工连接可达的不同判据族，包括待补连接；没有跨时间稳定性或数学不动点认证。','mm-fine'));
         for(const row of reuse(p)){const b=button('',()=>navigate({node:row.node.id,view:'map',family:'',specs:''}));b.append(el('strong',row.node.title),el('span',`${row.families.length} 个可达判据族`));list.append(b);}content.append(list);
