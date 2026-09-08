@@ -12,4 +12,13 @@ if (document.querySelector(".research-home")) {
       message.textContent = "The research workbench is unavailable. Release-bound dossiers remain available below.";
       document.querySelector(".research-home").prepend(message);
     });
+  // Each Millennium map is an advisory, source-pinned layer, independent of the workbench.
+  import("./millennium.mjs")
+    .then(({ mountMillenniumEntry }) => mountMillenniumEntry())
+    .catch(() => {
+      const entry = document.createElement("a");
+      entry.href = "millennium.html?problem=rh";
+      entry.textContent = "Millennium problem DAGs / RH research";
+      document.querySelector(".research-home").prepend(entry);
+    });
 }
