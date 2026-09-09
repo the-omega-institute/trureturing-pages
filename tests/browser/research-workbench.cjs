@@ -22,6 +22,7 @@ const stored = (page) =>
       p.on("pageerror", (error) => errors.push(error.message));
       await p.goto(`${root}/conjectures.html`);
       await p.locator(".rw-direction").first().waitFor();
+      assert.equal(await p.locator('.knowledge-header nav [aria-current="page"]').innerText(), "Conjectures");
       assert.equal(await p.locator(".rw-direction").count(), 12);
       assert.equal(await p.locator(".rw-frontier-question").count(), 16);
       assert.equal(await p.locator(".rw-frontier-targets a").count(), 34);
@@ -159,6 +160,7 @@ const stored = (page) =>
     assert.equal(await page.locator(".problem-row:visible").count(), 7);
     await page.goto(`${root}/conjectures.html`);
     await page.locator(".rw-frontier-question").first().waitFor();
+    await page.locator(".mm-entry-cards strong").first().waitFor();
     for (const width of [1512, 390, 320]) {
       await page.setViewportSize({ width, height: width < 700 ? 844 : 982 });
       await page.evaluate(() => scrollTo(0, 0));
@@ -172,12 +174,12 @@ const stored = (page) =>
       const nav = await page.locator("body > header nav").boundingBox();
       assert.ok(Math.abs(nav.x + nav.width / 2 - width / 2) < 1);
       const question = await page
-        .locator(".result-followup h3")
+        .locator(".mm-entry-cards strong")
         .first()
         .boundingBox();
       assert.ok(
         question.y + question.height < (width < 700 ? 844 : 982),
-        "A real research question appears in the first viewport",
+        "A specific Millennium problem appears in the first viewport",
       );
       assert.equal(await page.locator("#rw-q").isVisible(), false);
       await page.screenshot({

@@ -27,6 +27,9 @@ class ResearchNewsTests(unittest.TestCase):
             bank = (output / "conjectures.html").read_text()
             self.assertNotIn('class="site-main research-home"', news)
             self.assertIn('class="site-main research-home"', bank)
+            self.assertIn('aria-current="page">Conjectures</a>', bank)
+            self.assertNotIn('aria-current="page">Research</a>', bank)
+            self.assertIn('aria-current="page">Research</a>', news)
             self.assertEqual(bank.count('class="resolved-question"'), 4)
             self.assertIn('id="resolved-bosma-conjecture-17"', bank)
             self.assertNotIn('data-problem-slug=', bank)
@@ -49,6 +52,8 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertIn('href="results/bosma-conjecture-17/"', bank)
             self.assertIn('https://cs.uwaterloo.ca/journals/JIS/VOL28/Fokkink/fokkink9.pdf', news)
             self.assertTrue((output / "research/test-question/index.html").exists())
+            dossier = (output / "research/test-question/index.html").read_text()
+            self.assertIn('aria-current="page">Conjectures</a>', dossier)
             self.assertIn('href="../../conjectures.html"', (output / "research/test-question/index.html").read_text())
             for item in json.loads(CATALOG.read_text())["publications"]:
                 self.assertIn(item["url"], news)
