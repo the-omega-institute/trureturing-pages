@@ -569,3 +569,24 @@
     margin-top: 15px;
   }
 }
+
+/* A single language control shared by source and generated pages. */
+.site-themed :is(.site-header, .knowledge-header, .atlas-header) > .header-tools {
+  grid-column: 3; grid-row: 1; justify-self: end; min-width: 0;
+  display: flex; align-items: center; gap: 14px;
+}
+.header-tools .coordinate-label { display: none; }
+.header-tools .header-coordinate { margin: 0; }
+.site-language { display: inline-flex; align-items: center; flex-shrink: 0; }
+.site-language select {
+  font-size: 12px; line-height: 1.3; font-family: inherit; color: inherit;
+  background: transparent; border: 1px solid currentColor; border-radius: 5px;
+  padding: 5px 3px; width: 80px; cursor: pointer;
+}
+.site-language option { color: #232629; background: #f7f8fa; }
+.site-language select:focus-visible { outline: 2px solid #67b99b; outline-offset: 3px; }
+.language-warning { display: block; padding: 8px 26px; font-size: 13px; }
+@media (max-width: 1100px) { .header-tools .release-state { display: none; } }
+@media (max-width: 700px) {
+  .site-themed :is(.site-header, .knowledge-header, .atlas-header) > .header-tools { grid-column: 2; }
+}

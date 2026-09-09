@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
 const routes = [
   "atlas.html",
+  "millennium.html?problem=navier-stokes",
   "knowledge/",
   "evolution.html",
   "research.html",
@@ -47,7 +48,7 @@ const routes = [
             .locator("a")
             .allTextContents()
             .then((items) => items.map((s) => s.trim())),
-          ["Explore", "Research", "Library", "Evolution"],
+          ["Explore", "Research", "Conjectures", "Library", "Evolution"],
         );
         const header = page.locator("body > header").first();
         const brand = await header.locator(".brand").boundingBox();

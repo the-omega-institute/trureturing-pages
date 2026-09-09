@@ -162,7 +162,7 @@ def relation_category(layer: str) -> str:
 def site_header(root: str, active: str = "Library") -> str:
     links = [("Explore", "atlas.html"), ("Research", "research.html"), ("Conjectures", "conjectures.html"), ("Library", "knowledge/"), ("Evolution", "evolution.html")]
     nav = "".join(f'<a href="{root}{path}"' + (' aria-current="page"' if label == active else '') + f'>{label}</a>' for label, path in links)
-    return f'<header class="knowledge-header"><a class="brand" href="{root}index.html">trureturing</a><nav aria-label="Primary navigation">{nav}</nav><span class="header-coordinate"><a href="https://github.com/the-omega-institute/trureturing" target="_blank" rel="noreferrer">GitHub <i data-lucide="arrow-up-right"></i></a><span class="coordinate-label">MATHEMATICAL ATLAS</span></span></header>'
+    return f'<script type="module" src="{root}assets/i18n.mjs"></script><header class="knowledge-header"><a class="brand" href="{root}index.html">trureturing</a><nav aria-label="Primary navigation">{nav}</nav><span class="header-coordinate"><a href="https://github.com/the-omega-institute/trureturing" target="_blank" rel="noreferrer">GitHub <i data-lucide="arrow-up-right"></i></a><span class="coordinate-label">MATHEMATICAL ATLAS</span></span></header>'
 
 
 def source_snapshot(graph: dict[str, Any]) -> dict[str, str]:
@@ -374,7 +374,7 @@ def render_knowledge_site(
             if not _DIGEST.fullmatch(archive_snapshot_digest):
                 raise ValueError("Archived Wiki requires a snapshot digest.")
             target = '../../../../library-version.html#snapshot=' + quote(archive_snapshot_digest, safe='') + '&node=' + quote(node_id, safe='')
-            redirect = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title(node))} | Archived Library</title><link rel="stylesheet" href="../../../../assets/site-theme.css"><script>location.replace(new URL({json.dumps(target)}, location.href));</script></head><body class="site-themed"><main class="site-main"><h1>{esc(title(node))}</h1><a href="{esc(target)}">Read immutable release version</a><p>{esc(release_coordinate(graph)[0])}</p></main></body></html>'''
+            redirect = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title(node))} | Archived Library</title><link rel="stylesheet" href="../../../../assets/site-theme.css"><script>const target = new URL({json.dumps(target)}, location.href); target.search = location.search; location.replace(target);</script></head><body class="site-themed"><main class="site-main"><h1>{esc(title(node))}</h1><a href="{esc(target)}">Read immutable release version</a><p>{esc(release_coordinate(graph)[0])}</p></main></body></html>'''
             write(frozen / slug / "index.html", redirect)
         else:
             write(frozen / slug / "index.html", node_page(*args, immutable=True, relation_digest=relation_digest))

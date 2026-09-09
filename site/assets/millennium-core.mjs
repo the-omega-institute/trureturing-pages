@@ -1,10 +1,10 @@
 // Editorial graphs never mutate the release DAG or infer proof completion.
 export const STATES = Object.freeze({
-  source: '源码已定位', candidate: '候选脚本', open: '待补证明',
-  specification: '文献规格', unassessed: '库内未盘点'
+  source: "Source located", candidate: "Candidate script", open: "Proof pending",
+  specification: "Literature specification", unassessed: "Repository not inventoried"
 });
 export const EDGE_KINDS = Object.freeze({
-  support: '人工研究连接', imports: '源码直接依赖', plan: '待构造桥梁', structure: '问题结构'
+  support: "Curated research connection", imports: "Direct source dependency", plan: "Bridge to construct", structure: "Problem structure"
 });
 export const VIEWS = ['map', 'catalogue', 'shared'];
 const SHA = /^[a-f0-9]{40}$/;
@@ -115,11 +115,11 @@ export function expandFamily(problem, familyId) {
   if (!statements.length) return problem;
   return { ...problem,
     nodes: [...problem.nodes, ...statements.map(f => ({ id: f.id, title: f.title,
-      kind: 'object', state: 'specification', summary: '等价表述规格，证明进度按正反方向分别记录。', sources: [f.source], formulation: f }))],
+      kind: 'object', state: 'specification', summary: "Equivalent-formulation specification; proof progress is recorded separately in each direction.", sources: [f.source], formulation: f }))],
     edges: [...problem.edges.filter(e => !(e.from === family.node && e.to === problem.goal)),
       ...statements.flatMap(f => [
-        { from: family.node, to: f.id, kind: 'structure', reason: '该族包含此表述；不推断证明已完成。', sources: [f.source] },
-        { from: f.id, to: problem.goal, kind: 'structure', reason: 'RH 等价目标，两个方向的证据另行登记。', sources: [f.source] }
+        { from: family.node, to: f.id, kind: 'structure', reason: "This family contains the statement; proof completion is not inferred.", sources: [f.source] },
+        { from: f.id, to: problem.goal, kind: 'structure', reason: "RH equivalence target; evidence for both directions is recorded separately.", sources: [f.source] }
       ])]
   };
 }
