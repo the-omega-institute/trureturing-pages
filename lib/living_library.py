@@ -192,6 +192,8 @@ def page_shell(title: str, root: str, body: str, active="Research", appearance=N
     theme = " research-editorial" if appearance == "editorial" else ""
     color = "#f7f8fa" if appearance == "editorial" else "#090c10"
     critical = '<style>html,body{background:#f7f8fa;color:#232629}body{transition:background-color .24s ease,color .24s ease}</style>' if appearance == "editorial" else ''
+    if appearance == "editorial":
+        critical += f'<link rel="stylesheet" href="{root}assets/research-editorial.css">'
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="{color}"><title>{esc(title)} | trureturing</title>{critical}
 <link rel="stylesheet" href="{root}assets/site-theme.css"><link rel="stylesheet" href="{root}assets/relation-map.css"><link rel="stylesheet" href="{root}assets/vendor/katex/katex.min.css"><link rel="stylesheet" href="{root}assets/living-library.css">
 <script defer src="{root}assets/vendor/lucide.min.js"></script><script defer src="{root}assets/vendor/d3.min.js"></script><script defer src="{root}assets/vendor/katex/katex.min.js"></script><script defer src="{root}assets/graph-relations.js"></script><script defer src="{root}assets/relation-map.js"></script><script type="module" src="{root}assets/living-library.js"></script></head><body class="site-themed living-page{theme}" data-site-root="{root}">{site_header(root, active)}{body}<footer class="site-footer">THE OMEGA INSTITUTE / LIVING MATHEMATICS <a href="{root}dag.html">Analysis console</a></footer></body></html>'''
@@ -234,9 +236,12 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     from lib.research_results import render_followups
     destinations = '<nav class="conjecture-destinations" aria-label="Question views"><a href="#research-workbench">Research directions</a><a href="#resolved-questions">Resolved questions</a><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">Further reading / mdBook <i data-lucide="arrow-up-right"></i></a></nav>'
     body = body.replace('</header>', '</header>' + destinations + render_followups(snapshot), 1).replace('</main>', resolved_questions(snapshot) + '</main>')
+    body = body.replace('aria-label="Question views">', 'aria-label="Question views"><a href="discover.html">Concepts &amp; OEIS</a>')
     bank = page_shell("Conjectures", "", body, appearance="editorial").replace('</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>')
     write(output / "conjectures.html", bank)
     render_news(output, snapshot, page_shell)
+    from lib.discovery import render_discovery
+    render_discovery(output, snapshot, page_shell)
     history_body = '<main class="site-main"><header class="page-heading"><div><p class="eyebrow">LIBRARY / CONTENT ARCHIVE</p><h1>Library history</h1><p id="library-history-status" class="lede" role="status">Verifying release archive...</p></div><a href="knowledge/">Current Library</a></header><div class="archive-toolbar"><label for="archive-release">Release</label><select id="archive-release" disabled></select><label for="archive-search">Find a concept</label><input id="archive-search" type="search" placeholder="Title, domain, or ID" disabled></div><div id="archive-summary"></div><div id="archive-nodes" class="archive-list"></div><button id="archive-more" type="button" hidden>Show more</button></main>'
     write(output / "library-history.html", page_shell("Library history", "", history_body, "Library"))
 

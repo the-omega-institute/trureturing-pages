@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f8fa">
+  <title>Research Discovery | trureturing</title>
+  <meta name="description" content="Find formal mathematical results by OEIS identifier, concept or research topic. Explore proof scope and related open questions.">
+  <link rel="stylesheet" href="assets/site-theme.css">
+  <link rel="stylesheet" href="assets/research-editorial.css">
+  <link rel="stylesheet" href="assets/discovery.css">
+  <script type="module" src="assets/discovery.mjs"></script>
+</head>
+<body class="site-themed research-editorial">
+  <header class="knowledge-header"><a class="brand" href="index.html">trureturing</a><nav aria-label="Primary navigation"><a href="atlas.html" aria-current="page">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a></nav><span class="header-coordinate"><a href="https://github.com/the-omega-institute/trureturing">GitHub</a></span></header>
+  <main class="site-main discovery">
+    <p class="eyebrow">THE OMEGA INSTITUTE / CONNECTED RESEARCH</p><h1>Research Discovery</h1>
+    <form role="search"><label for="discovery-query">Concept, OEIS number or theorem</label><div class="discovery-search"><input id="discovery-query" type="search" name="q" placeholder="A010060, logic and algebra, Thue-Morse" autocomplete="off"><button type="submit">Search</button></div></form>
+    <nav class="discovery-topics" aria-label="Research topics"><a href="?q=logic+and+algebra">Logic and algebra</a><a href="?q=integer+sequences">Integer sequences</a><a href="?q=A010060">A010060</a><a href="?q=A026471">A026471</a><a href="api/">API for AI clients</a></nav>
+    <p id="discovery-status" role="status">Loading research records...</p>
+    <div class="discovery-layout"><section id="discovery-results" aria-label="Search results"></section><aside id="discovery-detail" aria-label="Research connections"><h2>Research connections</h2></aside></div>
+    <noscript><p><a href="oeis/A010060/">A010060: Thue-Morse research</a> · <a href="oeis/A026471/">A026471: greedy three-sumfree research</a> · <a href="api/v1/index.json">Download research index</a></p></noscript>
+  </main>
+</body></html>
