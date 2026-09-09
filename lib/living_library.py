@@ -282,6 +282,12 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
         problems, blobs = [], {}
     elif source_repo:
         problems, blobs = source_material(source_repo, graph["source_snapshot"]["source_commit"])
+        # Formalization gate: no resolution renders as solved unless its exact declaration is a
+        # kernel-verified node in this same published truth-release. The bundle's truth-export is
+        # the sole authority; a resolution the release does not attest fails the build closed.
+        from lib.problem_resolutions import index_truth_export, verify_resolutions
+        truth_export = json.loads((graph_path.parent / "truth-export.v1.json").read_bytes())
+        verify_resolutions(problems, index_truth_export(truth_export))
     else:
         raise ValueError("A real Library release requires its exact source checkout.")
     index_path = output / "data/library-history.v1.json"

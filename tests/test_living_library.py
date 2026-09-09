@@ -65,6 +65,8 @@ class LivingLibraryTests(unittest.TestCase):
             def build(value):
                 raw = json.dumps(value).encode()
                 graph_path.write_bytes(raw)
+                (graph_path.parent / "truth-export.v1.json").write_text(
+                    json.dumps({"schema_version": 2, "dialect": "stratalint.truth-export.v2", "nodes": []}))
                 manifest_path.write_text(json.dumps({"schema_version": "pages-atlas-manifest.v1", "atlas_graph_digest": digest(raw), "truth_release_digest": value["source_snapshot"]["truth_release_digest"]}))
                 with patch("lib.living_library.source_material", return_value=([parse_problem(problem_source(), "test-question.md")], {"A.lean": "1" * 40})):
                     return build_library(graph_path, manifest_path, output, root)
