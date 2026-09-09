@@ -53,6 +53,8 @@ const route = path => root + path;
     assert.equal(new URL(page.url()).searchParams.get('node'),'A045');
     assert.equal(await page.locator('#mm-note-text').inputValue(),'研究笔记 T(x)=x — keep this original.');
     assert.match(await page.locator('#mm-detail').innerText(),/此表述/);
+    assert.match((await page.locator('#mm-detail .mm-relation small').allTextContents()).join(' '), /该族包含此表述/);
+    assert.match(await page.locator('[data-mm-node="A045"] title').textContent(), /等价表述规格/);
     await page.locator('.site-language select').selectOption('en');
     await page.waitForURL('**lang=en#details');await page.locator('.mm-heading h1').waitFor();
     assert.equal(await page.locator('#mm-detail h2').innerText(),title);

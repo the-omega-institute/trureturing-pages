@@ -129,7 +129,7 @@ export async function mountMillennium() {
     for (const e of incident) {
       const other=e.from===node.id?e.to:e.from;
       const row=el('div',undefined,'mm-relation');
-      row.append(button(`${e.to===node.id?t('Prerequisite'):t('Successor')} · ${graph.nodes.find(n=>n.id===other).title}`,()=>navigate({node:other})),el('small',`${t(EDGE_KINDS[e.kind])}: ${e.reason}`));
+      row.append(button(`${e.to===node.id?t('Prerequisite'):t('Successor')} · ${graph.nodes.find(n=>n.id===other).title}`,()=>navigate({node:other})),el('small',`${t(EDGE_KINDS[e.kind])}: ${t(e.reason)}`));
       relations.append(row);
     }
     panel.append(relations);
@@ -163,14 +163,14 @@ export async function mountMillennium() {
     for (const e of graph.edges) if (visible.has(e.from)&&visible.has(e.to)) {
       const a=positions.get(e.from),b=positions.get(e.to),start=a.x+236,end=b.x,mid=(start+end)/2;
       const path=svgEl('path',{d:`M${start},${a.y+37} C${mid},${a.y+37} ${mid},${b.y+37} ${end},${b.y+37}`,class:`mm-edge mm-edge-${e.kind}${focus.size&&!(focus.has(e.from)&&focus.has(e.to))?' mm-dim':''}`,'marker-end':'url(#mm-arrow)'});
-      path.append(svgEl('title',{},`${e.from} → ${e.to} / ${t(EDGE_KINDS[e.kind])} / ${e.reason}`)); svg.append(path);
+      path.append(svgEl('title',{},`${e.from} → ${e.to} / ${t(EDGE_KINDS[e.kind])} / ${t(e.reason)}`)); svg.append(path);
     }
     const g=indexGraph(graph);
     for (const node of graph.nodes.filter(n=>visible.has(n.id))) {
       const pos=positions.get(node.id),group=svgEl('g',{transform:`translate(${pos.x},${pos.y})`,role:'button',tabindex:0,
         'data-mm-node':node.id,'aria-label':`${node.title}, ${t(STATES[node.state])}`,'aria-pressed':String(node.id===route.node),
         class:`mm-node mm-state-${node.state}${node.id===route.node?' mm-selected':''}${common.has(node.id)?' mm-common':''}${focus.size&&!focus.has(node.id)?' mm-dim':''}`});
-      group.append(svgEl('rect',{width:236,height:74,rx:10}),svgEl('title',{},`${node.title} / ${node.summary}`));
+      group.append(svgEl('rect',{width:236,height:74,rx:10}),svgEl('title',{},`${node.title} / ${t(node.summary)}`));
       const label=svgEl('text',{x:14,y:24,class:'mm-node-title'}), chars=[...node.title];
       const lines=chars.length>23?[chars.slice(0,23).join(''),chars.slice(23,46).join('')+(chars.length>46?'…':'')]:[node.title];
       lines.forEach((line,i)=>label.append(svgEl('tspan',{x:14,dy:i?18:0},line)));group.append(label);
