@@ -81,6 +81,8 @@ class VerticalSmokeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             site = Path(directory) / "site"
             build_basic_site(FIXTURE, site)
+            self.assertEqual((site / "data/truth-export.v1.json").read_bytes(),
+                             (FIXTURE / "truth-export.v1.json").read_bytes())
             basic = json.loads((site / "data" / "basic-truth-graph.v1.json").read_text())
             fallback = json.loads((site / "data" / "truth-graph.v1.json").read_text())
             self.assertEqual(basic, fallback)
