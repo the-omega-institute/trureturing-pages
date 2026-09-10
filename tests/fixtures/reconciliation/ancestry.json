@@ -1,0 +1,8 @@
+{
+  "dev_head": "cccccccccccccccccccccccccccccccccccccccc",
+  "parents": {
+    "cccccccccccccccccccccccccccccccccccccccc": ["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": []
+  }
+}

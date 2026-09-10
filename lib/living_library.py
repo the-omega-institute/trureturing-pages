@@ -273,7 +273,7 @@ def content_timeline(archived: list) -> dict:
     return {"schema_version": "pages-content-timeline.v1", "nodes": nodes, "problems": problems}
 
 
-def build_library(graph_path: Path, manifest_path: Path, output: Path, source_repo: Path | None = None, previous_url: str | None = None):
+def build_library(graph_path: Path, manifest_path: Path, output: Path, source_repo: Path | None = None, previous_url: str | None = None, *, previous_index: dict | None = None):
     raw = graph_path.read_bytes()
     graph, manifest = json.loads(raw), json.loads(manifest_path.read_bytes())
     graph_hash = digest(raw)
@@ -294,8 +294,12 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
     else:
         raise ValueError("A real Library release requires its exact source checkout.")
     index_path = output / "data/library-history.v1.json"
-    prior_raw = read_remote(previous_url, "data/library-history.v1.json", True) if previous_url else (index_path.read_bytes() if index_path.exists() else None)
-    prior = validate_index(json.loads(prior_raw)) if prior_raw else None
+    if previous_index is not None:
+        # Reconciliation already read this index; keep that exact append base.
+        prior = validate_index(previous_index)
+    else:
+        prior_raw = read_remote(previous_url, "data/library-history.v1.json", True) if previous_url else (index_path.read_bytes() if index_path.exists() else None)
+        prior = validate_index(json.loads(prior_raw)) if prior_raw else None
     entries, archived = list(prior["entries"]) if prior else [], []
     for entry in entries:
         data = read_remote(previous_url, entry["path"]) if previous_url else (output / entry["path"]).read_bytes()

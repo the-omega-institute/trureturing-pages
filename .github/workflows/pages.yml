@@ -8,6 +8,11 @@ on:
         required: false
         default: mock
         type: string
+      reconcile:
+        description: "Select the oldest missing published release (limit 1); digest input is a wake-up hint"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -20,7 +25,51 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      should_build: ${{ steps.selection.outputs.should_build }}
+      release_digest: ${{ steps.selection.outputs.release_digest }}
+      source_commit: ${{ steps.selection.outputs.source_commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install content parsers
+        run: python -m pip install -r requirements.txt
+
+      - name: Reconcile metadata before any bundle or topology work
+        id: selection
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_DIGEST: ${{ inputs.truth_release_digest || 'mock' }}
+          RECONCILE: ${{ inputs.reconcile || false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          requested=()
+          if [[ "$RECONCILE" != 'true' ]]; then
+            if [[ "$REQUESTED_DIGEST" == 'mock' ]]; then
+              printf 'should_build=true\nrelease_digest=mock\nsource_commit=\n' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            requested=(--requested-digest "$REQUESTED_DIGEST")
+          fi
+          python -m lib.reconcile_releases plan --limit 1 \
+            --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
+            "${requested[@]}" --github-output "$GITHUB_OUTPUT" \
+            > "$RUNNER_TEMP/reconciliation.json"
+          cat "$RUNNER_TEMP/reconciliation.json" >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
+    needs: prepare
+    if: needs.prepare.outputs.should_build == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -43,12 +92,29 @@ jobs:
       - name: Install content parsers
         run: python -m pip install -r requirements.txt
 
+      - name: Restore a completed ingestion if deployment was interrupted
+        id: checkpoint
+        if: needs.prepare.outputs.release_digest != 'mock'
+        uses: actions/cache/restore@v4
+        with:
+          path: _site
+          key: pages-ingestion-v1-${{ github.sha }}-${{ needs.prepare.outputs.release_digest }}
+
+      - name: Verify the recovered site's release and Library bindings
+        if: steps.checkpoint.outputs.cache-hit == 'true'
+        run: >-
+          python -m lib.reconcile_releases check-checkpoint
+          --digest '${{ needs.prepare.outputs.release_digest }}' --output _site
+          --previous-url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+
       - name: Acquire the digest-addressed truth-release
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         id: acquire
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          REQUESTED_DIGEST: ${{ inputs.truth_release_digest || 'mock' }}
+          REQUESTED_DIGEST: ${{ needs.prepare.outputs.release_digest }}
+          PLANNED_SOURCE_COMMIT: ${{ needs.prepare.outputs.source_commit }}
         run: |
           set -euo pipefail
           bundle="$RUNNER_TEMP/truth-release"
@@ -59,15 +125,11 @@ jobs:
           else
             [[ "$REQUESTED_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] \
               || { printf '%s\n' 'truth_release_digest must be mock or sha256:<64 lowercase hex>' >&2; exit 1; }
-            assets="$RUNNER_TEMP/truth-release-assets"
-            mkdir "$assets"
-            release_tag="truth-release-${REQUESTED_DIGEST#sha256:}"
-            archive="truth-release-${REQUESTED_DIGEST#sha256:}.tar.gz"
-            gh release download "$release_tag" \
-              --repo "$TRUTH_REPOSITORY" \
-              --pattern "$archive" \
-              --dir "$assets"
-            python -m lib.vertical_smoke extract "$assets/$archive" "$bundle"
+            python -m lib.reconcile_releases acquire \
+              --digest "$REQUESTED_DIGEST" --source-commit "$PLANNED_SOURCE_COMMIT" \
+              --repository "$TRUTH_REPOSITORY" --bundle "$bundle" --output _site \
+              --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
+              --verified-json "$RUNNER_TEMP/verified-release.json"
             expected="$REQUESTED_DIGEST"
           fi
           python -m lib.vertical_smoke verify "$bundle" \
@@ -88,6 +150,7 @@ jobs:
             "$release_digest" "$source_commit" "$blueprint_ref"
 
       - name: Checkout Blueprint source at the exact truth-release commit
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         uses: actions/checkout@v4
         with:
           repository: the-omega-institute/trureturing
@@ -100,10 +163,12 @@ jobs:
           persist-credentials: false
 
       - uses: actions/setup-dotnet@v4
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         with:
           global-json-file: global.json
 
       - name: Restore the versioned Pages and Topology package graph
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -111,12 +176,15 @@ jobs:
         run: dotnet restore Trureturing.Pages.slnx --configfile nuget.config
 
       - name: Build Pages and its package-backed Topology runner
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: dotnet build Trureturing.Pages.slnx -c Release --no-restore --warnaserror
 
       - name: Render the basic release DAG
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: python -m lib.vertical_smoke build-basic '${{ steps.acquire.outputs.bundle }}' _site
 
       - name: Enrich the DAG and render release-bound concept pages
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: |
           python lib/human_labels.py \
             _site/data/basic-truth-graph.v1.json \
@@ -147,6 +215,7 @@ jobs:
           PY
 
       - name: Produce and measure certified topology
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -167,6 +236,7 @@ jobs:
           printf 'TOPOLOGY_MEASUREMENT %s\n' "$(jq -c . "$metrics")"
 
       - name: Produce the deterministic multiscale Topology Atlas
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -189,6 +259,7 @@ jobs:
             _site/data/topology-atlas.v1.json >/dev/null
 
       - name: Project and conform one release-bound multiscale Pages Atlas
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -271,18 +342,21 @@ jobs:
             _site/data/pages-conformation.v1.json >/dev/null
 
       - name: Precompute public Atlas layout and cacheable startup artifacts
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: >-
           node tools/build_atlas_startup.mjs
           _site/data/pages-atlas-view.v1.json
           _site/data/pages-atlas-manifest.v1.json _site
 
       - name: Render Wiki relationships from the final verified Atlas
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: >-
           python -m lib.knowledge_pages
           _site/data/pages-atlas-view.v1.json _site
           --manifest _site/data/pages-atlas-manifest.v1.json
 
       - name: Preserve architecture observations and append the verified release
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: >-
           node tools/build_architecture_history.mjs
           _site/data/pages-atlas-view.v1.json
@@ -290,14 +364,19 @@ jobs:
           https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
 
       - name: Archive content and publish source-bound research dossiers
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: >-
-          python -m lib.living_library
-          _site/data/pages-atlas-view.v1.json
-          _site/data/pages-atlas-manifest.v1.json _site
+          python -m lib.reconcile_releases ingest
+          --bundle '${{ steps.acquire.outputs.bundle }}'
+          --digest '${{ steps.acquire.outputs.release_digest }}'
+          --graph _site/data/pages-atlas-view.v1.json
+          --manifest _site/data/pages-atlas-manifest.v1.json --output _site
           --source-repo _upstream
           --previous-url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          --for-deployment
 
       - name: Finalize the release-bound Pages deployment
+        if: steps.checkpoint.outputs.cache-hit != 'true'
         run: |
           pages_commit="$(git rev-parse HEAD)"
           pages_tree="$(git rev-parse HEAD^{tree})"
@@ -307,6 +386,13 @@ jobs:
             "$pages_commit" \
             "$pages_tree" \
             --metrics "$RUNNER_TEMP/topology-measurement.json"
+
+      - name: Save the completed site so a deployment retry does not repeat ingestion
+        if: steps.checkpoint.outputs.cache-hit != 'true' && needs.prepare.outputs.release_digest != 'mock'
+        uses: actions/cache/save@v4
+        with:
+          path: _site
+          key: pages-ingestion-v1-${{ github.sha }}-${{ needs.prepare.outputs.release_digest }}
 
       - name: Refuse stale release or topology deployment
         shell: bash
