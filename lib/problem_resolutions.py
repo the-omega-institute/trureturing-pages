@@ -100,8 +100,13 @@ def verify_resolutions(problems, truth_export_index):
             raise ValueError(f"Resolution {gid}: no published truth-release node for {repo_path}.")
         if node.get("freeze_status") not in VERIFIED_STATUSES:
             raise ValueError(f"Resolution {gid}: node freeze_status {node.get('freeze_status')!r} is not kernel-verified.")
-        closure = set(node.get("node_axiom_closure", []))
-        if not closure <= KERNEL_AXIOMS or not closure:
+        # An empty closure is a legal subset of the three kernel axioms (a proof that uses none
+        # of them is the strongest possible), so it must pass. Missing evidence is different: the
+        # field's absence is not an empty set and must fail closed rather than be read as "no axioms".
+        if "node_axiom_closure" not in node:
+            raise ValueError(f"Resolution {gid}: missing axiom-closure evidence; refusing to read absence as empty.")
+        closure = set(node["node_axiom_closure"])
+        if not closure <= KERNEL_AXIOMS:
             raise ValueError(f"Resolution {gid}: axiom closure {sorted(closure)} escapes the kernel allowlist.")
         if declaration.rpartition(".")[2] not in _declaration_names(node):
             raise ValueError(f"Resolution {gid}: declaration {declaration} is not among the node's verified declarations.")

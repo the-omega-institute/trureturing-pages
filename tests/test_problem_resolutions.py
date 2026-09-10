@@ -129,10 +129,17 @@ class FormalizationGateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             verify_resolutions(self.problems(), index)
 
-    def test_empty_axiom_closure_fails_closed(self):
+    def test_empty_axiom_closure_is_valid_because_it_is_the_strongest_subset(self):
+        # A proof that uses none of the three kernel axioms is the cleanest possible result.
         index = index_truth_export(self.export([self.node(node_axiom_closure=[])]))
+        out = verify_resolutions(self.problems(), index)
+        self.assertEqual(out[0]["resolution"]["kernel_verified"]["freeze_status"], "frozen")
+
+    def test_missing_axiom_evidence_fails_closed_and_is_not_read_as_empty(self):
+        node = self.node()
+        del node["node_axiom_closure"]
         with self.assertRaises(ValueError):
-            verify_resolutions(self.problems(), index)
+            verify_resolutions(self.problems(), index_truth_export(self.export([node])))
 
     def test_declaration_not_among_verified_declarations_fails_closed(self):
         node = self.node(declarations=[{"declaration_name_key": "ns(ns(n0,2:D5),9:different)"}])
