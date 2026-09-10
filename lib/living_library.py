@@ -288,8 +288,9 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
         # kernel-verified node in this same published truth-release. The bundle's truth-export is
         # the sole authority; a resolution the release does not attest fails the build closed.
         from lib.problem_resolutions import index_truth_export, verify_resolutions
-        truth_export = json.loads((graph_path.parent / "truth-export.v1.json").read_bytes())
-        verify_resolutions(problems, index_truth_export(truth_export))
+        if any(problem.get("resolution") for problem in problems):
+            truth_export = json.loads((graph_path.parent / "truth-export.v1.json").read_bytes())
+            verify_resolutions(problems, index_truth_export(truth_export))
     else:
         raise ValueError("A real Library release requires its exact source checkout.")
     index_path = output / "data/library-history.v1.json"

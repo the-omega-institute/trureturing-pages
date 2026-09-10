@@ -90,6 +90,23 @@ class LivingLibraryTests(unittest.TestCase):
                 build(newer)
             self.assertEqual(index_bytes, (output / "data/library-history.v1.json").read_bytes())
 
+    def test_legacy_export_can_render_dossiers_but_cannot_certify_a_resolution(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            graph_path, manifest_path = root / "graph.json", root / "manifest.json"
+            raw = json.dumps(graph()).encode()
+            graph_path.write_bytes(raw)
+            manifest_path.write_text(json.dumps({"schema_version": "pages-atlas-manifest.v1", "atlas_graph_digest": digest(raw), "truth_release_digest": graph()["source_snapshot"]["truth_release_digest"]}))
+            (root / "truth-export.v1.json").write_text(json.dumps({"schema_version": 1, "dialect": "stratalint.truth-export.v1", "nodes": []}))
+            problem = parse_problem(problem_source(), "test-question.md")
+            with patch("lib.living_library.source_material", return_value=([problem], {})):
+                build_library(graph_path, manifest_path, root / "legacy-site", root)
+            problem["resolution"] = {"kind": "proved", "declaration_gid": "A.result", "source_path": "Blueprint/A.md"}
+            with patch("lib.living_library.source_material", return_value=([problem], {})):
+                with self.assertRaisesRegex(ValueError, "Unexpected truth-export wire contract"):
+                    build_library(graph_path, manifest_path, root / "unsafe-site", root)
+            self.assertFalse((root / "unsafe-site/research.html").exists())
+
     def test_mismatched_graph_is_rejected_before_export(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
