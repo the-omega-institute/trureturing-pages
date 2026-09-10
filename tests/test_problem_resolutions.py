@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from lib.problem_resolutions import bind_resolutions
+from lib.problem_resolutions import bind_resolutions, index_truth_export, verify_resolutions
 from lib.living_library import source_material, content_timeline
 from tests.test_living_library import problem_source
 
@@ -79,3 +79,73 @@ class ProblemResolutionTests(unittest.TestCase):
         self.assertEqual([event["event"] for event in events], ["Baseline", "Resolution changed", "Resolution changed"])
         self.assertEqual(events[1]["review"], "Source-recorded proved")
         self.assertEqual(events[2]["review"], "Reassessment needed")
+
+
+class FormalizationGateTests(unittest.TestCase):
+    """The published truth-release is the sole authority: a resolution renders as solved
+    only when its exact declaration is a kernel-verified frozen/proven node in that bundle."""
+
+    def node(self, **overrides):
+        base = {
+            "repo_path": "D5/S1/Example.lean",
+            "freeze_status": "frozen",
+            "frozen_node_id": "sha256:abc",
+            "node_axiom_closure": ["propext", "Classical.choice", "Quot.sound"],
+            "declarations": [{"declaration_name_key": "ns(ns(n0,2:D5),6:result)",
+                              "kind": "theorem", "statement_id": "sha256:def"}],
+        }
+        base.update(overrides)
+        return base
+
+    def export(self, nodes):
+        return {"schema_version": 2, "dialect": "stratalint.truth-export.v2", "nodes": nodes}
+
+    def problems(self):
+        return [{"slug": "sample", "resolution": {"kind": "proved",
+                 "declaration_gid": "D5/S1/Example.result", "source_path": "Blueprint/D5/S1/Example.md"}}]
+
+    def test_verified_frozen_declaration_passes_and_records_node_identity(self):
+        index = index_truth_export(self.export([self.node()]))
+        out = verify_resolutions(self.problems(), index)
+        self.assertEqual(out[0]["resolution"]["kernel_verified"],
+                         {"frozen_node_id": "sha256:abc", "freeze_status": "frozen"})
+
+    def test_proven_not_yet_frozen_declaration_also_passes(self):
+        index = index_truth_export(self.export([self.node(freeze_status="proven-not-yet-frozen")]))
+        out = verify_resolutions(self.problems(), index)
+        self.assertEqual(out[0]["resolution"]["kernel_verified"]["freeze_status"], "proven-not-yet-frozen")
+
+    def test_problem_without_resolution_is_untouched(self):
+        index = index_truth_export(self.export([self.node()]))
+        self.assertEqual(verify_resolutions([{"slug": "open"}], index), [{"slug": "open"}])
+
+    def test_missing_node_fails_closed(self):
+        index = index_truth_export(self.export([self.node(repo_path="D5/S1/Other.lean")]))
+        with self.assertRaises(ValueError):
+            verify_resolutions(self.problems(), index)
+
+    def test_axiom_closure_escaping_the_kernel_allowlist_fails_closed(self):
+        index = index_truth_export(self.export([self.node(node_axiom_closure=["propext", "sorryAx"])]))
+        with self.assertRaises(ValueError):
+            verify_resolutions(self.problems(), index)
+
+    def test_empty_axiom_closure_is_valid_because_it_is_the_strongest_subset(self):
+        # A proof that uses none of the three kernel axioms is the cleanest possible result.
+        index = index_truth_export(self.export([self.node(node_axiom_closure=[])]))
+        out = verify_resolutions(self.problems(), index)
+        self.assertEqual(out[0]["resolution"]["kernel_verified"]["freeze_status"], "frozen")
+
+    def test_missing_axiom_evidence_fails_closed_and_is_not_read_as_empty(self):
+        node = self.node()
+        del node["node_axiom_closure"]
+        with self.assertRaises(ValueError):
+            verify_resolutions(self.problems(), index_truth_export(self.export([node])))
+
+    def test_declaration_not_among_verified_declarations_fails_closed(self):
+        node = self.node(declarations=[{"declaration_name_key": "ns(ns(n0,2:D5),9:different)"}])
+        with self.assertRaises(ValueError):
+            verify_resolutions(self.problems(), index_truth_export(self.export([node])))
+
+    def test_wrong_wire_contract_refuses_to_gate(self):
+        with self.assertRaises(ValueError):
+            index_truth_export({"schema_version": 1, "dialect": "stratalint.truth-export.v1", "nodes": []})
