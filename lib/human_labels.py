@@ -55,8 +55,8 @@ def _clean_markdown(value: str) -> str:
     return _WHITESPACE.sub(" ", value).strip()
 
 
-def parse_blueprint(path: Path) -> dict[str, str | None]:
-    """Extract the requested H1, Abstract lead, and first theorem name."""
+def parse_blueprint(path: Path) -> dict[str, Any]:
+    """Extract presentation labels and source-authored literature attribution."""
     lines = path.read_text(encoding="utf-8").splitlines()
     title: str | None = None
     abstract: str | None = None
@@ -84,7 +84,13 @@ def parse_blueprint(path: Path) -> dict[str, str | None]:
                 break
         break
 
+    try:
+        from lib.literature import parse_citations
+    except ModuleNotFoundError:
+        from literature import parse_citations
+    citations = parse_citations("\n".join(lines))
     return {
+        **({"literature": citations} if citations else {}),
         "human_title": title,
         "human_abstract": abstract,
         "human_theorem": theorem,

@@ -148,12 +148,14 @@ def source_material(repo: Path, commit: str) -> tuple[list[dict], dict[str, str]
 
 
 def create_snapshot(graph: dict, graph_digest: str, problems: list[dict], blobs: dict[str, str]) -> dict:
-    fields = ("id", "gid", "title", "human_title", "human_abstract", "human_theorem", "kind", "domain", "layer", "state", "status", "repo_path", "true_depth", "depth")
+    fields = ("id", "gid", "title", "human_title", "human_abstract", "human_theorem", "kind", "domain", "layer", "state", "status", "repo_path", "true_depth", "depth", "literature", "blueprint_path")
     nodes = []
     for original in sorted(graph["nodes"], key=lambda n: n["id"]):
         node = {key: original[key] for key in fields if key in original}
         node["source_blob"] = blobs.get(node.get("repo_path"))
         content = {key: node.get(key) for key in ("title", "human_title", "human_abstract", "human_theorem", "repo_path", "source_blob", "state", "status")}
+        if node.get("literature"):
+            content["literature"] = node["literature"]
         node["content_digest"] = digest(json.dumps(content, sort_keys=True, ensure_ascii=False).encode())
         nodes.append(node)
     edges = [{key: edge[key] for key in ("source", "target", "layer", "status") if key in edge} for edge in graph["edges"]]
@@ -236,7 +238,7 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     from lib.research_results import render_followups
     destinations = '<nav class="conjecture-destinations" aria-label="Question views"><a href="#research-workbench">Research directions</a><a href="#resolved-questions">Resolved questions</a><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">Further reading / mdBook <i data-lucide="arrow-up-right"></i></a></nav>'
     body = body.replace('</header>', '</header>' + destinations + render_followups(snapshot), 1).replace('</main>', resolved_questions(snapshot) + '</main>')
-    body = body.replace('aria-label="Question views">', 'aria-label="Question views"><a href="discover.html">Concepts &amp; OEIS</a>')
+    body = body.replace('aria-label="Question views">', 'aria-label="Question views"><a href="discover.html">Research bridges</a><a href="oeis/">OEIS connections</a>')
     bank = page_shell("Conjectures", "", body, active="Conjectures", appearance="editorial").replace('</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>')
     write(output / "conjectures.html", bank)
     render_news(output, snapshot, page_shell)

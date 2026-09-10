@@ -255,7 +255,7 @@ def node_page(
 <nav aria-label="On this page"><a href="#overview">Overview</a><a href="#relationships">Relationship maps</a><a href="#proof-paths">Proof paths</a><a href="#references">Related knowledge</a><a href="#content-history">Content history</a><a href="#provenance">Provenance</a></nav>
 <div class="toc-coordinate"><span>{esc(node.get('domain'))}</span><strong>{esc(node.get('status') or node.get('state'))}</strong><small>RELEASE {esc(snap['release'].removeprefix('sha256:')[:12])}</small></div>
 <a class="toc-atlas" href="{dag}">Open in Atlas <i data-lucide="arrow-up-right"></i></a>
-{evolution_link}</aside>
+{evolution_link}<a class="toc-atlas" href="{root}discover.html?record={quote("module:" + node_id, safe="")}">Papers &amp; research bridges</a></aside>
 <article class="knowledge-article">
 <header class="knowledge-hero" id="overview"><div><p class="eyebrow">{esc(node.get('domain'))} / CONCEPT</p>
 <h1>{esc(title(node))}</h1><p class="knowledge-lede">{esc(abstract)}</p></div>

@@ -7,6 +7,7 @@ from urllib.parse import quote
 from xml.etree import ElementTree as ET
 
 from lib.knowledge_pages import esc, write
+from lib.research_bridges import extend_index, RELATIONS as BRIDGE_RELATIONS
 
 ASSETS = Path(__file__).resolve().parents[1] / "site/assets"
 BASE = "https://the-omega-institute.github.io/trureturing-pages/"
@@ -18,6 +19,8 @@ RELATIONS = {
     "proposed_target": "Proposed subproblem of a research family.",
     "source_anchor": "Source-authored motivation link to a released module, not theorem-use evidence.",
 }
+
+RELATIONS.update(BRIDGE_RELATIONS)
 
 
 def build_index(snapshot):
@@ -90,11 +93,12 @@ def build_index(snapshot):
                identifiers={"oeis": sequence["id"]}, evidence={"source_url": sequence["source_url"]})
         for relation in sequence["links"]:
             edge(id, relation["record"], relation["kind"], relation["scope"], relation["evidence_url"])
+    paths = extend_index(snapshot, records, edges, news, catalog, stories, ASSETS, BASE)
     ids = {r["id"] for r in records}
     if len(ids) != len(records) or any(e["source"] not in ids or e["target"] not in ids or e["kind"] not in RELATIONS for e in edges):
         raise ValueError("Invalid discovery graph references")
     return {"schema_version": "pages-discovery.v1", "truth_release_digest": snapshot["truth_release_digest"],
-            "reviewed": curated["reviewed"], "relation_types": RELATIONS,
+            "reviewed": curated["reviewed"], "relation_types": RELATIONS, "research_paths": paths,
             "records": sorted(records, key=lambda r: r["id"]), "relations": sorted(edges, key=lambda e: (e["source"], e["target"]))}
 
 
@@ -114,29 +118,38 @@ def render_discovery(output, snapshot, shell):
           "index_sha256": digest, "records": len(data["records"]), "relations": len(data["relations"]),
           "truth_release_digest": data["truth_release_digest"], "query_execution": "client-side", "docs_url": BASE + "api/"}))
     by_id = {r["id"]: r for r in data["records"]}
+    adjacent = {id: [] for id in by_id}
+    for edge in data["relations"]:
+        adjacent[edge["source"]].append(edge)
+        adjacent[edge["target"]].append(edge)
     for id, record in by_id.items():
-        related = [e for e in data["relations"] if id in (e["source"], e["target"])]
+        related = adjacent[id]
         name = hashlib.sha256(id.encode()).hexdigest()
         payload = {"schema_version": "pages-discovery-record.v1", "record": record, "relations": related,
-                   "neighbors": [by_id[n] for n in sorted({e[k] for e in related for k in ("source", "target")} - {id})], "index_sha256": digest}
+                   "neighbors": [by_id[n] for n in sorted({e[k] for e in related for k in ("source", "target")} - {id})], "index_sha256": digest, "research_paths": [p for p in data["research_paths"] if any(id in stage["records"] for stage in p["stages"])]}
         write(root / "records" / (name + ".json"), json.dumps(payload, ensure_ascii=False))
         if record["kind"] != "sequence":
             continue
         oeis = record["identifiers"]["oeis"]
         write(root / "oeis" / (oeis + ".json"), json.dumps(payload, ensure_ascii=False))
         items = "".join(f'<article><p class="eyebrow">{esc(e["kind"].replace("_", " "))}</p><h2><a href="{esc(by_id[e["target"]]["url"])}">{esc(by_id[e["target"]]["title"])}</a></h2><p>{esc(e["scope"])}</p><a href="{esc(e["evidence_url"])}">Association source</a></article>' for e in related if e["source"] == id)
-        body = f'<main class="site-main discovery"><p class="eyebrow">OEIS / RESEARCH CONNECTIONS</p><h1>{oeis}: {esc(record["title"])}</h1><a href="{record["evidence"]["source_url"]}">OEIS entry</a>{items}<p><a href="../../discover.html?q={oeis}">Explore related questions and bridges</a></p><a href="../../api/v1/oeis/{oeis}.json">JSON for AI clients</a></main>'
+        body = f'<main class="site-main discovery"><p class="eyebrow">OEIS / RESEARCH CONNECTIONS</p><h1>{oeis}: {esc(record["title"])}</h1><a href="{record["evidence"]["source_url"]}">OEIS entry</a>{items}<p><a href="../../discover.html?record=oeis%3A{oeis}">Explore related questions and bridges</a></p><a href="../../api/v1/oeis/{oeis}.json">JSON for AI clients</a></main>'
         html = shell(oeis + " research connections", "../../", body, appearance="editorial")
         html = html.replace('</head>', f'<link rel="stylesheet" href="../../assets/discovery.css"><link rel="canonical" href="{record["url"]}"><meta name="description" content="{esc(record["title"] + ": related formal results, exact proof scope and remaining questions in trureturing.")}"></head>')
         write(output / "oeis" / oeis / "index.html", html)
+    sequences = [r for r in data["records"] if r["kind"] == "sequence"]
+    rows = "".join(f'<article><p class="eyebrow">{esc(r["identifiers"]["oeis"])}</p><h2><a href="{esc(r["url"])}">{esc(r["title"])}</a></h2><p>{esc(r["summary"])}</p><p>{len(adjacent[r["id"]])} sourced connections</p><a href="../discover.html?record={quote(r["id"], safe="")}">Open research map</a></article>' for r in sequences)
+    oeis_body = '<main class="site-main discovery"><p class="eyebrow">INTEGER SEQUENCES / CONNECTED RESEARCH</p><h1>OEIS connections</h1><p>Start with a sequence. Follow the exact question, the scope of our result, and the next possible bridge.</p><p>A sequence identifier is not a conjecture. Each connection distinguishes a result about that sequence from related paper context and proposed questions.</p><div class="discovery-results">' + rows + '</div><p><a href="../discover.html">Explore all research journeys</a> · <a href="../api/">API for AI clients</a></p></main>'
+    write(output / "oeis/index.html", shell("OEIS connections", "../", oeis_body, appearance="editorial").replace('</head>', '<link rel="stylesheet" href="../assets/discovery.css"></head>'))
     docs = '''<main class="site-main discovery"><h1>Research Discovery API</h1><p>Public, read-only JSON resources. No authentication or API key is required.</p>
 <ul><li><a href="v1/manifest.json">GET /api/v1/manifest.json</a>: index URL, SHA-256 and release coordinate.</li><li><a href="v1/index.json">GET /api/v1/index.json</a>: searchable records and sourced, typed relationships.</li><li><a href="v1/oeis/A010060.json">GET /api/v1/oeis/A010060.json</a>: exact OEIS lookup, connected records and scope.</li><li>GET /api/v1/records/{sha256-of-UTF8-record-id}.json: record, neighbors and incident edges.</li></ul>
 <p><a href="openapi.json">OpenAPI 3.1 specification</a></p><p>Search the downloaded index by title, aliases, identifiers and summary. Query parameters do not filter these static endpoints. Unknown identifiers return HTTP 404, which means not indexed, not unsolved. Follow record URLs for human-readable results.</p>
+<p>Research paths expose public_problem, general_theorem, representation, new_problem and human_understanding stages. Check each stage status: a worked example does not establish independent understanding; a proposed transfer does not establish measured benefit. For a future measured-transfer claim, require a fixed held-out target set, baseline and bridge-enabled runs under the same budget, an ablation, raw outcomes and a versioned evaluation report tied to the exact representation proof. Independent understanding requires a separate reader task and assessment record. Missing evidence remains missing. Literature records retain DOI/arXiv identity and author attribution. Citation and acknowledgement edges are source-authored, not extracted theorem-use dependencies.</p>
 <p>Only result records carry reviewed proved/refuted status. Sequence associations, topic membership, proposed bridges and source anchors never propagate that status. Module membership does not certify every declaration. Source commits and release membership are separate. This curated index is not an exhaustive literature review or an extracted Lean theorem-use graph.</p>
 <p>Read the manifest, fetch the index and check its SHA-256. Retry if deployment changes cause a mismatch. Record responses identify their index snapshot. These immutable IDs can be used to join data across releases; retain snapshots in your own client for history.</p><a href="../discover.html">Search and explore</a></main>'''
     write(output / "api/index.html", shell("Research Discovery API", "../", docs, appearance="editorial"))
     write(output / "llms.txt", f'# trureturing\n\nMathematical research, Lean proofs and sourced research connections.\n\n- API documentation: {BASE}api/\n- Discovery manifest: {BASE}api/v1/manifest.json\n- Search: {BASE}discover.html\n\nDownload the JSON index and search locally. Exact OEIS resources use /api/v1/oeis/Axxxxxx.json. Associations are not proof claims; inspect relation kind, scope, result status and pinned evidence. A010060 identifies the underlying Thue-Morse sequence, not its derived complexity sequence.\n')
-    urls = {BASE, BASE + "discover.html", BASE + "api/"}
+    urls = {BASE, BASE + "discover.html", BASE + "api/", BASE + "oeis/"}
     urls.update(r["url"].split("#")[0].split("?")[0] for r in data["records"])
     sitemap = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
     for url in sorted(urls):

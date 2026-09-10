@@ -952,7 +952,9 @@ function renderResearch(root) {
   const research = el("a", "research-link", "Conjectures & research notebook");
   research.href = "conjectures.html";
   research.append(icon("arrow-up-right"));
-  root.append(research);
+  const bridges = el("a", "research-link", "Papers & research bridges");
+  bridges.href = `discover.html?record=${encodeURIComponent("module:" + node.id)}`;
+  root.append(research, bridges);
 }
 function researchPath(problem) {
   const root = el("div", "research-path");

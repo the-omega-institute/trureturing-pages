@@ -19,3 +19,46 @@
 .discovery .connection p { font-size:13px; }
 .discovery :focus-visible { outline:2px solid #326a54; outline-offset:4px; }
 @media(max-width:760px) { .discovery-layout { grid-template-columns:minmax(0,1fr); gap:20px; } .discovery { padding:28px 16px; } .discovery h1 { font-size:32px; } }
+.discovery { max-width:1480px; }
+.discovery-lede {max-width:750px;font-size:19px;color:#5c6663;margin-top:-12px;}
+.path-picker {display:flex;flex-wrap:wrap;gap:8px;margin:30px 0;}
+.discovery .path-picker button {border-radius:30px;font-size:13px;background:#eef2ef;}
+#research-chain {margin:32px 0 45px;}
+#research-chain>p {font-size:12px;color:#656e68;max-width:1000px;}
+#research-chain>p:first-child {letter-spacing:.12em;}
+.research-chain {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));list-style:none;padding:0;gap:10px;}
+.research-chain li {border:1px solid #ced8d2;border-top:3px solid #568473;background:#f0f4f0;padding:16px 14px;border-radius:6px;position:relative;}
+.research-chain li:nth-child(n+4) {background:#f8f5ef;border-color:#d8c9af;border-top-style:dashed;}
+.research-chain h3 {font:19px/1.25 Georgia,serif;margin:12px 0;}
+.research-chain p {font-size:12px;min-height:40px;color:#5c6663;}
+.discovery .research-chain button {padding:0;background:none;border:0;text-align:left;font-size:12px;text-decoration:underline;text-underline-offset:3px;}
+.research-chain small {font-variant-numeric:tabular-nums;letter-spacing:.1em;}
+.discovery-map-section {border-top:1px solid #cbd4d1;padding-top:24px;}
+.map-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.map-heading h2 {margin:5px 0;}
+.map-heading .eyebrow {font-size:11px;letter-spacing:.12em;}
+.map-controls {display:flex;gap:6px;flex-shrink:0;}
+.discovery .map-controls button {font-size:13px;padding:8px 12px;}
+.map-help {font-size:13px;color:#666f69;max-width:890px;}
+.discovery-map-layout {display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,350px);gap:26px;align-items:start;}
+#discovery-map {background:radial-gradient(circle at 45% 40%,#fff,#edf1ee);border:1px solid #d6ded8;border-radius:14px;overflow:hidden;}
+#discovery-map svg {display:block;width:100%;height:520px;touch-action:none;}
+.map-node {cursor:grab;outline:none;}
+.map-node rect {fill:#fff;stroke-width:1.3;filter:drop-shadow(0 3px 4px #203c3510);}
+.map-node.selected rect,.map-node:focus-visible rect {stroke-width:3;fill:#f1f8f4;}
+.map-node-kind {font:10px system-ui;fill:#747971;text-transform:uppercase;letter-spacing:.07em;}
+.map-node-title {font:13px system-ui;fill:#25372e;}
+.map-edge {fill:none;stroke:#a7b6ae;stroke-width:1.5;}
+.map-edge.proposed {stroke:#b49a6e;stroke-dasharray:6 5;}
+#map-status {font-size:12px;color:#5c6663;}
+.map-legend {display:flex;flex-wrap:wrap;gap:10px 18px;font-size:12px;}
+.map-legend span:before {content:'';display:inline-block;width:7px;height:7px;background:#716499;border-radius:50%;margin-right:6px;}
+.map-legend span:nth-child(2):before{background:#a17032}.map-legend span:nth-child(3):before{background:#306d61}.map-legend span:nth-child(4):before{background:#3d718f}.map-legend span:nth-child(5):before{background:#9a6066}
+#discovery-detail {max-height:720px;overflow:auto;overflow-wrap:anywhere;padding:0 12px 16px 0;font-size:14px;}
+#discovery-detail>p:first-child {font-size:11px;letter-spacing:.1em;color:#73796f;}
+#discovery-detail h2 {font-size:25px;margin-top:8px;}
+#discovery-detail code {display:block;font-size:11px;}
+#find-records {margin-top:60px;padding-top:24px;border-top:1px solid #cbd4d1;}
+.discovery-results {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;}
+@media(max-width:1050px){.discovery-map-layout{grid-template-columns:minmax(0,1fr)}#discovery-detail{max-height:480px}.research-chain{grid-template-columns:repeat(3,minmax(0,1fr))}.discovery-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.research-chain{grid-template-columns:1fr}.research-chain li{display:grid;grid-template-columns:24px 1fr;gap:0 10px}.research-chain li :not(small){grid-column:2}.research-chain h3{margin:0}.research-chain p{min-height:0;margin:6px 0}.map-heading{align-items:flex-start;flex-direction:column}#discovery-map svg{height:360px}.discovery-results{grid-template-columns:1fr}.path-picker{margin:20px 0}.discovery .path-picker button{text-align:left}}

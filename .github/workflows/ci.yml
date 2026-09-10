@@ -53,6 +53,9 @@ jobs:
           node --check site/assets/atlas-structure-core.js
           node --check site/assets/dag.js
           node --check site/assets/atlas-public.js
+          node --check site/assets/discovery.mjs
+          node --check site/assets/discovery-map.mjs
+          node --check site/assets/discovery-core.mjs
           node --check site/assets/atlas-results.mjs
           node --check site/assets/research-news.mjs
           node --check site/assets/research-result.mjs
@@ -88,6 +91,7 @@ jobs:
       - name: Run Atlas and release-bound research client tests
         run: |
           node tests/js/atlas-structure.test.js
+          node --test tests/js/discovery.test.mjs
           node --test tests/js/atlas-public.test.mjs
           node --test tests/js/atlas-startup.test.mjs
           node --test tests/js/atlas-visual.test.mjs

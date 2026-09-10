@@ -8,17 +8,22 @@
   <link rel="stylesheet" href="assets/site-theme.css">
   <link rel="stylesheet" href="assets/research-editorial.css">
   <link rel="stylesheet" href="assets/discovery.css">
+  <script defer src="assets/vendor/d3.min.js"></script>
   <script type="module" src="assets/discovery.mjs"></script>
   <script type="module" src="assets/i18n.mjs"></script>
 </head>
 <body class="site-themed research-editorial">
   <header class="knowledge-header"><a class="brand" href="index.html">trureturing</a><nav aria-label="Primary navigation"><a href="atlas.html" aria-current="page">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a></nav><span class="header-coordinate"><a href="https://github.com/the-omega-institute/trureturing">GitHub</a></span></header>
   <main class="site-main discovery">
-    <p class="eyebrow">THE OMEGA INSTITUTE / CONNECTED RESEARCH</p><h1>Research Discovery</h1>
-    <form role="search"><label for="discovery-query">Concept, OEIS number or theorem</label><div class="discovery-search"><input id="discovery-query" type="search" name="q" placeholder="A010060, logic and algebra, Thue-Morse" autocomplete="off"><button type="submit">Search</button></div></form>
+    <p class="eyebrow">THE OMEGA INSTITUTE / CONNECTED RESEARCH</p><h1>Research Discovery</h1><p class="discovery-lede">Follow an idea from a public question to a formal result, a change of representation, and the next problem.</p>
+    <nav id="research-paths" class="path-picker" aria-label="Research journeys"></nav>
+    <section id="research-chain" aria-label="From question to understanding"></section>
+    <section class="discovery-map-section" aria-labelledby="map-title"><div class="map-heading"><div><p class="eyebrow">PAPERS / QUESTIONS / FORMAL MATHEMATICS</p><h2 id="map-title">The connections behind the result</h2></div><div class="map-controls"><button id="map-zoom-in" type="button" aria-label="Zoom in">+</button><button id="map-zoom-out" type="button" aria-label="Zoom out">−</button><button id="map-reset" type="button">Reset view</button></div></div><p class="map-help">Select a node to follow its connections. Drag nodes, pan the background, or zoom. Solid lines record sourced relationships; dashed lines mark proposed transfers.</p><div class="discovery-map-layout"><div><div id="discovery-map" aria-label="Interactive research map"></div><p id="map-status" role="status"></p><div class="map-legend"><span>Literature</span><span>Questions</span><span>Formal results</span><span>Representations</span><span>Explanations</span></div></div><aside id="discovery-detail" aria-label="Research connections"><h2>Research connections</h2></aside></div></section>
+    <section id="find-records"><h2>Find a starting point</h2>
+    <form role="search"><label for="discovery-query">Concept, OEIS number, DOI or theorem</label><div class="discovery-search"><input id="discovery-query" type="search" name="q" placeholder="A010060, logic and algebra, Thue-Morse" autocomplete="off"><button type="submit">Search</button></div></form>
     <nav class="discovery-topics" aria-label="Research topics"><a href="?q=logic+and+algebra">Logic and algebra</a><a href="?q=integer+sequences">Integer sequences</a><a href="?q=A010060">A010060</a><a href="?q=A026471">A026471</a><a href="api/">API for AI clients</a></nav>
     <p id="discovery-status" role="status">Loading research records...</p>
-    <div class="discovery-layout"><section id="discovery-results" aria-label="Search results"></section><aside id="discovery-detail" aria-label="Research connections"><h2>Research connections</h2></aside></div>
+    <section id="discovery-results" class="discovery-results" aria-label="Search results"></section></section>
     <noscript><p><a href="oeis/A010060/">A010060: Thue-Morse research</a> · <a href="oeis/A026471/">A026471: greedy three-sumfree research</a> · <a href="api/v1/index.json">Download research index</a></p></noscript>
   </main>
 </body></html>
