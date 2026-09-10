@@ -375,6 +375,10 @@ jobs:
           --previous-url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           --for-deployment
 
+      - name: Verify the ingestion receipt is staged in the Pages artifact
+        if: steps.checkpoint.outputs.cache-hit != 'true'
+        run: test -s _site/data/ingestion-receipts.v1.json
+
       - name: Finalize the release-bound Pages deployment
         if: steps.checkpoint.outputs.cache-hit != 'true'
         run: |

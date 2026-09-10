@@ -66,6 +66,17 @@ class ReconciliationPlanTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "receipt.*history"):
             self.plan(receipts=receipts)
 
+    def test_remote_plan_can_use_receipt_as_idempotency_evidence_while_history_lags(self):
+        receipts = {"schema_version": EMPTY_RECEIPTS["schema_version"], "entries": [
+            {"release_digest": digest("b"), "library_entry_digest": digest("1"),
+             "ingested_at": NOW, "recorded_at": NOW, "deployed": True},
+            {"release_digest": digest("c"), "library_entry_digest": digest("2"),
+             "ingested_at": NOW, "recorded_at": NOW, "deployed": True},
+        ]}
+        result = self.plan(receipts=receipts, allow_orphan_receipts=True)
+        self.assertEqual(result["selected"], [])
+        self.assertEqual(result["ingested_count"], 3)
+
     def test_missing_release_before_tip_is_reported_and_never_appended(self):
         history = copy.deepcopy(HISTORY)
         history["current_truth_release_digest"] = digest("b")
@@ -153,6 +164,55 @@ class IngestionTests(unittest.TestCase):
         with patch.object(living_library, "build_library", side_effect=AssertionError("duplicate build")), patch.object(vertical_smoke, "verify_bundle", side_effect=AssertionError("duplicate verify")):
             self.assertEqual(self.ingest(), first)
         self.assertEqual(self.receipts_path.read_bytes(), original)
+
+    def test_existing_duplicate_rows_for_one_release_are_not_rebound_or_extended(self):
+        first = self.ingest()
+        history = json.loads(self.history_path.read_text())
+        duplicate = dict(history["entries"][0])
+        duplicate["digest"] = digest("f")
+        duplicate["path"] = "data/library/" + duplicate["digest"][7:] + ".json.gz"
+        history["entries"].append(duplicate)
+        self.history_path.write_text(json.dumps(history))
+        before = self.history_path.read_bytes()
+        result = self.ingest()
+        self.assertEqual(self.history_path.read_bytes(), before)
+        self.assertEqual(result["entries"], first["entries"])
+
+    def test_ingestion_publishes_receipt_under_site_data(self):
+        result = self.ingest()
+        self.assertTrue(self.receipts_path.is_file())
+        self.assertEqual(json.loads(self.receipts_path.read_text()), result)
+
+    def test_history_present_but_receipt_missing_is_recovered_without_rebuild(self):
+        first = self.ingest()
+        history = json.loads(self.history_path.read_text())
+        self.receipts_path.unlink()
+        def remote(_url, path, optional=False):
+            if path.split("?")[0] == reconcile.HISTORY_PATH:
+                return json.dumps(history).encode()
+            return None
+        with patch.object(living_library, "read_remote", side_effect=remote), \
+             patch.object(living_library, "build_library", side_effect=AssertionError("duplicate build")):
+            result = self.ingest(previous_url="https://example.test/")
+        self.assertEqual(result["entries"][0]["release_digest"], first["entries"][0]["release_digest"])
+        self.assertEqual(result["entries"][0]["library_entry_digest"], first["entries"][0]["library_entry_digest"])
+        self.assertEqual(json.loads(self.receipts_path.read_text())["entries"], result["entries"])
+
+    def test_receipt_present_but_history_stale_is_a_graceful_noop(self):
+        first = self.ingest()
+        receipt = first["entries"][0]
+        stale_history = copy.deepcopy(HISTORY)
+        def remote(_url, path, optional=False):
+            if path.split("?")[0] == reconcile.HISTORY_PATH:
+                return json.dumps(stale_history).encode()
+            return json.dumps({"schema_version": reconcile.RECEIPTS_SCHEMA, "entries": [receipt]}).encode()
+        shutil.rmtree(self.output)
+        with patch.object(living_library, "read_remote", side_effect=remote), \
+             patch.object(living_library, "build_library", side_effect=AssertionError("must not rebind")), \
+             patch.object(vertical_smoke, "verify_bundle", side_effect=AssertionError("must not verify twice")):
+            result = self.ingest(previous_url="https://example.test/")
+        self.assertEqual(result["entries"], [receipt])
+        self.assertEqual(json.loads(self.receipts_path.read_text())["entries"], [receipt])
 
     def test_receipt_append_preserves_existing_rows_and_rejects_rebinding(self):
         before = self.ingest()["entries"][0]
@@ -339,10 +399,13 @@ class ReconciliationWorkflowTests(unittest.TestCase):
             if any(marker in script for marker in ("lib.reconcile_releases acquire", "dotnet ", "lib.reconcile_releases ingest")):
                 self.assertIn("cache-hit != 'true'", step["if"])
         ingest = next(i for i, step in enumerate(steps) if "lib.reconcile_releases ingest" in step.get("run", ""))
+        receipt_check = next(i for i, step in enumerate(steps) if "ingestion-receipts.v1.json" in step.get("run", ""))
         save = next(i for i, step in enumerate(steps) if step.get("uses") == "actions/cache/save@v4")
         freshness = next(i for i, step in enumerate(steps) if "lib.vertical_smoke freshness" in step.get("run", ""))
         publish = next(i for i, step in enumerate(steps) if step.get("uses") == "actions/deploy-pages@v4")
         self.assertLess(ingest, save)
+        self.assertLess(ingest, receipt_check)
+        self.assertLess(receipt_check, save)
         self.assertLess(save, freshness)
         self.assertLess(freshness, publish)
         self.assertNotIn("cache-hit", steps[freshness].get("if", ""))

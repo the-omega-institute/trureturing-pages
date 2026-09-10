@@ -280,6 +280,22 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
     release = graph["source_snapshot"]["truth_release_digest"]
     if manifest.get("schema_version") != "pages-atlas-manifest.v1" or manifest.get("atlas_graph_digest") != graph_hash or manifest.get("truth_release_digest") != release or not DIGEST.fullmatch(release):
         raise ValueError("Library input does not match verified Atlas manifest.")
+    index_path = output / "data/library-history.v1.json"
+    if previous_index is not None:
+        # Reconciliation already read this index; keep that exact append base.
+        prior = validate_index(previous_index)
+    else:
+        if index_path.exists():
+            prior_raw = index_path.read_bytes()
+        elif previous_url:
+            prior_raw = read_remote(previous_url, "data/library-history.v1.json", True)
+        else:
+            prior_raw = None
+        prior = validate_index(json.loads(prior_raw)) if prior_raw else None
+    if prior:
+        release_coordinates = [entry["truth_release_digest"] for entry in prior["entries"]]
+        if len(set(release_coordinates)) != len(release_coordinates):
+            raise ValueError("Library history contains duplicate truth release digest")
     if graph.get("synthetic"):
         problems, blobs = [], {}
     elif source_repo:
@@ -293,13 +309,6 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
             verify_resolutions(problems, index_truth_export(truth_export))
     else:
         raise ValueError("A real Library release requires its exact source checkout.")
-    index_path = output / "data/library-history.v1.json"
-    if previous_index is not None:
-        # Reconciliation already read this index; keep that exact append base.
-        prior = validate_index(previous_index)
-    else:
-        prior_raw = read_remote(previous_url, "data/library-history.v1.json", True) if previous_url else (index_path.read_bytes() if index_path.exists() else None)
-        prior = validate_index(json.loads(prior_raw)) if prior_raw else None
     entries, archived = list(prior["entries"]) if prior else [], []
     for entry in entries:
         data = read_remote(previous_url, entry["path"]) if previous_url else (output / entry["path"]).read_bytes()
@@ -309,6 +318,12 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
         if digest(data) != entry["digest"] or item.get("schema_version") != SNAPSHOT or item.get("truth_release_digest") != entry["truth_release_digest"] or item.get("atlas_graph_digest") != entry["atlas_graph_digest"] or item["graph"]["source_snapshot"]["truth_release_digest"] != entry["truth_release_digest"]:
             raise ValueError("Archived Library snapshot failed verification.")
         archived.append((entry, item, data))
+    # A release coordinate is immutable even when a repeated build would render
+    # a different snapshot.  The reconciler normally short-circuits before
+    # calling us; keeping the guard here protects direct callers and stale-run
+    # retries after the existing archive has been verified.
+    if prior and prior["entries"][-1]["truth_release_digest"] == release:
+        return prior
     snapshot = create_snapshot(graph, graph_hash, problems, blobs)
     data = compress((json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode())
     key = digest(data)

@@ -191,33 +191,42 @@ def read_state(output, previous_url=None, history_path=None, receipts_path=None)
         if override is not None:
             # An explicitly supplied input must exist; a typo must not reset history.
             return Path(override).read_bytes()
+        # A completed build artifact is the authoritative state for this run.  A
+        # Pages URL is only a fallback because its CDN can lag the deployment.
+        local = Path(output) / relative
+        if local.exists():
+            return local.read_bytes()
         if previous_url:
             return living_library.read_remote(previous_url, f"{relative}?reconcile={nonce}", optional=True)
-        path = Path(output) / relative
-        return path.read_bytes() if path.exists() else None
+        return None
 
     raw_history = read(HISTORY_PATH, history_path)
     history = read_json(raw_history) if raw_history is not None else None
     history_entries(history)
     raw_receipts = read(RECEIPTS_PATH, receipts_path)
     receipts = validate_receipts(read_json(raw_receipts)) if raw_receipts is not None else {"schema_version": RECEIPTS_SCHEMA, "entries": []}
-    validate_receipt_history(history, receipts)
+    # A receipt can become visible before the matching history index at the
+    # Pages edge.  Keep it as idempotency evidence and let callers that require
+    # a complete checkpoint apply the strict validation explicitly.
+    validate_receipt_history(history, receipts, allow_orphans=True)
     return history, receipts
 
 
-def validate_receipt_history(history, receipts):
+def validate_receipt_history(history, receipts, *, allow_orphans=False):
     coordinates = {(e["truth_release_digest"], e["digest"]) for e in history_entries(history)}
     for receipt in validate_receipts(receipts)["entries"]:
         if (receipt["release_digest"], receipt["library_entry_digest"]) not in coordinates:
+            if allow_orphans:
+                continue
             raise ValueError("ingestion receipt has no matching history entry; restore history before retrying")
 
 
-def plan_releases(releases, history, receipts, is_ancestor, dev_head, limit=1):
+def plan_releases(releases, history, receipts, is_ancestor, dev_head, limit=1, *, allow_orphan_receipts=False):
     if type(limit) is not int or limit < 0:
         raise ValueError("limit must be a non-negative integer")
     require_oid(dev_head)
     entries = history_entries(history)
-    validate_receipt_history(history, receipts)
+    validate_receipt_history(history, receipts, allow_orphans=allow_orphan_receipts)
     known = {e["truth_release_digest"] for e in entries}
     known.update(e["release_digest"] for e in receipts["entries"])
     published = {}
@@ -307,6 +316,28 @@ def append_receipt(path, entry, *, deployed=False, now=None, recovered=False):
         return receipts
 
 
+def _receipt_for_release(receipts, release):
+    return next((row for row in receipts["entries"] if row["release_digest"] == release), None)
+
+
+def _recover_receipts(path, history, receipts, *, deployed=False, now=None):
+    """Materialize the receipt ledger and fill only coordinates still missing.
+
+    Receipt coordinates are immutable.  A stale history index can therefore
+    contain a different entry digest for a release whose receipt is already
+    known; preserving that receipt is safer than trying to rebind it.
+    """
+    path = Path(path)
+    if not path.exists():
+        living_library.write_bytes(path, (json.dumps(receipts, indent=2) + "\n").encode())
+    for entry in history_entries(history):
+        existing = _receipt_for_release(receipts, entry["truth_release_digest"])
+        if existing is not None and existing["library_entry_digest"] != entry["digest"]:
+            continue
+        receipts = append_receipt(path, entry, deployed=deployed, now=now, recovered=True)
+    return read_receipts(path)
+
+
 def acquire_release(release, output, destination, download, previous_url=None):
     history, _ = read_state(output, previous_url)
     if any(e["truth_release_digest"] == release["digest"] for e in history_entries(history)):
@@ -337,19 +368,25 @@ def ingest_release(bundle, graph_path, manifest_path, output, source_repo=None, 
     output = Path(output)
     require_digest(expected_digest)
     with locked(output / ".library-ingestion.lock"):
-        # build_library publishes the local index last. It is the recovery point
-        # if a prior attempt stopped before writing its receipt.
-        if (output / HISTORY_PATH).exists():
-            previous_url = None
         history, receipts = read_state(output, previous_url)
         existing = next((e for e in history_entries(history) if e["truth_release_digest"] == expected_digest), None)
         receipt_path = output / RECEIPTS_PATH
-        if existing:
-            if previous_url:
+        known_receipt = _receipt_for_release(receipts, expected_digest)
+        # Either side of the history/receipt pair is sufficient to make this
+        # release idempotent.  In particular, a receipt may reach the CDN while
+        # its history index is still cached from the previous deployment.
+        if existing is not None:
+            return _recover_receipts(
+                receipt_path,
+                history,
+                receipts,
+                deployed=bool(previous_url) or deployed,
+                now=now,
+            )
+        if known_receipt is not None:
+            if not receipt_path.exists():
                 living_library.write_bytes(receipt_path, (json.dumps(receipts, indent=2) + "\n").encode())
-            for entry in history_entries(history):
-                receipts = append_receipt(receipt_path, entry, deployed=bool(previous_url) or deployed, now=now, recovered=True)
-            return receipts
+            return read_receipts(receipt_path)
         verified = vertical_smoke.verify_bundle(bundle, expected_digest)
         graph = read_json(Path(graph_path).read_bytes())
         source = graph.get("source_snapshot", {})
@@ -363,17 +400,27 @@ def ingest_release(bundle, graph_path, manifest_path, output, source_repo=None, 
         # This remains the sole implementation of Library snapshots and history.
         index = living_library.build_library(Path(graph_path), Path(manifest_path), output, source_repo,
                                             previous_url, previous_index=history)
-        for entry in history_entries(history):
-            append_receipt(receipt_path, entry, deployed=bool(previous_url) or deployed, now=now, recovered=True)
-        return append_receipt(receipt_path, index["entries"][-1], deployed=deployed, now=now)
+        receipts = _recover_receipts(
+            receipt_path,
+            history,
+            receipts,
+            deployed=bool(previous_url) or deployed,
+            now=now,
+        )
+        entry = next((item for item in index["entries"] if item["truth_release_digest"] == expected_digest), None)
+        if entry is None:
+            raise ValueError("Library history did not contain the ingested release")
+        return append_receipt(receipt_path, entry, deployed=deployed, now=now)
 
 
 def check_checkpoint(output, expected_digest, previous_url=None):
     """Check the bindings on a complete cached site before resuming deployment."""
     output = Path(output)
     history, receipts = read_state(output)
+    validate_receipt_history(history, receipts)
     if previous_url:
         previous_history, previous_receipts = read_state(output, previous_url)
+        validate_receipt_history(previous_history, previous_receipts)
         previous_entries = history_entries(previous_history)
         if history_entries(history)[:len(previous_entries)] != previous_entries:
             raise ValueError("checkpoint would overwrite newer or different deployed history")
@@ -459,10 +506,19 @@ def main(argv=None):
             else:
                 ancestry = client
                 ancestry.head = client.dev_head()
-            result = plan_releases(releases, history, receipts, ancestry.is_ancestor, ancestry.head, args.limit)
+            result = plan_releases(
+                releases,
+                history,
+                receipts,
+                ancestry.is_ancestor,
+                ancestry.head,
+                args.limit,
+                allow_orphan_receipts=True,
+            )
             if args.requested_digest:
                 requested = require_digest(args.requested_digest)
-                if any(e["truth_release_digest"] == requested for e in history_entries(history)):
+                if (any(e["truth_release_digest"] == requested for e in history_entries(history))
+                        or _receipt_for_release(receipts, requested) is not None):
                     result["selected"] = []
                 elif not result["selected"] or result["selected"][0]["digest"] != requested:
                     raise ValueError("requested release is not the oldest eligible missing release; run reconciliation first")

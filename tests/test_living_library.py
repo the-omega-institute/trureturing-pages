@@ -136,6 +136,64 @@ class LivingLibraryTests(unittest.TestCase):
             self.assertEqual(len(result["entries"]), 2)
             self.assertEqual(result["entries"][0], first["entries"][0])
 
+    def test_same_truth_release_is_idempotent_even_if_snapshot_input_differs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / "site"
+            first_graph = dict(graph(), synthetic=True)
+            first_raw = json.dumps(first_graph).encode()
+            (root / "g.json").write_bytes(first_raw)
+            (root / "m.json").write_text(json.dumps({
+                "schema_version": "pages-atlas-manifest.v1",
+                "atlas_graph_digest": digest(first_raw),
+                "truth_release_digest": first_graph["source_snapshot"]["truth_release_digest"],
+            }))
+            first = build_library(root / "g.json", root / "m.json", output)
+            changed_graph = copy.deepcopy(first_graph)
+            changed_graph["nodes"][0]["human_abstract"] = "A later render of the same release."
+            changed_raw = json.dumps(changed_graph).encode()
+            (root / "g.json").write_bytes(changed_raw)
+            (root / "m.json").write_text(json.dumps({
+                "schema_version": "pages-atlas-manifest.v1",
+                "atlas_graph_digest": digest(changed_raw),
+                "truth_release_digest": changed_graph["source_snapshot"]["truth_release_digest"],
+            }))
+            result = build_library(root / "g.json", root / "m.json", output)
+            self.assertEqual(result, first)
+            self.assertEqual(len(result["entries"]), 1)
+
+    def test_rebuild_rejects_a_preexisting_duplicate_release_coordinate(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / "site"
+            value = dict(graph(), synthetic=True)
+            raw = json.dumps(value).encode()
+            (root / "g.json").write_bytes(raw)
+            (root / "m.json").write_text(json.dumps({
+                "schema_version": "pages-atlas-manifest.v1",
+                "atlas_graph_digest": digest(raw),
+                "truth_release_digest": value["source_snapshot"]["truth_release_digest"],
+            }))
+            build_library(root / "g.json", root / "m.json", output)
+            index_path = output / "data/library-history.v1.json"
+            index = json.loads(index_path.read_text())
+            duplicate = dict(index["entries"][0])
+            duplicate["digest"] = "sha256:" + "f" * 64
+            duplicate["path"] = "data/library/" + duplicate["digest"][7:] + ".json.gz"
+            index["entries"].append(duplicate)
+            index_path.write_text(json.dumps(index))
+            newer = dict(value)
+            newer["source_snapshot"] = dict(value["source_snapshot"], truth_release_digest="sha256:" + "b" * 64)
+            newer_raw = json.dumps(newer).encode()
+            (root / "g.json").write_bytes(newer_raw)
+            (root / "m.json").write_text(json.dumps({
+                "schema_version": "pages-atlas-manifest.v1",
+                "atlas_graph_digest": digest(newer_raw),
+                "truth_release_digest": "sha256:" + "b" * 64,
+            }))
+            with self.assertRaisesRegex(ValueError, "duplicate truth release"):
+                build_library(root / "g.json", root / "m.json", output)
+
 
 if __name__ == "__main__":
     unittest.main()
