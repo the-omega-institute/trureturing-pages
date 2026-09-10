@@ -115,6 +115,27 @@ class LivingLibraryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "verified Atlas"):
                 build_library(root / "g.json", root / "m.json", root / "out")
 
+    def test_reconciliation_can_pin_previous_index_while_reusing_archive_verification(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / "site"
+            def inputs(letter):
+                value = dict(graph(letter), synthetic=True)
+                raw = json.dumps(value).encode()
+                (root / "g.json").write_bytes(raw)
+                (root / "m.json").write_text(json.dumps({"schema_version": "pages-atlas-manifest.v1", "atlas_graph_digest": digest(raw), "truth_release_digest": value["source_snapshot"]["truth_release_digest"]}))
+            inputs("a")
+            first = build_library(root / "g.json", root / "m.json", output)
+            inputs("b")
+            def remote(url, path):
+                self.assertNotEqual(path, "data/library-history.v1.json")
+                return (output / path).read_bytes()
+            with patch("lib.living_library.read_remote", side_effect=remote):
+                result = build_library(root / "g.json", root / "m.json", output,
+                                       previous_url="https://example.test/", previous_index=first)
+            self.assertEqual(len(result["entries"]), 2)
+            self.assertEqual(result["entries"][0], first["entries"][0])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -47,6 +47,7 @@ jobs:
           gh workflow run pages.yml \
             --repo "$GITHUB_REPOSITORY" \
             --ref dev \
+            -f reconcile=true \
             -f "truth_release_digest=$TRUTH_RELEASE_DIGEST"
 
       - name: Record the delegated build coordinate
@@ -56,7 +57,9 @@ jobs:
           {
             echo '## Pages release reception'
             echo
-            echo "- Accepted truth release: \`$TRUTH_RELEASE_DIGEST\`"
+            echo "- Notified truth release: \`$TRUTH_RELEASE_DIGEST\`"
             echo '- Delegated pipeline: `pages.yml` on `dev`'
+            echo '- Reconciliation selects at most one oldest missing release; the notification is a wake-up hint and cannot jump the ancestor queue.'
+            echo '- This scheduling acknowledgement is not an ingestion or deployment receipt.'
             echo '- The delegated pipeline downloads and verifies the bundle, renders the basic DAG, computes certified topology, renders release-bound knowledge pages, checks freshness, and deploys atomically.'
           } >> "$GITHUB_STEP_SUMMARY"

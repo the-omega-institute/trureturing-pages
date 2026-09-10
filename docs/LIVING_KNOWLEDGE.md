@@ -12,6 +12,12 @@ the exact source commit. Daily repository activity is read separately from the
 public GitHub commits API without credentials. It is labeled development activity,
 never a published proof. API errors leave the source-history link available.
 
+An hourly bounded reconciliation also catches missing notifications. It selects
+one oldest missing release by source ancestry, skips existing history before
+downloads, and publishes ingestion receipts with the site. See
+[Release reconciliation](RELEASE_RECONCILIATION.md) for dry-run commands, recovery
+semantics and resource limits.
+
 ## Research
 
 The exporter reads `Problems/*.md` through Git at the source commit in the Atlas

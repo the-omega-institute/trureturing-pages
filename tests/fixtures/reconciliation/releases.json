@@ -1,0 +1,8 @@
+[
+  {"tag_name":"truth-release-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","target_commitish":"cccccccccccccccccccccccccccccccccccccccc","published_at":"2026-09-09T01:00:00Z","draft":false,"prerelease":false},
+  {"tag_name":"unrelated-v1","target_commitish":"dev","draft":false,"prerelease":false},
+  {"tag_name":"truth-release-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","target_commitish":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","published_at":"2026-09-11T01:00:00Z","draft":false,"prerelease":false},
+  {"tag_name":"truth-release-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","target_commitish":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","published_at":"2026-09-10T01:00:00Z","draft":false,"prerelease":false},
+  {"tag_name":"truth-release-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","target_commitish":"dddddddddddddddddddddddddddddddddddddddd","draft":true,"prerelease":false},
+  {"tag_name":"truth-release-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","target_commitish":"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","draft":false,"prerelease":true}
+]
