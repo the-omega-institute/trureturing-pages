@@ -23,9 +23,30 @@ semantics and resource limits.
 The exporter reads `Problems/*.md` through Git at the source commit in the Atlas
 manifest, including sparse checkouts. The working tree is not release evidence.
 YAML and CommonMark enforce the existing catalog metadata and required sections.
-Numeric-looking arXiv IDs remain strings. Duplicate keys, missing sections,
-unsafe slugs and invalid anchor lists fail the export. Raw HTML and unsafe links
-are disabled. Vendored KaTeX renders escaped TeX with trust disabled.
+Numeric-looking arXiv IDs remain strings. Duplicate keys, missing titles or
+sections, unsafe slugs and invalid anchor lists still fail dossier parsing. Each
+such failure quarantines only that problem: the release can archive its valid
+truth nodes and remaining dossiers. Raw HTML and unsafe links are disabled.
+Vendored KaTeX renders escaped TeX with trust disabled.
+
+Every new snapshot and its `data/library-history.v1.json` entry include
+`quarantined_problems`, a list of `{slug, path, reason}` records in source-path
+order. `slug` is derived from the filename (the catalog's required coordinate),
+`path` identifies the pinned `Problems/*.md`, and `reason` preserves the parser's
+exception string. The list length is the quarantine count; `problem_count`
+counts only valid dossiers. Clean releases have an explicit empty list. The
+snapshot digest covers the audit records, and the entry's `source_commit`
+identifies their immutable source. Legacy snapshots and entries remain readable
+and are not rewritten to add retrospective audit records.
+
+Only exceptions from the individual `parse_problem` call are caught. Git reads
+and decoding, bundle verification, Atlas/manifest digests, archive verification,
+and resolution checks still fail closed. Quarantined dossiers' resolution
+markers go through the existing binding/Frozen checks and the same truth-export
+contract and formalization gate as valid dossiers. After verification, those
+resolutions are withheld from the snapshot's problem list, dossiers, research
+news and discovery records. A quarantine never suppresses a resolution-gate
+failure or claims that a malformed dossier has been solved.
 
 Problem, Motivation, Gap, Route, Falsifier, Evidence, Triage and
 ASSUMED-UNVERIFIED are preserved. `triage: theorem` means a focused target, not a

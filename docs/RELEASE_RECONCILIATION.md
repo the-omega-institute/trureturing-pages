@@ -81,6 +81,24 @@ separate, bounded correction to the Pages read model.
 An explicit `--requested-digest` is admitted only if already ingested (a no-op)
 or the oldest eligible missing release. It cannot jump over the queue.
 
+An individual `Problems/*.md` parse failure is quarantined by the existing
+Library builder, so an immutable release with one malformed dossier can still
+be ingested. The public `data/library-history.v1.json` records each release's
+`quarantined_problems` list, with filename-derived `slug`, source `path` and exact
+failure `reason`. The same list is stored in the content-addressed snapshot at
+that entry's `path`; its digest binds the audit record to the release. An empty
+list means no problems were quarantined in that build, and `problem_count`
+excludes quarantined dossiers. See [Living knowledge](LIVING_KNOWLEDGE.md) for
+the data contract and legacy archive behavior.
+
+This exception applies only to dossier parsing. Bundle verification,
+truth-export contracts, resolution binding and formalization/Frozen checks,
+Atlas/manifest and archive digests still fail closed, including checks on
+resolutions attached to quarantined dossiers. Those resolutions are withheld
+from display after the checks succeed. Quarantine uses the existing snapshot,
+history and receipt path; it does not change release ordering, idempotency,
+receipt recovery or duplicate-history repair.
+
 ## Workflow and resource bounds
 
 `reconcile-truth-releases.yml` runs hourly at minute 17 UTC and can be dispatched

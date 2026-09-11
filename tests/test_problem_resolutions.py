@@ -68,8 +68,9 @@ class ProblemResolutionTests(unittest.TestCase):
             git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-m", "fixture")
             commit = git("rev-parse", "HEAD")
             (repo / self.path).write_text("# Changed after commit")
-            problems, _ = source_material(repo, commit)
+            problems, _, quarantined = source_material(repo, commit)
             self.assertEqual(problems[0]["resolution"]["kind"], "proved")
+            self.assertEqual(quarantined, [])
 
     def test_resolution_only_change_enters_history_even_when_dossier_bytes_do_not_change(self):
         a = {"graph": {"nodes": []}, "problems": [{"slug": "sample", "source_digest": "same", "motivation_gids": []}]}
