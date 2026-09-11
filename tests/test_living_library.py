@@ -68,7 +68,7 @@ class LivingLibraryTests(unittest.TestCase):
                 (graph_path.parent / "truth-export.v1.json").write_text(
                     json.dumps({"schema_version": 2, "dialect": "stratalint.truth-export.v2", "nodes": []}))
                 manifest_path.write_text(json.dumps({"schema_version": "pages-atlas-manifest.v1", "atlas_graph_digest": digest(raw), "truth_release_digest": value["source_snapshot"]["truth_release_digest"]}))
-                with patch("lib.living_library.source_material", return_value=([parse_problem(problem_source(), "test-question.md")], {"A.lean": "1" * 40})):
+                with patch("lib.living_library.source_material", return_value=([parse_problem(problem_source(), "test-question.md")], {"A.lean": "1" * 40}, [])):
                     return build_library(graph_path, manifest_path, output, root)
             first = build(graph())
             self.assertEqual(build(graph()), first)
@@ -99,10 +99,10 @@ class LivingLibraryTests(unittest.TestCase):
             manifest_path.write_text(json.dumps({"schema_version": "pages-atlas-manifest.v1", "atlas_graph_digest": digest(raw), "truth_release_digest": graph()["source_snapshot"]["truth_release_digest"]}))
             (root / "truth-export.v1.json").write_text(json.dumps({"schema_version": 1, "dialect": "stratalint.truth-export.v1", "nodes": []}))
             problem = parse_problem(problem_source(), "test-question.md")
-            with patch("lib.living_library.source_material", return_value=([problem], {})):
+            with patch("lib.living_library.source_material", return_value=([problem], {}, [])):
                 build_library(graph_path, manifest_path, root / "legacy-site", root)
             problem["resolution"] = {"kind": "proved", "declaration_gid": "A.result", "source_path": "Blueprint/A.md"}
-            with patch("lib.living_library.source_material", return_value=([problem], {})):
+            with patch("lib.living_library.source_material", return_value=([problem], {}, [])):
                 with self.assertRaisesRegex(ValueError, "Unexpected truth-export wire contract"):
                     build_library(graph_path, manifest_path, root / "unsafe-site", root)
             self.assertFalse((root / "unsafe-site/research.html").exists())

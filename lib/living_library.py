@@ -136,7 +136,12 @@ def parse_problem(text: str, filename: str) -> dict:
     return {"slug": slug, "title": title, "bibkey": str(meta.get("bibkey", "")), **source, "triage": meta["triage"], "motivation_gids": gids, "sections": content, "source_digest": digest(text.encode()), "literature_status": "not-rechecked", "last_literature_check": None, "route_status": "proposed"}
 
 
-def source_material(repo: Path, commit: str) -> tuple[list[dict], dict[str, str]]:
+def source_material(repo: Path, commit: str) -> tuple[list[dict], dict[str, str], list[dict]]:
+    """Read valid dossiers, blobs and quarantined dossiers from one exact commit.
+
+    Quarantined records retain bound resolutions until the caller runs the same
+    formalization gate on both lists; only their audit fields may be published.
+    """
     if not re.fullmatch(r"[a-f0-9]{40}", commit):
         raise ValueError("Research source must be an exact commit.")
     objects = {}
@@ -147,8 +152,19 @@ def source_material(repo: Path, commit: str) -> tuple[list[dict], dict[str, str]
         mode, kind, object_id = meta.decode().split()
         if kind == "blob" and mode in ("100644", "100755"):
             objects[path.decode()] = object_id
-    problems = [parse_problem(git(repo, "show", f"{commit}:{path}").decode(), Path(path).name)
-                for path in sorted(objects) if path.startswith("Problems/") and path.count("/") == 1 and path.endswith(".md")]
+    problems, quarantined = [], []
+    for path in sorted(objects):
+        if not (path.startswith("Problems/") and path.count("/") == 1 and path.endswith(".md")):
+            continue
+        # Source acquisition/decoding failures are release failures, not parse failures.
+        text = git(repo, "show", f"{commit}:{path}").decode()
+        filename = Path(path).name
+        try:
+            problem = parse_problem(text, filename)
+        except Exception as error:
+            quarantined.append({"slug": Path(path).stem, "path": path, "reason": str(error)})
+        else:
+            problems.append(problem)
     try:
         matches = git(repo, "grep", "-l", "-z", "-F", "scribe-open-problem-resolution-v", commit, "--", "Blueprint/*.md")
     except subprocess.CalledProcessError as error:
@@ -161,11 +177,13 @@ def source_material(repo: Path, commit: str) -> tuple[list[dict], dict[str, str]
             path = match.decode().removeprefix(commit + ":")
             blueprints[path] = git(repo, "show", f"{commit}:{path}").decode()
     from lib.problem_resolutions import bind_resolutions
-    problems = bind_resolutions(problems, blueprints, objects)
-    return problems, objects
+    # The filename is the catalog's slug coordinate, even if metadata cannot be
+    # parsed. Keep all binding/Frozen checks, including for withheld resolutions.
+    bound = bind_resolutions(problems + quarantined, blueprints, objects)
+    return bound[:len(problems)], objects, bound[len(problems):]
 
 
-def create_snapshot(graph: dict, graph_digest: str, problems: list[dict], blobs: dict[str, str]) -> dict:
+def create_snapshot(graph: dict, graph_digest: str, problems: list[dict], blobs: dict[str, str], *, quarantined_problems: list[dict] | None = None) -> dict:
     fields = ("id", "gid", "title", "human_title", "human_abstract", "human_theorem", "kind", "domain", "layer", "state", "status", "repo_path", "true_depth", "depth", "literature", "blueprint_path")
     nodes = []
     for original in sorted(graph["nodes"], key=lambda n: n["id"]):
@@ -177,7 +195,7 @@ def create_snapshot(graph: dict, graph_digest: str, problems: list[dict], blobs:
         node["content_digest"] = digest(json.dumps(content, sort_keys=True, ensure_ascii=False).encode())
         nodes.append(node)
     edges = [{key: edge[key] for key in ("source", "target", "layer", "status") if key in edge} for edge in graph["edges"]]
-    return {"schema_version": SNAPSHOT, "truth_release_digest": graph["source_snapshot"]["truth_release_digest"], "atlas_graph_digest": graph_digest, "graph": {"source_snapshot": graph["source_snapshot"], "nodes": nodes, "edges": edges}, "problems": problems}
+    return {"schema_version": SNAPSHOT, "truth_release_digest": graph["source_snapshot"]["truth_release_digest"], "atlas_graph_digest": graph_digest, "graph": {"source_snapshot": graph["source_snapshot"], "nodes": nodes, "edges": edges}, "problems": problems, "quarantined_problems": list(quarantined_problems or [])}
 
 
 def validate_index(index: dict) -> dict:
@@ -341,16 +359,17 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
         if len(set(release_coordinates)) != len(release_coordinates):
             raise ValueError("Library history contains duplicate truth release digest")
     if graph.get("synthetic"):
-        problems, blobs = [], {}
+        problems, blobs, quarantined = [], {}, []
     elif source_repo:
-        problems, blobs = source_material(source_repo, graph["source_snapshot"]["source_commit"])
+        problems, blobs, quarantined = source_material(source_repo, graph["source_snapshot"]["source_commit"])
         # Formalization gate: no resolution renders as solved unless its exact declaration is a
         # kernel-verified node in this same published truth-release. The bundle's truth-export is
         # the sole authority; a resolution the release does not attest fails the build closed.
         from lib.problem_resolutions import index_truth_export, verify_resolutions
-        if any(problem.get("resolution") for problem in problems):
+        resolution_candidates = problems + quarantined
+        if any(problem.get("resolution") for problem in resolution_candidates):
             truth_export = json.loads((graph_path.parent / "truth-export.v1.json").read_bytes())
-            verify_resolutions(problems, index_truth_export(truth_export))
+            verify_resolutions(resolution_candidates, index_truth_export(truth_export))
     else:
         raise ValueError("A real Library release requires its exact source checkout.")
     entries = list(prior["entries"]) if prior else []
@@ -361,13 +380,15 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
     # retries after the existing archive has been verified.
     if prior and prior["entries"][-1]["truth_release_digest"] == release:
         return prior
-    snapshot = create_snapshot(graph, graph_hash, problems, blobs)
+    # Withheld resolutions were checked above but must never enter display data.
+    quarantine_audit = [{key: item[key] for key in ("slug", "path", "reason")} for item in quarantined]
+    snapshot = create_snapshot(graph, graph_hash, problems, blobs, quarantined_problems=quarantine_audit)
     data = compress((json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode())
     key = digest(data)
     existing = next((i for i, (entry, item, _) in enumerate(archived) if entry["digest"] == key or item == snapshot), None)
     if existing is not None and existing != len(entries) - 1:
         raise ValueError("Incoming Library release is older than the archived tip.")
-    entry = {"digest": key, "path": f"data/library/{key[7:]}.json.gz", "truth_release_digest": release, "atlas_graph_digest": graph_hash, "source_commit": graph["source_snapshot"].get("source_commit"), "node_count": len(graph["nodes"]), "problem_count": len(problems)}
+    entry = {"digest": key, "path": f"data/library/{key[7:]}.json.gz", "truth_release_digest": release, "atlas_graph_digest": graph_hash, "source_commit": graph["source_snapshot"].get("source_commit"), "node_count": len(graph["nodes"]), "problem_count": len(problems), "quarantined_problems": quarantine_audit}
     if existing is None:
         entries.append(entry)
         archived.append((entry, snapshot, data))

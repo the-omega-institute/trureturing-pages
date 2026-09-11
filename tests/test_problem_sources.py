@@ -220,7 +220,7 @@ class ProblemSourceTests(unittest.TestCase):
                     "atlas_graph_digest": living_library.digest(raw), "truth_release_digest": graph()["source_snapshot"]["truth_release_digest"]}))
                 (root / "truth-export.v1.json").write_text(json.dumps({"schema_version": 2,
                     "dialect": "stratalint.truth-export.v2", "nodes": nodes}))
-                with patch.object(living_library, "source_material", return_value=([copy.deepcopy(problem)], {})):
+                with patch.object(living_library, "source_material", return_value=([copy.deepcopy(problem)], {}, [])):
                     if passes:
                         history = living_library.build_library(root / "graph.json", root / "manifest.json", root / "site", root)
                         entry = history["entries"][0]
