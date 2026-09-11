@@ -1,4 +1,4 @@
-"""Release-bound content, problem dossiers, and an append-only Library archive."""
+"""Release-bound content, problem dossiers, and a repairable Library projection."""
 from __future__ import annotations
 
 import argparse
@@ -273,6 +273,31 @@ def content_timeline(archived: list) -> dict:
     return {"schema_version": "pages-content-timeline.v1", "nodes": nodes, "problems": problems}
 
 
+def load_archives(entries: list, output: Path, previous_url: str | None = None) -> list:
+    """Load and verify snapshots for both normal builds and projection repair."""
+    archived = []
+    for entry in entries:
+        local = output / entry["path"]
+        # Match the reconciler's local checkpoint precedence over a stale CDN.
+        data = local.read_bytes() if local.exists() or not previous_url else read_remote(previous_url, entry["path"])
+        if digest(data) != entry["digest"]:
+            raise ValueError("Archived Library snapshot failed verification.")
+        item = archive_json(entry, data)
+        if item.get("schema_version") != SNAPSHOT or item.get("truth_release_digest") != entry["truth_release_digest"] or item.get("atlas_graph_digest") != entry["atlas_graph_digest"] or item["graph"]["source_snapshot"]["truth_release_digest"] != entry["truth_release_digest"]:
+            raise ValueError("Archived Library snapshot failed verification.")
+        archived.append((entry, item, data))
+    return archived
+
+
+def write_timeline(archived: list, output: Path) -> dict:
+    timeline = json.dumps(content_timeline(archived), ensure_ascii=False, separators=(",", ":")) + "\n"
+    data = compress(timeline.encode())
+    key = digest(data)
+    path = f"data/library/{key[7:]}.json.gz"
+    write_bytes(output / path, data)
+    return {"path": path, "digest": key}
+
+
 def build_library(graph_path: Path, manifest_path: Path, output: Path, source_repo: Path | None = None, previous_url: str | None = None, *, previous_index: dict | None = None):
     raw = graph_path.read_bytes()
     graph, manifest = json.loads(raw), json.loads(manifest_path.read_bytes())
@@ -309,15 +334,8 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
             verify_resolutions(problems, index_truth_export(truth_export))
     else:
         raise ValueError("A real Library release requires its exact source checkout.")
-    entries, archived = list(prior["entries"]) if prior else [], []
-    for entry in entries:
-        data = read_remote(previous_url, entry["path"]) if previous_url else (output / entry["path"]).read_bytes()
-        if digest(data) != entry["digest"]:
-            raise ValueError("Archived Library snapshot failed verification.")
-        item = archive_json(entry, data)
-        if digest(data) != entry["digest"] or item.get("schema_version") != SNAPSHOT or item.get("truth_release_digest") != entry["truth_release_digest"] or item.get("atlas_graph_digest") != entry["atlas_graph_digest"] or item["graph"]["source_snapshot"]["truth_release_digest"] != entry["truth_release_digest"]:
-            raise ValueError("Archived Library snapshot failed verification.")
-        archived.append((entry, item, data))
+    entries = list(prior["entries"]) if prior else []
+    archived = load_archives(entries, output, previous_url)
     # A release coordinate is immutable even when a repeated build would render
     # a different snapshot.  The reconciler normally short-circuits before
     # calling us; keeping the guard here protects direct callers and stale-run
@@ -343,12 +361,8 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
             render_knowledge_site(item["graph"], output, immutable_only=True, archive_snapshot_digest=coordinate["digest"])
     render_knowledge_site(graph, output)
     render_research(snapshot, output, entry)
-    timeline = json.dumps(content_timeline(archived), ensure_ascii=False, separators=(",", ":")) + "\n"
-    timeline_data = compress(timeline.encode())
-    timeline_digest = digest(timeline_data)
-    timeline_path = f"data/library/{timeline_digest[7:]}.json.gz"
-    write_bytes(output / timeline_path, timeline_data)
-    index = validate_index({"schema_version": SCHEMA, "current_truth_release_digest": release, "entries": entries, "timeline": {"path": timeline_path, "digest": timeline_digest}})
+    timeline = write_timeline(archived, output)
+    index = validate_index({"schema_version": SCHEMA, "current_truth_release_digest": release, "entries": entries, "timeline": timeline})
     write(index_path, json.dumps(index, indent=2) + "\n")
     return index
 

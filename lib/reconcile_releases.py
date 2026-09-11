@@ -157,14 +157,14 @@ class RecordedAncestry:
         return False
 
 
-def validate_receipts(value):
+def validate_receipts(value, *, allow_duplicate_releases=False):
     if not isinstance(value, dict) or value.get("schema_version") != RECEIPTS_SCHEMA or not isinstance(value.get("entries"), list):
         raise ValueError("invalid ingestion receipts")
     seen = set()
     for entry in value["entries"]:
         release = require_digest(entry["release_digest"])
         require_digest(entry["library_entry_digest"])
-        if release in seen or type(entry.get("deployed")) is not bool:
+        if (release in seen and not allow_duplicate_releases) or type(entry.get("deployed")) is not bool:
             raise ValueError("duplicate or invalid ingestion receipt")
         for field in ("recorded_at", "ingested_at"):
             timestamp = entry.get(field)
@@ -185,7 +185,7 @@ def read_receipts(path):
     return validate_receipts(read_json(path.read_bytes())) if path.exists() else {"schema_version": RECEIPTS_SCHEMA, "entries": []}
 
 
-def read_state(output, previous_url=None, history_path=None, receipts_path=None):
+def read_state(output, previous_url=None, history_path=None, receipts_path=None, *, allow_duplicate_receipts=False):
     nonce = time.time_ns()
     def read(relative, override):
         if override is not None:
@@ -204,17 +204,18 @@ def read_state(output, previous_url=None, history_path=None, receipts_path=None)
     history = read_json(raw_history) if raw_history is not None else None
     history_entries(history)
     raw_receipts = read(RECEIPTS_PATH, receipts_path)
-    receipts = validate_receipts(read_json(raw_receipts)) if raw_receipts is not None else {"schema_version": RECEIPTS_SCHEMA, "entries": []}
+    receipts = (validate_receipts(read_json(raw_receipts), allow_duplicate_releases=allow_duplicate_receipts)
+                if raw_receipts is not None else {"schema_version": RECEIPTS_SCHEMA, "entries": []})
     # A receipt can become visible before the matching history index at the
     # Pages edge.  Keep it as idempotency evidence and let callers that require
     # a complete checkpoint apply the strict validation explicitly.
-    validate_receipt_history(history, receipts, allow_orphans=True)
+    validate_receipt_history(history, receipts, allow_orphans=True, allow_duplicate_receipts=allow_duplicate_receipts)
     return history, receipts
 
 
-def validate_receipt_history(history, receipts, *, allow_orphans=False):
+def validate_receipt_history(history, receipts, *, allow_orphans=False, allow_duplicate_receipts=False):
     coordinates = {(e["truth_release_digest"], e["digest"]) for e in history_entries(history)}
-    for receipt in validate_receipts(receipts)["entries"]:
+    for receipt in validate_receipts(receipts, allow_duplicate_releases=allow_duplicate_receipts)["entries"]:
         if (receipt["release_digest"], receipt["library_entry_digest"]) not in coordinates:
             if allow_orphans:
                 continue
@@ -336,6 +337,64 @@ def _recover_receipts(path, history, receipts, *, deployed=False, now=None):
             continue
         receipts = append_receipt(path, entry, deployed=deployed, now=now, recovered=True)
     return read_receipts(path)
+
+
+def repair_history(output, previous_url=None, *, deployed=False, now=None):
+    """Keep the first snapshot per release in the Pages read model.
+
+    This explicit repair is separate from normal append/idempotency checks. Base
+    releases and content addressed snapshots are never changed. Only receipts
+    bound to removed entries are pruned; missing retained receipts use the same
+    recovery path as ingestion, without inventing an original ingestion time.
+    """
+    output = Path(output)
+    receipt_path = output / RECEIPTS_PATH
+    with locked(output / ".library-ingestion.lock"), locked(receipt_path.with_suffix(".lock")):
+        history, receipts = read_state(output, previous_url, allow_duplicate_receipts=True)
+        entries, removed, seen = [], [], set()
+        for entry in history_entries(history):
+            release = entry["truth_release_digest"]
+            if release in seen:
+                removed.append(entry)
+            else:
+                entries.append(entry)
+                seen.add(release)
+        result = {"schema_version": "pages-library-history-repair.v1", "changed": bool(removed),
+                  "before_count": len(entries) + len(removed), "after_count": len(entries),
+                  "removed_entries": removed, "removed_receipts": []}
+        if not removed:
+            validate_receipts(receipts)
+            return result
+        # An unrelated orphan may be evidence of CDN lag (#50), not a duplicate.
+        # Require a coherent input before deleting any receipt coordinates.
+        validate_receipt_history(history, receipts, allow_duplicate_receipts=True)
+        removed_coordinates = {(entry["truth_release_digest"], entry["digest"]) for entry in removed}
+        retained_rows = []
+        for row in receipts["entries"]:
+            if (row["release_digest"], row["library_entry_digest"]) in removed_coordinates:
+                result["removed_receipts"].append(row)
+            else:
+                retained_rows.append(row)
+        retained_receipts = validate_receipts({**receipts, "entries": retained_rows})
+        clean = living_library.validate_index({**history, "entries": entries,
+                                               "current_truth_release_digest": entries[-1]["truth_release_digest"]})
+        archived = living_library.load_archives(entries, output, previous_url)
+        # Prepare a complete receipt ledger with the existing append/recovery
+        # implementation before touching either published index.
+        with tempfile.TemporaryDirectory(dir=output, prefix=".library-repair-") as temp:
+            staged_path = Path(temp) / RECEIPTS_PATH
+            staged_receipts = _recover_receipts(staged_path, clean, retained_receipts,
+                                                deployed=bool(previous_url) or deployed, now=now)
+            validate_receipt_history(clean, staged_receipts)
+            for entry, _, raw in archived:
+                if not (output / entry["path"]).exists():
+                    living_library.write_bytes(output / entry["path"], raw)
+            clean["timeline"] = living_library.write_timeline(archived, output)
+            # Receipts first, history last: after interruption the cleaned rows
+            # still match the old history, so a retry safely finishes the repair.
+            living_library.write_bytes(receipt_path, staged_path.read_bytes())
+            living_library.write_bytes(output / HISTORY_PATH, (json.dumps(clean, indent=2) + "\n").encode())
+        return result
 
 
 def acquire_release(release, output, destination, download, previous_url=None):
@@ -478,6 +537,10 @@ def parser():
     ingest.add_argument("--previous-url")
     ingest.add_argument("--digest", required=True)
     ingest.add_argument("--for-deployment", action="store_true", help="stage receipts for atomic publication with this site; not deployment confirmation")
+    repair = commands.add_parser("repair-history", help="deduplicate the Pages projection and align receipts; keep the first entry per release")
+    repair.add_argument("--output", type=Path, default=Path("_site"))
+    repair.add_argument("--previous-url")
+    repair.add_argument("--for-deployment", action="store_true", help="stage recovered receipts for publication with the repaired history")
     checkpoint = commands.add_parser("check-checkpoint")
     checkpoint.add_argument("--output", type=Path, default=Path("_site"))
     checkpoint.add_argument("--digest", required=True)
@@ -540,6 +603,8 @@ def main(argv=None):
                                       expected_digest=args.digest, previous_url=args.previous_url,
                                       deployed=args.for_deployment)
             print(f"Ingestion receipts: {len(receipts['entries'])}")
+        elif args.command == "repair-history":
+            print(json.dumps(repair_history(args.output, args.previous_url, deployed=args.for_deployment), indent=2))
         else:
             check_checkpoint(args.output, require_digest(args.digest), args.previous_url)
         return 0
