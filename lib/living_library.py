@@ -18,11 +18,13 @@ from markdown_it import MarkdownIt
 from mdit_py_plugins.texmath import texmath_plugin
 
 from lib.knowledge_pages import esc, render_knowledge_site, site_header, stable_file_name, write
+from lib.literature import problem_source_url, validate_http_url
 
 SCHEMA = "pages-library-history.v1"
 SNAPSHOT = "pages-library-snapshot.v1"
 DIGEST = re.compile(r"sha256:[a-f0-9]{64}\Z")
 SECTIONS = ("Problem", "Motivation", "Gap", "Route", "Falsifier", "Evidence", "Triage", "ASSUMED-UNVERIFIED")
+PROBLEM_SOURCES = ("doi", "arxiv_id", "url")
 MARKDOWN = MarkdownIt("commonmark", {"html": False}).use(texmath_plugin, delimiters="brackets")
 
 
@@ -41,7 +43,17 @@ class CatalogLoader(yaml.BaseLoader):
         keys = [key.value for key, _ in node.value]
         if len(set(keys)) != len(keys):
             raise ValueError("Duplicate problem metadata key.")
-        return super().construct_mapping(node, deep)
+        mapping = super().construct_mapping(node, deep)
+        # Only source fields treat YAML null as absent. Keep all other metadata,
+        # including numeric-looking arXiv identifiers, in BaseLoader's text form.
+        for key, value in node.value:
+            if key.value in PROBLEM_SOURCES and value.tag == "tag:yaml.org,2002:null":
+                mapping[key.value] = None
+        return mapping
+
+
+CatalogLoader.add_implicit_resolver(
+    "tag:yaml.org,2002:null", re.compile(r"(?:~|null|Null|NULL|)\Z"), ["~", "n", "N", ""])
 
 
 def digest(raw: bytes) -> str:
@@ -82,14 +94,20 @@ def parse_problem(text: str, filename: str) -> dict:
         raise ValueError(f"Invalid problem slug: {filename}")
     if meta.get("triage") not in ("theorem", "window", "wall"):
         raise ValueError(f"Invalid problem triage: {slug}")
-    if "doi" in meta:
+    source = {key: meta[key] for key in PROBLEM_SOURCES if meta.get(key) is not None}
+    if len(source) != 1:
+        raise ValueError(f"Exactly one problem source (doi, arxiv_id or url) is required: {slug}")
+    if "doi" in source:
         if not isinstance(meta["doi"], str) or not re.fullmatch(r"10\.\d{4,9}/[^\s<>\"]+", meta["doi"]):
             raise ValueError(f"Invalid DOI source: {slug}")
-        source = {"doi": meta["doi"]}
-    else:
+    elif "arxiv_id" in source:
         if not isinstance(meta.get("arxiv_id"), str) or not re.fullmatch(r"\d{4}\.\d{4,5}(?:v\d+)?", meta["arxiv_id"]):
             raise ValueError(f"Invalid arXiv source: {slug}")
-        source = {"arxiv_id": meta["arxiv_id"]}
+    else:
+        try:
+            validate_http_url(meta["url"])
+        except ValueError as error:
+            raise ValueError(f"Invalid URL source: {slug}") from error
     gids = meta.get("motivation_gids")
     if not isinstance(gids, list) or not gids or any(not isinstance(gid, str) or not gid for gid in gids) or len(set(gids)) != len(gids):
         raise ValueError(f"Invalid problem anchors: {slug}")
@@ -211,8 +229,8 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     triage = {"theorem": "Focused target", "window": "Exploratory", "wall": "Long horizon"}
     for problem in problems:
         slug = problem["slug"]
-        source_label = problem.get("doi") or "arXiv:" + problem["arxiv_id"]
-        source_url = "https://doi.org/" + quote(problem["doi"], safe="/") if problem.get("doi") else "https://arxiv.org/abs/" + problem["arxiv_id"]
+        source_label = problem.get("doi") or ("arXiv:" + problem["arxiv_id"] if problem.get("arxiv_id") else problem["url"])
+        source_url = problem_source_url(problem)
         resolution = problem.get("resolution")
         route_label = "Source-recorded " + resolution["kind"] if resolution else "Proposed route"
         status_label = "Repository record: " + resolution["kind"] if resolution else "Our route: proposed"
