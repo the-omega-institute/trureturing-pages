@@ -3,7 +3,7 @@ import hashlib
 import re
 from urllib.parse import quote
 
-from lib.literature import literature_identity
+from lib.literature import literature_identity, problem_source_url
 
 RELATIONS = {
     'cites': 'Source-authored attribution to prior literature; not an extracted proof dependency.',
@@ -39,8 +39,8 @@ def extend_index(snapshot, records, edges, news, catalog, stories, assets, base)
         if item not in edges:
             edges.append(item)
 
-    def paper(url, title=None, authors=None, year=None):
-        identity, ids, canonical = literature_identity(url)
+    def paper(url, title=None, authors=None, year=None, *, url_source=False):
+        identity, ids, canonical = literature_identity(url, url_source=url_source)
         id = 'literature:' + identity
         if id not in literature:
             literature[id] = add(id, 'literature', title or next(iter(ids.values())),
@@ -76,8 +76,8 @@ def extend_index(snapshot, records, edges, news, catalog, stories, assets, base)
         pid = paper('https://doi.org/' + family['doi'])
         edge('question:' + family['id'], pid, 'question_source', family['gap'], 'https://doi.org/' + family['doi'])
     for problem in snapshot['problems']:
-        url = 'https://doi.org/' + problem['doi'] if problem.get('doi') else 'https://arxiv.org/abs/' + problem['arxiv_id']
-        pid = paper(url)
+        url = problem_source_url(problem)
+        pid = paper(url, url_source='url' in problem)
         did = 'dossier:' + problem['slug']
         edge(did, pid, 'question_source', 'Release-bound dossier source; current open/solved literature status is not inferred.', url)
         # OEIS mentions are identifiers, not resolution claims. Preserve the exact source section.

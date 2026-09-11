@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from lib.knowledge_pages import esc, write
+from lib.literature import problem_source_url
 from lib.research_results import STORIES, render_result_pages
 
 CATALOG = Path(__file__).resolve().parents[1] / "site/assets/research-news.json"
@@ -31,7 +32,7 @@ def result_records(snapshot):
             item = {"id": problem["slug"], "title": problem["title"], "field": "Registered external question",
                     "kind": resolution["kind"], "module": module, "declaration": gid[len(module) + 1:],
                     "date": None, "source_commit": snapshot["graph"]["source_snapshot"]["source_commit"],
-                    "source_url": "https://doi.org/" + problem["doi"] if problem.get("doi") else "https://arxiv.org/abs/" + problem["arxiv_id"],
+                    "source_url": problem_source_url(problem),
                     "summary": "Resolution recorded in the source snapshot for this Truth release.",
                     "scope": problem["sections"]["Problem"]}
             results.append(item)

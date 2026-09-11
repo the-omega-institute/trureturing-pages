@@ -1,6 +1,6 @@
 """Read Scribe's emitted citations as attribution, never as proof-use evidence."""
 import re
-from urllib.parse import urlsplit, urlunsplit, unquote
+from urllib.parse import quote, urlsplit, urlunsplit, unquote
 
 from markdown_it import MarkdownIt
 
@@ -9,20 +9,48 @@ CITATION = re.compile(r'^\*(Citation|Acknowledgement)\.\* (.+) \((\d{4})\)\. \*(
 FORMALIZATION = re.compile(r'^\*Formalization\.\* `([^`]+)`')
 
 
-def literature_identity(url):
-    """Canonical stable identity; arXiv versions remain in each citation's source URL."""
-    parsed = urlsplit(url)
-    if parsed.scheme not in ('https', 'http') or not parsed.hostname or parsed.username or parsed.password:
+def validate_http_url(url):
+    """Validate the original URL before urlsplit can discard whitespace or controls."""
+    if not isinstance(url, str) or re.search(r'[\s\x00-\x1f\x7f<>"\\]|%(?![0-9a-fA-F]{2})', url):
         raise ValueError('Literature source must be a public HTTP(S) URL')
+    parsed = urlsplit(url)
+    if parsed.scheme not in ('https', 'http') or not parsed.hostname or parsed.username is not None or parsed.password is not None:
+        raise ValueError('Literature source must be a public HTTP(S) URL')
+    # Accessing port also rejects nonnumeric and out-of-range ports.
+    parsed.port
+    if ':' not in parsed.hostname:  # urlsplit already validates bracketed IPv6 hosts.
+        host = parsed.hostname.encode('idna').decode('ascii').rstrip('.')
+        if len(host) > 253 or any(not re.fullmatch(r'[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?', label)
+                                  for label in host.split('.')):
+            raise ValueError('Invalid HTTP(S) source hostname')
+    return parsed
+
+
+def problem_source_url(problem):
+    """Link to the single DOI, arXiv or URL source retained in a problem snapshot."""
+    if problem.get('doi'):
+        return 'https://doi.org/' + quote(problem['doi'], safe='/')
+    if problem.get('arxiv_id'):
+        return 'https://arxiv.org/abs/' + problem['arxiv_id']
+    return problem['url']
+
+
+def literature_identity(url, *, url_source=False):
+    """Canonical stable identity; arXiv versions remain in each citation's source URL."""
+    parsed = validate_http_url(url)
     if parsed.hostname.lower() in ('doi.org', 'dx.doi.org'):
         doi = unquote(parsed.path.lstrip('/')).lower()
         if not re.fullmatch(r'10\.\d{4,9}/[^\s<>"?#]+', doi):
-            raise ValueError('Invalid DOI identifier')
-        arxiv_doi = re.fullmatch(r'10\.48550/arxiv\.(\d{4}\.\d{4,5})(?:v\d+)?', doi)
-        if arxiv_doi:
-            arxiv = arxiv_doi[1]
-            return 'arxiv:' + arxiv, {'arxiv': arxiv, 'doi': doi}, 'https://arxiv.org/abs/' + arxiv
-        return 'doi:' + doi, {'doi': doi}, 'https://doi.org/' + doi
+            # An explicitly URL-sourced dossier can cite a general page on this
+            # host. DOI citations still require a valid identifier.
+            if not url_source:
+                raise ValueError('Invalid DOI identifier')
+        else:
+            arxiv_doi = re.fullmatch(r'10\.48550/arxiv\.(\d{4}\.\d{4,5})(?:v\d+)?', doi)
+            if arxiv_doi:
+                arxiv = arxiv_doi[1]
+                return 'arxiv:' + arxiv, {'arxiv': arxiv, 'doi': doi}, 'https://arxiv.org/abs/' + arxiv
+            return 'doi:' + doi, {'doi': doi}, 'https://doi.org/' + doi
     if parsed.hostname.lower() in ('arxiv.org', 'www.arxiv.org'):
         match = re.fullmatch(r'/(?:abs|html|pdf)/(\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?/\d{7})(?:v\d+)?(?:\.pdf)?/?', parsed.path)
         if match:
