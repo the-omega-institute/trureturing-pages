@@ -73,9 +73,10 @@ Missing sources must be ancestors of the pinned `dev` and form a single ancestry
 chain. Divergent sources and competing digests at the same source commit fail.
 Releases at or before the archived tip appear in `blocked` with
 `source_at_or_before_archived_tip`; they never get appended after a newer release.
-Safe successors can still be selected. Such older gaps require a separately
-reviewed historical replay from a suitable baseline; this tool does not rewrite
-the append-only archive or pretend those gaps were ingested.
+Safe successors can still be selected. Such older gaps require historical replay
+from a suitable baseline; normal ingestion does not insert them behind the tip
+or pretend those gaps were ingested. The duplicate-coordinate repair below is a
+separate, bounded correction to the Pages read model.
 
 An explicit `--requested-digest` is admitted only if already ingested (a no-op)
 or the oldest eligible missing release. It cannot jump over the queue.
@@ -101,7 +102,9 @@ For the selected release, the existing worker does the following:
    calls `vertical_smoke.extract_archive` and `vertical_smoke.verify_bundle`, and
    checks the selected source against the verified publication.
 2. Runs the existing Pages/Topology projection and exact source checkout steps.
-3. Calls `reconcile_releases ingest` on the final Atlas. It reuses bundle
+3. Calls `reconcile_releases repair-history` to remove legacy duplicate Library
+   coordinates and align receipts in `_site`, then calls `reconcile_releases
+   ingest` on the final Atlas. Ingestion reuses bundle
    verification, calls `build_library`, then appends the receipt. The optional
    `previous_index` argument pins the already inspected index; historical
    snapshots still use `build_library`'s original digest/contract verification.
@@ -111,6 +114,76 @@ For the selected release, the existing worker does the following:
 Only the planner exposes `--limit N`; the scheduled worker deliberately consumes
 one selection per run. To catch up faster, repeat bounded runs after completion.
 The scheduler does not fan out a list of heavyweight builds.
+
+## Repairing legacy duplicate Library coordinates
+
+`data/library-history.v1.json` is a Pages consumption projection that can be
+regenerated from authoritative Base releases. Its repair does not edit the Base
+append-only frozen ledger. Normal `build_library` still rejects a history that
+contains multiple entries for the same `truth_release_digest`; ingestion does
+not silently weaken that guard.
+
+The explicit repair command keeps the **first entry in the original history
+order for each release digest**, retaining that entry's exact snapshot digest
+and metadata. Later entries for the same release are removed from the index.
+Distinct releases keep their relative order, and `current_truth_release_digest`
+is set to the surviving tip. The command verifies retained snapshot bytes and
+release bindings with the same loader as `build_library`, then rebuilds the
+content timeline with the existing timeline generator so its observation indexes
+refer to the shortened history. Content addressed snapshot files are retained;
+the correction is to their index, and can be reversed from the original state.
+
+For a local site or downloaded projection (including its referenced snapshots):
+
+```bash
+/tmp/pagesvenv/bin/python -m lib.reconcile_releases repair-history \
+  --output _site > /tmp/library-history-repair.json
+```
+
+To read missing inputs from the deployed site and stage the repaired projection:
+
+```bash
+/tmp/pagesvenv/bin/python -m lib.reconcile_releases repair-history \
+  --output _site \
+  --previous-url https://the-omega-institute.github.io/trureturing-pages/ \
+  --for-deployment > /tmp/library-history-repair.json
+```
+
+JSON stdout uses `pages-library-history-repair.v1` and includes `changed`,
+`before_count`, `after_count`, `removed_entries` and `removed_receipts`. Output
+contains the clean `data/library-history.v1.json`, aligned
+`data/ingestion-receipts.v1.json`, retained snapshots and the rebuilt timeline.
+The command stages Library data; `pages.yml` completes the successor release's
+Atlas, pages, manifest and deployment. A standalone repaired index is not a
+complete site, and its retained tip can have a different Atlas digest from the
+currently served manifest. Keep the original projection when preparing a manual
+repair for review or rollback.
+
+Receipts pointing to removed entries are deleted, including legacy ledgers that
+contain receipts for both copies of a release. Surviving receipts retain their
+binding, timestamps and `deployed` value. Missing receipts for retained entries
+are restored using the existing ingestion recovery path: `ingested_at: null`,
+with the recovery time in `recorded_at`. An unrelated orphan receipt aborts a
+duplicate repair before either index changes; it may be evidence of CDN lag and
+is not discarded as a duplicate. Normal planning/ingestion still reject duplicate
+receipt ledgers, so those must first be repaired locally before planning from
+that local output.
+
+Repair takes the same ingestion and receipt locks as the worker, prepares and
+validates the cleaned ledger, writes receipts first, and replaces history last.
+If interrupted between the replacements, cleaned receipts still match entries
+in the old history, and retry completes the correction without changing their
+times. An already clean history is a no-op: index/artifact bytes and modification
+times are preserved, no snapshots are downloaded, and missing legacy receipts
+remain the responsibility of normal ingestion recovery.
+
+After this change reaches `dev`, a normal `pages.yml` dispatch with
+`reconcile=true` selects at most one oldest eligible missing release. Its deploy
+job runs repair immediately before ingestion and publishes both repaired history
+and receipts with the complete successor site. The repair report is included in
+the job summary. Completed cache restores skip both steps because repair already
+preceded the cached ingestion. When no release is eligible, preflight still skips
+the deploy job; the standalone command remains available to prepare a correction.
 
 ## Receipts and recovery
 
@@ -130,7 +203,9 @@ output, with schema `pages-ingestion-receipts.v1` and an `entries` array:
 `library_entry_digest` is the existing Library entry's `digest`, not the Atlas
 graph digest. Each release has at most one immutable receipt. File replacement is
 atomic under a local lock; retries preserve existing rows and their times.
-Changing an existing receipt's Library binding is rejected.
+Changing an existing receipt's Library binding is rejected. The explicit legacy
+repair described above can remove a receipt for an entry being removed and then
+recover a missing receipt for the retained entry; normal append never rebinds it.
 
 Local ingestion records `deployed: false`. `pages.yml` uses `--for-deployment` to
 stage new `deployed: true` rows in the candidate site that will be published as a
@@ -168,12 +243,18 @@ an older CDN response during queued runs.
 
 ```bash
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_reconcile_releases.py'
+/tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_repair_history.py'
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_*.py'
 ```
 
 Tests cover metadata pagination and anonymous reads, missing sets, ancestor
 ordering, limits, history skips, receipt append/idempotency and rebinding,
 interrupted writes, checkpoint corruption and stale history, the existing
-verifier's rejection of damaged bundle bytes, and workflow bounds/reuse.
+verifier's rejection of damaged bundle bytes, and workflow bounds/reuse. Repair
+tests cover duplicate coordinates and receipts, stable first-entry retention,
+byte/mtime idempotency, timeline observation indexes, resumed ingestion through
+the real bundle verifier and existing Library builder, damaged snapshots,
+unrelated orphan receipts, interrupted replacement, local/CDN precedence, CLI
+artifacts and deployment ordering.
 Real API counts must be obtained with the live dry-run command; failed network
 access must never be reported as zero missing releases.

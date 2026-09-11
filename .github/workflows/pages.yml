@@ -363,6 +363,15 @@ jobs:
           _site/data/pages-atlas-manifest.v1.json _site
           https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
 
+      - name: Repair duplicate Library projection coordinates before backfill
+        if: steps.checkpoint.outputs.cache-hit != 'true'
+        run: |
+          python -m lib.reconcile_releases repair-history \
+            --output _site \
+            --previous-url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ \
+            --for-deployment > "$RUNNER_TEMP/library-history-repair.json"
+          cat "$RUNNER_TEMP/library-history-repair.json" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Archive content and publish source-bound research dossiers
         if: steps.checkpoint.outputs.cache-hit != 'true'
         run: >-
