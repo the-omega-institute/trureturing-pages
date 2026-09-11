@@ -30,17 +30,17 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertIn('aria-current="page">Conjectures</a>', bank)
             self.assertNotIn('aria-current="page">Research</a>', bank)
             self.assertIn('aria-current="page">Research</a>', news)
-            self.assertEqual(bank.count('class="resolved-question"'), 4)
-            self.assertIn('id="resolved-bosma-conjecture-17"', bank)
+            self.assertEqual(news.count('class="resolved-question"'), 4)
+            self.assertIn('id="resolved-bosma-conjecture-17"', news)
             self.assertNotIn('data-problem-slug=', bank)
-            self.assertIn("Reviewed result / pinned upstream proof", bank)
+            self.assertIn("Reviewed result / pinned upstream proof", news)
             self.assertNotIn("release binding not recorded", bank)
             self.assertEqual(bank.count('class="result-followup"'), 3)
             self.assertIn('href="#rp=thue-morse-even-difference"', bank)
             self.assertIn('class="site-themed living-page research-editorial"', news)
             self.assertIn('class="site-themed living-page research-editorial"', bank)
             self.assertIn("trureturing-mdbook/open-problems.html", bank)
-            self.assertIn('href="conjectures.html#resolved-bosma-conjecture-17"', news)
+            self.assertIn('href="research.html#resolved-bosma-conjecture-17"', news)
             self.assertIn("Team-reported", news)
             self.assertIn("Official results have not been announced", news)
             self.assertEqual(news.count("Upstream Frozen / not in current Truth release"), 4)
@@ -59,6 +59,21 @@ class ResearchNewsTests(unittest.TestCase):
                 self.assertIn(item["url"], news)
                 if item.get("image"):
                     self.assertTrue((CATALOG.parent.parent / item["image"]).is_file())
+
+    def test_information_architecture_gives_each_page_one_primary_job(self):
+        snapshot = {"graph": graph(), "problems": [parse_problem(problem_source(), "test-question.md")], "truth_release_digest": "sha256:" + "a" * 64}
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
+            research = (output / "research.html").read_text()
+            conjectures = (output / "conjectures.html").read_text()
+            self.assertIn("What we are working on now", research)
+            self.assertIn('id="frontier"', research)
+            self.assertIn('id="results"', research)
+            self.assertIn('id="open-problems"', conjectures)
+            self.assertNotIn('class="resolved-question"', conjectures)
+            self.assertIn('href="research.html#results"', conjectures)
+            self.assertIn('href="discover.html"', research)
 
     def test_result_pages_include_exact_pinned_code_and_local_downloads(self):
         snapshot = {"graph": graph(), "problems": [], "truth_release_digest": "sha256:" + "a" * 64}
@@ -141,8 +156,8 @@ class ResearchNewsTests(unittest.TestCase):
             dossier = (output / "research/test-question/index.html").read_text()
             self.assertIn('id="test-question"', news)
             self.assertIn("Refuted / source record", news)
-            self.assertIn('id="resolved-test-question"', bank)
-            self.assertIn('data-problem-slug="test-question" data-resolution-kind="refuted"', bank)
+            self.assertIn('id="resolved-test-question"', news)
+            self.assertIn('data-problem-slug="test-question" data-resolution-kind="refuted"', news)
             self.assertIn("Repository record: refuted", dossier)
             self.assertNotIn("Our route: proposed", dossier)
             self.assertIn("D5/S1/Example.result", dossier)

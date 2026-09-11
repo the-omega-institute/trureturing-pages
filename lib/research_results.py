@@ -27,7 +27,7 @@ def render_followups(snapshot):
             continue
         targets = ''.join(f'<a href="#rp={target["id"]}">{esc(target["title"])} <i data-lucide="arrow-up-right"></i></a>' for target in family['targets'])
         rows.append(f'''<article class="result-followup"><p class="eyebrow">{esc(family['area'])}</p><h3><a href="#rp={family['id']}">{esc(family['title'])}</a></h3><p>{esc(family['next_step'])}</p><div class="followup-targets">{targets}</div><a class="followup-origin" href="results/{family['builds_on']}/">Completed result <i data-lucide="arrow-up-right"></i></a></article>''')
-    return f'''<section class="result-followups" id="next-questions" aria-labelledby="next-questions-title"><div class="news-section-heading"><div><p class="eyebrow">FROM RESULTS TO NEW QUESTIONS</p><h2 id="next-questions-title">The next questions</h2></div><a href="#resolved-questions">Completed results <i data-lucide="arrow-down"></i></a></div><div class="followup-grid">{''.join(rows) or '<p>No remaining follow-up families in this source snapshot.</p>'}</div></section>'''
+    return f'''<section class="result-followups" id="next-questions" aria-labelledby="next-questions-title"><div class="news-section-heading"><div><p class="eyebrow">FROM RESULTS TO NEW QUESTIONS</p><h2 id="next-questions-title">The next questions</h2></div><a href="research.html#results">Completed results <i data-lucide="arrow-down"></i></a></div><div class="followup-grid">{''.join(rows) or '<p>No remaining follow-up families in this source snapshot.</p>'}</div></section>'''
 
 
 def proof_source(item, story):
