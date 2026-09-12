@@ -47,6 +47,8 @@ def build(output):
         if snapshot.get('truth_release_digest')!=entry['truth_release_digest'] or snapshot.get('atlas_graph_digest')!=entry['atlas_graph_digest']:
             raise ValueError('Archived snapshot binding mismatch')
         snapshots.append(snapshot)
+    if index.get('timeline'):
+        timeline=index['timeline'];acquire(timeline['path'],timeline['digest'])
     snapshot=snapshots[-1]
     render_research(snapshot,output,current)
     render_knowledge_site(graph,output)

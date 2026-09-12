@@ -247,6 +247,9 @@ def apply_reading_views(output: Path, snapshot: dict, records: list):
         research.write_text(render_research_groups(research.read_text(), snapshot, records), encoding='utf-8')
     if conjectures.exists():
         conjectures.write_text(render_conjecture_groups(conjectures.read_text(), snapshot, output), encoding='utf-8')
+    for pattern in ('research/*/index.html', 'results/*/index.html'):
+        for path in output.glob(pattern):
+            path.write_text(common_shell(path.read_text(), '../../'), encoding='utf-8')
     for path in output.glob('*.html'):
         path.write_text(add_spaces_navigation(path.read_text()), encoding='utf-8')
 

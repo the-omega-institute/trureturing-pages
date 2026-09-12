@@ -118,3 +118,15 @@
  [data-reading-page] details.reading-item > summary strong {flex-basis:100%}
  [data-reading-page] .reading-search label {flex-basis:100%}
 }
+
+/* Keep collection totals aligned across legacy reading styles. */
+.site-themed[data-reading-page] details.reading-group > summary {width:100%;max-width:none}
+.site-themed[data-reading-page] .reading-count {margin-left:auto;flex:0 0 auto}
+.site-themed[data-reading-page] .journal-mark strong {font-size:18px;line-height:1.2;letter-spacing:0;white-space:nowrap}
+.site-themed[data-reading-page] .journal-mark :is(span,a) {overflow-wrap:anywhere;white-space:normal;color:var(--muted)}
+
+/* Individual dossiers and proof pages keep the same surface during navigation. */
+.site-themed.research-editorial[data-reading-page] :is(.prose,.prose .katex,.result-lede,.result-equations,.result-example figcaption,.result-boundary,.result-source-details summary,.result-provenance summary) {color:var(--text)}
+.site-themed.research-editorial[data-reading-page] :is(.result-code-toolbar,.result-code,.result-sequence li) {background:var(--surface);color:var(--text);border-color:var(--border)}
+.site-themed.research-editorial[data-reading-page] .result-sequence li.marked {background:#19302a;color:#b9e7d6;border-color:#4b7d6c}
+.site-themed.research-editorial[data-reading-page] .result-code-toolbar :is(a,button) {background:#182722;color:var(--link);border-color:#466f60}

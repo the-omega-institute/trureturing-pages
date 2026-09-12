@@ -50,7 +50,7 @@ def main():
         assert page.evaluate('getComputedStyle(document.documentElement).backgroundColor')=='rgb(9, 12, 16)'
         assert page.evaluate('window.__shifts.reduce((a,b)=>a+b,0)')<0.1
         events.append('Conjectures is dark before notebook enhancement and initial layout shift stays below 0.1')
-        assert page.locator('main .reading-tabs a[href^="research.html"]').count()==0
+        assert not page.locator('main .reading-tabs a').evaluate_all("links=>links.some(a=>new URL(a.href).pathname.endsWith('/research.html'))")
         page.screenshot(path=str(args.output/'conjectures-desktop.png'),full_page=True)
         rows=page.locator('a.problem-row')
         if rows.count():
@@ -59,7 +59,8 @@ def main():
             assert urlsplit(destination).path.startswith('/research/')
             page.goto(destination,wait_until='networkidle')
             assert '/research/' in page.url and 'research.html' not in page.url
-            events.append('A source question opens its individual dossier')
+            assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(9, 12, 16)'
+            events.append('A source question opens its individual dossier on the same dark reading surface')
         page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
         page.locator('#research-directions > summary').click()
         page.wait_for_selector('#research-workbench-slot #research-workbench',timeout=30000)
@@ -68,7 +69,7 @@ def main():
         page.goto(base+'evolution.html?lang=en',wait_until='networkidle')
         page.wait_for_function("!document.getElementById('evolution-reader-status').textContent.includes('Checking')&&!document.getElementById('evolution-reader-status').textContent.includes('Verifying')")
         assert 'unavailable' not in page.locator('#evolution-reader-status').inner_text().lower()
-        assert page.locator('a[href^="evolution-structure.html"]').count()==1
+        assert page.locator('a[href*="evolution-structure.html"]').count()==1
         assert page.locator('#evolution-map').count()==0
         events.append('Evolution starts with verified named changes; the old map is a separate destination')
         page.screenshot(path=str(args.output/'evolution-desktop.png'),full_page=True)
