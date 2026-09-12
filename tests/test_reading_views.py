@@ -71,6 +71,7 @@ class ReadingViewsTests(unittest.TestCase):
         parsed=Fragments(out)
         self.assertNotIn('research/done/',parsed.raw(parsed.select(id='open-problems')[0]))
         self.assertIn('research/done/',parsed.raw(parsed.select(id='completed-dossiers')[0]))
+        self.assertEqual('proved', parsed.select(id='resolved-done')[0].attrs['data-resolution-kind'])
         self.assertIn('href="research/q1/"',out)
         self.assertIn('href="research/q2/"',out)
         main=Fragments(out).raw(Fragments(out).select(tag='main')[0])
