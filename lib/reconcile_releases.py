@@ -222,6 +222,35 @@ def validate_receipt_history(history, receipts, *, allow_orphans=False, allow_du
             raise ValueError("ingestion receipt has no matching history entry; restore history before retrying")
 
 
+def current_release(history):
+    """Resolve the deployed coordinate from its history, never a release listing."""
+    if history is None:
+        raise ValueError("cannot rebuild current release: deployed Library history is absent")
+    entries = history_entries(history)
+    release = require_digest(history["current_truth_release_digest"])
+    sources = {require_oid(entry.get("source_commit")) for entry in entries
+               if entry["truth_release_digest"] == release}
+    if len(sources) != 1:
+        raise ValueError("current release has conflicting source_commit bindings")
+    return {"digest": release, "source_commit": sources.pop(), "tag": "truth-release-" + release[7:]}
+
+
+def read_deployed_state(previous_url=None, history_path=None, receipts_path=None):
+    if not previous_url and history_path is None:
+        raise ValueError("rebuild-current requires --previous-url or an explicit --history fixture")
+    # Selection must describe the served site, even if --output contains a local
+    # candidate/checkpoint. Explicit files remain available for offline audits.
+    with tempfile.TemporaryDirectory(prefix="pages-deployed-state-") as temp:
+        return read_state(Path(temp), previous_url, history_path, receipts_path)
+
+
+def plan_rebuild_current(history, receipts):
+    release = current_release(history)
+    validate_receipt_history(history, receipts)
+    return {"schema_version": "pages-release-reconciliation.v1", "mode": "rebuild",
+            "should_build": True, "selected": [release]}
+
+
 def plan_releases(releases, history, receipts, is_ancestor, dev_head, limit=1, *, allow_orphan_receipts=False):
     if type(limit) is not int or limit < 0:
         raise ValueError("limit must be a non-negative integer")
@@ -397,9 +426,14 @@ def repair_history(output, previous_url=None, *, deployed=False, now=None):
         return result
 
 
-def acquire_release(release, output, destination, download, previous_url=None):
-    history, _ = read_state(output, previous_url)
-    if any(e["truth_release_digest"] == release["digest"] for e in history_entries(history)):
+def acquire_release(release, output, destination, download, previous_url=None, *, rebuild_current=False):
+    history, _ = (read_deployed_state(previous_url) if rebuild_current and previous_url
+                  else read_state(output, previous_url))
+    if rebuild_current:
+        current = current_release(history)
+        if release["digest"] != current["digest"] or release["source_commit"] != current["source_commit"]:
+            raise ValueError("rebuild selection no longer matches current release/source_commit")
+    elif any(e["truth_release_digest"] == release["digest"] for e in history_entries(history)):
         return None
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -418,7 +452,7 @@ def acquire_release(release, output, destination, download, previous_url=None):
 
 
 def ingest_release(bundle, graph_path, manifest_path, output, source_repo=None, *,
-                   expected_digest, previous_url=None, deployed=False, now=None):
+                   expected_digest, previous_url=None, deployed=False, now=None, rebuild_current=False):
     """Commit verified Library content, then its receipt; recover the write gap.
 
     The caller supplies the final Atlas from the existing pipeline. A receipt is
@@ -431,6 +465,28 @@ def ingest_release(bundle, graph_path, manifest_path, output, source_repo=None, 
         existing = next((e for e in history_entries(history) if e["truth_release_digest"] == expected_digest), None)
         receipt_path = output / RECEIPTS_PATH
         known_receipt = _receipt_for_release(receipts, expected_digest)
+        if rebuild_current:
+            current = current_release(history)
+            if current["digest"] != expected_digest:
+                raise ValueError("rebuild digest is not the current Library release")
+            validate_receipt_history(history, receipts)
+            if {entry["truth_release_digest"] for entry in history_entries(history)} != {
+                    row["release_digest"] for row in receipts["entries"]}:
+                raise ValueError("rebuild requires existing receipts; recover missing receipts before rebuilding")
+            verified = vertical_smoke.verify_bundle(bundle, expected_digest)
+            graph = read_json(Path(graph_path).read_bytes())
+            source = graph.get("source_snapshot", {})
+            if (verified["source_commit"] != current["source_commit"]
+                    or source.get("source_commit") != verified["source_commit"]
+                    or source.get("truth_release_digest") != expected_digest):
+                raise ValueError("rebuild graph/bundle source does not match current release")
+            # Re-enter the existing source/#48/archive gates even though this
+            # coordinate is already known. No append or receipt recovery here.
+            living_library.build_library(Path(graph_path), Path(manifest_path), output, source_repo,
+                                         previous_url, previous_index=history, rebuild_current=True)
+            if not receipt_path.exists():
+                living_library.write_bytes(receipt_path, (json.dumps(receipts, indent=2) + "\n").encode())
+            return receipts
         # Either side of the history/receipt pair is sufficient to make this
         # release idempotent.  In particular, a receipt may reach the CDN while
         # its history index is still cached from the previous deployment.
@@ -518,7 +574,9 @@ def parser():
     ancestry.add_argument("--source-repo", type=Path)
     ancestry.add_argument("--ancestry-file", type=Path)
     plan.add_argument("--source-ref", default="dev")
-    plan.add_argument("--requested-digest", help="only admit this coordinate if it is the oldest eligible release")
+    selection = plan.add_mutually_exclusive_group()
+    selection.add_argument("--requested-digest", help="only admit this coordinate if it is the oldest eligible release")
+    selection.add_argument("--rebuild-current", action="store_true", help="re-render the served Library current release without new ingestion")
     plan.add_argument("--github-output", type=Path)
     acquire = commands.add_parser("acquire", help="explicit worker: download and verify one selected release")
     acquire.add_argument("--digest", required=True)
@@ -528,6 +586,7 @@ def parser():
     acquire.add_argument("--output", type=Path, default=Path("_site"))
     acquire.add_argument("--previous-url")
     acquire.add_argument("--verified-json", type=Path, required=True)
+    acquire.add_argument("--rebuild-current", action="store_true")
     ingest = commands.add_parser("ingest", help="verify and archive an already projected Atlas via build_library")
     ingest.add_argument("--bundle", type=Path, required=True)
     ingest.add_argument("--graph", type=Path, required=True)
@@ -537,6 +596,7 @@ def parser():
     ingest.add_argument("--previous-url")
     ingest.add_argument("--digest", required=True)
     ingest.add_argument("--for-deployment", action="store_true", help="stage receipts for atomic publication with this site; not deployment confirmation")
+    ingest.add_argument("--rebuild-current", action="store_true")
     repair = commands.add_parser("repair-history", help="deduplicate the Pages projection and align receipts; keep the first entry per release")
     repair.add_argument("--output", type=Path, default=Path("_site"))
     repair.add_argument("--previous-url")
@@ -559,25 +619,31 @@ def main(argv=None):
                 raise ValueError("limit must be a non-negative integer")
             if args.dry_run and args.github_output:
                 raise ValueError("dry-run cannot write GitHub outputs")
-            history, receipts = read_state(args.output, args.previous_url, args.history, args.receipts)
-            client = GitHub(args.repository)
-            releases = read_json(args.releases_file.read_bytes()) if args.releases_file else client.releases()
-            if args.source_repo:
-                ancestry = GitAncestry(args.source_repo, args.source_ref)
-            elif args.ancestry_file:
-                ancestry = RecordedAncestry(read_json(args.ancestry_file.read_bytes()))
+            if args.rebuild_current:
+                if args.limit != 1:
+                    raise ValueError("rebuild-current requires --limit 1")
+                history, receipts = read_deployed_state(args.previous_url, args.history, args.receipts)
+                result = plan_rebuild_current(history, receipts)
             else:
-                ancestry = client
-                ancestry.head = client.dev_head()
-            result = plan_releases(
-                releases,
-                history,
-                receipts,
-                ancestry.is_ancestor,
-                ancestry.head,
-                args.limit,
-                allow_orphan_receipts=True,
-            )
+                history, receipts = read_state(args.output, args.previous_url, args.history, args.receipts)
+                client = GitHub(args.repository)
+                releases = read_json(args.releases_file.read_bytes()) if args.releases_file else client.releases()
+                if args.source_repo:
+                    ancestry = GitAncestry(args.source_repo, args.source_ref)
+                elif args.ancestry_file:
+                    ancestry = RecordedAncestry(read_json(args.ancestry_file.read_bytes()))
+                else:
+                    ancestry = client
+                    ancestry.head = client.dev_head()
+                result = plan_releases(
+                    releases,
+                    history,
+                    receipts,
+                    ancestry.is_ancestor,
+                    ancestry.head,
+                    args.limit,
+                    allow_orphan_receipts=True,
+                )
             if args.requested_digest:
                 requested = require_digest(args.requested_digest)
                 if (any(e["truth_release_digest"] == requested for e in history_entries(history))
@@ -592,16 +658,18 @@ def main(argv=None):
                 first = result["selected"][0] if result["selected"] else {}
                 with args.github_output.open("a") as writer:
                     writer.write(f"should_build={str(bool(first)).lower()}\nrelease_digest={first.get('digest', '')}\nsource_commit={first.get('source_commit', '')}\n")
+                    writer.write(f"rebuild={str(args.rebuild_current).lower()}\n")
         elif args.command == "acquire":
             release = {"digest": require_digest(args.digest), "source_commit": require_oid(args.source_commit)}
-            verified = acquire_release(release, args.output, args.bundle, GitHub(args.repository).download, args.previous_url)
+            verified = acquire_release(release, args.output, args.bundle, GitHub(args.repository).download, args.previous_url,
+                                       rebuild_current=args.rebuild_current)
             if verified is None:
                 raise ValueError("release is already in history; re-run preflight before building")
             living_library.write_bytes(args.verified_json, (json.dumps(verified, indent=2) + "\n").encode())
         elif args.command == "ingest":
             receipts = ingest_release(args.bundle, args.graph, args.manifest, args.output, args.source_repo,
                                       expected_digest=args.digest, previous_url=args.previous_url,
-                                      deployed=args.for_deployment)
+                                      deployed=args.for_deployment, rebuild_current=args.rebuild_current)
             print(f"Ingestion receipts: {len(receipts['entries'])}")
         elif args.command == "repair-history":
             print(json.dumps(repair_history(args.output, args.previous_url, deployed=args.for_deployment), indent=2))

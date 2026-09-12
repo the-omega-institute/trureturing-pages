@@ -335,7 +335,7 @@ def write_timeline(archived: list, output: Path) -> dict:
     return {"path": path, "digest": key}
 
 
-def build_library(graph_path: Path, manifest_path: Path, output: Path, source_repo: Path | None = None, previous_url: str | None = None, *, previous_index: dict | None = None):
+def build_library(graph_path: Path, manifest_path: Path, output: Path, source_repo: Path | None = None, previous_url: str | None = None, *, previous_index: dict | None = None, rebuild_current: bool = False):
     raw = graph_path.read_bytes()
     graph, manifest = json.loads(raw), json.loads(manifest_path.read_bytes())
     graph_hash = digest(raw)
@@ -358,6 +358,9 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
         release_coordinates = [entry["truth_release_digest"] for entry in prior["entries"]]
         if len(set(release_coordinates)) != len(release_coordinates):
             raise ValueError("Library history contains duplicate truth release digest")
+    if rebuild_current and (not prior or prior["current_truth_release_digest"] != release
+                            or prior["entries"][-1].get("source_commit") != graph["source_snapshot"].get("source_commit")):
+        raise ValueError("Library rebuild requires the current release and its exact source_commit")
     if graph.get("synthetic"):
         problems, blobs, quarantined = [], {}, []
     elif source_repo:
@@ -379,6 +382,30 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
     # calling us; keeping the guard here protects direct callers and stale-run
     # retries after the existing archive has been verified.
     if prior and prior["entries"][-1]["truth_release_digest"] == release:
+        if rebuild_current:
+            # A fresh build-basic tree has none of the deployed Library files.
+            # Restore immutable bytes, but render routes using today's Pages code.
+            timeline = prior.get("timeline")
+            timeline_raw = None
+            if timeline is not None:
+                key = timeline.get("digest")
+                if (not isinstance(key, str) or not DIGEST.fullmatch(key)
+                        or timeline.get("path") not in (f"data/library/{key[7:]}.json", f"data/library/{key[7:]}.json.gz")):
+                    raise ValueError("Invalid Library timeline coordinate.")
+                local = output / timeline["path"]
+                timeline_raw = local.read_bytes() if local.exists() or not previous_url else read_remote(previous_url, timeline["path"])
+                if digest(timeline_raw) != key or archive_json(timeline, timeline_raw).get("schema_version") != "pages-content-timeline.v1":
+                    raise ValueError("Archived Library timeline failed verification.")
+            for coordinate, item, content in archived:
+                write_bytes(output / coordinate["path"], content)
+                if item["truth_release_digest"] != release:
+                    render_knowledge_site(item["graph"], output, immutable_only=True, archive_snapshot_digest=coordinate["digest"])
+            render_knowledge_site(graph, output)
+            render_research(archived[-1][1], output, entries[-1])
+            if timeline_raw is not None:
+                write_bytes(output / timeline["path"], timeline_raw)
+            if not index_path.exists():
+                write(index_path, json.dumps(prior, indent=2) + "\n")
         return prior
     # Withheld resolutions were checked above but must never enter display data.
     quarantine_audit = [{key: item[key] for key in ("slug", "path", "reason")} for item in quarantined]
