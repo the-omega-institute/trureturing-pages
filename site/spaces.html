@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090c10">
+  <title>Knowledge spaces | trureturing</title>
+  <link rel="stylesheet" href="assets/site-theme.css">
+  <link rel="stylesheet" href="assets/knowledge-spaces.css">
+  <script defer src="assets/vendor/3d-force-graph.min.js"></script>
+  <script type="module" src="assets/knowledge-spaces.mjs"></script>
+</head>
+<body class="site-themed spaces-page">
+  <header class="spaces-header">
+    <a class="spaces-brand" href="index.html">trureturing<span>THE OMEGA INSTITUTE</span></a>
+    <nav aria-label="Primary navigation"><a href="atlas.html">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a></nav>
+    <a class="spaces-return" href="atlas.html">Global Atlas</a>
+  </header>
+  <main>
+    <header class="spaces-heading">
+      <div><p class="spaces-eyebrow">ONE KNOWLEDGE SYSTEM / MANY PERSPECTIVES</p><h1>Knowledge spaces</h1><p>Explore concepts, their sources and the foundations that connect research.</p></div>
+      <p id="spaces-status" role="status">Verifying the release and its knowledge projection...</p>
+    </header>
+    <section class="spaces-workspace" aria-label="Knowledge exploration workspace">
+      <aside class="spaces-browser" aria-label="Choose a knowledge space">
+        <h2>Explore by</h2>
+        <label for="spaces-kind">Perspective</label>
+        <select id="spaces-kind"><option value="">All perspectives</option><option value="domain">Source domains</option><option value="source">Literature sources</option><option value="collection">Question sources</option><option value="target">Research targets</option></select>
+        <label for="spaces-query">Find a space</label><input id="spaces-query" type="search" placeholder="Concept, source or question">
+        <button id="spaces-all" type="button">Whole released knowledge</button>
+        <p id="spaces-count" class="spaces-muted" aria-live="polite"></p>
+        <div id="spaces-list" class="spaces-list"></div>
+        <button id="spaces-more" type="button" hidden>Show more spaces</button>
+      </aside>
+      <section class="spaces-center" aria-label="Selected knowledge space">
+        <div class="spaces-toolbar"><div><p class="spaces-eyebrow" id="space-kind">GLOBAL VIEW</p><h2 id="space-title">The connected knowledge</h2></div><button id="spaces-fit" type="button" disabled>Fit graph</button></div>
+        <div class="spaces-comparison"><label for="spaces-compare">Compare with</label><select id="spaces-compare" disabled><option value="">Choose another space</option></select><label class="spaces-checkbox"><input id="spaces-context" type="checkbox" checked> Include foundations</label></div>
+        <div id="spaces-summary" class="spaces-summary" aria-live="polite"></div>
+        <div class="spaces-scene-shell"><div id="spaces-scene" aria-label="Three-dimensional dependency graph"></div><p id="spaces-graph-note" role="status">Loading the same pinned layout as the Global Atlas.</p><div class="spaces-legend"><span>Selected space</span><span>Comparison</span><span>Shared foundation</span></div></div>
+        <div class="spaces-analysis"><section><h3>Supporting foundations</h3><p class="spaces-muted">Ranked by distinct selected modules downstream. Recorded module relations, with duplicate paths counted once.</p><div id="spaces-ranking"></div><button id="spaces-rank-more" type="button" hidden>Show more foundations</button></section><section><h3>Connections across spaces</h3><div id="spaces-connections"></div></section></div>
+        <details class="spaces-directory"><summary>Browse all visible modules without the graph</summary><input id="spaces-node-query" type="search" aria-label="Find a visible module" placeholder="Find a module"><div id="spaces-nodes"></div><button id="spaces-node-more" type="button" hidden>Show more modules</button></details>
+      </section>
+      <aside class="spaces-reader" id="spaces-reader" aria-label="Concept and source reader" aria-live="polite"><p class="spaces-eyebrow">READ THE CONNECTIONS</p><h2>Select a concept</h2><p>Its authored explanation, source citations and dependencies appear here. You can also compare any two spaces to inspect their shared foundations.</p></aside>
+    </section>
+    <details class="spaces-coverage"><summary>Sources, evidence and coverage of this view</summary><div id="spaces-coverage"></div><p>Space membership comes from upstream domains, Scribe citation associations and registered target anchors. Shared foundations describe recorded graph structure. A proposed transfer needs its own research evidence. Positions reuse the public Atlas display layout.</p></details>
+    <noscript><p>This interactive workspace requires JavaScript. The <a href="knowledge/">Library</a> and <a href="research.html">Research overview</a> remain statically readable.</p></noscript>
+  </main>
+</body>
+</html>
