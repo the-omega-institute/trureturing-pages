@@ -130,3 +130,11 @@
 .site-themed.research-editorial[data-reading-page] :is(.result-code-toolbar,.result-code,.result-sequence li) {background:var(--surface);color:var(--text);border-color:var(--border)}
 .site-themed.research-editorial[data-reading-page] .result-sequence li.marked {background:#19302a;color:#b9e7d6;border-color:#4b7d6c}
 .site-themed.research-editorial[data-reading-page] .result-code-toolbar :is(a,button) {background:#182722;color:var(--link);border-color:#466f60}
+
+/* Seven navigation destinations must remain reachable on a narrow viewport. */
+@media (max-width:700px) {
+  .site-themed[data-reading-page] :is(.site-header,.knowledge-header) {grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;padding:12px 18px 0;gap:6px 12px}
+  .site-themed[data-reading-page] :is(.site-header,.knowledge-header) nav {grid-column:1/-1;grid-row:2;justify-self:stretch;justify-content:flex-start;min-width:0;width:100%;height:auto;min-height:0;flex-wrap:wrap;gap:0 16px;padding:3px 0}
+  .site-themed[data-reading-page] :is(.site-header,.knowledge-header) nav a {min-height:36px;height:auto;white-space:nowrap}
+  .site-themed[data-reading-page] :is(.site-header,.knowledge-header) > .header-tools {grid-column:2;grid-row:1}
+}
