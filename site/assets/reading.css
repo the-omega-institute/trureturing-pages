@@ -162,3 +162,9 @@ html:has(body[data-reading-page]) {background:#090c10;color-scheme:dark}
 .site-themed[data-reading-page] :is(.mm-stats strong,.mm-progress strong,.mm-tabs .mm-active) {color:var(--link)}
 [data-reading-page] :is(a,button,input,select,summary):focus-visible {outline:2px solid var(--link);outline-offset:4px}
 [data-reading-page] [hidden] {display:none!important}
+
+.site-themed[data-reading-page] :is(.mm-watchlist summary,#research-chain>p,#discovery-detail>p:first-child,#map-status) {color:var(--muted)}
+.site-themed[data-reading-page] .mm-badge.mm-state-source {background:#19302a;color:#8cdbb5}
+.site-themed[data-reading-page] .mm-badge.mm-state-candidate {background:#2b233a;color:#c2a6df}
+.site-themed[data-reading-page] .mm-badge.mm-state-open {background:#30291c;color:#dfc38b}
+.site-themed[data-reading-page] .mm-badge.mm-state-unassessed {background:#18232d;color:#b4c5cc}

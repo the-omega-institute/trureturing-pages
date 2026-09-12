@@ -41,7 +41,7 @@ def main():
             assert page.locator('[id="'+identity+'"]').is_visible()
             events.append('Result permalink unfolds both collection and result without losing evidence')
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
-        title=page.locator('#results .result-item summary strong').first.inner_text() if rows.count() else None
+        title=page.locator('#results .result-item summary strong').first.text_content() if rows.count() else None
         if title:
             page.locator('#results-query').fill(title)
             assert page.locator('#results [data-reading-group][open]:visible').count()>=1
@@ -97,14 +97,14 @@ def main():
         for route in ['millennium.html?problem=rh', 'millennium.html?problem=navier-stokes', 'discover.html']:
             page.goto(base+route+'&lang=en' if '?' in route else base+route+'?lang=en',wait_until='networkidle')
             assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(9, 12, 16)'
-            page.screenshot(path=str(args.output/(route.split('?')[0]+'-desktop.png')),full_page=True)
+            page.screenshot(path=str(args.output/(route.replace('?','-').replace('=','-')+'-desktop.png')),full_page=True)
         events.append('RH, Navier–Stokes and Discovery share the reading surface')
         for name in ['research','conjectures','evolution','millennium','discover']:
             page.set_viewport_size({'width':390,'height':844})
             page.goto(base+name+'.html?lang=en',wait_until='networkidle')
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name
             page.screenshot(path=str(args.output/(name+'-mobile.png')),full_page=True)
-        events.append('Research, Conjectures and Evolution fit a 390px viewport')
+        events.append('Research, Conjectures, Evolution, Millennium and Discovery fit a 390px viewport')
         browser.close()
     server.shutdown()
     report={'scenarios':events,'page_errors':errors,'transport':'native-local-http','modules':'native-esm','inputs':json.loads((args.site/'preview-inputs.json').read_text()),'deployed':False}
