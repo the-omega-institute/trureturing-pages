@@ -281,6 +281,11 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     render_news(output, snapshot, page_shell)
     from lib.discovery import render_discovery
     render_discovery(output, snapshot, page_shell)
+    # Discovery also emits source pages after render_news has applied its shell.
+    from lib.reading_views import common_shell
+    for path in [output / 'discover.html', output / 'oeis/index.html', output / 'api/index.html', *output.glob('oeis/*/index.html')]:
+        if path.exists():
+            path.write_text(common_shell(path.read_text(), '../' * (len(path.relative_to(output).parts) - 1)), encoding='utf-8')
     history_body = '<main class="site-main"><header class="page-heading"><div><p class="eyebrow">LIBRARY / CONTENT ARCHIVE</p><h1>Library history</h1><p id="library-history-status" class="lede" role="status">Verifying release archive...</p></div><a href="knowledge/">Current Library</a></header><div class="archive-toolbar"><label for="archive-release">Release</label><select id="archive-release" disabled></select><label for="archive-search">Find a concept</label><input id="archive-search" type="search" placeholder="Title, domain, or ID" disabled></div><div id="archive-summary"></div><div id="archive-nodes" class="archive-list"></div><button id="archive-more" type="button" hidden>Show more</button></main>'
     write(output / "library-history.html", page_shell("Library history", "", history_body, "Library"))
 

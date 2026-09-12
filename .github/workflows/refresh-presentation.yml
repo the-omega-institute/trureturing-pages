@@ -1,0 +1,29 @@
+name: Publish merged presentation
+
+on:
+  push:
+    branches: [dev]
+    paths: ['site/**', 'lib/**', '.github/workflows/refresh-presentation.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: schedule-presentation-refresh
+  cancel-in-progress: false
+
+jobs:
+  request-rebuild:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Refresh the current release through the existing Pages pipeline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref dev -f rebuild_current=true
+          printf '%s\n' 'Requested the existing rebuild-current path. Check pages.yml for verification and deployment; this acknowledgement is not a deployment receipt.' >> "$GITHUB_STEP_SUMMARY"

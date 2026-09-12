@@ -56,10 +56,11 @@ def resolved_questions(snapshot):
 
 
 def render_news(output, snapshot, shell):
-    from lib.knowledge_spaces import render_spaces, overview_html
-    # Legacy renderer-only callers have no snapshot contract. They remain readable,
-    # but cannot publish a verified spaces manifest. Contract-bearing inputs are strict.
-    spaces = render_spaces(output, snapshot) if "schema_version" in snapshot else None
+    from lib.knowledge_spaces import render_spaces
+    from lib.reading_views import apply_reading_views
+    # Legacy renderer-only callers cannot publish a verified spaces manifest.
+    if "schema_version" in snapshot:
+        render_spaces(output, snapshot)
     catalog = json.loads(CATALOG.read_text())
     publications, results = [], []
     nodes = snapshot["graph"]["nodes"]
@@ -81,20 +82,13 @@ def render_news(output, snapshot, shell):
         preview = f'<a class="paper-preview" href="{esc(item["url"])}"><img src="{item["image"]}" alt="First page of {esc(item["title"])}" width="340" height="480" loading="lazy"></a>' if item.get("image") else '<div class="journal-mark" aria-label="RAIRO journal article"><strong>RAIRO</strong><span>Theoretical Informatics<br>and Applications</span><span>60 / 2026 / 29</span><a href="https://doi.org/10.1051/ita/2026032">10.1051/ita/2026032</a></div>'
         qualification = f'<p class="news-qualification">{esc(item["qualification"])}</p>' if item.get("qualification") else ''
         publications.append(f'''<article class="news-paper" id="{item['id']}">{preview}<div><p class="eyebrow"><time datetime="{item['date']}">{item['date']}</time> / {esc(item['status'])}</p><h3><a href="{esc(item['url'])}">{esc(item['title'])}</a></h3><p class="paper-authors">{esc(item['authors'])}</p><p class="paper-venue">{esc(item['venue'])}</p><p>{esc(item['summary'])}</p><p class="paper-highlight">{esc(item['highlight'])}</p>{qualification}<div class="news-links"><a href="{esc(item['url'])}">Read article <i data-lucide="arrow-up-right"></i></a></div><details><summary>Source &amp; evidence</summary><p>{esc(item['evidence'])}</p></details></div></article>''')
-    active = [p for p in snapshot["problems"] if not p.get("resolution")]
-    completed = ('<details id="resolved-questions-archive"><summary>All resolved question records</summary>'
-                 + resolved_questions(snapshot) + '</details>')
-    focus_cards = "".join(
-        f'<article class="research-focus-card"><p class="eyebrow">{esc(p["triage"].capitalize())} focus</p><h3><a href="conjectures.html#open-problems">{esc(p["title"])}</a></h3><p>{esc(p["sections"]["Gap"])}</p><a href="research/{p["slug"]}/">Open research dossier <i data-lucide="arrow-up-right"></i></a></article>'
-        for p in active[:3]
-    ) or '<p class="research-empty-state">No unresolved dossiers are in this Truth release.</p>'
-    result_preview = ''.join(results[:6])
-    result_archive = (f'<details id="result-archive"><summary>All remaining results ({len(results) - 6})</summary>'
-                      + ''.join(results[6:]) + '</details>') if len(results) > 6 else ''
-    body = f'''<main class="site-main research-news"><header class="news-heading"><p class="eyebrow">THE OMEGA INSTITUTE / CURRENT RESEARCH</p><h1>Research</h1><p class="news-lede">Theories, concepts, evidence and research directions in a connected knowledge system.</p><nav class="news-links" aria-label="Research destinations"><a class="primary-link" href="spaces.html">Explore knowledge spaces <i data-lucide="arrow-up-right"></i></a><a href="discover.html">Explore source connections <i data-lucide="arrow-up-right"></i></a><a href="atlas.html#mode=frontier">Open Atlas frontier <i data-lucide="arrow-up-right"></i></a></nav></header><nav class="news-index" aria-label="Research sections"><a href="#frontier">Registered targets <strong>{len(active):02}</strong></a><a href="#results">Recent results <strong>{len(results):02}</strong></a><a href="#publications">Publications <strong>{len(publications):02}</strong></a><span>Truth release {snapshot['truth_release_digest'][7:19]}</span></nav><section id="frontier" class="research-frontier"><div class="news-section-heading"><div><p class="eyebrow">RECORDED RESEARCH TARGETS</p><h2>Unresolved targets in this release</h2></div><a href="conjectures.html#open-problems">All open problems <i data-lucide="arrow-up-right"></i></a></div><div class="research-focus-grid">{focus_cards}</div></section><section id="results" class="news-section"><div class="news-section-heading"><div><p class="eyebrow">FROM QUESTION TO RESULT</p><h2>Recent results</h2></div><a href="conjectures.html#open-problems">What remains open <i data-lucide="arrow-up-right"></i></a></div><div class="news-results-grid">{result_preview}</div>{result_archive}</section>{completed}<section id="publications" class="news-section"><div class="news-section-heading"><div><p class="eyebrow">PAPERS &amp; PREPRINTS</p><h2>Publications</h2></div></div>{''.join(publications)}</section><section class="news-onward"><h2>Follow the research</h2><p>Open questions live in Conjectures. Concepts live in the Library. Cross-source relationships live in Discovery.</p><a href="conjectures.html#open-problems">Open conjectures <i data-lucide="arrow-up-right"></i></a><a href="knowledge/">Browse the Library <i data-lucide="arrow-up-right"></i></a><a href="{BOOK}open-problems.html">Read the mdBook dossiers <i data-lucide="arrow-up-right"></i></a></section></main>'''
-    if spaces is not None:
-        body = body.replace('</header>', '</header>' + overview_html(spaces), 1)
-    body = body.replace('</header>', '</header><nav class="conjecture-destinations" aria-label="Connected research"><a href="discover.html">Research bridges</a><a href="spaces.html">Knowledge spaces</a></nav>', 1)
-    html = shell("Research", "", body, appearance="editorial").replace('</head>', '<link rel="stylesheet" href="assets/research-news.css"><link rel="stylesheet" href="assets/research-editorial.css"><script type="module" src="assets/research-news.mjs"></script></head>')
-    write(output / "research.html", html)
+    # Evidence cards are built once. The reading projection groups these same cards.
+    body = ('<main class="site-main research-news">' + ''.join(results) + resolved_questions(snapshot)
+            + '<section id="publications" class="news-section"><h2>Publications</h2>'
+            + ''.join(publications) + '</section></main>')
+    document = shell("Research", "", body, appearance="editorial").replace('</head>',
+        '<link rel="stylesheet" href="assets/research-news.css"><link rel="stylesheet" href="assets/research-editorial.css">'
+        '<script type="module" src="assets/research-news.mjs"></script></head>')
+    write(output / "research.html", document)
     render_result_pages(output, records, shell)
+    apply_reading_views(output, snapshot, records)

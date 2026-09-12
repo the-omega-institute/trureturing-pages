@@ -1,126 +1,34 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#090c10" />
-    <title>trureturing | Evolution</title>
-    <link rel="stylesheet" href="assets/site-theme.css" />
-    <link rel="stylesheet" href="assets/architecture.css" />
-    <link rel="stylesheet" href="assets/evolution.css" />
-    <script defer src="assets/vendor/d3.min.js"></script>
-    <script defer src="assets/vendor/lucide.min.js"></script>
-    <script type="module" src="assets/architecture-history.js"></script>
-    <script type="module" src="assets/i18n.mjs"></script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090c10">
+  <title>Evolution | trureturing</title>
+  <link rel="stylesheet" href="assets/site-theme.css">
+  <link rel="stylesheet" href="assets/reading.css">
+  <script type="module" src="assets/evolution-reader.mjs"></script>
+  <script type="module" src="assets/i18n.mjs"></script>
 </head>
-  <body class="site-themed evolution-page">
-    <header class="site-header">
-      <a class="brand" href="index.html">trureturing</a>
-      <nav aria-label="Primary navigation">
-        <a href="atlas.html">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a
-        ><a href="knowledge/">Library</a
-        ><a href="evolution.html" aria-current="page">Evolution</a><a href="version-status.html">Version status</a>
-      </nav>
+<body class="site-themed" data-reading-page>
+  <header class="site-header">
+    <a class="brand" href="index.html">trureturing</a>
+    <nav aria-label="Primary navigation"><a href="atlas.html">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html" aria-current="page">Evolution</a><a href="version-status.html">Version status</a><a href="spaces.html">Spaces</a></nav>
+  </header>
+  <main class="site-main">
+    <header class="reading-heading">
+      <p class="eyebrow">THE OMEGA INSTITUTE / KNOWLEDGE IN FORMATION</p>
+      <h1>What changed?</h1>
+      <p class="reading-lede">Follow the mathematics that entered the Library and the records that changed.</p>
+      <p>Read concrete modules and their explanations first. The structural map is available separately for deeper exploration.</p>
+      <nav class="reading-tabs" aria-label="Evolution views"><a href="#evolution-records">Release changes</a><a href="evolution-structure.html">Advanced dependency map</a><a href="library-history.html">Full release archive</a><a href="version-status.html">Publication status</a></nav>
     </header>
-    <main class="evolution-workspace">
-      <header class="evolution-heading">
-        <div>
-          <p class="eyebrow">THE OMEGA INSTITUTE / KNOWLEDGE IN FORMATION</p>
-          <h1>Evolution</h1>
-          <p id="evolution-status" role="status">
-            Verifying published architecture history...
-          </p>
-        </div>
-        <a href="library-history.html"
-          >Release archive <i data-lucide="arrow-up-right"></i
-        ></a>
-      </header>
-      <div class="evolution-layout">
-        <section class="evolution-primary" aria-label="Structural lineage">
-          <div class="lineage-toolbar">
-            <div role="group" aria-label="Lineage view" class="lineage-modes">
-              <button data-lineage="dependency" aria-pressed="true">
-                Dependency lineage</button
-              ><button data-lineage="time" aria-pressed="false">
-                Across releases
-              </button>
-            </div>
-            <div class="lineage-tools">
-              <button
-                id="lineage-clear"
-                title="Clear selection"
-                aria-label="Clear selection"
-                disabled
-              >
-                <i data-lucide="x"></i>
-              </button>
-              <button
-                id="lineage-zoom-out"
-                title="Zoom out"
-                aria-label="Zoom out"
-              >
-                <i data-lucide="minus"></i></button
-              ><button
-                id="lineage-fit"
-                title="Fit lineage"
-                aria-label="Fit lineage"
-              >
-                <i data-lucide="scan"></i></button
-              ><button
-                id="lineage-zoom-in"
-                title="Zoom in"
-                aria-label="Zoom in"
-              >
-                <i data-lucide="plus"></i>
-              </button>
-            </div>
-          </div>
-          <div class="lineage-axis">
-            <span id="lineage-axis-label"
-              >Dependency depth / foundations to consequences</span
-            ><button id="lineage-collapse" hidden>Collapse domain</button>
-          </div>
-          <div id="evolution-map"></div>
-          <div id="lineage-key" class="lineage-key"></div>
-          <div class="release-player">
-            <button
-              id="release-play"
-              aria-label="Play release evolution"
-              title="Play release evolution"
-              disabled
-            >
-              <i data-lucide="play"></i></button
-            ><label for="lineage-release">Observation</label
-            ><input
-              id="lineage-release"
-              type="range"
-              min="0"
-              max="0"
-              value="0"
-              disabled
-            /><output id="lineage-release-label"></output>
-          </div>
-          <div id="release-change-summary" role="status"></div>
-          <div id="release-events" class="release-events"></div>
-        </section>
-        <aside class="evolution-inspector">
-          <label for="evolution-search">Find a module</label
-          ><input
-            id="evolution-search"
-            type="search"
-            placeholder="Concept, domain, or module ID"
-            disabled
-          />
-          <p id="evolution-results"></p>
-          <div id="evolution-nodes" class="architecture-node-list" hidden></div>
-          <div id="lineage-group"></div>
-          <section id="evolution-detail" aria-live="polite"></section>
-        </aside>
-      </div>
-    </main>
-    <footer class="site-footer">
-      MODULE-IMPORT DEPENDENCIES / EXACT NODE IDENTITIES
-      <a href="dag.html">Analysis console</a>
-    </footer>
-  </body>
+    <div class="evolution-reader-tools"><label for="evolution-release-select">Compare a release</label><select id="evolution-release-select" disabled></select><label for="evolution-reader-search">Find a change</label><input id="evolution-reader-search" type="search" placeholder="Concept, explanation or source"></div>
+    <p id="evolution-reader-status" role="status">Verifying the released Library history...</p>
+    <div id="evolution-reader-stats" class="evolution-stats"></div>
+    <section id="evolution-records" aria-label="Changes with explanations" aria-live="polite"></section>
+    <details class="reading-group"><summary>How to read these changes</summary><div class="reading-group-body"><p>An added module is a new entry in the selected released Library. Updated records can reflect changes to source code, an explanation or a recorded module state. A removed entry is absent from that snapshot; this does not by itself invalidate its mathematics.</p><p>These counts do not count new theorems or prove scientific novelty. Layout movement and website changes do not contribute to them.</p><p id="evolution-release-evidence"></p></div></details>
+    <noscript><p><a href="knowledge/">Read the static Library</a>. Interactive comparisons require JavaScript.</p></noscript>
+  </main>
+</body>
 </html>
