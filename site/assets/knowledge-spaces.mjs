@@ -190,6 +190,7 @@ function renderReader() {
 function refresh() {
   projection = projectSpace(catalog, architecture, route.left, route.right, route.context);
   $('spaces-status').classList.remove('spaces-error');
+  $('spaces-status').textContent = `${architecture.nodeCount.toLocaleString('en-US')} released modules / ${catalog.spaces.length.toLocaleString('en-US')} generated spaces`;
   const space = catalog.spaces.find(s => s.id === route.left);
   $('space-title').textContent = space?.title || 'The connected knowledge';
   $('space-kind').textContent = space ? kindNames[space.kind] : 'GLOBAL VIEW';

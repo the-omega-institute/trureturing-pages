@@ -117,7 +117,8 @@ def main():
         assert page.locator('#spaces-status').get_attribute('class')=='spaces-error'
         assert page.evaluate('window.__draws.at(-1).nodes.length')==0;count+=1
         page.locator('#spaces-all').click()
-        assert not page.locator('#spaces-status').evaluate("e=>e.classList.contains('spaces-error')");count+=1
+        assert not page.locator('#spaces-status').evaluate("e=>e.classList.contains('spaces-error')")
+        assert '5 released modules' in page.locator('#spaces-status').inner_text();count+=1
         page.close()
         page,_=open_page(corrupt=True)
         assert 'digest mismatch' in page.locator('#spaces-status').inner_text()
