@@ -90,3 +90,20 @@ suite. Full existing CI and browser findings are recorded in the PR after observ
 Local HTTP browser navigation was blocked by runtime policy and was not bypassed.
 No live deployment or full browser acceptance is claimed by unit results alone.
 The old evidence/claim gates and Base release path remain unchanged.
+
+## PR review follow-through
+
+Large collections progressively reveal 12 records at a time after enhancement;
+without JavaScript every source result remains readable. Search retains the bounded
+view and old result hashes reveal their containing rows even beyond the first batch.
+Saved `#next-questions` links open the notebook, which now mounts directly in its
+slot. Completed source metadata remains available to the notebook's existing gate.
+
+The shared reading shell also covers Millennium maps, Discovery and generated OEIS/API
+source pages. Existing source/candidate/open colors remain distinct in the maps.
+Historical Evolution outcome links pin the dossier to the selected source commit;
+they cannot silently navigate to a newer question record. Failed release selection
+clears prior evidence and results. Release selectors include a short digest.
+
+Validation adds historical-link and legacy-route unit tests, and native browser
+scenarios for large collections, saved notebook links and the connected reading pages.

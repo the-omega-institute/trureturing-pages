@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from hashlib import sha256
 from html import escape
 from html.parser import HTMLParser
 import json
@@ -205,7 +204,7 @@ def render_conjecture_groups(document, snapshot, output):
                            + row_by_slug[p['slug']] + '</div>')
     completed = [p for p in snapshot['problems'] if p.get('resolution')]
     completed_links = ''.join(
-        f'<p><a href="research/{esc(p["slug"])}/">{esc(p["title"])}</a> '
+        f'<p class="resolved-question" id="resolved-{esc(p["slug"])}" data-problem-slug="{esc(p["slug"])}" data-resolution-kind="{esc(p["resolution"]["kind"])}"><a href="research/{esc(p["slug"])}/">{esc(p["title"])}</a> '
         f'<small>{esc(p["resolution"]["kind"])}, source record</small></p>' for p in completed)
     completed_archive = ('<details class="reading-group" id="completed-dossiers"><summary>'
         '<span><strong>Completed dossiers and source archive</strong>'
@@ -247,11 +246,14 @@ def apply_reading_views(output: Path, snapshot: dict, records: list):
         research.write_text(render_research_groups(research.read_text(), snapshot, records), encoding='utf-8')
     if conjectures.exists():
         conjectures.write_text(render_conjecture_groups(conjectures.read_text(), snapshot, output), encoding='utf-8')
-    for pattern in ('research/*/index.html', 'results/*/index.html'):
+    for pattern in ('research/*/index.html', 'results/*/index.html', 'oeis/*/index.html'):
         for path in output.glob(pattern):
             path.write_text(common_shell(path.read_text(), '../../'), encoding='utf-8')
     for path in output.glob('*.html'):
-        path.write_text(add_spaces_navigation(path.read_text()), encoding='utf-8')
+        document = path.read_text()
+        if path.name in ('millennium.html', 'discover.html'):
+            document = common_shell(document)
+        path.write_text(add_spaces_navigation(document), encoding='utf-8')
 
 
 def add_spaces_navigation(document: str, root=''):

@@ -23,7 +23,7 @@ if (home?.hasAttribute('data-reading-home')) {
   function routeNotebook() {
     const h = location.hash.slice(1), p = new URLSearchParams(h);
     const notebookRoute = [...p.keys()].some(k => ['rp','rq','ra','rk','rh','rs','rl','ro','rw'].includes(k)) ||
-      ['research-bank','research-workbench'].includes(h);
+      ['next-questions','research-bank','research-workbench','research-directions'].includes(h);
     if (notebookRoute) {shell.open=true;loadNotebook();}
   }
   shell.addEventListener('toggle', () => {if(shell.open) loadNotebook();});

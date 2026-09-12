@@ -1,5 +1,5 @@
 import {loadLibrary, nodeSlug} from './library-core.mjs';
-import {compareContent} from './evolution-reader-core.mjs';
+import {compareContent,outcomeSourceURL} from './evolution-reader-core.mjs';
 const $=id=>document.getElementById(id);
 const el=(tag,text,cls='')=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const state={library:null,index:0,change:null,query:'',limits:{},generation:0,renderGeneration:0};
@@ -19,8 +19,8 @@ async function renderRows(){
       const article=el('article',undefined,'evolution-record');article.id=`change-${await nodeSlug(n.id)}`;
       article.append(el('h3',n.title),el('small',n.event));
       if(n.human_abstract)article.append(el('p',n.human_abstract));
-      const url=n.target?`research/${n.id}/`:`release/${n.release.slice(7)}/node/${await nodeSlug(n.id)}/`;
-      article.append(link(n.target?'Read the question and its evidence':'Read this module in its release',url));
+      const url=n.target?outcomeSourceURL(n):`release/${n.release.slice(7)}/node/${await nodeSlug(n.id)}/`;
+      article.append(link(n.target?'Read the question at this release':'Read this module in its release',url));
       const details=el('details');details.append(el('summary','Source location and recorded state'));
       if(n.domain)details.append(el('p',`Repository group: ${n.domain}. This is a source organization label, not a progress score.`));
       details.append(el('code',n.source_path||n.repo_path||n.id));
@@ -39,7 +39,8 @@ async function renderRows(){
   if(!groups.length)$('evolution-records').append(el('p','No module or question-record changes between these snapshots. Layout and renderer changes are not counted as research progress.','reading-muted'));
 }
 async function selectRelease(index){
-  const token=++state.generation;state.index=index;state.limits={};
+  const token=++state.generation;state.index=index;state.limits={};state.change=null;
+  $('evolution-release-evidence').textContent='';
   $('evolution-reader-status').textContent='Checking the selected snapshots...';
   $('evolution-records').replaceChildren();$('evolution-reader-stats').replaceChildren();
   try{
@@ -59,7 +60,7 @@ async function selectRelease(index){
 async function main(){
   state.library=await loadLibrary(new URL('./',location.href));
   const entries=state.library.index.entries;
-  entries.forEach((entry,i)=>{const option=el('option',`${i===entries.length-1?'Latest release':'Recorded release '+(i+1)} / ${entry.node_count??'unknown'} archived records`);option.value=i;$('evolution-release-select').append(option);});
+  entries.forEach((entry,i)=>{const option=el('option',`${i===entries.length-1?'Latest release':'Recorded release '+(i+1)} · ${entry.truth_release_digest.slice(7,15)} / ${entry.node_count??'unknown'} archived records`);option.value=i;$('evolution-release-select').append(option);});
   $('evolution-release-select').disabled=false;$('evolution-release-select').value=entries.length-1;
   $('evolution-release-select').addEventListener('change',e=>selectRelease(Number(e.target.value)));
   $('evolution-reader-search').addEventListener('input',e=>{state.query=e.target.value;if(state.change)renderRows();});

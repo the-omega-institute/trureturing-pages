@@ -29,3 +29,15 @@ test('question resolution changes are separate from module changes',()=>{
  const c=compareContent(snap('r1',[],[{slug:'q'}]),snap('r2',[],[{slug:'q',title:'Question',resolution:{kind:'refuted'}}]));
  assert.equal(c.outcomes.length,1);assert.equal(c.added.length,0);assert.equal(c.outcomes[0].title,'Question');
 });
+
+test('saved question entrypoints reveal their new sections',()=>{
+ assert.equal(hashTarget('#next-questions'),'research-directions');
+ assert.equal(hashTarget('#research-release-dossiers'),'open-problems');
+});
+test('historical outcomes stay pinned to the source commit',async()=>{
+ const {outcomeSourceURL}=await import('../../site/assets/evolution-reader-core.mjs');
+ const record=compareContent(snap('r1',[]),snap('r2',[],[{slug:'alpha',title:'Question',resolution:{kind:'proved'}}])).outcomes[0];
+ assert.equal(outcomeSourceURL(record),`https://github.com/the-omega-institute/trureturing/blob/${'a'.repeat(40)}/Problems/alpha.md`);
+ assert.throws(()=>outcomeSourceURL({...record,source_commit:'dev'}));
+ assert.throws(()=>outcomeSourceURL({...record,id:'../bad'}));
+});

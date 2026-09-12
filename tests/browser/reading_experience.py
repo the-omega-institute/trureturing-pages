@@ -27,9 +27,16 @@ def main():
         assert page.locator('nav[aria-label="Primary navigation"] a',has_text='Spaces').count()==1
         events.append('Research initial groups are collapsed and Spaces is in the primary navigation')
         page.screenshot(path=str(args.output/'research-desktop.png'),full_page=True)
+        page.locator('#results-oeis > summary').click()
+        total = page.locator('#results-oeis .reading-item').count()
+        assert page.locator('#results-oeis .reading-item:visible').count() == min(12,total)
+        if total > 12:
+            page.locator('#results-oeis .reading-more').click()
+            assert page.locator('#results-oeis .reading-item:visible').count() == min(24,total)
+        events.append('Large collections reveal 12 results at a time')
         rows=page.locator('#results .news-result')
         if rows.count():
-            identity=rows.first.get_attribute('id')
+            identity=page.locator('#results-oeis .news-result').last.get_attribute('id') if total else rows.last.get_attribute('id')
             page.goto(base+'research.html?lang=en#'+identity,wait_until='networkidle')
             assert page.locator('[id="'+identity+'"]').is_visible()
             events.append('Result permalink unfolds both collection and result without losing evidence')
@@ -82,7 +89,17 @@ def main():
         page.wait_for_selector('#spaces-scene canvas',timeout=60000)
         page.screenshot(path=str(args.output/'spaces-desktop.png'),full_page=True)
         events.append('Spaces resolves the actual published snapshot, generated catalog and WebGL canvas')
-        for name in ['research','conjectures','evolution']:
+        page.goto(base+'conjectures.html?lang=en#next-questions',wait_until='networkidle')
+        page.wait_for_selector('#research-workbench-slot #research-workbench',timeout=30000)
+        assert page.locator('#research-directions').get_attribute('open') is not None
+        assert page.locator('#research-workbench').count()==1
+        events.append('The saved next-questions URL opens the requested notebook')
+        for route in ['millennium.html?problem=rh', 'millennium.html?problem=navier-stokes', 'discover.html']:
+            page.goto(base+route+'&lang=en' if '?' in route else base+route+'?lang=en',wait_until='networkidle')
+            assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(9, 12, 16)'
+            page.screenshot(path=str(args.output/(route.split('?')[0]+'-desktop.png')),full_page=True)
+        events.append('RH, Navier–Stokes and Discovery share the reading surface')
+        for name in ['research','conjectures','evolution','millennium','discover']:
             page.set_viewport_size({'width':390,'height':844})
             page.goto(base+name+'.html?lang=en',wait_until='networkidle')
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name

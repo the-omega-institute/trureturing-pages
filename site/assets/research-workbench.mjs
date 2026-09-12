@@ -324,7 +324,7 @@ export async function mountResearchWorkbench() {
     archive.id = "research-release-dossiers";
     archive.append(el("summary", "Release-bound dossiers, source graphs and version history"));
     oldStats.before(host, archive); archive.append(oldStats, oldBrowser);
-  } else home.append(host);
+  } else (document.getElementById("research-workbench-slot") || home).append(host);
   readURL(); render();
   window.lucide?.createIcons();
 }

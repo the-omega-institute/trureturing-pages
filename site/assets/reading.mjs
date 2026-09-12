@@ -4,7 +4,7 @@ export function revealHash() {
   const id = hashTarget(location.hash);
   const target = document.getElementById(id);
   if (!target) return;
-  for (let p = target; p; p = p.parentElement) if (p.tagName === 'DETAILS') p.open = true;
+  for (let p = target; p; p = p.parentElement) { p.hidden = false; if (p.tagName === 'DETAILS') p.open = true; }
   requestAnimationFrame(() => target.scrollIntoView({block:'start', behavior:'instant'}));
 }
 function normalizeLinks(root) {
@@ -18,15 +18,31 @@ for (const catalog of document.querySelectorAll('[data-reading-catalog]')) {
   const input = catalog.querySelector('[data-reading-search]');
   if (!input) continue;
   const groups = [...catalog.querySelectorAll('[data-reading-group]')];
-  let prior = null;
+  let prior = null, lastQuery = '';
+  const limits = new Map(groups.map(g => [g, 12]));
+  const buttons = new Map(groups.map(group => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'reading-more';
+    group.querySelector('.reading-group-body').append(button);
+    button.addEventListener('click', () => {limits.set(group, limits.get(group) + 12); filter();});
+    return [group, button];
+  }));
   function filter() {
     const query = input.value.trim();
+    if (query !== lastQuery) {for (const g of groups) limits.set(g, 12); lastQuery = query;}
     if (query && !prior) prior = new Map(groups.map(g => [g, g.open]));
     let total = 0;
     for (const group of groups) {
       const items = [...group.querySelectorAll('.reading-item[data-search]')];
       let count = 0;
-      for (const item of items) {item.hidden = !matchesQuery(item.dataset.search, query); if (!item.hidden) count++;}
+      for (const item of items) {
+        const match = matchesQuery(item.dataset.search, query);
+        if (match) count++;
+        item.hidden = !match || count > limits.get(group);
+      }
+      const more = buttons.get(group);
+      more.hidden = count <= limits.get(group);
+      more.textContent = `Show 12 more (${Math.max(0, count - limits.get(group))} remaining)`;
       group.hidden = !!query && count === 0;
       if (query) group.open = count > 0;
       else if (prior) group.open = prior.get(group);
@@ -37,6 +53,7 @@ for (const catalog of document.querySelectorAll('[data-reading-catalog]')) {
     catalog.querySelector('[data-search-count]').textContent = query ? `${total} matching records` : '';
     if (!query) prior = null;
   }
+  filter();
   input.addEventListener('input', filter);
   catalog.querySelector('[data-clear-search]')?.addEventListener('click', () => {input.value='';filter();input.focus();});
 }

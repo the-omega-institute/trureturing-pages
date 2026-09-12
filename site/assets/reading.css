@@ -138,3 +138,27 @@
   .site-themed[data-reading-page] :is(.site-header,.knowledge-header) nav a {min-height:36px;height:auto;white-space:nowrap}
   .site-themed[data-reading-page] :is(.site-header,.knowledge-header) > .header-tools {grid-column:2;grid-row:1}
 }
+
+/* The reading journey includes its detailed maps and source connections. */
+html:has(body[data-reading-page]) {background:#090c10;color-scheme:dark}
+.site-themed[data-reading-page] :is(.dossier-main,.dossier-toc,.mm-main,.discovery) {color:var(--text)}
+.site-themed[data-reading-page] :is(.dossier-main,.dossier-toc,.mm-main,.discovery) :is(p,small,label,summary) {color:var(--muted)}
+.site-themed[data-reading-page] :is(.mm-page,.mm-main,.discovery) :is(h1,h2,h3,strong) {color:var(--text)}
+.site-themed[data-reading-page] :is(.mm-detail,.mm-graph-scroll,.research-chain li,#discovery-map) {background:var(--surface);border-color:var(--border);color:var(--text)}
+.site-themed[data-reading-page] :is(.mm-main,.mm-problems,.discovery) :is(button,input,select,textarea) {background:var(--surface);color:var(--text);border-color:var(--border)}
+.site-themed[data-reading-page] :is(.mm-problems a[aria-current],.mm-problems a:hover,.mm-badge,.path-picker button) {background:#19302a;color:var(--link);border-color:var(--border)}
+.site-themed[data-reading-page] :is(.mm-warning,.research-chain li:nth-child(n+4)) {background:#27231b;color:#dfca9d}
+.site-themed[data-reading-page] .mm-node rect {fill:#18232d;stroke:#8399a7}
+.site-themed[data-reading-page] .mm-node.mm-state-source rect {fill:#19302a;stroke:#8cdbb5}
+.site-themed[data-reading-page] .mm-node.mm-state-candidate rect {fill:#2b233a;stroke:#c2a6df}
+.site-themed[data-reading-page] .mm-node.mm-state-open rect {fill:#30291c;stroke:#dfc38b}
+.site-themed[data-reading-page] .mm-node.mm-common rect {fill:#183634;stroke:#8ddcc9;stroke-width:2.5}
+.site-themed[data-reading-page] :is(.mm-node.mm-selected,.mm-node:focus-visible) rect {stroke:#a1caff;stroke-width:3}
+.site-themed[data-reading-page] :is(.mm-node-title,.map-node-title) {fill:var(--text)}
+.site-themed[data-reading-page] :is(.mm-node-state,.map-node-kind) {fill:#b4c5cc}
+.site-themed[data-reading-page] .map-node rect {fill:#17232b}
+.site-themed[data-reading-page] :is(.map-node.selected,.map-node:focus-visible) rect {fill:#234239}
+.site-themed[data-reading-page] :is(.mm-eyebrow,.mm-lede,.mm-science,.mm-boundary,.mm-stats span,.mm-progress span,.mm-reuse span,.mm-breadcrumb,.mm-footer,.map-help,.discovery-lede) {color:var(--muted)}
+.site-themed[data-reading-page] :is(.mm-stats strong,.mm-progress strong,.mm-tabs .mm-active) {color:var(--link)}
+[data-reading-page] :is(a,button,input,select,summary):focus-visible {outline:2px solid var(--link);outline-offset:4px}
+[data-reading-page] [hidden] {display:none!important}

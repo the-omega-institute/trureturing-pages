@@ -1,3 +1,7 @@
+export function outcomeSourceURL(record) {
+  if (!/^[a-f0-9]{40}$/.test(record.source_commit) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(record.id)) throw new Error('Invalid historical question coordinate.');
+  return `https://github.com/the-omega-institute/trureturing/blob/${record.source_commit}/Problems/${record.id}.md`;
+}
 const FIELDS = ['human_title','human_abstract','human_theorem','source_blob','repo_path','state','status'];
 function modules(snapshot) {
   const result = new Map();
