@@ -68,11 +68,14 @@ class ReadingViewsTests(unittest.TestCase):
         snapshot,source=conjectures()
         with tempfile.TemporaryDirectory() as temp, patch('lib.reading_views.source_url',side_effect=lambda p:p['url']):
             out=render_conjecture_groups(source,snapshot,Path(temp))
-        self.assertNotIn('research/done/',out)
+        parsed=Fragments(out)
+        self.assertNotIn('research/done/',parsed.raw(parsed.select(id='open-problems')[0]))
+        self.assertIn('research/done/',parsed.raw(parsed.select(id='completed-dossiers')[0]))
         self.assertIn('href="research/q1/"',out)
         self.assertIn('href="research/q2/"',out)
         main=Fragments(out).raw(Fragments(out).select(tag='main')[0])
-        self.assertNotIn('href="research.html',main)
+        tabs=next(e for e in Fragments(main).select(tag='nav') if e.attrs.get('aria-label')=='Open question views')
+        self.assertNotIn('href="research.html',Fragments(main).raw(tabs))
         self.assertIn('id="research-workbench-slot"',main)
         self.assertIn('id="millennium-entry"',main)
         self.assertIn('class="result-followup"',main)
@@ -92,6 +95,13 @@ class ReadingViewsTests(unittest.TestCase):
 
     def test_javascript_reader_contracts(self):
         subprocess.run(["node","--test","tests/js/reading.test.mjs"], cwd=Path(__file__).resolve().parents[1],check=True,capture_output=True,text=True)
+
+    def test_light_prepaint_cannot_leak_into_dark_reading_page(self):
+        source=document('<main></main>').replace('<head>', '<head><meta name="theme-color" content="#f7f8fa"><style>html,body{background:#f7f8fa;color:#232629}body{transition:background-color .24s ease,color .24s ease}</style>')
+        out=common_shell(source)
+        self.assertNotIn('#f7f8fa',out)
+        self.assertIn('html,body{background:#090c10',out)
+        self.assertIn('body{transition:none}',out)
 
     def test_common_shell_remains_idempotent(self):
         value=common_shell(document('<main></main>'))

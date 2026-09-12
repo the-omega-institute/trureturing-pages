@@ -1,0 +1,36 @@
+name: Reading browser preview
+on:
+  pull_request:
+    paths: ['site/**', 'lib/**', 'tools/build_reading_preview.py', 'tests/browser/reading_experience.py', '.github/workflows/reading-preview.yml']
+permissions:
+  contents: read
+concurrency:
+  group: reading-preview-${{ github.event.number }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt playwright==1.57.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Build with the currently published immutable data
+        run: python tools/build_reading_preview.py _reading_preview
+      - name: Exercise the real browser and native module routes
+        run: python tests/browser/reading_experience.py --site _reading_preview --output _reading_checks
+      - name: Retain the visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reading-browser-review
+          path: |
+            _reading_checks
+            _reading_preview/preview-inputs.json
+          retention-days: 7
+          if-no-files-found: warn

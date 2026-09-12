@@ -113,6 +113,11 @@ def replace_main(document: str, body: str):
 
 
 def common_shell(document: str, root=''):
+    # Replace only the known reading-shell prepaint style; leave mathematical markup alone.
+    document = document.replace('content="#f7f8fa"', 'content="#090c10"')
+    document = document.replace(
+        '<style>html,body{background:#f7f8fa;color:#232629}body{transition:background-color .24s ease,color .24s ease}</style>',
+        '<style>html,body{background:#090c10;color:#e0eaec;color-scheme:dark}body{transition:none}</style>')
     # All styles are in the head before first paint, including lazy notebook styles.
     if 'assets/reading.css' not in document:
         document = document.replace('</head>', f'<link rel="stylesheet" href="{root}assets/reading.css">'
@@ -198,6 +203,16 @@ def render_conjecture_groups(document, snapshot, output):
         search = p['title'] + ' ' + source_url(p) + ' ' + ' '.join(p.get('motivation_gids', []))
         groups[key].append(f'<div class="reading-item question-item" data-search="{esc(search.lower())}">'
                            + row_by_slug[p['slug']] + '</div>')
+    completed = [p for p in snapshot['problems'] if p.get('resolution')]
+    completed_links = ''.join(
+        f'<p><a href="research/{esc(p["slug"])}/">{esc(p["title"])}</a> '
+        f'<small>{esc(p["resolution"]["kind"])}, source record</small></p>' for p in completed)
+    completed_archive = ('<details class="reading-group" id="completed-dossiers"><summary>'
+        '<span><strong>Completed dossiers and source archive</strong>'
+        '<small>Retained question records, outside the unresolved collection above.</small></span></summary>'
+        '<div class="reading-group-body">' + completed_links
+        + '<p><a href="research.html#results">Browse completed results by collection</a></p>'
+        '<p><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">Read source dossiers in mdBook</a></p></div></details>')
     sections = ''.join(group_html(key, title, desc, groups[key], prefix='questions', noun='questions')
         for key, title, desc in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
     # Preserve authored follow-up records and their links, without duplicating them in the first viewport.
@@ -218,7 +233,7 @@ def render_conjecture_groups(document, snapshot, output):
         '<div id="research-workbench-slot" class="reading-group-body"><p role="status">Open this section to load the research notebook.</p></div></details>'
         + millennium_entry(output)
         + (f'<details class="reading-group"><summary>Follow-up questions from completed work</summary><div class="reading-group-body">{followups}</div></details>' if followups else '')
-        + '</main>')
+        + completed_archive + '</main>')
     result = common_shell(replace_main(document, body))
     result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-workbench.css">'
                            '<link rel="stylesheet" href="assets/reading.css"></head>', 1)
