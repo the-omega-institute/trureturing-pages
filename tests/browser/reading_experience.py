@@ -5,6 +5,7 @@ from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
 import json
 from pathlib import Path
 import threading
+from urllib.parse import urljoin, urlsplit
 from playwright.sync_api import sync_playwright
 
 
@@ -54,8 +55,9 @@ def main():
         rows=page.locator('a.problem-row')
         if rows.count():
             href=rows.first.get_attribute('href')
-            assert '/research.html' not in href and href.startswith('research/')
-            page.goto(base+href,wait_until='networkidle')
+            destination=urljoin(base,href)
+            assert urlsplit(destination).path.startswith('/research/')
+            page.goto(destination,wait_until='networkidle')
             assert '/research/' in page.url and 'research.html' not in page.url
             events.append('A source question opens its individual dossier')
         page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
