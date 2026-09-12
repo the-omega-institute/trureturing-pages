@@ -67,7 +67,7 @@ class ResearchNewsTests(unittest.TestCase):
             render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
             research = (output / "research.html").read_text()
             conjectures = (output / "conjectures.html").read_text()
-            self.assertIn("What we are working on now", research)
+            self.assertIn("Unresolved targets in this release", research)
             self.assertIn('id="frontier"', research)
             self.assertIn('id="results"', research)
             self.assertIn('id="open-problems"', conjectures)
