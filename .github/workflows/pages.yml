@@ -13,6 +13,11 @@ on:
         required: false
         default: false
         type: boolean
+      rebuild_current:
+        description: "Rebuild and redeploy the served Library current release with this Pages revision (overrides digest/reconcile)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -32,6 +37,7 @@ jobs:
       should_build: ${{ steps.selection.outputs.should_build }}
       release_digest: ${{ steps.selection.outputs.release_digest }}
       source_commit: ${{ steps.selection.outputs.source_commit }}
+      rebuild: ${{ steps.selection.outputs.rebuild }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,18 +56,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REQUESTED_DIGEST: ${{ inputs.truth_release_digest || 'mock' }}
           RECONCILE: ${{ inputs.reconcile || false }}
+          REBUILD_CURRENT: ${{ inputs.rebuild_current || false }}
         shell: bash
         run: |
           set -euo pipefail
-          requested=()
-          if [[ "$RECONCILE" != 'true' ]]; then
+          requested=(--limit 1)
+          if [[ "$REBUILD_CURRENT" == 'true' ]]; then
+            requested+=(--rebuild-current)
+          elif [[ "$RECONCILE" != 'true' ]]; then
             if [[ "$REQUESTED_DIGEST" == 'mock' ]]; then
               printf 'should_build=true\nrelease_digest=mock\nsource_commit=\n' >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            requested=(--requested-digest "$REQUESTED_DIGEST")
+            requested+=(--requested-digest "$REQUESTED_DIGEST")
           fi
-          python -m lib.reconcile_releases plan --limit 1 \
+          python -m lib.reconcile_releases plan \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
             "${requested[@]}" --github-output "$GITHUB_OUTPUT" \
             > "$RUNNER_TEMP/reconciliation.json"
@@ -111,7 +120,7 @@ jobs:
 
       - name: Restore a completed ingestion if deployment was interrupted
         id: checkpoint
-        if: needs.prepare.outputs.release_digest != 'mock'
+        if: needs.prepare.outputs.release_digest != 'mock' && needs.prepare.outputs.rebuild != 'true'
         uses: actions/cache/restore@v4
         with:
           path: _site
@@ -146,6 +155,7 @@ jobs:
               --digest "$REQUESTED_DIGEST" --source-commit "$PLANNED_SOURCE_COMMIT" \
               --repository "$TRUTH_REPOSITORY" --bundle "$bundle" --output _site \
               --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
+              ${{ needs.prepare.outputs.rebuild == 'true' && '--rebuild-current' || '' }} \
               --verified-json "$RUNNER_TEMP/verified-release.json"
             expected="$REQUESTED_DIGEST"
           fi
@@ -402,6 +412,7 @@ jobs:
           --source-repo _upstream
           --previous-url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           --for-deployment
+          ${{ needs.prepare.outputs.rebuild == 'true' && '--rebuild-current' || '' }}
 
       - name: Verify the ingestion receipt is staged in the Pages artifact
         if: steps.checkpoint.outputs.cache-hit != 'true'
@@ -420,7 +431,7 @@ jobs:
             --metrics "$RUNNER_TEMP/topology-measurement.json"
 
       - name: Save the completed site so a deployment retry does not repeat ingestion
-        if: steps.checkpoint.outputs.cache-hit != 'true' && needs.prepare.outputs.release_digest != 'mock'
+        if: steps.checkpoint.outputs.cache-hit != 'true' && needs.prepare.outputs.release_digest != 'mock' && needs.prepare.outputs.rebuild != 'true'
         uses: actions/cache/save@v4
         with:
           path: _site

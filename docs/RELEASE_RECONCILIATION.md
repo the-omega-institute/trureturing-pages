@@ -10,6 +10,67 @@ Library history and served receipt evidence into `data/version-status.v1.json`.
 It distinguishes publication, atomic reception/verification/generation, and
 deployment, with a last-good fallback and explicit observation timestamps.
 
+## Rebuild the currently deployed release
+
+Pages code and UI changes can be published without waiting for another Base
+release. Dispatch the existing `pages.yml` on `dev` with `rebuild_current=true`:
+
+```bash
+gh workflow run pages.yml --repo the-omega-institute/trureturing-pages \
+  --ref dev -f rebuild_current=true
+```
+
+In the Actions UI, choose **Run workflow**, branch **dev**, and enable
+`rebuild_current`. This explicit mode takes precedence over both `reconcile` and
+`truth_release_digest`, including the default `mock`. It uses real content from
+the served release; it does not select a missing release or create a mock site.
+With `rebuild_current=false` (the default), all existing selection behavior is
+unchanged, including an already ingested requested digest remaining a no-op.
+
+The selection step calls `plan --rebuild-current --previous-url …`. It reads the
+served `data/library-history.v1.json` with a cache-busting query, resolves
+`current_truth_release_digest` to its history entry, and validates that entry's
+immutable `source_commit`. A local `_site` candidate cannot override the served
+coordinate. The plan returns `mode: "rebuild"`, `should_build: true` and exactly
+one `selected` release; GitHub outputs include `rebuild=true`, `should_build=true`,
+`release_digest` and `source_commit`. This remains possible when every missing
+release is blocked. It does not need the release listing or missing-release
+ancestry ordering, because it is re-rendering the already admitted current
+coordinate. `--requested-digest` and `--rebuild-current` are mutually exclusive
+CLI modes, and rebuild requires `--limit 1`.
+
+The deploy job uses the same acquire → verify → build-basic → topology/Atlas →
+repair-history → ingest → finalize → version-status → freshness → upload →
+deploy sequence. Rebuild skips completed-site cache restore/save, so each refresh
+reacquires the digest-addressed bundle and `build-basic` copies the current
+`site/`, including new pages. Acquisition rechecks the served coordinate and
+compares the verified bundle source with the planned commit. No new deployment
+job, artifact publication shortcut or freshness exception is introduced.
+
+`ingest --rebuild-current` re-verifies the bundle and projected source, then calls
+the existing Library builder in explicit rebuild mode. The builder still runs
+the exact source checkout checks, #48 resolution/Frozen gate, Atlas binding and
+archive digest checks. It restores the original snapshots and timeline, renders
+Library/research routes using the current Pages code, and stages the original
+history entries and receipt rows. It creates no snapshot coordinate or receipt,
+and preserves receipt bindings, timestamps and `deployed` values. Ordinary
+`build_library` calls retain their existing same-release no-op behavior.
+
+Missing/invalid current history, missing immutable source identity, unreadable
+remote state, source/digest mismatch and damaged archives all fail closed. A
+fresh site without a current release must use its initial ingestion path first.
+Rebuild also requires a complete existing receipt ledger; it fails rather than
+manufacturing recovery receipts. The existing explicit duplicate-history repair
+still runs before ingestion and keeps its original correction/recovery rules;
+those repairs are separate from the rebuild's no-append behavior.
+
+Read-only offline selection example (the committed history is the authority):
+
+```bash
+/tmp/pagesvenv/bin/python -m lib.reconcile_releases plan --rebuild-current \
+  --dry-run --history tests/fixtures/reconciliation/library-history.v1.json
+```
+
 ## Read-only audit
 
 From the Pages repository:
@@ -267,6 +328,7 @@ an older CDN response during queued runs.
 ```bash
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_reconcile_releases.py'
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_repair_history.py'
+/tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_rebuild_current.py'
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_*.py'
 ```
 
