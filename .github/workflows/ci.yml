@@ -99,6 +99,7 @@ jobs:
           node --test tests/research-workbench.test.mjs
           node --test tests/js/architecture.test.mjs
           node --test tests/js/evolution.test.mjs
+          node --test tests/js/version-status.test.mjs
           node tests/js/concept-lens.test.js
           node tests/js/research-context.test.js
           node tests/js/research-writeback.test.js

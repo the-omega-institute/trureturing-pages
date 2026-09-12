@@ -1,0 +1,427 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pages version status v1",
+  "description": "Observational five-stage release status. An on-deploy projection confirms deployment only when served as part of the atomic Pages site; cached artifacts are not confirmation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "observed_at",
+    "publication",
+    "observation",
+    "counts",
+    "head",
+    "upstream",
+    "halt",
+    "releases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "pages-version-status.v1"
+    },
+    "observed_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "publication": {
+      "enum": [
+        "observed",
+        "on-deploy"
+      ]
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "checked_at",
+        "halt_stage",
+        "reason"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "fresh",
+            "last-good",
+            "unavailable"
+          ]
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "halt_stage": {
+          "anyOf": [
+            {
+              "enum": [
+                "published",
+                "received",
+                "verified",
+                "generated",
+                "deployed"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "published",
+        "received",
+        "verified",
+        "generated",
+        "deployed",
+        "pending",
+        "blocked",
+        "quarantined"
+      ],
+      "properties": {
+        "published": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "received": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verified": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "generated": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deployed": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pending": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blocked": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quarantined": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "head": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "current_truth_release_digest",
+        "upstream_latest_digest",
+        "behind"
+      ],
+      "properties": {
+        "current_truth_release_digest": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "sha256:[0-9a-f]{64}"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "upstream_latest_digest": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "sha256:[0-9a-f]{64}"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "behind": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "upstream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "latest_published_at",
+        "stale_after_seconds",
+        "stale"
+      ],
+      "properties": {
+        "latest_published_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stale_after_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "stale": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "halt": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stage",
+            "reason",
+            "suspected_upstream_failure"
+          ],
+          "properties": {
+            "stage": {
+              "enum": [
+                "published",
+                "received",
+                "verified",
+                "generated",
+                "deployed"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "suspected_upstream_failure": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "releases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "digest",
+          "source_commit",
+          "published_at",
+          "stages",
+          "furthest_stage",
+          "bundle_asset",
+          "halt",
+          "quarantined_count"
+        ],
+        "properties": {
+          "digest": {
+            "type": "string",
+            "pattern": "sha256:[0-9a-f]{64}"
+          },
+          "source_commit": {
+            "type": "string",
+            "pattern": "[0-9a-f]{40}"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stages": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "published",
+              "received",
+              "verified",
+              "generated",
+              "deployed"
+            ],
+            "properties": {
+              "published": {
+                "type": "boolean"
+              },
+              "received": {
+                "type": "boolean"
+              },
+              "verified": {
+                "type": "boolean"
+              },
+              "generated": {
+                "type": "boolean"
+              },
+              "deployed": {
+                "type": "boolean"
+              }
+            }
+          },
+          "furthest_stage": {
+            "enum": [
+              "published",
+              "received",
+              "verified",
+              "generated",
+              "deployed"
+            ]
+          },
+          "bundle_asset": {
+            "enum": [
+              "present",
+              "missing",
+              "unknown"
+            ]
+          },
+          "halt": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "stage",
+                  "reason",
+                  "suspected_upstream_failure"
+                ],
+                "properties": {
+                  "stage": {
+                    "enum": [
+                      "published",
+                      "received",
+                      "verified",
+                      "generated",
+                      "deployed"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "suspected_upstream_failure": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quarantined_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}
