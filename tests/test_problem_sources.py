@@ -143,6 +143,15 @@ class ProblemSourceTests(unittest.TestCase):
         problem = url_problem()
         problem["resolution"] = {"kind": "proved", "declaration_gid": "D5/S1/Example.result",
                                  "source_path": "Blueprint/D5/S1/Example.md"}
+        # Render a fully prepared snapshot, as the production build does after gating.
+        # Do not manufacture kernel_verified metadata or relax the projection boundary.
+        from lib.problem_resolutions import index_truth_export, verify_resolutions
+        truth_export = {"schema_version": 2, "dialect": "stratalint.truth-export.v2", "nodes": [{
+            "repo_path": "D5/S1/Example.lean", "freeze_status": "frozen",
+            "frozen_node_id": "sha256:" + "c" * 64, "node_axiom_closure": [],
+            "declarations": [{"declaration_name_key": "ns(ns(n0,2:D5),6:result)", "kind": "theorem"}],
+        }]}
+        verify_resolutions([problem], index_truth_export(truth_export))
         snapshot = living_library.create_snapshot(graph(), "sha256:" + "1" * 64, [problem], {})
         result = next(item for item in result_records(snapshot) if item["id"] == problem["slug"])
         self.assertEqual(result["source_url"], problem["url"])
