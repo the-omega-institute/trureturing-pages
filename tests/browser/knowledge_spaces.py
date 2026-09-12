@@ -65,8 +65,8 @@ UI
                         ('CORE',core),('RENDERER','true' if renderer else 'false'),('UI',ui)]:
         script=script.replace(token,value,1)
     html=(ROOT/'site/spaces.html').read_text()
-    html=re.sub(r'<script\b[^>]*>.*?</script>','',html,flags=re.S)
-    html=re.sub(r'<link\b[^>]*>','',html)
+    html=re.sub(r'<script\b[^>]*>.*?</script\s*>','',html,flags=re.S | re.I)
+    html=re.sub(r'<link\b[^>]*>','',html,flags=re.I)
     html=html.replace('</head>','<style>'+(ROOT/'site/assets/knowledge-spaces.css').read_text()+'</style></head>')
     return html,script,catalog
 
