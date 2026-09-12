@@ -5,6 +5,11 @@ It uses the existing `pages.yml` projection/deployment pipeline and
 `living_library.build_library` archive implementation. It does not run the Base
 producer, Lean, or topology while planning.
 
+The compact [Version status entry](VERSION_STATUS.md) projects this same planner,
+Library history and served receipt evidence into `data/version-status.v1.json`.
+It distinguishes publication, atomic reception/verification/generation, and
+deployment, with a last-good fallback and explicit observation timestamps.
+
 ## Read-only audit
 
 From the Pages repository:

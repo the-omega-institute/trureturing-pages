@@ -67,6 +67,23 @@ jobs:
             > "$RUNNER_TEMP/reconciliation.json"
           cat "$RUNNER_TEMP/reconciliation.json" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Observe version status even when no release is eligible
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m lib.version_status --output "$RUNNER_TEMP/version-observation" \
+            --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain the reconciliation status observation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-status-reconciliation
+          path: ${{ runner.temp }}/version-observation/data/version-status.v1.json
+          if-no-files-found: warn
+
   deploy:
     needs: prepare
     if: needs.prepare.outputs.should_build == 'true'
@@ -259,6 +276,7 @@ jobs:
             _site/data/topology-atlas.v1.json >/dev/null
 
       - name: Project and conform one release-bound multiscale Pages Atlas
+        id: projection
         if: steps.checkpoint.outputs.cache-hit != 'true'
         shell: bash
         run: |
@@ -373,6 +391,7 @@ jobs:
           cat "$RUNNER_TEMP/library-history-repair.json" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Archive content and publish source-bound research dossiers
+        id: ingestion
         if: steps.checkpoint.outputs.cache-hit != 'true'
         run: >-
           python -m lib.reconcile_releases ingest
@@ -406,6 +425,15 @@ jobs:
         with:
           path: _site
           key: pages-ingestion-v1-${{ github.sha }}-${{ needs.prepare.outputs.release_digest }}
+
+      - name: Stage version status with the complete Pages publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m lib.version_status --output _site --for-deployment \
+            --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
+            >> "$GITHUB_STEP_SUMMARY"
+          test -s _site/data/version-status.v1.json
 
       - name: Refuse stale release or topology deployment
         shell: bash
@@ -451,3 +479,42 @@ jobs:
       - name: Deploy the unified multiscale Atlas and concept state
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Observe the stopped stage without changing the served site
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_DIGEST: ${{ needs.prepare.outputs.release_digest }}
+          ACQUIRE_OUTCOME: ${{ steps.acquire.outcome }}
+          PROJECTION_OUTCOME: ${{ steps.projection.outcome }}
+          INGESTION_OUTCOME: ${{ steps.ingestion.outcome }}
+          DEPLOYMENT_OUTCOME: ${{ steps.deployment.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          failure=()
+          stage=''
+          reason=''
+          if [[ "$ACQUIRE_OUTCOME" == 'failure' ]]; then
+            stage='received'; reason='acquisition-failed'
+          elif [[ "$PROJECTION_OUTCOME" == 'failure' ]]; then
+            stage='generated'; reason='generation-failed'
+          elif [[ "$INGESTION_OUTCOME" == 'failure' ]]; then
+            stage='received'; reason='atomic-ingestion-failed'
+          elif [[ "$DEPLOYMENT_OUTCOME" == 'failure' ]]; then
+            stage='deployed'; reason='deployment-failed'
+          fi
+          if [[ "$RELEASE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && -n "$stage" ]]; then
+            failure=(--failure-digest "$RELEASE_DIGEST" --failure-stage "$stage" --failure-reason "$reason")
+          fi
+          python -m lib.version_status --output _site \
+            --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
+            "${failure[@]}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain the build or deployment status for diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-status-build
+          path: _site/data/version-status.v1.json
+          if-no-files-found: warn
