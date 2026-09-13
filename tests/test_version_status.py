@@ -110,6 +110,7 @@ class VersionStatusTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             with patch.object(reconcile.GitHub, "releases", return_value=self.releases) as reader, \
                  patch.object(reconcile.GitHub, "dev_head", return_value=self.ancestry.head), \
+                 patch.object(reconcile.GitHub, "is_ancestor", side_effect=self.ancestry.is_ancestor), \
                  patch.object(reconcile, "plan_releases", wraps=reconcile.plan_releases) as planner:
                 value = status.refresh_status(Path(temp), now=NOW)
             reader.assert_called_once()
