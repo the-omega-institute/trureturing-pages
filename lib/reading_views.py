@@ -229,11 +229,65 @@ def render_conjecture_groups(document, snapshot, output):
     extras += ('<details id="completed-dossiers" class="reading-group"><summary>Completed dossiers and source archive</summary>'
         '<div class="reading-group-body">' + links + '<a href="research.html#results">Browse completed results by collection</a>'
         '<p><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">Read source dossiers in mdBook</a></p></div></details>')
-    result = common_shell(document.replace('</main>', extras + '</main>', 1))
+    result = common_shell(conjecture_journey(document.replace('</main>', extras + '</main>', 1), snapshot))
     if 'assets/research-workbench.css' not in result:
         result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-workbench.css"></head>', 1)
     return result
 
+
+
+def conjecture_journey(document, snapshot):
+    """An editorial shortlist with explicit existing-result links; never a truth gate."""
+    from lib.research_results import followup_families
+    stories = json.loads((ROOT / 'site/assets/result-stories.json').read_text())
+    catalog = json.loads((ROOT / 'site/assets/research-catalog.json').read_text())
+    resolved = {p['slug'] for p in snapshot['problems'] if p.get('resolution')}
+    families = [f for f in followup_families() if f['id'] not in resolved]
+    cards = []
+    for f in families:
+        targets = ''.join(f'<a href="#rp={esc(t["id"])}">{esc(t["title"])} ↗</a>' for t in f['targets'])
+        cards.append(f'''<article class="journey-direction" id="direction-{esc(f['id'])}">
+<h3>{esc(f['area'])}</h3><p class="journey-question"><a href="#rp={esc(f['id'])}">{esc(f['title'])}</a></p>
+<ol class="journey-steps"><li><span>Established result</span><p>{esc(stories[f['builds_on']]['finding'])}</p><a href="results/{esc(f['builds_on'])}/">Read the proof &amp; exact scope ↗</a></li>
+<li><span>Next contribution</span><p>{esc(f['next_step'])}</p><div class="journey-targets">{targets}</div></li>
+<li><span>Longer-term question</span><p>{esc(f['question'])}</p></li></ol></article>''')
+    overview = ('<section class="research-journey result-followups" id="next-questions" aria-labelledby="next-questions-title">'
+        '<p class="eyebrow">01 / OUR PRIORITY DIRECTIONS</p><h2 id="next-questions-title">Where we can contribute next</h2>'
+        '<p class="journey-intro">A curated shortlist for researchers and formalizers: questions with an existing proof to build on, a concrete missing step, and a wider mathematical goal. These are our proposed priorities, not a ranking of all open mathematics.</p>'
+        '<nav class="journey-priorities" aria-label="Priority research areas">' + ''.join(f'<a href="#direction-{esc(f["id"])}">{esc(f["area"])}</a>' for f in families) + '</nav><div class="journey-grid">' + ''.join(cards) + '</div></section>')
+    parsed = Fragments(document)
+    for element in sorted(parsed.select(cls='result-followups') + parsed.select(cls='research-activity'), key=lambda e:e.start, reverse=True):
+        document = document[:element.start]+document[element.end:]
+    # Put purpose and mathematical areas ahead of provenance totals and source search.
+    document = document.replace('Open questions. Missing bridges. The next proof.', 'Choose a question. Build on a proof. Connect the next idea.')
+    parsed = Fragments(document)
+    heading = parsed.select(cls='page-heading')[0]
+    document = document[:heading.end]+overview+document[heading.end:]
+    parsed = Fragments(document)
+    stats = parsed.select(cls='research-stats')
+    browser = parsed.select(cls='research-browser')
+    if stats and browser:
+        start,end = stats[0].start,browser[0].end
+        document = document[:start] + '<details id="source-questions" class="reading-group"><summary>Browse all source questions · OEIS, Erdős &amp; papers</summary><div class="reading-group-body">' + document[start:end] + '</div></details>' + document[end:]
+    by_area = defaultdict(list)
+    for family in catalog['families']:
+        if family['id'] not in resolved: by_area[family['area']].append(family)
+    areas = ''.join('<details><summary>'+esc(area)+'</summary><div>'+''.join(f'<a href="#rp={esc(f["id"])}">{esc(f["title"])}</a>' for f in families)+'</div></details>' for area,families in by_area.items())
+    document = document.replace('<details class="reading-group" id="research-directions"', '<nav class="journey-areas" aria-label="More research areas"><span>Explore further directions</span>'+areas+'</nav><details class="reading-group" id="research-directions"',1)
+    document = document.replace('<h2>Long-horizon research maps</h2>', '<p class="eyebrow">02 / THE WIDER HORIZON</p><h2>Long-horizon research maps</h2><p>Explore the objects, equivalent formulations and missing bridges behind the Millennium Problems. These maps are research context; the routes above do not imply a solution.</p>')
+    # Keep every resolved permalink, with compact source collections and pagination.
+    parsed = Fragments(document)
+    archive = parsed.select(id='completed-dossiers')[0]
+    items = defaultdict(list)
+    for problem in snapshot['problems']:
+        if not problem.get('resolution'): continue
+        item = parsed.select(id='resolved-'+problem['slug'])[0]
+        key,_,_ = series(source_url(problem))
+        raw = parsed.raw(item).replace('class="resolved-question"', 'class="resolved-question reading-item" data-search="'+esc(problem['title'].lower())+'"')
+        items[key].append(raw)
+    collections = ''.join(group_html(k,t,d,items[k],prefix='completed',noun='results') for k,t,d in [series('https://oeis.org'),series('https://erdosproblems.com'),series('https://other.example')])
+    replacement = '<details id="completed-dossiers" class="reading-group"><summary>Results along the way · completed dossiers</summary><div class="reading-group-body"><section id="completed-catalog" data-reading-catalog>'+search_box('archive')+collections+'</section><a href="research.html#results">Research results &amp; publications ↗</a></div></details>'
+    return document[:archive.start]+replacement+document[archive.end:]
 
 def apply_reading_views(output: Path, snapshot: dict, records: list):
     output = Path(output)

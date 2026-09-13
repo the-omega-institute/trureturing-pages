@@ -56,3 +56,45 @@ export function groupContext(group, snapshot) {
 export function addedEdgeKeys(delta) {
   return new Set(delta?.kind === 'comparable' ? (delta.edgesAdded || []).map(e=>JSON.stringify(e)) : []);
 }
+
+// Changes in archived module imports, not claims of mathematical novelty.
+export function releaseInsights(previous, current) {
+  const delta = releaseDeltaForInsights(previous, current);
+  if (delta.kind !== 'comparable') return {kind:delta.kind, areas:[], reuse:[], bridges:[], changedIds:[]};
+  const oldNodes = new Map(previous.nodes.map(n=>[n.id,n]));
+  const now = new Map(current.nodes.map(n=>[n.id,n]));
+  const added = new Set(delta.added), areas = new Map(), gains = new Map();
+  for (const id of added) {
+    const node = now.get(id);
+    if (!areas.has(node.domain)) areas.set(node.domain, {domain:node.domain,nodes:[]});
+    areas.get(node.domain).nodes.push(node);
+  }
+  const consumers = edges => {
+    const map=new Map();
+    for(const [a,b] of edges || []) { if(!map.has(a))map.set(a,new Set());map.get(a).add(b); }
+    return map;
+  };
+  if (delta.edgesAdded !== null) {
+    const before=consumers(previous.dependency_edges),after=consumers(current.dependency_edges);
+    for(const [id,targets] of after) {
+      if(!oldNodes.has(id) || !now.has(id))continue;
+      const earlier=before.get(id)||new Set(), gain=targets.size-earlier.size;
+      if(gain>0)gains.set(id,{...now.get(id),before:earlier.size,after:targets.size,gain});
+    }
+  }
+  const pair=(a,b)=>JSON.stringify([a.domain,b.domain]);
+  const knownPairs=new Set((previous.dependency_edges||[]).filter(([a,b])=>oldNodes.has(a)&&oldNodes.has(b)).map(([a,b])=>pair(oldNodes.get(a),oldNodes.get(b))));
+  const bridges=new Map();
+  for(const [a,b] of delta.edgesAdded||[]) {
+    if(!now.has(a)||!now.has(b)||now.get(a).domain===now.get(b).domain)continue;
+    const key=pair(now.get(a),now.get(b));if(knownPairs.has(key))continue;
+    if(!bridges.has(key))bridges.set(key,{from:now.get(a).domain,to:now.get(b).domain,pairs:[]});
+    bridges.get(key).pairs.push([a,b]);
+  }
+  return {kind:delta.kind,edgesKnown:delta.edgesAdded!==null,
+    areas:[...areas.values()].sort((a,b)=>b.nodes.length-a.nodes.length||a.domain.localeCompare(b.domain)),
+    reuse:[...gains.values()].sort((a,b)=>b.gain-a.gain||a.id.localeCompare(b.id)),
+    bridges:[...bridges.values()].sort((a,b)=>b.pairs.length-a.pairs.length||a.from.localeCompare(b.from)),
+    changedIds:[...new Set([...added,...delta.retired,...(delta.edgesAdded||[]).flat(),...(delta.edgesRemoved||[]).flat()])]};
+}
+import { releaseDelta as releaseDeltaForInsights } from './evolution-core.mjs';

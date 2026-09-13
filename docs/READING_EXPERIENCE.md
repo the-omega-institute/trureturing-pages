@@ -93,3 +93,20 @@ coordinate, zero lag and no pending/blocked work. Unknown upstream status is not
 Regression coverage includes notebook layout preservation, actual follow-up anchors,
 result/publication order, status uncertainty, distinct prerequisite/consumer sets,
 selected graph context and real playback.
+
+Conjectures now leads with a curated contribution journey: each selected research
+area connects an existing result, a proposed next contribution and its wider
+question. The shortlist is derived from the authored catalog's `builds_on` links;
+it is an editorial priority, not an exhaustive survey or an automatic open-status
+audit. Exact proof scope stays at the linked result. Source search and release
+coordinates are optional; development commit activity is removed. Every completed
+dossier keeps its permalink in a paginated source collection.
+
+Evolution compares adjacent archived observations without changing domain rows or
+selecting another module. A selected column and fixed row labels clarify the time
+view. Changes show added modules by source domain, net growth in distinct direct
+consumers of existing modules, and newly connected pairs of source domains.
+Repeated imports are deduplicated. Missing edges or changed analysis profiles do
+not yield growth claims. A source-domain connection is not a proven mathematical
+representation bridge. The original canvas, colors, playback and graph geometry
+remain; the timeline scene is cached across slider changes.

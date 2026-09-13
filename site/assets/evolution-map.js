@@ -13,6 +13,7 @@ export function mountEvolution(host, { onSelect }) {
     d3 = window.d3;
   let scene,
     selected,
+    changesOnly = false, changedIds = new Set(), reusedIds = new Set(),
     selectedIds = new Set(),
     size = { width: 1, height: 1 },
     transform = d3.zoomIdentity,
@@ -41,6 +42,11 @@ export function mountEvolution(host, { onSelect }) {
         .filter((n) => n.nodes.some((m) => selectedIds.has(m.id)))
         .map((n) => n.id),
     );
+    if(scene.kind==='time') {
+      const x=120+scene.selectedObservation*260;
+      ctx.fillStyle='#7ec9b018';ctx.fillRect(x-95,0,190,Math.max(...scene.nodes.map(n=>n.y))+45);
+      ctx.strokeStyle='#79bfa8';ctx.lineWidth=2/transform.k;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,Math.max(...scene.nodes.map(n=>n.y))+45);ctx.stroke();
+    }
     for (const lane of scene.lanes) {
       ctx.strokeStyle = "#1c2c2e";
       ctx.lineWidth = 0.7 / transform.k;
@@ -53,7 +59,9 @@ export function mountEvolution(host, { onSelect }) {
       const a = positions.get(edge.source),
         b = positions.get(edge.target),
         active = selectedGroups.has(a.id) && selectedGroups.has(b.id);
-      ctx.globalAlpha = !selected ? 0.22 : active ? 0.78 : 0.045;
+      const changed=edge.pairs?.some(([a,b])=>changedIds.has(a)||changedIds.has(b));
+      const inStep=scene.kind==='dependency'||b.observation===scene.selectedObservation;
+      ctx.globalAlpha = selected ? (active ? 0.78 : 0.045) : changesOnly ? (changed && inStep ? .55 : .035) : .22;
       const introduced = (scene.kind === 'dependency' || b.observation === scene.selectedObservation) &&
         edge.pairs?.some(pair=>scene.addedEdges?.has(JSON.stringify(pair)));
       ctx.strokeStyle = introduced ? '#e8c474' : active ? "#cae6ca" : a.color;
@@ -83,7 +91,9 @@ export function mountEvolution(host, { onSelect }) {
     for (const node of scene.nodes) {
       const active = selectedGroups.has(node.id),
         isSelected = node.nodes.some((n) => n.id === selected);
-      ctx.globalAlpha = !selected || active ? 1 : 0.22;
+      const inStep=scene.kind==='dependency'||node.observation===scene.selectedObservation;
+      const changed=node.nodes.some(n=>changedIds.has(n.id));
+      ctx.globalAlpha = selected ? (active ? 1 : .22) : changesOnly ? (changed && inStep ? 1 : .18) : 1;
       ctx.fillStyle = node.color;
       ctx.beginPath();
       ctx.arc(node.x, node.y, radius(node), 0, Math.PI * 2);
@@ -94,6 +104,9 @@ export function mountEvolution(host, { onSelect }) {
         ctx.beginPath();
         ctx.arc(node.x, node.y, radius(node) + 6 / transform.k, 0, Math.PI * 2);
         ctx.stroke();
+      }
+      if(inStep && node.nodes.some(n=>reusedIds.has(n.id))) {
+        ctx.strokeStyle='#78cbb6';ctx.lineWidth=2/transform.k;ctx.beginPath();ctx.arc(node.x,node.y,radius(node)+10/transform.k,0,Math.PI*2);ctx.stroke();
       }
       if (isSelected || node === hover) {
         ctx.strokeStyle = "#f1faf5";
@@ -116,9 +129,16 @@ export function mountEvolution(host, { onSelect }) {
             b.nodes.length - a.nodes.length,
         );
     ctx.font = "11px Arial";
+    if(scene.kind==='time') {
+      for(const i of new Set(scene.nodes.map(n=>n.observation))) {
+        const [x]=transform.apply([120+i*260,0]);ctx.fillStyle=i===scene.selectedObservation?'#d8ede3':'#809995';ctx.fillText(`O${i+1}`,x-15,18);
+      }
+    }
     for (const node of candidates) {
+      if(scene.kind==='time' && node.observation!==scene.selectedObservation)continue;
       if (selected && !selectedGroups.has(node.id)) continue;
-      const [x, y] = transform.apply([node.x, node.y]);
+      const [mappedX, y] = transform.apply([node.x, node.y]);
+      const x = scene.kind === "time" ? 4 : mappedX;
       if (x < 0 || y < 12 || x > size.width - 30 || y > size.height - 10)
         continue;
       if (
@@ -221,8 +241,8 @@ export function mountEvolution(host, { onSelect }) {
     if (node) onSelect(node);
   });
   return {
-    update(next, { selectedId, ids = new Set(), reset = false } = {}) {
-      scene = next;
+    update(next, { selectedId, ids = new Set(), reset = false, changesOnly: nextChanges = false, changedIds: nextIds = new Set(), reusedIds: nextReuse = new Set() } = {}) {
+      scene = next; changesOnly=nextChanges;changedIds=nextIds;reusedIds=nextReuse;
       positions = new Map(scene.nodes.map((n) => [n.id, n]));
       selected = selectedId;
       selectedIds = ids;

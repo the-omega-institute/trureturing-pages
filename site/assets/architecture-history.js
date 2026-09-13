@@ -1,4 +1,4 @@
-import { annotateScene, readableName, groupContext } from "./evolution-labels.mjs";
+import { annotateScene, readableName, groupContext, releaseInsights } from "./evolution-labels.mjs";
 import {
   METRICS,
   loadHistory,
@@ -35,6 +35,9 @@ let snapshots = [],
   mode = initial.get("view") === "time" ? "time" : "dependency",
   expanded = null,
   scene,
+  cachedTimeScene,
+  universe = [],
+  changesOnly = true,
   player = null;
 const metric = Object.hasOwn(METRICS, initial.get("metric"))
   ? initial.get("metric")
@@ -148,7 +151,7 @@ async function renderDetail() {
   } else {groupVersion++; $("#lineage-group").replaceChildren();}
   if (!known) {
     root.append(
-      el("h2", "Structural foundations"),
+      el("h2", "Most reused in this observation"),
       el(
         "p",
         `${current.nodes.length.toLocaleString()} modules / ${current.domain_count} source domains`,
@@ -192,7 +195,9 @@ async function renderDetail() {
   if (version !== detailVersion) return;
   links.append(atlas, wiki, research);
   root.append(links);
-  evolutionPanel(root, snapshots, selected, { metric });
+  evolutionPanel(root, snapshots, selected, { metric, observation, onObserve:index=>{
+    $('#lineage-release').value=index;$('#lineage-release').oninput();
+  } });
   if (node) domainDistribution(root, node);
   root.append(el("p", selected, "architecture-provenance"));
 }
@@ -200,7 +205,7 @@ function releaseSummary() {
   const snapshot = snapshots[observation],
     delta = releaseDelta(snapshots[observation - 1], snapshot);
   $("#lineage-release-label").textContent =
-    `${observation + 1} / ${snapshots.length}  ${snapshot.truth_release_digest.slice(7, 19)}`;
+    `Observation ${observation + 1} of ${snapshots.length} · ${snapshot.truth_release_digest.slice(7, 19)}`;
   $("#release-change-summary").textContent =
     delta.kind === "baseline"
       ? `Archive baseline / ${snapshot.nodes.length.toLocaleString()} modules / no earlier observation`
@@ -210,6 +215,9 @@ function releaseSummary() {
   if (!snapshot.dependency_edges && mode === "dependency")
     $("#release-change-summary").textContent +=
       " / dependency edges not archived";
+  $("#previous-observation").disabled=observation===0;
+  $("#next-observation").disabled=observation===snapshots.length-1;
+  renderChanges(snapshot);
   const root = $("#release-events");
   root.replaceChildren();
   if (delta.kind === "comparable")
@@ -232,22 +240,46 @@ function releaseSummary() {
         root.append(d);
       }
 }
+function renderChanges(snapshot) {
+  const info=releaseInsights(snapshots[observation-1],snapshot),root=$('#release-insights');root.replaceChildren();
+  $('#release-comparison').textContent=observation ? `Observation ${observation} → ${observation+1} · compared with the immediately preceding archive` : 'Observation 1 · the archive starts here';
+  $('#lineage-release').setAttribute('aria-valuetext',$('#release-comparison').textContent);
+  if(info.kind!=='comparable') {
+    root.append(el('p',info.kind==='baseline' ? 'Starting inventory. Earlier growth cannot be inferred from this archive.' : 'The analysis method changed. This step cannot be used to measure structural growth.'));return;
+  }
+  const sections=[['Expanded areas',info.areas,'No newly present modules.'],['Foundations gaining reuse',info.reuse,info.edgesKnown?'No existing module gained direct consumers.':'Earlier imports were not archived; reuse changes are unknown.'],['New connections between areas',info.bridges,info.edgesKnown?'No new pair of source domains was connected.':'Earlier imports were not archived; new connections are unknown.']];
+  for(const [title,items,empty] of sections) {
+    const box=el('section');box.append(el('h3',title));
+    for(const item of items.slice(0,3)) {
+      let label,id;
+      if(item.nodes) {label=`${readableName(item.domain)} · +${item.nodes.length} modules`;id=item.nodes[0].id;}
+      else if(item.pairs) {label=`${readableName(item.from)} → ${readableName(item.to)} · ${item.pairs.length} imports`;id=item.pairs[0][1];}
+      else {label=`${item.title} · ${item.before} → ${item.after} direct consumers`;id=item.id;}
+      const button=el('button',label);button.onclick=()=>selectNode(id);box.append(button);
+    }
+    if(!items.length)box.append(el('p',empty));
+    if(items.length>3)box.append(el('small',`Top 3 of ${items.length}; select a node to explore its connections.`));
+    root.append(box);
+  }
+}
+
 function renderMap(reset = false) {
   if (!snapshots.length) return;
   scene =
     mode === "time"
-      ? timeScene(snapshots)
+      ? (cachedTimeScene ||= timeScene(snapshots))
       : dependencyScene(
           snapshots[observation],
           expanded,
-          snapshots.flatMap((s) => s.nodes),
+          universe,
         );
   scene = annotateScene(scene, releaseDelta(snapshots[observation - 1], snapshots[observation]), observation);
   const ids =
     mode === "time"
       ? new Set(snapshots.flatMap((s) => [...lineageIds(s, selected)]))
       : lineageIds(snapshots[observation], selected);
-  renderer.update(scene, { selectedId: selected, ids, reset });
+  const insight=releaseInsights(snapshots[observation-1], snapshots[observation]);
+  renderer.update(scene, { selectedId: selected, ids, reset, changesOnly:changesOnly && insight.kind==='comparable' && insight.changedIds.length>0, changedIds:new Set(insight.changedIds), reusedIds:new Set(insight.reuse.map(n=>n.id)) });
   document
     .querySelectorAll("[data-lineage]")
     .forEach((b) =>
@@ -255,8 +287,8 @@ function renderMap(reset = false) {
     );
   $("#lineage-axis-label").textContent =
     mode === "time"
-      ? "Release observations / solid: identity continuity / dashed: new dependencies"
-      : "Dependency depth (log scale) / foundations to consequences";
+      ? "Each column is one archived observation; each row keeps the same source domain"
+      : "Read left to right: imported foundations → modules that use them";
   $("#lineage-collapse").hidden = !expanded || mode !== "dependency";
   $("#lineage-clear").disabled = !selected;
   document.getElementById("lineage-guide-mode").textContent = mode === "time"
@@ -300,6 +332,9 @@ $("#lineage-release").oninput = () => {
   renderMap();
   renderDetail();
 };
+$('#show-changes').onchange = () => { changesOnly=$('#show-changes').checked;renderMap(); };
+$('#previous-observation').onclick=()=>{if(observation>0){$('#lineage-release').value=observation-1;$('#lineage-release').oninput();}};
+$('#next-observation').onclick=()=>{if(observation<snapshots.length-1){$('#lineage-release').value=observation+1;$('#lineage-release').oninput();}};
 $("#evolution-search").oninput = search;
 $("#lineage-fit").onclick = () => renderer.fit();
 $("#lineage-clear").onclick = () => {
@@ -368,6 +403,7 @@ document.addEventListener("visibilitychange", () => {
       Number(initial.get("observation") ?? snapshots.length - 1) || 0,
     ),
   );
+  universe = snapshots.flatMap(s=>s.nodes);
   const byId = new Map();
   snapshots.forEach((s) => s.nodes.forEach((n) => byId.set(n.id, n)));
   nodes = [...byId.values()].sort(

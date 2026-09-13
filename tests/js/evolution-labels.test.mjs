@@ -52,3 +52,29 @@ test('group context separates prerequisites and consumers, deduplicating boundar
  assert.equal(addedEdgeKeys({kind:'analysis-changed',edgesAdded:[['p','a']]}).size,0);
  assert.ok(addedEdgeKeys({kind:'comparable',edgesAdded:[['p','a']]}).has('["p","a"]'));
 });
+
+import {releaseInsights} from '../../site/assets/evolution-labels.mjs';
+test('growth separates additions, net reuse and newly connected domain pairs',()=>{
+ const a={id:'a',title:'Foundation',domain:'Logic'},b={id:'b',title:'Old consumer',domain:'Logic'},c={id:'c',title:'New consumer',domain:'Arithmetic'},d={id:'d',title:'Another',domain:'Arithmetic'};
+ const before={nodes:[a,b],dependency_edges:[['a','b']]};
+ const after={nodes:[a,b,c,d],dependency_edges:[['a','b'],['a','c'],['a','c'],['c','d']]};
+ const r=releaseInsights(before,after);
+ assert.equal(r.areas[0].nodes.length,2);
+ assert.deepEqual(r.reuse.map(n=>[n.id,n.before,n.after]),[['a',1,2]]);
+ assert.deepEqual(r.bridges.map(n=>[n.from,n.to,n.pairs.length]),[['Logic','Arithmetic',1]]);
+ assert.ok(r.changedIds.includes('a'));
+ const next={...after,dependency_edges:[...after.dependency_edges,['a','d']]};
+ assert.equal(releaseInsights(after,next).bridges.length,0);
+});
+test('missing edge archives, baseline and analysis changes never invent growing foundations',()=>{
+ const node={id:'a',title:'A',domain:'Logic'};
+ const before={nodes:[node]},after={nodes:[node,{id:'b',domain:'Logic'}],dependency_edges:[['a','b']]};
+ assert.equal(releaseInsights(undefined,after).kind,'baseline');
+ assert.equal(releaseInsights(before,after).edgesKnown,false);
+ assert.equal(releaseInsights(before,after).reuse.length,0);
+ assert.equal(releaseInsights(before,{...after,profile:'different'}).kind,'analysis-changed');
+});
+test('a replaced consumer without net growth is not called increased reuse',()=>{
+ const nodes=['a','b','c'].map(id=>({id,domain:'Logic'}));
+ assert.equal(releaseInsights({nodes,dependency_edges:[['a','b']]},{nodes,dependency_edges:[['a','c']]}).reuse.length,0);
+});

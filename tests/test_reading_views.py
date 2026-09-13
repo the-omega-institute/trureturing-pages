@@ -89,6 +89,19 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertIn('id="millennium-entry"',out)
         self.assertLess(out.index('assets/research-workbench.css'),out.index('<body'))
 
+    def test_journey_precedes_catalog_and_preserves_all_completed_links(self):
+        snapshot,source=conjectures()
+        with tempfile.TemporaryDirectory() as temp, patch('lib.reading_views.source_url',side_effect=lambda p:p['url']):
+            out=render_conjecture_groups(source,snapshot,Path(temp))
+        self.assertLess(out.index('id="next-questions"'),out.index('id="source-questions"'))
+        self.assertEqual(out.count('class="journey-direction"'),3)
+        self.assertIn('Established result',out)
+        self.assertIn('Next contribution',out)
+        self.assertNotIn('Development activity',out)
+        self.assertIn('id="completed-oeis"',out)
+        self.assertIn('id="resolved-done"',out)
+        self.assertNotIn('open',Fragments(out).select(id='source-questions')[0].attrs)
+
     def test_results_lead_and_raw_gaps_stay_in_conjectures(self):
         records,source=results()
         snapshot={'problems':[{'slug':'q','title':'Question','sections':{'Gap':'LONG RAW GAP'}}]}

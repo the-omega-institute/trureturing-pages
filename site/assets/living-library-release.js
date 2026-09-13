@@ -48,59 +48,7 @@ if ($("#research-search")) {
   $("#research-search").addEventListener("input", filter);
   $("#research-triage").addEventListener("change", filter);
   filter();
-  const activitySection = document.querySelector(".research-activity");
-  const activity = el("details");
-  activity.append(
-    el("summary", "Development activity"),
-    ...activitySection.childNodes,
-  );
-  activitySection.replaceChildren(activity);
-  const activityViewport = matchMedia("(min-width: 761px)");
-  activity.open = activityViewport.matches;
-  activityViewport.addEventListener("change", (event) => {
-    activity.open = event.matches;
-  });
-  const activityState = el("small", "Checking development activity...");
-  activity.append(activityState);
-  (async () => {
-    const response = await fetch(
-      "https://api.github.com/repos/the-omega-institute/trureturing/commits?sha=dev&per_page=4",
-      {
-        signal: AbortSignal.timeout(8000),
-        credentials: "omit",
-        headers: { Accept: "application/vnd.github+json" },
-      },
-    );
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const commits = await response.json();
-    if (!Array.isArray(commits)) throw new Error("Invalid development feed");
-    const list = el("ol", undefined, "development-feed");
-    for (const commit of commits) {
-      if (
-        !/^[a-f0-9]{40}$/.test(commit.sha) ||
-        typeof commit.commit?.message !== "string"
-      )
-        continue;
-      const row = el("li"),
-        anchor = el("a", commit.commit.message.split("\n")[0]);
-      anchor.href = `https://github.com/the-omega-institute/trureturing/commit/${commit.sha}`;
-      row.append(anchor);
-      const date = new Date(commit.commit.committer?.date);
-      if (Number.isFinite(date.valueOf())) {
-        const time = el("time", date.toISOString().slice(0, 10));
-        time.dateTime = date.toISOString();
-        row.append(time);
-      }
-      list.append(row);
-    }
-    activityState.textContent = list.children.length
-      ? "Development branch / release status separate"
-      : "No development events returned.";
-    activity.append(list);
-  })().catch(() => {
-    activityState.textContent =
-      "Live activity unavailable. Source history remains available.";
-  });
+
 }
 
 async function historyRows(host, events, archive, nodeId) {
