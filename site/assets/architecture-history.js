@@ -1,3 +1,4 @@
+import { annotateScene, readableName, groupContext } from "./evolution-labels.mjs";
 import {
   METRICS,
   loadHistory,
@@ -17,7 +18,7 @@ import {
   lineageIds,
 } from "./evolution-core.mjs";
 import { mountEvolution } from "./evolution-map.js";
-import { nodeSlug } from "./library-core.mjs";
+import { nodeSlug, loadLibrary } from "./library-core.mjs";
 
 const $ = (s) => document.querySelector(s),
   initial = new URLSearchParams(location.hash.slice(1));
@@ -44,7 +45,6 @@ const renderer = mountEvolution($("#evolution-map"), {
       observation = group.observation;
       $("#lineage-release").value = observation;
     }
-    showGroup(group);
     selectNode(group.nodes.slice().sort((a, b) => b.reach - a.reach)[0].id);
   },
 });
@@ -78,14 +78,35 @@ function search() {
 }
 function showGroup(group) {
   const root = $("#lineage-group");
-  root.replaceChildren(
-    el("p", `${group.nodes.length} modules / ${group.domain}`, "eyebrow"),
-  );
+  const version = ++groupVersion, snapshot = snapshots[observation];
+  const context = groupContext(group,snapshot);
+  const family = FAMILIES.find(f => f.id === group.family);
+  root.replaceChildren(el("h3", `${readableName(group.domain)} · ${group.nodes.length} modules`));
+  root.append(el("p", `${family?.name || 'Source group'}. Representative concepts from this observation:`, "architecture-provenance"));
+  for (const n of context.examples) {
+    const button=el('button',n.title,'group-module');button.onclick=()=>selectNode(n.id);root.append(button);
+  }
+  const explanation=el('p','Loading a representative module’s explanation…','group-explanation');root.append(explanation);
+  explanationSnapshot(snapshot).then(data => {
+    if(version!==groupVersion || snapshots[observation]!==snapshot || !explanation.isConnected)return;
+    const exemplar = context.examples.map(n=>data.graph.nodes.find(x=>x.id===n.id)).find(n=>n?.human_abstract);
+    explanation.textContent=exemplar ? `${exemplar.human_title || exemplar.id}: ${exemplar.human_abstract}` : 'No authored explanation is archived for these examples. Open a module to inspect its source.';
+  }).catch(()=>{if(version===groupVersion && explanation.isConnected)explanation.textContent='An explanation for this exact observation is unavailable. Module titles and dependencies above remain available.';});
+  for (const [label,rows] of [['Builds on',context.incoming],['Supports',context.outgoing]]) {
+    const section=el('div',undefined,'group-connections');section.append(el('strong',label));
+    for(const item of rows.slice(0,3)) {
+      const button=el('button',`${readableName(item.domain)} (${item.ids.length})`,'group-module');
+      button.onclick=()=>selectNode(item.ids[0]);section.append(button);
+    }
+    if(!rows.length)section.append(el('small',context.edgesKnown?'No direct connections outside this group.':'Dependencies were not archived for this observation.'));
+    root.append(section);
+  }
   if (mode === "dependency" && group.nodes.length > 1) {
     const b = el("button", "Expand domain");
     b.onclick = () => {
       expanded = group.domain;
       renderMap(true);
+      renderDetail();
     };
     root.append(b);
   }
@@ -106,7 +127,13 @@ function selectNode(id) {
   search();
   stateURL();
 }
-let detailVersion = 0;
+let detailVersion = 0, groupVersion = 0, libraryPromise;
+const explanationSnapshot = async (snapshot) => {
+  const library = await (libraryPromise ||= loadLibrary(new URL('./', location.href)).catch(error => {libraryPromise=null;throw error;}));
+  const index = library.index.entries.findIndex(e => e.truth_release_digest === snapshot.truth_release_digest && e.atlas_graph_digest === snapshot.atlas_graph_digest);
+  if (index < 0) throw Error('No matching explanation snapshot');
+  return library.snapshot(index);
+};
 async function renderDetail() {
   const version = ++detailVersion,
     root = $("#evolution-detail"),
@@ -114,6 +141,11 @@ async function renderDetail() {
     node = current.nodes.find((n) => n.id === selected),
     known = nodes.find((n) => n.id === selected);
   root.replaceChildren();
+  if (node) {
+    const group=scene.nodes.find(g=>g.nodes.some(n=>n.id===selected) && (g.observation===undefined || g.observation===observation));
+    if(group)showGroup(group);
+    else {groupVersion++; $("#lineage-group").replaceChildren();}
+  } else {groupVersion++; $("#lineage-group").replaceChildren();}
   if (!known) {
     root.append(
       el("h2", "Structural foundations"),
@@ -152,7 +184,7 @@ async function renderDetail() {
   const atlas = el("a", "Current Atlas");
   atlas.href = `atlas.html#${new URLSearchParams({ mode: "dependency", node: selected, metric })}`;
   const research = el("a", "Related research");
-  research.href = `research.html#${new URLSearchParams({ node: selected })}`;
+  research.href = `conjectures.html#${new URLSearchParams({ node: selected })}`;
   const wiki = el("a", node ? "Release Library" : "Content history");
   wiki.href = node
     ? `release/${current.truth_release_digest.slice(7)}/node/${await nodeSlug(selected)}/`
@@ -210,6 +242,7 @@ function renderMap(reset = false) {
           expanded,
           snapshots.flatMap((s) => s.nodes),
         );
+  scene = annotateScene(scene, releaseDelta(snapshots[observation - 1], snapshots[observation]), observation);
   const ids =
     mode === "time"
       ? new Set(snapshots.flatMap((s) => [...lineageIds(s, selected)]))
@@ -226,6 +259,9 @@ function renderMap(reset = false) {
       : "Dependency depth (log scale) / foundations to consequences";
   $("#lineage-collapse").hidden = !expanded || mode !== "dependency";
   $("#lineage-clear").disabled = !selected;
+  document.getElementById("lineage-guide-mode").textContent = mode === "time"
+    ? "Solid line: the same modules in consecutive releases. Dashed line: a newly recorded dependency."
+    : "Left to right: prerequisite to consumer. Thicker line: more recorded dependencies.";
   releaseSummary();
   stateURL();
 }
@@ -278,12 +314,14 @@ $("#lineage-zoom-out").onclick = () => renderer.zoomBy(1 / 1.3);
 $("#lineage-collapse").onclick = () => {
   expanded = null;
   renderMap(true);
+  renderDetail();
 };
 document.querySelectorAll("[data-lineage]").forEach(
   (b) =>
     (b.onclick = () => {
       mode = b.dataset.lineage;
       renderMap(true);
+      renderDetail();
     }),
 );
 window.addEventListener("pagehide", () => {

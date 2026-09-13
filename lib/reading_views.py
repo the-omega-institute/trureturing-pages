@@ -1,6 +1,7 @@
-"""Reader-facing projections. Reuse source records and preserve all evidence links.
+"""Small, theme-preserving enhancements to the original research pages.
 
-This module changes presentation only. It does not assign research or proof status.
+Scribe and release gates retain authority. This projection groups existing cards;
+it does not replace the site's visual language or classify mathematical claims.
 """
 from __future__ import annotations
 
@@ -16,7 +17,6 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 VOID = set('area base br col embed hr img input link meta param source track wbr'.split())
 
-
 @dataclass
 class Element:
     tag: str
@@ -25,14 +25,12 @@ class Element:
     inner: int
     end: int = 0
 
-
 class Fragments(HTMLParser):
-    """Retain original HTML bytes rather than serializing mathematical markup."""
+    """Retain original markup, including formulae, links and claim annotations."""
     def __init__(self, source: str):
         super().__init__(convert_charrefs=False)
         self.source, self.items, self.stack = source, [], []
-        self.lines = [0]
-        self.lines.extend(m.end() for m in re.finditer('\n', source))
+        self.lines = [0] + [m.end() for m in re.finditer('\n', source)]
         self.feed(source)
         self.close()
 
@@ -75,7 +73,6 @@ def esc(value):
 
 
 def series(url: str) -> tuple[str, str, str]:
-    """Classify only the recorded source URL. No keyword-based claim assignment."""
     host = (urlsplit(url).hostname or '').lower().removeprefix('www.')
     if host == 'oeis.org':
         return 'oeis', 'OEIS', 'Questions from the On-Line Encyclopedia of Integer Sequences.'
@@ -93,7 +90,7 @@ def group_html(key, title, description, items, *, prefix, noun):
     return (f'<details class="reading-group" id="{prefix}-{key}" data-reading-group>'
             f'<summary><span><strong>{esc(title)}</strong><small>{esc(description)}</small></span>'
             f'<span class="reading-count" data-group-count>{len(items)} {noun}</span></summary>'
-            f'<div class="reading-group-body">{"".join(items) or "<p class=reading-muted>No matching records in this release.</p>"}</div></details>')
+            f'<div class="reading-group-body">{"".join(items) or "<p>No matching records in this release.</p>"}</div></details>')
 
 
 def search_box(kind):
@@ -106,18 +103,28 @@ def replace_main(document: str, body: str):
     parsed = Fragments(document)
     mains = parsed.select(tag='main')
     if len(mains) != 1:
-        raise ValueError('Expected one main reading surface')
+        raise ValueError('Expected one main research surface')
     main = mains[0]
     return document[:main.start] + body + document[main.end:]
 
 
+def add_spaces_navigation(document: str, root=''):
+    """Compatibility name. Restore the five original primary destinations.
+
+    The diagnostic page and old Spaces URLs remain resolvable, but neither is a
+    primary knowledge destination. Do not alter citation or evidence links.
+    """
+    def nav(match):
+        content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status)\.html(?:[?#][^"]*)?"[^>]*>.*?</a>',
+                         '', match[1], flags=re.S)
+        return '<nav aria-label="Primary navigation">' + content + '</nav>'
+    return re.sub(r'<nav aria-label="Primary navigation">(.*?)</nav>', nav, document, flags=re.S)
+
+
 def common_shell(document: str, root=''):
-    # Replace only the known reading-shell prepaint style; leave mathematical markup alone.
-    document = document.replace('content="#f7f8fa"', 'content="#090c10"')
-    document = document.replace(
-        '<style>html,body{background:#f7f8fa;color:#232629}body{transition:background-color .24s ease,color .24s ease}</style>',
-        '<style>html,body{background:#090c10;color:#e0eaec;color-scheme:dark}body{transition:none}</style>')
-    # All styles are in the head before first paint, including lazy notebook styles.
+    # Preserve the producer-selected appearance. Fix prepaint transitions without
+    # turning the author's light academic pages into a dark theme (or vice versa).
+    document = document.replace('body{transition:background-color .24s ease,color .24s ease}', 'body{transition:none}')
     if 'assets/reading.css' not in document:
         document = document.replace('</head>', f'<link rel="stylesheet" href="{root}assets/reading.css">'
             f'<script type="module" src="{root}assets/reading.mjs"></script></head>', 1)
@@ -126,44 +133,43 @@ def common_shell(document: str, root=''):
     return add_spaces_navigation(document, root)
 
 
-
 def render_research_groups(document, snapshot, records):
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
-    evidence = parsed.select(id='resolved-questions')
     papers = parsed.select(id='publications')
+    evidence = parsed.select(id='resolved-questions')
     groups = defaultdict(list)
-    for record in records:
-        identity = record['id']
-        if identity not in articles:
-            raise ValueError(f'Result card is absent: {identity}')
-        key, _, _ = series(record['source_url'])
-        search = ' '.join(str(record.get(k) or '') for k in ('title', 'module', 'source_url', 'field'))
+    for r in records:
+        if r['id'] not in articles:
+            raise ValueError('Result card is absent: ' + r['id'])
+        key, _, _ = series(r['source_url'])
+        search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field'))
         groups[key].append(f'<details class="reading-item result-item" data-search="{esc(search.lower())}">'
-            f'<summary><strong>{esc(record["title"])}</strong><span>{esc(record["kind"].capitalize())}</span></summary>'
-            f'<div class="reading-item-body">{articles[identity]}</div></details>')
-    sections = ''.join(group_html(key, title, desc, groups[key], prefix='results', noun='results')
-        for key, title, desc in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
-    body = ('<main class="site-main research-news">'
-        '<header class="reading-heading"><p class="eyebrow">THE OMEGA INSTITUTE</p><h1>Research</h1>'
-        '<p class="reading-lede">Our growing body of mathematics, its results and the questions it opens.</p>'
-        '<nav class="reading-tabs" aria-label="Research sections"><a href="#results">Results by collection</a>'
-        '<a href="spaces.html">Knowledge spaces</a><a href="#publications">Publications</a><a href="discover.html">Source connections</a></nav></header>'
-        '<section class="reading-callout" id="knowledge-spaces"><div><h2>Follow the connections</h2>'
-        '<p>Explore a theory or source, see its supporting modules, and compare two areas.</p></div>'
-        '<a class="reading-button" href="spaces.html">Open knowledge spaces</a></section>'
-        '<section id="results" class="reading-catalog" data-reading-catalog><div class="reading-section-title"><h2>Results by collection</h2>'
-        f'<p>{len(records)} recorded results. Open a collection, then a result for its exact scope and proof.</p></div>'
-        + search_box('results') + '<div id="result-archive">' + sections + '</div></section>'
-        '<section id="frontier" class="reading-callout"><div><h2>Unresolved targets in this release</h2>'
-        '<p>Read the original questions, our current footholds and the specific missing steps.</p></div>'
-        '<a href="conjectures.html#open-problems">Browse conjectures</a></section>'
-        + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
+            f'<summary><strong>{esc(r["title"])}</strong><span>{esc(r["kind"].capitalize())}</span></summary>'
+            f'<div class="reading-item-body">{articles[r["id"]]}</div></details>')
+    sections = ''.join(group_html(k, t, d, groups[k], prefix='results', noun='results')
+        for k, t, d in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
+    # Preserve the academic news layout; results lead and detailed gaps stay in Conjectures.
+    # Only the previously flat result collection receives disclosure controls.
+    body = ('<main class="site-main research-news"><header class="news-heading">'
+        '<p class="eyebrow">THE OMEGA INSTITUTE / CURRENT RESEARCH</p><h1>Research</h1>'
+        '<p class="news-lede">Theories, concepts, evidence and research directions in a connected knowledge system.</p>'
+        '<nav id="knowledge-spaces" class="news-links" aria-label="Research destinations"><a href="discover.html">Explore source connections</a>'
+        '<a href="atlas.html#mode=frontier">Open Atlas frontier</a></nav></header>'
+        '<nav class="news-index" aria-label="Research sections"><a href="#results">Results by collection</a>'
+        '<a href="#publications">Publications</a><a href="#frontier">Next questions</a></nav>'
+        '<section id="results" class="news-section" data-reading-catalog><div class="news-section-heading"><div>'
+        '<p class="eyebrow">FROM QUESTION TO RESULT</p><h2>Results by collection</h2></div>'
+        f'<span>{len(records)} recorded results</span></div>' + search_box('results')
+        + '<div id="result-archive">' + sections + '</div></section>'
         + '<details id="resolved-questions-archive" class="reading-group"><summary>All resolved question records and evidence links</summary>'
-        + (parsed.raw(evidence[0]) if evidence else '') + '</details></main>')
+        + (parsed.raw(evidence[0]) if evidence else '') + '</details>'
+        + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
+        + '<section id="frontier" class="news-onward"><h2>Next questions</h2><p>Follow the open questions and proposed routes that build on this work.</p><a href="conjectures.html#open-problems">Open conjectures</a>'
+        '<a href="knowledge/">Browse the Library</a></section></main>')
     result = common_shell(replace_main(document, body))
-    # Old research.html#rp links redirect before the document can be painted.
-    result = result.replace('<head>', '<head><script src="assets/research-route.js"></script>', 1)
+    if 'assets/research-route.js' not in result:
+        result = result.replace('<head>', '<head><script src="assets/research-route.js"></script>', 1)
     return result
 
 
@@ -176,94 +182,69 @@ def millennium_entry(output):
         for p in json.loads(path.read_text())['problems']:
             identity = p.get('id', '')
             if not re.fullmatch(r'[a-z0-9-]+', identity):
-                raise ValueError('Invalid problem map identity')
-            state = 'Solved in the literature; formalization map' if p.get('scientific_state') == 'solved' else 'Research map and remaining steps'
-            cards.append(f'<a href="millennium.html?problem={identity}"><strong>{esc(p["title"])}</strong><span>{state}</span></a>')
-    return ('<details class="reading-group" id="long-horizon"><summary><span><strong>Long-horizon research maps</strong>'
-        '<small>Major questions, existing foundations and the bridges still to build.</small></span></summary>'
-        '<section id="millennium-entry" class="reading-group-body"><p>Each map separates the original question, recorded objects and proposed routes. '
-        'The maps are authored research guides; their nodes are not a percentage of a problem solved.</p>'
-        '<nav class="reading-map-cards" aria-label="Millennium problem maps">' + ''.join(cards) + '</nav>'
-        '<a href="millennium.html?problem=rh">Open the RH research DAG</a></section></details>')
+                raise ValueError('Invalid map identity')
+            cards.append(f'<a href="millennium.html?problem={identity}">{esc(p["title"])}</a>')
+    return ('<section id="millennium-entry" class="research-frontier"><div class="news-section-heading">'
+        '<h2>Long-horizon research maps</h2></div><nav class="reading-map-links" aria-label="Millennium problem maps">'
+        + ''.join(cards) + '</nav></section>')
 
 
 def render_conjecture_groups(document, snapshot, output):
     parsed = Fragments(document)
-    row_by_slug = {}
-    for e in parsed.select(cls='problem-row'):
-        slug = urlsplit(e.attrs['href']).path.strip('/').split('/')[-1]
-        row_by_slug[slug] = parsed.raw(e)
+    rows = {urlsplit(e.attrs['href']).path.strip('/').split('/')[-1]: parsed.raw(e)
+            for e in parsed.select(cls='problem-row')}
     groups = defaultdict(list)
     active = [p for p in snapshot['problems'] if not p.get('resolution')]
+    completed = [p for p in snapshot['problems'] if p.get('resolution')]
     for p in active:
-        if p['slug'] not in row_by_slug:
+        if p['slug'] not in rows:
             raise ValueError('Missing source dossier row')
         key, _, _ = series(source_url(p))
         search = p['title'] + ' ' + source_url(p) + ' ' + ' '.join(p.get('motivation_gids', []))
-        groups[key].append(f'<div class="reading-item question-item" data-search="{esc(search.lower())}">'
-                           + row_by_slug[p['slug']] + '</div>')
-    completed = [p for p in snapshot['problems'] if p.get('resolution')]
-    completed_links = ''.join(
-        f'<p class="resolved-question" id="resolved-{esc(p["slug"])}" data-problem-slug="{esc(p["slug"])}" data-resolution-kind="{esc(p["resolution"]["kind"])}"><a href="research/{esc(p["slug"])}/">{esc(p["title"])}</a> '
-        f'<small>{esc(p["resolution"]["kind"])}, source record</small></p>' for p in completed)
-    completed_archive = ('<details class="reading-group" id="completed-dossiers"><summary>'
-        '<span><strong>Completed dossiers and source archive</strong>'
-        '<small>Retained question records, outside the unresolved collection above.</small></span></summary>'
-        '<div class="reading-group-body">' + completed_links
-        + '<p><a href="research.html#results">Browse completed results by collection</a></p>'
+        groups[key].append(f'<div class="reading-item question-item" data-triage="{esc(p.get("triage", ""))}" '
+            f'data-gids="{esc(json.dumps(p.get("motivation_gids", [])))}" data-search="{esc(search.lower())}">{rows[p["slug"]]}</div>')
+    sections = ''.join(group_html(k, t, d, groups[k], prefix='questions', noun='questions')
+        for k, t, d in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
+    lists = parsed.select(cls='problem-list')
+    if lists:
+        section = lists[0]
+        # The original heading, statistics, sidebar and follow-up layout survive.
+        document = document[:section.inner] + sections + '<p id="research-empty" hidden>No questions match these filters.</p></section>' + document[section.end:]
+        document = document.replace('id="open-problems" class="research-browser"', 'id="open-problems" class="research-browser" data-reading-catalog', 1)
+        document = document.replace('id="research-search"', 'id="research-search" data-reading-search', 1)
+        document = document.replace('id="research-triage"', 'id="research-triage" data-reading-triage', 1)
+        document = document.replace('id="research-count"', 'id="research-count" data-search-count', 1)
+    else:
+        # Minimal renderer fixtures still keep their existing main/header markup.
+        for row in rows.values():
+            document = document.replace(row, '', 1)
+        document = document.replace('</main>', '<section id="open-problems" data-reading-catalog>' + search_box('questions') + sections + '</section></main>', 1)
+    document = document.replace('class="site-main research-home"', 'class="site-main research-home" data-reading-home', 1)
+    # Keep the notebook out of the initial layout, but preserve its old URLs/data.
+    extras = ('<details class="reading-group" id="research-directions" data-notebook-shell><summary>Proposed routes &amp; personal notebook</summary>'
+        '<div id="research-workbench-slot" class="reading-group-body"><p role="status">Open to load the research notebook.</p></div></details>'
+        + millennium_entry(output))
+    links = ''.join(f'<p class="resolved-question" id="resolved-{esc(p["slug"])}" data-problem-slug="{esc(p["slug"])}" '
+        f'data-resolution-kind="{esc(p["resolution"]["kind"])}"><a href="research/{esc(p["slug"])}/">{esc(p["title"])}</a></p>' for p in completed)
+    extras += ('<details id="completed-dossiers" class="reading-group"><summary>Completed dossiers and source archive</summary>'
+        '<div class="reading-group-body">' + links + '<a href="research.html#results">Browse completed results by collection</a>'
         '<p><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">Read source dossiers in mdBook</a></p></div></details>')
-    sections = ''.join(group_html(key, title, desc, groups[key], prefix='questions', noun='questions')
-        for key, title, desc in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
-    # Preserve authored follow-up records and their links, without duplicating them in the first viewport.
-    followups = ''.join(parsed.raw(e) for e in parsed.select(cls='result-followup'))
-    body = ('<main class="site-main research-home" data-reading-home>'
-        '<header class="reading-heading"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH FRONTIER</p><h1>Conjectures</h1>'
-        '<p class="reading-lede">Questions, proposed routes and the foundations we can build on.</p>'
-        '<p>Read the source question, see what is already available, and identify the next missing step. '
-        'We retain the original authors and source links with each dossier.</p>'
-        '<nav class="reading-tabs" aria-label="Open question views"><a href="#open-problems">Source questions</a>'
-        '<a href="#research-directions">Proposed routes &amp; notebook</a><a href="#long-horizon">Long-horizon maps</a>'
-        '<a href="spaces.html">Explore dependencies</a></nav></header>'
-        '<section id="open-problems" class="research-browser reading-catalog" data-reading-catalog>'
-        f'<div class="reading-section-title"><h2>Source questions</h2><p>{len(active)} dossiers without a resolution in this release. '
-        'External literature status is shown in each dossier.</p></div>' + search_box('questions') + sections + '</section>'
-        '<details class="reading-group" id="research-directions" data-notebook-shell><summary><span><strong>Proposed routes &amp; personal notebook</strong>'
-        '<small>Explore authored research directions, subgoals and your own saved notes.</small></span></summary>'
-        '<div id="research-workbench-slot" class="reading-group-body"><p role="status">Open this section to load the research notebook.</p></div></details>'
-        + millennium_entry(output)
-        + (f'<details class="reading-group"><summary>Follow-up questions from completed work</summary><div class="reading-group-body">{followups}</div></details>' if followups else '')
-        + completed_archive + '</main>')
-    result = common_shell(replace_main(document, body))
-    result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-workbench.css">'
-                           '<link rel="stylesheet" href="assets/reading.css"></head>', 1)
+    result = common_shell(document.replace('</main>', extras + '</main>', 1))
+    if 'assets/research-workbench.css' not in result:
+        result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-workbench.css"></head>', 1)
     return result
 
 
 def apply_reading_views(output: Path, snapshot: dict, records: list):
     output = Path(output)
-    research, conjectures = output/'research.html', output/'conjectures.html'
-    if research.exists():
-        research.write_text(render_research_groups(research.read_text(), snapshot, records), encoding='utf-8')
-    if conjectures.exists():
-        conjectures.write_text(render_conjecture_groups(conjectures.read_text(), snapshot, output), encoding='utf-8')
+    for name, render in [('research.html', lambda d: render_research_groups(d, snapshot, records)),
+                         ('conjectures.html', lambda d: render_conjecture_groups(d, snapshot, output))]:
+        path = output / name
+        if path.exists():
+            path.write_text(render(path.read_text()), encoding='utf-8')
     for pattern in ('research/*/index.html', 'results/*/index.html', 'oeis/*/index.html'):
         for path in output.glob(pattern):
             path.write_text(common_shell(path.read_text(), '../../'), encoding='utf-8')
     for path in output.glob('*.html'):
-        document = path.read_text()
-        if path.name in ('millennium.html', 'discover.html'):
-            document = common_shell(document)
-        path.write_text(add_spaces_navigation(document), encoding='utf-8')
-
-
-def add_spaces_navigation(document: str, root=''):
-    def nav(match):
-        content = match[1]
-        if re.search(r'href="[^\"]*spaces\.html(?:\?|\")', content):
-            return match[0]
-        # Preserve each page's own relative root, including generated dossier routes.
-        found = re.search(r'href="([^\"]*)evolution\.html', content)
-        prefix = found[1] if found else root
-        content += f'<a href="{prefix}spaces.html">Spaces</a>'
-        return f'<nav aria-label="Primary navigation">{content}</nav>'
-    return re.sub(r'<nav aria-label="Primary navigation">(.*?)</nav>', nav, document, flags=re.S)
+        # Maps retain their original theme/layout. Only navigation is normalized.
+        path.write_text(add_spaces_navigation(path.read_text()), encoding='utf-8')

@@ -233,9 +233,14 @@ class VersionStatusTests(unittest.TestCase):
 
     def test_page_navigation_and_workflow_publish_status_inside_same_artifact(self):
         from lib.knowledge_pages import site_header
-        self.assertIn('href="../../version-status.html"', site_header("../../"))
-        for path in ["site/index.html", "site/evolution.html", "site/atlas.html"]:
-            self.assertIn('href="version-status.html"', (ROOT / path).read_text())
+        # Diagnostics remain under Evolution, not a sixth primary destination.
+        header = site_header("../../")
+        self.assertIn('href="../../evolution.html"', header)
+        self.assertNotIn('href="../../version-status.html"', header)
+        evolution = (ROOT / "site/evolution.html").read_text()
+        self.assertIn('id="publication-status"', evolution)
+        self.assertIn('href="version-status.html"', evolution)
+        self.assertTrue((ROOT / "site/version-status.html").exists())
         workflow = yaml.load((ROOT / ".github/workflows/pages.yml").read_text(), Loader=yaml.BaseLoader)
         steps = workflow["jobs"]["deploy"]["steps"]
         build = next(i for i, s in enumerate(steps) if "lib.version_status" in s.get("run", "") and "--for-deployment" in s["run"])

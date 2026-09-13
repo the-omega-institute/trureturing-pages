@@ -319,7 +319,9 @@ export async function mountResearchWorkbench() {
   window.addEventListener("hashchange", () => { readURL(); render(); });
   // Preserve the original server-rendered page as a working fallback and archive entrypoint.
   const oldStats = home.querySelector(".research-stats"), oldBrowser = home.querySelector(".research-browser");
-  if (oldStats && oldBrowser) {
+  const slot = document.getElementById("research-workbench-slot");
+  if (slot) slot.append(host);
+  else if (oldStats && oldBrowser) {
     const archive = el("details", undefined, "rw-release-browser");
     archive.id = "research-release-dossiers";
     archive.append(el("summary", "Release-bound dossiers, source graphs and version history"));

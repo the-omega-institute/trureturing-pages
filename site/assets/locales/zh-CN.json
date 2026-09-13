@@ -585,5 +585,17 @@
   "Long-horizon research maps": "长期研究图谱",
   "Proposed routes & personal notebook": "研究路线与个人笔记",
   "Completed dossiers and source archive": "已完成问题与来源档案",
-  "Follow-up questions from completed work": "已完成研究引出的后续问题"
+  "Follow-up questions from completed work": "已完成研究引出的后续问题",
+  "Builds on": "依赖的基础",
+  "Supports": "支撑的方向",
+  "Publication progress unknown": "发布进度未知",
+  "Publication synchronized": "发布已同步",
+  "Publication needs attention": "发布需要关注",
+  "Publication status unavailable": "发布状态不可用",
+  "Last recorded publication status": "最近记录的发布状态",
+  "Status refers to another release": "状态对应另一个发布版本",
+  "Gold ring = newly present modules; gold line = newly recorded dependency": "金色外圈：新增收录模块；金色连线：新增记录依赖",
+  "No direct connections outside this group.": "没有通向此簇之外的直接关联。",
+  "Dependencies were not archived for this observation.": "该观察版本未归档依赖关系。",
+  "Next questions": "后续问题"
 }

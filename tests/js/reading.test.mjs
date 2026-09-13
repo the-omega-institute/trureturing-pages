@@ -31,7 +31,7 @@ test('question resolution changes are separate from module changes',()=>{
 });
 
 test('saved question entrypoints reveal their new sections',()=>{
- assert.equal(hashTarget('#next-questions'),'research-directions');
+ assert.equal(hashTarget('#next-questions'),'next-questions');
  assert.equal(hashTarget('#research-release-dossiers'),'open-problems');
 });
 test('historical outcomes stay pinned to the source commit',async()=>{

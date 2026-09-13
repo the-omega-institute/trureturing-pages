@@ -1,0 +1,13 @@
+/* Annotations for the original canvas. No layout or family-palette replacement. */
+.lineage-guide { display:flex; flex-wrap:wrap; gap:7px 18px; font-size:11px; color:#a9bfbd; padding:10px 18px 0 0; }
+#lineage-guide-mode { flex-basis:100%; }
+.evolution-tooltip { max-width:300px; }
+#publication-status { font-size:11px; margin:-6px 0 14px; color:#98b6b9; }
+#publication-status > summary { cursor:pointer; }
+#publication-stages { display:flex; gap:18px; flex-wrap:wrap; list-style:none; padding:0; }
+#publication-stages li { display:flex; gap:6px; align-items:center; }
+#publication-date { margin-right:14px; }
+
+.group-explanation {font-size:12px;line-height:1.6;color:#bad0ce;max-height:8em;overflow:auto}
+.group-connections {font-size:12px;margin:12px 0}.group-connections strong {display:block;color:#a9bfbd}
+.group-connections small {display:block;color:#98b6b9}
