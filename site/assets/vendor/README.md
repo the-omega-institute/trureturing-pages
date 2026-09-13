@@ -1,7 +1,8 @@
-# Atlas runtime dependencies
+# Browser runtime dependencies
 
 Pinned browser distributions are checked in so the public Atlas does not require
 a runtime CDN connection or a frontend build step.
+Conjectures also uses the pinned GSAP distributions for its scroll narrative.
 
 | File | Upstream | Version | License |
 | --- | --- | --- | --- |
@@ -10,6 +11,7 @@ a runtime CDN connection or a frontend build step.
 | `lucide.min.js` | `https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js` | 0.468.0 | ISC |
 | `dagre.min.js` | `https://unpkg.com/@dagrejs/dagre@1.1.5/dist/dagre.min.js` | 1.1.5 | MIT |
 | `d3.min.js` | `https://unpkg.com/d3@7.9.0/dist/d3.min.js` | 7.9.0 | ISC |
+| `gsap.min.js`, `ScrollTrigger.min.js` | `https://www.npmjs.com/package/gsap` | 3.13.0 | GSAP Standard License; see `gsap.NOTICE` |
 | `katex/` | `https://www.npmjs.com/package/katex` | 0.16.22 | MIT |
 | `three-atlas.mjs` | `https://www.npmjs.com/package/three` | 0.184.0 | MIT |
 

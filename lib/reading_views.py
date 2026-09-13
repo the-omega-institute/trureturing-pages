@@ -245,18 +245,13 @@ def conjecture_journey(document, snapshot):
     from lib.problem_resolutions import is_kernel_verified
     resolved = {p['slug'] for p in snapshot['problems'] if is_kernel_verified(p.get('resolution'))}
     families = [f for f in followup_families() if f['id'] not in resolved]
-    cards = []
-    for f in families:
-        targets = ''.join(f'<a href="#rp={esc(t["id"])}">{esc(t["title"])} ↗</a>' for t in f['targets'])
-        cards.append(f'''<article class="journey-direction" id="direction-{esc(f['id'])}">
-<h3>{esc(f['area'])}</h3><p class="journey-question"><a href="#rp={esc(f['id'])}">{esc(f['title'])}</a></p>
-<ol class="journey-steps"><li><span>Established result</span><p>{esc(stories[f['builds_on']]['finding'])}</p><a href="results/{esc(f['builds_on'])}/">Read the proof &amp; exact scope ↗</a></li>
-<li><span>Next contribution</span><p>{esc(f['next_step'])}</p><div class="journey-targets">{targets}</div></li>
-<li><span>Longer-term question</span><p>{esc(f['question'])}</p></li></ol></article>''')
-    overview = ('<section class="research-journey result-followups" id="next-questions" aria-labelledby="next-questions-title">'
-        '<p class="eyebrow">01 / OUR PRIORITY DIRECTIONS</p><h2 id="next-questions-title">Where we can contribute next</h2>'
-        '<p class="journey-intro">A curated shortlist for researchers and formalizers: questions with an existing proof to build on, a concrete missing step, and a wider mathematical goal. These are our proposed priorities, not a ranking of all open mathematics.</p>'
-        '<nav class="journey-priorities" aria-label="Priority research areas">' + ''.join(f'<a href="#direction-{esc(f["id"])}">{esc(f["area"])}</a>' for f in families) + '</nav><div class="journey-grid">' + ''.join(cards) + '</div></section>')
+    from lib.research_journey import render_guided_journey
+    overview = render_guided_journey(families, stories)
+    document = document.replace('</head>', '<link rel="stylesheet" href="assets/research-journey.css">'
+        '<script defer src="assets/vendor/gsap.min.js"></script>'
+        '<script defer src="assets/vendor/ScrollTrigger.min.js"></script>'
+        '<script type="module" src="assets/research-journey.mjs"></script>'
+        '<noscript><style>.story-scroll{display:none}.story-directory{padding-top:20px}</style></noscript></head>', 1)
     parsed = Fragments(document)
     for element in sorted(parsed.select(cls='result-followups') + parsed.select(cls='research-activity'), key=lambda e:e.start, reverse=True):
         document = document[:element.start]+document[element.end:]
@@ -264,7 +259,10 @@ def conjecture_journey(document, snapshot):
     document = document.replace('Open questions. Missing bridges. The next proof.', 'Choose a question. Build on a proof. Connect the next idea.')
     parsed = Fragments(document)
     heading = parsed.select(cls='page-heading')[0]
-    document = document[:heading.end]+overview+document[heading.end:]
+    introduction = ('<header class="page-heading"><div><h1>Conjectures</h1>'
+        '<p class="lede">A collection of conjectures and open problems connected to our research.</p></div>'
+        '<a class="console-link" href="research.html">Research news ↗</a></header>')
+    document = document[:heading.start]+introduction+overview+document[heading.end:]
     parsed = Fragments(document)
     stats = parsed.select(cls='research-stats')
     browser = parsed.select(cls='research-browser')
