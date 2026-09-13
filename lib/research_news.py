@@ -4,6 +4,7 @@ import gzip
 import json
 import re
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from lib.knowledge_pages import esc, write
 from lib.literature import problem_source_url
@@ -26,12 +27,26 @@ def _status(item):
     return item["kind"].capitalize() + (" in Lean" if verified else " / source record")
 
 
+def _source_host(url):
+    """Parsed lowercase host of a source URL (empty on malformed), for exact host
+    matching. Substring checks like 'oeis.org' in url are unsafe: the string can sit
+    anywhere in an arbitrary URL (evil.com/oeis.org, oeis.org.evil.com)."""
+    try:
+        return (urlsplit(str(url or "")).hostname or "").lower()
+    except ValueError:
+        return ""
+
+
+def _host_is(host, domain):
+    return host == domain or host.endswith("." + domain)
+
+
 def _derived_field(problem, source_url, resolution=None):
     slug = str(problem.get("slug", "")).lower()
-    source = str(source_url or "").lower()
-    if slug.startswith("oeis-") or "oeis.org" in source:
+    host = _source_host(source_url)
+    if slug.startswith("oeis-") or _host_is(host, "oeis.org"):
         return "Integer sequences (OEIS)"
-    if problem.get("arxiv_id") or "arxiv.org" in source:
+    if problem.get("arxiv_id") or _host_is(host, "arxiv.org"):
         return "arXiv"
     domain = problem.get("domain") or (resolution or {}).get("domain")
     return str(domain) if domain else "Open problem"
