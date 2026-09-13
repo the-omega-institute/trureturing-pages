@@ -7,6 +7,7 @@ def check_guided_journey(page, base, output):
     page.set_viewport_size({'width':1440,'height':1000})
     page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
     page.wait_for_selector('.story-ready')
+    page.screenshot(path=str(output/'conjectures-introduction-desktop.png'))
     root=page.locator('.research-journey')
     data=json.loads(page.locator('#research-story-data').text_content())
     assert len(data['areas'])==3
@@ -60,13 +61,14 @@ def check_guided_journey(page, base, output):
     page.emulate_media(reduced_motion='no-preference')
     page.goto(base+'conjectures.html?lang=en#story-questions',wait_until='networkidle')
     node=root.locator('.story-node[data-kind="result"]').first
-    start=node.evaluate('e=>getComputedStyle(e).transform')
-    page.evaluate('()=>{const e=document.querySelector(".story-scroll");scrollTo(0,e.getBoundingClientRect().top+scrollY+(e.offsetHeight-document.querySelector(".story-stage").offsetHeight)/3)}')
-    page.wait_for_timeout(140)
-    mid=node.evaluate('e=>getComputedStyle(e).transform')
-    page.wait_for_timeout(850)
-    end=node.evaluate('e=>getComputedStyle(e).transform')
-    assert start!=mid and mid!=end
+    samples=page.evaluate("""async()=>{
+      const node=document.querySelector('.story-node[data-kind=result]');
+      const values=[getComputedStyle(node).transform], started=performance.now();
+      const e=document.querySelector('.story-scroll');
+      scrollTo(0,e.getBoundingClientRect().top+scrollY+(e.offsetHeight-document.querySelector('.story-stage').offsetHeight)/3);
+      return await new Promise(resolve=>{function sample(){values.push(getComputedStyle(node).transform);if(performance.now()-started>1000)resolve(values);else requestAnimationFrame(sample);}requestAnimationFrame(sample);});
+    }""")
+    assert len(set(samples))>2, samples
     page.emulate_media(reduced_motion='reduce')
     page.goto(base+'conjectures.html?lang=zh-CN#story-bridges',wait_until='networkidle')
     assert root.locator('[data-scene-copy="2"] h2').inner_text()=='现在，看看\n还缺少什么。'

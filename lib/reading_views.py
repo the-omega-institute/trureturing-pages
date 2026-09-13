@@ -257,7 +257,10 @@ def conjecture_journey(document, snapshot):
     document = document.replace('Open questions. Missing bridges. The next proof.', 'Choose a question. Build on a proof. Connect the next idea.')
     parsed = Fragments(document)
     heading = parsed.select(cls='page-heading')[0]
-    document = document[:heading.end]+overview+document[heading.end:]
+    introduction = ('<header class="page-heading"><div><h1>Conjectures</h1>'
+        '<p class="lede">A collection of conjectures and open problems connected to our research.</p></div>'
+        '<a class="console-link" href="research.html">Research news ↗</a></header>')
+    document = document[:heading.start]+introduction+overview+document[heading.end:]
     parsed = Fragments(document)
     stats = parsed.select(cls='research-stats')
     browser = parsed.select(cls='research-browser')

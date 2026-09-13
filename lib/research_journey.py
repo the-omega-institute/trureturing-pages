@@ -16,7 +16,7 @@ TARGETS = {
     'greedy-g-plus-one-literal': 'The literal greedy process',
 }
 SCENES = [
-    ('questions', '01 / THE QUESTIONS', 'Good questions.', 'Open new worlds.', 'We choose questions with a proof to build on — and somewhere meaningful to go.'),
+    ('questions', '01 / SELECTED DIRECTIONS', 'Our research directions', '', 'Explore a few of the questions we are following, the results behind them, and what remains open.'),
     ('proofs', '02 / WHAT WE HAVE BUILT', 'Every result has', 'a structure beneath it.', 'Look inside our existing proofs: the objects, constructions and arguments that make a result possible.'),
     ('bridges', '03 / WHERE TO CONTRIBUTE', 'Now look', 'at what is missing.', 'The next contribution lives in the gap between what we can prove and what we want to understand.'),
     ('horizons', '04 / THE WIDER HORIZON', 'A finished proof.', 'An unfinished landscape.', 'Follow the proposed routes outward. A precise result can give us a starting point for a much wider question.'),
@@ -48,7 +48,7 @@ def render_guided_journey(families, stories):
         nodes.append({'id':prefix+'-horizon','group':group,'kind':'horizon','label':horizon,'status':'Research horizon','body':f['question'],'scope':f['gap'],'href':'#rp='+prefix,'link':'Explore the research direction ↗'})
         targets = ''.join(f'<a href="#rp={esc(t["id"])}">{esc(t["title"])} ↗</a>' for t in f['targets'])
         archive.append(f'<article class="journey-direction" id="direction-{esc(prefix)}"><p class="eyebrow">{esc(f["area"])}</p><h3>{esc(f["title"])}</h3><p>{esc(f["next_step"])}</p><div class="story-directory-links"><a href="{esc(proof_url)}">Read the proof &amp; exact scope ↗</a>{targets}</div></article>')
-    buttons = ''.join(f'<button type="button" class="story-node" data-node="{esc(n["id"])}" data-kind="{n["kind"]}" data-group="{n["group"]}" aria-label="{esc(n["status"]+": "+n["label"])}"><span class="story-dot" aria-hidden="true">{"✓" if n["kind"]=="result" else str(n["order"]+1) if n["kind"]=="step" else ""}</span><span class="story-node-label">{esc(n["label"])}</span></button>' for n in nodes)
+    buttons = ''.join(f'<button type="button" class="story-node" data-node="{esc(n["id"])}" data-kind="{n["kind"]}" data-group="{n["group"]}" aria-label="{esc(n["status"]+": "+n["label"])}"><span class="story-dot" aria-hidden="true">{""}</span><span class="story-node-label">{esc(n["label"])}</span></button>' for n in nodes)
     copies = ''.join(f'<div class="story-copy" data-scene-copy="{i}"{ " hidden" if i else ""}><p class="story-eyebrow">{eyebrow}</p><h2{ " id=next-questions-title" if i==0 else ""}><span>{esc(first)}</span><em>{esc(second)}</em></h2><p class="story-deck">{esc(text)}</p></div>' for i,(_,eyebrow,first,second,text) in enumerate(SCENES))
     nav = ''.join(f'<a href="#story-{key}" data-scene-link="{i}"{ " aria-current=step" if i==0 else ""}><span>0{i+1}</span> {label}</a>' for i,(key,label) in enumerate([('questions','Questions'),('proofs','Proofs'),('bridges','Bridges'),('horizons','Horizons')]))
     stops = ''.join(f'<span class="story-stop" id="story-{key}" style="top:{i*25}%" aria-hidden="true"></span>' for i,(key,*_) in enumerate(SCENES))

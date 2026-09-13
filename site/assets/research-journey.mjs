@@ -9,7 +9,6 @@ if (root && source) {
   const items = data.nodes.map(node => ({...node, element: [...map.querySelectorAll('[data-node]')].find(e => e.dataset.node === node.id)}));
   const byId = new Map(items.map(n => [n.id, n]));
   const ns = 'http://www.w3.org/2000/svg';
-  const contours = data.areas.map(() => {const e = document.createElementNS(ns,'ellipse');svg.append(e);return e;});
   const edges = data.edges.map(edge => {const e = document.createElementNS(ns,'path');e.dataset.kind=edge.kind;svg.append(e);return {...edge, element:e};});
   const labels = [...map.querySelectorAll('[data-area]')];
   const copies = [...root.querySelectorAll('[data-scene-copy]')];
@@ -29,12 +28,20 @@ if (root && source) {
     const targetY=(i-(targetCount-1)/2)*(mobile?50:100);
     let x=cx,y=cy,opacity=1,label=1;
     if(scene===0) {
-      const centerX=mobile?width*.49:cx,centerY=mobile?row:cy;
-      const r=mobile?Math.min(width*.32,height/count*.40):clusterRadius;
-      x=centerX;y=centerY;
-      if(kind==='step') {const angle=2.3+i*.67;x+=Math.cos(angle)*r;y+=Math.sin(angle)*r;label=0;opacity=.8;}
-      if(kind==='target') {x+=r*(.70+i*.12);y+=(i-.5)*r;label=0;opacity=.7;}
-      if(kind==='horizon') {x+=r*.36;y-=r*1.1;label=0;opacity=.5;}
+      // Fixed compositions give each field its own silhouette; no invented edges.
+      const silhouettes = [
+        {step:[[-.95,-.40],[-.58,-.85],[-.15,-.48]],result:[.05,.12],target:[[.75,-.55],[.88,.65]],horizon:[.15,.98]},
+        {step:[[-.90,.55],[-.98,-.18],[-.48,-.73]],result:[-.08,.03],target:[[.47,-.65],[.90,.26]],horizon:[.36,.98]},
+        {step:[[-.90,-.63],[-.72,.05],[-.38,.68]],result:[.08,-.10],target:[[.80,-.70],[.96,.38]],horizon:[.04,.97]},
+      ];
+      const shape=silhouettes[g%silhouettes.length];
+      const xy=kind==='step'||kind==='target'?shape[kind][i%shape[kind].length]:shape[kind];
+      const r=mobile?Math.min(width*.32,height/count*.36):clusterRadius*1.15;
+      x=(mobile?width*.49:cx)+xy[0]*r;
+      y=(mobile?row:cy+(g===1?-.08:.03)*height)+xy[1]*r;
+      if(kind==='step') {label=0;opacity=.9;}
+      if(kind==='target') {label=0;opacity=1;if(mobile)x=width*(.81+i*.09);}
+      if(kind==='horizon') {label=0;opacity=0;}
     } else if(scene===1) {
       y=row-(mobile?8:15);
       if(kind==='step') {x=width*(.12+i*(mobile?.18:.21));label=mobile?0:1;}
@@ -88,17 +95,13 @@ if (root && source) {
       const a=byId.get(edge.source),b=byId.get(edge.target);
       const dx=b.x-a.x;
       edge.element.setAttribute('d',`M${a.x},${a.y} C${a.x+dx*.45},${a.y} ${b.x-dx*.45},${b.y} ${b.x},${b.y}`);
-      const opacityAt=s=>edge.kind==='outline'?(s===1?.8:s===0?.45:.2):(s===1||(s===2&&b.kind==='horizon')?0:s===0?.35:.7);
+      const opacityAt=s=>edge.kind==='outline'?(s===1?.8:s===0?.45:.2):(s===1||((s===0||s===2)&&b.kind==='horizon')?0:s===0?.35:.7);
       edge.element.style.opacity=mix(opacityAt(from),opacityAt(to),blend);
     }
-    contours.forEach((e,i)=>{
+    labels.forEach((label,i)=>{
       const x=mobile?width*.49:width*(i+.5)/data.areas.length;
       const y=mobile?height*(i+.5)/data.areas.length:height*.46;
-      e.setAttribute('cx',x);e.setAttribute('cy',y);
-      e.setAttribute('rx',mobile?width*.39:width/data.areas.length*.43);
-      e.setAttribute('ry',mobile?height/data.areas.length*.45:height*.38);
-      e.style.opacity=mix(from===0?1:from===3?.4:0,to===0?1:to===3?.4:0,blend);
-      const layout=s=>s===0||s===3?{x:mobile?0:width*(i+.5)/data.areas.length,y:mobile?y-height/data.areas.length*.46:8}:{x:0,y:height*(i+.5)/data.areas.length-(mobile?height/data.areas.length*.46:62)};
+      const layout=s=>s===0||s===3?{x:mobile?0:width*(i+.5)/data.areas.length,y:mobile?Math.max(0,y-height/data.areas.length*.46-10):8}:{x:0,y:height*(i+.5)/data.areas.length-(mobile?height/data.areas.length*.46:62)};
       const a=layout(from),b=layout(to);
       labels[i].style.transform=`translate(${mix(a.x,b.x,blend)}px,${mix(a.y,b.y,blend)}px) translateX(${mobile||scene===1||scene===2?'0':'-50%'})`;
     });
