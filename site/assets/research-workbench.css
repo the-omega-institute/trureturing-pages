@@ -95,3 +95,29 @@
   .rw-heading p { font-size:13px; }
   .rw-frontier-question h4 { font-size:18px; }
 }
+
+/* The expanded Conjectures notebook uses readable academic ink, including
+   controls and source records that previously inherited dark-theme colors. */
+.research-editorial .research-workbench { font-size:16px; line-height:1.7; --rw-muted:#536169; }
+.research-editorial .research-workbench .rw-heading h2 { font-size:30px; }
+.research-editorial .research-workbench .rw-heading p { font-size:16px; }
+.research-editorial .research-workbench .rw-area-nav a { font-size:15px; }
+.research-editorial .research-workbench .rw-area-nav small { font-size:13px; }
+.research-editorial .research-workbench .rw-direction-title { font-size:20px; color:var(--direction-ink,#28554c); }
+.research-editorial .research-workbench .rw-frontier-question h4 { font-size:23px; line-height:1.5; }
+.research-editorial .research-workbench .rw-next-label { font-size:14px; font-weight:600; color:var(--direction-ink,#28554c); }
+.research-editorial .research-workbench .rw-next-step { font-size:16px; line-height:1.75; color:#3e4c53; }
+.research-editorial .research-workbench .rw-frontier-targets a { font-size:15px; line-height:1.65; }
+.research-editorial .research-workbench :is(.rw-frontier-meta,.rw-meta,.rw-eyebrow,.rw-storage-status,.rw-source-dates,.rw-source-locator,.rw-anchors,label) { font-size:14px; color:var(--rw-muted); }
+.research-editorial .research-workbench :is(.rw-stage,.rw-source-badge,.rw-checkbox,.rw-notebook legend) { font-size:14px; color:#3e4c53; }
+.research-editorial .research-workbench .rw-card h3 { font-size:19px; }
+.research-editorial .research-workbench .rw-card-body :is(p,li) { font-size:16px; }
+.research-editorial .research-workbench .rw-literature { background:#e8eeeb; border-color:#7a968a; color:#3e4c53; }
+.research-editorial .research-workbench .rw-source-status { color:#28554c; }
+.research-editorial .research-workbench .rw-search-link { color:#28554c; }
+.research-editorial .research-workbench button:hover { background:#e2e9e5; color:#232629; border-color:#819b8e; }
+.research-editorial .research-workbench :focus-visible { outline-color:#28554c; }
+@media(max-width:700px) {
+ .research-editorial .research-workbench .rw-heading h2 { font-size:27px; }
+ .research-editorial .research-workbench .rw-frontier-question h4 { font-size:21px; }
+}
