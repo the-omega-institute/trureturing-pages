@@ -79,3 +79,14 @@ button.reading-more { margin:12px 0; cursor:pointer; font-size:12px; }
 .journey-areas summary {cursor:pointer;color:var(--link)}
 .journey-areas details div {display:grid;gap:10px;padding-top:12px;max-width:40ch}
 .journey-areas details a {border:0;padding:0}
+
+/* Conjectures should remain comfortable to read beyond the collapsed overview. */
+.research-editorial .research-home .journey-intro,
+.research-editorial .research-home .journey-steps p { font-size:16px; line-height:1.75; }
+.research-editorial .research-home .journey-question { font-size:17px; }
+.research-editorial .research-home .journey-steps span { font-size:13px; }
+.research-editorial .research-home .journey-steps a,
+.research-editorial .research-home .journey-priorities a,
+.research-editorial .research-home .journey-areas { font-size:15px; }
+.research-editorial .research-home .journey-areas details { font-size:15px; }
+.research-editorial .research-home #completed-catalog .resolved-question { font-size:16px; }

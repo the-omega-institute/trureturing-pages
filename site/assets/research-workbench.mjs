@@ -104,6 +104,7 @@ export async function mountResearchWorkbench() {
     const symbol = el("i"); symbol.dataset.lucide = areaIcons[index % areaIcons.length];
     areaHeading.append(symbol, document.createTextNode(area));
     section.style.setProperty("--direction-accent", ["#81cdbf", "#bba6df", "#e3c579", "#b8d780", "#8cbbdf"][index % 5]);
+    section.style.setProperty("--direction-ink", ["#25675d", "#705294", "#7a5a18", "#486322", "#315f84"][index % 5]);
     section.append(areaHeading);
     for (const family of families) {
       const question = el("article", undefined, "rw-frontier-question");

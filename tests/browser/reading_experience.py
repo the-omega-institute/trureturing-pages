@@ -3,10 +3,25 @@ import argparse
 from functools import partial
 from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
 import json
+import re
 from pathlib import Path
 import threading
 from urllib.parse import urljoin, urlsplit
 from playwright.sync_api import sync_playwright
+
+def assert_readable_text(page):
+    def luminance(rgb):
+        values=[int(n)/255 for n in re.findall(r"\d+",rgb)[:3]]
+        values=[v/12.92 if v<=0.04045 else ((v+0.055)/1.055)**2.4 for v in values]
+        return sum(v*w for v,w in zip(values,[.2126,.7152,.0722]))
+    background=luminance(page.evaluate('getComputedStyle(document.body).backgroundColor'))
+    for selector,minimum in [('.rw-next-step',16),('.rw-next-label',14),('.rw-direction-title',20),('.rw-frontier-meta',14),('.rw-frontier-targets a',15)]:
+        for item in page.locator(selector).all():
+            style=item.evaluate('e=>({color:getComputedStyle(e).color,size:parseFloat(getComputedStyle(e).fontSize)})')
+            ink=luminance(style['color'])
+            assert style['size']>=minimum,(selector,style)
+            assert (max(ink,background)+.05)/(min(ink,background)+.05)>=4.5,(selector,style)
+
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -23,7 +38,8 @@ def main():
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
-        assert page.locator('#results [data-reading-group]').count()==3
+        for group in page.locator('#results [data-reading-group]').all():
+            assert group.locator('.result-item').count()>0
         assert page.locator('#results [data-reading-group][open]').count()==0
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="version-status.html"]:visible').count()==0
@@ -83,6 +99,8 @@ def main():
         assert page.locator('#source-questions .research-stats').count()==1
         assert page.locator('#source-questions #open-problems').count()==1
         assert page.locator('.rw-release-browser').count()==0
+        assert_readable_text(page)
+        page.locator('.rw-directions').screenshot(path=str(args.output/'conjectures-directions-readable.png'))
         page.screenshot(path=str(args.output/'conjectures-notebook-desktop.png'),full_page=True)
         # Arrive from another document: a same-page hash change retains an already opened notebook.
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
@@ -152,6 +170,13 @@ def main():
             page.goto(base+name+'.html?lang=en',wait_until='networkidle')
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name
             page.screenshot(path=str(args.output/(name+'-restored-mobile.png')),full_page=True)
+            if name=='conjectures':
+                page.locator('#research-directions > summary').click()
+                page.wait_for_selector('.rw-next-step')
+                assert_readable_text(page)
+                assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1')
+                page.locator('.rw-directions').screenshot(path=str(args.output/'conjectures-directions-mobile.png'))
+        events.append('Conjectures direction text meets 4.5:1 contrast with readable sizes on desktop and mobile')
         events.append('Restored pages fit a 390px viewport')
         browser.close()
     server.shutdown()
