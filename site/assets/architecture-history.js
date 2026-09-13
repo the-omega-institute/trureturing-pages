@@ -1,3 +1,4 @@
+import { annotateScene, readableName } from "./evolution-labels.mjs";
 import {
   METRICS,
   loadHistory,
@@ -79,7 +80,8 @@ function search() {
 function showGroup(group) {
   const root = $("#lineage-group");
   root.replaceChildren(
-    el("p", `${group.nodes.length} modules / ${group.domain}`, "eyebrow"),
+    el("p", `${group.nodes.length} modules / source group: ${readableName(group.domain)}`, "eyebrow"),
+    el("p", "The group name is a source classification. Select a module below for its mathematical title."),
   );
   if (mode === "dependency" && group.nodes.length > 1) {
     const b = el("button", "Expand domain");
@@ -152,7 +154,7 @@ async function renderDetail() {
   const atlas = el("a", "Current Atlas");
   atlas.href = `atlas.html#${new URLSearchParams({ mode: "dependency", node: selected, metric })}`;
   const research = el("a", "Related research");
-  research.href = `research.html#${new URLSearchParams({ node: selected })}`;
+  research.href = `conjectures.html#${new URLSearchParams({ node: selected })}`;
   const wiki = el("a", node ? "Release Library" : "Content history");
   wiki.href = node
     ? `release/${current.truth_release_digest.slice(7)}/node/${await nodeSlug(selected)}/`
@@ -210,6 +212,7 @@ function renderMap(reset = false) {
           expanded,
           snapshots.flatMap((s) => s.nodes),
         );
+  scene = annotateScene(scene, releaseDelta(snapshots[observation - 1], snapshots[observation]), observation);
   const ids =
     mode === "time"
       ? new Set(snapshots.flatMap((s) => [...lineageIds(s, selected)]))
@@ -226,6 +229,9 @@ function renderMap(reset = false) {
       : "Dependency depth (log scale) / foundations to consequences";
   $("#lineage-collapse").hidden = !expanded || mode !== "dependency";
   $("#lineage-clear").disabled = !selected;
+  document.getElementById("lineage-guide-mode").textContent = mode === "time"
+    ? "Solid line: the same modules in consecutive releases. Dashed line: a newly recorded dependency."
+    : "Left to right: prerequisite to consumer. Thicker line: more recorded dependencies.";
   releaseSummary();
   stateURL();
 }

@@ -78,6 +78,13 @@ export function mountEvolution(host, { onSelect }) {
       ctx.beginPath();
       ctx.arc(node.x, node.y, radius(node), 0, Math.PI * 2);
       ctx.fill();
+      if (node.addedCount > 0) {
+        ctx.strokeStyle = "#e8c474";
+        ctx.lineWidth = 2 / transform.k;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius(node) + 6 / transform.k, 0, Math.PI * 2);
+        ctx.stroke();
+      }
       if (isSelected || node === hover) {
         ctx.strokeStyle = "#f1faf5";
         ctx.lineWidth = 1.2 / transform.k;
@@ -186,7 +193,8 @@ export function mountEvolution(host, { onSelect }) {
     canvas.style.cursor = hover ? "pointer" : "grab";
     tooltip.hidden = !hover;
     if (hover) {
-      tooltip.textContent = `${hover.title} / ${hover.nodes.length} modules`;
+      tooltip.textContent = (hover.hint || `${hover.title} / ${hover.nodes.length} modules`) +
+        (hover.addedCount ? ` Includes ${hover.addedCount} newly present modules.` : "");
       tooltip.style.left =
         Math.max(4, Math.min(event.offsetX + 14, size.width - 220)) + "px";
       tooltip.style.top = Math.max(8, event.offsetY - 38) + "px";
