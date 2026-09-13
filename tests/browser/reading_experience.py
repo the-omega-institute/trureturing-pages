@@ -61,7 +61,7 @@ def main():
         page.screenshot(path=str(args.output/'conjectures-restored-desktop.png'),full_page=True)
         row=page.locator('.problem-row').first
         if page.locator('.problem-row').count():
-            target=row.locator('h2').inner_text()
+            target=row.locator('h2').text_content()
             page.locator('#research-search').fill(target)
             page.wait_for_function("document.querySelector('#open-problems [data-reading-group][open]') !== null")
             assert row.is_visible()
@@ -92,7 +92,7 @@ def main():
         assert 'baseline' in page.locator('#release-change-summary').inner_text().lower()
         events.append('The original graph, time view, controls and baseline semantics work with real history')
         page.locator('#publication-status > summary').click()
-        page.wait_for_function("document.getElementById('publication-summary').textContent !== 'Publication status'")
+        page.wait_for_function("!['Publication status','Checking publication status'].includes(document.getElementById('publication-summary').textContent)")
         assert page.locator('#publication-stages li').count() in [0,5]
         events.append('Publication diagnostics are an optional inline disclosure in Evolution')
         page.goto(base+'spaces.html?lang=en',wait_until='domcontentloaded')

@@ -1,10 +1,13 @@
 import {loadStatus, STAGES} from './version-status-core.mjs';
 import {statusCaption} from './evolution-labels.mjs';
 const box = document.getElementById('publication-status');
-let value;
+let value, pending;
 async function refresh() {
   const label = document.getElementById('publication-summary');
   const list = document.getElementById('publication-stages');
+  document.getElementById('publication-date').textContent = '';
+  list.replaceChildren();
+  label.textContent = 'Checking publication status';
   value = await loadStatus({fallback:value});
   let release;
   try {
@@ -26,4 +29,6 @@ async function refresh() {
   }
   document.getElementById('publication-date').textContent = value.observed_at ? `Recorded ${value.observed_at}` : 'No recorded status';
 }
-box?.addEventListener('toggle', () => {if(box.open) refresh();});
+box?.addEventListener('toggle', () => {
+  if (box.open && !pending) pending = refresh().finally(() => {pending = null;});
+});
