@@ -149,24 +149,15 @@ def render_research_groups(document, snapshot, records):
             f'<div class="reading-item-body">{articles[r["id"]]}</div></details>')
     sections = ''.join(group_html(k, t, d, groups[k], prefix='results', noun='results')
         for k, t, d in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
-    active = [p for p in snapshot.get('problems', []) if not p.get('resolution')]
-    focus = ''.join(f'<article class="research-focus-card"><p class="eyebrow">{esc(p.get("triage", ""))}</p>'
-        f'<h3><a href="research/{esc(p["slug"])}/">{esc(p["title"])}</a></h3>'
-        f'<p>{esc(p.get("sections", {}).get("Gap", ""))}</p>'
-        f'<a href="research/{esc(p["slug"])}/">Open research dossier</a></article>' for p in active[:3])
-    # Restore the pre-#57 news-heading, news-index, frontier and publication layout.
+    # Preserve the academic news layout; results lead and detailed gaps stay in Conjectures.
     # Only the previously flat result collection receives disclosure controls.
     body = ('<main class="site-main research-news"><header class="news-heading">'
         '<p class="eyebrow">THE OMEGA INSTITUTE / CURRENT RESEARCH</p><h1>Research</h1>'
         '<p class="news-lede">Theories, concepts, evidence and research directions in a connected knowledge system.</p>'
         '<nav id="knowledge-spaces" class="news-links" aria-label="Research destinations"><a href="discover.html">Explore source connections</a>'
         '<a href="atlas.html#mode=frontier">Open Atlas frontier</a></nav></header>'
-        '<nav class="news-index" aria-label="Research sections"><a href="#frontier">Registered targets</a>'
-        '<a href="#results">Results by collection</a><a href="#publications">Publications</a></nav>'
-        '<section id="frontier" class="research-frontier"><div class="news-section-heading"><div>'
-        '<p class="eyebrow">RECORDED RESEARCH TARGETS</p><h2>Unresolved targets in this release</h2></div>'
-        '<a href="conjectures.html#open-problems">All open problems</a></div><div class="research-focus-grid">'
-        + (focus or '<p>No unresolved dossiers in this release.</p>') + '</div></section>'
+        '<nav class="news-index" aria-label="Research sections"><a href="#results">Results by collection</a>'
+        '<a href="#publications">Publications</a><a href="#frontier">Next questions</a></nav>'
         '<section id="results" class="news-section" data-reading-catalog><div class="news-section-heading"><div>'
         '<p class="eyebrow">FROM QUESTION TO RESULT</p><h2>Results by collection</h2></div>'
         f'<span>{len(records)} recorded results</span></div>' + search_box('results')
@@ -174,7 +165,7 @@ def render_research_groups(document, snapshot, records):
         + '<details id="resolved-questions-archive" class="reading-group"><summary>All resolved question records and evidence links</summary>'
         + (parsed.raw(evidence[0]) if evidence else '') + '</details>'
         + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
-        + '<section class="news-onward"><h2>Follow the research</h2><a href="conjectures.html#open-problems">Open conjectures</a>'
+        + '<section id="frontier" class="news-onward"><h2>Next questions</h2><p>Follow the open questions and proposed routes that build on this work.</p><a href="conjectures.html#open-problems">Open conjectures</a>'
         '<a href="knowledge/">Browse the Library</a></section></main>')
     result = common_shell(replace_main(document, body))
     if 'assets/research-route.js' not in result:

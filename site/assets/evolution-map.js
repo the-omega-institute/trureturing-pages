@@ -54,7 +54,10 @@ export function mountEvolution(host, { onSelect }) {
         b = positions.get(edge.target),
         active = selectedGroups.has(a.id) && selectedGroups.has(b.id);
       ctx.globalAlpha = !selected ? 0.22 : active ? 0.78 : 0.045;
-      ctx.strokeStyle = active ? "#cae6ca" : a.color;
+      const introduced = (scene.kind === 'dependency' || b.observation === scene.selectedObservation) &&
+        edge.pairs?.some(pair=>scene.addedEdges?.has(JSON.stringify(pair)));
+      ctx.strokeStyle = introduced ? '#e8c474' : active ? "#cae6ca" : a.color;
+      if (introduced && !selected) ctx.globalAlpha = .65;
       ctx.setLineDash(
         edge.kind === "new-dependency"
           ? [5 / transform.k, 4 / transform.k]
@@ -68,6 +71,13 @@ export function mountEvolution(host, { onSelect }) {
       ctx.moveTo(a.x, a.y);
       ctx.bezierCurveTo(mid, a.y, mid, b.y, b.x, b.y);
       ctx.stroke();
+      // A small midpoint arrow makes prerequisite → consumer readable on a selected path.
+      if (active && selected) {
+        const x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+        const angle=Math.atan2(b.y-a.y,(b.x-a.x)/2),length=5/transform.k;
+        ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.setLineDash([]);
+        ctx.beginPath();ctx.moveTo(-length,-length*.6);ctx.lineTo(0,0);ctx.lineTo(-length,length*.6);ctx.stroke();ctx.restore();
+      }
     }
     ctx.setLineDash([]);
     for (const node of scene.nodes) {

@@ -89,6 +89,14 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertIn('id="millennium-entry"',out)
         self.assertLess(out.index('assets/research-workbench.css'),out.index('<body'))
 
+    def test_results_lead_and_raw_gaps_stay_in_conjectures(self):
+        records,source=results()
+        snapshot={'problems':[{'slug':'q','title':'Question','sections':{'Gap':'LONG RAW GAP'}}]}
+        out=render_research_groups(source,snapshot,records)
+        self.assertLess(out.index('id="results"'),out.index('id="publications"'))
+        self.assertLess(out.index('id="publications"'),out.index('id="frontier"'))
+        self.assertNotIn('LONG RAW GAP',out)
+
     def test_primary_navigation_is_restored_without_changing_evidence_links(self):
         raw=document('<main><a href="../../version-status.html">Diagnostic evidence</a></main>').replace('href="spaces.html"','href="../../spaces.html"')
         out=add_spaces_navigation(raw); p=Fragments(out)

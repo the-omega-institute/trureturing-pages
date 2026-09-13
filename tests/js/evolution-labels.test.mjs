@@ -25,10 +25,30 @@ test('single-module points display the module title',()=>{
  assert.equal(r.nodes[0].title,'Observer transition');
 });
 test('status cannot claim synchronization for an unavailable, stale or different release',()=>{
- const now=Date.parse('2026-09-13T04:00:00Z');const value={observation:{state:'fresh'},observed_at:'2026-09-13T03:30:00Z',head:{current_truth_release_digest:'a',behind:0},halt:null};
+ const now=Date.parse('2026-09-13T04:00:00Z');const value={observation:{state:'fresh'},observed_at:'2026-09-13T03:30:00Z',head:{current_truth_release_digest:'a',upstream_latest_digest:'a',behind:0},halt:null};
  assert.equal(statusCaption(value,'a',now),'Publication synchronized');
  assert.equal(statusCaption(value,'b',now),'Status refers to another release');
  assert.equal(statusCaption({...value,observed_at:'2026-09-12T03:30:00Z'},'a',now),'Last recorded publication status');
  assert.equal(statusCaption({...value,observation:{state:'unavailable'}},'a',now),'Publication status unavailable');
  assert.equal(statusCaption({...value,halt:{reason:'blocked'}},'a',now),'Publication needs attention');
+});
+
+test('unknown upstream and pending work cannot claim synchronization',()=>{
+ const now=Date.parse('2026-09-13T04:00:00Z');
+ const v={observation:{state:'fresh'},observed_at:'2026-09-13T03:30:00Z',head:{current_truth_release_digest:'a',upstream_latest_digest:null,behind:null},halt:null};
+ assert.equal(statusCaption(v,'a',now),'Publication progress unknown');
+ assert.equal(statusCaption({...v,head:{...v.head,behind:0}},'a',now),'Publication progress unknown');
+ assert.equal(statusCaption({...v,head:{...v.head,upstream_latest_digest:'b',behind:0}},'a',now),'Publication needs attention');
+ assert.equal(statusCaption({...v,head:{...v.head,upstream_latest_digest:'a',behind:0},counts:{pending:1}},'a',now),'Publication needs attention');
+});
+test('group context separates prerequisites and consumers, deduplicating boundary modules',async()=>{
+ const {groupContext,addedEdgeKeys}=await import('../../site/assets/evolution-labels.mjs');
+ const snapshot={nodes:[...group.nodes.map(n=>({...n,domain:'Tower'})),{id:'p',domain:'Arithmetic'},{id:'q',domain:'Logic'}],dependency_edges:[['p','a'],['p','b'],['a','q'],['a','q'],['a','b']]};
+ const context=groupContext(group,snapshot);
+ assert.deepEqual(context.incoming,[{domain:'Arithmetic',ids:['p']}]);
+ assert.deepEqual(context.outgoing,[{domain:'Logic',ids:['q']}]);
+ assert.equal(context.examples[0].title,'Observer transition');
+ assert.equal(addedEdgeKeys({kind:'baseline',edgesAdded:[['p','a']]}).size,0);
+ assert.equal(addedEdgeKeys({kind:'analysis-changed',edgesAdded:[['p','a']]}).size,0);
+ assert.ok(addedEdgeKeys({kind:'comparable',edgesAdded:[['p','a']]}).has('["p","a"]'));
 });

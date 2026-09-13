@@ -71,3 +71,25 @@ the PR record; old #57 results do not certify this correction.
 
 No Base publishing, Truth identity, Scribe source, topology package pin, resolution
 or Frozen gate is changed. The previously merged rebuild-current path is retained.
+
+## Review corrections before merge
+
+Research keeps the academic format but leads with grouped results, followed by
+publications and a compact link to next questions. Raw dossier Gap paragraphs are
+not duplicated above the results. The source browser and its statistics stay in
+place when the notebook opens; a dedicated slot takes precedence over legacy layout
+migration. The real `#next-questions` anchor is retained and does not load the notebook.
+
+Evolution keeps its canvas and adds selected-group examples and direct prerequisite /
+consumer groups. Representative explanations are fetched lazily from a Library
+snapshot matching both the selected Truth release and Atlas digest. Missing prose
+stays explicitly unavailable; source group names are not given invented definitions.
+Context is cleared or refreshed on observation changes. Selected edges show direction;
+newly recorded dependency edges are gold in comparable observations only. The layout,
+topic colors and module identities remain unchanged.
+
+Publication synchronization requires a known upstream coordinate equal to the live
+coordinate, zero lag and no pending/blocked work. Unknown upstream status is not green.
+Regression coverage includes notebook layout preservation, actual follow-up anchors,
+result/publication order, status uncertainty, distinct prerequisite/consumer sets,
+selected graph context and real playback.

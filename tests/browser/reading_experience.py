@@ -28,6 +28,9 @@ def main():
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="version-status.html"]:visible').count()==0
         events.append('Research retains the original light academic palette and serif heading; results are grouped and collapsed')
+        order=page.locator('main').evaluate("e=>['results','publications','frontier'].map(id=>[...e.children].indexOf(document.getElementById(id)))")
+        assert order==sorted(order) and order[0]>=0
+        assert page.locator('.research-focus-card').count()==0
         page.screenshot(path=str(args.output/'research-restored-desktop.png'),full_page=True)
         page.locator('#results-oeis > summary').click()
         total=page.locator('#results-oeis .reading-item').count()
@@ -73,6 +76,15 @@ def main():
         page.locator('#research-directions > summary').click()
         page.wait_for_selector('#research-workbench-slot #research-workbench',timeout=30000)
         assert page.locator('#research-workbench').count()==1
+        assert page.locator('.research-home > .research-stats').count()==1
+        assert page.locator('.research-home > #open-problems').count()==1
+        assert page.locator('.rw-release-browser').count()==0
+        page.screenshot(path=str(args.output/'conjectures-notebook-desktop.png'),full_page=True)
+        page.goto(base+'conjectures.html?lang=en#next-questions',wait_until='networkidle')
+        assert page.locator('#next-questions').is_visible()
+        assert page.locator('#research-workbench').count()==0
+        assert not page.locator('#research-directions').evaluate('e=>e.open')
+        events.append('Notebook leaves the original source browser in place; next-questions selects the real follow-ups')
         events.append('The notebook remains available on request in its reserved slot')
         page.goto(base+'evolution.html?lang=en',wait_until='networkidle')
         page.wait_for_function('typeof window.architectureHistoryDiagnostics === "function"',timeout=60000)
@@ -84,12 +96,23 @@ def main():
         assert page.locator('#release-play').count()==1
         assert page.locator('.lineage-guide').count()==1
         page.screenshot(path=str(args.output/'evolution-restored-desktop.png'),full_page=True)
+        page.locator('#evolution-detail .architecture-rank').first.click()
+        page.wait_for_function("document.querySelector('.group-explanation') && !document.querySelector('.group-explanation').textContent.startsWith('Loading')")
+        assert page.locator('.group-connections').count()==2
+        assert page.locator('#lineage-group .group-module').count()>0
+        page.screenshot(path=str(args.output/'evolution-selected-desktop.png'),full_page=True)
+        events.append('Selection shows sourced examples, a release-bound explanation and prerequisite/consumer groups')
         page.locator('[data-lineage="time"]').click()
         assert page.evaluate('window.architectureHistoryDiagnostics().mode')=='time'
         page.locator('[data-lineage="dependency"]').click()
         page.locator('#lineage-release').evaluate("e=>{e.value=0;e.dispatchEvent(new Event('input',{bubbles:true}))}")
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==0
         assert 'baseline' in page.locator('#release-change-summary').inner_text().lower()
+        page.locator('#release-play').click()
+        page.wait_for_function('window.architectureHistoryDiagnostics().observation > 1')
+        page.locator('#release-play').click()
+        assert page.locator('#release-play').get_attribute('aria-label')=='Play release evolution'
+        events.append('Playback advances the original graph and pauses normally')
         events.append('The original graph, time view, controls and baseline semantics work with real history')
         page.locator('#publication-status > summary').click()
         page.wait_for_function("!['Publication status','Checking publication status'].includes(document.getElementById('publication-summary').textContent)")
