@@ -35,3 +35,10 @@ button.reading-more { margin:12px 0; cursor:pointer; font-size:12px; }
  details.reading-item > summary strong { flex-basis:100%; }
  .reading-item-body .news-result { padding-inline:10px; }
 }
+/* Legacy question controls inherit the existing academic palette. Their layout,
+   font sizes and status roles are untouched; no new theme colors are introduced. */
+.site-themed.research-editorial[data-reading-page] :is(.research-stats strong,.problem-row h2,.problem-anchor-count) { color:var(--text); }
+.site-themed.research-editorial[data-reading-page] :is(.research-stats span,.research-browser aside p,.research-activity small,.development-feed time,.problem-row p,.problem-anchor-count small) { color:var(--muted); }
+.site-themed.research-editorial[data-reading-page] .research-browser aside :is(input,select) { background:var(--surface); color:var(--text); border-color:var(--border); }
+.site-themed.research-editorial[data-reading-page] .problem-row:hover { background:var(--surface); }
+.site-themed.research-editorial[data-reading-page] .route-chip { color:var(--open); }
