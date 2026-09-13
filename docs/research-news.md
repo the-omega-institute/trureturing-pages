@@ -5,21 +5,30 @@ the existing release-bound Library build. Its editorial source is
 `site/assets/research-news.json`. The Atlas frontier reads the same catalog
 only when opened; news does not alter certified graph nodes or edges.
 
+`site/assets/research-catalog.json` is generated, not edited. Run
+`make research-catalog SNAPSHOT=data/library/<digest>.json.gz PYTHON=python`
+to project only #48 `kernel_verified` resolutions from that Library snapshot.
+The release renderer regenerates both the catalog and news in `_site/assets`
+before rendering discovery, research, and reading views; `pages.yml` repeats
+the projection against the deployed Library archive. Its `families` are one
+row per verified problem slug, grouped by OEIS/arXiv source or an associated
+released node's domain. The separate `research-directions.json` retains
+editorial open questions and proposed follow-ups, never resolution authority.
+
 ## Independent consumers
 
 Upstream supplies Pages and mdBook independently. Pages consumes upstream
 release/source data directly; it does not fetch mdBook HTML or a mdBook registry
 to discover, validate or publish results. mdBook is optional further reading.
-Reviewed results lead to an English explanation on Pages. Primary papers and
+Selected pinned results have an English explanation on Pages. Primary papers and
 pinned Lean sources remain directly accessible; development PRs are secondary
 provenance links.
 
-Reviewed results can be published immediately through the manually maintained
-`site/assets/research-news.json`, including before any upstream problem binding,
-new Truth release, or mdBook publication. Each manual entry must carry its exact
-external scope and pinned proof evidence. Research, Conjectures and the Atlas
-results list use that same catalog. Later release records merge by declaration
-identity without duplicating the result; release membership remains separate.
+Editorial source notes can exist in `site/assets/research-news.json` before a
+Truth release, but the current-release resolved list includes only the snapshot's
+kernel-verified problem slugs. Existing editorial text is retained when its
+slug and declaration match the release; an older alias remains separate from
+the new snapshot identity. There is no second verification tier.
 
 ## Adding a record
 

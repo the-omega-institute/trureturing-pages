@@ -11,7 +11,7 @@ REPO = "https://github.com/the-omega-institute/trureturing"
 
 
 def followup_families():
-    families = json.loads((ASSETS / "research-catalog.json").read_text())["families"]
+    families = json.loads((ASSETS / "research-directions.json").read_text())["families"]
     stories = json.loads(STORIES.read_text())
     followups = [family for family in families if family.get("builds_on")]
     if any(family["builds_on"] not in stories for family in followups):

@@ -8,6 +8,7 @@ from xml.etree import ElementTree as ET
 
 from lib.knowledge_pages import esc, write
 from lib.research_bridges import extend_index, RELATIONS as BRIDGE_RELATIONS
+from lib.problem_resolutions import is_kernel_verified
 
 ASSETS = Path(__file__).resolve().parents[1] / "site/assets"
 BASE = "https://the-omega-institute.github.io/trureturing-pages/"
@@ -23,11 +24,14 @@ RELATIONS = {
 RELATIONS.update(BRIDGE_RELATIONS)
 
 
-def build_index(snapshot):
-    news = json.loads((ASSETS / "research-news.json").read_text())
-    catalog = json.loads((ASSETS / "research-catalog.json").read_text())
-    stories = json.loads((ASSETS / "result-stories.json").read_text())
-    curated = json.loads((ASSETS / "discovery-curation.json").read_text())
+def build_index(snapshot, assets=None):
+    release_assets = assets is not None
+    assets = assets or ASSETS
+    news = json.loads((assets / "research-news.json").read_text())
+    catalog = json.loads((assets / "research-catalog.json").read_text())
+    directions = json.loads((assets / "research-directions.json").read_text())
+    stories = json.loads((assets / "result-stories.json").read_text())
+    curated = json.loads((assets / "discovery-curation.json").read_text())
     records, edges = [], []
 
     def record(id, kind, title, summary, path, **fields):
@@ -37,26 +41,40 @@ def build_index(snapshot):
     def edge(start, end, kind, scope, evidence_url):
         edges.append(dict(source=start, target=end, kind=kind, scope=scope, evidence_url=evidence_url))
 
-    for item in news["results"]:
+    if release_assets and snapshot.get("schema_version") == "pages-library-snapshot.v1":
+        verified = {p["slug"] for p in snapshot["problems"] if is_kernel_verified(p.get("resolution"))}
+        catalog_ids = {f["id"] for f in catalog["families"]}
+        news_ids = {r["id"] for r in news["results"] if r.get("kernel_verified")}
+        if catalog_ids != verified or news_ids != verified:
+            raise ValueError(f"Research news and catalog must match the verified Library snapshot: catalog={catalog_ids ^ verified}, news={news_ids ^ verified}")
+        results = [r for r in news["results"] if r["id"] in verified]
+    else:
+        results = [r for r in news["results"] if r["id"] in stories]
+    for item in results:
         id = "result:" + item["id"]
-        record(id, "result", item["title"], item["summary"], f'results/{item["id"]}/',
+        story = stories.get(item["id"])
+        evidence = {"source_url": item["source_url"], "source_commit": item["source_commit"],
+                    "declaration": item["module"] + "." + item["declaration"],
+                    "statement_id": item.get("statement_id"),
+                    "assessment": "kernel-verified" if snapshot.get("schema_version") else "reviewed-pinned-result",
+                    "release_membership": "kernel-verified" if snapshot.get("schema_version") else "not-inferred"}
+        if story:
+            evidence.update(lean_url=BASE + f'assets/proofs/{item["id"]}.lean', source_sha256=story["source_sha256"])
+        record(id, "result", item["title"], item["summary"],
+               f'results/{item["id"]}/' if story else f'research.html#resolved-{item["id"]}',
                status=item["kind"], scope=item["scope"], aliases=[item["module"], item["declaration"], item["field"]],
-               evidence={"source_url": item["source_url"], "source_commit": item["source_commit"],
-                         "declaration": item["module"] + "." + item["declaration"], "statement_id": item["statement_id"],
-                         "lean_url": BASE + f'assets/proofs/{item["id"]}.lean',
-                         "source_sha256": stories[item["id"]]["source_sha256"],
-                         "assessment": "reviewed-pinned-result", "release_membership": "not-inferred"})
+               evidence=evidence)
     for item in news["publications"]:
         record("publication:" + item["id"], "publication", item["title"], item["summary"],
                "research.html#" + item["id"], status=item["status"], aliases=[item["venue"], item.get("doi", "")],
                scope=item.get("qualification", item["evidence"]), evidence={"source_url": item["url"]})
-    for family in catalog["families"]:
+    for family in directions["families"]:
         id = "question:" + family["id"]
         source_url = "https://doi.org/" + family["doi"]
         record(id, "question", family["title"], family["question"], "conjectures.html#rp=" + family["id"],
                status="proposed-research", scope=family["gap"], aliases=family.get("keywords", []) + [family["area"]],
                evidence={"source_url": source_url, "source_commit": family.get("source_commit", catalog["source_commit"])})
-        if family.get("builds_on"):
+        if family.get("builds_on") and any(r["id"] == "result:" + family["builds_on"] for r in records):
             edge("result:" + family["builds_on"], id, "builds_on", family["foothold"], source_url)
         for target in family["targets"]:
             tid = "target:" + target["id"]
@@ -83,7 +101,9 @@ def build_index(snapshot):
         record(id, "topic", topic["title"], topic["summary"], "discover.html?q=" + quote(topic["title"]),
                status="curated-topic", aliases=topic["aliases"])
         for target in topic["records"]:
-            edge(id, target, "topic_member", topic["summary"], next(r["url"] for r in records if r["id"] == target))
+            matched = next((r for r in records if r["id"] == target), None)
+            if matched:
+                edge(id, target, "topic_member", topic["summary"], matched["url"])
     for sequence in curated["sequences"]:
         if not re.fullmatch(r"A\d{6}", sequence["id"]):
             raise ValueError("Invalid OEIS identifier")
@@ -92,18 +112,21 @@ def build_index(snapshot):
                "oeis/" + sequence["id"] + "/", status="external-sequence", aliases=sequence["aliases"] + [sequence["id"], "OEIS"],
                identifiers={"oeis": sequence["id"]}, evidence={"source_url": sequence["source_url"]})
         for relation in sequence["links"]:
-            edge(id, relation["record"], relation["kind"], relation["scope"], relation["evidence_url"])
-    paths = extend_index(snapshot, records, edges, news, catalog, stories, ASSETS, BASE)
+            if any(r["id"] == relation["record"] for r in records):
+                edge(id, relation["record"], relation["kind"], relation["scope"], relation["evidence_url"])
+    story_news = {**news, "results": [r for r in results if r["id"] in stories]}
+    paths = extend_index(snapshot, records, edges, story_news, directions, stories, assets, BASE)
     ids = {r["id"] for r in records}
-    if len(ids) != len(records) or any(e["source"] not in ids or e["target"] not in ids or e["kind"] not in RELATIONS for e in edges):
-        raise ValueError("Invalid discovery graph references")
+    dangling = [(e["source"], e["target"]) for e in edges if e["source"] not in ids or e["target"] not in ids]
+    if len(ids) != len(records) or dangling or any(e["kind"] not in RELATIONS for e in edges):
+        raise ValueError(f"Invalid discovery graph references: {dangling[:3]}")
     return {"schema_version": "pages-discovery.v1", "truth_release_digest": snapshot["truth_release_digest"],
             "reviewed": curated["reviewed"], "relation_types": RELATIONS, "research_paths": paths,
             "records": sorted(records, key=lambda r: r["id"]), "relations": sorted(edges, key=lambda e: (e["source"], e["target"]))}
 
 
-def render_discovery(output, snapshot, shell):
-    data = build_index(snapshot)
+def render_discovery(output, snapshot, shell, assets=None):
+    data = build_index(snapshot, assets)
     encoded = json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
     digest = hashlib.sha256(encoded.encode()).hexdigest()
     root = output / "api/v1"

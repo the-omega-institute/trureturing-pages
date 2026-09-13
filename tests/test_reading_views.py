@@ -19,7 +19,7 @@ def results():
 
 def conjectures():
     problems=[dict(slug='q1',title='Open sequence',url='https://oeis.org/A000001',motivation_gids=['D5/Seq']),
-        dict(slug='done',title='Resolved target',url='https://oeis.org/A000002',resolution={'kind':'proved'},motivation_gids=[]),
+        dict(slug='done',title='Resolved target',url='https://oeis.org/A000002',resolution={'kind':'proved', 'kernel_verified': {'frozen_node_id': 'sha256:example', 'freeze_status': 'frozen'}},motivation_gids=[]),
         dict(slug='q2',title='Open paper question',url='https://example.org/paper',motivation_gids=[])]
     rows=''.join(f'<a class="problem-row" href="research/{p["slug"]}/"><div><h2>{p["title"]}</h2></div></a>' for p in problems)
     return {'problems':problems},document('<main class="site-main research-home"><header class="page-heading"><h1>Conjectures</h1></header>'

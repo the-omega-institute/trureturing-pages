@@ -105,7 +105,7 @@ class ResearchNewsTests(unittest.TestCase):
                 result = next(item for item in result_records(self._verified_snapshot(problem)) if item["id"] == problem["slug"])
                 self.assertEqual(result["field"], expected)
 
-    def test_append_deduplicates_existing_declaration_even_with_different_id(self):
+    def test_append_keeps_editorial_alias_and_adds_verified_snapshot_slug(self):
         problem = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",
                    "sections": {"Problem": "Question."}}
         with tempfile.TemporaryDirectory() as temp:
@@ -114,7 +114,7 @@ class ResearchNewsTests(unittest.TestCase):
                 "module": "D5/S1/Example", "declaration": "result", "field": "Edited", "summary": "Edited", "scope": "Edited"}],
                 "publications": []}))
             append_verified(self._verified_snapshot(problem), catalog)
-            self.assertEqual(len(json.loads(catalog.read_text())["results"]), 1)
+            self.assertEqual(len(json.loads(catalog.read_text())["results"]), 2)
 
     def test_a_future_resolution_leaves_the_followup_overview(self):
         problem = {"slug": "thue-morse-reduced-abelian-even", "resolution": {"kind": "proved"}}
@@ -138,7 +138,7 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertEqual(news.count('class="resolved-question"'), 4)
             self.assertIn('id="resolved-bosma-conjecture-17"', news)
             self.assertNotIn('data-problem-slug=', bank)
-            self.assertIn("Reviewed result / pinned upstream proof", news)
+            self.assertIn("Pinned upstream source record", news)
             self.assertNotIn("release binding not recorded", bank)
             self.assertEqual(bank.count('class="journey-direction"'), 3)
             self.assertIn('href="#rp=thue-morse-even-difference"', bank)
@@ -189,7 +189,7 @@ class ResearchNewsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp)
             render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
-            for item in json.loads(CATALOG.read_text())["results"]:
+            for item in (r for r in json.loads(CATALOG.read_text())["results"] if r["id"] in json.loads(STORIES.read_text())):
                 with self.subTest(result=item["id"]):
                     html = (output / "results" / item["id"] / "index.html").read_text()
                     source, theorem, _ = proof_source(item, stories[item["id"]])
@@ -209,7 +209,7 @@ class ResearchNewsTests(unittest.TestCase):
                         self.assertIn('../../conjectures.html#rp=', html)
 
     def test_edited_source_and_truncated_theorem_fail_build(self):
-        item = json.loads(CATALOG.read_text())["results"][0]
+        item = next(r for r in json.loads(CATALOG.read_text())["results"] if r["id"] == "pochhammer-conjecture-6-5")
         story = json.loads(STORIES.read_text())[item["id"]]
         truncated = {**story, "theorem_lines": [251, 269]}
         with self.assertRaisesRegex(ValueError, "ends inside"):

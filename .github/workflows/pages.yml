@@ -418,6 +418,16 @@ jobs:
         if: steps.checkpoint.outputs.cache-hit != 'true'
         run: test -s _site/data/ingestion-receipts.v1.json
 
+      - name: Regenerate the verified research catalog from the deployed Library snapshot
+        if: steps.checkpoint.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          snapshot="$(jq -r '.entries[-1].path' _site/data/library-history.v1.json)"
+          test -s "_site/$snapshot"
+          make research-catalog SNAPSHOT="_site/$snapshot" CATALOG=_site/assets/research-catalog.json PYTHON=python
+          python -m lib.research_news append-verified --snapshot "_site/$snapshot" --catalog _site/assets/research-news.json
+
       - name: Finalize the release-bound Pages deployment
         if: steps.checkpoint.outputs.cache-hit != 'true'
         run: |

@@ -115,6 +115,25 @@ export function validateCatalog(data) {
       throw new Error(`Unresolved related question: ${item.id}.`);
   return entries;
 }
+export function validateVerifiedCatalog(data) {
+  if (data?.schema_version !== "pages-research-catalog.v1" ||
+      data.source_repo !== "the-omega-institute/trureturing" ||
+      !/^[a-f0-9]{40}$/.test(data.source_commit) ||
+      !/^sha256:[a-f0-9]{64}$/.test(data.revision) ||
+      !Array.isArray(data.families)) throw new Error("Invalid verified research catalog.");
+  requireText(data.review_scope, "verification scope");
+  const ids = new Set();
+  for (const item of data.families) {
+    if (!slug.test(item.id) || ids.has(item.id) ||
+        !["proved", "refuted"].includes(item.kind) ||
+        !item.kernel_verified?.frozen_node_id || !item.kernel_verified?.freeze_status ||
+        item.source_commit !== data.source_commit) throw new Error("Invalid verified resolution.");
+    ids.add(item.id);
+    for (const key of ["title", "area", "summary", "source_url", "declaration_gid"])
+      requireText(item[key], `resolution/${key}`);
+  }
+  return data.families;
+}
 export function sourceURL(item, anchor) {
   if (!anchor && item.source) return arxivURL(item.source);
   return `https://github.com/the-omega-institute/trureturing/blob/${item.sourceCommit}/` +

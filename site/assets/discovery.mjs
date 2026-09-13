@@ -28,7 +28,7 @@ function select(record, push=true) {
   if(push)history.pushState(null,'',url);else history.replaceState(null,'',url);
   for(const item of results.children)item.dataset.selected=String(item.dataset.id===record.id);
   detail.replaceChildren(element('p',record.kind.toUpperCase()),element('h2',record.title),element('p',record.summary));
-  if(record.kind==='result')detail.append(element('strong',record.status==='proved'?'Proved: reviewed pinned result':'Refuted: reviewed pinned result'));
+  if(record.kind==='result')detail.append(element('strong',`${record.status === 'proved' ? 'Proved' : 'Refuted'}: ${record.evidence?.assessment === 'kernel-verified' ? 'kernel-verified in this truth release' : 'pinned source record'}`));
   if(record.authors)detail.append(element('p',record.authors+(record.year?' · '+record.year:'')));
   if(record.scope)detail.append(element('p',record.scope));
   if(!record.url.includes('discover.html?record='))detail.append(link('Read full record',record.url));

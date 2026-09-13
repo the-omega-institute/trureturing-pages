@@ -1,5 +1,6 @@
 import { STORAGE_KEY, STAGES, KINDS, SCOPES, validateCatalog, validateNotes,
-  emptyNotes, selectEntries, sourceURL, questionURL, SOURCE_STATES, arxivURL } from "./research-workbench-core.mjs";
+  emptyNotes, selectEntries, sourceURL, questionURL, SOURCE_STATES, arxivURL,
+  validateVerifiedCatalog } from "./research-workbench-core.mjs";
 
 const el = (tag, text, className) => {
   const node = document.createElement(tag);
@@ -15,9 +16,12 @@ const button = (text, action) => {
 export async function mountResearchWorkbench() {
   const home = document.querySelector(".research-home");
   if (!home || document.querySelector("#research-workbench")) return;
-  const response = await fetch(new URL("./research-catalog.json", import.meta.url));
+  const response = await fetch(new URL("./research-directions.json", import.meta.url));
   if (!response.ok) throw new Error(`Research catalog HTTP ${response.status}`);
   const catalog = await response.json(), entries = validateCatalog(catalog);
+  const verifiedResponse = await fetch(new URL("./research-catalog.json", import.meta.url));
+  if (!verifiedResponse.ok) throw new Error(`Verified catalog HTTP ${verifiedResponse.status}`);
+  const verified = validateVerifiedCatalog(await verifiedResponse.json());
   const known = new Set(entries.map(item => item.id));
   const released = new Map([...home.querySelectorAll(".problem-row")].map(row =>
     [new URL(row.href).pathname.split("/").filter(Boolean).at(-1), row.href]));
@@ -43,6 +47,16 @@ export async function mountResearchWorkbench() {
   document.head.append(css);
   const host = el("section", undefined, "research-workbench");
   host.id = "research-workbench"; host.setAttribute("aria-labelledby", "workbench-title");
+  const verifiedSection = el("details", undefined, "rw-verified");
+  verifiedSection.append(el("summary", `${verified.length} kernel-verified resolutions`));
+  const verifiedList = el("div", undefined, "rw-verified-list");
+  for (const item of verified) {
+    const row = el("p");
+    row.append(link(item.title, `research.html#resolved-${item.id}`),
+      document.createTextNode(` / ${item.kind} / ${item.area}`));
+    verifiedList.append(row);
+  }
+  verifiedSection.append(verifiedList);
   const heading = el("div", undefined, "rw-heading"), title = el("h2", "Our research directions");
   title.id = "workbench-title";
   heading.append(title, el("p", `${new Set(activeFamilies.map(f => f.area)).size} fields / ${activeFamilies.length} open questions & conjectural routes / ${activeFamilies.reduce((sum, family) => sum + family.targets.length, 0)} proposed targets`));
@@ -314,7 +328,7 @@ export async function mountResearchWorkbench() {
   actions.append(starLabel, reset, pick, download, button("Import notebook", () => input.click()), input);
   browser.append(tools, actions, count, status, cards, empty);
   provenance.append(boundary);
-  host.append(heading, areaNav, directions, browser, provenance);
+  host.append(heading, verifiedSection, areaNav, directions, browser, provenance);
   for (const [name, control] of Object.entries(filters)) control.addEventListener(name === "q" ? "input" : "change", () => { writeURL(); render(); });
   stars.addEventListener("change", () => { writeURL(); render(); });
   window.addEventListener("hashchange", () => { readURL(); render(); });

@@ -85,9 +85,14 @@ def _derived_record(problem, resolution, snapshot):
     }
 
 
-def result_records(snapshot):
-    results = [dict(item) for item in json.loads(CATALOG.read_text())["results"]]
+def result_records(snapshot, catalog=None):
+    results = [dict(item) for item in json.loads(Path(catalog or CATALOG).read_text())["results"]]
     stories = json.loads(STORIES.read_text())
+    if catalog is not None and snapshot.get("schema_version") == "pages-library-snapshot.v1":
+        current = {p["slug"] for p in snapshot["problems"] if _kernel_verified(p.get("resolution"))}
+        results = [item for item in results if item["id"] in current]
+    elif catalog is None and CATALOG == Path(__file__).resolve().parents[1] / "site/assets/research-news.json" and len(results) > len(stories):
+        results = [item for item in results if item["id"] in stories]
     for item in results:
         if item["id"] in stories:
             item["result_path"] = f'results/{item["id"]}/'
@@ -121,16 +126,20 @@ def result_records(snapshot):
 def append_verified(snapshot, catalog=None):
     """Append #48 kernel-verified derived records to the editable news catalog.
 
-    Existing rows win by either their stable id or declaration coordinate. The
-    write is deterministic and therefore safe to run repeatedly.
+    Existing rows keep their editorial text when the snapshot slug and declaration
+    match. A different slug sharing a declaration remains an editorial alias; the
+    verified snapshot slug gets its own row. Writes are deterministic.
     """
     path = Path(catalog) if catalog is not None else CATALOG
     data = json.loads(path.read_text())
     if not isinstance(data, dict) or not isinstance(data.get("results"), list):
         raise ValueError("Invalid research-news catalog")
     existing = [dict(item) for item in data["results"]]
-    ids = {item.get("id") for item in existing}
-    declarations = {str(item.get("module", "")) + "." + str(item.get("declaration", "")) for item in existing}
+    ids = {item.get("id"): item for item in existing}
+    verified_ids = {p["slug"] for p in snapshot.get("problems", []) if _kernel_verified(p.get("resolution"))}
+    for item in existing:
+        if item.get("kernel_verified") and item.get("id") not in verified_ids:
+            item.pop("kernel_verified")
     additions = []
     for problem in snapshot.get("problems", []):
         resolution = problem.get("resolution")
@@ -138,11 +147,14 @@ def append_verified(snapshot, catalog=None):
             continue
         record = _derived_record(problem, resolution, snapshot)
         coordinate = record["module"] + "." + record["declaration"]
-        if record["id"] in ids or coordinate in declarations:
+        prior = ids.get(record["id"])
+        if prior:
+            if prior["kind"] != record["kind"] or prior["module"] + "." + prior["declaration"] != coordinate:
+                raise ValueError("Editorial result conflicts with verified resolution: " + record["id"])
+            prior["kernel_verified"] = record["kernel_verified"]
             continue
         additions.append(record)
-        ids.add(record["id"])
-        declarations.add(coordinate)
+        ids[record["id"]] = record
     results = sorted(existing + additions, key=lambda item: (str(item.get("id", "")), str(item.get("module", "")), str(item.get("declaration", ""))))
     output = {**data, "results": results}
     path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n")
@@ -174,12 +186,12 @@ if __name__ == "__main__":
     main()
 
 
-def resolved_questions(snapshot):
+def resolved_questions(snapshot, catalog_path=None):
     rows = []
-    for item in result_records(snapshot):
+    for item in result_records(snapshot, catalog_path):
         if item.get("resolution_record") and not _kernel_verified(item["resolution_record"]):
             continue
-        registration = "Source-recorded resolution in this release" if item.get("resolution_record") else "Reviewed result / pinned upstream proof"
+        registration = "Kernel-verified in this truth release" if item.get("resolution_record") else "Pinned upstream source record"
         slug = item.get("problem_slug")
         dossier = f'<a href="research/{slug}/">Release dossier</a>' if item.get("resolution_record") else ''
         attributes = f' data-problem-slug="{esc(slug)}" data-resolution-kind="{item["kind"]}"' if item.get("resolution_record") else ''
@@ -189,16 +201,16 @@ def resolved_questions(snapshot):
     return f'''<section class="resolved-questions" id="resolved-questions" aria-labelledby="resolved-title"><div class="news-section-heading"><div><p class="eyebrow">QUESTIONS WITH RESULTS</p><h2 id="resolved-title">Resolved questions</h2></div><a href="{BOOK}open-problems.html">Further reading / mdBook <i data-lucide="arrow-up-right"></i></a></div><div class="resolved-question-list">{''.join(rows)}</div></section>'''
 
 
-def render_news(output, snapshot, shell):
+def render_news(output, snapshot, shell, catalog_path=None):
     from lib.knowledge_spaces import render_spaces
     from lib.reading_views import apply_reading_views
     # Legacy renderer-only callers cannot publish a verified spaces manifest.
     if "schema_version" in snapshot:
         render_spaces(output, snapshot)
-    catalog = json.loads(CATALOG.read_text())
+    catalog = json.loads(Path(catalog_path or CATALOG).read_text())
     publications, results = [], []
     nodes = snapshot["graph"]["nodes"]
-    records = [item for item in result_records(snapshot)
+    records = [item for item in result_records(snapshot, catalog_path)
                if not item.get("resolution_record") or _kernel_verified(item["resolution_record"])]
     for item in records:
         module, commit = item["module"], item["source_commit"]
@@ -218,7 +230,7 @@ def render_news(output, snapshot, shell):
         qualification = f'<p class="news-qualification">{esc(item["qualification"])}</p>' if item.get("qualification") else ''
         publications.append(f'''<article class="news-paper" id="{item['id']}">{preview}<div><p class="eyebrow"><time datetime="{item['date']}">{item['date']}</time> / {esc(item['status'])}</p><h3><a href="{esc(item['url'])}">{esc(item['title'])}</a></h3><p class="paper-authors">{esc(item['authors'])}</p><p class="paper-venue">{esc(item['venue'])}</p><p>{esc(item['summary'])}</p><p class="paper-highlight">{esc(item['highlight'])}</p>{qualification}<div class="news-links"><a href="{esc(item['url'])}">Read article <i data-lucide="arrow-up-right"></i></a></div><details><summary>Source &amp; evidence</summary><p>{esc(item['evidence'])}</p></details></div></article>''')
     # Evidence cards are built once. The reading projection groups these same cards.
-    body = ('<main class="site-main research-news">' + ''.join(results) + resolved_questions(snapshot)
+    body = ('<main class="site-main research-news">' + ''.join(results) + resolved_questions(snapshot, catalog_path)
             + '<section id="publications" class="news-section"><h2>Publications</h2>'
             + ''.join(publications) + '</section></main>')
     document = shell("Research", "", body, appearance="editorial").replace('</head>',

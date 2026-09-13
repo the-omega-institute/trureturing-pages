@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { validateCatalog, validateNotes, emptyNotes, selectEntries, sourceURL,
   questionURL, STAGES, validateSource, arxivURL, latestSourceDate } from "../site/assets/research-workbench-core.mjs";
-const data = JSON.parse(await readFile(new URL("../site/assets/research-catalog.json", import.meta.url)));
+const data = JSON.parse(await readFile(new URL("../site/assets/research-directions.json", import.meta.url)));
 const entries = validateCatalog(data), ids = new Set(entries.map(e => e.id));
 const copy = () => structuredClone(data);
 const source = () => structuredClone(data.families.find(f => f.source).source);
