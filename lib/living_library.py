@@ -238,6 +238,13 @@ def page_shell(title: str, root: str, body: str, active="Research", appearance=N
 
 
 def render_research(snapshot: dict, output: Path, entry: dict):
+    generated_assets = snapshot.get("schema_version") == SNAPSHOT and (output / "assets/research-news.json").exists()
+    if generated_assets:
+        from lib.research_catalog import write_catalog
+        from lib.research_news import append_verified
+        assets = output / "assets"
+        write_catalog(snapshot, assets / "research-catalog.json")
+        append_verified(snapshot, assets / "research-news.json")
     graph, problems = snapshot["graph"], snapshot["problems"]
     nodes = {n["id"]: n for n in graph["nodes"]}
     snap = graph["source_snapshot"]
@@ -280,9 +287,9 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     body = body.replace('class="research-browser"', 'id="open-problems" class="research-browser"', 1)
     bank = page_shell("Conjectures", "", body, active="Conjectures", appearance="editorial").replace('</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>')
     write(output / "conjectures.html", bank)
-    render_news(output, snapshot, page_shell)
+    render_news(output, snapshot, page_shell, output / "assets/research-news.json" if generated_assets else None)
     from lib.discovery import render_discovery
-    render_discovery(output, snapshot, page_shell)
+    render_discovery(output, snapshot, page_shell, output / "assets" if generated_assets else None)
     # Discovery also emits source pages after render_news has applied its shell.
     from lib.reading_views import common_shell
     for path in [output / 'discover.html', output / 'oeis/index.html', output / 'api/index.html', *output.glob('oeis/*/index.html')]:

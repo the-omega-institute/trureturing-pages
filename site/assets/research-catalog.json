@@ -1,870 +1,2305 @@
 {
   "schema_version": "pages-research-catalog.v1",
-  "revision": "2026-09-08.1",
+  "revision": "sha256:91470b6d2702f78335e96cce78df1565f7be2ff9a61c103eb837c6700e93d47d",
   "source_repo": "the-omega-institute/trureturing",
-  "source_commit": "89231f9140ce2138a4e74d4d03421c724149ac24",
-  "reviewed": "2026-09-08",
-  "review_scope": "Round 2 checks versioned arXiv sources and selected upstream source declarations. New families have per-family repository pins. Source-reported results are not independently verified proofs, and this is not an exhaustive literature or in-flight formalization audit. Unannotated legacy dossiers remain not rechecked. Proposed subproblems remain proposals.",
+  "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+  "review_scope": "Resolutions machine-verified by the truth-release package and #48 gate. Each declaration is a kernel-verified frozen/proven node in this release.",
   "families": [
     {
-      "id": "thue-morse-reduced-abelian-even",
-      "title": "What completes the Thue-Morse reduced abelian recurrence?",
-      "area": "Sequence complexity",
-      "scope": "window",
-      "doi": "10.48550/arXiv.2509.16034",
-      "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
-      "builds_on": "thue-morse-reduced-abelian-odd",
-      "anchors": ["D5/S1/Words/Complexity/ThueMorseReducedAbelianOdd"],
-      "question": "With R(2n+1) = R(n+1) proved, can the even-index values be described by an explicit recurrence, and is the resulting reduced abelian complexity sequence non-k-automatic for every integer k >= 2?",
-      "foothold": "The proved all-start odd recurrence and the bridge from literal run compression to Parikh classes fix the exact object whose even values remain to be studied.",
-      "gap": "The odd recurrence supplies no rule for R(4n). Section 3 separately asks for equation (11), the sign of its nonzero difference, and non-k-automaticity. None follows just by iterating the odd theorem.",
-      "next_step": "Work with the same all-start class definitions and derive a candidate relation for the even-length run codes.",
-      "success": "An all-index even recurrence, a proof or counterexample for equation (11), or a theorem deciding the stated automaticity question. Finite samples are evidence only.",
-      "keywords": ["Thue-Morse", "even recurrence", "Parikh", "reduced abelian", "automaticity"],
-      "source": {"arxiv_id": "2509.16034", "version": "v1", "title": "Reduced complexities for sequences over finite alphabets", "submitted": "2025-09-19", "revised": "2025-09-19", "checked": "2026-09-08", "locator": "Section 3: equation (11), the even-index recursion and non-k-automaticity", "status": "open-in-source", "note": "The odd recurrence is already proved in our result. These are the distinct remaining questions in the cited version, not an assertion that all later literature and ongoing work have been exhaustively checked."},
-      "targets": [
-        {"id": "thue-morse-even-difference", "title": "An exact even-length class relation", "kind": "bridge", "question": "Can the difference R(4n+2)-R(4n) be characterized for every n >= 1, including its sign when nonzero?", "gap": "Equation (11) predicts only the absolute difference from Thue-Morse symbols. It does not determine its sign or R(4n).", "next_step": "Translate even factors to run codes, separating the two starting parities, and test which class endpoints survive the reflection used in the odd proof.", "success": "A proved relation for all natural starts and all n >= 1, with equation (11) and any stronger sign claim stated separately.", "related": ["thue-morse-nonautomaticity"]},
-        {"id": "thue-morse-nonautomaticity", "title": "Does the complexity sequence escape every finite-output automaton?", "kind": "research-question", "question": "Can one prove that R(n), for n >= 1, is not k-automatic for any k >= 2?", "gap": "The constant subsequence R(2^j+1)=3 does not imply boundedness or automaticity of the whole sequence.", "next_step": "Search for and then prove an unbounded subsequence, or identify another obstruction to a finite k-kernel.", "success": "An unboundedness theorem or another rigorous obstruction covering each k >= 2; a finite graph or sampled values alone do not suffice.", "related": ["thue-morse-even-difference"]}
-      ]
+      "id": "archer-bourne-cube-2143-count",
+      "title": "Archer-Bourne cube-avoidance counting equality",
+      "area": "ConceptDynamics",
+      "kind": "proved",
+      "summary": "This dossier deliberately anchors only the unnumbered counting conjecture in Section 5, \"Further directions and open questions\", page 13 of arXiv:2505.05218v3. The worker extracted this sentence from the PDF; line wrapping is removed and mathematical glyphs are transcribed into inline LaTeX:",
+      "source_url": "https://doi.org/10.46298/dmtcs.17199",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/ConceptDynamics/PatternAvoidance/ArcherBourneDecomposition.card_avoids_312_321_cube_2143_eq_compositions",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:eea043cd405d70d8644d6c3d88c3532074963eafa36bb78ae28fee9c86db214d"
+      }
     },
     {
-      "id": "pochhammer-higher-even-intervals",
-      "title": "What survives of the Pochhammer interval conjecture in higher degree?",
-      "area": "Real-rooted polynomials",
-      "scope": "window",
-      "doi": "10.48550/arXiv.2608.03723",
-      "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
-      "builds_on": "pochhammer-conjecture-6-5",
-      "anchors": ["D5/S3/Zeros/PochhammerDeformation/QuadraticInterval"],
-      "question": "After the degree-two counterexample to c_(2k)(a) < 2a, is M_(2k)(a) still a single symmetric interval for all k >= 2 and a > 0, and what can be proved about the sequence of its left endpoint radii?",
-      "foothold": "The actual Pochhammer operator, all-complex-root interval condition and exact quadratic classification are already formalized. The failure of the strict bound leaves the interval shape and degree comparisons as separate questions.",
-      "gap": "The original conjunction is false. Its interval and monotonicity clauses must be tested independently, without importing the disproved bound or assuming that a > 1/24 repairs every degree.",
-      "next_step": "Start with degree four, derive the transformed coefficients exactly, and isolate parameter ranges with certified real-root counts.",
-      "success": "An exact degree-four classification or a checked counterexample to interval connectedness or monotonicity; any general statement must retain its parameter conditions.",
-      "keywords": ["Pochhammer", "real roots", "quartic", "monotonicity", "interval"],
-      "source": {"arxiv_id": "2608.03723", "version": "v1", "title": "Polynomially Deformed Normalized Pochhammer Sequences Having Generating Functions With Only Real Non-positive Zeros", "submitted": "2026-08-04", "revised": "2026-08-04", "checked": "2026-09-08", "locator": "Example 6.4 and Conjecture 6.5: interval, monotonicity and limiting-value clauses", "status": "open-in-source", "note": "Our quadratic result refutes the original strict upper bound. This family asks about the remaining clauses separately. Degree-two root-radius progress in upstream QuadraticRadii addresses other questions and is not an all-even-degree result."},
-      "targets": [
-        {"id": "pochhammer-quartic-interval", "title": "A certified degree-four admissible interval", "kind": "certificate", "question": "For each positive a, is the set of t for which every root of L_a((X+t)^4) lies in [-1,0] a single interval?", "gap": "The quadratic discriminant argument does not classify all four complex roots of the quartic.", "next_step": "Construct L_a((X+t)^4) from the same basis action and use exact root isolation or a Sturm certificate, including repeated roots and endpoints.", "success": "A proved parameter classification or an exact disconnected-set counterexample, with every complex root accounted for.", "related": ["pochhammer-degree-monotonicity"]},
-        {"id": "pochhammer-degree-monotonicity", "title": "Compare the degree-two and degree-four radii", "kind": "research-question", "question": "With c_(2k)(a) defined independently from the admissible set, does c2(a) <= c4(a) hold for every a > 0?", "gap": "Monotonicity was bundled with a false strict bound in the source conjecture. Its validity has to be established separately.", "next_step": "Use the proved c2 closed form as a baseline for the exact quartic endpoint, preserving infimum existence and boundedness obligations.", "success": "A universal comparison or a certified parameter counterexample. Later degree comparisons and the limiting value remain separate targets.", "related": ["pochhammer-quartic-interval"]}
-      ]
+      "id": "campbell-currie-rampersad-eq-11",
+      "title": "Equation (11) for the reduced abelian complexity of the Thue-Morse word",
+      "area": "Words",
+      "kind": "proved",
+      "summary": "Write `rho(n)` for the reduced abelian complexity of the Thue-Morse word: the number of classes of length-`n` factors, where two factors are equivalent when collapsing each maximal constant run to one letter leaves words of equal length that are rearrangements of one another. Campbell, Currie and Rampersad display",
+      "source_url": "https://doi.org/10.48550/arXiv.2509.16034",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Complexity/ThueMorseReducedAbelianEven.reducedAbelianComplexity_even_difference",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:3ab05706341171de6f0dbdfa1c1df53d2f7364d5731c409357bf56d5eb6d9b34"
+      }
     },
     {
-      "id": "greedy-three-sumfree-third-seed-one",
-      "title": "Does the greedy formula hold for the separate g+1 seed family?",
-      "area": "Additive combinatorics",
-      "scope": "theorem",
-      "doi": "10.48550/arXiv.2503.04122",
-      "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
-      "builds_on": "bosma-conjecture-17",
-      "anchors": ["D5/S1/Words/Sumfree/GreedyThreeSumfreeTwoParameter"],
-      "question": "For every g >= 2, does the literal greedy three-sumfree sequence starting 1,g,g+1 have the membership formula in published Conjecture 16, with modulus 10g+3 and its two residue intervals?",
-      "foothold": "Conjecture 17 establishes a proof route from explicit accepted blocks through forbidden sums to the literal least-next-entry process.",
-      "gap": "Putting d=1 into Conjecture 17 violates its hypothesis d>=2. The g+1 family has different exceptional values, modulus and two residue intervals; its universal claim needs a new proof.",
-      "next_step": "Encode the published Conjecture 16 candidate and prove its accepted and forbidden block statements uniformly in g.",
-      "success": "The exact membership equivalence for every natural g>=2 and every positive candidate value, linked to the literal greedy sequence, or an exact counterexample.",
-      "keywords": ["Bosma", "Conjecture 16", "greedy", "three-sumfree", "g+1", "Walnut"],
-      "source": {"arxiv_id": "2503.04122", "version": "v1", "title": "Using Walnut to solve problems from the OEIS", "submitted": "2025-03-06", "revised": "2025-03-06", "checked": "2026-09-08", "locator": "The g+1 third-seed conjecture; numbered Conjecture 16 in JIS 28 (2025), Article 25.3.8", "status": "open-in-source", "note": "The source gives fixed-parameter checks, distinct from the universal conjecture. Published Conjecture 16 and our solved Conjecture 17 are separate families. Numbering differs in the early arXiv version."},
-      "targets": [
-        {"id": "greedy-g-plus-one-blocks", "title": "Accepted blocks and forbidden sums for g+1", "kind": "bridge", "question": "Can the candidate set with exceptions 1,2g+1,6g+1 and residue intervals [g,2g] and [6g+2,7g+1] modulo 10g+3 be characterized by restricted triple sums?", "gap": "The single-interval periodic decomposition from Conjecture 17 cannot be reused without handling both new intervals and all cross-sums.", "next_step": "Prove three-sumfreeness and explicit representations of every excluded later value, separating the initial segment from periodic translates.", "success": "A uniform accepted/forbidden partition for every g>=2 that preserves the requirement of three distinct earlier summands.", "related": ["greedy-g-plus-one-literal"]},
-        {"id": "greedy-g-plus-one-literal", "title": "Connect the candidate to the least-next-entry sequence", "kind": "bridge", "question": "Does the new candidate describe every term selected by the literal greedy process from 1,g,g+1?", "gap": "A sumfree candidate by itself does not prove that the greedy algorithm generates it.", "next_step": "Adapt the prefix invariant and uniqueness argument to the new accepted/forbidden partition, including the seed boundary.", "success": "An all-parameter membership theorem matching Conjecture 16. Verified samples remain examples, not the universal result.", "related": ["greedy-g-plus-one-blocks"]}
-      ]
+      "id": "erdos-1979-exactly-one-divisor-unimodality",
+      "title": "Refutation of the one-divisor interval-density unimodality suggestion",
+      "area": "Arith",
+      "kind": "refuted",
+      "summary": "Erdős, *Some unconventional problems in number theory*, Astérisque 61 (1979), printed page 78:",
+      "source_url": "https://doi.org/10.1007/978-3-642-39286-3_23",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Density/ErdosExactlyOneDivisorUnimodalityRefutation.result",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:82223214abe62cd4d0ade50a6d4a7b95e8dbeca1a183423f6e8e283c5ed43dde"
+      }
     },
     {
-      "id": "golden-ratio-base4-dfao-minimality",
-      "title": "Is the 22-state base-4 golden-ratio DFAO minimal?",
-      "area": "Automata",
-      "scope": "window",
-      "doi": "10.48550/arXiv.2405.02727",
-      "anchors": [
-        "D5/S0/Conventions/WDigits",
-        "D5/S1/Words/ZeckendorfOrder",
-        "D5/S1/Words/ZeckendorfBeattyBridge"
-      ],
-      "question": "Must every leading-zero-invariant DFAO that produces the correct golden-ratio digit on all Zeckendorf encodings of 4^i have at least 22 states?",
-      "foothold": "Canonical digits, exact ordering and the Beatty bridge supply arithmetic inputs without floating-point phi.",
-      "gap": "Minimizing the full valid-input machine does not establish minimality on the sparse powers-of-four language.",
-      "next_step": "Verify the published transition table and exact input/output conventions before searching for a smaller machine.",
-      "success": "An all-powers correctness proof for a machine with at most 21 states, or a sound lower-bound certificate excluding every such machine.",
-      "keywords": [
-        "黄金",
-        "自动机",
-        "四次幂",
-        "4^i",
-        "Walnut",
-        "Myhill-Nerode"
-      ],
-      "targets": [
-        {
-          "id": "dfao-sparse-distinguishability",
-          "title": "A sparse-language distinguishability certificate",
-          "kind": "bridge",
-          "question": "Can 22 prefixes be found such that every pair has a common suffix making both completed words legal power inputs with different required outputs?",
-          "gap": "Each separation witness must constrain both words inside the sparse domain. Full-language Myhill-Nerode witnesses may be irrelevant here.",
-          "next_step": "Build exact labelled prefix trees; search for a 22-clique of pairwise incompatible prefixes and retain both completed power inputs for every edge.",
-          "success": "A checked finite incompatibility certificate plus a proof that it forces 22 distinct states. Failure to find a clique leaves other lower-bound methods open.",
-          "related": [
-            "polynomial-successor-certificate"
-          ]
-        },
-        {
-          "id": "dfao-finite-unsat",
-          "title": "A finite, replayable 21-state UNSAT obstruction",
-          "kind": "certificate",
-          "question": "Can a finite set of exact power-input digit constraints already exclude all DFAOs with at most 21 states under the chosen conventions?",
-          "gap": "A solver verdict needs a proof-checking and encoding-soundness bridge. A SAT candidate still requires all-powers verification.",
-          "next_step": "Encode a bounded labelled sample, export an independently checkable UNSAT certificate, and account for state renaming and leading-zero invariance.",
-          "success": "Every globally correct DFAO must satisfy the sample; a sound finite UNSAT certificate therefore proves the lower bound. Finite sample completeness is unnecessary for this direction.",
-          "related": []
-        }
-      ]
+      "id": "fiebig-mbirika-spilker-even-descent-dichotomy",
+      "title": "The even-parameter descent dichotomy for Lucas sequences",
+      "area": "arXiv",
+      "kind": "proved",
+      "summary": "Conjecture 5.2 of arXiv:2408.14632v2, as printed:",
+      "source_url": "https://arxiv.org/abs/2408.14632v2",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/LucasEvenDescent.conjecture_five_two",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:7bdfa9f99a36591aac6b668f7160929c6b1a1ddb6eafc9b1fe77c44a47748752"
+      }
     },
     {
-      "id": "mub-six-fourth-basis",
-      "title": "Can four mutually unbiased bases exist in dimension six?",
-      "area": "Quantum geometry",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2410.23997",
-      "anchors": [
-        "D5/S3/Quantum/Tomography/RankOneContextCommutator",
-        "D5/S3/Quantum/Tomography/CompleteContextTomography",
-        "D5/S3/Quantum/Tomography/ComplementaryContextProbabilityPythagoras"
-      ],
-      "question": "Does a family of four orthonormal bases of complex dimension six exist with every cross-basis squared inner product equal to 1/6?",
-      "foothold": "Rank-one contexts, overlaps and complementary-context identities express nearby exact geometry.",
-      "gap": "Conditional tomography identities assume the family. A complete seven-basis design identity does not automatically constrain a four-basis family.",
-      "next_step": "Establish the exact basis/context correspondence, then express all cross-basis compatibility equations in one coordinate system.",
-      "success": "An exact four-basis construction or a nonexistence proof covering the whole feasible set, with no unverified classification assumed.",
-      "keywords": [
-        "六维",
-        "互无偏基",
-        "MUB",
-        "Hadamard",
-        "projector"
-      ],
-      "targets": [
-        {
-          "id": "mub-basis-context",
-          "title": "An exact basis-to-projector bridge",
-          "kind": "bridge",
-          "question": "Can orthonormal bases modulo individual phases be represented faithfully as labelled complete rank-one projector contexts, preserving the MUB overlap condition?",
-          "gap": "Rank-one, completeness, orthogonality, labelling and phase equivalence all need explicit hypotheses.",
-          "next_step": "Formalize both directions and prove trace(P_i Q_j) = |inner(v_i,w_j)|^2, using the repository context definitions.",
-          "success": "A proved correspondence at dimension six that translates the four-basis feasible set without adding a two-design assumption.",
-          "related": []
-        },
-        {
-          "id": "mub-joint-compatibility",
-          "title": "A certificate for joint Hadamard compatibility",
-          "kind": "certificate",
-          "question": "Can an independently verified order-six Hadamard parameterization support a complete exact exclusion or construction for three Hadamards relative to the identity basis?",
-          "gap": "A classification claim alone leaves pairwise and joint compatibility to prove. Numerical near-solutions do not satisfy exact equations.",
-          "next_step": "First check parameterization coverage and exceptional branches, then express every required cross-Gram modulus equation and seek exact certificates.",
-          "success": "An exact solution or branch-covering exclusion with proved coverage. Treat the dossier-mentioned classification preprint as unverified input until checked.",
-          "related": []
-        },
-        {
-          "id": "mub-projector-sos-scope",
-          "title": "Which projector-coordinate constraint could exclude four bases?",
-          "kind": "route-test",
-          "question": "After checking the vector-coordinate obstruction, can a faithful projector formulation impose a dimension-six constraint stronger than m <= d+1?",
-          "gap": "The existing elementary projector bound permits four, five, six and seven bases at d=6. No stronger exclusion is supplied by that bound.",
-          "next_step": "Track polynomial degree before and after P=vv*. First reproduce the stated separation, then test exact certificates for a genuinely stronger constraint.",
-          "success": "A scope-correct formalization of the reported obstruction or a new certificate for the four-basis feasible set. Failure of one encoding is not nonexistence.",
-          "related": [
-            "mub-basis-context",
-            "sic-fiducial-orbit"
-          ]
-        }
-      ],
-      "updates": [
-        {
-          "arxiv_id": "2606.13903",
-          "version": "v1",
-          "title": "Degree-Four Vector-Coordinate SoS Cannot Detect the MUB Upper Bound",
-          "submitted": "2026-06-11",
-          "revised": "2026-06-11",
-          "checked": "2026-09-07",
-          "locator": "Sections 8 to 10; consequences for Randomstrasse101 Open Problem 23",
-          "status": "route-obstruction",
-          "note": "The preprint reports a degree-four obstruction for the two specified vector-coordinate encodings. Centered projectors recover m <= d+1, which still allows four bases in dimension six. Neither result decides the fourth-basis question; no independent proof replay is claimed."
-        }
-      ]
+      "id": "fiebig-mbirika-spilker-even-period-exception",
+      "title": "The single exceptional modulus for equality of even Lucas periods",
+      "area": "arXiv",
+      "kind": "proved",
+      "summary": "Question 5.4 of arXiv:2408.14632v2, as printed:",
+      "source_url": "https://arxiv.org/abs/2408.14632v2",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/LucasEvenPeriods.even_lucas_periods",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:1443b0812ebca2aefab4c9f54fcc55c591d40310eb4431a94c68126142417039"
+      }
     },
     {
-      "id": "base-phi-negative-prefix-trident",
-      "title": "Do negative base-phi prefixes obey the trident classification?",
-      "area": "Golden numeration",
-      "scope": "theorem",
-      "doi": "10.48550/arXiv.2305.08349",
-      "anchors": [
-        "D5/S0/Conventions/WDigits",
-        "D5/S1/Words/ReturnWords/GoldenReturnWordsExact",
-        "D5/S1/Words/ReturnWords/GoldenOccurrenceGaps",
-        "D5/S1/Deficit/ZeckendorfDisplacementReading"
-      ],
-      "question": "Is each admissible negative-prefix occurrence sequence one Lucas-parameterized V_F, V_G or V_H component, or an allowed union of three components?",
-      "foothold": "Exact golden return itineraries, gap spectra and Beatty displacement identities provide candidate tools.",
-      "gap": "Negative-position base-phi digits need a value-preserving conversion, followed by an identification with the specific subshifts in the paper.",
-      "next_step": "Port the two-sided expansion and the three sequence families with explicit union and multiplicity conventions.",
-      "success": "The classification for every admissible prefix, or an exact necessary-invariant violation excluding all permitted parameterizations.",
-      "keywords": [
-        "负位",
-        "黄金",
-        "trident",
-        "Lucas",
-        "Sturmian"
-      ],
-      "targets": [
-        {
-          "id": "negative-prefix-transducer",
-          "title": "A bounded-state negative-prefix transducer",
-          "kind": "bridge",
-          "question": "For each fixed prefix length m, can a finite-state transducer read canonical Zeckendorf input and output the first m negative-position base-phi digits?",
-          "gap": "Contractive intuition is insufficient: carry residues and a uniform reachable-state bound for fixed m need proof.",
-          "next_step": "Compute exact Z[phi] residue traces, propose a state invariant, and prove transition closure and output correctness.",
-          "success": "A finite machine with a proof for every canonical input at fixed m. Finite samples alone establish neither the state bound nor correctness.",
-          "related": [
-            "polynomial-carry-window"
-          ]
-        },
-        {
-          "id": "negative-prefix-return-itinerary",
-          "title": "From negative cylinders to exact return itineraries",
-          "kind": "bridge",
-          "question": "Can each negative-prefix cylinder be identified with the paper's F, G or H itinerary, or its allowed three-component interleaving?",
-          "gap": "Existing golden-word return theorems apply only after the cylinder/subshift identification is established.",
-          "next_step": "Start with one admissible single-component prefix; derive its gap word and Lucas parameters by exact desubstitution.",
-          "success": "A quantified cylinder-to-itinerary equality and Lucas-parameter recursion. Record any violated gap or return-word invariant.",
-          "related": []
-        },
-        {
-          "id": "phi-kimberling-conversion-check",
-          "title": "Use the proved Kimberling criterion as a conversion check",
-          "kind": "bridge",
-          "question": "Can the exponent-doubling criterion in Shallit and Vukusic Theorem 5 be transported faithfully to the repository's exact two-sided phi representation?",
-          "gap": "The criterion is reported proved externally. Its formalization needs the same canonical digit and symmetry conventions and does not settle the trident conjecture.",
-          "next_step": "Port the symmetry and integer-value predicates, replay the exact algebraic criterion, and use it as a regression case for two-sided digit conversion.",
-          "success": "A faithful theorem-level bridge to a known result, with no claim of a new conjecture resolution.",
-          "related": [
-            "negative-prefix-transducer"
-          ]
-        }
-      ],
-      "updates": [
-        {
-          "arxiv_id": "2509.16150",
-          "version": "v2",
-          "title": "New properties of the φ-representation of integers",
-          "submitted": "2025-09-19",
-          "revised": "2026-03-11",
-          "checked": "2026-09-07",
-          "locator": "Section 2, Lemmas 2 and 3, Theorem 5 (Kimberling conjecture)",
-          "status": "proved-in-source",
-          "note": "The paper reports a proof of the exponent-doubling criterion for symmetric phi-representations. It supplies a conversion test case, not a proof of the general negative-prefix trident classification. The arXiv revision is March 2026, not its HTML generation date."
-        }
-      ]
+      "id": "fiebig-mbirika-spilker-vertical-slice",
+      "title": "Necessary and sufficient conditions for the vertical slice result",
+      "area": "arXiv",
+      "kind": "proved",
+      "summary": "Write `V_n = V_n(p, q)` for the companion Lucas sequence and `pi_V(m)` for its least period modulo `m`.",
+      "source_url": "https://arxiv.org/abs/2408.14632v2",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/LucasVerticalSlice.verticalSlice_iff_two_traces",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:569b2ecd81f98a299dfd41a6f453dafba5ff79b3f5526cad51e4257b8948b659"
+      }
     },
     {
-      "id": "ordered-zeckendorf-long-game-strategy",
-      "title": "Does the Ordered Zeckendorf Long Game Strategy maximize length?",
-      "area": "Rewriting games",
-      "scope": "theorem",
-      "doi": "10.48550/arXiv.2508.20222",
-      "anchors": [
-        "D5/S1/Digit/Raw",
-        "D5/S1/Digit/Carry",
-        "D5/S0/Rewriting/NewmanConfluence",
-        "D5/S0/Rewriting/NormalFormFunction"
-      ],
-      "question": "Among legal terminal runs starting from n copies of F_1, does the specified Long Game Strategy attain maximum length?",
-      "foothold": "Value-preserving rewrites and canonical normal forms supply the forgetful arithmetic structure.",
-      "gap": "Ordered states, the exact game orientation, path length and the meaning of arbitrary switch order require separate treatment.",
-      "next_step": "Define the five ordered moves and resolve whether all switch tie choices are intended to be equally optimal.",
-      "success": "A longest-path proof for the precise strategy semantics, or two exact legal runs witnessing a failure.",
-      "keywords": [
-        "游戏",
-        "最长",
-        "LGS",
-        "Bellman",
-        "confluence"
-      ],
-      "targets": [
-        {
-          "id": "lgs-switch-order",
-          "title": "Does switch-order freedom preserve LGS length?",
-          "kind": "route-test",
-          "question": "Do all allowed switch tie choices lead to the same LGS terminal length from the specified initial states?",
-          "gap": "The universal LGS statement depends on this interpretation; normal-form uniqueness does not imply equal run lengths.",
-          "next_step": "Enumerate exact ordered states and all switch tie choices for bounded n; retain differing lengths and full move traces.",
-          "success": "A switch-order independence proof, or an exact counterexample requiring a deterministic or existential reformulation.",
-          "related": [
-            "game-path-measures"
-          ]
-        },
-        {
-          "id": "lgs-bellman-exchange",
-          "title": "Height-preserving local exchanges for LGS",
-          "kind": "bridge",
-          "question": "Can each LGS priority choice be shown to attain an argmax successor of the longest-remaining-path Bellman recursion?",
-          "gap": "The game DAG needs its own termination proof. Local exchange lemmas may fail even when global optimality survives.",
-          "next_step": "Test swap-first, leftmost-one merge and rightmost-split exchanges against exact state heights; save both suffix witnesses at the first failure.",
-          "success": "Proved height dominance for every reachable strategy state, followed by well-founded induction. A failed exchange refutes that route only.",
-          "related": []
-        }
-      ]
+      "id": "greedy-three-sumfree-two-parameter",
+      "title": "Two-parameter greedy three-sumfree membership",
+      "area": "Words",
+      "kind": "proved",
+      "summary": "This dossier deliberately anchors Conjecture 17 of Bosma et al., *Journal of Integer Sequences* 28 (2025), Article 25.3.8, printed page 18, which is the earlier Conjecture 6 of arXiv:2503.04122v1 with its third-seed bound corrected from `z > g+d` to `z >= g+d`.",
+      "source_url": "https://doi.org/10.48550/arXiv.2503.04122",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Sumfree/GreedyThreeSumfreeTwoParameter.conjecture17",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ccf55b4d34efa33b904dd4a7e38d4efaf201711dea0108a5afd9728cd569e3b3"
+      }
     },
     {
-      "id": "random-zeckendorf-game-gaussianity",
-      "title": "Do random Zeckendorf game lengths have a Gaussian limit?",
-      "area": "Probability",
-      "scope": "window",
-      "doi": "10.48550/arXiv.2210.11038",
-      "anchors": [
-        "D5/S1/Digit/Raw",
-        "D5/S1/Digit/Normalize",
-        "D5/S0/Asymptotics/WeightedProbability/FiniteProductCapture",
-        "D5/S0/Asymptotics/WeightedProbability/SecondMomentCoherence"
-      ],
-      "question": "Under a precisely specified random game measure, does the centered, variance-normalized length converge to a Gaussian?",
-      "foothold": "Finite weighted probability, event counts and moments support exact bounded game calculations.",
-      "gap": "Uniform terminal-path sampling and locally uniform move sampling give different measures. A limit theorem needs dependence control and nondegenerate variance.",
-      "next_step": "Define both path measures exactly; prioritize the dossier's locally uniform mixing question with explicit quantifiers.",
-      "success": "A limit theorem with its hypotheses discharged. Histograms and finite moment agreement remain empirical evidence.",
-      "keywords": [
-        "随机",
-        "高斯",
-        "CLT",
-        "mixing",
-        "regeneration"
-      ],
-      "targets": [
-        {
-          "id": "game-path-measures",
-          "title": "Two exact game-length generating functions",
-          "kind": "bridge",
-          "question": "Can exact finite recursions distinguish uniform terminal-path sampling from locally uniform successor sampling on the game DAG?",
-          "gap": "Move multiplicities and suffix-path counts affect transition weights. Treating the measures as interchangeable changes the target.",
-          "next_step": "Compute both rational generating functions independently on small value-preserving state DAGs, with the terminal state contributing 1.",
-          "success": "Proved recursions, normalization and moment identities for both measures, including an explicit comparison example.",
-          "related": [
-            "lgs-switch-order"
-          ]
-        },
-        {
-          "id": "game-regenerative-barrier",
-          "title": "A uniform regenerative-barrier estimate",
-          "kind": "research-question",
-          "question": "Can a canonical digit barrier bound the dependence of separated split indicators uniformly over initial input size?",
-          "gap": "Finite carry locality need not survive conditioning on entire random histories. The relevant mixing-CLT summability and variance hypotheses must be checked explicitly.",
-          "next_step": "Search exact history pairs that share a proposed barrier, then measure and bound influence-crossing events under the chosen measure.",
-          "success": "An explicit uniform mixing estimate strong enough for the selected CLT, or a minimal history pair invalidating the proposed barrier.",
-          "related": [
-            "negative-prefix-transducer"
-          ]
-        }
-      ]
+      "id": "kok-jaco-exponential-domination-refutation",
+      "title": "Refutation of Kok's A000149 domination clause",
+      "area": "Certificates",
+      "kind": "refuted",
+      "summary": "Kok, arXiv:2507.16500v1, section 2.3, Conjecture 2.12, printed page 9, states these two clauses verbatim:",
+      "source_url": "https://doi.org/10.48550/arXiv.2507.16500",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S0/Certificates/JacoExponentialDominationRefutation.result",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:5605a0f16cafe4fc19f993911c116a7cbb93ea8619e43e0e10dc1dd3329ee30a"
+      }
     },
     {
-      "id": "wall-sun-sun-golden-unit-lift",
-      "title": "Can a prime have equal Fibonacci periods modulo p and p²?",
-      "area": "Arithmetic",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2603.25343",
-      "anchors": [
-        "D5/S0/Carrier/Units",
-        "D5/S1/Scale/Fibonacci",
-        "D5/S3/Arith/FibonacciRank",
-        "D5/S3/Arith/GoldenApparition",
-        "D5/S3/Arith/GoldenPrimeSplitting"
-      ],
-      "question": "Does a prime p exist with pi(p) = pi(p²), where pi is the Pisano period? The infinitely-many assertion is a separate stronger question.",
-      "foothold": "Golden-unit powers, Fibonacci coordinates, apparition ranks and split/inert arithmetic connect the mod-p side.",
-      "gap": "The exceptional lift from p to p² is missing. A finite search with no examples does not refute existence.",
-      "next_step": "Identify recurrence period, matrix order and golden-unit order before studying the first lift defect.",
-      "success": "A verified prime witness or a universal nonexistence proof. Keep local bridge theorems separate from the global existence question.",
-      "keywords": [
-        "素数",
-        "Pisano",
-        "Wall-Sun-Sun",
-        "WSS",
-        "p-adic"
-      ],
-      "targets": [
-        {
-          "id": "pisano-matrix-order",
-          "title": "Pisano period as matrix and golden-unit order",
-          "kind": "bridge",
-          "question": "For m >= 2, can the pair-recurrence period be proved equal to the multiplicative order of A = [[0,1],[1,1]] over Z/mZ and of its golden-unit representation?",
-          "gap": "Matrix order concerns the whole matrix, so equality with the orbit period needs proof; invertibility and indexing must be explicit.",
-          "next_step": "Prove the Fibonacci formula for A^n and compare the return condition (F_n,F_(n+1)) = (0,1) modulo m.",
-          "success": "A reusable equivalence for all m >= 2, with small-modulus conventions stated and checked.",
-          "related": []
-        },
-        {
-          "id": "pisano-first-lift-defect",
-          "title": "The first-lift defect criterion modulo p²",
-          "kind": "bridge",
-          "question": "With r = pi(p) and A^r = I + pB modulo p², is pi(p²) equal to r exactly when B vanishes modulo p, and otherwise equal to pr?",
-          "gap": "The argument requires the reduction-order relation and a justified calculation of the order of I+pB, including small primes.",
-          "next_step": "Define B as a residue class, prove the kernel-order dichotomy, and cross-check recurrence and matrix computations independently.",
-          "success": "A proved local lift dichotomy with every prime case covered. This does not settle whether a vanishing defect ever occurs.",
-          "related": []
-        }
-      ]
+      "id": "oeis-a000364-secant-number-pure-period-refutation",
+      "title": "Refutation of the A000364 pure-periodicity conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A000364, NAME (verbatim from `Library/Recurrence/bala2023a000364.md`):",
+      "source_url": "https://oeis.org/A000364",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/SecantNumberPurePeriodRefutation.bala_conjecture_false",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:7331a41535779567f6ca96a27a808787e4ab5c35038046aaaa6cc1c6b450592c"
+      }
     },
     {
-      "id": "zeckendorf-polynomial-maximum-order-complexity",
-      "title": "How large is maximum order complexity along polynomial inputs?",
-      "area": "Sequence complexity",
-      "scope": "window",
-      "doi": "10.48550/arXiv.2106.09959",
-      "anchors": [
-        "D5/S0/Conventions/WDigits",
-        "D5/S1/Digit/Carry",
-        "D5/S1/Digit/Normalize",
-        "D5/S1/Words/Complexity/MorseHedlund"
-      ],
-      "question": "For the parity of the Zeckendorf digit sum along n², can maximum order complexity of the first N terms be bounded above by C N^(1/4) for all sufficiently large N?",
-      "foothold": "Canonical digit normalization and factor tools support exact repeated-block analysis.",
-      "gap": "Factor complexity is a different invariant. The upper bound needs a uniform successor-determinism or carry-state argument.",
-      "next_step": "Implement the exact finite repeated-block criterion before attempting an effective carry-window bound.",
-      "success": "A quantified upper bound with constants and threshold, or a counterexample to a stated effective bound. Finite scaling plots do not settle the exponent.",
-      "keywords": [
-        "复杂度",
-        "多项式",
-        "feedback",
-        "DAWG",
-        "carry"
-      ],
-      "targets": [
-        {
-          "id": "polynomial-successor-certificate",
-          "title": "An exact successor-collision certificate",
-          "kind": "certificate",
-          "question": "Can finite maximum order complexity be certified by equal-length block collisions and their following bits, including degenerate constant-prefix cases?",
-          "gap": "Off-by-one conventions and special zero-memory cases must match the source definition.",
-          "next_step": "Cross-check a naive implementation against a suffix-based method; emit equal blocks with unequal successors for every claimed lower bound.",
-          "success": "A proved finite criterion and replayable witnesses, independent of any conjectured asymptotic exponent.",
-          "related": [
-            "dfao-sparse-distinguishability"
-          ]
-        },
-        {
-          "id": "polynomial-carry-window",
-          "title": "Can bounded carry state force the next parity bit?",
-          "kind": "research-question",
-          "question": "For square inputs, can a history of length O(N^(1/4)) determine enough boundary carry information to determine the next Zeckendorf digit-sum parity?",
-          "gap": "Unbounded carry propagation and noninjective history-to-state maps are possible obstructions.",
-          "next_step": "Track exact normalization of 2nh+h² at Fibonacci/Lucas scales, then search for equal observed histories with conflicting next bits.",
-          "success": "An explicit uniform boundary-state theorem implying the upper bound, or exact witness pairs falsifying the proposed window.",
-          "related": [
-            "negative-prefix-transducer",
-            "dfao-sparse-distinguishability"
-          ]
-        }
-      ]
+      "id": "oeis-a004123-generalized-weak-orders-totient-period",
+      "title": "A004123 totient-period conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A004123 NAME:",
+      "source_url": "https://oeis.org/A004123",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/StirlingTransformTotientPeriod.bala_conjecture_a004123",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ac7238dabab8a1dd1625fcd550908c16f7f97959fe8b318dbe67443c62b5cae1"
+      }
     },
     {
-      "id": "weil-ground-mode-xi-limit",
-      "title": "Do genuine lowest Weil modes converge to Xi?",
-      "area": "Weil spectra",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2511.22755",
-      "anchors": [
-        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
-      ],
-      "question": "Do suitably normalized Fourier transforms of genuine lowest Weil modes converge locally uniformly to the Riemann Xi function as the physical support grows?",
-      "foothold": "FixedScaleWeilQuadraticForm exposes the actual finite prime-power and Archimedean multiplier. Its zero-sum formula has explicit convergence and ZeroData premises; it supplies no ground-mode limit.",
-      "gap": "An explicit prolate model and a finite-window certificate leave actual-mode identification, full-space coercivity and a growing-window comparison to establish.",
-      "next_step": "Reuse the existing Weil research lanes. Match operator domains, physical window, normalization and Fourier convention before comparing any two certificates.",
-      "success": "A quantitative estimate for the same genuine family tending to zero on every compact set, combined with the correctly normalized model limit. A fixed-window residual is one input.",
-      "keywords": [
-        "Weil",
-        "黎曼",
-        "最低模态",
-        "Xi",
-        "prolate",
-        "spectral gap"
-      ],
-      "targets": [
-        {
-          "id": "weil-same-family-residual",
-          "title": "Compare one genuine mode and its actual candidate",
-          "kind": "certificate",
-          "question": "Can a full-space residual and complement-coercivity certificate bound the Fourier error for the same physical Weil operator and prolate trial?",
-          "gap": "A retained matrix residual leaves an exterior term. Domain error and candidate normalization must be paid separately.",
-          "next_step": "Check the existing numerical and proof-script outputs before creating another certificate; assemble prime, pole, Gamma and tail terms with one set of parameters.",
-          "success": "An independently replayable fixed-window bound with every premise identified. It should not be relabelled as a uniform all-window theorem.",
-          "related": [
-            "weil-moving-window-rate"
-          ]
-        },
-        {
-          "id": "weil-moving-window-rate",
-          "title": "A physical-window rate for the true mode error",
-          "kind": "research-question",
-          "question": "Can arithmetic cancellation and complement coercivity control the actual-mode Fourier error along an unbounded sequence of support windows?",
-          "gap": "Increasing numerical precision or an exterior cutoff does not reduce the physical error by itself; gaps may deteriorate with the window.",
-          "next_step": "Separate the physical window, finite matrix dimension and numerical tail cutoff. Seek bounds uniform over each target compact set with an explicit vanishing budget.",
-          "success": "A rate for the genuine family with all growth terms retained, or an obstruction to the particular proposed estimate.",
-          "related": [
-            "suzuki-unconditional-shift"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2511.22755",
-        "version": "v1",
-        "title": "Zeta Spectral Triples",
-        "submitted": "2025-11-27",
-        "revised": "2025-11-27",
-        "checked": "2026-09-07",
-        "locator": "Sections 7 and 8; the explicit-model limit and the actual lowest-mode approximation",
-        "status": "open-in-source",
-        "note": "This is a 2025 source rechecked alongside the June 2026 Suzuki paper. The explicit model limit and convergence of genuine lowest modes are separate. Finite spectral agreement is not an all-scale proof."
-      },
-      "updates": [
-        {
-          "arxiv_id": "2606.09096",
-          "version": "v1",
-          "title": "Weil's quadratic form via the screw function",
-          "submitted": "2026-06-08",
-          "revised": "2026-06-08",
-          "checked": "2026-09-07",
-          "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
-          "status": "conditional-route",
-          "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
-        }
-      ]
+      "id": "oeis-a038867-cube-gap-five-no-square",
+      "title": "The A038867 no-square conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Take the difference between two cubes whose bases are five apart. Klaus Purath conjectured on May 15, 2026 that no such difference is a perfect square, noting verification through one hundred thousand indices.",
+      "source_url": "https://oeis.org/A038867",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/CubeGapFiveNoSquare.cube_gap_five_ne_sq",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:76c9747f071543fc7da7a753357cd6f1ed2e54cfecd64fde1191d918c22ec24a"
+      }
     },
     {
-      "id": "suzuki-boundary-characteristic-limit",
-      "title": "Does Suzuki's boundary characteristic satisfy the zeta limit?",
-      "area": "Weil spectra",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2606.09096",
-      "anchors": [
-        "D5/S3/Weil/FiniteResolventClarkIdentity",
-        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
-      ],
-      "question": "Can theta(a) and a nonvanishing normalization make W(a,theta;z) approach z² xi(1/2-iz)/xi'(1/2-iz) in the sense intended by equation (1.12)?",
-      "foothold": "FiniteResolventClarkIdentity transports an explicitly supplied paired atomic spectrum. The fixed-scale Weil multiplier is another input. Neither identifies the actual boundary characteristic or its limiting measure.",
-      "gap": "The spectral shift lambda < lambda_a, the physical characteristic function and the treatment of poles in compact-uniform convergence need explicit control.",
-      "next_step": "First resolve the analytic meaning of the meromorphic quotient and normalization. Then identify the paper's W with a repository operator construction without supplying zeta zeros as spectral input.",
-      "success": "A precise faithful limit statement and proof without RH premises. The conditional implication in Corollary 1.6 is already a source result.",
-      "keywords": [
-        "Suzuki",
-        "screw function",
-        "Clark",
-        "Fredholm",
-        "boundary characteristic",
-        "螺旋函数",
-        "Weil"
-      ],
-      "targets": [
-        {
-          "id": "suzuki-boundary-identification",
-          "title": "Identify the actual finite-window characteristic",
-          "kind": "bridge",
-          "question": "Can the paper's deficiency-space boundary characteristic be identified with a resolvent or Fredholm construction using the genuine screw kernel?",
-          "gap": "A finite atomic measure chosen to look like a Clark measure does not establish this identification.",
-          "next_step": "Fix the domain, boundary convention and inner product; derive the relevant boundary function and measure rather than assume their desired expansion.",
-          "success": "An operator-to-characteristic identity on a specified analytic domain with normalization constants retained.",
-          "related": [
-            "weil-same-family-residual"
-          ]
-        },
-        {
-          "id": "suzuki-unconditional-shift",
-          "title": "Control the spectral shift without assuming RH",
-          "kind": "research-question",
-          "question": "Can the shift needed to define the window Hilbert spaces be controlled as a grows, without assuming positivity of every Weil window?",
-          "gap": "The source's global Hilbert-space heuristic assumes RH. Finiteness of prime terms at each fixed a gives no uniform estimate.",
-          "next_step": "Use explicit lower bounds and compare shifted constructions on common test-function cores; track any effect on characteristic zeros and normalization.",
-          "success": "A shift-control lemma with unconditional hypotheses useful for the proposed limit, or a precise failure of a proposed normalization.",
-          "related": [
-            "weil-moving-window-rate"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2606.09096",
-        "version": "v1",
-        "title": "Weil's quadratic form via the screw function",
-        "submitted": "2026-06-08",
-        "revised": "2026-06-08",
-        "checked": "2026-09-07",
-        "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
-        "status": "conditional-route",
-        "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
-      },
-      "updates": []
+      "id": "oeis-a060693-schroeder-peak-alternating-quadratic-moment",
+      "title": "Schulte's alternating quadratic peak moment for Schröder paths",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A060693, NAME:",
+      "source_url": "https://oeis.org/A060693",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/SchroederPeakAlternatingQuadraticMoment.schulte_a060693",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:b600a98cd5e8b8bba596936a592c89fb2f1989d6b40227d3db2082d6895ab218"
+      }
     },
     {
-      "id": "balan-wang-universal-stability",
-      "title": "Is real phase retrieval exponentially ill-conditioned at 2M-1 measurements?",
-      "area": "Phase retrieval",
-      "scope": "window",
-      "doi": "10.48550/arXiv.2603.29571",
-      "anchors": [
-        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
-      ],
-      "question": "For every full-spark real (2M-1)-by-M matrix, M>1, do universal C>0 and beta in (0,1) bound omega(A) by C times the maximum row norm times beta^M?",
-      "foothold": "IsNormalizedRankOneProjection and trace-overlap geometry supply a quadratic-readout vocabulary. A full-spark rectangular frame, its singular values and the modulus measurement map still need an explicit bridge.",
-      "gap": "The Gaussian asymptotic reported in July is a random-matrix result. The target quantifies over every admissible deterministic matrix.",
-      "next_step": "Reduce the full-spark omega definition to minimum singular value over square row submatrices, retaining row scaling, then test candidate deterministic inequalities.",
-      "success": "A universal normalized bound for all dimensions and frames, or a family refuting all proposed universal constants. A finite numerical example cannot decide the asymptotic claim.",
-      "keywords": [
-        "phase retrieval",
-        "相位恢复",
-        "稳定性",
-        "Balan",
-        "Wang",
-        "full-spark",
-        "singular value"
-      ],
-      "targets": [
-        {
-          "id": "omega-full-spark-reduction",
-          "title": "An exact square-submatrix formulation of omega",
-          "kind": "bridge",
-          "question": "Under full spark at N=2M-1, is omega(A) exactly the minimum of sigma_min(A_T) over M-row sets T?",
-          "gap": "The source definition also allows larger row sets; its equivalence needs a rank and Loewner-order argument.",
-          "next_step": "Formalize rectangular row restriction and the variational least singular value. Preserve M>1 and the source's complement-rank convention.",
-          "success": "A reusable equivalence with a row-rescaling test and exact small cases. This is a formalization bridge, not a new resolution.",
-          "related": [
-            "phase-intensity-lift"
-          ]
-        },
-        {
-          "id": "omega-deterministic-decay",
-          "title": "A deterministic obstruction stronger than a Gaussian example",
-          "kind": "research-question",
-          "question": "Can row-subset geometry force an exponentially small least singular value uniformly over every normalized full-spark frame?",
-          "gap": "Average-case small-ball estimates and the existence of a badly conditioned example do not imply a worst-case upper bound.",
-          "next_step": "Compare extremal deterministic families using certified spectral intervals; seek a packing, determinant or partition argument with dimension-independent constants.",
-          "success": "A uniform inequality or a counterfamily for a stated effective bound, with numerical probes kept separate from the universal claim.",
-          "related": [
-            "circulant-primal-dual-certificate"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2603.29571",
-        "version": "v1",
-        "title": "Randomstrasse101: Open Problems of 2025",
-        "submitted": "2026-03-31",
-        "revised": "2026-03-31",
-        "checked": "2026-09-07",
-        "locator": "Entry 10, Definition 10.1 and Conjecture 20",
-        "status": "open-in-source",
-        "note": "Conjecture 20 is the universal full-spark statement. The lower-case n in the displayed complement-rank formula is read as the column dimension M; the normalized domain is stated explicitly here."
-      },
-      "updates": [
-        {
-          "arxiv_id": "2607.06249",
-          "version": "v1",
-          "title": "Extreme least singular values of Gaussian row submatrices and a phase retrieval stability problem",
-          "submitted": "2026-07-07",
-          "revised": "2026-07-07",
-          "checked": "2026-09-07",
-          "locator": "Abstract and main Gaussian row-submatrix theorem; N=2m-1 specialization",
-          "status": "proved-in-source",
-          "note": "The source reports omega(A_m)=4^(-m+o_P(m)) for real Gaussian matrices. This addresses the Gaussian question in Open Problem 21, not the universal deterministic Conjecture 20. Its proof has not been independently replayed here."
-        }
-      ]
+      "id": "oeis-a064618-stirling-transform-totient-period",
+      "title": "A064618 totient-period conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A064618 NAME:",
+      "source_url": "https://oeis.org/A064618",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/StirlingTransformTotientPeriod.bala_conjecture_a064618",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ac7238dabab8a1dd1625fcd550908c16f7f97959fe8b318dbe67443c62b5cae1"
+      }
     },
     {
-      "id": "complex-phase-retrieval-probability",
-      "title": "Does injectivity at 4M-5 complex measurements become rare?",
-      "area": "Phase retrieval",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2603.29571",
-      "anchors": [
-        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
-      ],
-      "question": "For M>=2 and a Haar-random M-plane in C^(4M-5), let p_M be the probability that x modulo global phase maps injectively to |Ax|². Is p_M<1 for each M, and does p_M tend to zero?",
-      "foothold": "The repository's rank-one projection predicates and trace geometry are a foothold for lifting intensity measurements to Hermitian matrices. They do not provide the random-frame probability theorem.",
-      "gap": "Generic injectivity, existence of one exceptional injective frame, and injectivity probability are distinct. The old universal 4M-4 necessity statement is already false.",
-      "next_step": "Encode the measurement kernel on actual differences xx* - yy*. Define the Grassmannian measure and bad event before relying on dimension counts.",
-      "success": "A nonzero bad-event probability for each M and a separate asymptotic bound proving the limit. An isolated example does not establish a probability.",
-      "keywords": [
-        "Vinzant",
-        "Grassmannian",
-        "global phase",
-        "相位",
-        "injectivity",
-        "4M-5"
-      ],
-      "targets": [
-        {
-          "id": "phase-intensity-lift",
-          "title": "A faithful Hermitian lift of equal-intensity pairs",
-          "kind": "bridge",
-          "question": "Is equal intensity equivalent to the linear measurement map annihilating xx* - yy*, with zero difference exactly global-phase equivalence?",
-          "gap": "Unnormalized signals and the zero vector need explicit treatment. Arbitrary rank-two matrices are not automatically differences with the required inertia.",
-          "next_step": "Prove the trace identity and represent the difference cone exactly; relate normalized nonzero signals to the rank-one projector predicate.",
-          "success": "A bidirectional statement preserving all signals, not just unit-norm or generic vectors.",
-          "related": [
-            "mub-basis-context"
-          ]
-        },
-        {
-          "id": "phase-bad-event-probability",
-          "title": "From an algebraic witness to positive probability",
-          "kind": "research-question",
-          "question": "Can a noninjective-frame witness be extended to a positive-measure set at the critical measurement count?",
-          "gap": "A single real-algebraic solution may lie in a measure-zero stratum. Dimension counting alone does not settle transversality or probability.",
-          "next_step": "Analyze the rank-two difference incidence set on a concrete Grassmannian chart and verify a local persistence or measure argument.",
-          "success": "A proved positive-measure bad set for a stated dimension or a uniform probabilistic estimate; retain the distinction between the two conjecture clauses.",
-          "related": [
-            "omega-deterministic-decay"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2603.29571",
-        "version": "v1",
-        "title": "Randomstrasse101: Open Problems of 2025",
-        "submitted": "2026-03-31",
-        "revised": "2026-03-31",
-        "checked": "2026-09-07",
-        "locator": "Entry 10, Conjecture 19(a,b)",
-        "status": "open-in-source",
-        "note": "The statement is recorded in the checked survey. The 11-measurement example in C^4 refutes the older necessity claim, not these two probability clauses. This entry does not assert exhaustive absence of later work."
-      },
-      "updates": []
+      "id": "oeis-a068012-correction-recurrence",
+      "title": "Corneth's second recurrence for OEIS A068012",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Let a(n) count subsets of {1,...,n} whose element sum is zero modulo six. David A. Corneth's September 13, 2025 FORMULA contribution states:",
+      "source_url": "https://oeis.org/A068012",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/SubsetSums/ModSixResidueCounts.corneth_step",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:46caedbbcafbf51c968bc499f3cb7afd4609cd32f96a05960ac3e5b03a904621"
+      }
     },
     {
-      "id": "sic-povm-all-dimensions",
-      "title": "Do SIC-POVMs exist in every positive dimension?",
-      "area": "Quantum geometry",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2603.29571",
-      "anchors": [
-        "D5/S3/Quantum/Algebra/WeylDisplacementTrace",
-        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
-      ],
-      "question": "Does every positive dimension d admit d² unit vectors forming an equiangular tight frame, equivalently a SIC-POVM?",
-      "foothold": "WeylDisplacementTrace supplies displacement trace orthogonality; the rank-one projector predicate supplies individual projectors. A displacement basis alone does not construct a SIC fiducial.",
-      "gap": "For d>1 the target requires squared overlaps 1/(d+1) and sum of rank-one projectors dI. This is distinct from the MUB version of Zauner's conjecture.",
-      "next_step": "Connect the existing displacement operators to a precisely normalized fiducial system, keeping every extra symmetry and number-theoretic premise explicit.",
-      "success": "An unconditional construction in every dimension. Exact isolated dimensions or a construction under Stark-type assumptions retain their narrower scope.",
-      "keywords": [
-        "SIC",
-        "POVM",
-        "Zauner",
-        "Weyl",
-        "Heisenberg",
-        "量子设计",
-        "Stark"
-      ],
-      "targets": [
-        {
-          "id": "sic-fiducial-orbit",
-          "title": "From a verified fiducial to a SIC orbit",
-          "kind": "bridge",
-          "question": "Can exact displacement-overlap equations for a unit fiducial imply the d²-vector equiangular tight-frame and POVM identities?",
-          "gap": "Trace orthogonality is available but the orbit normalization, distinctness and identity resolution must be derived.",
-          "next_step": "Use the existing displacement composition and trace owners; derive twirling and the orbit Gram entries rather than introducing another Weyl convention.",
-          "success": "A conditional fiducial-to-SIC theorem with d and phase conventions explicit, plus exact low-dimensional checks.",
-          "related": [
-            "mub-basis-context"
-          ]
-        },
-        {
-          "id": "sic-exact-fiducial-certificate",
-          "title": "An exact certificate behind a numerical SIC candidate",
-          "kind": "certificate",
-          "question": "Can a proposed algebraic fiducial be certified against all required overlap and normalization equations?",
-          "gap": "A small floating residual does not establish equality or existence. An imposed order-three symmetry narrows the search class.",
-          "next_step": "Use explicit number-field embeddings and exact polynomial reductions; list which equations and embedding choices are certified.",
-          "success": "A verified instance with its dimension and assumptions, never presented as the universal existence theorem.",
-          "related": [
-            "mub-joint-compatibility"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2603.29571",
-        "version": "v1",
-        "title": "Randomstrasse101: Open Problems of 2025",
-        "submitted": "2026-03-31",
-        "revised": "2026-03-31",
-        "checked": "2026-09-07",
-        "locator": "Entry 11, Definition 11.2 and Conjecture 24",
-        "status": "open-in-source",
-        "note": "The survey records the SIC existence conjecture and conditional number-theoretic progress. Neither those assumptions nor the MUB conjecture are identified with an unconditional all-dimension SIC proof."
-      },
-      "updates": []
+      "id": "oeis-a068012-subset-sum-doubling",
+      "title": "The A068012 subset sum doubling conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Let a(n) count subsets of {1,...,n} whose element sum is zero modulo six. David A. Corneth conjectured on September 13, 2025 that a(n)=2a(n-1) whenever n>2 and three does not divide n-1.",
+      "source_url": "https://oeis.org/A068012",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/SubsetSumModSixDoubling.subset_sum_mod_six_doubling",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ba0236d44e45e7788afe14cf2a480032815a5bbf75059357e6f633a79616ff2c"
+      }
     },
     {
-      "id": "random-circulant-lovasz-theta",
-      "title": "Does the expected Lovasz number of random circulants approach sqrt(n)?",
-      "area": "Fourier and optimization",
-      "scope": "window",
-      "doi": "10.48550/arXiv.2603.29571",
-      "anchors": [
-        "D5/S3/Fourier/FinitePoisson"
-      ],
-      "question": "For dense undirected random circulant graphs with independent Bernoulli(1/2) choices of nonzero step pairs {k,-k}, is E theta(G)=(1+o(1)) sqrt(n)?",
-      "foothold": "FinitePoisson supplies standard characters and the character-group equivalence on ZMod n. This is the correct finite Fourier group for circulant symmetrization.",
-      "gap": "The finite Fourier reduction does not remove the remaining probabilistic loss. A theta SDP, normalization bridge and random-graph model must be connected explicitly.",
-      "next_step": "Derive the cyclic averaging and Fourier-diagonal reduction with the repository character convention; then attach sound primal and dual bounds.",
-      "success": "A proof of the expected leading constant, or a rigorous conflicting asymptotic. Numerical optimization on finitely many graph sizes is exploratory.",
-      "keywords": [
-        "Lovasz",
-        "theta",
-        "circulant",
-        "循环图",
-        "傅立叶",
-        "SDP",
-        "LP"
-      ],
-      "targets": [
-        {
-          "id": "circulant-fourier-reduction",
-          "title": "A normalization-safe circulant theta reduction",
-          "kind": "bridge",
-          "question": "Can cyclic averaging identify the theta SDP with a finite Fourier positivity problem without changing its optimum?",
-          "gap": "The SDP uses trace one while a scaled first-row LP can use x_0=1. Confusing these conventions changes the objective by n.",
-          "next_step": "Prove averaging preserves PSD, edge constraints and objective, then derive eigenvalues using the existing ZMod characters, with sign and scale recorded.",
-          "success": "A bidirectional feasible-point translation and equality of objectives under the chosen normalization.",
-          "related": [
-            "sic-fiducial-orbit"
-          ]
-        },
-        {
-          "id": "circulant-primal-dual-certificate",
-          "title": "Certified bounds for a concrete circulant graph",
-          "kind": "certificate",
-          "question": "Can explicit primal and dual witnesses give rigorous theta bounds for a supplied circulant graph?",
-          "gap": "Solver tolerance and approximate Fourier eigenvalues can falsely certify feasibility. Real algebraic or interval enclosures need a soundness theorem.",
-          "next_step": "Construct exact small-graph witnesses and certified residual margins; test graph-complement and scaling conventions independently.",
-          "success": "Replayable upper and lower bounds with all rounding budgets. These are finite footholds for the expectation conjecture.",
-          "related": [
-            "dfao-finite-unsat"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2603.29571",
-        "version": "v1",
-        "title": "Randomstrasse101: Open Problems of 2025",
-        "submitted": "2026-03-31",
-        "revised": "2026-03-31",
-        "checked": "2026-09-07",
-        "locator": "Entry 9, equation (11), Conjecture 18 and the following paragraph",
-        "status": "open-in-source",
-        "note": "The survey gives an O(sqrt(n log log n)) upper estimate and the sharper leading-constant conjecture. Its arXiv submission date is 31 March 2026; HTML generation in August is not a new arXiv version."
-      },
-      "updates": []
+      "id": "oeis-a076502-nested-recurrence-floor-refutation",
+      "title": "Refutation of the A076502 nested-recurrence floor-offset conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A076502 %N (verbatim):",
+      "source_url": "https://oeis.org/A076502",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CloitreNestedRecurrenceFloorRefutation.result",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:db9c3c0a20b69b31068e56dbcf999b31569b5893d843082b167f43d1250cc082"
+      }
+    },
+    {
+      "id": "oeis-a077864-trinomial-odd-diagonal-rational-series",
+      "title": "The trinomial odd diagonal of OEIS A077864",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "> Expansion of (1-x)^(-1)/(1-x-2*x^2-x^3).",
+      "source_url": "https://oeis.org/A077864",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/TrinomialOddDiagonalRationalSeries.schulte_a077864",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c9b9e04b43a4aef4c17076fa7bef931dfc4c536aea5e354854c72e2b84d90eda"
+      }
+    },
+    {
+      "id": "oeis-a084068-pell-companion-gcd",
+      "title": "The A084068 Pell gcd conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Joseph A. Stocke's July 28, 2025 conjecture in OEIS A084068 states `A084068(n) = gcd(A001108(n), A001109(n))` for every n at least one. The entry still labels this formula a conjecture when inspected on September 8, 2026.",
+      "source_url": "https://oeis.org/A084068",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/PellCompanionGcd.pell_companion_gcd",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:4a4e0af5449f2996f0296f23091907bf1fa0d7113fc058cdf1e044be2bdce136"
+      }
+    },
+    {
+      "id": "oeis-a091259-reduced-numerator-mod-three",
+      "title": "The A091259 congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Take the ratio of the divisor sum of cubes to the ordinary divisor sum, reduce it to lowest terms, and read the numerator modulo three.",
+      "source_url": "https://oeis.org/A091259",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/A091259.a091259_mod_three",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f9ec9166aafeb2245bff771ae355a393dee7393670028bdd22af359702566e1e"
+      }
+    },
+    {
+      "id": "oeis-a096127-factorial-square-divisibility-prime-power",
+      "title": "Exact factorial-square divisibility in A096127",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A096127, NAME (verbatim):",
+      "source_url": "https://oeis.org/A096127",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/FactorialSquareDivisibilityPrimePower.factorial_square_exact_divisibility_iff_prime_power",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:5067d793855e823b6f93a7b2f29daf4bd64737b83ed0ca3007de302057840dc6"
+      }
+    },
+    {
+      "id": "oeis-a097602-square-counting-recurrence-square-values",
+      "title": "Square values in the A097602 square-counting recurrence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A097602, NAME (`%N`, verbatim):",
+      "source_url": "https://oeis.org/A097602",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/SquareCountingRecurrenceSquarePositions.zumkeller_a097602",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:b31dc8b446267978452994829faf020be48b2459518bd663c5526570c7587c5d"
+      }
+    },
+    {
+      "id": "oeis-a110454-distinct-partition-concatenation-zero-indices",
+      "title": "The zero indices of A110454",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A110454, NAME (verbatim):",
+      "source_url": "https://oeis.org/A110454",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Digit/Admissibility/DistinctPartitionConcatenationComposite.murthy_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f312f0a7c6862daf03f31f3368ad685cf602d805c27f59c07d74f02707c83f54"
+      }
+    },
+    {
+      "id": "oeis-a119623-divisor-pair-product-prime-preimages",
+      "title": "Prime values of the divisor-pair product sum have exactly two preimages",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A119623, NAME (Zak Seidov, Jun 08 2006):",
+      "source_url": "https://oeis.org/A119623",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/DivisorPairProductPrimePreimages.seidov_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e438de03a1801aa699dd48c09431fc91c0ed37d3779976d09a30a72949a942a4"
+      }
+    },
+    {
+      "id": "oeis-a122399-stirling-power-factorial-prime-period",
+      "title": "Prime periods of the A122399 Stirling power-factorial sum",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A122399, entry by Vladeta Jovovic, Aug 31 2006; NAME attribution supplied by the orchestrator: Paul D. Hanna, May 31 2022. The following NAME and COMMENT text is copied verbatim from the claim in `Library/Recurrence/bala2022a122399.md`.",
+      "source_url": "https://oeis.org/A122399",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/StirlingPowerFactorialPrimePeriod.bala_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:62a947e8d329ee0acb6ac97e62104aaa70c28d628f7ddfb2cd1c416910c59a27"
+      }
+    },
+    {
+      "id": "oeis-a124418-mixed-parity-block-partition-product",
+      "title": "Hanna's mixed-parity block partition product in A124418",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A124418, `%N` (verbatim):",
+      "source_url": "https://oeis.org/A124418",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Partitions/MixedParityBlockPartitionProduct.hanna_a124418",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c5f4963be03214ce3805b4307e36fdeaeb30d1dec3ab759a415d94b96edac276"
+      }
+    },
+    {
+      "id": "oeis-a126762-least-witness-exponent-shift-refutation",
+      "title": "Refutation of the A126762 least-witness exponent-shift conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A126762, NAME (verbatim):",
+      "source_url": "https://oeis.org/A126762",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S0/Certificates/OrdowskiLeastWitnessRefutation.result",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ff3da943ba9e2d4d49a3979988ae302f2c0fd25a9b867e0d1c1d0ab0e0b3c81b"
+      }
+    },
+    {
+      "id": "oeis-a133901-palindrome-square-reversal-infinitude",
+      "title": "Palindrome-square reversal infinitude in A133901",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A133901, NAME (verbatim):",
+      "source_url": "https://oeis.org/A133901",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Digit/Admissibility/PalindromeSquareReversalInfinitude.brockhaus_seidov_a133901",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ef877a11fe0602a4ac3a82170bb16a795ed60ab75ed875ccc085aa90eef9c0d0"
+      }
+    },
+    {
+      "id": "oeis-a140869-sundaram-triangle-complement-prime",
+      "title": "The A140869 Sundaram-type triangle complement",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A140869, NAME (`%N`, verbatim):",
+      "source_url": "https://oeis.org/A140869",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Congruence/LibrandiSundaramTriangleComplementPrime.librandi_a140869",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:053c0d03ab40c1248bddc5d0b6abd7e6ee19c9a7041c5206a0da7474bd7f5f8d"
+      }
+    },
+    {
+      "id": "oeis-a146557-collinear-triple-divisibility",
+      "title": "The A146557 collinear triple divisibility conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Peter Bala's July 24, 2025 comment conjectures that n squared divides a(n) when three does not divide n. Here a(n) counts unordered collinear triples in (ZMod n) squared whose first coordinates, and second coordinates, are pairwise distinct. Collinearity means the difference determinant is zero.",
+      "source_url": "https://oeis.org/A146557",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/CollinearTripleTranslationOrbits.square_dvd_card_collinear_triples",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:36539f6817d44d9e49d0e9995acf17b74f55c441f7ee4c18e790d13a8391c7b3"
+      }
+    },
+    {
+      "id": "oeis-a152020-rational-denominator-cube-shift",
+      "title": "The rational-denominator cube shift in A152020",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A152020, NAME:",
+      "source_url": "https://oeis.org/A152020",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Congruence/RationalDenominatorCubeShift.cicuttin_a152020",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:77c638ff16ab8e83128526392a4b3a0cdf1fe1f2fbfcc512fdf8b813fb9036a7"
+      }
+    },
+    {
+      "id": "oeis-a163617-gray-code-binary-recurrence-closed-form",
+      "title": "A Gray-code closed form for the A163617 binary recurrence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A163617, `%N` (verbatim):",
+      "source_url": "https://oeis.org/A163617",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Digit/Admissibility/GrayCodeBinaryRecurrenceClosedForm.yanev_a163617",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:bdb9676aa0740799328f56cdcf21ba734c0e203f1b4395c37a2290abb03e9379"
+      }
+    },
+    {
+      "id": "oeis-a178294-four-grid-collinear-triples",
+      "title": "Collinear triples in the four-point grid",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A178294 records:",
+      "source_url": "https://oeis.org/A178294",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Lattices/FourGridCollinearTriples.mathar_collinear_triples",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:7e5ade4c40aea8a004cccbfc53f20380c9ac090fdd82d71e444bb539a5329fc3"
+      }
+    },
+    {
+      "id": "oeis-a192023-comb-wiener-determinant-refutation",
+      "title": "Refutation of the A192023 comb-Wiener determinant-count conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A192023, NAME (verbatim):",
+      "source_url": "https://oeis.org/A192023",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S0/Certificates/KimberlingCombWienerDeterminantRefutation.result",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:2e221b07777c5a48f8aa3631b50e82e3125dc910533d07f87808831c786016e9"
+      }
+    },
+    {
+      "id": "oeis-a208342-joint-polynomial-pair-binomial-coefficients",
+      "title": "The A208342 coefficient formula for a jointly generated polynomial pair",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A208342, NAME:",
+      "source_url": "https://oeis.org/A208342",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/JointPolynomialPairBinomialCoefficients.schulte_a208342",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:b613a540c25027ccc77de40f31bb3e4b24de03bea8fba4986009cab4ebed734f"
+      }
+    },
+    {
+      "id": "oeis-a220181-alternating-weight-stirling-prime-period",
+      "title": "Prime periods of the A220181 alternating-weight Stirling sum",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A220181 gives the following NAME, finite FORMULA, and COMMENT, copied verbatim from `Library/Recurrence/bala2022a220181.md`:",
+      "source_url": "https://oeis.org/A220181",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/AlternatingWeightStirlingPrimePeriod.bala_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:19fa67828fc38ee3fd0ecb94f1fc9d024818339fece69de57cb66589b4f5edd1"
+      }
+    },
+    {
+      "id": "oeis-a221077-tanh-power-prime-period",
+      "title": "Refutation of the all-prime A221077 period conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A221077 (Paul D. Hanna's entry) specifies the following NAME. The Library note records Peter Bala's conjecture dated Jun 01 2022; that date and attribution belong to the conjecture, not to an asserted entry-creation date. The following NAME and COMMENT are quoted verbatim from the supplied Library note.",
+      "source_url": "https://oeis.org/A221077",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/TanhPowerPrimePeriod.bala_conjecture_two_false",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:166779d2e4b0faed98f153b64f12b29af90a5cce954303623e8cb943b2196dc3"
+      }
+    },
+    {
+      "id": "oeis-a222013-factorial-product-sum-catalan-parity",
+      "title": "Parity of the A222013 factorial product sum coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna created OEIS A222013 on Feb 04 2013; the parity conjecture is dated Dec 06 2024. These quotations are copied verbatim from `Library/Recurrence/hanna2024a222013.md`.",
+      "source_url": "https://oeis.org/A222013",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/FactorialProductSumCatalanParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:73a48714b4c15f5e11b55095ad7ed3831bd62e48f242ab0ca0575e80d2482c92"
+      }
+    },
+    {
+      "id": "oeis-a222014-factorial-square-exponent-sum-parity",
+      "title": "Parity of the A222014 factorial square-exponent sum",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A222014 defines its generating series by",
+      "source_url": "https://oeis.org/A222014",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/FactorialSquareExponentSumParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:822097efb22b8e557297db269467cd07d6f31962eadd1a8d629e9ee5e295418e"
+      }
+    },
+    {
+      "id": "oeis-a224899-sinh-power-prime-period",
+      "title": "The prime-period conjecture for OEIS A224899",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A224899, NAME:",
+      "source_url": "https://oeis.org/A224899",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/SinhPowerPrimePeriod.bala_conjecture_two_false",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:84e9ef14f7c40920a85ccf55444a1555a37228a38d13d6c32d61309ac4dd280a"
+      }
+    },
+    {
+      "id": "oeis-a231548-antisigma-decrease-refutation",
+      "title": "Refutation of the A231548 antisigma gap-three conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A231548, NAME (verbatim):",
+      "source_url": "https://oeis.org/A231548",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S0/Certificates/KrizekAntisigmaDecreaseRefutation.result",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:7fccd15a8dda236f6a1e975ae0f538ee36c3a66f7c139b59309bdea439420eb3"
+      }
+    },
+    {
+      "id": "oeis-a245786-integrality-gcd-record-refutation",
+      "title": "Refutation of the A245786 integrality-implies-gcd-record conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A245786, NAME (verbatim):",
+      "source_url": "https://oeis.org/A245786",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S0/Certificates/KrizekIntegralityGcdRecordRefutation.result",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:2655f9305cee3bd6f5d8760a5bc60c1956bda7238968990c3260b639a2ef5319"
+      }
+    },
+    {
+      "id": "oeis-a249621-square-prepend-one-append-twenty-five",
+      "title": "OEIS A249621 terminal digits for square concatenations",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A249621 %N:",
+      "source_url": "https://oeis.org/A249621",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Digit/Admissibility/SquarePrependOneAppendTwentyFive.wu_a249621",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:fd8a975eb9370531b59ce199a8074af74809cb0cb7d9b337cc0673ff5eca2bb6"
+      }
+    },
+    {
+      "id": "oeis-a258409-divisor-difference-gcd-heinz",
+      "title": "The divisor-difference gcd and Heinz decoding identity in A258409",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A258409, NAME:",
+      "source_url": "https://oeis.org/A258409",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Congruence/DivisorDifferenceGcdHeinz.wiseman_a258409",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a92e3d60cff21f8df19f320239f8d4712cdd28d5a5c34f77f1fd440f90433d69"
+      }
+    },
+    {
+      "id": "oeis-a266489-diagonal-index-divisibility",
+      "title": "A266489: clause C1, index divisibility on the frozen object",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Quoted directly from the seat-local file `oeis-A266489.src` (`seats/opB-diagidx2/oeis-A266489.src` in the supplied workspace):",
+      "source_url": "https://oeis.org/A266489",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalVanishingIndexDivisibility.hanna_conjecture_a266489",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:0fbfe641ca6cb1e401d682fbb984621e445ca1fefa5f34d01895e7ce95c1c33e"
+      }
+    },
+    {
+      "id": "oeis-a266489-negative-power-diagonal-mod-two",
+      "title": "A266489: the mod-two congruence clause",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "From [Library/ArithSums/hanna2016a266489.md](../Library/ArithSums/hanna2016a266489.md), OEIS A266489, Paul D. Hanna, Feb 07 2016:",
+      "source_url": "https://oeis.org/A266489",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/NegativePowerDiagonalModPrime.hanna_conjecture_a266489",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:b71483f3cba2e705fb183967ee73c5e415d9577088376179dace8a98a08525ba"
+      }
+    },
+    {
+      "id": "oeis-a270236-rgf-antepenultimate-label-count",
+      "title": "The antepenultimate-label count in OEIS A270236",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A270236, NAME (verbatim):",
+      "source_url": "https://oeis.org/A270236",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/RestrictedGrowthLabelOccurrences.mathar_f2",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:dcb25c9b123eb470e771874a5b0333c7059e3a18d92cfd80be56971a5a211d66"
+      }
+    },
+    {
+      "id": "oeis-a270236-rgf-penultimate-label-count",
+      "title": "The penultimate-label count in OEIS A270236",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A270236, NAME (verbatim):",
+      "source_url": "https://oeis.org/A270236",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/RestrictedGrowthLabelOccurrences.mathar_f1",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:dcb25c9b123eb470e771874a5b0333c7059e3a18d92cfd80be56971a5a211d66"
+      }
+    },
+    {
+      "id": "oeis-a290322-cyclotomic-five-residue-sum",
+      "title": "The A290322 admissible residue sum conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "For a modulus at least two, call a residue below it admissible when it is coprime to the modulus and the value of `u^4 + u^3 + u^2 + u + 1` at it is coprime to the modulus as well.",
+      "source_url": "https://oeis.org/A290322",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/CyclotomicFiveResidueSum.residue_sum_ne_zero",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:001917763a23b3e3f2f78c683473d7e7e64874d0280e91ab68108a987f6c0508"
+      }
+    },
+    {
+      "id": "oeis-a292394-diagonal-index-divisibility",
+      "title": "A292394: square-index divisibility",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Quoted directly from the seat-local file `oeis-A292394.src` (`seats/opB-diagidx2/oeis-A292394.src` in the supplied workspace):",
+      "source_url": "https://oeis.org/A292394",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalVanishingIndexDivisibility.hanna_conjecture_a292394",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:0fbfe641ca6cb1e401d682fbb984621e445ca1fefa5f34d01895e7ce95c1c33e"
+      }
+    },
+    {
+      "id": "oeis-a300732-diagonal-index-divisibility",
+      "title": "A300732: index divisibility",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Quoted directly from the seat-local file `oeis-A300732.src` (`seats/opB-diagidx2/oeis-A300732.src` in the supplied workspace):",
+      "source_url": "https://oeis.org/A300732",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalVanishingIndexDivisibility.hanna_conjecture_a300732",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:0fbfe641ca6cb1e401d682fbb984621e445ca1fefa5f34d01895e7ce95c1c33e"
+      }
+    },
+    {
+      "id": "oeis-a300733-diagonal-index-divisibility",
+      "title": "A300733: index divisibility",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Quoted directly from the seat-local file `oeis-A300733.src` (`seats/opB-diagidx2/oeis-A300733.src` in the supplied workspace):",
+      "source_url": "https://oeis.org/A300733",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalVanishingIndexDivisibility.hanna_conjecture_a300733",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:0fbfe641ca6cb1e401d682fbb984621e445ca1fefa5f34d01895e7ce95c1c33e"
+      }
+    },
+    {
+      "id": "oeis-a300734-diagonal-index-divisibility",
+      "title": "A300734: square-index divisibility",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Quoted directly from the seat-local file `oeis-A300734.src` (`seats/opB-diagidx2/oeis-A300734.src` in the supplied workspace):",
+      "source_url": "https://oeis.org/A300734",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalVanishingIndexDivisibility.hanna_conjecture_a300734",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:0fbfe641ca6cb1e401d682fbb984621e445ca1fefa5f34d01895e7ce95c1c33e"
+      }
+    },
+    {
+      "id": "oeis-a301976-grid-no-leaf-mod-ten",
+      "title": "Kagey's modulo-ten congruence for no-leaf grid subgraphs",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A301976, NAME (verbatim from `Library/Words/kagey2018a301976.md`):",
+      "source_url": "https://oeis.org/A301976",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Patterns/GridNoLeafSubgraphRecurrence.kagey_a301976_mod10",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:4bac6105a787ada62b8b1160c610b38c005b6d6e98c749356fa1a5cf26454ae9"
+      }
+    },
+    {
+      "id": "oeis-a301976-grid-no-leaf-recurrence",
+      "title": "Barker's recurrence for no-leaf subgraphs of the 3 X n grid",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A301976, NAME (verbatim from `Library/Words/kagey2018a301976.md`):",
+      "source_url": "https://oeis.org/A301976",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Patterns/GridNoLeafSubgraphRecurrence.barker_a301976",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:4bac6105a787ada62b8b1160c610b38c005b6d6e98c749356fa1a5cf26454ae9"
+      }
+    },
+    {
+      "id": "oeis-a305550-distinct-part-egf-totient-period",
+      "title": "Bala's OEIS A305550 totient-period conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A305550 NAME (entry by Ilya Gutkovskiy, Jun 15 2018):",
+      "source_url": "https://oeis.org/A305550",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/IntegralEgfTotientPeriod.bala_conjecture_a305550",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a03e44357419e852ef4a46ab13b2324e66ef6550c5a96a26a350b936c86f9838"
+      }
+    },
+    {
+      "id": "oeis-a305550-integral-egf-substitution-totient-period",
+      "title": "Bala's general integral e.g.f. substitution conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A305550 NAME (entry by Ilya Gutkovskiy, Jun 15 2018):",
+      "source_url": "https://oeis.org/A305550",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/IntegralEgfTotientPeriod.bala_conjecture_egf_general",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a03e44357419e852ef4a46ab13b2324e66ef6550c5a96a26a350b936c86f9838"
+      }
+    },
+    {
+      "id": "oeis-a326244-noncrossing-nonnesting-graph-recurrence",
+      "title": "Barker's recurrence for crossing- and nesting-free labeled graphs",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A326244, NAME:",
+      "source_url": "https://oeis.org/A326244",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Patterns/NoncrossingNonnestingGraphRecurrence.barker_a326244",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:0a03027a4e84777529e388c5a10885fb340fda888490f83d7dea864d805a0f69"
+      }
+    },
+    {
+      "id": "oeis-a328959-divisor-count-prime-factor-bound",
+      "title": "The divisor-count prime-factor bound in A328959",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A328959, NAME (verbatim):",
+      "source_url": "https://oeis.org/A328959",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Congruence/DivisorCountPrimeFactorBound.wiseman_a328959",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:1b641a4c7543e737621899ca2fc1a9099c7f93ac9995bc0cd475c111a78df188"
+      }
+    },
+    {
+      "id": "oeis-a329278-triangular-residue-descent-count",
+      "title": "The triangular-residue descent count in A329278",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A329278, NAME (verbatim):",
+      "source_url": "https://oeis.org/A329278",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Congruence/TriangularResidueDescentCount.kagey_a329278",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:d2d604929853ef7aa37b2104208c06f1ce97914c0ff3dd3ac6efbbf60891b367"
+      }
+    },
+    {
+      "id": "oeis-a329369-printed-row-sum-range",
+      "title": "The printed index range of the sixth A329369 sum",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "Write a(n) for A329369 and T(n,k) for the A373183 row coefficients. Mikhail Kurkov printed on June 05 2024 the assertion that",
+      "source_url": "https://oeis.org/A329369",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/DyadicPowerRowClosedForm.not_kurkovRowRecurrence",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ae1fe5b0f4f5ddcf49c902573a184fdafaa641fce4107200aaf8c97c7980e406"
+      }
+    },
+    {
+      "id": "oeis-a335901-self-referential-doubling-first-occurrence",
+      "title": "First Occurrences in OEIS A335901",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A335901, %N (verbatim):",
+      "source_url": "https://oeis.org/A335901",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/SelfReferentialDoublingFirstOccurrence.alkan_a335901",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a22655f6cbe23cf6a5b8bc598050b392547dcfbf277b607a369a71b4f5e83a9e"
+      }
+    },
+    {
+      "id": "oeis-a335925-self-referential-quotient-first-occurrence",
+      "title": "First occurrences in the A335925 self-referential quotient recurrence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A335925, NAME (`%N`, verbatim):",
+      "source_url": "https://oeis.org/A335925",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/SelfReferentialQuotientFirstOccurrence.alkan_a335925",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f145a378019a8752ebd22d214607592d8150bb71c22d99d95fa53e21e07637dc"
+      }
+    },
+    {
+      "id": "oeis-a338040-weighted-stirling-power-prime-period",
+      "title": "Prime periods of the A338040 weighted Stirling power sum",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A338040, entry by Vaclav Kotesovec, Oct 08 2020, has the following NAME, quoted verbatim from `Library/Recurrence/bala2022a338040.md`:",
+      "source_url": "https://oeis.org/A338040",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/WeightedStirlingPowerPrimePeriod.bala_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:d6f701996352e8abe0b691d44b792125c8ecaabc7d99dffd24f54e0647afe63c"
+      }
+    },
+    {
+      "id": "oeis-a338193-egf-coefficients",
+      "title": "The EGF coefficients of A338193 and Kurkov's recurrence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "The October 26, 2024 conjecture by Mikhail Kurkov in OEIS A338193 asserts that a(n)=f(0,n-1) for every positive n.",
+      "source_url": "https://oeis.org/A338193",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Algebraic/SchroderIntegralEGF.egf_coeff_eq_f",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:187f1c995792aeb42d78d70be5c392584b4b309468405a8ae7d0f5d04a196773"
+      }
+    },
+    {
+      "id": "oeis-a338636-continued-fraction-odd-square-mod-eight",
+      "title": "Divisibility of the A338636 coefficients by eight",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A338636 (Paul D. Hanna, Nov 04 2020) records the following NAME and FORMULA lines, quoted verbatim from `Library/Recurrence/hanna2020a338636.md`:",
+      "source_url": "https://oeis.org/A338636",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ContinuedFractionOddSquare.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c7b23497fceaf323dc7211cd374de6391d3ec2526148f73a2d4282c5d6078597"
+      }
+    },
+    {
+      "id": "oeis-a344598-alternating-gcd-sum-pillai",
+      "title": "Bala's alternating gcd-sum formula for A344598",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A344598 NAME (Seiichi Manyama, May 24 2021):",
+      "source_url": "https://oeis.org/A344598",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/AlternatingGcdSumPillai.bala_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:37cd50cc98a0697c5e5ee9a31e5f6c3a95a7c21bf35b04c7b5f0f00c9aa30410"
+      }
+    },
+    {
+      "id": "oeis-a355872-bilateral-theta-reversion-mod-sixteen",
+      "title": "Coefficient congruences for the A355872 bilateral theta reversion",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A355872 (Paul D. Hanna, Aug 09 2022), as quoted in `Library/Recurrence/hanna2022a355872.md`, gives the NAME:",
+      "source_url": "https://oeis.org/A355872",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/BilateralThetaReversionModSixteen.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:526e72576b33733ad3e486e1cd56c98ae7c44a107dd01ad68f407032199c33af"
+      }
+    },
+    {
+      "id": "oeis-a359482-positive-permutation",
+      "title": "The permutation question for A359482",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "> Is this sequence a permutation of the integers > 0?",
+      "source_url": "https://oeis.org/A359482",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/SumInConcatenation.not_positive_permutation",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:47358d58753ce3ded776943bdbc5ce8e048dc849aa39eda5ce500ddaac6f50b1"
+      }
+    },
+    {
+      "id": "oeis-a363104-bilateral-quarter-shift-theta-mod-four",
+      "title": "The A363104 bilateral generating function modulo four",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A363104 (Paul D. Hanna, May 21 2023) gives the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2023a363104.md`:",
+      "source_url": "https://oeis.org/A363104",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Bilateral/BilateralQuarterShiftThetaModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:6e194893195100a7f9716aeade70502d334b7d343e53a16fdaedf8f4b3641354"
+      }
+    },
+    {
+      "id": "oeis-a363184-bilateral-quarter-double-shift-theta-mod-four",
+      "title": "The A363184 bilateral quarter-double-shift theta congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A363184 (Paul D. Hanna, May 20, 2023), quoted verbatim from `Library/Recurrence/hanna2023a363184.md`:",
+      "source_url": "https://oeis.org/A363184",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Bilateral/BilateralQuarterDoubleShiftThetaModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f38f62507080fd788f12b35d2cf95cd408a0a1ffe282fcde1578eead108a73b9"
+      }
+    },
+    {
+      "id": "oeis-a363308-catalan-cubic-composition-parity",
+      "title": "Parity of the cubic Catalan composition A363308",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A363308 (Paul D. Hanna, May 28, 2023), quoted verbatim from `Library/Arith/hanna2023a363308.md`:",
+      "source_url": "https://oeis.org/A363308",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CatalanCubicCompositionParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:63529a7a4735b1e7f8e5575f3bb85deb8ba63f19fbbf211df02be41e3043cfa9"
+      }
+    },
+    {
+      "id": "oeis-a363560-cubic-ninth-power-substitution-mod-three",
+      "title": "Divisibility of the A363560 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A363560, Paul D. Hanna, Aug 12 2023, records the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2023a363560.md`:",
+      "source_url": "https://oeis.org/A363560",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CubicNinthPowerSubstitutionModThree.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e0d38c02f08d27c6846acd8729a5f1a06f694376269f1e97c6e3d7b6ca9a25cc"
+      }
+    },
+    {
+      "id": "oeis-a363956-positive-permutation",
+      "title": "The permutation conjecture for A363956",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "> The sequence is conjectured to be a permutation of the positive integers.",
+      "source_url": "https://oeis.org/A363956",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/OmegaGreedyPermutation.a363956_surjective",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:843528ce6460671f36b7c962c5d7070303d55a09a3b38aa120e862207dbbbdbb"
+      }
+    },
+    {
+      "id": "oeis-a365095-perturbed-diagonal-square-divisibility",
+      "title": "Square divisibility of the A365095 perturbed diagonal",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A365095, Paul D. Hanna, Sep 03 2023. NAME (the defining formula (1)):",
+      "source_url": "https://oeis.org/A365095",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/PerturbedDiagonalSquareDivisibility.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:9c309c65a4f4e2fcd3014b29490579739fb65b5dee86a79900f3df43357cfa88"
+      }
+    },
+    {
+      "id": "oeis-a369083-reflected-quadratic-quarter-parity",
+      "title": "Binomial parity of the A369083 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A369083, Paul D. Hanna, Jan 12 2024, gives the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2024a369083.md`:",
+      "source_url": "https://oeis.org/A369083",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/ReflectedQuadraticQuarterParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:b1f866c6cf0ac3b166b4cff5126782a51f6f7a934bb28b929dc7bcc566ed19b6"
+      }
+    },
+    {
+      "id": "oeis-a372577-double-composition-mod-four",
+      "title": "Modulo-four classification of the A372577 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A372577, Paul D. Hanna, May 30, 2024:",
+      "source_url": "https://oeis.org/A372577",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DoubleCompositionModFourClassification.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:8f40008cab15f9d31c7a5b775b20682c5f8d67a5c3b87fd8263e53a896fb8698"
+      }
+    },
+    {
+      "id": "oeis-a372991-factorial-quotient-linear-recurrence",
+      "title": "Mathar's linear recurrence for the A372991 factorial-quotient sequence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A372991 NAME (Clark Kimberling, Jul 15 2024):",
+      "source_url": "https://oeis.org/A372991",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/FactorialQuotientRecurrence.mathar_recurrence",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:42eded128930830bfee140f2789b67993dab4d60d6c6b7f646ae8cc312cb8927"
+      }
+    },
+    {
+      "id": "oeis-a373308-cubed-binary-product-mod-three",
+      "title": "Divisibility modulo three of the A373308 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A373308, Paul D. Hanna, Jun 20 2024, gives the following NAME and COMMENT, quoted verbatim from `Library/Arith/hanna2024a373308.md`.",
+      "source_url": "https://oeis.org/A373308",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CubedBinaryProductModThree.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e2afff6eb4bd08c2147819278293076e372b1531fe2d4359eb2d046a1b63ab6b"
+      }
+    },
+    {
+      "id": "oeis-a373312-unit-reversion-square-parity",
+      "title": "Square parity of the unit-reversion series A373312",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A373312, Paul D. Hanna, Jun 25 2024. The following NAME and COMMENT are copied verbatim from the claim in `Library/Arith/hanna2024a373312.md`.",
+      "source_url": "https://oeis.org/A373312",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/UnitReversionSquareParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:dae5b15f489b6669f9b8e9ae23c26f082763ef02a35c293df08fad8ffa33a1aa"
+      }
+    },
+    {
+      "id": "oeis-a373561-gcd-bucketed-quadruple-sum",
+      "title": "The A373561 divisor-bucketed quadruple sum",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Three indices run over the interval from one to a modulus and contribute the quantity `x^2 + y^2 - z^2`.",
+      "source_url": "https://oeis.org/A373561",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/A373561.a373561",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:7959e25d0a8b7be1f584f77811411fa8298996ad957cdb3f26e6999b0e584493"
+      }
+    },
+    {
+      "id": "oeis-a374568-catalan-double-composition-powers-of-four",
+      "title": "Powers-of-four parity of the A374568 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A374568 (Paul D. Hanna, Aug 14 2024) records the following NAME and COMMENT, quoted verbatim from `Library/Arith/hanna2024a374568.md`:",
+      "source_url": "https://oeis.org/A374568",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CatalanDoubleCompositionPowersOfFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a8875659587346ea1b8ab46dca76a9842e89a39227f80d79c799cc21a6da1d89"
+      }
+    },
+    {
+      "id": "oeis-a374570-catalan-composition-square-parity",
+      "title": "Parity of the Catalan-composition series A374570",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A374570 (Paul D. Hanna, Jul 11 2024), quoted verbatim from `Library/Arith/hanna2024a374570.md`:",
+      "source_url": "https://oeis.org/A374570",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CatalanCompositionSquareParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:3efe163d42caacde3622556dc399dee00bb73c78951f7413ba5b89b26ad01d3a"
+      }
+    },
+    {
+      "id": "oeis-a374571-fibbinary-square-substitution-parity",
+      "title": "Fibbinary parity of the A374571 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A374571 (Paul D. Hanna, Jul 11 2024), quoted verbatim from the claim in `Library/Arith/hanna2024a374571.md`:",
+      "source_url": "https://oeis.org/A374571",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/FibbinarySquareSubstitutionParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:4dbfdbcf9cdb92a5299fd49e0b1bb62c68767d9bce637f13638139cef6721724"
+      }
+    },
+    {
+      "id": "oeis-a375439-cubic-ternary-substitution-parity",
+      "title": "Parity of the A375439 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A375439 (Paul D. Hanna, Aug 21 2024) supplies the following statements, copied from the claim in `Library/Arith/hanna2024a375439.md`:",
+      "source_url": "https://oeis.org/A375439",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CubicTernarySubstitutionParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:10243fe3694e0d7a02898f5cf9e6b9dde3b4d5d6abd4b2e9b993fddcf1898ca6"
+      }
+    },
+    {
+      "id": "oeis-a376527-q-catalan-square-sum-parity",
+      "title": "Parity of q-Catalan row square sums",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A376527 defines",
+      "source_url": "https://oeis.org/A376527",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/QCatalanSquareSumParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a685c252dbef04d377bf5922398c422a1b44152c5d427aa3250aeb9d0db7d7f0"
+      }
+    },
+    {
+      "id": "oeis-a378252-running-sum-residue-zero",
+      "title": "The A378252 running-sum residue conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Fix integers with the start value coprime to the modulus.",
+      "source_url": "https://oeis.org/A378252",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/RatajczakDoublingZero.exists_zero_iff_modulus_pow_two",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e7675329b89a472b8788142cd68c03db2f44cabdd98d997f85a38ecbc6de4cb7"
+      }
+    },
+    {
+      "id": "oeis-a378277-harmonic-triangle-alternating-row-sums",
+      "title": "Alternating row sums of the Fibonacci harmonic triangle",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A378277 records the following conjecture:",
+      "source_url": "https://oeis.org/A378277",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/HarmonicTriangleAlternatingRowSums.schulte_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:eff5ad00bd8b4257af875f6bffa43545197c48b9ae0df8d9ce339b3ad3e6b6c2"
+      }
+    },
+    {
+      "id": "oeis-a378575-shifted-iterate-fixed-point-mod-four",
+      "title": "The A378575 shifted-iterate fixed-point congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A378575, Paul D. Hanna, Dec 01 2024, states the following NAME and COMMENT, reproduced verbatim from `Library/Recurrence/hanna2024a378575.md`:",
+      "source_url": "https://oeis.org/A378575",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/ShiftedIterateFixedPointCongruence.hanna_conjecture_five",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:1846a019bdebf6883b5e31ec59e026b3c83c8fe7b84b3e848a8332f0da10bce0"
+      }
+    },
+    {
+      "id": "oeis-a378576-shifted-iterate-fixed-point-mod-five",
+      "title": "The A378576 shifted-iterate fixed-point congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A378576, Paul D. Hanna, Dec 01 2024, states the following NAME and COMMENT, reproduced verbatim from `Library/Recurrence/hanna2024a378576.md`:",
+      "source_url": "https://oeis.org/A378576",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/ShiftedIterateFixedPointCongruence.hanna_conjecture_six",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:1846a019bdebf6883b5e31ec59e026b3c83c8fe7b84b3e848a8332f0da10bce0"
+      }
+    },
+    {
+      "id": "oeis-a378578-strip-three-ternary-catalan-parity",
+      "title": "Strip-three ternary Catalan parity for A378578",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A378578 (Paul D. Hanna, Jan 03 2025) gives the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2025a378578.md`.",
+      "source_url": "https://oeis.org/A378578",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/StripThreeTernaryCatalanParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:be7c1eabc8e56cfa28fe8d41e9f64f93a7994ed9fc8db16956b7347bdb68acb9"
+      }
+    },
+    {
+      "id": "oeis-a378580-quotient-theta-composition-mod-four",
+      "title": "Coefficients of the A378580 quotient theta composition modulo four",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A378580 (Paul D. Hanna, Jan 08 2025) gives the following NAME and COMMENT, quoted verbatim from `Library/ArithSums/hanna2025a378580.md`.",
+      "source_url": "https://oeis.org/A378580",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/QuotientThetaCompositionModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:beae0bfd9b5a0651c2e446933fe43cfda4646d2b86742df3e3a323febeb6f1e1"
+      }
+    },
+    {
+      "id": "oeis-a378581-theta-self-composition-mod-four",
+      "title": "The theta self-composition coefficients modulo four",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A378581 (Paul D. Hanna, Jan 08 2025), as quoted in `Library/Recurrence/hanna2025a378581.md`:",
+      "source_url": "https://oeis.org/A378581",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/ThetaSelfCompositionModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:5f3ececbeb6afda912556eae49eae0d28ffa6bc21439dca75f92592d078d1902"
+      }
+    },
+    {
+      "id": "oeis-a379204-bilateral-quartic-power-theta-mod-four",
+      "title": "Hanna's A379204 evenness conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A379204 (Paul D. Hanna, Dec 20 2024) gives the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2024a379204.md`:",
+      "source_url": "https://oeis.org/A379204",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/BilateralQuarticPowerThetaModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:360aee2a8b4d8d2a5807876e7424422565282734f4663670a369893c16e4e96f"
+      }
+    },
+    {
+      "id": "oeis-a380056-fourth-index-divisible-by-five",
+      "title": "The A380056 divisibility conjecture at multiples of four",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "A sequence is read off an exponential generating function whose numerator is the exponential minus one and whose denominator is the cosine of twice the argument. Paul D. Hanna conjectured on January 28, 2025 that five divides every term whose index is a multiple of four.",
+      "source_url": "https://oeis.org/A380056",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/A380056.a380056_div_five",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a769896bc308298814e90b7d47b02e55e8c2e6eff26ca763d6d8c82afab81952"
+      }
+    },
+    {
+      "id": "oeis-a380678-quadratic-square-reversion-dyadic-support-parity",
+      "title": "Dyadic support of the odd coefficients of A380678",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna, OEIS A380678, February 2025. The Library note records the month and year but not the exact `%A` line date. The following NAME and COMMENT are copied verbatim from `Library/Recurrence/hanna2025a380678.md`.",
+      "source_url": "https://oeis.org/A380678",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/QuadraticSquareReversionDyadicSupportParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:46c153a8bd067a309873f1d821c9c63ec5c084110cf2107e2c6859ba17c41978"
+      }
+    },
+    {
+      "id": "oeis-a380708-absolute-reciprocal-square-fibbinary-parity",
+      "title": "Fibbinary parity of the A380708 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A380708, Paul D. Hanna, Feb 08 2025, gives the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2025a380708.md`:",
+      "source_url": "https://oeis.org/A380708",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/AbsoluteReciprocalSquareFibbinaryParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:d1014392f27da8670f27150873c0b5ee7eba8150354c039a9d87b77ddcfe7913"
+      }
+    },
+    {
+      "id": "oeis-a380709-absolute-reciprocal-cube-parity",
+      "title": "Binomial parity of the A380709 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna, OEIS A380709, Feb 09 2025. The following NAME and COMMENT are quoted verbatim from the claim in `Library/Recurrence/hanna2025a380709.md`.",
+      "source_url": "https://oeis.org/A380709",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/AbsoluteReciprocalCubeParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:80e61b36f8b62ddbed6cd5d16d1bd03d3bf50113b4650ae53f75db6ba9ff624a"
+      }
+    },
+    {
+      "id": "oeis-a380710-absolute-reciprocal-square-parity",
+      "title": "Absolute reciprocal squares and binary parity in A380710",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna, OEIS A380710, Feb 18 2025. The following NAME and COMMENT are copied verbatim from the claim in `Library/Arith/hanna2025a380710.md`.",
+      "source_url": "https://oeis.org/A380710",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/AbsoluteReciprocalSquareParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:aa513f891099e06be0ee142023e924e524eae60b7ed5998f04db316d004dfe91"
+      }
+    },
+    {
+      "id": "oeis-a381362-bilateral-product-quadratic-mod-four",
+      "title": "The A381362 bilateral product coefficient congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A381362, Paul D. Hanna, Feb 21 2025:",
+      "source_url": "https://oeis.org/A381362",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Bilateral/BilateralProductModFour.hanna_conjecture_a381362",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:9aea24965a5c695083f4a82c03b6e625ae77c3683789abd9355df8c5e9e9364d"
+      }
+    },
+    {
+      "id": "oeis-a381363-bilateral-product-cubic-mod-four",
+      "title": "The A381363 bilateral product coefficient congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A381362, Paul D. Hanna, Feb 21 2025:",
+      "source_url": "https://oeis.org/A381363",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Bilateral/BilateralProductModFour.hanna_conjecture_a381363",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:9aea24965a5c695083f4a82c03b6e625ae77c3683789abd9355df8c5e9e9364d"
+      }
+    },
+    {
+      "id": "oeis-a381364-scaled-bilateral-product-linear-mod-nine",
+      "title": "The A381364 scaled bilateral product congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "This dossier cites its own Library note, `Library/ArithSums/hanna2025a381364.md`, for the A381364 conjecture. The two entry statements describe instances of one family:",
+      "source_url": "https://oeis.org/A381364",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Bilateral/ScaledBilateralProductModNine.hanna_conjecture_a381364",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:af794d67456457d84b644db4477d869bca101683db67b55c795a3c5018493b97"
+      }
+    },
+    {
+      "id": "oeis-a381365-scaled-bilateral-product-quadratic-mod-nine",
+      "title": "The A381365 scaled bilateral product congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "This dossier cites its own Library note, `Library/ArithSums/hanna2025a381365.md`, for the A381365 conjecture. The two entry statements describe instances of one family:",
+      "source_url": "https://oeis.org/A381365",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Bilateral/ScaledBilateralProductModNine.hanna_conjecture_a381365",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:af794d67456457d84b644db4477d869bca101683db67b55c795a3c5018493b97"
+      }
+    },
+    {
+      "id": "oeis-a381670-compositional-square-dyadic-denominators",
+      "title": "Dyadic denominators of the A381670 compositional-square series",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A381670 (Thomas Scheuerle, Mar 03 2025), NAME, as quoted in `Library/ArithSums/scheuerle2025a381670.md`:",
+      "source_url": "https://oeis.org/A381670",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/CompositionalSquareDyadicDenominators.scheuerle_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:fba707098a34b9a1f90d8d1a5cd61197282027eee2d059405203c5e1e1d81f9d"
+      }
+    },
+    {
+      "id": "oeis-a382427-constant-blocks-distinct-run-sums",
+      "title": "Constant Blocks and Distinct Run Sums",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A382427 counts integer partitions of n that can be partitioned into constant blocks with distinct sums.",
+      "source_url": "https://oeis.org/A382427",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Compositions/ConstantBlocksDistinctRunSums.card_constantBlocks_eq_distinctRunSums",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:8b131144ab3cf4a2fbf72eb97c06a17f54bf47eccbc1bd4879849159e1a60dd8"
+      }
+    },
+    {
+      "id": "oeis-a383165-scaled-log-column-periodicity",
+      "title": "Eventual periodicity of OEIS A383165",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "The entry-specific Library note `Library/ArithSums/bala2026a383165.md` records the NAME and conjecture verbatim as follows:",
+      "source_url": "https://oeis.org/A383165",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/ScaledLogColumnPeriodicity.bala_conjecture_a383165",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:673719d2e39c36a7f9d17da3f8a2f825372ebd05904ca4d79e0a027dada7956c"
+      }
+    },
+    {
+      "id": "oeis-a383166-scaled-log-column-periodicity",
+      "title": "Eventual periodicity of OEIS A383166",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "The entry-specific Library note `Library/ArithSums/bala2026a383166.md` records the NAME and conjecture verbatim as follows:",
+      "source_url": "https://oeis.org/A383166",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Periodic/ScaledLogColumnPeriodicity.bala_conjecture_a383166",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:673719d2e39c36a7f9d17da3f8a2f825372ebd05904ca4d79e0a027dada7956c"
+      }
+    },
+    {
+      "id": "oeis-a383377-absolute-reciprocal-geometric-parity",
+      "title": "Parity of the A383377 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna, OEIS A383377, May 15 2025. The following quotations are verbatim from `Library/Arith/hanna2025a383377.md`.",
+      "source_url": "https://oeis.org/A383377",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/AbsoluteReciprocalGeometricParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:69b9b0c30c02e2333c09ea35f88e6c510734b2137e7518951acf1435b0bb5848"
+      }
+    },
+    {
+      "id": "oeis-a384222-two-dense-divisor-blocks-palindrome",
+      "title": "Palindromic composition of the A384222 rows",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "> Conjecture 1: row n is a palindromic composition of A000005(n).",
+      "source_url": "https://oeis.org/A384222",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/TwoDenseDivisorBlocksPalindrome.row_palindrome",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:cef843fcdae35bc9a1c7f142b45b0830e21677b3f14bb90d71e4dc723888ef70"
+      }
+    },
+    {
+      "id": "oeis-a384267-absolute-reciprocal-square-shift-parity",
+      "title": "Parity conjecture C.1 of OEIS A384267",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A384267, Paul D. Hanna, Jun 19 2025. The NAME and COMMENT below are verbatim excerpts of the claim in `Library/Recurrence/hanna2025a384267.md`.",
+      "source_url": "https://oeis.org/A384267",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/AbsoluteReciprocalSquareShiftParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:6f5015309a606d6049420f41108931bd142a69b590416cf94483b6f77db68249"
+      }
+    },
+    {
+      "id": "oeis-a384270-quartic-cubic-catalan-quotient-parity",
+      "title": "Parity of the A384270 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A384270, Paul D. Hanna, Jul 10 2025. The following NAME and COMMENT are copied verbatim from the claim in `Library/Arith/hanna2025a384270.md`.",
+      "source_url": "https://oeis.org/A384270",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/QuarticCubicCatalanQuotientParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:0f483eab983fe36bca5eaed3d4e564736c6a90dabbfd7edd29e59f4a6782065e"
+      }
+    },
+    {
+      "id": "oeis-a386666-signed-catalan-cubic-substitution-mod-three",
+      "title": "Signed Catalan cubic substitution modulo three",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A386666 (Paul D. Hanna, Sep 07 2025) states:",
+      "source_url": "https://oeis.org/A386666",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/SignedCatalanCubicSubstitutionModThree.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:3ab4259ccfc7a7884a41abe8556008099d9971152fb62d90ca395248d9d892b6"
+      }
+    },
+    {
+      "id": "oeis-a387319-multiple-of-three-coincidence",
+      "title": "Multiple-of-Three Residue Coincidences",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A387319, revision 69 (November 10, 2025), conjectures that every composite k except 4, 8, 10, and 25 has a coincidence between m=3 and another multiple of 3 among the rational fractions (2k mod m)/m for 1≤m≤k, whereas no prime does.",
+      "source_url": "https://oeis.org/A387319",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/Congruence/MultipleOfThreeCoincidence.classify",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:dc60b4b49eeccd38f906028963152c9969c757ab5a4edfb30310a91fc29b198f"
+      }
+    },
+    {
+      "id": "oeis-a388711-choosable-initial-intervals",
+      "title": "Choosable Initial Intervals and Reversed Partitions",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A388711 counts partitions of n into k positive parts whose initial intervals admit distinct representatives. Its comment conjectures that the same number counts superdiagonal reversed partitions: the parts in increasing order satisfy y_i >= i at every one-based position.",
+      "source_url": "https://oeis.org/A388711",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Compositions/ChoosableInitialIntervals.card_choosable_eq_superdiagonal",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f1710a578f4f68a74112a00f98bbcc8758ee125f894a9515be95329cd6531564"
+      }
+    },
+    {
+      "id": "oeis-a388986-euler-form-divisor-sum",
+      "title": "The A388986 Euler-form inclusion question",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Does every number in A228058 belong to A388986?",
+      "source_url": "https://oeis.org/A388986",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Arith/EulerFormDivisorSum.euler_form_lt",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a7bf455cf70bc1d19963acadb5f0e4e3632abee537d887e57310aac33402b676"
+      }
+    },
+    {
+      "id": "oeis-a389000-digit-sum-square-least-witness",
+      "title": "The least simultaneous digit-sum witness in A389000",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "> Conjecture: a(9m+5) = 210^(2*m+1)-1 for m >= 0.",
+      "source_url": "https://oeis.org/A389000",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Digit/Admissibility/DigitSumSquareLeastWitness.wu_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f3ddc3065f41d6109c6f30087b0e4c58596637d233d80b027fbc282117f8a780"
+      }
+    },
+    {
+      "id": "oeis-a389472-square-cube-substitution-odd-index-parity",
+      "title": "Odd-index parity of the A389472 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A389472, Paul D. Hanna, Oct 15 2025, gives the following NAME and COMMENT, quoted verbatim from `Library/Arith/hanna2025a389472.md`:",
+      "source_url": "https://oeis.org/A389472",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/SquareCubeSubstitutionOddIndexParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a9789d22fdd7635513cc59552b7096b30f4fa7fba1b1a53e0ce1da88f4d9bd0f"
+      }
+    },
+    {
+      "id": "oeis-a389476-quadratic-reversion-dyadic-support-parity",
+      "title": "Dyadic parity support of the A389476 quadratic reversion",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A389476 (Paul D. Hanna, Oct 05 2025) gives the following NAME and COMMENT, quoted verbatim from `Library/Arith/hanna2025a389476.md`.",
+      "source_url": "https://oeis.org/A389476",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/QuadraticReversionDyadicSupportParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:d906f933f6c62db535e534f7b27c3a4f91c510f2c9987d3c4c40186556fdb175"
+      }
+    },
+    {
+      "id": "oeis-a389536-substitution-square-cube-mod-four",
+      "title": "The A389536 square-cube substitution conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A389536, Paul D. Hanna, Oct 28 2025. The following verbatim NAME and COMMENT quotations are recorded in `Library/Arith/hanna2025a389536.md`:",
+      "source_url": "https://oeis.org/A389536",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/SubstitutionSquareCubeModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:5b465ed2a927ac253bb28cd3a3d219f8558789c72824793dfc37ffd188412a77"
+      }
+    },
+    {
+      "id": "oeis-a389537-alternating-dyadic-reversion-mod-four",
+      "title": "Alternating dyadic reversion modulo four for A389537",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna, OEIS A389537, Nov 03 2025, gives the following NAME and COMMENT. These quotations are copied verbatim from the claim in `Library/Arith/hanna2025a389537.md`.",
+      "source_url": "https://oeis.org/A389537",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/AlternatingDyadicReversionModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:6c58ae08f81ed4d6a5eb71869e443475b18561a91d57febb1274ac8fb0867640"
+      }
+    },
+    {
+      "id": "oeis-a389540-half-scaled-reflection-parity",
+      "title": "G.f. A(x) satisfies A(x)^2 = A(2*x - 2*A(x)) / 2.",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "> NAME \"G.f. A(x) satisfies A(x)^2 = A(2*x - 2*A(x)) / 2.\" > > COMMENT \"Conjecture: a(n) is odd iff n = 2^k for k >= 0.\"",
+      "source_url": "https://oeis.org/A389540",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/HalfScaledReflectionParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:bc7871d97bcdfd7a86764e32c3c36a287cad7320501bdaf71e1c2b5578f28df5"
+      }
+    },
+    {
+      "id": "oeis-a389542-quadratic-square-reversion-mod-four",
+      "title": "Quadratic square reversion modulo four for A389542",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A389542, Paul D. Hanna, Nov 01 2025, supplies the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2025a389542.md`:",
+      "source_url": "https://oeis.org/A389542",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/QuadraticSquareReversionModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:8898e911e81ee71c5d9e01f293827b29d944d3d5841bd972b7eeb8372e14ee60"
+      }
+    },
+    {
+      "id": "oeis-a390088-prime-digit-base-existence",
+      "title": "The A390088 exception set",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "For each number, ask whether some base above one writes it with all digits prime. Felix Huber conjectured on October 29, 2025 that exactly five numbers admit no such base.",
+      "source_url": "https://oeis.org/A390088",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Digit/PrimeDigitBaseClassification.a390088",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:d8a784b9b340c581a38e2634ff2a8176bba4e3ed55b4f17d8b60f12fa9d954db"
+      }
+    },
+    {
+      "id": "oeis-a391620-first-sums-partition-characterization",
+      "title": "First sums of decreasing partitions",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A391620 (Gus Wiseman, Dec 30 2025) states:",
+      "source_url": "https://oeis.org/A391620",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Compositions/FirstSumsPartitionCharacterization.wiseman_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ea355557efaef7526de11920f2c41e2efc0767960515410e4040d4cf300315fc"
+      }
+    },
+    {
+      "id": "oeis-a392525-cubic-fifteen-substitution-parity",
+      "title": "Parity of the A392525 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A392525 (Paul D. Hanna, Jan 15 2026) gives the following NAME, FORMULA (1), and COMMENT. The quotations are copied from the claim in `Library/Arith/hanna2026a392525.md`; the attribution and date were supplied by the orchestrator.",
+      "source_url": "https://oeis.org/A392525",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CubicFifteenSubstitutionParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f4447be4983f0c15b71d43700f43f2ae4e312025bdbd8aaf07f972025be167d3"
+      }
+    },
+    {
+      "id": "oeis-a392694-zero-prepended-first-sums",
+      "title": "Zero-Prepended First Sums and Odd Parts",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A392694, revision 7 (January 25, 2026), states:",
+      "source_url": "https://oeis.org/A392694",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Compositions/ZeroPrependedFirstSumsOddParts.card_zeroPrependedFirstSums_eq_distincts",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:d2b44491a826f1910bb1c0532b0d18e9ca54450a2076beabafdf7d3ae8d36eb8"
+      }
+    },
+    {
+      "id": "oeis-a392698-trimmed-alternating-partitions",
+      "title": "Trimmed Alternating Sums of Ordinary Partitions",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "For an ordinary partition q of n, list the positive parts in weakly decreasing order.",
+      "source_url": "https://oeis.org/A392698",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Compositions/TrimmedAlternatingPartitions.card_trimmedSums_eq_distincts",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c8766cd6d2e030b4d2f1b19d25d2f9b55e99a719c10264e60549c2f16debc368"
+      }
+    },
+    {
+      "id": "oeis-a392707-gapfree-odd-combinatorial-bridge",
+      "title": "Strict First Sums and Gapfree Odd Partitions",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A392707, revision 10, states:",
+      "source_url": "https://oeis.org/A392707",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Compositions/StrictFirstSumsGapfreeOddParts.card_strictFirstSums_eq_gapfreeOdd",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:9279ea47b10e2886e8d73db18940be98f0c78e5e8c6d379acb80190bc7e3efa5"
+      }
+    },
+    {
+      "id": "oeis-a393172-catalan-shift-square-mod-four",
+      "title": "The mod-four coefficients of the Catalan-shift square series",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A393172, Paul D. Hanna, Feb 04 2026. The following NAME and COMMENT are copied verbatim from the claim in `Library/Arith/hanna2026a393172.md`.",
+      "source_url": "https://oeis.org/A393172",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CatalanShiftSquareModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:6b3edf601aabddabe38a36a512c4e15122b41a442e512301bf75967d9ac01c8d"
+      }
+    },
+    {
+      "id": "oeis-a393856-scaled-reversion-mod-five",
+      "title": "Coefficients of A393856 are one modulo five",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A393856, Paul D. Hanna, Mar 11 2026. The following NAME and COMMENT are quoted verbatim from the claim in `Library/Arith/hanna2026a393856.md`.",
+      "source_url": "https://oeis.org/A393856",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/ScaledReversionCongruence.hanna_a393856",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:20b76b06d849875ffc1d5d4839cb2236893914bdff5c4ab9673fa910f52e4239"
+      }
+    },
+    {
+      "id": "oeis-a393857-scaled-reversion-mod-six",
+      "title": "Coefficients of A393857 are one modulo six",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A393857, Paul D. Hanna, Mar 11 2026. The following NAME and COMMENT are quoted verbatim from the claim in `Library/Arith/hanna2026a393857.md`.",
+      "source_url": "https://oeis.org/A393857",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/ScaledReversionCongruence.hanna_a393857",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:20b76b06d849875ffc1d5d4839cb2236893914bdff5c4ab9673fa910f52e4239"
+      }
+    },
+    {
+      "id": "oeis-a393867-all-terms-odd",
+      "title": "A393867: every logarithmic-derivative coefficient is odd",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "The second OEIS A393867 comment is exactly: \"Conjecture: all terms are odd.\" The target is `Odd (a393867 n)` for every `n >= 1`, using the definition in `PrimePowerShiftLogDerivative`. This is the first-tier 2026 conjecture; the prime-divisibility comment and A393866's shifted printed formula are distinct.",
+      "source_url": "https://oeis.org/A393867",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/PrimePowerShiftLogDerivativeOdd.a393867_odd",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:22358b13226a629f77529b95eeaea8054a5547ff99035fd2ea670404a13be6c8"
+      }
+    },
+    {
+      "id": "oeis-a393867-prime-power-shift-log-derivative",
+      "title": "Prime divisibility of the A393867 logarithmic-derivative terms",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's OEIS entries A393866 and A393867, Mar 29 2026, specify:",
+      "source_url": "https://oeis.org/A393867",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/PrimePowerShiftLogDerivative.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:9869bdef89a8e6c9b4d5bec340b6549b72da250e1474c2be75b6a98f46ea4c30"
+      }
+    },
+    {
+      "id": "oeis-a394757-twin-prime-sigma-gcd",
+      "title": "Divisibility of the A394757 terms",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A394757 lists the centers `k` of twin-prime pairs for which the greatest common divisor of `k` and the sum-of-divisors function `sigma(k)` is prime. The entry states that every such term is divisible by 18.",
+      "source_url": "https://oeis.org/A394757",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S3/Factorization/TwinPrimeSigmaGcdDivisibility.sigma_gcd_divisibility",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c04334187006279bddf135c0d0e7a5c034dff5a48de05921e150fb9c07db6572"
+      }
+    },
+    {
+      "id": "oeis-a395833-diagonal-exponent-self-divisibility",
+      "title": "OEIS A395833: diagonal-exponent self-divisibility",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "The Library note quotes the NAME and divisibility conjecture verbatim:",
+      "source_url": "https://oeis.org/A395833",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalExponentSelfDivisibility.exponent_self_divisibility",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:8a9968617365716002b1d2ca3968576bdd1e3e5d49c9dbeff08d7ceb160959bc"
+      }
+    },
+    {
+      "id": "oeis-a395833-negative-power-diagonal-mod-three",
+      "title": "A395833: the mod-three congruence clause",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "From [Library/ArithSums/hanna2026a395833.md](../Library/ArithSums/hanna2026a395833.md), OEIS A395833, Paul D. Hanna, May 07 2026:",
+      "source_url": "https://oeis.org/A395833",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/NegativePowerDiagonalModPrime.hanna_conjecture_a395833",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:b71483f3cba2e705fb183967ee73c5e415d9577088376179dace8a98a08525ba"
+      }
+    },
+    {
+      "id": "oeis-a396099-iterate-product-two-three-mod-four",
+      "title": "The A396099 period-four coefficient pattern",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A396099 (Paul D. Hanna, Jun 02 2026) gives the NAME:",
+      "source_url": "https://oeis.org/A396099",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/IterateProductTwoThreeModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e6eb08485f942cdf0cf4ba56a8665cc7d5902b247f2bfb42e301f084da3eb728"
+      }
+    },
+    {
+      "id": "oeis-a396102-triple-iterate-shift-mod-three",
+      "title": "G.f. A(x) satisfies A(A(A(x))) = (1+x) * A(A(x))",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "NAME \"G.f. A(x) satisfies A(A(A(x))) = (1+x) * A(A(x)).\"",
+      "source_url": "https://oeis.org/A396102",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/TripleIterateShiftModThree.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:bdf3e6406141521091c339a87657fbc519f368a4786f33d36e88b31cd07288c0"
+      }
+    },
+    {
+      "id": "oeis-a396793-iterate-product-nine-mod-three",
+      "title": "Divisibility of the A396793 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A396793, Paul D. Hanna, Jun 07 2026, states:",
+      "source_url": "https://oeis.org/A396793",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/IterateProductNineModThree.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:36ae9a9cca8e0ae59dfb4dd2cc27bc04fdb9f2467a7b9040265a17b366e357c2"
+      }
+    },
+    {
+      "id": "oeis-a396794-triple-iterate-product-mod-four",
+      "title": "Divisibility of the A396794 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A396794, Paul D. Hanna, Jun 07 2026. The following exact NAME and COMMENT quotations are recorded in `Library/Arith/hanna2026a396794.md`.",
+      "source_url": "https://oeis.org/A396794",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/TripleIterateProductModFour.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:49b64d0ff3ec26c4fe92f44ee3138e90e1591b60038d237be541287fa5e87c70"
+      }
+    },
+    {
+      "id": "oeis-a396795-iterate-product-twenty-five-mod-five",
+      "title": "Divisibility of the A396795 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A396795, Paul D. Hanna, Jun 06 2026, gives the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2026a396795.md`:",
+      "source_url": "https://oeis.org/A396795",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/IterateProductTwentyFiveModFive.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a3f1c19440df130aeed4d4296e34271e8971322acecfe535674da8f4824ba0a4"
+      }
+    },
+    {
+      "id": "oeis-a396797-three-four-iterate-product-mod-six",
+      "title": "Coefficients of the A396797 three-four iterate product series modulo six",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A396797, Paul D. Hanna, Jun 15 2026. The following NAME and COMMENT quotes are supplied by the orchestrator and recorded in `Library/Arith/hanna2026a396797.md`:",
+      "source_url": "https://oeis.org/A396797",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/ThreeFourIterateProductModSix.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:f2c007d813b0a1b53d27ab9aa80ac3fa7f9ed6a58064764c02ffa64cf891e002"
+      }
+    },
+    {
+      "id": "oeis-a396803-iterate-exponential-parity",
+      "title": "Parity of the A396803 iterated-exponential coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's NAME and every conjecture COMMENT, quoted verbatim from the entry snapshot:",
+      "source_url": "https://oeis.org/A396803",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/IterateExponentialParity.parity_iterate_three",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a61a0ba29e7fdaa94114cf2bba34fa9f5ff26e6d282906baf290d168534ecd5e"
+      }
+    },
+    {
+      "id": "oeis-a396804-quartic-egf-mod-four",
+      "title": "OEIS A396804: the fourth-iterate EGF modulo four",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's OEIS A396804 (2026-06-09) defines the exponential generating function by `A(x)=x exp(A^4(x))`, explicitly specifying that superscripts mean compositional iteration. Its independent modulo-four conjecture is: `a(n) == [1,2,3,0] repeating (mod 4) for n >= 1`.",
+      "source_url": "https://oeis.org/A396804",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/QuarticEGFModFour.mod_four",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:8d40ce7c0f33136f929b9430a1a5e2fcb83fe3fd7fb693e1cab53756188461d2"
+      }
+    },
+    {
+      "id": "oeis-a396805-iterate-exponential-parity",
+      "title": "Parity of the A396805 iterated-exponential coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's NAME and every conjecture COMMENT, quoted verbatim from the entry snapshot:",
+      "source_url": "https://oeis.org/A396805",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/IterateExponentialParity.parity_iterate_five",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a61a0ba29e7fdaa94114cf2bba34fa9f5ff26e6d282906baf290d168534ecd5e"
+      }
+    },
+    {
+      "id": "oeis-a396806-iterate-exponential-parity",
+      "title": "Parity of the A396806 iterated-exponential coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's NAME and every conjecture COMMENT, quoted verbatim from the entry snapshot:",
+      "source_url": "https://oeis.org/A396806",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/IterateExponentialParity.parity_iterate_six",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:a61a0ba29e7fdaa94114cf2bba34fa9f5ff26e6d282906baf290d168534ecd5e"
+      }
+    },
+    {
+      "id": "oeis-a396807-compositional-iterate-congruence",
+      "title": "Coefficient congruence for OEIS A396807",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "NAME \"G.f. satisfies A(x) = x + A^5(x)*A^6(x).\" where A^n(x) denotes the n-th iteration (compositional power) of A(x).",
+      "source_url": "https://oeis.org/A396807",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Invariants/CompositionalIterateCongruence.coefficient_congruence",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:ca40a78e73bdda72b79a710c942c0ad39e0903049b8cc16466fc5660cac812f5"
+      }
+    },
+    {
+      "id": "oeis-a396843-compositional-square-all-odd-coefficients",
+      "title": "OEIS A396843: all coefficients are odd",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A396843 defines `A(x) = Sum_{n>=1} a(n)*x^n` by",
+      "source_url": "https://oeis.org/A396843",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/CompositionalSquareAllOddCoefficients.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:06e4c2fc12ff2a1cb2a154d513d1ef4281b22ef373834d184b8a5d62b4b60e8c"
+      }
+    },
+    {
+      "id": "oeis-a396844-scaled-quadratic-reversion-mod-sixteen",
+      "title": "Refutation of the A396844 mod-sixteen conjecture",
+      "area": "Integer sequences (OEIS)",
+      "kind": "refuted",
+      "summary": "OEIS A396844, Paul D. Hanna, Jul 03 2026, gives the following NAME and COMMENT, quoted verbatim from `Library/Recurrence/hanna2026a396844.md`:",
+      "source_url": "https://oeis.org/A396844",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/ScaledQuadraticReversionModSixteen.hanna_conjecture_false",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:5c3a7b94b350b9d680f8786a378f8aecd5c31744e8086eb0652ee2d253e3a7a6"
+      }
+    },
+    {
+      "id": "oeis-a396846-logarithmic-quarter-normalization-mod-eight",
+      "title": "The A396846 logarithmic coefficients modulo eight",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna, OEIS A396846, Jun 24 2026. The following NAME and COMMENT are copied verbatim from the quotation in `Library/Recurrence/hanna2026a396846.md`:",
+      "source_url": "https://oeis.org/A396846",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Parity/LogarithmicQuarterNormalizationModEight.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:bad505750d824bfa58b71bf4baf79ee4a3e6149418fad047e711816977a75135"
+      }
+    },
+    {
+      "id": "oeis-a397241-diagonal-power-ratio-all-odd",
+      "title": "Oddness of all A397241 terms",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A397241, Paul D. Hanna, Jun 19 2026:",
+      "source_url": "https://oeis.org/A397241",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalPowerRatioAllOdd.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:3f202f2da7b10f16a20fd39eef0f18e3f61581ad1e186c0332609f9ed6b37059"
+      }
+    },
+    {
+      "id": "oeis-a397241-mod-four",
+      "title": "OEIS A397241 coefficients modulo 4",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A397241 (Paul D. Hanna, Jun 19 2026) records the following NAME:",
+      "source_url": "https://oeis.org/A397241",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalPowerRatioModTwelve.hanna_conjecture_mod_four",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:4dfd4a75394b713a01cb2e8b24eb92ee5a1bfc1baa20627a73a2bb55db02ec4f"
+      }
+    },
+    {
+      "id": "oeis-a397241-mod-three",
+      "title": "OEIS A397241 coefficients modulo 3",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A397241 (Paul D. Hanna, Jun 19 2026) records the following NAME:",
+      "source_url": "https://oeis.org/A397241",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/DiagonalPowerRatioModTwelve.hanna_conjecture_mod_three",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:4dfd4a75394b713a01cb2e8b24eb92ee5a1bfc1baa20627a73a2bb55db02ec4f"
+      }
+    },
+    {
+      "id": "oeis-a397242-exponential-square-weight-catalan-parity",
+      "title": "Parity of the A397242 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A397242, Paul D. Hanna, Jun 19 2026, gives the following NAME and first COMMENT, quoted from `Library/Recurrence/hanna2026a397242.md`:",
+      "source_url": "https://oeis.org/A397242",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ExponentialSquareWeightCatalanParity.hanna_conjecture",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e0930bfad4e706839bf73604bbdd5dffdf9f70ffe509856292e80af732b2a43a"
+      }
+    },
+    {
+      "id": "oeis-a397242-mod-three-powers",
+      "title": "The residue-one conjecture of OEIS A397242",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A397242 (Paul D. Hanna, Jun 19 2026), NAME:",
+      "source_url": "https://oeis.org/A397242",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ExponentialSquareWeightTernarySupport.hanna_conjecture_one",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:3b5bfdeb9b0d4b3a8728f24cff31192031ce7c3602a92311eb349bc1044cd69f"
+      }
+    },
+    {
+      "id": "oeis-a397242-mod-three-sums",
+      "title": "The residue-two conjecture of OEIS A397242",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A397242 (Paul D. Hanna, Jun 19 2026), NAME:",
+      "source_url": "https://oeis.org/A397242",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ExponentialSquareWeightTernarySupport.hanna_conjecture_two",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:3b5bfdeb9b0d4b3a8728f24cff31192031ce7c3602a92311eb349bc1044cd69f"
+      }
+    },
+    {
+      "id": "oeis-a397244-quadratic-power-diagonal-fibbinary-parity",
+      "title": "Fibbinary parity of the A397244 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "OEIS A397244, Paul D. Hanna, gives the following NAME and Fibbinary COMMENT, quoted verbatim from `Library/ArithSums/hanna2026a397244.md` and matched to `oeis-A397244.src` supplied by the orchestrator:",
+      "source_url": "https://oeis.org/A397244",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/QuadraticPowerDiagonalFibbinaryParity.hanna_conjecture_a397244",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e4d40349d37fac749b0ae095b6f201f4cf7562948cccf70cc1d0466ce16f8094"
+      }
+    },
+    {
+      "id": "oeis-a397345-square-weight-parity",
+      "title": "A397345: square-weight congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's OEIS A397345 NAME is the formal equation A(x)=exp(x+Sum_{n>=2}(5*n^2-1)*a(n)*x^n/(5*n^2)). Its first COMMENT is the single target of this dossier:",
+      "source_url": "https://oeis.org/A397345",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ParametricExponentialSquareCongruence.parity_q5",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c0018601868dea4b17c92fb4aed5821793a95097883ac633c316925feb55cc07"
+      }
+    },
+    {
+      "id": "oeis-a397346-square-weight-mod-eight",
+      "title": "A397346: square-weight congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's OEIS A397346 NAME is the formal equation A(x)=exp(x+Sum_{n>=2}(2*n^2-1)*a(n)*x^n/(2*n^2)). Its first COMMENT is the single target of this dossier:",
+      "source_url": "https://oeis.org/A397346",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ParametricExponentialSquareCongruence.residues_q2",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c0018601868dea4b17c92fb4aed5821793a95097883ac633c316925feb55cc07"
+      }
+    },
+    {
+      "id": "oeis-a397348-square-weight-parity",
+      "title": "A397348: square-weight congruence",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's OEIS A397348 NAME is the formal equation A(x)=exp(x+Sum_{n>=2}(3*n^2-1)*a(n)*x^n/(3*n^2)). Its first COMMENT is the single target of this dossier:",
+      "source_url": "https://oeis.org/A397348",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ParametricExponentialSquareCongruence.parity_q3",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:c0018601868dea4b17c92fb4aed5821793a95097883ac633c316925feb55cc07"
+      }
+    },
+    {
+      "id": "oeis-a397349-logarithmic-weight-mod-three",
+      "title": "Alternation modulo three of the A397349 coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's NAME and BOTH conjecture COMMENT lines are quoted verbatim from the orchestrator-supplied `oeis-A397349.src`:",
+      "source_url": "https://oeis.org/A397349",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/LogarithmicWeightCatalanParity.hanna_conjecture_a397349_mod_three",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e7f40246a5547371722f29e4781b53fef61207371deac74bd2e96388d74cdd89"
+      }
+    },
+    {
+      "id": "oeis-a397349-logarithmic-weight-parity",
+      "title": "Parity of the A397349 logarithmic-weight coefficients",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's NAME and both conjecture COMMENT lines, quoted verbatim:",
+      "source_url": "https://oeis.org/A397349",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/LogarithmicWeightBinaryParity.parity_conjecture_holds",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:cfe58571e52b1b5812c312438858e7baecfa3584112408bde8667fed3c20a76e"
+      }
+    },
+    {
+      "id": "oeis-a397356-reciprocal-square-exponent-diagonal-parity",
+      "title": "Parity of the A397356 reciprocal square-exponent diagonals",
+      "area": "Integer sequences (OEIS)",
+      "kind": "proved",
+      "summary": "Paul D. Hanna's NAME and BOTH conjecture COMMENT lines, quoted verbatim from the entry snapshot `oeis-A397356.src`:",
+      "source_url": "https://oeis.org/A397356",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Recurrence/Residue/ReciprocalSquareExponentDiagonalParity.hanna_conjecture_a397356",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:e68163c9d37a17a72c5d1b205b1b04ce59fd4b48e0fb1baad9436372ac8bdd8d"
+      }
+    },
+    {
+      "id": "thue-morse-reduced-abelian-odd",
+      "title": "Odd-index reduced abelian complexity of the Thue-Morse word",
+      "area": "Words",
+      "kind": "proved",
+      "summary": "This dossier deliberately anchors only the equality `rho^{ab,red}_t(2n+1) = rho^{ab,red}_t(n+1)` for every nonnegative integer `n`, proposed in Section 3 (Conclusion), page 15 of arXiv:2509.16034v1. The caller-supplied reading, 2026-09-07, quotes its source sentence:",
+      "source_url": "https://doi.org/10.48550/arXiv.2509.16034",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Complexity/ThueMorseReducedAbelianOdd.reducedAbelianComplexity_odd",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:028b39141838b4dd9ab30a272211ecdbceeee1b20050ccaf79f70149807e5948"
+      }
+    },
+    {
+      "id": "vatter-question-4-3-derangement-ratio",
+      "title": "A negative answer to Vatter's Question 4.3",
+      "area": "arXiv",
+      "kind": "refuted",
+      "summary": "Vincent Vatter, \"An Assortment of Problems in Permutation Patterns: Unimodality, Equivalence, Derangements, and Sorting\", arXiv:2602.16355v2, Section 4:",
+      "source_url": "https://arxiv.org/abs/2602.16355",
+      "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+      "declaration_gid": "D5/S1/Words/Patterns/DerangementRatioNonconvergence.vatter_question_4_3_answer_no",
+      "kernel_verified": {
+        "freeze_status": "frozen",
+        "frozen_node_id": "sha256:55929660df0ae2db4bac38d60baed62de0ae71424f45e529b6bc761b1b38321c"
+      }
     }
   ]
 }

@@ -190,12 +190,13 @@ def millennium_entry(output):
 
 
 def render_conjecture_groups(document, snapshot, output):
+    from lib.problem_resolutions import is_kernel_verified
     parsed = Fragments(document)
     rows = {urlsplit(e.attrs['href']).path.strip('/').split('/')[-1]: parsed.raw(e)
             for e in parsed.select(cls='problem-row')}
     groups = defaultdict(list)
-    active = [p for p in snapshot['problems'] if not p.get('resolution')]
-    completed = [p for p in snapshot['problems'] if p.get('resolution')]
+    active = [p for p in snapshot['problems'] if not is_kernel_verified(p.get('resolution'))]
+    completed = [p for p in snapshot['problems'] if is_kernel_verified(p.get('resolution'))]
     for p in active:
         if p['slug'] not in rows:
             raise ValueError('Missing source dossier row')
@@ -240,8 +241,9 @@ def conjecture_journey(document, snapshot):
     """An editorial shortlist with explicit existing-result links; never a truth gate."""
     from lib.research_results import followup_families
     stories = json.loads((ROOT / 'site/assets/result-stories.json').read_text())
-    catalog = json.loads((ROOT / 'site/assets/research-catalog.json').read_text())
-    resolved = {p['slug'] for p in snapshot['problems'] if p.get('resolution')}
+    catalog = json.loads((ROOT / 'site/assets/research-directions.json').read_text())
+    from lib.problem_resolutions import is_kernel_verified
+    resolved = {p['slug'] for p in snapshot['problems'] if is_kernel_verified(p.get('resolution'))}
     families = [f for f in followup_families() if f['id'] not in resolved]
     cards = []
     for f in families:
@@ -280,8 +282,10 @@ def conjecture_journey(document, snapshot):
     archive = parsed.select(id='completed-dossiers')[0]
     items = defaultdict(list)
     for problem in snapshot['problems']:
-        if not problem.get('resolution'): continue
-        item = parsed.select(id='resolved-'+problem['slug'])[0]
+        if not is_kernel_verified(problem.get('resolution')): continue
+        matches = parsed.select(id='resolved-'+problem['slug'])
+        if not matches: continue
+        item = matches[0]
         key,_,_ = series(source_url(problem))
         raw = parsed.raw(item).replace('class="resolved-question"', 'class="resolved-question reading-item" data-search="'+esc(problem['title'].lower())+'"')
         items[key].append(raw)
