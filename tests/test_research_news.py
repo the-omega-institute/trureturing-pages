@@ -40,6 +40,15 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertIn("Proved in Lean", card)
             self.assertNotIn("Proved / source record", card)
 
+    def test_landed_pr_counts_as_in_lean_even_without_kernel_marker(self):
+        from lib.research_news import _status
+        # A hand-curated result proved via a merged development PR is in Lean; the kernel
+        # marker is added only for resolutions bound in the current snapshot, so gating
+        # "in Lean" on the marker alone would demote these to "/ source record".
+        self.assertEqual(_status({"kind": "proved", "pr": "5859"}), "Proved in Lean")
+        self.assertEqual(_status({"kind": "refuted", "pr": "5914"}), "Refuted in Lean")
+        self.assertEqual(_status({"kind": "proved"}), "Proved / source record")
+
     def test_manual_editorial_record_wins_over_derived_values(self):
         problem = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",
                    "sections": {"Problem": "Source wording."}}
