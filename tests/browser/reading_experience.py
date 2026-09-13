@@ -80,6 +80,8 @@ def main():
         assert page.locator('.research-home > #open-problems').count()==1
         assert page.locator('.rw-release-browser').count()==0
         page.screenshot(path=str(args.output/'conjectures-notebook-desktop.png'),full_page=True)
+        # Arrive from another document: a same-page hash change retains an already opened notebook.
+        page.goto(base+'research.html?lang=en',wait_until='networkidle')
         page.goto(base+'conjectures.html?lang=en#next-questions',wait_until='networkidle')
         assert page.locator('#next-questions').is_visible()
         assert page.locator('#research-workbench').count()==0
