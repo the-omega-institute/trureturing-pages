@@ -148,7 +148,7 @@ def render_research_groups(document, snapshot, records):
             f'<summary><strong>{esc(r["title"])}</strong><span>{esc(r["kind"].capitalize())}</span></summary>'
             f'<div class="reading-item-body">{articles[r["id"]]}</div></details>')
     sections = ''.join(group_html(k, t, d, groups[k], prefix='results', noun='results')
-        for k, t, d in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
+        for k, t, d in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')] if groups[k])
     # Preserve the academic news layout; results lead and detailed gaps stay in Conjectures.
     # Only the previously flat result collection receives disclosure controls.
     body = ('<main class="site-main research-news"><header class="news-heading">'

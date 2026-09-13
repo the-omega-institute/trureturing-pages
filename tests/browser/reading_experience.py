@@ -23,7 +23,8 @@ def main():
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
-        assert page.locator('#results [data-reading-group]').count()==3
+        for group in page.locator('#results [data-reading-group]').all():
+            assert group.locator('.result-item').count()>0
         assert page.locator('#results [data-reading-group][open]').count()==0
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="version-status.html"]:visible').count()==0

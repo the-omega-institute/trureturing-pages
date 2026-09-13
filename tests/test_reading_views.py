@@ -60,9 +60,13 @@ class ReadingViewsTests(unittest.TestCase):
         p=Fragments(source);self.assertIn(p.raw(p.select(id='publications')[0]),out)
         self.assertNotIn('href="spaces.html"',out)
 
-    def test_empty_collection_is_explicit(self):
+    def test_research_only_displays_collections_with_results(self):
         records,source=results();out=render_research_groups(source,{},records[:1])
-        self.assertIn('0 results',Fragments(out).raw(Fragments(out).select(id='results-erdos')[0]))
+        self.assertTrue(Fragments(out).select(id='results-oeis'))
+        self.assertFalse(Fragments(out).select(id='results-erdos'))
+        self.assertFalse(Fragments(out).select(id='results-other'))
+        populated=render_research_groups(source,{},records)
+        self.assertTrue(Fragments(populated).select(id='results-erdos'))
 
     def test_missing_result_fails_instead_of_silently_omitting_it(self):
         records,source=results();records[0]['id']='absent'
