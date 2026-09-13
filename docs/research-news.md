@@ -103,8 +103,22 @@ the release's pinned source commit. Bindings must name an existing problem,
 the containing module's declaration, a proved/refuted kind and an existing
 Frozen module record. Code examples are ignored; malformed, duplicate or
 dangling records fail the build. These are structural checks, not a replay of
-typed-claim validation or Lean. Generated results explicitly say **source
-record** and have no invented proof PR or merge date.
+typed-claim validation or Lean. Generated source records are published only
+after the release's #48 formalization gate adds
+`resolution.kernel_verified`; the status is **Proved in Lean** or
+**Refuted in Lean**. A resolution without that attestation is omitted from the
+resolved-question projection and remains an open dossier.
+
+To seed the editable catalog with verified source records, run:
+
+```sh
+python -m lib.research_news append-verified --snapshot data/library/<digest>.json.gz \
+  --catalog site/assets/research-news.json
+```
+
+The equivalent Make target is `make append-verified SNAPSHOT=... [CATALOG=...]`.
+The command deduplicates by question id or `module.declaration`, preserves
+existing editorial rows, sorts result rows deterministically, and is idempotent.
 
 The release snapshot retains each binding as optional `problem.resolution`.
 Older snapshots without bindings remain unchanged. News joins editorial and

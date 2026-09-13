@@ -20,7 +20,8 @@ def followup_families():
 
 
 def render_followups(snapshot):
-    resolved = {problem['slug'] for problem in snapshot['problems'] if problem.get('resolution')}
+    from lib.problem_resolutions import is_kernel_verified
+    resolved = {problem['slug'] for problem in snapshot['problems'] if is_kernel_verified(problem.get('resolution'))}
     rows = []
     for family in followup_families():
         if family['id'] in resolved:

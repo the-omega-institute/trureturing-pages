@@ -5,17 +5,113 @@ from pathlib import Path
 from unittest.mock import patch
 
 from lib.living_library import parse_problem, render_research
-from lib.research_news import CATALOG, result_records
+from lib.research_news import CATALOG, append_verified, result_records
 from lib.research_results import ASSETS, STORIES, proof_source, render_followups
 from tests.test_living_library import graph, problem_source
 
 
 class ResearchNewsTests(unittest.TestCase):
+    def _verified_snapshot(self, problem, kind="proved"):
+        problem = dict(problem)
+        problem.setdefault("triage", "theorem")
+        problem.setdefault("motivation_gids", [])
+        problem["resolution"] = {"kind": kind, "declaration_gid": "D5/S1/Example.result",
+                                  "source_path": "Blueprint/D5/S1/Example.md",
+                                  "kernel_verified": {"frozen_node_id": "sha256:" + "a" * 64,
+                                                       "freeze_status": "frozen"}}
+        return {"graph": {"source_snapshot": {"source_commit": "b" * 40}, "nodes": []},
+                "problems": [problem], "truth_release_digest": "sha256:" + "c" * 64}
+
+    def test_kernel_verified_external_resolution_derives_editorial_record_and_lean_status(self):
+        problem = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",
+                   "sections": {name: ("First sentence states the question. More detail follows." if name == "Problem" else "placeholder")
+                                 for name in ("Problem", "Motivation", "Gap", "Route", "Falsifier", "Evidence", "Triage", "ASSUMED-UNVERIFIED")}}
+        records = result_records(self._verified_snapshot(problem))
+        result = next(item for item in records if item["id"] == problem["slug"])
+        self.assertEqual(result["field"], "Integer sequences (OEIS)")
+        self.assertIn("First sentence states the question.", result["summary"])
+        self.assertNotEqual(result["field"], "Registered external question")
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            from lib.living_library import render_research
+            render_research(self._verified_snapshot(problem), output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
+            html = (output / "research.html").read_text()
+            card = html.split('id="resolved-oeis-a123456"', 1)[1].split('</article>', 1)[0]
+            self.assertIn("Proved in Lean", card)
+            self.assertNotIn("Proved / source record", card)
+
+    def test_manual_editorial_record_wins_over_derived_values(self):
+        problem = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",
+                   "sections": {"Problem": "Source wording."}}
+        with tempfile.TemporaryDirectory() as temp:
+            catalog = Path(temp) / "news.json"
+            catalog.write_text(json.dumps({"results": [{"id": "manual", "title": "Manual title", "field": "Manual field",
+                "kind": "proved", "module": "D5/S1/Example", "declaration": "result", "summary": "Editorial summary",
+                "scope": "Editorial scope", "source_commit": "c" * 40, "source_url": "https://example.org", "date": None}],
+                "publications": []}))
+            from unittest.mock import patch
+            with patch("lib.research_news.CATALOG", catalog):
+                snapshot = self._verified_snapshot(problem)
+                snapshot["problems"][0]["resolution"]["declaration_gid"] = "D5/S1/Example.result"
+                records = result_records(snapshot)
+                result = next(item for item in records if item["id"] == "manual")
+                self.assertEqual(result["summary"], "Editorial summary")
+                self.assertEqual(result["field"], "Manual field")
+
+    def test_unverified_resolution_is_not_rendered_as_solved(self):
+        problem = {"slug": "unverified", "title": "Unverified", "url": "https://example.org/q",
+                   "sections": {"Problem": "Question text."},
+                   "resolution": {"kind": "proved", "declaration_gid": "D5/S1/Example.result",
+                                  "source_path": "Blueprint/D5/S1/Example.md"}}
+        self.assertNotIn("unverified", {item["id"] for item in result_records({"graph": {"source_snapshot": {"source_commit": "a" * 40}}, "problems": [problem]})})
+
+    def test_append_verified_is_idempotent_and_filters_unverified(self):
+        verified = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",
+                    "sections": {"Problem": "Question text."}}
+        unverified = {"slug": "other", "title": "Other", "url": "https://example.org/q",
+                      "sections": {"Problem": "Other text."},
+                      "resolution": {"kind": "proved", "declaration_gid": "D5/S1/Other.result", "source_path": "Blueprint/D5/S1/Other.md"}}
+        snapshot = self._verified_snapshot(verified)
+        snapshot["problems"].append(unverified)
+        with tempfile.TemporaryDirectory() as temp:
+            catalog = Path(temp) / "news.json"
+            catalog.write_text(json.dumps({"results": [], "publications": []}))
+            first = append_verified(snapshot, catalog)
+            before = catalog.read_bytes()
+            second = append_verified(snapshot, catalog)
+            self.assertEqual(first, second)
+            self.assertEqual(before, catalog.read_bytes())
+            data = json.loads(catalog.read_text())
+            self.assertEqual(len(data["results"]), 1)
+            self.assertEqual(data["results"][0]["id"], "oeis-a123456")
+
+    def test_derived_field_uses_arxiv_then_domain_then_open_problem(self):
+        base = {"title": "Question", "sections": {"Problem": "Question."}}
+        for problem, expected in [
+            ({**base, "slug": "arxiv-question", "arxiv_id": "2405.02727"}, "arXiv"),
+            ({**base, "slug": "domain-question", "url": "https://example.org/q", "domain": "Combinatorics"}, "Combinatorics"),
+            ({**base, "slug": "plain-question", "url": "https://example.org/q"}, "Open problem"),
+        ]:
+            with self.subTest(expected=expected):
+                result = next(item for item in result_records(self._verified_snapshot(problem)) if item["id"] == problem["slug"])
+                self.assertEqual(result["field"], expected)
+
+    def test_append_deduplicates_existing_declaration_even_with_different_id(self):
+        problem = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",
+                   "sections": {"Problem": "Question."}}
+        with tempfile.TemporaryDirectory() as temp:
+            catalog = Path(temp) / "news.json"
+            catalog.write_text(json.dumps({"results": [{"id": "editorial-id", "title": "Edited", "kind": "proved",
+                "module": "D5/S1/Example", "declaration": "result", "field": "Edited", "summary": "Edited", "scope": "Edited"}],
+                "publications": []}))
+            append_verified(self._verified_snapshot(problem), catalog)
+            self.assertEqual(len(json.loads(catalog.read_text())["results"]), 1)
+
     def test_a_future_resolution_leaves_the_followup_overview(self):
         problem = {"slug": "thue-morse-reduced-abelian-even", "resolution": {"kind": "proved"}}
         html = render_followups({"problems": [problem]})
-        self.assertEqual(html.count('class="result-followup"'), 2)
-        self.assertNotIn('href="#rp=thue-morse-reduced-abelian-even"', html)
+        self.assertEqual(html.count('class="result-followup"'), 3)
+        self.assertIn('href="#rp=thue-morse-reduced-abelian-even"', html)
         self.assertIn('href="#rp=pochhammer-higher-even-intervals"', html)
 
     def test_news_and_bank_have_distinct_routes_and_preserve_dossiers(self):
@@ -157,10 +253,9 @@ class ResearchNewsTests(unittest.TestCase):
             news = (output / "research.html").read_text()
             bank = (output / "conjectures.html").read_text()
             dossier = (output / "research/test-question/index.html").read_text()
-            self.assertIn('id="test-question"', news)
-            self.assertIn("Refuted / source record", news)
-            self.assertIn('id="resolved-test-question"', news)
-            self.assertIn('data-problem-slug="test-question" data-resolution-kind="refuted"', news)
-            self.assertIn("Repository record: refuted", dossier)
-            self.assertNotIn("Our route: proposed", dossier)
-            self.assertIn("D5/S1/Example.result", dossier)
+            self.assertNotIn('id="test-question"', news)
+            self.assertNotIn('id="resolved-test-question"', news)
+            self.assertNotIn('data-problem-slug="test-question" data-resolution-kind="refuted"', news)
+            self.assertIn("Our route: proposed", dossier)
+            self.assertNotIn("Repository record: refuted", dossier)
+            self.assertNotIn("D5/S1/Example.result", dossier)
