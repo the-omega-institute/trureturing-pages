@@ -131,7 +131,7 @@ export function mountEvolution(host, { onSelect }) {
     ctx.font = "11px Arial";
     if(scene.kind==='time') {
       for(const i of new Set(scene.nodes.map(n=>n.observation))) {
-        const [x]=transform.apply([120+i*260,0]);ctx.fillStyle=i===scene.selectedObservation?'#d8ede3':'#809995';ctx.fillText(`O${i+1}${i===scene.selectedObservation?' · selected':''}`,x-15,18);
+        const [x]=transform.apply([120+i*260,0]);ctx.fillStyle=i===scene.selectedObservation?'#d8ede3':'#809995';ctx.fillText(`O${i+1}`,x-15,18);
       }
     }
     for (const node of candidates) {

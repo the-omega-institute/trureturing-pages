@@ -246,7 +246,7 @@ def conjecture_journey(document, snapshot):
     cards = []
     for f in families:
         targets = ''.join(f'<a href="#rp={esc(t["id"])}">{esc(t["title"])} ↗</a>' for t in f['targets'])
-        cards.append(f'''<article class="journey-direction">
+        cards.append(f'''<article class="journey-direction" id="direction-{esc(f['id'])}">
 <h3>{esc(f['area'])}</h3><p class="journey-question"><a href="#rp={esc(f['id'])}">{esc(f['title'])}</a></p>
 <ol class="journey-steps"><li><span>Established result</span><p>{esc(stories[f['builds_on']]['finding'])}</p><a href="results/{esc(f['builds_on'])}/">Read the proof &amp; exact scope ↗</a></li>
 <li><span>Next contribution</span><p>{esc(f['next_step'])}</p><div class="journey-targets">{targets}</div></li>
@@ -254,7 +254,7 @@ def conjecture_journey(document, snapshot):
     overview = ('<section class="research-journey result-followups" id="next-questions" aria-labelledby="next-questions-title">'
         '<p class="eyebrow">01 / OUR PRIORITY DIRECTIONS</p><h2 id="next-questions-title">Where we can contribute next</h2>'
         '<p class="journey-intro">A curated shortlist for researchers and formalizers: questions with an existing proof to build on, a concrete missing step, and a wider mathematical goal. These are our proposed priorities, not a ranking of all open mathematics.</p>'
-        '<div class="journey-grid">' + ''.join(cards) + '</div></section>')
+        '<nav class="journey-priorities" aria-label="Priority research areas">' + ''.join(f'<a href="#direction-{esc(f["id"])}">{esc(f["area"])}</a>' for f in families) + '</nav><div class="journey-grid">' + ''.join(cards) + '</div></section>')
     parsed = Fragments(document)
     for element in sorted(parsed.select(cls='result-followups') + parsed.select(cls='research-activity'), key=lambda e:e.start, reverse=True):
         document = document[:element.start]+document[element.end:]
@@ -269,7 +269,10 @@ def conjecture_journey(document, snapshot):
     if stats and browser:
         start,end = stats[0].start,browser[0].end
         document = document[:start] + '<details id="source-questions" class="reading-group"><summary>Browse all source questions · OEIS, Erdős &amp; papers</summary><div class="reading-group-body">' + document[start:end] + '</div></details>' + document[end:]
-    areas = ''.join(f'<a href="#rp={esc(f["id"])}">{esc(f["area"])}</a>' for f in catalog['families'] if f['id'] not in resolved)
+    by_area = defaultdict(list)
+    for family in catalog['families']:
+        if family['id'] not in resolved: by_area[family['area']].append(family)
+    areas = ''.join('<details><summary>'+esc(area)+'</summary><div>'+''.join(f'<a href="#rp={esc(f["id"])}">{esc(f["title"])}</a>' for f in families)+'</div></details>' for area,families in by_area.items())
     document = document.replace('<details class="reading-group" id="research-directions"', '<nav class="journey-areas" aria-label="More research areas"><span>Explore further directions</span>'+areas+'</nav><details class="reading-group" id="research-directions"',1)
     document = document.replace('<h2>Long-horizon research maps</h2>', '<p class="eyebrow">02 / THE WIDER HORIZON</p><h2>Long-horizon research maps</h2><p>Explore the objects, equivalent formulations and missing bridges behind the Millennium Problems. These maps are research context; the routes above do not imply a solution.</p>')
     # Keep every resolved permalink, with compact source collections and pagination.

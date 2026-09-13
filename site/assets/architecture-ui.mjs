@@ -62,7 +62,7 @@ export function evolutionPanel(
   root,
   snapshots,
   id,
-  { metric = "reach", error = null } = {},
+  { metric = "reach", error = null, observation = null, onObserve = null } = {},
 ) {
   const section = el("section", "architecture-evolution");
   section.append(el("h3", "section-label spaced", "EVOLUTION"));
@@ -76,7 +76,7 @@ export function evolutionPanel(
     return;
   }
   const points = trajectory(snapshots, id);
-  let cursor = points.length - 1,
+  let cursor = Number.isInteger(observation) ? Math.max(0, Math.min(points.length-1, observation)) : points.length - 1,
     selectedMetric = metric,
     normalized = false;
   const controls = el("div", "architecture-history-controls");
@@ -172,6 +172,7 @@ export function evolutionPanel(
     return (point.node[selectedMetric] / denominator) * 100;
   }
   function render() {
+    if (onObserve && cursor !== observation) { onObserve(cursor); return; }
     const point = points[cursor];
     chart.replaceChildren();
     detail.replaceChildren();

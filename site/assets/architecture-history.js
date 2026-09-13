@@ -195,7 +195,9 @@ async function renderDetail() {
   if (version !== detailVersion) return;
   links.append(atlas, wiki, research);
   root.append(links);
-  evolutionPanel(root, snapshots, selected, { metric });
+  evolutionPanel(root, snapshots, selected, { metric, observation, onObserve:index=>{
+    $('#lineage-release').value=index;$('#lineage-release').oninput();
+  } });
   if (node) domainDistribution(root, node);
   root.append(el("p", selected, "architecture-provenance"));
 }

@@ -22,3 +22,6 @@
 #release-insights button:hover {color:#f0dba5}
 #release-insights p,#release-insights small,.change-boundary {font-size:11px;line-height:1.5;color:#91aaa5}
 @media(max-width:700px) {#release-insights {grid-template-columns:1fr;min-height:0}#release-insights section {padding-top:6px}#release-insights button {display:inline-block;margin-right:14px}}
+
+#previous-observation,#next-observation {background:#101b1e;color:#bed5cb;border:1px solid #345252;border-radius:3px;padding:5px 10px;cursor:pointer}
+#previous-observation:disabled,#next-observation:disabled {opacity:.35;cursor:default}

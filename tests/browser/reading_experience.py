@@ -122,6 +122,10 @@ def main():
         page.locator('#previous-observation').click()
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==before['observation']-1
         assert page.evaluate('window.architectureHistoryDiagnostics().selected')==selected_before
+        page.wait_for_function('Number(document.querySelector(".architecture-scrubber").value) === window.architectureHistoryDiagnostics().observation')
+        assert page.locator('.architecture-observation strong').inner_text().startswith('Observation '+str(before['observation']))
+        page.locator('.architecture-scrubber').press('ArrowLeft')
+        page.wait_for_function('Number(document.querySelector(".architecture-scrubber").value) === Number(document.querySelector("#lineage-release").value)')
         page.screenshot(path=str(args.output/'evolution-time-comparison.png'),full_page=True)
         page.locator('#show-changes').uncheck()
         page.locator('#show-changes').check()
