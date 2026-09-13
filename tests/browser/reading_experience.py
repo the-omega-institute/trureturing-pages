@@ -62,6 +62,10 @@ def main():
         assert page.evaluate('window.__shifts.reduce((a,b)=>a+b,0)')<0.1
         events.append('Conjectures preserves its original heading, sidebar and statistics without the initial notebook prepend')
         page.screenshot(path=str(args.output/'conjectures-restored-desktop.png'),full_page=True)
+        assert page.locator('.research-activity').count()==0
+        assert page.locator('.journey-direction').count()>0
+        assert page.locator('#next-questions').bounding_box()['y'] < page.locator('#source-questions').bounding_box()['y']
+        page.locator('#source-questions > summary').click()
         row=page.locator('.problem-row').first
         if page.locator('.problem-row').count():
             target=row.locator('h2').text_content()
@@ -76,8 +80,8 @@ def main():
         page.locator('#research-directions > summary').click()
         page.wait_for_selector('#research-workbench-slot #research-workbench',timeout=30000)
         assert page.locator('#research-workbench').count()==1
-        assert page.locator('.research-home > .research-stats').count()==1
-        assert page.locator('.research-home > #open-problems').count()==1
+        assert page.locator('#source-questions .research-stats').count()==1
+        assert page.locator('#source-questions #open-problems').count()==1
         assert page.locator('.rw-release-browser').count()==0
         page.screenshot(path=str(args.output/'conjectures-notebook-desktop.png'),full_page=True)
         # Arrive from another document: a same-page hash change retains an already opened notebook.
@@ -86,6 +90,13 @@ def main():
         assert page.locator('#next-questions').is_visible()
         assert page.locator('#research-workbench').count()==0
         assert not page.locator('#research-directions').evaluate('e=>e.open')
+        page.locator('#completed-dossiers > summary').click()
+        page.locator('#completed-oeis > summary').click()
+        assert page.locator('#completed-oeis .reading-item:visible').count()<=12
+        link=page.locator('#completed-oeis .reading-item a').first
+        link.hover()
+        assert link.evaluate('e=>getComputedStyle(e).color')=='rgb(24, 59, 55)'
+        page.screenshot(path=str(args.output/'conjectures-archive-desktop.png'),full_page=True)
         events.append('Notebook leaves the original source browser in place; next-questions selects the real follow-ups')
         events.append('The notebook remains available on request in its reserved slot')
         page.goto(base+'evolution.html?lang=en',wait_until='networkidle')
@@ -104,8 +115,16 @@ def main():
         assert page.locator('#lineage-group .group-module').count()>0
         page.screenshot(path=str(args.output/'evolution-selected-desktop.png'),full_page=True)
         events.append('Selection shows sourced examples, a release-bound explanation and prerequisite/consumer groups')
+        selected_before=page.evaluate('window.architectureHistoryDiagnostics().selected')
         page.locator('[data-lineage="time"]').click()
         assert page.evaluate('window.architectureHistoryDiagnostics().mode')=='time'
+        assert 'selected' in page.locator('#release-comparison').inner_text() or 'compared' in page.locator('#release-comparison').inner_text()
+        page.locator('#previous-observation').click()
+        assert page.evaluate('window.architectureHistoryDiagnostics().observation')==before['observation']-1
+        assert page.evaluate('window.architectureHistoryDiagnostics().selected')==selected_before
+        page.screenshot(path=str(args.output/'evolution-time-comparison.png'),full_page=True)
+        page.locator('#show-changes').uncheck()
+        page.locator('#show-changes').check()
         page.locator('[data-lineage="dependency"]').click()
         page.locator('#lineage-release').evaluate("e=>{e.value=0;e.dispatchEvent(new Event('input',{bubbles:true}))}")
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==0

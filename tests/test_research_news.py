@@ -35,7 +35,7 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertNotIn('data-problem-slug=', bank)
             self.assertIn("Reviewed result / pinned upstream proof", news)
             self.assertNotIn("release binding not recorded", bank)
-            self.assertEqual(bank.count('class="result-followup"'), 3)
+            self.assertEqual(bank.count('class="journey-direction"'), 3)
             self.assertIn('href="#rp=thue-morse-even-difference"', bank)
             self.assertIn('class="site-themed living-page research-editorial"', news)
             self.assertIn('class="site-themed living-page research-editorial"', bank)

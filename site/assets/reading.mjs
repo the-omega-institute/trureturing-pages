@@ -50,7 +50,7 @@ for (const catalog of document.querySelectorAll('[data-reading-catalog]')) {
       if (active) group.open = count > 0;
       else if (prior) group.open = prior.get(group);
       const label = group.querySelector('[data-group-count]');
-      if (label) label.textContent = `${count} ${catalog.id === 'results' ? 'results' : 'questions'}`;
+      if (label) label.textContent = `${count} ${catalog.id === 'open-problems' ? 'questions' : 'results'}`;
       total += count;
     }
     const count = catalog.querySelector('[data-search-count]');
@@ -78,3 +78,6 @@ for (const event of ['click','auxclick']) document.addEventListener(event, e => 
 addEventListener('hashchange', revealHash);
 addEventListener('reading-notebook-ready', () => {normalizeLinks(document);revealHash();});
 revealHash();
+
+// Node/query links still open the complete source browser directly.
+if (document.getElementById('source-questions') && ['node','q'].some(k=>new URLSearchParams(location.hash.slice(1)).has(k))) document.getElementById('source-questions').open=true;

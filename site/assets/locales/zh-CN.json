@@ -597,5 +597,20 @@
   "Gold ring = newly present modules; gold line = newly recorded dependency": "金色外圈：新增收录模块；金色连线：新增记录依赖",
   "No direct connections outside this group.": "没有通向此簇之外的直接关联。",
   "Dependencies were not archived for this observation.": "该观察版本未归档依赖关系。",
-  "Next questions": "后续问题"
+  "Next questions": "后续问题",
+  "What builds on what": "依赖结构",
+  "How it grew": "知识如何增长",
+  "Highlight this step": "突出本次变化",
+  "Expanded areas": "新增模块的领域",
+  "Foundations gaining reuse": "复用增长的基础",
+  "New connections between areas": "领域间新增连接",
+  "Established result": "已有成果",
+  "Next contribution": "下一步贡献",
+  "Longer-term question": "更远的问题",
+  "Where we can contribute next": "我们下一步可以贡献什么",
+  "Explore further directions": "探索更多研究方向",
+  "Most reused in this observation": "当前观察中复用最多的模块",
+  "Previous observation": "上一个观察",
+  "Next observation": "下一个观察",
+  "Choose a question. Build on a proof. Connect the next idea.": "选择一个问题，在已有证明上继续，连接下一个想法。"
 }

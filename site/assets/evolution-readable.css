@@ -11,3 +11,14 @@
 .group-explanation {font-size:12px;line-height:1.6;color:#bad0ce;max-height:8em;overflow:auto}
 .group-connections {font-size:12px;margin:12px 0}.group-connections strong {display:block;color:#a9bfbd}
 .group-connections small {display:block;color:#98b6b9}
+
+.release-comparison-bar {display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding:14px 0;font-size:12px;color:#c6dfd5}
+.release-comparison-bar label {display:flex;align-items:center;gap:6px}
+#release-insights {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;min-height:125px}
+#release-insights section {border-top:2px solid #739b8b;padding-top:10px;min-width:0}
+#release-insights section:first-child {border-color:#d0b16c}
+#release-insights h3 {font-size:12px;margin:0 0 10px;color:#c4d7d0}
+#release-insights button {display:block;text-align:left;border:0;background:transparent;color:#aacbc0;font:inherit;font-size:11px;line-height:1.5;margin:7px 0;padding:0;cursor:pointer}
+#release-insights button:hover {color:#f0dba5}
+#release-insights p,#release-insights small,.change-boundary {font-size:11px;line-height:1.5;color:#91aaa5}
+@media(max-width:700px) {#release-insights {grid-template-columns:1fr;min-height:0}#release-insights section {padding-top:6px}#release-insights button {display:inline-block;margin-right:14px}}

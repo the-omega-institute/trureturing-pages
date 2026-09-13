@@ -46,9 +46,9 @@
           <div class="lineage-toolbar">
             <div role="group" aria-label="Lineage view" class="lineage-modes">
               <button data-lineage="dependency" aria-pressed="true">
-                Dependency lineage</button
+                What builds on what</button
               ><button data-lineage="time" aria-pressed="false">
-                Across releases
+                How it grew
               </button>
             </div>
             <div class="lineage-tools">
@@ -86,10 +86,13 @@
               >Dependency depth / foundations to consequences</span
             ><button id="lineage-collapse" hidden>Collapse domain</button>
           </div>
+          <div class="release-comparison-bar"><strong id="release-comparison"></strong><label><input type="checkbox" id="show-changes" checked> Highlight this step</label></div>
+          <div id="release-insights" aria-live="polite"></div>
+          <p class="change-boundary">Changes describe archived module imports. More reuse is a structural signal, not proof of mathematical importance.</p>
           <div id="evolution-map"></div>
           <div class="lineage-guide" aria-label="How to read this graph">
             <span>Point size = modules grouped here</span><span>Color = topic family</span>
-            <span>Gold ring = newly present modules; gold line = newly recorded dependency</span>
+            <span>Gold ring = added modules; teal ring = existing foundation gaining consumers; gold line = added import</span>
             <span id="lineage-guide-mode">Left to right: prerequisite to consumer. Thicker line: more recorded dependencies.</span>
           </div>
           <div id="lineage-key" class="lineage-key"></div>
@@ -109,7 +112,7 @@
               max="0"
               value="0"
               disabled
-            /><output id="lineage-release-label"></output>
+            /><output id="lineage-release-label"></output><button id="previous-observation" aria-label="Previous observation">←</button><button id="next-observation" aria-label="Next observation">→</button>
           </div>
           <div id="release-change-summary" role="status"></div>
           <div id="release-events" class="release-events"></div>
