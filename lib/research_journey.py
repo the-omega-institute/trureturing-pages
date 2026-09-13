@@ -1,39 +1,64 @@
-"""A guided editorial map; its dashed routes never assert theorem dependencies."""
+"""Page-wide research story. Proof outlines and proposed routes stay distinct."""
+import json
 from lib.knowledge_pages import esc
 
-# Short labels complement the exact scope and questions from the source catalog.
 LABELS = {
-    'thue-morse-reduced-abelian-even': ('Find the pattern behind a sequence', 'Odd-length recurrence', ['Even-length relations', 'Beyond finite automata'], 'The full complexity sequence'),
-    'pochhammer-higher-even-intervals': ('Understand where all roots stay real', 'Exact quadratic classification', ['Classify degree four', 'Compare endpoint radii'], 'Intervals in higher degrees'),
-    'greedy-three-sumfree-third-seed-one': ('Explain a greedy sequence with a formula', 'Conjecture 17 proved', ['Accepted & forbidden blocks', 'The literal greedy process'], 'The separate g + 1 family'),
+    'thue-morse-reduced-abelian-even': ('Odd-length recurrence', 'The full complexity sequence'),
+    'pochhammer-higher-even-intervals': ('Exact quadratic classification', 'Intervals in higher degrees'),
+    'greedy-three-sumfree-third-seed-one': ('Conjecture 17 proved', 'The separate g + 1 family'),
 }
+TARGETS = {
+    'thue-morse-even-difference': 'Even-length relations',
+    'thue-morse-nonautomaticity': 'Beyond finite automata',
+    'pochhammer-quartic-interval': 'Classify degree four',
+    'pochhammer-degree-monotonicity': 'Compare endpoint radii',
+    'greedy-g-plus-one-blocks': 'Accepted & forbidden blocks',
+    'greedy-g-plus-one-literal': 'The literal greedy process',
+}
+SCENES = [
+    ('questions', '01 / THE QUESTIONS', 'Good questions.', 'Open new worlds.', 'We choose questions with a proof to build on — and somewhere meaningful to go.'),
+    ('proofs', '02 / WHAT WE HAVE BUILT', 'Every result has', 'a structure beneath it.', 'Look inside our existing proofs: the objects, constructions and arguments that make a result possible.'),
+    ('bridges', '03 / WHERE TO CONTRIBUTE', 'Now look', 'at what is missing.', 'The next contribution lives in the gap between what we can prove and what we want to understand.'),
+    ('horizons', '04 / THE WIDER HORIZON', 'A finished proof.', 'An unfinished landscape.', 'Follow the proposed routes outward. A precise result can give us a starting point for a much wider question.'),
+]
 
 
 def render_guided_journey(families, stories):
-    cards, choices = [], []
-    stages = ['What we know', 'Where to contribute', 'What comes next']
-    for index, f in enumerate(families):
-        identity = 'direction-' + f['id']
-        lead, result, target_labels, horizon = LABELS.get(f['id'], (f['title'], 'Existing result', [t['title'] for t in f['targets']], 'The wider question'))
-        choices.append(f'<a href="#{esc(identity)}" data-route-choice="{esc(identity)}"><span>{index+1:02d} / {esc(f["area"])}</span><strong>{esc(lead)}</strong><span class="route-choice-arrow" aria-hidden="true">↗</span></a>')
-        targets = ''.join(f'<button type="button" class="route-node route-target" data-route-node="target-{i}" data-stage="1"><small>Open target {i+1}</small><strong>{esc(label)}</strong></button>' for i, label in enumerate(target_labels))
-        target_details = ''.join(f'<details class="route-target-detail"><summary>{esc(t["title"])}</summary><p>{esc(t["question"])}</p><p><b>Success means</b> {esc(t["success"])}</p><a href="#rp={esc(t["id"])}">Explore this question ↗</a></details>' for t in f['targets'])
-        step_buttons = ''.join(f'<button type="button" data-route-step="{i}" aria-pressed="{str(i==0).lower()}"><span>{i+1:02d}</span> {name}</button>' for i,name in enumerate(stages))
-        cards.append(f'''<article class="journey-direction" id="{esc(identity)}" data-guided-route{' hidden' if index else ''}>
-<header class="route-heading"><p class="eyebrow">{esc(f['area'])}</p><h3>{esc(f['title'])}</h3><a href="#source-questions">Browse all source questions ↓</a></header>
-<div class="route-layout"><div class="route-visual"><nav class="route-stages" aria-label="Reading stages">{step_buttons}</nav>
-<div class="route-map" role="group" aria-label="{esc(f['area'])}: existing result, proposed targets and wider question">
-<div class="route-focus" aria-hidden="true"></div><svg class="route-connections" aria-hidden="true"></svg>
-<button type="button" class="route-node route-result" data-route-node="result" data-stage="0"><small>Existing proof</small><strong>{esc(result)}</strong><span aria-hidden="true">✓</span></button>
-<div class="route-targets">{targets}</div>
-<button type="button" class="route-node route-horizon" data-route-node="horizon" data-stage="2"><small>Research horizon</small><strong>{esc(horizon)}</strong></button>
-</div><p class="route-legend"><span>✓ Existing result</span><span>┄ Proposed route · not a proved implication</span></p><p class="route-cue">Scroll to follow the route, or choose a stage.</p></div>
-<div class="route-narrative">
-<section class="route-chapter" data-route-chapter="0" id="{esc(identity)}-known"><p class="route-chapter-label">01 / WHAT WE KNOW</p><h4>A proof to build on.</h4><p>{esc(stories[f['builds_on']]['finding'])}</p><a href="results/{esc(f['builds_on'])}/">Read the proof &amp; exact scope ↗</a><details><summary>What this result does not settle</summary><p>{esc(stories[f['builds_on']]['boundary'])}</p></details></section>
-<section class="route-chapter" data-route-chapter="1" id="{esc(identity)}-contribute"><p class="route-chapter-label">02 / WHERE TO CONTRIBUTE</p><h4>The next missing bridge.</h4><p>{esc(f['next_step'])}</p>{target_details}</section>
-<section class="route-chapter" data-route-chapter="2" id="{esc(identity)}-horizon"><p class="route-chapter-label">03 / WHAT COMES NEXT</p><h4>A wider question comes into view.</h4><p>{esc(f['question'])}</p><a href="#rp={esc(f['id'])}">Explore the research direction ↗</a><p class="route-source-note">Proposed follow-up · open in the cited source version.</p></section>
-</div></div></article>''')
-    return ('<section class="research-journey result-followups" id="next-questions" aria-labelledby="next-questions-title">'
-        '<p class="eyebrow">01 / OUR PRIORITY DIRECTIONS</p><h2 id="next-questions-title">Small steps. Deeper connections.</h2>'
-        '<p class="journey-intro">A curated set of questions where we see a concrete way to contribute. Choose a field, follow what is already proved, and find the next bridge to build.</p>'
-        '<nav class="journey-priorities" aria-label="Priority research areas">'+''.join(choices)+'</nav><div class="journey-grid">'+''.join(cards)+'</div></section>')
+    nodes, edges, areas, archive = [], [], [], []
+    for group, f in enumerate(families):
+        story = stories[f['builds_on']]
+        result, horizon = LABELS.get(f['id'], ('Existing result', f['title']))
+        prefix = f['id']
+        proof_url = f"results/{f['builds_on']}/"
+        areas.append({'id': prefix, 'label': f['area']})
+        previous = None
+        for i, step in enumerate(story['steps']):
+            key = f'{prefix}-step-{i}'
+            nodes.append({'id':key, 'group':group, 'kind':'step', 'order':i, 'label':step['title'], 'status':'Proof outline', 'body':step['body'], 'scope':story['boundary'], 'href':proof_url, 'link':'Read the proof & exact scope ↗'})
+            if previous:
+                edges.append({'source':previous, 'target':key, 'kind':'outline'})
+            previous = key
+        result_id = prefix+'-result'
+        nodes.append({'id':result_id,'group':group,'kind':'result','label':result,'status':'Existing proof','body':story['finding'],'scope':story['boundary'],'href':proof_url,'link':'Read the proof & exact scope ↗'})
+        if previous:
+            edges.append({'source':previous,'target':result_id,'kind':'outline'})
+        for i, t in enumerate(f['targets']):
+            nodes.append({'id':t['id'],'group':group,'kind':'target','order':i,'label':TARGETS.get(t['id'],t['title']),'status':'Open target','body':t['question'],'scope':t['success'],'href':'#rp='+t['id'],'link':'Explore this question ↗'})
+            edges.extend([{'source':result_id,'target':t['id'],'kind':'proposed'},{'source':t['id'],'target':prefix+'-horizon','kind':'proposed'}])
+        nodes.append({'id':prefix+'-horizon','group':group,'kind':'horizon','label':horizon,'status':'Research horizon','body':f['question'],'scope':f['gap'],'href':'#rp='+prefix,'link':'Explore the research direction ↗'})
+        targets = ''.join(f'<a href="#rp={esc(t["id"])}">{esc(t["title"])} ↗</a>' for t in f['targets'])
+        archive.append(f'<article class="journey-direction" id="direction-{esc(prefix)}"><p class="eyebrow">{esc(f["area"])}</p><h3>{esc(f["title"])}</h3><p>{esc(f["next_step"])}</p><div class="story-directory-links"><a href="{esc(proof_url)}">Read the proof &amp; exact scope ↗</a>{targets}</div></article>')
+    buttons = ''.join(f'<button type="button" class="story-node" data-node="{esc(n["id"])}" data-kind="{n["kind"]}" data-group="{n["group"]}" aria-label="{esc(n["status"]+": "+n["label"])}"><span class="story-dot" aria-hidden="true">{"✓" if n["kind"]=="result" else str(n["order"]+1) if n["kind"]=="step" else ""}</span><span class="story-node-label">{esc(n["label"])}</span></button>' for n in nodes)
+    copies = ''.join(f'<div class="story-copy" data-scene-copy="{i}"{ " hidden" if i else ""}><p class="story-eyebrow">{eyebrow}</p><h2{ " id=next-questions-title" if i==0 else ""}><span>{esc(first)}</span><em>{esc(second)}</em></h2><p class="story-deck">{esc(text)}</p></div>' for i,(_,eyebrow,first,second,text) in enumerate(SCENES))
+    nav = ''.join(f'<a href="#story-{key}" data-scene-link="{i}"{ " aria-current=step" if i==0 else ""}><span>0{i+1}</span> {label}</a>' for i,(key,label) in enumerate([('questions','Questions'),('proofs','Proofs'),('bridges','Bridges'),('horizons','Horizons')]))
+    stops = ''.join(f'<span class="story-stop" id="story-{key}" style="top:{i*25}%" aria-hidden="true"></span>' for i,(key,*_) in enumerate(SCENES))
+    data = json.dumps({'nodes':nodes,'edges':edges,'areas':areas},ensure_ascii=False).replace('<','\\u003c')
+    return f'''<section class="research-journey result-followups" id="next-questions" aria-labelledby="next-questions-title">
+<div class="story-scroll">{stops}<div class="story-stage" data-scene="0">
+<div class="story-atmosphere" aria-hidden="true"></div><header class="story-heading">{copies}<a class="story-skip" href="#research-paths">Go straight to the questions ↗</a></header>
+<div class="story-map" role="group" aria-label="Three research areas, their proof outlines and proposed open routes"><svg class="story-edges" aria-hidden="true"></svg><div class="story-gap" aria-hidden="true"><span>The open gap</span></div>{buttons}{''.join(f'<span class="story-area" data-area="{i}">{esc(a["label"])}</span>' for i,a in enumerate(areas))}</div>
+<footer class="story-footer"><nav aria-label="Research story chapters">{nav}</nav><p class="story-legend"><span>━ Proof outline</span><span>┄ Proposed route · not a proved implication</span></p><span class="story-scroll-cue">Scroll to unfold ↓</span></footer>
+</div></div>
+<section class="story-directory" id="research-paths"><p class="story-eyebrow">YOUR NEXT STEP</p><h2>Find your way in.</h2><p>Choose a concrete question, read its exact scope, and explore the work behind it.</p><div class="story-directory-grid">{''.join(archive)}</div></section>
+<dialog class="story-inspector" aria-labelledby="story-detail-title"><form method="dialog"><button class="story-close" aria-label="Close question details">×</button></form><p class="story-detail-status"></p><h2 id="story-detail-title"></h2><p class="story-detail-body"></p><h3 class="story-scope-heading">Exact scope</h3><p class="story-detail-scope"></p><a class="story-detail-link"></a></dialog>
+<script type="application/json" id="research-story-data">{data}</script></section>'''

@@ -246,8 +246,10 @@ def conjecture_journey(document, snapshot):
     from lib.research_journey import render_guided_journey
     overview = render_guided_journey(families, stories)
     document = document.replace('</head>', '<link rel="stylesheet" href="assets/research-journey.css">'
+        '<script defer src="assets/vendor/gsap.min.js"></script>'
+        '<script defer src="assets/vendor/ScrollTrigger.min.js"></script>'
         '<script type="module" src="assets/research-journey.mjs"></script>'
-        '<noscript><style>.research-home .journey-direction[hidden]{display:block!important}</style></noscript></head>', 1)
+        '<noscript><style>.story-scroll{display:none}.story-directory{padding-top:20px}</style></noscript></head>', 1)
     parsed = Fragments(document)
     for element in sorted(parsed.select(cls='result-followups') + parsed.select(cls='research-activity'), key=lambda e:e.start, reverse=True):
         document = document[:element.start]+document[element.end:]

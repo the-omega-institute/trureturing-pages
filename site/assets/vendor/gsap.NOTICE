@@ -1,0 +1,10 @@
+GSAP and ScrollTrigger 3.13.0
+https://gsap.com
+Copyright 2025, GreenSock. All rights reserved.
+Subject to the terms at https://gsap.com/standard-license.
+Author: Jack Doyle, jack@greensock.com
+
+The distributions retain their upstream copyright and license headers.
+Source distributions:
+https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js
+https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js

@@ -37,7 +37,7 @@ def main():
         page.on('pageerror',lambda e:errors.append(str(e)));page.on('request',lambda r:requests.append(r.url))
         page.add_init_script("window.__shifts=[];new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)window.__shifts.push(e.value)}).observe({type:'layout-shift',buffered:true});")
         check_guided_journey(page,base,args.output)
-        events.append('Guided maps retain spatial continuity, scroll and keyboard controls, exact links, mobile layout and no-script access')
+        events.append('Full-page research scenes morph across scroll, preserve proof/target semantics, keyboard details, mobile layouts and no-script access')
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
