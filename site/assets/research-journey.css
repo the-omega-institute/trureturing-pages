@@ -1,0 +1,57 @@
+/* The reading route changes emphasis, never the mathematical status of a node. */
+.research-home .research-journey { --route-green:#286352; --route-gold:#85651e; --route-plum:#705581; }
+.research-home .research-journey h2 { font-family:Georgia,serif; font-size:clamp(30px,3vw,42px); }
+.research-home .journey-intro { max-width:70ch; }
+.research-home .journey-priorities { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-block:28px 36px; }
+.research-home .journey-priorities a { position:relative; display:flex; flex-direction:column; gap:12px; padding:20px 36px 20px 20px; background:#eff3f1; border:1px solid #cad7d0; border-radius:6px; text-decoration:none; }
+.research-home .journey-priorities a[aria-current] { background:#e3eee7; border-color:#48756a; box-shadow:inset 0 3px #48756a; }
+.journey-priorities a > span:first-child { font-size:14px; color:#465e53; }
+.journey-priorities strong { font:500 21px/1.4 Georgia,serif; color:#243632; }
+.route-choice-arrow { position:absolute; right:14px; bottom:20px; color:#286352; }
+.research-home .journey-grid { display:block; margin:0; }
+.research-home .journey-direction { border-top:1px solid #c5d2cb; }
+.research-home .journey-direction[hidden] { display:none; }
+.route-heading { padding:24px 0; }
+.research-home .route-heading h3 { font:500 clamp(24px,2.4vw,32px)/1.35 Georgia,serif; max-width:36ch; margin:8px 0 12px; }
+.route-heading > a { font-size:15px; }
+.route-layout { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:40px; align-items:start; }
+.route-visual { min-width:0; }
+[data-route-enhanced] .route-visual { position:sticky; top:28px; }
+.route-stages { display:flex; gap:5px; border-bottom:1px solid #c5d2cb; padding-bottom:16px; }
+.route-stages button { flex:1; background:transparent; border:0; border-bottom:2px solid transparent; color:#52645c; padding:10px 3px; font-family:inherit; font-size:14px; line-height:1.45; cursor:pointer; min-height:48px; }
+.route-stages button span { display:block; font-size:17px; margin-bottom:4px; }
+.route-stages button[aria-pressed=true] { color:#204f41; border-bottom-color:#286352; }
+.route-map { position:relative; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); gap:25px; align-items:center; padding:32px 10px; min-height:330px; }
+.route-focus { position:absolute; z-index:0; top:0; left:0; border:1px solid #bca66a; border-radius:12px; background:#f1e5c62e; pointer-events:none; transition:transform .65s cubic-bezier(.22,1,.36,1),width .65s cubic-bezier(.22,1,.36,1),height .65s cubic-bezier(.22,1,.36,1); }
+.route-connections { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+.route-connections path { stroke:#9e9274; stroke-width:1.6; stroke-dasharray:5 5; fill:none; transition:stroke .4s,stroke-width .4s; }
+.route-connections path[data-active] { stroke:#85651e; stroke-width:2.5; }
+.route-targets { display:grid; gap:38px; min-width:0; }
+.research-home .route-node { position:relative; z-index:1; width:100%; text-align:left; border:1px solid #b2c7bb; border-radius:6px; padding:17px 12px; color:#243632; background:#eaf1ed; min-width:0; cursor:pointer; font-family:inherit; }
+.route-node small { display:block; font-size:13px; line-height:1.5; margin-bottom:8px; color:#465e53; }
+.route-node strong { font-size:17px; line-height:1.5; font-weight:500; display:block; overflow-wrap:break-word; }
+.route-node > span { display:block; margin-top:10px; color:#286352; }
+.research-home .route-target { border-color:#b7a77d; background:#f8f5ec; }
+.research-home .route-horizon { border-style:dashed; border-color:#a799b1; background:#f1eef4; }
+.route-node:hover { box-shadow:0 3px 14px #24363212; }
+.route-node:focus-visible,.route-stages button:focus-visible { outline:2px solid #286352; outline-offset:4px; }
+.route-legend { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:13px; line-height:1.6; color:#52645c; margin:6px 0; }
+.route-cue { font-size:14px; color:#52645c; margin-top:12px; }
+.route-chapter { padding:24px 0 36px; scroll-margin-top:40px; border-top:1px solid #d1d9d4; }
+[data-route-enhanced] .route-chapter { min-height:420px; min-height:48vh; }
+.route-chapter-label { color:#52645c; font-size:13px; letter-spacing:.08em; }
+.route-chapter h4 { font:500 27px/1.35 Georgia,serif; color:#243632; margin:12px 0; }
+.route-chapter > p:not(.route-chapter-label) { font-size:17px; line-height:1.8; color:#465950; }
+.route-chapter a { font-size:16px; }
+.route-chapter details { margin-top:20px; font-size:16px; line-height:1.7; }
+.route-chapter summary { cursor:pointer; color:#365747; padding:8px 0; }
+.route-chapter details p { color:#465950; }
+.route-chapter .route-source-note { font-size:14px!important; }
+@media(min-width:961px) and (max-height:760px) { [data-route-enhanced] .route-visual { top:12px; }.route-map { min-height:260px;padding-block:20px; }.research-home .route-node { padding:12px 10px; }.route-targets { gap:24px; } }
+@media(max-width:960px) { .route-layout { grid-template-columns:1fr; gap:16px; } [data-route-enhanced] .route-visual { position:static; } [data-route-enhanced] .route-chapter { min-height:0; } .route-map { max-width:720px; margin:auto; } .route-narrative { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; } .route-chapter h4 { font-size:23px; } }
+@media(max-width:650px) { .research-home .journey-priorities { grid-template-columns:1fr;gap:8px;margin-block:22px; }.research-home .journey-priorities a { padding:14px 36px 14px 16px;gap:5px; }.journey-priorities strong { font-size:21px; }.route-map { grid-template-columns:1fr; padding:16px 12px;gap:28px; }.route-result,.research-home .route-horizon { max-width:240px;justify-self:center; }.route-targets { grid-template-columns:repeat(2,minmax(0,1fr));gap:24px; }.route-node strong { font-size:17px; }.route-narrative { display:block; }.route-stages button { font-size:13px; }.route-legend { margin-top:14px; } }
+@media(prefers-reduced-motion:reduce) { .route-focus,.route-connections path { transition:none; } }
+
+/* Script-free reading retains every chapter without inactive controls. */
+.research-journey:not([data-route-enhanced]) .route-stages { display:none; }
+.research-home .route-heading .eyebrow { font-family:inherit; font-size:12px; line-height:1.5; letter-spacing:.08em; }
