@@ -250,9 +250,11 @@ def render_research(snapshot: dict, output: Path, entry: dict):
         source_label = problem.get("doi") or ("arXiv:" + problem["arxiv_id"] if problem.get("arxiv_id") else problem["url"])
         source_url = problem_source_url(problem)
         resolution = problem.get("resolution")
-        route_label = "Source-recorded " + resolution["kind"] if resolution else "Proposed route"
-        status_label = "Repository record: " + resolution["kind"] if resolution else "Our route: proposed"
-        resolution_link = f'<a href="{repo}/blob/{commit}/{resolution["source_path"]}">Resolution source: {esc(resolution["declaration_gid"])}</a>' if resolution else ""
+        from lib.problem_resolutions import is_kernel_verified
+        verified = is_kernel_verified(resolution)
+        route_label = "Source-recorded " + resolution["kind"] if verified else "Proposed route"
+        status_label = "Repository record: " + resolution["kind"] if verified else "Our route: proposed"
+        resolution_link = f'<a href="{repo}/blob/{commit}/{resolution["source_path"]}">Resolution source: {esc(resolution["declaration_gid"])}</a>' if verified else ""
         anchors = [nodes[gid] for gid in problem["motivation_gids"] if gid in nodes]
         families = sorted({str(n.get("domain", "Unclassified")) for n in anchors})
         rows.append(f'<a class="problem-row" href="research/{slug}/" data-triage="{problem["triage"]}" data-gids="{esc(json.dumps(problem["motivation_gids"]))}" data-search="{esc((problem["title"] + " " + " ".join(families) + " " + problem["sections"]["Problem"] + " " + source_label).lower())}"><span class="problem-number">{len(rows)+1:02}</span><div><p class="eyebrow">{esc(" / ".join(families[:3]))}</p><h2>{esc(problem["title"])}</h2><p>{esc(triage[problem["triage"]])} <span class="route-chip">{esc(route_label)}</span></p></div><span class="problem-anchor-count">{len(anchors)}<small>released anchors</small></span><i data-lucide="arrow-up-right"></i></a>')

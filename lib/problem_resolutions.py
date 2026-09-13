@@ -60,6 +60,14 @@ VERIFIED_STATUSES = frozenset({"frozen", "proven-not-yet-frozen"})
 TRUTH_EXPORT_DIALECT = "stratalint.truth-export.v2"
 
 
+def is_kernel_verified(resolution):
+    """Return whether a resolution carries the formalization gate's attestation."""
+    if not isinstance(resolution, dict):
+        return False
+    marker = resolution.get("kernel_verified")
+    return isinstance(marker, dict) and bool(marker.get("frozen_node_id")) and bool(marker.get("freeze_status"))
+
+
 def _declaration_names(node):
     """Final-name component of every declaration the node kernel-verifies."""
     names = set()
