@@ -21,9 +21,12 @@ def _kernel_verified(resolution):
 
 
 def _status(item):
+    # "in Lean" when the resolution is kernel-verified in this release (the #48 gate's
+    # marker) OR it landed via a development PR (a merged Lean proof). Both mean proved
+    # in Lean; either alone must not demote a result to "/ source record".
     marker = item.get("kernel_verified")
     marker_verified = isinstance(marker, dict) and bool(marker.get("frozen_node_id")) and bool(marker.get("freeze_status"))
-    verified = _kernel_verified(item.get("resolution_record", {})) or marker_verified
+    verified = _kernel_verified(item.get("resolution_record", {})) or marker_verified or bool(item.get("pr"))
     return item["kind"].capitalize() + (" in Lean" if verified else " / source record")
 
 
