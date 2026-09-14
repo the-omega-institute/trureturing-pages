@@ -55,6 +55,24 @@ class ClaimAuditTest(unittest.TestCase):
         self.assertEqual(s["formal_verification_pass"], 1)
         self.assertEqual(s["statement_fidelity_reviewed"], 0)
 
+    def test_categorize_screens_and_groups_by_source(self):
+        from lib.claim_audit import categorize
+        recs = [
+            {"id": "a", "kind": "proved", "source_url": "https://oeis.org/A1",
+             "states": {"formal_verification": {"status": "pass"}, "literature_source": {"status": "pass"}}},
+            {"id": "b", "kind": "refuted", "source_url": "https://www.erdosproblems.com/692",
+             "states": {"formal_verification": {"status": "pass"}, "literature_source": {"status": "pass"}}},
+            {"id": "c", "kind": "proved", "source_url": "https://doi.org/10.1/x",
+             "states": {"formal_verification": {"status": "unverified"}, "literature_source": {"status": "pass"}}},
+        ]
+        cats = categorize(recs)
+        self.assertEqual(cats["OEIS"]["total"], 1)
+        self.assertEqual(cats["OEIS"]["double_checked"], 1)
+        self.assertEqual(cats["Erdős Problems"]["refuted"], 1)
+        # c fails the screen (unverified) and is listed for attention under Other sources
+        self.assertEqual(cats["Other sources"]["double_checked"], 0)
+        self.assertEqual(cats["Other sources"]["needs_attention"][0]["id"], "c")
+
     def test_disallowed_axiom_does_not_pass(self):
         catalog = {"families": [{
             "id": "x", "title": "X", "kind": "proved", "declaration_gid": "D5/M.t",
