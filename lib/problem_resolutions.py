@@ -121,5 +121,6 @@ def verify_resolutions(problems, truth_export_index):
         resolution["kernel_verified"] = {
             "frozen_node_id": node["frozen_node_id"],
             "freeze_status": node["freeze_status"],
+            "node_axiom_closure": sorted(closure),
         }
     return problems

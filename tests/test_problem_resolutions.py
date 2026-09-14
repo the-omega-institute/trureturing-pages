@@ -109,7 +109,8 @@ class FormalizationGateTests(unittest.TestCase):
         index = index_truth_export(self.export([self.node()]))
         out = verify_resolutions(self.problems(), index)
         self.assertEqual(out[0]["resolution"]["kernel_verified"],
-                         {"frozen_node_id": "sha256:abc", "freeze_status": "frozen"})
+                         {"frozen_node_id": "sha256:abc", "freeze_status": "frozen",
+                          "node_axiom_closure": ["Classical.choice", "Quot.sound", "propext"]})
 
     def test_proven_not_yet_frozen_declaration_also_passes(self):
         index = index_truth_export(self.export([self.node(freeze_status="proven-not-yet-frozen")]))

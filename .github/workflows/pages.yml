@@ -428,6 +428,20 @@ jobs:
           make research-catalog SNAPSHOT="_site/$snapshot" CATALOG=_site/assets/research-catalog.json PYTHON=python
           python -m lib.research_news append-verified --snapshot "_site/$snapshot" --catalog _site/assets/research-news.json
 
+      - name: Rebuild the claim double-check audit from the release axiom closures
+        if: steps.checkpoint.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # formal_verification is sourced from the truth-export axiom closures the
+          # release attests (already fail-closed by verify_resolutions); literature and
+          # sshx fidelity verdicts are carried from the committed audit. The full
+          # independent Lean re-run stays a periodic deep check (docs/claim-audit.md).
+          python -m lib.claim_audit \
+            --catalog _site/assets/research-catalog.json \
+            --prior site/assets/claim-audit.v1.json \
+            --out _site/assets/claim-audit.v1.json
+
       - name: Finalize the release-bound Pages deployment
         if: steps.checkpoint.outputs.cache-hit != 'true'
         run: |

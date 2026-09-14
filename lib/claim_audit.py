@@ -60,28 +60,45 @@ def _fqn(family):
     return _candidate_fqns(family)[0]
 
 
-def verify_state(family, axiom_index):
-    """VERIFY gate result for one declaration from the independent Lean run."""
-    fqn = next((c for c in _candidate_fqns(family) if c in axiom_index), None)
-    if fqn is None:
-        return {"status": "unverified", "reason": "declaration absent from independent Lean run", "axioms": None}
-    axioms = axiom_index[fqn]
+def _closure_state(axioms, declaration, source):
     disallowed = [a for a in axioms if a not in ALLOWED_AXIOMS]
     return {
         "status": "pass" if not disallowed else "fail",
-        "declaration": fqn,
-        "axioms": axioms,
-        "disallowed_axioms": disallowed,
+        "declaration": declaration,
+        "axioms": sorted(axioms),
+        "disallowed_axioms": sorted(disallowed),
+        "source": source,
     }
 
 
-def build_records(catalog, axiom_index, literature, reviews=None):
+def verify_state(family, axiom_index):
+    """VERIFY gate result for one declaration.
+
+    Prefers the independent Lean re-run (``#print axioms`` output in ``axiom_index``);
+    otherwise falls back to the axiom closure the release's truth-export attests
+    (``node_axiom_closure``, itself fail-closed by ``verify_resolutions``). The record
+    names which source was used.
+    """
+    fqn = next((c for c in _candidate_fqns(family) if c in axiom_index), None)
+    if fqn is not None:
+        return _closure_state(axiom_index[fqn], fqn, "independent-lean-rerun")
+    closure = (family.get("kernel_verified") or {}).get("node_axiom_closure")
+    if closure is not None:
+        return _closure_state(closure, _fqn(family), "release-truth-export")
+    return {"status": "unverified", "reason": "no axiom closure available", "axioms": None}
+
+
+def build_records(catalog, axiom_index, literature, reviews=None, prior_formal=None):
     reviews = reviews or {}
+    prior_formal = prior_formal or {}
     lit = {r["id"]: r for r in literature}
     records = []
     for f in catalog["families"]:
         rid = f["id"]
         formal = verify_state(f, axiom_index)
+        if formal["status"] == "unverified" and prior_formal.get(rid, {}).get("status") in ("pass", "fail"):
+            formal = dict(prior_formal[rid])
+            formal["source"] = (formal.get("source") or "prior") + "-carried"
         source = lit.get(rid, {})
         review = reviews.get(rid, {})
         records.append({
@@ -133,19 +150,51 @@ def summarize(audit):
     }
 
 
+def _carry_from_prior(prior_path):
+    """Reuse a prior audit's literature and fidelity verdicts for ids that recur.
+
+    Existing claims' cited sources and sshx verdicts do not change when a new
+    release adds other claims, so the automatic per-deploy run carries them and
+    leaves genuinely new claims' literature unchecked rather than refetching.
+    """
+    literature, reviews, formal = [], [], {}
+    prior = json.loads(Path(prior_path).read_text())
+    for r in prior.get("records", []):
+        formal[r["id"]] = r["states"].get("formal_verification", {})
+        src = r["states"].get("literature_source", {})
+        if src.get("status") == "pass":
+            literature.append({"id": r["id"], "resolves": True,
+                               "http_status": src.get("http_status"), "final_url": src.get("final_url"),
+                               "anumber_on_page": src.get("identifier_on_page")})
+        fid = r["states"].get("statement_fidelity", {})
+        if fid.get("status") in ("pass", "fail"):
+            reviews.append({"id": r["id"], "status": fid["status"],
+                            "reviewer": fid.get("reviewer"), "note": fid.get("note")})
+    return literature, reviews, formal
+
+
 def main():
     ap = argparse.ArgumentParser(description="Assemble the claim double-check audit")
     ap.add_argument("--catalog", required=True)
-    ap.add_argument("--axioms", required=True, help="captured `#print axioms` output")
-    ap.add_argument("--literature", required=True)
-    ap.add_argument("--reviews", help="optional sshx statement-fidelity verdicts (json list)")
+    ap.add_argument("--axioms", help="captured `#print axioms` output from an independent Lean re-run; "
+                                     "omit to source the closure from the release truth-export")
+    ap.add_argument("--literature", help="fresh source-URL resolution results (json list)")
+    ap.add_argument("--reviews", help="sshx statement-fidelity verdicts (json list)")
+    ap.add_argument("--prior", help="a prior claim-audit.v1.json to carry literature and fidelity from")
     ap.add_argument("--out", default=str(AUDIT))
     args = ap.parse_args()
     catalog = json.loads(Path(args.catalog).read_text())
-    axiom_index = parse_axioms(Path(args.axioms).read_text())
-    literature = json.loads(Path(args.literature).read_text())
-    reviews = json.loads(Path(args.reviews).read_text()) if args.reviews else None
-    audit = build_records(catalog, axiom_index, literature, reviews)
+    axiom_index = parse_axioms(Path(args.axioms).read_text()) if args.axioms else {}
+    literature = json.loads(Path(args.literature).read_text()) if args.literature else []
+    reviews = json.loads(Path(args.reviews).read_text()) if args.reviews else []
+    prior_formal = {}
+    if args.prior and Path(args.prior).exists():
+        carried_lit, carried_rev, prior_formal = _carry_from_prior(args.prior)
+        have = {r["id"] for r in literature}
+        literature += [r for r in carried_lit if r["id"] not in have]
+        haver = {r["id"] for r in reviews}
+        reviews += [r for r in carried_rev if r["id"] not in haver]
+    audit = build_records(catalog, axiom_index, literature, reviews, prior_formal)
     Path(args.out).write_text(json.dumps(audit, indent=1, ensure_ascii=False) + "\n")
     print(json.dumps(summarize(audit), indent=1))
 
