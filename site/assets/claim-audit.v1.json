@@ -24,7 +24,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -59,7 +60,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -94,7 +96,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -129,7 +132,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -164,7 +168,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -199,7 +204,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -234,7 +240,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -269,7 +276,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -304,7 +312,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -339,7 +348,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -373,7 +383,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -408,7 +419,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -443,7 +455,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -478,7 +491,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -513,7 +527,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -548,7 +563,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -583,7 +599,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -618,7 +635,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -653,7 +671,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -688,7 +707,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -723,7 +743,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -758,7 +779,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -793,7 +815,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -828,7 +851,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -863,7 +887,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -898,7 +923,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -933,7 +959,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -968,7 +995,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1003,7 +1031,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1038,7 +1067,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1073,7 +1103,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1108,7 +1139,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1143,7 +1175,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1178,7 +1211,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1213,7 +1247,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1248,7 +1283,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1283,7 +1319,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1318,7 +1355,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1353,7 +1391,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1388,7 +1427,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1423,7 +1463,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1458,7 +1499,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1493,7 +1535,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1528,7 +1571,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1563,7 +1607,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1598,7 +1643,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1633,7 +1679,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1668,7 +1715,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1703,7 +1751,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1738,7 +1787,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1773,7 +1823,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1808,7 +1859,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1843,7 +1895,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1878,7 +1931,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1913,7 +1967,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1948,7 +2003,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -1983,7 +2039,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2018,7 +2075,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2053,7 +2111,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2088,7 +2147,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2123,7 +2183,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2158,7 +2219,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2193,7 +2255,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2228,7 +2291,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2263,7 +2327,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2298,7 +2363,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2333,7 +2399,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2368,7 +2435,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2403,7 +2471,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2438,7 +2507,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2473,7 +2543,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2508,7 +2579,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2543,7 +2615,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2578,7 +2651,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2613,7 +2687,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2648,7 +2723,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2683,7 +2759,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2718,7 +2795,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2753,7 +2831,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2788,7 +2867,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2823,7 +2903,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2858,7 +2939,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2893,7 +2975,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2928,7 +3011,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2963,7 +3047,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -2998,7 +3083,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3033,7 +3119,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3068,7 +3155,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3103,7 +3191,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3138,7 +3227,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3173,7 +3263,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3208,7 +3299,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3243,7 +3335,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3278,7 +3371,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3313,7 +3407,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3348,7 +3443,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3383,7 +3479,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3418,7 +3515,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3453,7 +3551,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3488,7 +3587,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3523,7 +3623,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3558,7 +3659,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3593,7 +3695,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3628,7 +3731,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3663,7 +3767,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3698,7 +3803,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3733,7 +3839,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3768,7 +3875,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3803,7 +3911,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3838,7 +3947,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3873,7 +3983,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3908,7 +4019,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3943,7 +4055,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -3978,7 +4091,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4013,7 +4127,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4048,7 +4163,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4083,7 +4199,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4118,7 +4235,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4153,7 +4271,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4188,7 +4307,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4223,7 +4343,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4258,7 +4379,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4293,7 +4415,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4328,7 +4451,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4363,7 +4487,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4398,7 +4523,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4433,7 +4559,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4468,7 +4595,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4503,7 +4631,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4538,7 +4667,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4573,7 +4703,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4608,7 +4739,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4643,7 +4775,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4678,7 +4811,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4713,7 +4847,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4748,7 +4883,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4783,7 +4919,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4818,7 +4955,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4853,7 +4991,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4888,7 +5027,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4923,7 +5063,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4958,7 +5099,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -4993,7 +5135,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5028,7 +5171,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5063,7 +5207,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5098,7 +5243,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5133,7 +5279,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5168,7 +5315,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5203,7 +5351,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5238,7 +5387,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5273,7 +5423,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5308,7 +5459,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5343,7 +5495,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5378,7 +5531,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5413,7 +5567,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5448,7 +5603,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5483,7 +5639,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5518,7 +5675,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5553,7 +5711,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5588,7 +5747,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5623,7 +5783,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5658,7 +5819,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5693,7 +5855,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
@@ -5728,7 +5891,8 @@
       "Quot.sound",
       "propext"
      ],
-     "disallowed_axioms": []
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
     },
     "literature_source": {
      "status": "pass",
