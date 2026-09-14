@@ -237,14 +237,10 @@ def render_conjecture_groups(document, snapshot, output):
 
 
 def conjecture_journey(document, snapshot):
-    """An editorial shortlist with explicit existing-result links; never a truth gate."""
-    from lib.research_results import followup_families
-    stories = json.loads((ROOT / 'site/assets/result-stories.json').read_text())
+    """Orient readers across the full catalogue; strategy is not a truth gate."""
     catalog = json.loads((ROOT / 'site/assets/research-catalog.json').read_text())
-    resolved = {p['slug'] for p in snapshot['problems'] if p.get('resolution')}
-    families = [f for f in followup_families() if f['id'] not in resolved]
     from lib.research_journey import render_guided_journey
-    overview = render_guided_journey(families, stories)
+    overview = render_guided_journey(catalog, snapshot)
     document = document.replace('</head>', '<link rel="stylesheet" href="assets/research-journey.css">'
         '<script defer src="assets/vendor/gsap.min.js"></script>'
         '<script defer src="assets/vendor/ScrollTrigger.min.js"></script>'
@@ -266,13 +262,8 @@ def conjecture_journey(document, snapshot):
     browser = parsed.select(cls='research-browser')
     if stats and browser:
         start,end = stats[0].start,browser[0].end
-        document = document[:start] + '<details id="source-questions" class="reading-group"><summary>Browse all source questions · OEIS, Erdős &amp; papers</summary><div class="reading-group-body">' + document[start:end] + '</div></details>' + document[end:]
-    by_area = defaultdict(list)
-    for family in catalog['families']:
-        if family['id'] not in resolved: by_area[family['area']].append(family)
-    areas = ''.join('<details><summary>'+esc(area)+'</summary><div>'+''.join(f'<a href="#rp={esc(f["id"])}">{esc(f["title"])}</a>' for f in families)+'</div></details>' for area,families in by_area.items())
-    document = document.replace('<details class="reading-group" id="research-directions"', '<nav class="journey-areas" aria-label="More research areas"><span>Explore further directions</span>'+areas+'</nav><details class="reading-group" id="research-directions"',1)
-    document = document.replace('<h2>Long-horizon research maps</h2>', '<p class="eyebrow">02 / THE WIDER HORIZON</p><h2>Long-horizon research maps</h2><p>Explore the objects, equivalent formulations and missing bridges behind the Millennium Problems. These maps are research context; the routes above do not imply a solution.</p>')
+        document = document[:start] + '<details id="source-questions" class="reading-group" open><summary>All source questions · OEIS, Erdős &amp; papers</summary><div class="reading-group-body">' + document[start:end] + '</div></details>' + document[end:]
+    document = document.replace('<h2>Long-horizon research maps</h2>', '<p class="eyebrow">LONG-TERM RESEARCH CONTEXT</p><h2>Long-horizon research maps</h2><p>Explore the objects, equivalent formulations and missing bridges behind the Millennium Problems. These are long-term research maps, not claims that solving the source questions will settle a Millennium Problem.</p>')
     # Keep every resolved permalink, with compact source collections and pagination.
     parsed = Fragments(document)
     archive = parsed.select(id='completed-dossiers')[0]

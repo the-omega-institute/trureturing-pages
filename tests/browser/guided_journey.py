@@ -1,4 +1,4 @@
-"""Full-page research narrative: real geometry, evidence links and fallbacks."""
+"""Whole-catalog coverage, strategy-only edges and a reachable full collection."""
 import json
 import re
 
@@ -7,73 +7,82 @@ def check_guided_journey(page, base, output):
     page.set_viewport_size({'width':1440,'height':1000})
     page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
     page.wait_for_selector('.story-ready')
-    page.screenshot(path=str(output/'conjectures-introduction-desktop.png'))
     root=page.locator('.research-journey')
     data=json.loads(page.locator('#research-story-data').text_content())
-    assert len(data['areas'])==3
-    assert len(data['nodes'])==21
-    assert root.locator('.story-edges path[data-kind="proposed"]').count()==12
-    assert root.locator('.story-edges path[data-kind="outline"]').count()==9
+    catalog=page.request.get(base+'assets/research-catalog.json').json()
+    fields={f['area'] for f in catalog['families']}
+    assert {n['label'] for n in data['nodes'] if n['kind']=='field'}==fields
+    assert root.locator('.story-directory .journey-direction').count()==len(catalog['families'])
+    assert page.locator('#source-questions').get_attribute('open') is not None
+    for family in catalog['families']:
+        assert root.locator('[id="direction-'+family['id']+'"]').count()==1
+    assert root.locator('.story-node[data-kind=field]:visible').count()==len(fields)
+    assert root.locator('[data-node=source-oeis]').is_visible()
+    assert root.locator('[data-node=source-erdos]').is_visible()
+    assert 'Current focus: OEIS and Erdős' in root.locator('[data-scene-copy="0"]').inner_text()
+    assert all(e['source'].startswith('source-') or e['source'] in {'precise','general','representations','transfer'} for e in data['edges'])
+    page.screenshot(path=str(output/'conjectures-introduction-desktop.png'))
+    # Every topic reveals the actual questions it contains.
+    for button in root.locator('.story-node[data-kind=field]').all():
+        button.focus();page.keyboard.press('Enter')
+        assert root.locator('dialog[open]').count()==1
+        for link in root.locator('.story-detail-links a').all():
+            assert page.locator('[id="'+link.get_attribute('href')[1:]+'"]').count()==1
+        page.keyboard.press('Escape')
+    root.locator('[data-node=source-erdos]').click()
+    assert str(data['source_counts'].get('erdos',0))+' source dossiers' in root.locator('.story-detail-scope').inner_text()
+    page.keyboard.press('Escape')
     positions=[]
     for i,key in enumerate(['questions','proofs','bridges','horizons']):
         root.locator(f'[data-scene-link="{i}"]').click()
         page.wait_for_function('(i)=>document.querySelector(".story-stage").dataset.scene===String(i)',arg=i)
-        page.wait_for_timeout(150)
         assert root.locator('.story-copy:visible').count()==1
-        assert root.locator(f'[data-scene-copy="{i}"]').is_visible()
-        positions.append(root.locator('.story-node[data-kind="result"]').first.evaluate('e=>getComputedStyle(e).transform'))
+        positions.append(root.locator('[data-node=precise]').evaluate('e=>getComputedStyle(e).transform'))
         page.screenshot(path=str(output/f'story-{key}-desktop.png'))
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
-        assert all(e.evaluate('e=>getComputedStyle(e).strokeDasharray')!='none' for e in root.locator('.story-edges path[data-kind="proposed"]').all())
-    assert len(set(positions))==4
-    root.locator('[data-scene-link="1"]').click()
-    page.wait_for_function('document.querySelector(".story-stage").dataset.scene==="1"')
-    for node in root.locator('.story-node[data-kind="result"]').all():
-        node.focus();page.keyboard.press('Enter')
-        assert root.locator('dialog[open]').count()==1
-        href=root.locator('.story-detail-link').get_attribute('href')
-        assert page.request.get(href if href.startswith('http') else base+href).ok
-        assert root.locator('.story-detail-scope').inner_text()
-        page.keyboard.press('Escape')
-        assert root.locator('dialog[open]').count()==0
-    root.locator('[data-scene-link="2"]').click()
-    page.wait_for_function('document.querySelector(".story-stage").dataset.scene==="2"')
-    root.locator('.story-node[data-kind="target"]').first.click()
-    assert root.locator('.story-scope-heading').inner_text()=='Success means'
-    assert '#rp=' in root.locator('.story-detail-link').get_attribute('href')
+        assert all(e.evaluate('e=>getComputedStyle(e).strokeDasharray')!='none' for e in root.locator('.story-edges path').all())
+    assert len(set(positions))>=3
+    root.locator('[data-node=understanding]').click()
+    assert root.locator('.story-detail-status').inner_text()=='Research objective'
     page.keyboard.press('Escape')
+    root.locator('[data-scene-link="2"]').click()
     page.reload(wait_until='networkidle')
     page.wait_for_function('document.querySelector(".story-stage").dataset.scene==="2"')
     assert not re.search(r'[\u3400-\u9fff]',root.inner_text())
+    # Navigation is to the full catalogue, with all question links retained.
+    root.locator('.story-shortcuts a').first.click()
+    assert page.locator('#research-paths').is_visible()
+    page.screenshot(path=str(output/'full-catalogue-desktop.png'))
     for width in [390,320,768]:
-        page.set_viewport_size({'width':width,'height':900})
+        page.set_viewport_size({'width':width,'height':1000})
         page.goto(base+'conjectures.html?lang=en#story-questions',wait_until='networkidle')
         for i in range(4):
             root.locator(f'[data-scene-link="{i}"]').click()
             page.wait_for_function('(i)=>document.querySelector(".story-stage").dataset.scene===String(i)',arg=i)
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),width
-            if width==390:
-                page.screenshot(path=str(output/f'story-{i}-mobile.png'))
-        for button in root.locator('.story-node:visible').all():
-            box=button.bounding_box()
-            assert box['x']>=0 and box['x']+box['width']<=width+1,(width,box)
+            boxes=[b.bounding_box() for b in root.locator('.story-node:visible').all()]
+            for j,box in enumerate(boxes):
+                assert box['x']>=-1 and box['x']+box['width']<=width+1,(width,box)
+                for other in boxes[j+1:]:
+                    overlap_x=min(box['x']+box['width'],other['x']+other['width'])-max(box['x'],other['x'])
+                    overlap_y=min(box['y']+box['height'],other['y']+other['height'])-max(box['y'],other['y'])
+                    assert overlap_x<=1 or overlap_y<=1,(width,i,box,other)
+            if width==390:page.screenshot(path=str(output/f'story-{i}-mobile.png'))
     page.set_viewport_size({'width':1440,'height':1000})
     page.emulate_media(reduced_motion='no-preference')
     page.goto(base+'conjectures.html?lang=en#story-questions',wait_until='networkidle')
-    node=root.locator('.story-node[data-kind="result"]').first
     samples=page.evaluate("""async()=>{
-      const node=document.querySelector('.story-node[data-kind=result]');
-      const values=[getComputedStyle(node).transform], started=performance.now();
+      const node=document.querySelector('[data-node=source-oeis]'),values=[getComputedStyle(node).transform],started=performance.now();
       const e=document.querySelector('.story-scroll');
       scrollTo(0,e.getBoundingClientRect().top+scrollY+(e.offsetHeight-document.querySelector('.story-stage').offsetHeight)/3);
       return await new Promise(resolve=>{function sample(){values.push(getComputedStyle(node).transform);if(performance.now()-started>1000)resolve(values);else requestAnimationFrame(sample);}requestAnimationFrame(sample);});
     }""")
-    assert len(set(samples))>2, samples
+    assert len(set(samples))>2
     page.emulate_media(reduced_motion='reduce')
     page.goto(base+'conjectures.html?lang=zh-CN#story-bridges',wait_until='networkidle')
-    assert root.locator('[data-scene-copy="2"] h2').inner_text()=='现在，看看\n还缺少什么。'
+    assert root.locator('[data-scene-copy="2"] h2').inner_text()=='连接不同的表示'
     offline=page.context.browser.new_context(java_script_enabled=False)
     fallback=offline.new_page();fallback.goto(base+'conjectures.html?lang=en')
-    assert fallback.locator('.story-directory .journey-direction:visible').count()==3
-    assert fallback.locator('.story-directory-links a').count()==9
+    assert fallback.locator('.story-directory .journey-direction:visible').count()==len(catalog['families'])
+    assert fallback.locator('#source-questions').get_attribute('open') is not None
     offline.close()

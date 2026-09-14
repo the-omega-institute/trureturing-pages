@@ -84,7 +84,7 @@ def main():
         assert page.locator('.research-activity').count()==0
         assert page.locator('.journey-direction').count()>0
         assert page.locator('#next-questions').bounding_box()['y'] < page.locator('#source-questions').bounding_box()['y']
-        page.locator('#source-questions > summary').click()
+        assert page.locator('#source-questions').get_attribute('open') is not None
         row=page.locator('.problem-row').first
         if page.locator('.problem-row').count():
             target=row.locator('h2').text_content()

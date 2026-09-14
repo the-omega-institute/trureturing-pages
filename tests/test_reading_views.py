@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 import subprocess
@@ -98,14 +99,14 @@ class ReadingViewsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, patch('lib.reading_views.source_url',side_effect=lambda p:p['url']):
             out=render_conjecture_groups(source,snapshot,Path(temp))
         self.assertLess(out.index('id="next-questions"'),out.index('id="source-questions"'))
-        self.assertEqual(out.count('class="journey-direction"'),3)
+        self.assertEqual(out.count('class="journey-direction"'),len(json.loads((ROOT/'site/assets/research-catalog.json').read_text())['families']))
         self.assertIn('Existing proof',out)
-        self.assertIn('Proposed route · not a proved implication',out)
-        self.assertIn('WHERE TO CONTRIBUTE',out)
+        self.assertIn('connections show intended work, not proved dependencies',out)
+        self.assertIn('BUILD VERIFIED BRIDGES',out)
         self.assertNotIn('Development activity',out)
         self.assertIn('id="completed-oeis"',out)
         self.assertIn('id="resolved-done"',out)
-        self.assertNotIn('open',Fragments(out).select(id='source-questions')[0].attrs)
+        self.assertIn('open',Fragments(out).select(id='source-questions')[0].attrs)
 
     def test_results_lead_and_raw_gaps_stay_in_conjectures(self):
         records,source=results()

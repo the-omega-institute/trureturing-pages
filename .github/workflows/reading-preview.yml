@@ -1,7 +1,7 @@
 name: Reading browser preview
 on:
   pull_request:
-    paths: ['site/**', 'lib/**', 'tools/build_reading_preview.py', 'tests/browser/reading_experience.py', '.github/workflows/reading-preview.yml']
+    paths: ['site/**', 'lib/**', 'tools/build_reading_preview.py', 'tests/browser/reading_experience.py', 'tests/browser/guided_journey.py', '.github/workflows/reading-preview.yml']
 permissions:
   contents: read
 concurrency:
