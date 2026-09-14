@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from html import escape
 from html.parser import HTMLParser
 import json
+import hashlib
 from pathlib import Path
 import re
 from urllib.parse import urlsplit
@@ -241,11 +242,13 @@ def conjecture_journey(document, snapshot):
     catalog = json.loads((ROOT / 'site/assets/research-catalog.json').read_text())
     from lib.research_journey import render_guided_journey
     overview = render_guided_journey(catalog, snapshot)
-    document = document.replace('</head>', '<link rel="stylesheet" href="assets/research-journey.css">'
+    # Keep generated data, layout and animation from different previews out of the same cache entry.
+    revision = hashlib.sha256(b''.join((ROOT / 'site/assets' / name).read_bytes()
+        for name in ('research-journey.css', 'research-journey.mjs')) + overview.encode()).hexdigest()[:16]
+    document = document.replace('</head>', f'<link rel="stylesheet" href="assets/research-journey.css?v={revision}">'
         '<script defer src="assets/vendor/gsap.min.js"></script>'
         '<script defer src="assets/vendor/ScrollTrigger.min.js"></script>'
-        '<script type="module" src="assets/research-journey.mjs"></script>'
-        '<noscript><style>.story-scroll{display:none}.story-directory{padding-top:20px}</style></noscript></head>', 1)
+        f'<script type="module" src="assets/research-journey.mjs?v={revision}"></script></head>', 1)
     parsed = Fragments(document)
     for element in sorted(parsed.select(cls='result-followups') + parsed.select(cls='research-activity'), key=lambda e:e.start, reverse=True):
         document = document[:element.start]+document[element.end:]

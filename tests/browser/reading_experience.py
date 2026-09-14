@@ -8,7 +8,7 @@ from pathlib import Path
 import threading
 from urllib.parse import urljoin, urlsplit
 from playwright.sync_api import sync_playwright
-from guided_journey import check_guided_journey
+from guided_journey import check_guided_journey, check_journey_loading
 
 def assert_readable_text(page):
     def luminance(rgb):
@@ -37,6 +37,7 @@ def main():
         page.on('pageerror',lambda e:errors.append(str(e)));page.on('request',lambda r:requests.append(r.url))
         page.add_init_script("window.__shifts=[];new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)window.__shifts.push(e.value)}).observe({type:'layout-shift',buffered:true});")
         check_guided_journey(page,base,args.output)
+        check_journey_loading(page,base,args.output)
         events.append('Full-page research scenes morph across scroll, preserve proof/target semantics, keyboard details, mobile layouts and no-script access')
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'

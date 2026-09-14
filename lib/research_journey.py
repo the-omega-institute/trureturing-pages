@@ -59,7 +59,7 @@ def render_guided_journey(catalog, snapshot):
             'links':[{'href':'#research-paths','label':'Explore the full research catalogue'}]})
         if i: edges.append({'source':PROCESS[i-1][0],'target':identity})
     # Grouping and strategy only: no mathematical dependency is inferred here.
-    buttons=''.join(f'<button type="button" class="story-node" data-node="{esc(n["id"])}" data-kind="{n["kind"]}" aria-label="{esc(n["status"]+": "+n["label"])}"><span class="story-dot" aria-hidden="true"></span><span class="story-node-label">{esc(n["label"])}</span></button>' for n in nodes)
+    buttons=''.join(f'<a href="{esc(n["links"][0]["href"])}" class="story-node" data-node="{esc(n["id"])}" data-kind="{n["kind"]}" aria-label="{esc(n["status"]+": "+n["label"])}"><span class="story-dot" aria-hidden="true"></span><span class="story-node-label">{esc(n["label"])}</span></a>' for n in nodes)
     copies=''.join(f'<div class="story-copy" data-scene-copy="{i}"{ " hidden" if i else ""}><p class="story-eyebrow">{eyebrow}</p><h2{ " id=next-questions-title" if i==0 else ""}>{esc(title)}</h2><p class="story-deck">{esc(text)}</p></div>' for i,(_,eyebrow,title,text) in enumerate(SCENES))
     nav=''.join(f'<a href="#story-{key}" data-scene-link="{i}"{ " aria-current=step" if i==0 else ""}><span>0{i+1}</span> {label}</a>' for i,(key,label) in enumerate([('questions','Overview'),('proofs','Foundations'),('bridges','Bridges'),('horizons','Transfer')]))
     stops=''.join(f'<span class="story-stop" id="story-{key}" style="top:{i*25}%" aria-hidden="true"></span>' for i,(key,*_) in enumerate(SCENES))

@@ -15,11 +15,10 @@
 .research-home .story-copy h2 { font:500 clamp(29px,3.1vw,42px)/1.2 Georgia,serif; letter-spacing:-.025em; color:#253d33; max-width:30ch; margin:0; }
 .story-deck { font-size:17px; line-height:1.7; color:#4d6257; max-width:76ch; margin:16px 0 0; }
 .story-shortcuts { position:absolute;top:0;right:0;display:grid;gap:10px;text-align:right;font-size:14px; }
-.story-map { position:relative; flex:1; min-height:400px; margin:15px 0 20px; visibility:hidden; }
-.story-ready .story-map { visibility:visible; }
+.story-map { position:relative; flex:1; min-height:400px; margin:15px 0 20px; }
 .story-edges { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
 .story-edges path { fill:none; stroke:#9a8859; stroke-width:1.6; stroke-dasharray:4 7; }
-.story-map .story-node { position:absolute; top:0; left:0; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 14px; min-height:48px; width:190px; border:1px solid #c4d2c8; border-radius:5px; background:#f5f8f5; color:#294637; font-family:inherit; cursor:pointer; z-index:2; }
+.story-map .story-node { position:absolute; top:0; left:0; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 14px; min-height:48px; width:190px; border:1px solid #c4d2c8; border-radius:5px; background:#f5f8f5; color:#294637; font-family:inherit; text-decoration:none; text-align:center; box-sizing:border-box; cursor:pointer; z-index:2; }
 .story-node-label { font-size:16px; line-height:1.4; }
 .story-dot { width:7px; height:7px; background:#6b8c77; border-radius:50%; flex:none; }
 .story-map .story-node[data-kind=source] { width:210px; min-height:70px; background:#e9f0eb; border-color:#8fae9a; border-top:3px solid #547a63; }
@@ -75,4 +74,21 @@
  .story-map { min-height:540px; }
  .story-map .story-node[data-kind=field] { padding:5px; }
  .story-node[data-kind=field] .story-node-label { line-height:1.35; }
+}
+
+/* A complete, navigable overview is the default. Only a working animation earns
+   the long sticky scroll region; failed or delayed modules never leave a hole. */
+.research-journey:not(.story-ready) .story-scroll { height:auto; min-height:0; }
+.research-journey:not(.story-ready) .story-stage { position:relative; height:auto; min-height:0; max-height:none; }
+.research-journey:not(.story-ready) .story-map { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:18px; min-height:0; overflow:visible; }
+.research-journey:not(.story-ready) .story-map-label { position:static; grid-column:1/-1; opacity:1!important; }
+.research-journey:not(.story-ready) [data-map-label=sources] { order:0; }
+.research-journey:not(.story-ready) [data-map-label=fields] { order:2; margin-top:18px; }
+.research-journey:not(.story-ready) .story-map .story-node { position:relative; width:100%; transform:none!important; opacity:1!important; visibility:visible!important; }
+.research-journey:not(.story-ready) .story-node[data-kind=source] { order:1; grid-column:span 4; }
+.research-journey:not(.story-ready) .story-node[data-kind=field] { order:3; grid-column:span 3; }
+.research-journey:not(.story-ready) :is(.story-edges,.story-node[data-kind=process],.story-footer nav,.story-stop) { display:none; }
+@media(max-width:600px) {
+ .research-journey:not(.story-ready) .story-map { grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+ .research-journey:not(.story-ready) .story-node[data-kind=source] { grid-column:span 2; }
 }

@@ -86,3 +86,49 @@ def check_guided_journey(page, base, output):
     assert fallback.locator('.story-directory .journey-direction:visible').count()==len(catalog['families'])
     assert fallback.locator('#source-questions').get_attribute('open') is not None
     offline.close()
+
+
+def check_journey_loading(page, base, output):
+    """Loading failures must leave useful content, never an empty sticky stage."""
+    browser=page.context.browser
+    for failure in ('journey', 'i18n', 'gsap', 'data', 'no-js'):
+        context=browser.new_context(viewport={'width':1440,'height':1000},java_script_enabled=failure!='no-js',reduced_motion='reduce')
+        probe=context.new_page()
+        if failure in ('journey','i18n','gsap'):
+            pattern={'journey':'**/research-journey.mjs*','i18n':'**/i18n.mjs*','gsap':'**/vendor/*gsap*'}[failure]
+            context.route(pattern,lambda route:route.abort())
+        if failure=='data':
+            def incompatible_data(route):
+                response=route.fetch()
+                # Simulate a cached page from a different map schema.
+                route.fulfill(response=response,body=response.text().replace('"field_count":', '"old_field_count":'))
+            context.route('**/conjectures.html*',incompatible_data)
+        probe.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
+        if failure in ('journey','data','no-js'):
+            assert probe.locator('.story-ready').count()==0
+            data=json.loads(probe.locator('#research-story-data').text_content())
+            assert probe.locator('.story-node[data-kind=field]:visible').count()==sum(n['kind']=='field' for n in data['nodes'])
+            assert probe.locator('.story-scroll').bounding_box()['height']<1200
+            probe.locator('[data-node=field-sequence-complexity]').click()
+            assert '#direction-' in probe.url
+            for width in (320,390,1440):
+                probe.set_viewport_size({'width':width,'height':1000})
+                assert probe.evaluate('document.documentElement.scrollWidth<=innerWidth')
+            probe.locator('.story-map').scroll_into_view_if_needed()
+            probe.screenshot(path=str(output/f'story-fallback-{failure}.png'))
+        else:
+            probe.wait_for_selector('.story-ready')
+            probe.locator('[data-scene-link="2"]').click()
+            probe.wait_for_function('document.querySelector(".story-stage").dataset.scene==="2"')
+            assert probe.locator('[data-node=representations]').is_visible()
+            probe.reload(wait_until='networkidle')
+            probe.wait_for_function('document.querySelector(".story-stage").dataset.scene==="2"')
+            assert probe.locator('[data-node=representations]').is_visible()
+        context.close()
+    # Normal restored scroll and browser Back must also have an actual graph.
+    page.goto(base+'conjectures.html?lang=en#story-horizons',wait_until='networkidle')
+    page.wait_for_function('document.querySelector(".story-stage").dataset.scene==="3"')
+    page.goto(base+'research.html?lang=en',wait_until='networkidle')
+    page.go_back(wait_until='networkidle')
+    page.wait_for_function('document.querySelector(".story-stage").dataset.scene==="3"')
+    assert page.locator('[data-node=understanding]').is_visible()

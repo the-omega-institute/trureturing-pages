@@ -1,12 +1,18 @@
-import {ready, t} from './i18n.mjs';
+// Localization enhances labels independently: a failed language module must not
+// prevent the research map from rendering or responding to scroll.
+let t=value=>value;
+const translations=import('./i18n.mjs').then(async module=>{await module.ready;t=module.t;}).catch(()=>{});
 const root=document.querySelector('.research-journey'), source=document.getElementById('research-story-data');
 if(root&&source){
+ try {
   const data=JSON.parse(source.textContent), map=root.querySelector('.story-map'), svg=map.querySelector('svg');
   const scroll=root.querySelector('.story-scroll'), stage=root.querySelector('.story-stage');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)'), ns='http://www.w3.org/2000/svg';
   const elements=new Map([...map.querySelectorAll('[data-node]')].map(e=>[e.dataset.node,e]));
   const nodes=data.nodes.map(n=>({...n,element:elements.get(n.id)})), byId=new Map(nodes.map(n=>[n.id,n]));
+  if(!nodes.length||nodes.some(n=>!n.element)||!Number.isFinite(data.field_count))throw new Error('Invalid research map data');
   const strategyEdges=[...data.edges,...nodes.filter(n=>n.kind==='field').map(n=>({source:n.id,target:'representations',bridge:true}))];
+  if(strategyEdges.some(e=>!byId.has(e.source)||!byId.has(e.target)))throw new Error('Unknown research map endpoint');
   const edges=strategyEdges.map(e=>{const path=document.createElementNS(ns,'path');path.dataset.kind='strategy';svg.append(path);return {...e,element:path};});
   const copies=[...root.querySelectorAll('[data-scene-copy]')], links=[...root.querySelectorAll('[data-scene-link]')];
   const dialog=root.querySelector('dialog'), model={progress:0};
@@ -97,20 +103,29 @@ if(root&&source){
     for(const entry of node.links){const link=document.createElement('a');link.setAttribute('href',entry.href);link.textContent=t(entry.label);link.addEventListener('click',()=>dialog.close());holder.append(link);}
     dialog.showModal();
   }
-  nodes.forEach(node=>node.element.addEventListener('click',()=>inspect(node)));
+  nodes.forEach(node=>node.element.addEventListener('click',event=>{if(root.classList.contains('story-ready')&&!event.metaKey&&!event.ctrlKey&&!event.shiftKey&&!event.altKey){event.preventDefault();inspect(node);}}));
   dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
+  const update=()=>{model.progress=Math.max(0,Math.min(3,-scroll.getBoundingClientRect().top/Math.max(1,scroll.offsetHeight-stage.offsetHeight)*3));draw();};
+  const refresh=()=>{measure();if(timeline)window.ScrollTrigger.refresh();else update();};
   root.classList.add('story-ready');measure();
   if(window.gsap&&window.ScrollTrigger){
     gsap.registerPlugin(ScrollTrigger);
     timeline=gsap.timeline({scrollTrigger:{trigger:scroll,start:'top top',end:()=>'+='+(scroll.offsetHeight-stage.offsetHeight),scrub:reduced.matches?true:.45,onRefresh:draw}});
     timeline.fromTo(model,{progress:0},{progress:3,duration:3,immediateRender:false,ease:'none',onUpdate:draw});
   }else{
-    const update=()=>{model.progress=Math.max(0,Math.min(3,-scroll.getBoundingClientRect().top/(scroll.offsetHeight-stage.offsetHeight)*3));draw();};
-    addEventListener('scroll',update,{passive:true});
+    addEventListener('scroll',update,{passive:true});update();
   }
-  const observer=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{measure();window.ScrollTrigger?.refresh();});});observer.observe(map);
+  const observer=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(refresh);});observer.observe(map);
   reduced.addEventListener('change',()=>{timeline?.scrollTrigger.scrubDuration(reduced.matches?0:.45);if(reduced.matches&&window.gsap){gsap.killTweensOf(copies);gsap.set(copies,{y:0,opacity:1});}draw();});
-  addEventListener('hashchange',hash);addEventListener('pageshow',()=>{measure();window.ScrollTrigger?.refresh();});
-  await ready;measure();window.ScrollTrigger?.refresh();hash();
+  addEventListener('hashchange',hash);addEventListener('pageshow',refresh);
+  refresh();hash();
+  translations.then(refresh);
+  document.fonts?.ready.then(refresh);
   addEventListener('pagehide',event=>{if(!event.persisted){observer.disconnect();timeline?.scrollTrigger?.kill();timeline?.kill();cancelAnimationFrame(resizeFrame);}});
+ } catch(error) {
+   root.classList.remove('story-ready');
+   root.querySelectorAll('[data-node]').forEach(node=>{node.inert=false;});
+   root.querySelectorAll('[data-scene-copy]').forEach((copy,i)=>{copy.hidden=i!==0;});
+   console.warn('Research animation unavailable; keeping the linked overview.',error);
+ }
 }
