@@ -21,8 +21,12 @@ import argparse
 import json
 import re
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ALLOWED_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
+
+# Same host-based scheme the research page groups by (lib/reading_views.series).
+SOURCE_GROUPS = {"oeis.org": "OEIS", "erdosproblems.com": "Erdős Problems"}
 AUDIT = Path(__file__).resolve().parents[1] / "site/assets/claim-audit.v1.json"
 
 # '<name>' depends on axioms: [a, b, c]   (the list may wrap across lines)
@@ -132,8 +136,43 @@ def build_records(catalog, axiom_index, literature, reviews=None, prior_formal=N
         "revision": catalog.get("revision"),
         "source_commit": catalog.get("source_commit"),
         "allowed_axioms": sorted(ALLOWED_AXIOMS),
+        "categories": categorize(records),
         "records": records,
     }
+
+
+def _source_group(url):
+    host = (urlsplit(url or "").hostname or "").lower().removeprefix("www.")
+    return SOURCE_GROUPS.get(host, "Other sources")
+
+
+def _fully_double_checked(record):
+    """A claim passes the double-check when the automated gates all pass. Statement
+    fidelity is reported separately and does not gate this (it is not automated)."""
+    s = record["states"]
+    return s["formal_verification"]["status"] == "pass" and s["literature_source"]["status"] == "pass"
+
+
+def categorize(records):
+    """Screen (筛选) then group (归类): partition claims by whether they clear the
+    automated double-check, then group each partition by source and by kind."""
+    groups = {}
+    for r in records:
+        g = _source_group(r.get("source_url"))
+        bucket = groups.setdefault(g, {"total": 0, "double_checked": 0, "needs_attention": [],
+                                        "proved": 0, "refuted": 0, "ids": []})
+        bucket["total"] += 1
+        bucket["ids"].append(r["id"])
+        bucket[r["kind"]] = bucket.get(r["kind"], 0) + 1
+        if _fully_double_checked(r):
+            bucket["double_checked"] += 1
+        else:
+            bucket["needs_attention"].append({
+                "id": r["id"],
+                "formal_verification": r["states"]["formal_verification"]["status"],
+                "literature_source": r["states"]["literature_source"]["status"],
+            })
+    return dict(sorted(groups.items(), key=lambda kv: (-kv[1]["total"], kv[0])))
 
 
 def summarize(audit):
@@ -142,6 +181,8 @@ def summarize(audit):
         return sum(1 for r in rec if r["states"][state]["status"] == status)
     return {
         "total": len(rec),
+        "double_checked": sum(1 for r in rec if _fully_double_checked(r)),
+        "by_source": {g: b["total"] for g, b in audit.get("categories", {}).items()},
         "formal_verification_pass": count("formal_verification", "pass"),
         "formal_verification_fail": count("formal_verification", "fail"),
         "formal_verification_unverified": count("formal_verification", "unverified"),
