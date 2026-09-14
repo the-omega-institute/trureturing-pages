@@ -1,7 +1,7 @@
 {
  "schema_version": "pages-claim-audit.v1",
- "revision": "sha256:91470b6d2702f78335e96cce78df1565f7be2ff9a61c103eb837c6700e93d47d",
- "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+ "revision": "sha256:02e451f61d7176874799f5ae5a16b13d90a8fa5ac0b3f222fbe22c6d00abaf5a",
+ "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
  "allowed_axioms": [
   "Classical.choice",
   "Quot.sound",
@@ -14,7 +14,7 @@
    "kind": "proved",
    "declaration": "D5.S3.ConceptDynamics.PatternAvoidance.ArcherBourneDecomposition.card_avoids_312_321_cube_2143_eq_compositions",
    "source_url": "https://doi.org/10.46298/dmtcs.17199",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -50,7 +50,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Complexity.reducedAbelianComplexity_even_difference",
    "source_url": "https://doi.org/10.48550/arXiv.2509.16034",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -86,7 +86,7 @@
    "kind": "refuted",
    "declaration": "D5.S3.Arith.Density.ErdosExactlyOneDivisorUnimodalityRefutation.result",
    "source_url": "https://doi.org/10.1007/978-3-642-39286-3_23",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -102,7 +102,7 @@
     "literature_source": {
      "status": "pass",
      "http_status": 200,
-     "final_url": "https://link.springer.com/chapter/10.1007/978-3-642-39286-3_23?error=cookies_not_supported&code=07c6e594-1a74-423c-ab32-5414f04319f2",
+     "final_url": "https://link.springer.com/chapter/10.1007/978-3-642-39286-3_23?error=cookies_not_supported&code=3954eb33-700d-4f8e-92ce-ce4e599fc357",
      "identifier_on_page": null
     },
     "statement_fidelity": {
@@ -122,7 +122,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.LucasEvenDescent.conjecture_five_two",
    "source_url": "https://arxiv.org/abs/2408.14632v2",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -158,7 +158,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.LucasEvenPeriods.even_lucas_periods",
    "source_url": "https://arxiv.org/abs/2408.14632v2",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -194,7 +194,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.LucasVerticalSlice.verticalSlice_iff_two_traces",
    "source_url": "https://arxiv.org/abs/2408.14632v2",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -230,7 +230,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Sumfree.GreedyThreeSumfreeTwoParameter.conjecture17",
    "source_url": "https://doi.org/10.48550/arXiv.2503.04122",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -266,7 +266,7 @@
    "kind": "refuted",
    "declaration": "D5.S0.Certificates.JacoExponentialDominationRefutation.result",
    "source_url": "https://doi.org/10.48550/arXiv.2507.16500",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -302,7 +302,7 @@
    "kind": "refuted",
    "declaration": "D5.S1.Recurrence.Periodic.SecantNumberPurePeriodRefutation.bala_conjecture_false",
    "source_url": "https://oeis.org/A000364",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -338,7 +338,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.StirlingTransformTotientPeriod.bala_conjecture_a004123",
    "source_url": "https://oeis.org/A004123",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -374,7 +374,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.CubeGapFiveNoSquare.cube_gap_five_ne_sq",
    "source_url": "https://oeis.org/A038867",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -409,7 +409,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.SchroederPeakAlternatingQuadraticMoment.schulte_a060693",
    "source_url": "https://oeis.org/A060693",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -445,7 +445,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.StirlingTransformTotientPeriod.bala_conjecture_a064618",
    "source_url": "https://oeis.org/A064618",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -481,7 +481,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.SubsetSums.ModSixResidueCounts.corneth_step",
    "source_url": "https://oeis.org/A068012",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -517,7 +517,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.SubsetSumModSixDoubling.subset_sum_mod_six_doubling",
    "source_url": "https://oeis.org/A068012",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -548,12 +548,48 @@
    }
   },
   {
+   "id": "oeis-a072872-power-minus-index-prime-bound-refutation",
+   "title": "Refutation of the A072872 prime-index upper-bound conjecture",
+   "kind": "refuted",
+   "declaration": "D5.S3.Arith.Congruence.CloitrePowerMinusIndexPrimeBoundRefutation.result",
+   "source_url": "https://oeis.org/A072872",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S3.Arith.Congruence.CloitrePowerMinusIndexPrimeBoundRefutation.result",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A072872",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:2018bd9f115817ffbbc8d14e95af96155db800006c66b3b3c21101d44eb9bd03"
+    }
+   }
+  },
+  {
    "id": "oeis-a076502-nested-recurrence-floor-refutation",
    "title": "Refutation of the A076502 nested-recurrence floor-offset conjecture",
    "kind": "refuted",
    "declaration": "D5.S1.Recurrence.Invariants.CloitreNestedRecurrenceFloorRefutation.result",
    "source_url": "https://oeis.org/A076502",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -589,7 +625,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.TrinomialOddDiagonalRationalSeries.schulte_a077864",
    "source_url": "https://oeis.org/A077864",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -620,12 +656,48 @@
    }
   },
   {
+   "id": "oeis-a079063-sqrt-prime-gap-lower-bound-refutation",
+   "title": "Refutation of the A079063 square-root prime-gap lower-bound conjecture",
+   "kind": "refuted",
+   "declaration": "D5.S3.PrimeGaps.CloitreSquareRootPrimeGapRefutation.result",
+   "source_url": "https://oeis.org/A079063",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S3.PrimeGaps.CloitreSquareRootPrimeGapRefutation.result",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A079063",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:5542d8e211483753914492f05cb4e7fdbf6393a3cdb597589fdd39f76cfb5bc3"
+    }
+   }
+  },
+  {
    "id": "oeis-a084068-pell-companion-gcd",
    "title": "The A084068 Pell gcd conjecture",
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.PellCompanionGcd.pell_companion_gcd",
    "source_url": "https://oeis.org/A084068",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -661,7 +733,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.A091259.a091259_mod_three",
    "source_url": "https://oeis.org/A091259",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -692,12 +764,48 @@
    }
   },
   {
+   "id": "oeis-a092028-least-self-divisor-power-minus-one",
+   "title": "The least self-divisor exponent in OEIS A092028",
+   "kind": "proved",
+   "declaration": "D5.S3.Arith.Congruence.FiroozbakhtLeastSelfDivisorPowerMinusOne.firoozbakht_a092028",
+   "source_url": "https://oeis.org/A092028",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S3.Arith.Congruence.FiroozbakhtLeastSelfDivisorPowerMinusOne.firoozbakht_a092028",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A092028",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:e37c77ff75ef1488376bd4fc1cdd39c931939917ebf87573aa3717c2ec55580b"
+    }
+   }
+  },
+  {
    "id": "oeis-a096127-factorial-square-divisibility-prime-power",
    "title": "Exact factorial-square divisibility in A096127",
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.FactorialSquareDivisibilityPrimePower.factorial_square_exact_divisibility_iff_prime_power",
    "source_url": "https://oeis.org/A096127",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -733,7 +841,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.SquareCountingRecurrenceSquarePositions.zumkeller_a097602",
    "source_url": "https://oeis.org/A097602",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -764,12 +872,48 @@
    }
   },
   {
+   "id": "oeis-a104863-floor-sqrt-recurrence-refutation",
+   "title": "Refutation of the A104863 floor-square-root recurrence conjecture",
+   "kind": "refuted",
+   "declaration": "D5.S0.Certificates.StephanFloorSqrtRecurrenceRefutation.result",
+   "source_url": "https://oeis.org/A104863",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S0.Certificates.StephanFloorSqrtRecurrenceRefutation.result",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A104863",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:7af34ed9fe8f24ca5d7f0ebc6f4793aafdaaadeaa3caefaaca7e7010123df39e"
+    }
+   }
+  },
+  {
    "id": "oeis-a110454-distinct-partition-concatenation-zero-indices",
    "title": "The zero indices of A110454",
    "kind": "proved",
    "declaration": "D5.S1.Digit.Admissibility.DistinctPartitionConcatenationComposite.murthy_conjecture",
    "source_url": "https://oeis.org/A110454",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -800,12 +944,48 @@
    }
   },
   {
+   "id": "oeis-a116184-generalized-harmonic-thirty-seven-cube-progression",
+   "title": "Cubic divisibility of generalized harmonic numerators along Adamchuk's progression",
+   "kind": "proved",
+   "declaration": "D5.S3.ArithSums.AdamchukGeneralizedHarmonicThirtySevenCubeProgression.adamchuk_a116184",
+   "source_url": "https://oeis.org/A116184",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S3.ArithSums.AdamchukGeneralizedHarmonicThirtySevenCubeProgression.adamchuk_a116184",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A116184",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:b5a29d01e2f6fe551436db69c88dd3d1760f311be7a594cf26b5ef5fc348ee99"
+    }
+   }
+  },
+  {
    "id": "oeis-a119623-divisor-pair-product-prime-preimages",
    "title": "Prime values of the divisor-pair product sum have exactly two preimages",
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.DivisorPairProductPrimePreimages.seidov_conjecture",
    "source_url": "https://oeis.org/A119623",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -841,7 +1021,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.StirlingPowerFactorialPrimePeriod.bala_conjecture",
    "source_url": "https://oeis.org/A122399",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -877,7 +1057,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Partitions.MixedParityBlockPartitionProduct.hanna_a124418",
    "source_url": "https://oeis.org/A124418",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -913,7 +1093,7 @@
    "kind": "refuted",
    "declaration": "D5.S0.Certificates.OrdowskiLeastWitnessRefutation.result",
    "source_url": "https://oeis.org/A126762",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -944,12 +1124,48 @@
    }
   },
   {
+   "id": "oeis-a131853-binary-gaussian-evaluation-zero-multiple-of-five",
+   "title": "Zeros of the A131853 binary Gaussian evaluation",
+   "kind": "proved",
+   "declaration": "D5.S1.Digit.ZumkellerBinaryGaussianEvaluationZeroMultipleOfFive.zumkeller_a131853",
+   "source_url": "https://oeis.org/A131853",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S1.Digit.ZumkellerBinaryGaussianEvaluationZeroMultipleOfFive.zumkeller_a131853",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A131853",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:8858b29c1e2c6c69d7fe7515a9714f941cc0f94fdac3e17c885f055b20bffd20"
+    }
+   }
+  },
+  {
    "id": "oeis-a133901-palindrome-square-reversal-infinitude",
    "title": "Palindrome-square reversal infinitude in A133901",
    "kind": "proved",
    "declaration": "D5.S1.Digit.Admissibility.PalindromeSquareReversalInfinitude.brockhaus_seidov_a133901",
    "source_url": "https://oeis.org/A133901",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -985,7 +1201,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.Congruence.LibrandiSundaramTriangleComplementPrime.librandi_a140869",
    "source_url": "https://oeis.org/A140869",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1021,7 +1237,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.CollinearTripleTranslationOrbits.square_dvd_card_collinear_triples",
    "source_url": "https://oeis.org/A146557",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1057,7 +1273,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.Congruence.RationalDenominatorCubeShift.cicuttin_a152020",
    "source_url": "https://oeis.org/A152020",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1093,7 +1309,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Digit.Admissibility.GrayCodeBinaryRecurrenceClosedForm.yanev_a163617",
    "source_url": "https://oeis.org/A163617",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1124,12 +1340,83 @@
    }
   },
   {
+   "id": "oeis-a175406-log-two-floor-refutation",
+   "title": "Refutation of the A175406 floor formula conjecture",
+   "kind": "refuted",
+   "declaration": "D5.S0.Certificates.GreathouseLogTwoFloorRefutation.result",
+   "source_url": "https://oeis.org/A175406",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S0.Certificates.GreathouseLogTwoFloorRefutation.result",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A175406",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:b175cb5b25175fb13fdc3807c9f94af59c597c239ff5cf51cc6fcd2f7193fdd6"
+    }
+   }
+  },
+  {
+   "id": "oeis-a177680-twin-prime-average-multiple-of-five",
+   "title": "The A177680 twin-prime averages modulo five",
+   "kind": "proved",
+   "declaration": "D5.S3.Arith.Congruence.DaleTwinPrimeAverageMultipleOfFive.dale_a177680",
+   "source_url": "https://oeis.org/A177680",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S3.Arith.Congruence.DaleTwinPrimeAverageMultipleOfFive.dale_a177680",
+     "axioms": [
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A177680",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:9906fe846d905ebd722998c1e181ed1b3150a8265942b7412e867229c3892e75"
+    }
+   }
+  },
+  {
    "id": "oeis-a178294-four-grid-collinear-triples",
    "title": "Collinear triples in the four-point grid",
    "kind": "proved",
    "declaration": "D5.S3.Arith.Lattices.FourGridCollinearTriples.mathar_collinear_triples",
    "source_url": "https://oeis.org/A178294",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1165,7 +1452,7 @@
    "kind": "refuted",
    "declaration": "D5.S0.Certificates.KimberlingCombWienerDeterminantRefutation.result",
    "source_url": "https://oeis.org/A192023",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1196,12 +1483,48 @@
    }
   },
   {
+   "id": "oeis-a193351-alternating-divisor-sum-prime-square",
+   "title": "Prime alternating divisor sums in OEIS A193351",
+   "kind": "proved",
+   "declaration": "D5.S3.Arith.LagneauAlternatingDivisorSumPrimeSquare.lagneau_a193351",
+   "source_url": "https://oeis.org/A193351",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S3.Arith.LagneauAlternatingDivisorSumPrimeSquare.lagneau_a193351",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A193351",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:bcd2b8d64502b0c56f73ec6e2c9cdb48051dc95458a0d88598cf78c6114aeb7c"
+    }
+   }
+  },
+  {
    "id": "oeis-a208342-joint-polynomial-pair-binomial-coefficients",
    "title": "The A208342 coefficient formula for a jointly generated polynomial pair",
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.JointPolynomialPairBinomialCoefficients.schulte_a208342",
    "source_url": "https://oeis.org/A208342",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1237,7 +1560,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.AlternatingWeightStirlingPrimePeriod.bala_conjecture",
    "source_url": "https://oeis.org/A220181",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1273,7 +1596,7 @@
    "kind": "refuted",
    "declaration": "D5.S1.Recurrence.Periodic.TanhPowerPrimePeriod.bala_conjecture_two_false",
    "source_url": "https://oeis.org/A221077",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1309,7 +1632,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.FactorialProductSumCatalanParity.hanna_conjecture",
    "source_url": "https://oeis.org/A222013",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1345,7 +1668,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.FactorialSquareExponentSumParity.hanna_conjecture",
    "source_url": "https://oeis.org/A222014",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1381,7 +1704,7 @@
    "kind": "refuted",
    "declaration": "D5.S1.Recurrence.Periodic.SinhPowerPrimePeriod.bala_conjecture_two_false",
    "source_url": "https://oeis.org/A224899",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1417,7 +1740,7 @@
    "kind": "refuted",
    "declaration": "D5.S0.Certificates.KrizekAntisigmaDecreaseRefutation.result",
    "source_url": "https://oeis.org/A231548",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1453,7 +1776,7 @@
    "kind": "refuted",
    "declaration": "D5.S0.Certificates.KrizekIntegralityGcdRecordRefutation.result",
    "source_url": "https://oeis.org/A245786",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1489,7 +1812,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Digit.Admissibility.SquarePrependOneAppendTwentyFive.wu_a249621",
    "source_url": "https://oeis.org/A249621",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1525,7 +1848,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.Congruence.DivisorDifferenceGcdHeinz.wiseman_a258409",
    "source_url": "https://oeis.org/A258409",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1561,7 +1884,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalVanishingIndexDivisibility.hanna_conjecture_a266489",
    "source_url": "https://oeis.org/A266489",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1597,7 +1920,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.NegativePowerDiagonalModPrime.hanna_conjecture_a266489",
    "source_url": "https://oeis.org/A266489",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1633,7 +1956,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.RestrictedGrowthLabelOccurrences.mathar_f2",
    "source_url": "https://oeis.org/A270236",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1669,7 +1992,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.RestrictedGrowthLabelOccurrences.mathar_f1",
    "source_url": "https://oeis.org/A270236",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1705,7 +2028,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.CyclotomicFiveResidueSum.residue_sum_ne_zero",
    "source_url": "https://oeis.org/A290322",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1741,7 +2064,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalVanishingIndexDivisibility.hanna_conjecture_a292394",
    "source_url": "https://oeis.org/A292394",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1777,7 +2100,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalVanishingIndexDivisibility.hanna_conjecture_a300732",
    "source_url": "https://oeis.org/A300732",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1813,7 +2136,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalVanishingIndexDivisibility.hanna_conjecture_a300733",
    "source_url": "https://oeis.org/A300733",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1849,7 +2172,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalVanishingIndexDivisibility.hanna_conjecture_a300734",
    "source_url": "https://oeis.org/A300734",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1885,7 +2208,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Patterns.GridNoLeafSubgraphRecurrence.kagey_a301976_mod10",
    "source_url": "https://oeis.org/A301976",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1921,7 +2244,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Patterns.GridNoLeafSubgraphRecurrence.barker_a301976",
    "source_url": "https://oeis.org/A301976",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1952,12 +2275,48 @@
    }
   },
   {
+   "id": "oeis-a302975-divisor-count-power-ratio-denominator-square",
+   "title": "OEIS A302975 divisor-count power-ratio denominator square",
+   "kind": "proved",
+   "declaration": "D5.S3.Arith.KrizekDivisorCountPowerRatioDenominatorSquare.krizek_a302975",
+   "source_url": "https://oeis.org/A302975",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
+   "states": {
+    "formal_verification": {
+     "status": "pass",
+     "declaration": "D5.S3.Arith.KrizekDivisorCountPowerRatioDenominatorSquare.krizek_a302975",
+     "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+     ],
+     "disallowed_axioms": [],
+     "source": "independent-lean-rerun"
+    },
+    "literature_source": {
+     "status": "pass",
+     "http_status": 200,
+     "final_url": "https://oeis.org/A302975",
+     "identifier_on_page": true
+    },
+    "statement_fidelity": {
+     "status": "machine-unverified",
+     "reviewer": null,
+     "note": null
+    },
+    "in_truth_release": {
+     "status": "pass",
+     "frozen_node_id": "sha256:70da586c967762d1bc3f8e297160508ee2d41169af0a8f6a57ecb198ae489a4d"
+    }
+   }
+  },
+  {
    "id": "oeis-a305550-distinct-part-egf-totient-period",
    "title": "Bala's OEIS A305550 totient-period conjecture",
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.IntegralEgfTotientPeriod.bala_conjecture_a305550",
    "source_url": "https://oeis.org/A305550",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -1993,7 +2352,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.IntegralEgfTotientPeriod.bala_conjecture_egf_general",
    "source_url": "https://oeis.org/A305550",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2029,7 +2388,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Patterns.NoncrossingNonnestingGraphRecurrence.barker_a326244",
    "source_url": "https://oeis.org/A326244",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2065,7 +2424,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.Congruence.DivisorCountPrimeFactorBound.wiseman_a328959",
    "source_url": "https://oeis.org/A328959",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2101,7 +2460,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.Congruence.TriangularResidueDescentCount.kagey_a329278",
    "source_url": "https://oeis.org/A329278",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2137,7 +2496,7 @@
    "kind": "refuted",
    "declaration": "D5.S1.Recurrence.Parity.DyadicPowerRowClosedForm.not_kurkovRowRecurrence",
    "source_url": "https://oeis.org/A329369",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2173,7 +2532,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.SelfReferentialDoublingFirstOccurrence.alkan_a335901",
    "source_url": "https://oeis.org/A335901",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2209,7 +2568,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.SelfReferentialQuotientFirstOccurrence.alkan_a335925",
    "source_url": "https://oeis.org/A335925",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2245,7 +2604,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.WeightedStirlingPowerPrimePeriod.bala_conjecture",
    "source_url": "https://oeis.org/A338040",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2281,7 +2640,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Algebraic.SchroderIntegralEGF.egf_coeff_eq_f",
    "source_url": "https://oeis.org/A338193",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2317,7 +2676,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ContinuedFractionOddSquare.hanna_conjecture",
    "source_url": "https://oeis.org/A338636",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2353,7 +2712,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.AlternatingGcdSumPillai.bala_conjecture",
    "source_url": "https://oeis.org/A344598",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2389,7 +2748,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.BilateralThetaReversionModSixteen.hanna_conjecture",
    "source_url": "https://oeis.org/A355872",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2425,7 +2784,7 @@
    "kind": "refuted",
    "declaration": "D5.S3.Arith.SumInConcatenation.not_positive_permutation",
    "source_url": "https://oeis.org/A359482",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2461,7 +2820,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Bilateral.BilateralQuarterShiftThetaModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A363104",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2497,7 +2856,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Bilateral.BilateralQuarterDoubleShiftThetaModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A363184",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2533,7 +2892,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CatalanCubicCompositionParity.hanna_conjecture",
    "source_url": "https://oeis.org/A363308",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2569,7 +2928,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CubicNinthPowerSubstitutionModThree.hanna_conjecture",
    "source_url": "https://oeis.org/A363560",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2605,7 +2964,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.OmegaGreedyPermutation.a363956_surjective",
    "source_url": "https://oeis.org/A363956",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2641,7 +3000,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.PerturbedDiagonalSquareDivisibility.hanna_conjecture",
    "source_url": "https://oeis.org/A365095",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2677,7 +3036,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.ReflectedQuadraticQuarterParity.hanna_conjecture",
    "source_url": "https://oeis.org/A369083",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2713,7 +3072,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DoubleCompositionModFourClassification.hanna_conjecture",
    "source_url": "https://oeis.org/A372577",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2749,7 +3108,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.FactorialQuotientRecurrence.mathar_recurrence",
    "source_url": "https://oeis.org/A372991",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2785,7 +3144,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CubedBinaryProductModThree.hanna_conjecture",
    "source_url": "https://oeis.org/A373308",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2821,7 +3180,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.UnitReversionSquareParity.hanna_conjecture",
    "source_url": "https://oeis.org/A373312",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2857,7 +3216,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.A373561.a373561",
    "source_url": "https://oeis.org/A373561",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2893,7 +3252,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CatalanDoubleCompositionPowersOfFour.hanna_conjecture",
    "source_url": "https://oeis.org/A374568",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2929,7 +3288,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CatalanCompositionSquareParity.hanna_conjecture",
    "source_url": "https://oeis.org/A374570",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -2965,7 +3324,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.FibbinarySquareSubstitutionParity.hanna_conjecture",
    "source_url": "https://oeis.org/A374571",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3001,7 +3360,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CubicTernarySubstitutionParity.hanna_conjecture",
    "source_url": "https://oeis.org/A375439",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3037,7 +3396,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.QCatalanSquareSumParity.hanna_conjecture",
    "source_url": "https://oeis.org/A376527",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3073,7 +3432,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.RatajczakDoublingZero.exists_zero_iff_modulus_pow_two",
    "source_url": "https://oeis.org/A378252",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3109,7 +3468,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.HarmonicTriangleAlternatingRowSums.schulte_conjecture",
    "source_url": "https://oeis.org/A378277",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3145,7 +3504,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.ShiftedIterateFixedPointCongruence.hanna_conjecture_five",
    "source_url": "https://oeis.org/A378575",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3181,7 +3540,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.ShiftedIterateFixedPointCongruence.hanna_conjecture_six",
    "source_url": "https://oeis.org/A378576",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3217,7 +3576,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.StripThreeTernaryCatalanParity.hanna_conjecture",
    "source_url": "https://oeis.org/A378578",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3253,7 +3612,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.QuotientThetaCompositionModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A378580",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3289,7 +3648,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.ThetaSelfCompositionModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A378581",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3325,7 +3684,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.BilateralQuarticPowerThetaModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A379204",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3361,7 +3720,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.A380056.a380056_div_five",
    "source_url": "https://oeis.org/A380056",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3397,7 +3756,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.QuadraticSquareReversionDyadicSupportParity.hanna_conjecture",
    "source_url": "https://oeis.org/A380678",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3433,7 +3792,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.AbsoluteReciprocalSquareFibbinaryParity.hanna_conjecture",
    "source_url": "https://oeis.org/A380708",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3469,7 +3828,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.AbsoluteReciprocalCubeParity.hanna_conjecture",
    "source_url": "https://oeis.org/A380709",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3505,7 +3864,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.AbsoluteReciprocalSquareParity.hanna_conjecture",
    "source_url": "https://oeis.org/A380710",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3541,7 +3900,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Bilateral.BilateralProductModFour.hanna_conjecture_a381362",
    "source_url": "https://oeis.org/A381362",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3577,7 +3936,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Bilateral.BilateralProductModFour.hanna_conjecture_a381363",
    "source_url": "https://oeis.org/A381363",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3613,7 +3972,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Bilateral.ScaledBilateralProductModNine.hanna_conjecture_a381364",
    "source_url": "https://oeis.org/A381364",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3649,7 +4008,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Bilateral.ScaledBilateralProductModNine.hanna_conjecture_a381365",
    "source_url": "https://oeis.org/A381365",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3685,7 +4044,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.CompositionalSquareDyadicDenominators.scheuerle_conjecture",
    "source_url": "https://oeis.org/A381670",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3721,7 +4080,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Compositions.ConstantBlocksDistinctRunSums.card_constantBlocks_eq_distinctRunSums",
    "source_url": "https://oeis.org/A382427",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3757,7 +4116,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.ScaledLogColumnPeriodicity.bala_conjecture_a383165",
    "source_url": "https://oeis.org/A383165",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3793,7 +4152,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Periodic.ScaledLogColumnPeriodicity.bala_conjecture_a383166",
    "source_url": "https://oeis.org/A383166",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3829,7 +4188,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.AbsoluteReciprocalGeometricParity.hanna_conjecture",
    "source_url": "https://oeis.org/A383377",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3865,7 +4224,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.TwoDenseDivisorBlocksPalindrome.row_palindrome",
    "source_url": "https://oeis.org/A384222",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3901,7 +4260,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.AbsoluteReciprocalSquareShiftParity.hanna_conjecture",
    "source_url": "https://oeis.org/A384267",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3937,7 +4296,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.QuarticCubicCatalanQuotientParity.hanna_conjecture",
    "source_url": "https://oeis.org/A384270",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -3973,7 +4332,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.SignedCatalanCubicSubstitutionModThree.hanna_conjecture",
    "source_url": "https://oeis.org/A386666",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4009,7 +4368,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.Congruence.MultipleOfThreeCoincidence.classify",
    "source_url": "https://oeis.org/A387319",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4045,7 +4404,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Compositions.ChoosableInitialIntervals.card_choosable_eq_superdiagonal",
    "source_url": "https://oeis.org/A388711",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4081,7 +4440,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Arith.EulerFormDivisorSum.euler_form_lt",
    "source_url": "https://oeis.org/A388986",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4117,7 +4476,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Digit.Admissibility.DigitSumSquareLeastWitness.wu_conjecture",
    "source_url": "https://oeis.org/A389000",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4153,7 +4512,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.SquareCubeSubstitutionOddIndexParity.hanna_conjecture",
    "source_url": "https://oeis.org/A389472",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4189,7 +4548,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.QuadraticReversionDyadicSupportParity.hanna_conjecture",
    "source_url": "https://oeis.org/A389476",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4225,7 +4584,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.SubstitutionSquareCubeModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A389536",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4261,7 +4620,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.AlternatingDyadicReversionModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A389537",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4297,7 +4656,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.HalfScaledReflectionParity.hanna_conjecture",
    "source_url": "https://oeis.org/A389540",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4333,7 +4692,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.QuadraticSquareReversionModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A389542",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4369,7 +4728,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Digit.PrimeDigitBaseClassification.a390088",
    "source_url": "https://oeis.org/A390088",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4405,7 +4764,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Compositions.FirstSumsPartitionCharacterization.wiseman_conjecture",
    "source_url": "https://oeis.org/A391620",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4441,7 +4800,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CubicFifteenSubstitutionParity.hanna_conjecture",
    "source_url": "https://oeis.org/A392525",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4477,7 +4836,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Compositions.ZeroPrependedFirstSumsOddParts.card_zeroPrependedFirstSums_eq_distincts",
    "source_url": "https://oeis.org/A392694",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4513,7 +4872,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Compositions.TrimmedAlternatingPartitions.card_trimmedSums_eq_distincts",
    "source_url": "https://oeis.org/A392698",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4549,7 +4908,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Compositions.StrictFirstSumsGapfreeOddParts.card_strictFirstSums_eq_gapfreeOdd",
    "source_url": "https://oeis.org/A392707",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4585,7 +4944,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CatalanShiftSquareModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A393172",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4621,7 +4980,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.ScaledReversionCongruence.hanna_a393856",
    "source_url": "https://oeis.org/A393856",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4657,7 +5016,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.ScaledReversionCongruence.hanna_a393857",
    "source_url": "https://oeis.org/A393857",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4693,7 +5052,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.PrimePowerShiftLogDerivativeOdd.a393867_odd",
    "source_url": "https://oeis.org/A393867",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4729,7 +5088,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.PrimePowerShiftLogDerivative.hanna_conjecture",
    "source_url": "https://oeis.org/A393867",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4765,7 +5124,7 @@
    "kind": "proved",
    "declaration": "D5.S3.Factorization.TwinPrimeSigmaGcdDivisibility.sigma_gcd_divisibility",
    "source_url": "https://oeis.org/A394757",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4801,7 +5160,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalExponentSelfDivisibility.exponent_self_divisibility",
    "source_url": "https://oeis.org/A395833",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4837,7 +5196,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.NegativePowerDiagonalModPrime.hanna_conjecture_a395833",
    "source_url": "https://oeis.org/A395833",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4873,7 +5232,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.IterateProductTwoThreeModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A396099",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4909,7 +5268,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.TripleIterateShiftModThree.hanna_conjecture",
    "source_url": "https://oeis.org/A396102",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4945,7 +5304,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.IterateProductNineModThree.hanna_conjecture",
    "source_url": "https://oeis.org/A396793",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -4981,7 +5340,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.TripleIterateProductModFour.hanna_conjecture",
    "source_url": "https://oeis.org/A396794",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5017,7 +5376,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.IterateProductTwentyFiveModFive.hanna_conjecture",
    "source_url": "https://oeis.org/A396795",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5053,7 +5412,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.ThreeFourIterateProductModSix.hanna_conjecture",
    "source_url": "https://oeis.org/A396797",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5089,7 +5448,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.IterateExponentialParity.parity_iterate_three",
    "source_url": "https://oeis.org/A396803",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5125,7 +5484,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.QuarticEGFModFour.mod_four",
    "source_url": "https://oeis.org/A396804",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5161,7 +5520,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.IterateExponentialParity.parity_iterate_five",
    "source_url": "https://oeis.org/A396805",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5197,7 +5556,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.IterateExponentialParity.parity_iterate_six",
    "source_url": "https://oeis.org/A396806",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5233,7 +5592,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Invariants.CompositionalIterateCongruence.coefficient_congruence",
    "source_url": "https://oeis.org/A396807",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5269,7 +5628,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.CompositionalSquareAllOddCoefficients.hanna_conjecture",
    "source_url": "https://oeis.org/A396843",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5305,7 +5664,7 @@
    "kind": "refuted",
    "declaration": "D5.S1.Recurrence.Parity.ScaledQuadraticReversionModSixteen.hanna_conjecture_false",
    "source_url": "https://oeis.org/A396844",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5341,7 +5700,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Parity.LogarithmicQuarterNormalizationModEight.hanna_conjecture",
    "source_url": "https://oeis.org/A396846",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5377,7 +5736,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalPowerRatioAllOdd.hanna_conjecture",
    "source_url": "https://oeis.org/A397241",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5413,7 +5772,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalPowerRatioModTwelve.hanna_conjecture_mod_four",
    "source_url": "https://oeis.org/A397241",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5449,7 +5808,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.DiagonalPowerRatioModTwelve.hanna_conjecture_mod_three",
    "source_url": "https://oeis.org/A397241",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5485,7 +5844,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ExponentialSquareWeightCatalanParity.hanna_conjecture",
    "source_url": "https://oeis.org/A397242",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5521,7 +5880,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ExponentialSquareWeightTernarySupport.hanna_conjecture_one",
    "source_url": "https://oeis.org/A397242",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5557,7 +5916,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ExponentialSquareWeightTernarySupport.hanna_conjecture_two",
    "source_url": "https://oeis.org/A397242",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5593,7 +5952,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.QuadraticPowerDiagonalFibbinaryParity.hanna_conjecture_a397244",
    "source_url": "https://oeis.org/A397244",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5629,7 +5988,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ParametricExponentialSquareCongruence.parity_q5",
    "source_url": "https://oeis.org/A397345",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5665,7 +6024,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ParametricExponentialSquareCongruence.residues_q2",
    "source_url": "https://oeis.org/A397346",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5701,7 +6060,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ParametricExponentialSquareCongruence.parity_q3",
    "source_url": "https://oeis.org/A397348",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5737,7 +6096,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.LogarithmicWeightCatalanParity.hanna_conjecture_a397349_mod_three",
    "source_url": "https://oeis.org/A397349",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5773,7 +6132,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.LogarithmicWeightBinaryParity.parity_conjecture_holds",
    "source_url": "https://oeis.org/A397349",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5809,7 +6168,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Recurrence.Residue.ReciprocalSquareExponentDiagonalParity.hanna_conjecture_a397356",
    "source_url": "https://oeis.org/A397356",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5845,7 +6204,7 @@
    "kind": "proved",
    "declaration": "D5.S1.Words.Complexity.reducedAbelianComplexity_odd",
    "source_url": "https://doi.org/10.48550/arXiv.2509.16034",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
@@ -5881,7 +6240,7 @@
    "kind": "refuted",
    "declaration": "D5.S1.Words.Patterns.DerangementRatioNonconvergence.vatter_question_4_3_answer_no",
    "source_url": "https://arxiv.org/abs/2602.16355",
-   "source_commit": "fd6b22ed0994850ccf233a2ed6bcbfb7e60d69ef",
+   "source_commit": "a01fd5c9ff5745aea440ba7840d989ce034a945e",
    "states": {
     "formal_verification": {
      "status": "pass",
