@@ -39,12 +39,15 @@ class ReadingViewsTests(unittest.TestCase):
         text='<main><details id="x"><summary>Proof</summary><details><summary>Input</summary><code>&lt;x&gt;</code></details></details></main>'
         p=Fragments(text);self.assertEqual(p.raw(p.select(id='x')[0]),text[6:-7])
 
-    def test_research_groups_are_collapsed_and_each_result_occurs_once(self):
+    def test_research_index_preserves_each_result_and_collection_filter(self):
         records,source=results();out=render_research_groups(source,{},records);p=Fragments(out)
         for name in ('oeis','erdos','other'):
-            group=p.select(id='results-'+name)[0]
-            self.assertNotIn('open',group.attrs)
-            self.assertEqual(1,len(Fragments(p.raw(group)).select(cls='news-result')))
+            button=p.select(id='results-'+name)[0]
+            self.assertEqual('button',button.tag)
+            self.assertEqual(name,button.attrs['data-result-collection'])
+            rows=[row for row in p.select(cls='result-item') if row.attrs['data-collection']==name]
+            self.assertEqual(1,len(rows))
+            self.assertEqual(1,len(Fragments(p.raw(rows[0])).select(cls='news-result')))
         for r in records:
             self.assertEqual(1,out.count(f'id="{r["id"]}"'))
             self.assertIn(f'Scope {r["id"]}',out)

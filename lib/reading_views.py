@@ -134,40 +134,80 @@ def common_shell(document: str, root=''):
 
 
 def render_research_groups(document, snapshot, records):
+    """A browsable result index; exact statements and evidence stay in each card."""
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
     papers = parsed.select(id='publications')
     evidence = parsed.select(id='resolved-questions')
-    groups = defaultdict(list)
-    for r in records:
+    collections = [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')]
+    counts = defaultdict(int)
+    rows = []
+    for r in sorted(records, key=lambda r: (r['title'].casefold(), r['id'])):
         if r['id'] not in articles:
             raise ValueError('Result card is absent: ' + r['id'])
-        key, _, _ = series(r['source_url'])
-        search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field'))
-        groups[key].append(f'<details class="reading-item result-item" data-search="{esc(search.lower())}">'
-            f'<summary><strong>{esc(r["title"])}</strong><span>{esc(r["kind"].capitalize())}</span></summary>'
+        key, label, _ = series(r['source_url'])
+        counts[key] += 1
+        path = urlsplit(r['source_url']).path.strip('/')
+        reference = path.split('/')[0] if key in ('oeis', 'erdos') else ''
+        source_label = label + (' / ' + reference if reference else '')
+        search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
+        excerpt = str(r.get('summary') or '').strip()
+        # Provenance introductions belong in the expanded source record, not the
+        # index's one-line preview. Do not invent a mathematical paraphrase.
+        if re.match(r'^(?:OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
+            excerpt = ''
+        preview = f'<span class="result-excerpt">{esc(excerpt)}</span>' if excerpt else ''
+        rows.append(f'<details class="reading-item result-item" data-result-row data-collection="{key}" '
+            f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
+            f'<summary><span class="result-summary"><span class="result-source">{esc(source_label)}</span>'
+            f'<strong>{esc(r["title"])}</strong>{preview}</span>'
+            f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
+            '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
             f'<div class="reading-item-body">{articles[r["id"]]}</div></details>')
-    sections = ''.join(group_html(k, t, d, groups[k], prefix='results', noun='results')
-        for k, t, d in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')] if groups[k])
-    # Preserve the academic news layout; results lead and detailed gaps stay in Conjectures.
-    # Only the previously flat result collection receives disclosure controls.
+    filters = (f'<button type="button" data-result-collection="all" aria-pressed="true">All results <span>{len(records)}</span></button>'
+        + ''.join(f'<button type="button" id="results-{key}" data-result-collection="{key}" aria-pressed="false">'
+                  f'{esc(title)} <span>{counts[key]}</span></button>' for key, title, _ in collections if counts[key]))
+    proved = sum(r['kind'] == 'proved' for r in records)
+    refuted = sum(r['kind'] == 'refuted' for r in records)
     body = ('<main class="site-main research-news"><header class="news-heading">'
-        '<p class="eyebrow">THE OMEGA INSTITUTE / CURRENT RESEARCH</p><h1>Research</h1>'
-        '<p class="news-lede">Theories, concepts, evidence and research directions in a connected knowledge system.</p>'
-        '<nav id="knowledge-spaces" class="news-links" aria-label="Research destinations"><a href="discover.html">Explore source connections</a>'
-        '<a href="atlas.html#mode=frontier">Open Atlas frontier</a></nav></header>'
-        '<nav class="news-index" aria-label="Research sections"><a href="#results">Results by collection</a>'
-        '<a href="#publications">Publications</a><a href="#frontier">Next questions</a></nav>'
-        '<section id="results" class="news-section" data-reading-catalog><div class="news-section-heading"><div>'
-        '<p class="eyebrow">FROM QUESTION TO RESULT</p><h2>Results by collection</h2></div>'
-        f'<span>{len(records)} recorded results</span></div>' + search_box('results')
-        + '<div id="result-archive">' + sections + '</div></section>'
-        + '<details id="resolved-questions-archive" class="reading-group"><summary>All resolved question records and evidence links</summary>'
+        '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p><h1>Research</h1>'
+        '<p class="news-lede">From open questions to formal results.</p>'
+        '<p class="research-intro-note">Explore the results, counterexamples and papers. Follow each claim back to its question and proof.</p>'
+        '<nav id="knowledge-spaces" class="news-links" aria-label="Research destinations">'
+        '<a href="discover.html">Explore connections <span aria-hidden="true">↗</span></a>'
+        '<a href="conjectures.html">Find an open question <span aria-hidden="true">↗</span></a></nav></div>'
+        '<dl class="research-overview"><div class="research-total"><dt>Recorded results</dt>'
+        f'<dd>{len(records)}</dd></div><div><dt>Proved</dt><dd>{proved}</dd></div>'
+        f'<div><dt>Refuted</dt><dd>{refuted}</dd></div></dl></header>'
+        '<nav class="news-index" aria-label="Research sections"><a href="#results"><span>01</span> Results</a>'
+        '<a href="#publications"><span>02</span> Publications</a><a href="#frontier"><span>03</span> Next questions</a></nav>'
+        '<section id="results" class="news-section" data-research-index><div class="news-section-heading"><div>'
+        '<p class="eyebrow">THE COLLECTION</p><h2>Explore the results</h2></div>'
+        '<p>Original questions. Precise scope. Inspectable proofs.</p></div>'
+        '<div class="research-index-controls" data-index-controls hidden>'
+        '<div class="research-collections" role="group" aria-label="Result collection">' + filters + '</div>'
+        '<div class="research-toolbar"><label class="research-search" for="results-query">'
+        '<span>Search results</span><input id="results-query" type="search" placeholder="Search by title, sequence or theorem" autocomplete="off"></label>'
+        '<label class="research-outcome-filter" for="results-outcome"><span>Outcome</span>'
+        '<select id="results-outcome"><option value="all">All outcomes</option><option value="proved">Proved</option>'
+        '<option value="refuted">Refuted</option></select></label>'
+        '<button type="button" class="research-reset" data-clear-search>Reset filters</button></div></div>'
+        '<div class="research-index-meta"><p role="status" aria-live="polite" data-result-count>'
+        f'{len(records)} results</p><span>Ordered by title</span></div>'
+        '<div id="result-archive">' + ''.join(rows) + '</div>'
+        '<div class="research-no-results" data-result-empty hidden><h3>No matching results</h3>'
+        '<p>Try a different title, sequence number or collection.</p></div>'
+        '<div class="research-pagination"><button type="button" data-result-more hidden>Show more results</button></div></section>'
+        '<details id="resolved-questions-archive" class="reading-group"><summary>Question dossiers &amp; evidence archive</summary>'
         + (parsed.raw(evidence[0]) if evidence else '') + '</details>'
         + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
-        + '<section id="frontier" class="news-onward"><h2>Next questions</h2><p>Follow the open questions and proposed routes that build on this work.</p><a href="conjectures.html#open-problems">Open conjectures</a>'
-        '<a href="knowledge/">Browse the Library</a></section></main>')
+        + '<section id="frontier" class="news-onward"><div><p class="eyebrow">CONTINUE THE INQUIRY</p>'
+        '<h2>Every result opens a new question.</h2><p>Explore what comes next, or build on a proof already in the Library.</p></div>'
+        '<div class="research-next-links"><a href="conjectures.html#open-problems">Open conjectures <span aria-hidden="true">↗</span></a>'
+        '<a href="knowledge/">Browse the Library <span aria-hidden="true">↗</span></a></div></section></main>')
     result = common_shell(replace_main(document, body))
+    result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css">'
+                            '<script type="module" src="assets/research-index.mjs"></script></head>', 1)
     if 'assets/research-route.js' not in result:
         result = result.replace('<head>', '<head><script src="assets/research-route.js"></script>', 1)
     return result
