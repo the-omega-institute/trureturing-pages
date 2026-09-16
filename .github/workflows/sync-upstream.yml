@@ -5,12 +5,13 @@ on:
     - cron: '7 * * * *'
   workflow_dispatch:
   pull_request:
-    paths: ['.github/workflows/sync-upstream.yml', 'lib/upstream_publication.py']
+    paths: ['.github/workflows/sync-upstream.yml', 'lib/upstream_publication.py', 'config/upstream-export.nuget.config']
   push:
     branches: [dev]
     paths:
       - '.github/workflows/sync-upstream.yml'
       - 'lib/upstream_publication.py'
+      - 'config/upstream-export.nuget.config'
 
 permissions:
   contents: write
@@ -74,7 +75,8 @@ jobs:
           DOTNET_GCConserveMemory: '9'
         run: |
           set -euo pipefail
-          dotnet restore tools/StrataLint.Cli/StrataLint.Cli.csproj --locked-mode
+          dotnet restore tools/StrataLint.Cli/StrataLint.Cli.csproj --locked-mode \
+            --configfile "$GITHUB_WORKSPACE/config/upstream-export.nuget.config"
           dotnet build tools/StrataLint.Cli/StrataLint.Cli.csproj --configuration Release --no-restore
           # Reuse the upstream Inspector report. Never invoke Lean, lake, or a report-production fallback.
           # These check conclusions were verified against this exact CI run by the selector.
@@ -89,6 +91,13 @@ jobs:
             --required-check 'Canonical Lean report production=success' \
             --required-check 'Content-addressed dev baseline admission=success'
 
+      - name: Verify the projected bundle and bind its CI provenance
+        if: steps.source.outputs.should_build == 'true'
+        run: |
+          python -m lib.upstream_publication metadata \
+            --selection "$RUNNER_TEMP/source-selection.json" --bundle "$RUNNER_TEMP/pages-source-bundle" \
+            --output "$RUNNER_TEMP/publication.json"
+
       - name: Publish a durable Pages bundle with explicit upstream CI provenance
         if: steps.source.outputs.should_build == 'true' && github.ref == 'refs/heads/dev'
         env:
@@ -96,9 +105,6 @@ jobs:
           SOURCE_COMMIT: ${{ steps.source.outputs.source_commit }}
         run: |
           set -euo pipefail
-          python -m lib.upstream_publication metadata \
-            --selection "$RUNNER_TEMP/source-selection.json" --bundle "$RUNNER_TEMP/pages-source-bundle" \
-            --output "$RUNNER_TEMP/publication.json"
           digest="$(jq -r .release_digest "$RUNNER_TEMP/publication.json")"
           tag="pages-source-$SOURCE_COMMIT"
           asset="$RUNNER_TEMP/truth-release-${digest#sha256:}.tar.gz"
