@@ -38,35 +38,52 @@ def main():
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
-        for group in page.locator('#results [data-reading-group]').all():
-            assert group.locator('.result-item').count()>0
-        assert page.locator('#results [data-reading-group][open]').count()==0
+        rows=page.locator('#results [data-result-row]')
+        total=rows.count()
+        assert total>0
+        assert rows.locator(':scope > summary').count()==total
+        assert page.locator('#results [data-result-row]:visible').count()==min(8,total)
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="version-status.html"]:visible').count()==0
-        events.append('Research retains the original light academic palette and serif heading; results are grouped and collapsed')
+        events.append('Research exposes results immediately with source labels, summaries and outcome badges')
         order=page.locator('main').evaluate("e=>['results','publications','frontier'].map(id=>[...e.children].indexOf(document.getElementById(id)))")
         assert order==sorted(order) and order[0]>=0
-        assert page.locator('.research-focus-card').count()==0
         page.screenshot(path=str(args.output/'research-restored-desktop.png'),full_page=True)
-        page.locator('#results-oeis > summary').click()
-        total=page.locator('#results-oeis .reading-item').count()
-        assert page.locator('#results-oeis .reading-item:visible').count()==min(12,total)
-        if total>12:
-            page.locator('#results-oeis .reading-more').click()
-            assert page.locator('#results-oeis .reading-item:visible').count()==min(24,total)
-        rows=page.locator('#results .news-result')
-        if rows.count():
-            identity=rows.last.get_attribute('id')
-            page.goto(base+'research.html?lang=en#'+identity,wait_until='networkidle')
-            assert page.locator('[id="'+identity+'"]').is_visible()
-        events.append('Pagination and exact-result permalinks retain access to folded results')
-        page.goto(base+'research.html?lang=en',wait_until='networkidle')
-        title=page.locator('#results .result-item summary strong').first.text_content()
+        if total>8:
+            page.locator('[data-result-more]').click()
+            assert page.locator('[data-result-row]:visible').count()==min(16,total)
+            assert page.locator('[data-result-row] > summary').nth(8).evaluate('e=>e===document.activeElement')
+        page.locator('#results-oeis').click()
+        assert page.locator('#results-oeis').get_attribute('aria-pressed')=='true'
+        assert all(row.get_attribute('data-collection')=='oeis' for row in page.locator('[data-result-row]:visible').all())
+        page.locator('#results-outcome').select_option('refuted')
+        assert all(row.get_attribute('data-kind')=='refuted' for row in page.locator('[data-result-row]:visible').all())
+        page.locator('#results-query').fill('no-matching-result-0xdeadbeef')
+        assert page.locator('[data-result-empty]').is_visible()
+        assert page.locator('[data-result-row]:visible').count()==0
+        page.locator('[data-clear-search]').click()
+        assert page.locator('[data-result-collection="all"]').get_attribute('aria-pressed')=='true'
+        assert page.locator('[data-result-row]:visible').count()==min(8,total)
+        title=rows.first.locator('summary strong').text_content()
         page.locator('#results-query').fill(title)
-        assert page.locator('#results [data-reading-group][open]:visible').count()>=1
-        page.locator('#results [data-clear-search]').click()
-        assert page.locator('#results [data-reading-group][open]').count()==0
-        events.append('Search preserves the prior collection disclosure state')
+        assert rows.first.is_visible()
+        rows.first.locator(':scope > summary').click()
+        assert rows.first.locator('.news-result').is_visible()
+        page.screenshot(path=str(args.output/'research-result-expanded.png'),full_page=True)
+        identity=rows.last.locator('.news-result').get_attribute('id')
+        page.goto(base+'research.html?lang=en#'+identity,wait_until='networkidle')
+        assert page.locator('[id="'+identity+'"]').is_visible()
+        page.goto(base+'research.html?lang=en#results-oeis',wait_until='networkidle')
+        assert page.locator('#results-oeis').get_attribute('aria-pressed')=='true'
+        events.append('Collection/outcome/search filters compose; reset, pagination, keyboard focus and old permalinks work')
+        plain=browser.new_context(java_script_enabled=False)
+        plain_page=plain.new_page()
+        plain_page.goto(base+'research.html?lang=en')
+        assert plain_page.locator('[data-result-row]:visible').count()==total
+        plain_page.locator('[data-result-row] > summary').last.click()
+        assert plain_page.locator('.news-result').last.is_visible()
+        plain.close()
+        events.append('All source results and their evidence remain accessible without JavaScript')
         requests.clear();page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
         assert not any('research-catalog.json' in u for u in requests)
         assert page.locator('.page-heading').count()==1
