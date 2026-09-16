@@ -21,12 +21,9 @@ def _kernel_verified(resolution):
 
 
 def _status(item):
-    # "in Lean" when the resolution is kernel-verified in this release (the #48 gate's
-    # marker) OR it landed via a development PR (a merged Lean proof). Both mean proved
-    # in Lean; either alone must not demote a result to "/ source record".
     marker = item.get("kernel_verified")
     marker_verified = isinstance(marker, dict) and bool(marker.get("frozen_node_id")) and bool(marker.get("freeze_status"))
-    verified = _kernel_verified(item.get("resolution_record", {})) or marker_verified or bool(item.get("pr"))
+    verified = _kernel_verified(item.get("resolution_record", {})) or marker_verified
     return item["kind"].capitalize() + (" in Lean" if verified else " / source record")
 
 
@@ -107,7 +104,7 @@ def result_records(snapshot, catalog=None):
         if gid in by_declaration:
             item = by_declaration[gid]
             if item["kind"] != resolution["kind"]:
-                raise ValueError(f"Editorial result conflicts with source resolution: {gid}")
+                item.update(_derived_record(problem, resolution, snapshot))
         else:
             # A source resolution becomes a research result only after the #48
             # kernel gate annotated it. Unknown/unverified records fail closed.
@@ -124,38 +121,34 @@ def result_records(snapshot, catalog=None):
 
 
 def append_verified(snapshot, catalog=None):
-    """Append #48 kernel-verified derived records to the editable news catalog.
+    """Synchronize results from upstream evidence; editorial text is optional.
 
-    Existing rows keep their editorial text when the snapshot slug and declaration
-    match. A different slug sharing a declaration remains an editorial alias; the
-    verified snapshot slug gets its own row. Writes are deterministic.
+    Source identity, scope, kind and verification always follow the snapshot.
+    Matching editorial rows may customize presentation, never block publication.
+    Historical renderer-only callers retain their editorial aliases.
     """
     path = Path(catalog) if catalog is not None else CATALOG
     data = json.loads(path.read_text())
     if not isinstance(data, dict) or not isinstance(data.get("results"), list):
         raise ValueError("Invalid research-news catalog")
-    existing = [dict(item) for item in data["results"]]
-    ids = {item.get("id"): item for item in existing}
-    verified_ids = {p["slug"] for p in snapshot.get("problems", []) if _kernel_verified(p.get("resolution"))}
-    for item in existing:
-        if item.get("kernel_verified") and item.get("id") not in verified_ids:
-            item.pop("kernel_verified")
-    additions = []
+    ids = {item["id"]: item for item in data["results"]}
+    results = []
     for problem in snapshot.get("problems", []):
         resolution = problem.get("resolution")
-        if not resolution or not _kernel_verified(resolution):
+        if not _kernel_verified(resolution):
             continue
         record = _derived_record(problem, resolution, snapshot)
-        coordinate = record["module"] + "." + record["declaration"]
-        prior = ids.get(record["id"])
-        if prior:
-            if prior["kind"] != record["kind"] or prior["module"] + "." + prior["declaration"] != coordinate:
-                raise ValueError("Editorial result conflicts with verified resolution: " + record["id"])
-            prior["kernel_verified"] = record["kernel_verified"]
-            continue
-        additions.append(record)
-        ids[record["id"]] = record
-    results = sorted(existing + additions, key=lambda item: (str(item.get("id", "")), str(item.get("module", "")), str(item.get("declaration", ""))))
+        prior = ids.get(record["id"], {})
+        if all(prior.get(key) == record[key] for key in ("kind", "module", "declaration")):
+            for key in ("title", "field", "summary", "pr"):
+                if key in prior:
+                    record[key] = prior[key]
+        results.append(record)
+    if snapshot.get("schema_version") != "pages-library-snapshot.v1":
+        current = {item["id"] for item in results}
+        results.extend({k: v for k, v in item.items() if k != "kernel_verified"}
+                       for item in data["results"] if item["id"] not in current)
+    results.sort(key=lambda item: item["id"])
     output = {**data, "results": results}
     path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n")
     return output

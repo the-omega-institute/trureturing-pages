@@ -612,5 +612,7 @@
   "Most reused in this observation": "当前观察中复用最多的模块",
   "Previous observation": "上一个观察",
   "Next observation": "下一个观察",
-  "Choose a question. Build on a proof. Connect the next idea.": "选择一个问题，在已有证明上继续，连接下一个想法。"
+  "Choose a question. Build on a proof. Connect the next idea.": "选择一个问题，在已有证明上继续，连接下一个想法。",
+  "Latest publication coordinate unknown": "最新发布版本未知",
+  "Last valid observation: {0} · Latest data publication: {1}": "最近有效观测：{0} · 最近数据发布：{1}"
 }

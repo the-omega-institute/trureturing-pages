@@ -30,7 +30,7 @@ const now = Date.parse('2026-09-13T03:30:00Z');
 test('renders five counts, live digest, lag, quarantine and generated halt', () => {
   const html = renderStatus(fixture(), { now });
   for (const stage of ['published', 'received', 'verified', 'generated', 'deployed']) assert.match(html, new RegExp(`data-stage="${stage}"`));
-  assert.match(html, /Upstream/);
+  assert.match(html, /Published/);
   assert.match(html, /隔离问题.*2/s);
   assert.match(html, /落后 2/);
   assert.ok(html.includes(digest('a')));

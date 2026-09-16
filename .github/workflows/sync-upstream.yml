@@ -1,0 +1,121 @@
+name: Publish Pages data from verified upstream CI
+
+on:
+  schedule:
+    - cron: '7 * * * *'
+  workflow_dispatch:
+  pull_request:
+    paths: ['.github/workflows/sync-upstream.yml', 'lib/upstream_publication.py']
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/sync-upstream.yml'
+      - 'lib/upstream_publication.py'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: pages-upstream-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+
+      - name: Select the latest successful upstream dev CI source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m lib.upstream_publication plan \
+            --pages-repository "$GITHUB_REPOSITORY" \
+            --output "$RUNNER_TEMP/source-selection.json" --github-output "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/source-selection.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Download the existing report with its provenance and materials
+        if: steps.source.outputs.should_build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m lib.upstream_publication acquire \
+            --selection "$RUNNER_TEMP/source-selection.json" --destination "$RUNNER_TEMP/upstream-report"
+
+      - name: Checkout the exact upstream source and its exporter
+        if: steps.source.outputs.should_build == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: the-omega-institute/trureturing
+          ref: ${{ steps.source.outputs.source_commit }}
+          path: _source
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        if: steps.source.outputs.should_build == 'true'
+        with:
+          global-json-file: _source/global.json
+
+      - name: Project the upstream report into the existing website data contract
+        if: steps.source.outputs.should_build == 'true'
+        working-directory: _source
+        env:
+          SOURCE_COMMIT: ${{ steps.source.outputs.source_commit }}
+          DOTNET_GCHeapHardLimitPercent: '0x46'
+          DOTNET_GCConserveMemory: '9'
+        run: |
+          set -euo pipefail
+          dotnet restore tools/StrataLint.Cli/StrataLint.Cli.csproj --locked-mode
+          dotnet build tools/StrataLint.Cli/StrataLint.Cli.csproj --configuration Release --no-restore
+          # Reuse the upstream Inspector report. Never invoke Lean, lake, or a report-production fallback.
+          # These check conclusions were verified against this exact CI run by the selector.
+          dotnet run --project tools/StrataLint.Cli/StrataLint.Cli.csproj \
+            --configuration Release --no-build --no-restore -- \
+            truth-release --out "$RUNNER_TEMP/pages-source-bundle" \
+            --candidate-lean-report "$RUNNER_TEMP/upstream-report/candidate-lean-report.json" \
+            --producer-package-commit "$SOURCE_COMMIT" \
+            --produced-at "$(jq -r .produced_at "$RUNNER_TEMP/source-selection.json")" \
+            --commit-on-protected-dev true \
+            --required-check 'Candidate harness engineering checks=success' \
+            --required-check 'Canonical Lean report production=success' \
+            --required-check 'Content-addressed dev baseline admission=success'
+
+      - name: Publish a durable Pages bundle with explicit upstream CI provenance
+        if: steps.source.outputs.should_build == 'true' && github.ref == 'refs/heads/dev'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_COMMIT: ${{ steps.source.outputs.source_commit }}
+        run: |
+          set -euo pipefail
+          python -m lib.upstream_publication metadata \
+            --selection "$RUNNER_TEMP/source-selection.json" --bundle "$RUNNER_TEMP/pages-source-bundle" \
+            --output "$RUNNER_TEMP/publication.json"
+          digest="$(jq -r .release_digest "$RUNNER_TEMP/publication.json")"
+          tag="pages-source-$SOURCE_COMMIT"
+          asset="$RUNNER_TEMP/truth-release-${digest#sha256:}.tar.gz"
+          tar -czf "$asset" -C "$RUNNER_TEMP/pages-source-bundle" .
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft > "$RUNNER_TEMP/existing-release.json"; then
+            jq -e '.isDraft == true' "$RUNNER_TEMP/existing-release.json" > /dev/null
+          else
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --draft --title "Pages data from upstream ${SOURCE_COMMIT:0:12}" \
+              --notes-file "$RUNNER_TEMP/publication.json"
+          fi
+          gh release upload "$tag" "$asset" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$tag" --repo "$GITHUB_REPOSITORY" \
+            --notes-file "$RUNNER_TEMP/publication.json" --draft=false --latest=false
+
+      - name: Reconcile Pages (also retries a previously interrupted deployment)
+        if: github.ref == 'refs/heads/dev'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref dev -f reconcile=true
