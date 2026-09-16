@@ -635,5 +635,8 @@
   "Question dossiers & evidence archive": "问题档案与证据索引",
   "CONTINUE THE INQUIRY": "继续探索",
   "Every result opens a new question.": "每项成果，都开启新的问题。",
-  "Explore what comes next, or build on a proof already in the Library.": "探索下一步研究方向，或在 Library 的现有证明上继续推进。"
+  "Explore what comes next, or build on a proof already in the Library.": "探索下一步研究方向，或在 Library 的现有证明上继续推进。",
+  "Results": "研究成果",
+  "Proved": "已证明",
+  "Refuted": "已反驳"
 }
