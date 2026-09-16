@@ -52,10 +52,11 @@ def read_json(raw):
 class GitHub:
     """Public REST reads; GH_TOKEN is optional and only sent to api.github.com."""
 
-    def __init__(self, repository=REPOSITORY, token=None):
+    def __init__(self, repository=REPOSITORY, token=None, publication_repository=None):
         if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
             raise ValueError("invalid GitHub source repository")
         self.repository = repository
+        self.publication_repository = publication_repository or os.environ.get("PAGES_PUBLICATION_REPOSITORY")
         self.token = os.environ.get("GH_TOKEN", "") if token is None else token
 
     def get_json(self, path):
@@ -77,8 +78,17 @@ class GitHub:
                 raise ValueError("GitHub release listing must be an array")
             result.extend(items)
             if len(items) < 100:
-                return result
+                break
             page += 1
+        if self.publication_repository and self.publication_repository != self.repository:
+            from lib.upstream_publication import normalize_publication
+            downstream = GitHub(self.publication_repository, self.token).releases()
+            known = {item.get("tag_name") for item in result}
+            for item in downstream:
+                normalized = normalize_publication(item)
+                if normalized and normalized["tag_name"] not in known:
+                    result.append(normalized)
+        return result
 
     def dev_head(self):
         return require_oid(self.get_json("commits/dev")["sha"])
@@ -99,6 +109,19 @@ class GitHub:
     def download(self, release, target):
         tag = "truth-release-" + require_digest(release["digest"])[7:]
         url = f"https://github.com/{self.repository}/releases/download/{tag}/{tag}.tar.gz"
+        if self.publication_repository and self.publication_repository != self.repository:
+            from lib.upstream_publication import normalize_publication
+            client = GitHub(self.publication_repository, self.token)
+            source_tag = "pages-source-" + require_oid(release["source_commit"])
+            try:
+                item = client.get_json("releases/tags/" + source_tag)
+            except HTTPError as error:
+                if error.code != 404:
+                    raise
+            else:
+                normalized = normalize_publication(item)
+                if normalized and normalized["tag_name"] == tag:
+                    url = f"https://github.com/{self.publication_repository}/releases/download/{source_tag}/{tag}.tar.gz"
         request = Request(url, headers={"User-Agent": "pages-release-reconciler"})
         total = 0
         with urlopen(request, timeout=60) as response, Path(target).open("xb") as writer:

@@ -3,7 +3,7 @@ name: Publish merged presentation
 on:
   push:
     branches: [dev]
-    paths: ['site/**', 'lib/**', '.github/workflows/refresh-presentation.yml']
+    paths: ['site/**', 'lib/**', '.github/workflows/pages.yml', '.github/workflows/refresh-presentation.yml']
   workflow_dispatch:
 
 permissions:

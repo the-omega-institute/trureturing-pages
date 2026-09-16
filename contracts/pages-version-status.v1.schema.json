@@ -419,6 +419,10 @@
           "quarantined_count": {
             "type": "integer",
             "minimum": 0
+          },
+          "upstream_ci_run_id": {
+            "type": "integer",
+            "minimum": 1
           }
         }
       }

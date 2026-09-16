@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       truth_release_digest:
-        description: "sha256 release digest, or mock for the committed smoke fixture"
+        description: "latest verified publication, sha256 digest, or explicit mock fixture"
         required: false
-        default: mock
+        default: latest
         type: string
       reconcile:
         description: "Select the oldest missing published release (limit 1); digest input is a wake-up hint"
@@ -18,6 +18,9 @@ on:
         required: false
         default: false
         type: boolean
+
+env:
+  PAGES_PUBLICATION_REPOSITORY: ${{ github.repository }}
 
 permissions:
   contents: read
@@ -54,7 +57,7 @@ jobs:
         id: selection
         env:
           GH_TOKEN: ${{ github.token }}
-          REQUESTED_DIGEST: ${{ inputs.truth_release_digest || 'mock' }}
+          REQUESTED_DIGEST: ${{ inputs.truth_release_digest || 'latest' }}
           RECONCILE: ${{ inputs.reconcile || false }}
           REBUILD_CURRENT: ${{ inputs.rebuild_current || false }}
         shell: bash
@@ -68,7 +71,9 @@ jobs:
               printf 'should_build=true\nrelease_digest=mock\nsource_commit=\n' >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            requested+=(--requested-digest "$REQUESTED_DIGEST")
+            if [[ "$REQUESTED_DIGEST" != 'latest' ]]; then
+              requested+=(--requested-digest "$REQUESTED_DIGEST")
+            fi
           fi
           python -m lib.reconcile_releases plan \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
@@ -427,20 +432,6 @@ jobs:
           test -s "_site/$snapshot"
           make research-catalog SNAPSHOT="_site/$snapshot" CATALOG=_site/assets/research-catalog.json PYTHON=python
           python -m lib.research_news append-verified --snapshot "_site/$snapshot" --catalog _site/assets/research-news.json
-
-      - name: Rebuild the claim double-check audit from the release axiom closures
-        if: steps.checkpoint.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          # formal_verification is sourced from the truth-export axiom closures the
-          # release attests (already fail-closed by verify_resolutions); literature and
-          # sshx fidelity verdicts are carried from the committed audit. The full
-          # independent Lean re-run stays a periodic deep check (docs/claim-audit.md).
-          python -m lib.claim_audit \
-            --catalog _site/assets/research-catalog.json \
-            --prior site/assets/claim-audit.v1.json \
-            --out _site/assets/claim-audit.v1.json
 
       - name: Finalize the release-bound Pages deployment
         if: steps.checkpoint.outputs.cache-hit != 'true'

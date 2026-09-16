@@ -142,6 +142,9 @@ def build_status(releases, history, receipts, is_ancestor, dev_head, *,
                      "published_at": release["published_at"], "stages": stages,
                      "furthest_stage": furthest, "bundle_asset": asset, "halt": reason,
                      "quarantined_count": len(quarantined)})
+        ci_run_id = metadata[release["tag"]].get("upstream_ci_run_id")
+        if ci_run_id is not None:
+            rows[-1]["upstream_ci_run_id"] = ci_run_id
     live_tip = live_history["current_truth_release_digest"] if live_history else None
     current = live_tip if live_tip in deployed else None
     keys = [r["digest"] for r in rows]
