@@ -95,6 +95,13 @@ export function validateCatalog(data) {
         seen.add(key);
       }
     }
+    if(f.release_updates !== undefined) {
+      if(!Array.isArray(f.release_updates))throw new Error("Invalid release updates.");
+      for(const update of f.release_updates) {
+        if(!slug.test(update.problem))throw new Error("Invalid related release ID.");
+        requireText(update.label,"release update label");requireText(update.scope,"release update scope");
+      }
+    }
     requireText(f.area, "research area", 100);
     requireText(f.foothold, "repository foothold");
     if (!Array.isArray(f.anchors) || !f.anchors.length ||
@@ -106,7 +113,7 @@ export function validateCatalog(data) {
     const shared = { familyId: f.id, familyTitle: f.title, area: f.area, scope: f.scope,
       doi: f.doi, anchors: f.anchors, foothold: f.foothold, keywords: f.keywords,
       sourceCommit: f.source_commit || data.source_commit, reviewed: data.reviewed,
-      source: f.source, updates: f.updates || [], buildsOn: f.builds_on };
+      source: f.source, updates: f.updates || [], releaseUpdates: f.release_updates || [], buildsOn: f.builds_on };
     register({ ...f, ...shared, kind: "open-question", related: f.targets.map(t => t.id) });
     for (const t of f.targets) register({ ...t, ...shared });
   }

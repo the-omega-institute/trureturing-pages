@@ -1,5 +1,43 @@
 # Research conjecture workbench
 
+## Curated Conjectures entry (18 September 2026)
+
+The public Conjectures entry comes from `lib/conjecture_collection.py`. The
+existing 16 paper families in `site/assets/research-directions.json` and four
+source questions in `site/assets/conjecture-sources.json` share one search and
+independent source/field filters. Source questions cite OEIS A006577/A000043 and
+Erdős #2/#3, checked against the original sites on 18 September 2026. External
+outcomes retain attribution and scope: #2 is disproved; #3 has a proved three-term
+case, with the full conjecture still open.
+
+The page has no project-dossier archive or personal notebook interface. Its 34
+existing subtargets are rendered inside question details. Stable `#rp=<id>` URLs
+reveal those details directly; no notebook is mounted or local notes overwritten.
+Without JavaScript all curated questions and their details remain accessible.
+Curation is independent of release completion; a released result becomes a link
+on its question instead of removing that question from the collection.
+
+Future pursuits uses seven larger cards from `millennium-data.json`. Public
+mathematical status and attributed milestones remain separate from repository
+proof coverage. Perelman's Poincaré solution links to Clay's account. Clay's
+Navier–Stokes page still marks the original problem active; no OpenAI solution is
+claimed without a source for the specific result.
+
+Optional `display.connection` and `display.gap` hold brief overview copy. Full
+questions, proposed approaches and progress criteria stay in the existing fields.
+Optional `release_updates` records a problem slug, label and precise scope; an
+update is displayed only when that exact dossier has a kernel-verified resolution
+in the rendered snapshot. An update never resolves its related parent or children.
+
+The Thue–Morse entry was reconciled against the Equation (11) dossier in published
+source `f59a9fa2130589e591661194c72074ea8d10538a`. Its absolute-difference result is
+shown as progress, with signed differences and the full recursion kept distinct.
+Nonautomaticity is presented as a formalization/reassessment task because the
+dossier records a written unboundedness argument without binding a separate
+kernel-checked endpoint. This is a release-scope update, not a new literature
+review. Existing question IDs and personal notes are preserved; the catalog
+revision changes while the previous literature-review dates remain intact.
+
 The Research index has a Pages-owned advisory bank above the release-bound
 source dossiers. Revision `2026-09-07.2` contains **13 source questions and 28
 proposed subproblems**. It preserves all 21 IDs from the first revision. No Lean

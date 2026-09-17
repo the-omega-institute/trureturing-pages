@@ -211,124 +211,26 @@ def render_research_groups(document, snapshot, records):
 
 
 def millennium_entry(output):
+    from lib.conjecture_collection import render_horizons
     path = output / 'assets/millennium-data.json'
     if not path.exists():
         path = ROOT / 'site/assets/millennium-data.json'
-    cards = []
-    if path.exists():
-        for p in json.loads(path.read_text())['problems']:
-            identity = p.get('id', '')
-            if not re.fullmatch(r'[a-z0-9-]+', identity):
-                raise ValueError('Invalid map identity')
-            cards.append(f'<a href="millennium.html?problem={identity}">{esc(p["title"])}</a>')
-    return ('<section id="millennium-entry" class="research-frontier"><div class="news-section-heading">'
-        '<h2>Long-horizon research maps</h2></div><nav class="reading-map-links" aria-label="Millennium problem maps">'
-        + ''.join(cards) + '</nav></section>')
+    return render_horizons(json.loads(path.read_text()))
 
 
 def render_conjecture_groups(document, snapshot, output):
-    from lib.problem_resolutions import is_kernel_verified
-    parsed = Fragments(document)
-    rows = {urlsplit(e.attrs['href']).path.strip('/').split('/')[-1]: parsed.raw(e)
-            for e in parsed.select(cls='problem-row')}
-    groups = defaultdict(list)
-    active = [p for p in snapshot['problems'] if not is_kernel_verified(p.get('resolution'))]
-    completed = [p for p in snapshot['problems'] if is_kernel_verified(p.get('resolution'))]
-    for p in active:
-        if p['slug'] not in rows:
-            raise ValueError('Missing source dossier row')
-        key, _, _ = series(source_url(p))
-        search = p['title'] + ' ' + source_url(p) + ' ' + ' '.join(p.get('motivation_gids', []))
-        groups[key].append(f'<div class="reading-item question-item" data-triage="{esc(p.get("triage", ""))}" '
-            f'data-gids="{esc(json.dumps(p.get("motivation_gids", [])))}" data-search="{esc(search.lower())}">{rows[p["slug"]]}</div>')
-    sections = ''.join(group_html(k, t, d, groups[k], prefix='questions', noun='questions')
-        for k, t, d in [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')])
-    lists = parsed.select(cls='problem-list')
-    if lists:
-        section = lists[0]
-        # The original heading, statistics, sidebar and follow-up layout survive.
-        document = document[:section.inner] + sections + '<p id="research-empty" hidden>No questions match these filters.</p></section>' + document[section.end:]
-        document = document.replace('id="open-problems" class="research-browser"', 'id="open-problems" class="research-browser" data-reading-catalog', 1)
-        document = document.replace('id="research-search"', 'id="research-search" data-reading-search', 1)
-        document = document.replace('id="research-triage"', 'id="research-triage" data-reading-triage', 1)
-        document = document.replace('id="research-count"', 'id="research-count" data-search-count', 1)
-    else:
-        # Minimal renderer fixtures still keep their existing main/header markup.
-        for row in rows.values():
-            document = document.replace(row, '', 1)
-        document = document.replace('</main>', '<section id="open-problems" data-reading-catalog>' + search_box('questions') + sections + '</section></main>', 1)
-    document = document.replace('class="site-main research-home"', 'class="site-main research-home" data-reading-home', 1)
-    # Keep the notebook out of the initial layout, but preserve its old URLs/data.
-    extras = ('<details class="reading-group" id="research-directions" data-notebook-shell><summary>Proposed routes &amp; personal notebook</summary>'
-        '<div id="research-workbench-slot" class="reading-group-body"><p role="status">Open to load the research notebook.</p></div></details>'
-        + millennium_entry(output))
-    links = ''.join(f'<p class="resolved-question" id="resolved-{esc(p["slug"])}" data-problem-slug="{esc(p["slug"])}" '
-        f'data-resolution-kind="{esc(p["resolution"]["kind"])}"><a href="research/{esc(p["slug"])}/">{esc(p["title"])}</a></p>' for p in completed)
-    extras += ('<details id="completed-dossiers" class="reading-group"><summary>Completed dossiers and source archive</summary>'
-        '<div class="reading-group-body">' + links + '<a href="research.html#results">Browse completed results by collection</a>'
-        '<p><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">Read source dossiers in mdBook</a></p></div></details>')
-    result = common_shell(conjecture_journey(document.replace('</main>', extras + '</main>', 1), snapshot))
-    if 'assets/research-workbench.css' not in result:
-        result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-workbench.css"></head>', 1)
-    return result
-
-
-
-def conjecture_journey(document, snapshot):
-    """An editorial shortlist with explicit existing-result links; never a truth gate."""
-    from lib.research_results import followup_families
-    stories = json.loads((ROOT / 'site/assets/result-stories.json').read_text())
+    from lib.conjecture_collection import render_collection
     catalog = json.loads((ROOT / 'site/assets/research-directions.json').read_text())
-    from lib.problem_resolutions import is_kernel_verified
-    resolved = {p['slug'] for p in snapshot['problems'] if is_kernel_verified(p.get('resolution'))}
-    families = [f for f in followup_families() if f['id'] not in resolved]
-    cards = []
-    for f in families:
-        targets = ''.join(f'<a href="#rp={esc(t["id"])}">{esc(t["title"])} ↗</a>' for t in f['targets'])
-        cards.append(f'''<article class="journey-direction" id="direction-{esc(f['id'])}">
-<h3>{esc(f['area'])}</h3><p class="journey-question"><a href="#rp={esc(f['id'])}">{esc(f['title'])}</a></p>
-<ol class="journey-steps"><li><span>Established result</span><p>{esc(stories[f['builds_on']]['finding'])}</p><a href="results/{esc(f['builds_on'])}/">Read the proof &amp; exact scope ↗</a></li>
-<li><span>Next contribution</span><p>{esc(f['next_step'])}</p><div class="journey-targets">{targets}</div></li>
-<li><span>Longer-term question</span><p>{esc(f['question'])}</p></li></ol></article>''')
-    overview = ('<section class="research-journey result-followups" id="next-questions" aria-labelledby="next-questions-title">'
-        '<p class="eyebrow">01 / OUR PRIORITY DIRECTIONS</p><h2 id="next-questions-title">Where we can contribute next</h2>'
-        '<p class="journey-intro">A curated shortlist for researchers and formalizers: questions with an existing proof to build on, a concrete missing step, and a wider mathematical goal. These are our proposed priorities, not a ranking of all open mathematics.</p>'
-        '<nav class="journey-priorities" aria-label="Priority research areas">' + ''.join(f'<a href="#direction-{esc(f["id"])}">{esc(f["area"])}</a>' for f in families) + '</nav><div class="journey-grid">' + ''.join(cards) + '</div></section>')
-    parsed = Fragments(document)
-    for element in sorted(parsed.select(cls='result-followups') + parsed.select(cls='research-activity'), key=lambda e:e.start, reverse=True):
-        document = document[:element.start]+document[element.end:]
-    # Put purpose and mathematical areas ahead of provenance totals and source search.
-    document = document.replace('Open questions. Missing bridges. The next proof.', 'Choose a question. Build on a proof. Connect the next idea.')
-    parsed = Fragments(document)
-    heading = parsed.select(cls='page-heading')[0]
-    document = document[:heading.end]+overview+document[heading.end:]
-    parsed = Fragments(document)
-    stats = parsed.select(cls='research-stats')
-    browser = parsed.select(cls='research-browser')
-    if stats and browser:
-        start,end = stats[0].start,browser[0].end
-        document = document[:start] + '<details id="source-questions" class="reading-group"><summary>Browse all source questions · OEIS, Erdős &amp; papers</summary><div class="reading-group-body">' + document[start:end] + '</div></details>' + document[end:]
-    by_area = defaultdict(list)
-    for family in catalog['families']:
-        if family['id'] not in resolved: by_area[family['area']].append(family)
-    areas = ''.join('<details><summary>'+esc(area)+'</summary><div>'+''.join(f'<a href="#rp={esc(f["id"])}">{esc(f["title"])}</a>' for f in families)+'</div></details>' for area,families in by_area.items())
-    document = document.replace('<details class="reading-group" id="research-directions"', '<nav class="journey-areas" aria-label="More research areas"><span>Explore further directions</span>'+areas+'</nav><details class="reading-group" id="research-directions"',1)
-    document = document.replace('<h2>Long-horizon research maps</h2>', '<p class="eyebrow">02 / THE WIDER HORIZON</p><h2>Long-horizon research maps</h2><p>Explore the objects, equivalent formulations and missing bridges behind the Millennium Problems. These maps are research context; the routes above do not imply a solution.</p>')
-    # Keep every resolved permalink, with compact source collections and pagination.
-    parsed = Fragments(document)
-    archive = parsed.select(id='completed-dossiers')[0]
-    items = defaultdict(list)
-    for problem in snapshot['problems']:
-        if not is_kernel_verified(problem.get('resolution')): continue
-        matches = parsed.select(id='resolved-'+problem['slug'])
-        if not matches: continue
-        item = matches[0]
-        key,_,_ = series(source_url(problem))
-        raw = parsed.raw(item).replace('class="resolved-question"', 'class="resolved-question reading-item" data-search="'+esc(problem['title'].lower())+'"')
-        items[key].append(raw)
-    collections = ''.join(group_html(k,t,d,items[k],prefix='completed',noun='results') for k,t,d in [series('https://oeis.org'),series('https://erdosproblems.com'),series('https://other.example')])
-    replacement = '<details id="completed-dossiers" class="reading-group"><summary>Results along the way · completed dossiers</summary><div class="reading-group-body"><section id="completed-catalog" data-reading-catalog>'+search_box('archive')+collections+'</section><a href="research.html#results">Research results &amp; publications ↗</a></div></details>'
-    return document[:archive.start]+replacement+document[archive.end:]
+    sources = json.loads((ROOT / 'site/assets/conjecture-sources.json').read_text())
+    body = ('<main class="site-main research-home" data-curated-home>'
+        '<header class="page-heading curated-heading"><div><p class="eyebrow">SELECTED QUESTIONS</p>'
+        '<h1>Conjectures</h1><p class="lede">A curated collection of conjectures and open problems connected to our research.</p>'
+        '</div><a class="console-link" href="research.html#results">Research results ↗</a></header>'
+        + render_collection(catalog, snapshot, sources['questions']) + millennium_entry(output) + '</main>')
+    result = common_shell(replace_main(document, body))
+    return result.replace('</head>', '<link rel="stylesheet" href="assets/conjecture-collection.css">'
+        '<script type="module" src="assets/conjecture-collection.mjs"></script></head>', 1)
+
 
 def apply_reading_views(output: Path, snapshot: dict, records: list):
     output = Path(output)

@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 import subprocess
+import json
 from pathlib import Path
 from unittest.mock import patch
 from lib.reading_views import Fragments, series, common_shell, add_spaces_navigation, render_research_groups, render_conjecture_groups
@@ -82,34 +83,36 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertLess(out.index('assets/reading.css'),out.index('<body'))
         self.assertLess(out.index('assets/research-route.js'),out.index('<body'))
 
-    def test_conjectures_preserve_layout_and_specific_question_destinations(self):
+    def test_conjectures_are_a_curated_library_without_project_archive_or_notebook(self):
         snapshot,source=conjectures()
-        with tempfile.TemporaryDirectory() as temp, patch('lib.reading_views.source_url',side_effect=lambda p:p['url']):
+        with tempfile.TemporaryDirectory() as temp:
             out=render_conjecture_groups(source,snapshot,Path(temp))
         p=Fragments(out)
-        self.assertNotIn('research/done/',p.raw(p.select(id='open-problems')[0]))
-        self.assertIn('research/done/',p.raw(p.select(id='completed-dossiers')[0]))
-        self.assertEqual('proved',p.select(id='resolved-done')[0].attrs['data-resolution-kind'])
-        self.assertIn('href="research/q1/"',out);self.assertIn('href="research/q2/"',out)
-        for cls in ['page-heading','research-stats','research-browser','problem-list','result-followups']:
-            self.assertTrue(p.select(cls=cls),cls)
-        self.assertIn('Original statistics',out)
-        self.assertIn('id="research-workbench-slot"',out)
-        self.assertIn('id="millennium-entry"',out)
-        self.assertLess(out.index('assets/research-workbench.css'),out.index('<body'))
+        self.assertEqual(len(p.select(cls='curated-question')),20)
+        for identity in ['source-questions','curated-search','millennium-entry','question-thue-morse-nonautomaticity']:
+            self.assertTrue(p.select(id=identity),identity)
+        for identity in ['completed-dossiers','research-directions','research-workbench-slot','research-search']:
+            self.assertFalse(p.select(id=identity),identity)
+        self.assertFalse(p.select(cls='research-stats'))
+        self.assertFalse(p.select(cls='problem-row'))
+        self.assertIn('data-curated-source="oeis"',out)
+        self.assertIn('data-curated-source="erdos"',out)
+        self.assertIn('https://www.erdosproblems.com/3',out)
+        self.assertLess(out.index('assets/conjecture-collection.css'),out.index('<body'))
 
-    def test_journey_precedes_catalog_and_preserves_all_completed_links(self):
+    def test_future_pursuits_include_attributed_external_solution_without_claiming_ns_solved(self):
         snapshot,source=conjectures()
-        with tempfile.TemporaryDirectory() as temp, patch('lib.reading_views.source_url',side_effect=lambda p:p['url']):
+        with tempfile.TemporaryDirectory() as temp:
             out=render_conjecture_groups(source,snapshot,Path(temp))
-        self.assertLess(out.index('id="next-questions"'),out.index('id="source-questions"'))
-        self.assertEqual(out.count('class="journey-direction"'),3)
-        self.assertIn('Established result',out)
-        self.assertIn('Next contribution',out)
-        self.assertNotIn('Development activity',out)
-        self.assertIn('id="completed-oeis"',out)
-        self.assertIn('id="resolved-done"',out)
-        self.assertNotIn('open',Fragments(out).select(id='source-questions')[0].attrs)
+        p=Fragments(out)
+        self.assertEqual(len(p.select(cls='horizon-card')),7)
+        self.assertIn('Grigori Perelman',out)
+        self.assertIn('https://www.claymath.org/millennium/poincare-conjecture/',out)
+        states={e.attrs['data-horizon']:e.attrs['data-scientific-state'] for e in p.select(cls='horizon-card')}
+        self.assertEqual(states['poincare'],'solved')
+        self.assertEqual(states['navier-stokes'],'open')
+        self.assertNotIn('OpenAI',out)
+        self.assertLess(out.index('id="source-questions"'),out.index('id="millennium-entry"'))
 
     def test_results_lead_and_raw_gaps_stay_in_conjectures(self):
         records,source=results()

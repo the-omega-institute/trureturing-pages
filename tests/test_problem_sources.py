@@ -116,7 +116,7 @@ class ProblemSourceTests(unittest.TestCase):
         self.assertEqual(archived["problems"], [problem])
         self.assertEqual(source_fields(archived["problems"][0]), {"url": problem["url"]})
 
-    def test_dossier_and_search_render_url_source_with_html_escaping(self):
+    def test_dossier_renders_url_source_with_html_escaping(self):
         for url in ("https://oeis.org/A068012", "https://example.org/question?a=1&b=2#evidence"):
             with self.subTest(url=url), tempfile.TemporaryDirectory() as temp:
                 snapshot = living_library.create_snapshot(graph(), "sha256:" + "1" * 64, [url_problem(url)], {})
@@ -124,7 +124,7 @@ class ProblemSourceTests(unittest.TestCase):
                 living_library.render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
                 dossier = (output / "research/test-question/index.html").read_text()
                 self.assertIn(f'<a href="{esc(url)}">{esc(url)}</a>', dossier)
-                self.assertIn(esc(url.lower()), (output / "conjectures.html").read_text())
+                self.assertNotIn('class="problem-row"', (output / "conjectures.html").read_text())
 
     def test_discovery_links_url_source_without_promoting_a_resolution(self):
         problem = url_problem()

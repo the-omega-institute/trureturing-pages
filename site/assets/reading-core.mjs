@@ -13,8 +13,9 @@ export function matchesQuery(text, query) {
   return query.toLowerCase().trim().split(/\s+/).filter(Boolean).every(word => text.toLowerCase().includes(word));
 }
 export function hashTarget(hash) {
-  const aliases = {'research-release-dossiers':'open-problems', 'research-bank':'research-directions', 'research-workbench':'research-directions'};
+  const aliases = {'research-release-dossiers':'open-problems', 'research-bank':'source-questions', 'research-workbench':'source-questions', 'research-directions':'source-questions', 'completed-dossiers':'source-questions'};
   const raw = hash.replace(/^#/, '');
+  if (/^completed-(oeis|erdos|other)$/.test(raw)) return raw.replace('completed-', 'questions-');
   if (aliases[raw]) return aliases[raw];
   const question = new URLSearchParams(raw).get('rp');
   if (question && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(question)) return 'question-' + question;

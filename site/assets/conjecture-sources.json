@@ -1,0 +1,56 @@
+{
+  "schema": "pages-curated-source-questions.v1",
+  "reviewed": "2026-09-18",
+  "questions": [
+    {
+      "id": "oeis-a006577-collatz",
+      "title": "Does every Collatz orbit reach 1?",
+      "area": "Arithmetic",
+      "collection": "oeis",
+      "source_label": "OEIS A006577",
+      "source_url": "https://oeis.org/A006577",
+      "question": "Starting from any positive integer, repeatedly halve even values and replace odd values n by 3n + 1. Must the orbit eventually reach 1?",
+      "connection": "Integer iteration, recurrence relations and termination proofs.",
+      "gap": "The source records the universal termination question as open; finite computations do not settle it.",
+      "keywords": ["Collatz", "3x+1", "A006577", "iteration", "termination"]
+    },
+    {
+      "id": "oeis-a000043-mersenne",
+      "title": "Are there infinitely many Mersenne primes?",
+      "area": "Arithmetic",
+      "collection": "oeis",
+      "source_label": "OEIS A000043",
+      "source_url": "https://oeis.org/A000043",
+      "question": "Are there infinitely many prime exponents p for which 2^p - 1 is prime?",
+      "connection": "Prime structure, divisibility and arithmetic sequences.",
+      "gap": "OEIS records infinitude as unproved; primality certificates for individual terms do not establish infinitude.",
+      "keywords": ["Mersenne", "prime", "A000043", "infinitude"]
+    },
+    {
+      "id": "erdos-3-arithmetic-progressions",
+      "title": "Does a divergent reciprocal sum force long arithmetic progressions?",
+      "area": "Additive combinatorics",
+      "collection": "erdos",
+      "source_label": "Erdős #3",
+      "source_url": "https://www.erdosproblems.com/3",
+      "question": "If a set A of positive integers has a divergent sum of reciprocals, must it contain arithmetic progressions of every finite length?",
+      "connection": "Additive structure, density bounds and sum-free sets.",
+      "gap": "The full conjecture remains open. Bloom and Sisask proved the three-term case in 2020; that does not settle arbitrary lengths.",
+      "keywords": ["Erdős", "Erdos", "#3", "progressions", "reciprocal", "density"],
+      "milestone": {"kind": "partial", "label": "Three-term case proved", "by": "Bloom & Sisask · 2020", "url": "https://www.erdosproblems.com/3"}
+    },
+    {
+      "id": "erdos-2-covering-systems",
+      "title": "Can covering systems have arbitrarily large minimum modulus?",
+      "area": "Arithmetic",
+      "collection": "erdos",
+      "source_label": "Erdős #2",
+      "source_url": "https://www.erdosproblems.com/2",
+      "question": "Can a finite covering of the integers by residue classes with distinct moduli have an arbitrarily large smallest modulus?",
+      "connection": "Congruences, covering systems and explicit arithmetic bounds.",
+      "gap": "The original question was answered negatively by Hough. The source records a lower bound of 42 and an upper bound of 616000 for the largest possible minimum modulus.",
+      "keywords": ["Erdős", "Erdos", "#2", "covering", "congruences", "Hough"],
+      "milestone": {"kind": "refuted", "label": "Disproved", "by": "Bob Hough · 2015", "url": "https://www.erdosproblems.com/2"}
+    }
+  ]
+}
