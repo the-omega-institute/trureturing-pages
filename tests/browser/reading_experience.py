@@ -159,8 +159,11 @@ def main():
         assert page.locator('#lineage-release').count()==1
         assert page.locator('#release-play').count()==1
         assert page.locator('.lineage-guide').count()==1
-        page.wait_for_selector('#release-content-changes[data-state="ready"]',timeout=60000)
-        assert page.locator('#release-story').bounding_box()['y'] < page.locator('#evolution-map').bounding_box()['y']
+        page.wait_for_selector('#release-content-changes[data-state="ready"]',state='attached',timeout=60000)
+        assert page.locator('#evolution-map').bounding_box()['y'] < 320
+        assert page.locator('#release-story').bounding_box()['y'] > page.locator('#evolution-map').bounding_box()['y']
+        assert not page.locator('#release-story').evaluate('e=>e.open')
+        page.locator('#release-story > summary').click()
         # Independently find a real adjacent pair with added source modules.
         library=json.loads((args.site/'data/library-history.v1.json').read_text())['entries']
         architecture=json.loads((args.site/'data/architecture-history.v1.json').read_text())['entries']
@@ -204,6 +207,7 @@ def main():
         page.wait_for_selector(f'#release-content-changes[data-state="ready"][data-observation="{before["observation"]}"]',timeout=60000)
         events.append('Exact adjacent release content yields readable counts, module explanations, pinned links, filters and synchronized graph selection')
         page.screenshot(path=str(args.output/'evolution-restored-desktop.png'),full_page=True)
+        page.locator('#release-story > summary').click()
         page.locator('#evolution-detail .architecture-rank').first.click()
         page.wait_for_function("document.querySelector('.group-explanation') && !document.querySelector('.group-explanation').textContent.startsWith('Loading')")
         assert page.locator('.group-connections').count()==2
@@ -213,7 +217,7 @@ def main():
         selected_before=page.evaluate('window.architectureHistoryDiagnostics().selected')
         page.locator('[data-lineage="time"]').click()
         assert page.evaluate('window.architectureHistoryDiagnostics().mode')=='time'
-        assert 'selected' in page.locator('#release-comparison').inner_text() or 'compared' in page.locator('#release-comparison').inner_text()
+        assert '→' in page.locator('#release-comparison').inner_text()
         page.locator('#previous-observation').click()
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==before['observation']-1
         assert page.evaluate('window.architectureHistoryDiagnostics().selected')==selected_before
@@ -249,7 +253,8 @@ def main():
         unavailable.on('pageerror',lambda e:errors.append(str(e)))
         unavailable.route('**/'+latest_path,lambda route:route.fulfill(status=200,body='corrupt snapshot'))
         unavailable.goto(base+'evolution.html?lang=en',wait_until='networkidle')
-        unavailable.wait_for_selector('#release-content-changes[data-state="unavailable"]',timeout=60000)
+        unavailable.wait_for_selector('#release-content-changes[data-state="unavailable"]',state='attached',timeout=60000)
+        unavailable.locator('#release-story > summary').click()
         assert unavailable.locator('button[data-change-count]:visible').count()==0
         assert unavailable.locator('#evolution-map canvas').count()==1
         unavailable.unroute('**/'+latest_path)

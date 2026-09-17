@@ -49,7 +49,7 @@ const renderer = mountEvolution($("#evolution-map"), {
       observation = group.observation;
       $("#lineage-release").value = observation;
     }
-    selectNode(group.nodes.slice().sort((a, b) => b.reach - a.reach)[0].id);
+    selectNode((group.changedNodes?.length ? group.changedNodes : group.nodes).slice().sort((a, b) => b.reach - a.reach)[0].id);
   },
 });
 function stateURL() {
@@ -84,9 +84,10 @@ function showGroup(group) {
   const root = $("#lineage-group");
   const version = ++groupVersion, snapshot = snapshots[observation];
   const context = groupContext(group,snapshot);
+  if (group.changedNodes?.length) context.examples=group.changedNodes.slice(0,3);
   const family = FAMILIES.find(f => f.id === group.family);
   root.replaceChildren(el("h3", `${readableName(group.domain)} · ${group.nodes.length} modules`));
-  root.append(el("p", `${family?.name || 'Source group'}. Representative concepts from this observation:`, "architecture-provenance"));
+  root.append(el("p", family?.name || 'Source group', "architecture-provenance"));
   for (const n of context.examples) {
     const button=el('button',n.title,'group-module');button.onclick=()=>selectNode(n.id);root.append(button);
   }
@@ -132,6 +133,7 @@ function selectNode(id) {
   stateURL();
 }
 let detailVersion = 0, groupVersion = 0, libraryPromise;
+let contentUpdated = new Set(), contentObservation = -1;
 const explanationSnapshot = async (snapshot) => {
   const library = await (libraryPromise ||= loadLibrary(new URL('./', location.href)).catch(error => {libraryPromise=null;throw error;}));
   const index = library.index.entries.findIndex(e => e.truth_release_digest === snapshot.truth_release_digest && e.atlas_graph_digest === snapshot.atlas_graph_digest);
@@ -140,6 +142,12 @@ const explanationSnapshot = async (snapshot) => {
 };
 const contentChanges = mountReleaseChanges($('#release-content-changes'), {
   loadSnapshot: explanationSnapshot,
+  onChange: (change, index) => {
+    if (observation!==index)return;
+    contentUpdated = new Set(change.changed.map(n=>n.id));
+    contentObservation = index;
+    renderMap();
+  },
   onSelect: id => {
     selectNode(id);
     $('#evolution-map').scrollIntoView({block:'start',behavior:'smooth'});
@@ -219,7 +227,7 @@ function releaseSummary() {
       ? `Archive baseline / ${snapshot.nodes.length.toLocaleString()} modules / no earlier observation`
       : delta.kind === "analysis-changed"
         ? "Analysis profile changed / structural comparison interrupted"
-        : `${delta.added.length} added / ${delta.retired.length} absent / ${delta.edgesAdded === null ? "earlier edges not archived" : `${delta.edgesAdded.length} dependencies added / ${delta.edgesRemoved.length} removed`}`;
+        : `${delta.added.length ? `+${delta.added.length}` : "0"} modules · ${delta.edgesAdded === null ? "?" : `+${delta.edgesAdded.length}`} imports`;
   if (!snapshot.dependency_edges && mode === "dependency")
     $("#release-change-summary").textContent +=
       " / dependency edges not archived";
@@ -251,7 +259,7 @@ function releaseSummary() {
 }
 function renderChanges(snapshot) {
   const info=releaseInsights(snapshots[observation-1],snapshot),root=$('#release-insights');root.replaceChildren();
-  $('#release-comparison').textContent=observation ? `Observation ${observation} → ${observation+1} · compared with the immediately preceding archive` : 'Observation 1 · the archive starts here';
+  $('#release-comparison').textContent=observation ? `${observation} → ${observation+1}` : 'Baseline';
   $('#lineage-release').setAttribute('aria-valuetext',$('#release-comparison').textContent);
   if(info.kind!=='comparable') {
     root.append(el('p',info.kind==='baseline' ? 'Starting inventory. Earlier growth cannot be inferred from this archive.' : 'The analysis method changed. This step cannot be used to measure structural growth.'));return;
@@ -282,13 +290,14 @@ function renderMap(reset = false) {
           expanded,
           universe,
         );
-  scene = annotateScene(scene, releaseDelta(snapshots[observation - 1], snapshots[observation]), observation);
+  const updated = contentObservation===observation ? contentUpdated : new Set();
+  scene = annotateScene(scene, releaseDelta(snapshots[observation - 1], snapshots[observation]), observation, updated);
   const ids =
     mode === "time"
       ? new Set(snapshots.flatMap((s) => [...lineageIds(s, selected)]))
       : lineageIds(snapshots[observation], selected);
   const insight=releaseInsights(snapshots[observation-1], snapshots[observation]);
-  renderer.update(scene, { selectedId: selected, ids, reset, changesOnly:changesOnly && insight.kind==='comparable' && insight.changedIds.length>0, changedIds:new Set(insight.changedIds), reusedIds:new Set(insight.reuse.map(n=>n.id)) });
+  renderer.update(scene, { selectedId: selected, ids, reset, changesOnly:changesOnly && insight.kind==='comparable' && (insight.changedIds.length>0 || updated.size>0), changedIds:new Set([...insight.changedIds,...updated]), reusedIds:new Set(insight.reuse.map(n=>n.id)) });
   document
     .querySelectorAll("[data-lineage]")
     .forEach((b) =>
@@ -296,13 +305,13 @@ function renderMap(reset = false) {
     );
   $("#lineage-axis-label").textContent =
     mode === "time"
-      ? "Each column is one archived observation; each row keeps the same source domain"
-      : "Read left to right: imported foundations → modules that use them";
+      ? "Releases →"
+      : "Prerequisites → consumers";
   $("#lineage-collapse").hidden = !expanded || mode !== "dependency";
   $("#lineage-clear").disabled = !selected;
   document.getElementById("lineage-guide-mode").textContent = mode === "time"
-    ? "Solid line: the same modules in consecutive releases. Dashed line: a newly recorded dependency."
-    : "Left to right: prerequisite to consumer. Thicker line: more recorded dependencies.";
+    ? "Same modules → next release"
+    : "Prerequisite → consumer";
   releaseSummary();
   stateURL();
 }
@@ -346,6 +355,7 @@ $('#previous-observation').onclick=()=>{if(observation>0){$('#lineage-release').
 $('#next-observation').onclick=()=>{if(observation<snapshots.length-1){$('#lineage-release').value=observation+1;$('#lineage-release').oninput();}};
 $("#evolution-search").oninput = search;
 $("#lineage-fit").onclick = () => renderer.fit();
+$("#lineage-focus-changes").onclick = () => renderer.fitChanges();
 $("#lineage-clear").onclick = () => {
   selected = null;
   $("#lineage-group").replaceChildren();

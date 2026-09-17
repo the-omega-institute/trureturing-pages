@@ -47,3 +47,34 @@
  .release-change-pair { grid-template-columns:1fr; }
  .release-change-row h3 { font-size:19px; }
 }
+/* Keep the graph first; source records remain available below on request. */
+.evolution-heading { margin-bottom:10px; }
+.evolution-heading .eyebrow { display:none; }
+.evolution-heading h1 { font-size:27px; }
+.evolution-heading #evolution-status { font-size:11px; }
+.evolution-layout { border-top:0; }
+#lineage-axis-label { font-size:11px; }
+#lineage-focus-changes { width:auto; padding:0 10px; font-size:12px; }
+.lineage-highlight { display:flex; align-items:center; gap:5px; color:#b5c9c0; font-size:12px; }
+#lineage-focus-changes:focus-visible { outline:2px solid #e8c474; outline-offset:3px; }
+#evolution-map { height: min(62vh,680px); min-height:400px; }
+.lineage-guide { align-items:center; gap:10px 22px; padding-top:12px; font-size:12px; }
+.lineage-guide > span { display:inline-flex; align-items:center; gap:7px; }
+.lineage-guide #lineage-guide-mode { flex-basis:auto; margin-left:auto; }
+.legend-dot { width:7px; height:7px; border-radius:50%; background:#b3c8bf; }
+.legend-ring { width:12px; height:12px; border-radius:50%; border:2px solid #e8c474; }
+.legend-ring.updated { border-color:#bba6fa; border-style:dashed; }
+.legend-line { width:23px; border-top:2px solid #e8c474; }
+.graph-help { color:#afc4bb; font-size:12px; margin:12px 0 18px; }
+.graph-help > summary { cursor:pointer; width:fit-content; }
+.graph-help p { margin:9px 0; }
+#release-story { padding:0 20px; margin:22px 0; background:transparent; }
+#release-story > summary { padding:14px 0; font-size:13px; color:#c4d8cd; cursor:pointer; }
+#release-story[open] { padding-bottom:18px; }
+#publication-status { margin:12px 0; }
+@media(max-width:760px) {
+ .evolution-workspace { padding-top:14px; }
+ #evolution-map { height:52vh; min-height:320px; }
+ .lineage-guide { font-size:11px; gap:8px 16px; }
+ .lineage-guide #lineage-guide-mode { margin-left:0; }
+}

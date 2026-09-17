@@ -38,39 +38,7 @@
           >Release archive <i data-lucide="arrow-up-right"></i
         ></a>
       </header>
-      <details id="publication-status"><summary id="publication-summary">Publication status</summary>
-        <ol id="publication-stages" aria-label="Publication stages"></ol><small id="publication-date"></small>
-        <a href="version-status.html">Diagnostic details</a>
-      </details>
-      <section id="release-story" class="release-story" aria-label="Release changes">
-          <div class="release-player">
-            <button
-              id="release-play"
-              aria-label="Play release evolution"
-              title="Play release evolution"
-              disabled
-            >
-              <i data-lucide="play"></i></button
-            ><label for="lineage-release">Release snapshot</label
-            ><input
-              id="lineage-release"
-              type="range"
-              min="0"
-              max="0"
-              value="0"
-              disabled
-            /><output id="lineage-release-label"></output><button id="previous-observation" aria-label="Previous observation">←</button><button id="next-observation" aria-label="Next observation">→</button>
-          </div>
-        <div id="release-content-changes" data-state="loading" aria-busy="true">
-          <p class="release-change-status" data-change-status role="status">Loading…</p>
-          <div class="release-change-receipt" data-change-receipt></div>
-          <div class="release-change-toolbar"><div data-change-filters hidden role="group" aria-label="Change category"></div>
-            <input type="search" data-change-search aria-label="Find a change" placeholder="Search" disabled></div>
-          <p class="release-change-count" data-change-count aria-live="polite"></p>
-          <div data-change-records></div>
-          <button type="button" class="release-change-more" data-change-more hidden>Show more changes</button>
-        </div>
-      </section>
+
       <div class="evolution-layout">
         <section class="evolution-primary" aria-label="Structural lineage">
           <div class="lineage-toolbar">
@@ -82,6 +50,8 @@
               </button>
             </div>
             <div class="lineage-tools">
+              <button id="lineage-focus-changes" class="lineage-focus">Changes</button>
+              <label class="lineage-highlight"><input type="checkbox" id="show-changes" checked> Highlight</label>
               <button
                 id="lineage-clear"
                 title="Clear selection"
@@ -116,18 +86,40 @@
               >Dependency depth / foundations to consequences</span
             ><button id="lineage-collapse" hidden>Collapse domain</button>
           </div>
-          <div class="release-comparison-bar"><strong id="release-comparison"></strong><label><input type="checkbox" id="show-changes" checked> Highlight this step</label></div>
-          <div id="release-insights" aria-live="polite"></div>
-          <p class="change-boundary">Changes describe archived module imports. More reuse is a structural signal, not proof of mathematical importance.</p>
           <div id="evolution-map"></div>
           <div class="lineage-guide" aria-label="How to read this graph">
-            <span>Point size = modules grouped here</span><span>Color = topic family</span>
-            <span>Gold ring = added modules; teal ring = existing foundation gaining consumers; gold line = added import</span>
-            <span id="lineage-guide-mode">Left to right: prerequisite to consumer. Thicker line: more recorded dependencies.</span>
+            <span><i class="legend-dot"></i> Modules</span>
+            <span><i class="legend-ring added"></i> Added</span>
+            <span><i class="legend-ring updated"></i> Updated</span>
+            <span><i class="legend-line"></i> New dependency</span>
+            <span id="lineage-guide-mode">Prerequisite → consumer</span>
           </div>
-          <div id="lineage-key" class="lineage-key"></div>
-          <div id="release-change-summary" role="status"></div>
-          <div id="release-events" class="release-events"></div>
+
+          <div class="release-player">
+            <button
+              id="release-play"
+              aria-label="Play release evolution"
+              title="Play release evolution"
+              disabled
+            >
+              <i data-lucide="play"></i></button
+            ><label for="lineage-release">Release snapshot</label
+            ><input
+              id="lineage-release"
+              type="range"
+              min="0"
+              max="0"
+              value="0"
+              disabled
+            /><output id="lineage-release-label"></output><button id="previous-observation" aria-label="Previous observation">←</button><button id="next-observation" aria-label="Next observation">→</button>
+          </div>
+          <div class="release-comparison-bar"><strong id="release-comparison"></strong>
+            <span id="release-change-summary" role="status"></span></div>
+          <details class="graph-help"><summary>Legend</summary>
+            <div id="lineage-key" class="lineage-key"></div><p>Point size = modules grouped here</p><p>Color = source group</p>
+            <p id="graph-help-mode">Prerequisite → consumer</p>
+            <div id="release-insights" aria-live="polite"></div><div id="release-events" class="release-events"></div>
+          </details>
         </section>
         <aside class="evolution-inspector">
           <label for="evolution-search">Find a module</label
@@ -143,6 +135,22 @@
           <section id="evolution-detail" aria-live="polite"></section>
         </aside>
       </div>
+      <details id="release-story" class="release-story">
+        <summary>Change list</summary>
+        <div id="release-content-changes" data-state="loading" aria-busy="true">
+          <p class="release-change-status" data-change-status role="status">Loading…</p>
+          <div class="release-change-receipt" data-change-receipt></div>
+          <div class="release-change-toolbar"><div data-change-filters hidden role="group" aria-label="Change category"></div>
+            <input type="search" data-change-search aria-label="Find a change" placeholder="Search" disabled></div>
+          <p class="release-change-count" data-change-count aria-live="polite"></p>
+          <div data-change-records></div>
+          <button type="button" class="release-change-more" data-change-more hidden>Show more changes</button>
+        </div>
+      </details>
+      <details id="publication-status"><summary id="publication-summary">Publication status</summary>
+        <ol id="publication-stages" aria-label="Publication stages"></ol><small id="publication-date"></small>
+        <a href="version-status.html">Diagnostic details</a>
+      </details>
     </main>
     <footer class="site-footer">
       MODULE-IMPORT DEPENDENCIES / EXACT NODE IDENTITIES

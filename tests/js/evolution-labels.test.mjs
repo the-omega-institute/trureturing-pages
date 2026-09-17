@@ -78,3 +78,11 @@ test('a replaced consumer without net growth is not called increased reuse',()=>
  const nodes=['a','b','c'].map(id=>({id,domain:'Logic'}));
  assert.equal(releaseInsights({nodes,dependency_edges:[['a','b']]},{nodes,dependency_edges:[['a','c']]}).reuse.length,0);
 });
+
+test('content edits highlight only their observation and preserve the graph identities',()=>{
+ const scene={kind:'time',nodes:[{...group,observation:0},{...group,observation:1}]};
+ const r=annotateScene(scene,{kind:'comparable',added:['b']},1,new Set(['a']));
+ assert.deepEqual(r.nodes.map(n=>n.updatedCount),[0,1]);
+ assert.deepEqual(r.nodes[1].changedNodes.map(n=>n.id),['a','b']);
+ assert.deepEqual(r.nodes.map(n=>[n.x,n.y]),[[12,24],[12,24]]);
+});

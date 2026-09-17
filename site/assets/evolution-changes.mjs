@@ -20,7 +20,7 @@ const fieldLabels = {human_title:'Title',human_abstract:'Explanation',human_theo
 
 // The existing release scrubber owns selection. This panel loads precisely the
 // two Library snapshots matching its architecture observations, never "latest".
-export function mountReleaseChanges(root, {loadSnapshot, onSelect}) {
+export function mountReleaseChanges(root, {loadSnapshot, onSelect, onChange}) {
   let generation=0, renderGeneration=0, selection='', change=null, query='', category='all', limit=6;
   const status=root.querySelector('[data-change-status]'),
     records=root.querySelector('[data-change-records]'), filters=root.querySelector('[data-change-filters]'),
@@ -116,6 +116,7 @@ export function mountReleaseChanges(root, {loadSnapshot, onSelect}) {
       await renderRows();
       if (token!==generation)return;
       root.dataset.state='ready';root.setAttribute('aria-busy','false');
+      onChange?.(change,index);
     } catch(error) {
       if (token!==generation)return;
       root.dataset.state='unavailable';root.setAttribute('aria-busy','false');

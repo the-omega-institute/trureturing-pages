@@ -8,12 +8,14 @@ export function groupHint(group) {
   const where = Number.isInteger(group.observation) ? `Release observation ${group.observation+1}` : `Dependency depth ${group.depth}`;
   return `${readableName(group.domain)}: ${group.nodes.length} modules. ${where}. Examples: ${examples.join('; ')}.`;
 }
-export function annotateScene(scene, delta, observation) {
+export function annotateScene(scene, delta, observation, updated = new Set()) {
   const added = new Set(delta?.kind === 'comparable' ? delta.added : []);
   return {...scene, addedEdges:addedEdgeKeys(delta), selectedObservation:observation, nodes:scene.nodes.map(group => ({...group,
     // Keep the actual source label; a tooltip identifies its role as a grouping.
     title:group.nodes.length === 1 ? group.nodes[0].title : readableName(group.domain),
     hint:groupHint(group),
+    changedNodes:(scene.kind === 'dependency' || group.observation === observation) ? group.nodes.filter(n=>added.has(n.id)||updated.has(n.id)) : [],
+    updatedCount:(scene.kind === 'dependency' || group.observation === observation) ? group.nodes.filter(n=>updated.has(n.id)).length : 0,
     addedCount:(scene.kind === 'dependency' || group.observation === observation)
       ? group.nodes.filter(n => added.has(n.id)).length : 0,
   }))};

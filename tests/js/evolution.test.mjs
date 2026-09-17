@@ -90,3 +90,12 @@ test("archived dependencies reject missing endpoints, duplicate edges, cycles an
     assert.throws(() => validateSnapshot(value));
   }
 });
+
+test('large source families do not overlap and positions remain stable between releases',()=>{
+ const nodes=Array.from({length:40},(_,i)=>({id:`A${i}`,title:`A${i}`,domain:`Other${String(i).padStart(2,'0')}`,depth:0}));
+ nodes.push({id:'digit',title:'Digit',domain:'Digit',depth:0});
+ const scene=dependencyScene({nodes,dependency_edges:[]},null,nodes);
+ for (let i=1;i<scene.lanes.length;i++)assert.ok(scene.lanes[i].y>scene.lanes[i-1].bottom);
+ const before=dependencyScene({nodes:nodes.slice(5),dependency_edges:[]},null,nodes);
+ for(const group of before.nodes){const after=scene.nodes.find(n=>n.id===group.id);assert.equal(group.x,after.x);assert.equal(group.y,after.y);}
+});
