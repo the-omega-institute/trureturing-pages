@@ -1,4 +1,4 @@
-import {compareContent, contentCounts, outcomeSourceURL} from './evolution-reader-core.mjs';
+import {compareContent, outcomeSourceURL} from './evolution-reader-core.mjs';
 import {nodeSlug} from './library-core.mjs';
 import {ready, t} from './i18n.mjs';
 
@@ -13,8 +13,8 @@ const sourceText = (tag, text, cls) => {
 };
 const link = (label, href) => { const node=el('a',t(label)); node.href=href; return node; };
 const short = value => (value || '').replace('sha256:', '').slice(0, 8);
-const kinds = [['all','All changes'], ['outcomes','Question results'], ['added','Added modules'],
-  ['changed','Updated modules'], ['removed','No longer present']];
+const kinds = [['all','All'], ['outcomes','Results'], ['added','Added'],
+  ['changed','Updated'], ['removed','Removed']];
 const fieldLabels = {human_title:'Title',human_abstract:'Explanation',human_theorem:'Theorem description',
   state:'Recorded state',status:'Recorded status',repo_path:'Source path'};
 
@@ -22,7 +22,7 @@ const fieldLabels = {human_title:'Title',human_abstract:'Explanation',human_theo
 // two Library snapshots matching its architecture observations, never "latest".
 export function mountReleaseChanges(root, {loadSnapshot, onSelect}) {
   let generation=0, renderGeneration=0, selection='', change=null, query='', category='all', limit=6;
-  const status=root.querySelector('[data-change-status]'), counts=root.querySelector('[data-change-counts]'),
+  const status=root.querySelector('[data-change-status]'),
     records=root.querySelector('[data-change-records]'), filters=root.querySelector('[data-change-filters]'),
     search=root.querySelector('[data-change-search]'), more=root.querySelector('[data-change-more]'),
     receipt=root.querySelector('[data-change-receipt]'), count=root.querySelector('[data-change-count]');
@@ -44,24 +44,25 @@ export function mountReleaseChanges(root, {loadSnapshot, onSelect}) {
     const cards=await Promise.all(all.slice(0,limit).map(async row=>{
       const card=el('article',undefined,'release-change-row');card.dataset.changeRecord=row.id;
       const body=el('div',undefined,'release-change-body'), title=sourceText('h3',row.title);
-      body.append(el('p',row.event.split('. ').map(part=>t(part)).join('. '),'release-change-type'),title);
+      body.append(title);
+      if (!row.target) body.append(el('span',t({added:'Added',changed:'Updated',removed:'Removed',existing:'Baseline'}[row.category]),'release-change-type'));
       if (row.human_abstract) body.append(sourceText('p',row.human_abstract,'release-change-description'));
       else if (row.human_theorem) body.append(sourceText('p',row.human_theorem,'release-change-description'));
       if (row.target) {
-        const outcome=row.change==='updated' ? (row.previous_kind===row.kind ? t('Scope or proof reference updated') : t('{0} → {1}',t(row.previous_kind==='proved'?'Proved':'Refuted'),t(row.kind==='proved'?'Proved':'Refuted')))
+        const outcome=row.change==='updated' ? (row.previous_kind===row.kind ? t('Updated') : t('{0} → {1}',t(row.previous_kind==='proved'?'Proved':'Refuted'),t(row.kind==='proved'?'Proved':'Refuted')))
           : t(row.change==='removed'?'Verification absent':row.kind==='proved'?'Proved':'Refuted');
         body.append(el('span',outcome,'release-outcome'));
         if (row.scope) {
-          const detail=el('details');detail.append(el('summary',t('Read the recorded question and scope')));
+          const detail=el('details');detail.append(el('summary',t('Statement')));
           if (row.change==='updated' && row.previous_scope!==row.scope) detail.append(el('strong',t('Before')),sourceText('p',row.previous_scope,'release-change-scope'),el('strong',t('After')));
           detail.append(sourceText('p',row.scope,'release-change-scope'));body.append(detail);
         }
       }
       if (row.previous) {
-        const detail=el('details');detail.append(el('summary',t('What changed in this module')));
-        if (!row.fields.length) detail.append(el('p',t('The archived record changed. Open both versions to inspect it.')));
+        const detail=el('details');detail.append(el('summary',t('Diff')));
+        if (!row.fields.length) detail.append(el('p',t('Record updated')));
         for (const key of row.fields) {
-          if (key==='source_blob') { detail.append(el('p',t('The Lean source file changed. Open the source comparison for the exact diff.')));continue; }
+          if (key==='source_blob') { detail.append(el('p',t('Source code updated')));continue; }
           if (key==='literature') {detail.append(el('p',t('References updated')));continue;}
           if (!fieldLabels[key]) continue;
           const pair=el('div',undefined,'release-change-pair');pair.append(el('h4',t(fieldLabels[key])));
@@ -73,19 +74,19 @@ export function mountReleaseChanges(root, {loadSnapshot, onSelect}) {
         body.append(detail);
       }
       const actions=el('div',undefined,'release-change-links');
-      if (row.target) actions.append(link('Question at this release',outcomeSourceURL(row)));
+      if (row.target) actions.append(link('Source',outcomeSourceURL(row)));
       else {
-        actions.append(link('Read this version',`release/${row.release.slice(7)}/node/${await nodeSlug(row.id)}/`));
-        if (row.previous) actions.append(link('Read previous version',`release/${row.previous.release.slice(7)}/node/${await nodeSlug(row.id)}/`));
+        actions.append(link('Read',`release/${row.release.slice(7)}/node/${await nodeSlug(row.id)}/`));
+        if (row.previous) actions.append(link('Previous version',`release/${row.previous.release.slice(7)}/node/${await nodeSlug(row.id)}/`));
         const locate=el('button',t('Locate on graph'));locate.type='button';locate.onclick=()=>onSelect(row.id);actions.append(locate);
       }
       body.append(actions);card.append(body);return card;
     }));
     if (token!==renderGeneration || version!==generation) return;
     records.replaceChildren(...cards);
-    count.textContent=t(change.baseline?'Showing {0} of {1} modules':'Showing {0} of {1} changes',Math.min(limit,all.length),all.length);
+    count.textContent=`${Math.min(limit,all.length)} / ${all.length}`;
     more.hidden=all.length<=limit;more.textContent=t(change.baseline?'Show {0} more modules':'Show {0} more changes',Math.min(6,Math.max(0,all.length-limit)));
-    if (!all.length) records.append(el('p',t(query || category!=='all'?'No changes match these filters.':'No module content or verified question results changed in this step.'),'release-change-empty'));
+    if (!all.length) records.append(el('p',t(query || category!=='all'?'No matches':'No content changes'),'release-change-empty'));
     if (focusMore && cards.length>limit-6) {const target=cards[limit-6].querySelector('a');target?.focus({preventScroll:true});}
   }
   async function update(previous,current,index,total) {
@@ -93,27 +94,24 @@ export function mountReleaseChanges(root, {loadSnapshot, onSelect}) {
     if (key===selection) return;
     selection=key;const token=++generation;++renderGeneration;change=null;limit=6;query='';category='all';search.value='';
     root.dataset.state='loading';root.dataset.observation=String(index);root.setAttribute('aria-busy','true');
-    status.textContent=t('Loading the changes in this release…');records.replaceChildren();counts.replaceChildren();receipt.replaceChildren();
+    status.hidden=false;status.textContent=t('Loading…');records.replaceChildren();receipt.replaceChildren();
     count.textContent='';filters.hidden=true;search.disabled=true;more.hidden=true;
     try {
       await ready;
       const [after,before]=await Promise.all([loadSnapshot(current),previous?loadSnapshot(previous):null]);
       if (token!==generation)return;
       change=compareContent(before,after);
-      const numbers=contentCounts(change);
-      const summary=change.baseline ? t('Starting snapshot: {0} modules. There is no earlier archived version to compare.',change.total)
-        : t('{0} new question results · {1} added modules · {2} updated modules · {3} no longer present.',numbers.outcomes,numbers.added,numbers.changed,numbers.removed);
-      status.textContent=summary;
-      if (numbers.outcomeUpdates) status.append(el('span',' '+t('{0} earlier question results also changed.',numbers.outcomeUpdates)));
-      if (!change.baseline) for (const [key,label] of [['outcomes','Question results'],['added','Added modules'],['changed','Updated modules'],['removed','No longer present']]) {
-        const button=el('button');button.type='button';button.dataset.changeCount=key;
-        button.append(el('strong',String(key==='outcomes'?change.outcomes.length:numbers[key])),el('span',t(label)));
-        button.onclick=()=>{category=key;limit=6;renderRows();};counts.append(button);
+      status.textContent=change.baseline?t('Baseline'):'';status.hidden=!change.baseline;
+      for (const [i,[key,label]] of kinds.entries()) {
+        const size=key==='all'?entries().length:change[key].length;
+        buttons[i].replaceChildren(el('span',t(label)),el('strong',String(size)));
+        buttons[i].hidden=key!=='all' && size===0;
+        if (key!=='all') buttons[i].dataset.changeCount=key;
       }
       const source=after.graph.source_snapshot.source_commit, prior=before?.graph.source_snapshot.source_commit;
-      receipt.append(el('span',t('Snapshot {0} of {1}',index+1,total)),sourceText('span',previous?`${short(prior)} → ${short(source)}`:short(source)));
+      receipt.append(sourceText('span',previous?`${short(prior)} → ${short(source)}`:short(source)));
       if (/^[a-f0-9]{40}$/.test(prior) && /^[a-f0-9]{40}$/.test(source) && prior!==source)
-        receipt.append(link('Compare source commits',`https://github.com/the-omega-institute/trureturing/compare/${prior}...${source}`));
+        receipt.append(link('Source diff',`https://github.com/the-omega-institute/trureturing/compare/${prior}...${source}`));
       filters.hidden=change.baseline;search.disabled=false;
       await renderRows();
       if (token!==generation)return;
@@ -121,8 +119,8 @@ export function mountReleaseChanges(root, {loadSnapshot, onSelect}) {
     } catch(error) {
       if (token!==generation)return;
       root.dataset.state='unavailable';root.setAttribute('aria-busy','false');
-      status.textContent=t('The content comparison for this exact release is unavailable.');
-      records.replaceChildren(el('p',t('The graph below remains available. Try this comparison again.'),'release-change-empty'));
+      status.hidden=false;status.textContent=t('Comparison unavailable');
+      records.replaceChildren();
       const retry=el('button',t('Retry comparison'));retry.type='button';retry.onclick=()=>{selection='';update(previous,current,index,total);};records.append(retry);
     }
   }

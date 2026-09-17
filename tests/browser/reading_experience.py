@@ -188,7 +188,7 @@ def main():
         assert 'release/'+new['truth_release_digest'][7:]+'/node/' in href
         page.locator('[data-change-search]').fill('no-matching-change-0xdeadbeef')
         page.wait_for_function("document.querySelector('[data-change-record]')===null")
-        assert 'No changes match' in page.locator('[data-change-records]').inner_text()
+        assert 'No matches' in page.locator('[data-change-records]').inner_text()
         page.locator('[data-change-search]').fill('')
         page.wait_for_selector('[data-change-record]')
         page.locator('[data-change-record]').first.get_by_role('button',name='Locate on graph').click()
@@ -229,7 +229,7 @@ def main():
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==0
         assert 'baseline' in page.locator('#release-change-summary').inner_text().lower()
         page.wait_for_function("document.querySelector('#release-content-changes').dataset.state!=='loading'")
-        assert page.locator('[data-change-counts] button').count()==0
+        assert page.locator('button[data-change-count]:visible').count()==0
         assert page.locator('#release-content-changes').get_attribute('data-state') in ('ready','unavailable')
         page.locator('#release-play').click()
         page.wait_for_function('window.architectureHistoryDiagnostics().observation > 1')
@@ -250,7 +250,7 @@ def main():
         unavailable.route('**/'+latest_path,lambda route:route.fulfill(status=200,body='corrupt snapshot'))
         unavailable.goto(base+'evolution.html?lang=en',wait_until='networkidle')
         unavailable.wait_for_selector('#release-content-changes[data-state="unavailable"]',timeout=60000)
-        assert unavailable.locator('[data-change-counts] button').count()==0
+        assert unavailable.locator('button[data-change-count]:visible').count()==0
         assert unavailable.locator('#evolution-map canvas').count()==1
         unavailable.unroute('**/'+latest_path)
         unavailable.get_by_role('button',name='Retry comparison').click()
