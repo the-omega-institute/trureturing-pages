@@ -196,7 +196,7 @@ class KnowledgeSpacesTests(unittest.TestCase):
             self.assertTrue((root/'data/knowledge-spaces.v1.json').exists())
             self.assertIn('id="knowledge-spaces"',body)
             self.assertIn('id="result-archive"',body)
-            self.assertIn('id="resolved-questions-archive"',body)
+            self.assertNotIn('id="resolved-questions-archive"',body)
             self.assertEqual(9,body.count('class="news-result"'))
             for i in range(9):
                 self.assertIn(f'id="result-{i}"',body)

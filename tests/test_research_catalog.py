@@ -67,7 +67,7 @@ class ResearchCatalogTests(unittest.TestCase):
                                                   "digest": "sha256:" + "a" * 64})
             research = (out / "research.html").read_text()
             index = json.loads((out / "api/v1/index.json").read_text())
-            self.assertEqual(research.count('class="resolved-question"'), 164)
+            self.assertEqual(research.count('class="news-result"'), 164)
             self.assertEqual({r["id"].removeprefix("result:") for r in index["records"]
                               if r["kind"] == "result"}, self.verified)
             self.assertEqual({f["id"] for f in json.loads((out / "assets/research-catalog.json").read_text())["families"]}, self.verified)

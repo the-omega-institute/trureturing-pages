@@ -36,9 +36,52 @@ class ResearchNewsTests(unittest.TestCase):
             from lib.living_library import render_research
             render_research(self._verified_snapshot(problem), output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
             html = (output / "research.html").read_text()
-            card = html.split('id="resolved-oeis-a123456"', 1)[1].split('</article>', 1)[0]
+            card = html.split('id="oeis-a123456"', 1)[1].split('</article>', 1)[0]
             self.assertIn("Proved in Lean", card)
             self.assertNotIn("Proved / source record", card)
+
+    def test_expanded_result_shows_complete_source_quote_without_a_second_disclosure(self):
+        from lib.reading_views import Fragments
+        from lib.research_news import render_news
+        from lib.living_library import page_shell
+        problem_text = ("The OEIS entry states, verbatim:\n\n"
+                        "> Only one term is prime (17). Are all others composite?\n\n"
+                        "For positive `k`, the exact boundary is `k > 0`.\n\n"
+                        "### Limitations\n\nNot claimed: nonpositive parameters.")
+        problem = {"slug": "oeis-a165719", "title": "Prime terms", "url": "https://oeis.org/A165719",
+                   "sections": {"Problem": problem_text}}
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            catalog = output / 'news.json'
+            catalog.write_text('{"results": [], "publications": []}')
+            render_news(output, self._verified_snapshot(problem), page_shell, catalog)
+            html = (output / 'research.html').read_text()
+            parsed = Fragments(html)
+            statement = parsed.raw(parsed.select(cls='result-statement')[0])
+            self.assertIn('<blockquote>', statement)
+            self.assertIn('Are all others composite?', statement)
+            self.assertIn('<code>k &gt; 0</code>', statement)
+            self.assertIn('<h3>Limitations</h3>', statement)
+            self.assertIn('Not claimed: nonpositive parameters.', statement)
+            self.assertEqual(statement.count('The OEIS entry states, verbatim:'), 1)
+            self.assertNotIn('<details', statement)
+            self.assertIn('href="research/oeis-a165719/"', html)
+            self.assertNotIn('>Question record</a>', html)
+            row = parsed.select(id='resolved-oeis-a165719')[0]
+            self.assertEqual(row.tag, 'details')
+            self.assertIn('data-result-row', row.attrs)
+
+    def test_result_statement_keeps_editorial_summary_and_safely_renders_full_scope(self):
+        from lib.research_news import _result_statement
+        output = _result_statement({'summary': 'A readable explanation.', 'scope':
+            'Exact statement.\n\n<script>alert(1)</script>\n\n[bad](javascript:alert(1))'})
+        self.assertIn('A readable explanation.', output)
+        self.assertIn('Exact statement.', output)
+        self.assertNotIn('<script>', output)
+        self.assertNotIn('href="javascript:', output)
+        output = _result_statement({'summary': 'The full state…', 'scope': 'The full statement.\n\nRemaining text.'})
+        self.assertNotIn('The full state…', output)
+        self.assertIn('Remaining text.', output)
 
     def test_pr_link_alone_does_not_attest_lean_verification(self):
         from lib.research_news import _status
@@ -151,17 +194,18 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertIn('aria-current="page">Conjectures</a>', bank)
             self.assertNotIn('aria-current="page">Research</a>', bank)
             self.assertIn('aria-current="page">Research</a>', news)
-            self.assertEqual(news.count('class="resolved-question"'), 4)
+            self.assertEqual(news.count('class="news-result"'), 4)
+            self.assertNotIn('class="resolved-question"', news)
+            self.assertNotIn('Question dossiers &amp; evidence archive', news)
             self.assertIn('id="resolved-bosma-conjecture-17"', news)
             self.assertNotIn('data-problem-slug=', bank)
-            self.assertIn("Pinned upstream source record", news)
             self.assertNotIn("release binding not recorded", bank)
             self.assertEqual(bank.count('class="journey-direction"'), 3)
             self.assertIn('href="#rp=thue-morse-even-difference"', bank)
             self.assertIn('class="site-themed living-page research-editorial"', news)
             self.assertIn('class="site-themed living-page research-editorial"', bank)
             self.assertIn("trureturing-mdbook/open-problems.html", bank)
-            self.assertIn('href="research.html#resolved-bosma-conjecture-17"', news)
+            self.assertNotIn('>Question record</a>', news)
             self.assertIn("Team-reported", news)
             self.assertIn("Official results have not been announced", news)
             self.assertEqual(news.count("Upstream Frozen / not in current Truth release"), 4)
