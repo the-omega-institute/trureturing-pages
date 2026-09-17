@@ -1,0 +1,29 @@
+/* A fixed birth position on the release axis; dependencies join persistent tracks. */
+.evolution-page [hidden] { display:none !important; }
+.growth-network { position:relative; background:#0d1818; border:1px solid #253b34; margin-right:16px; overflow:hidden; scroll-margin-top:90px; }
+.growth-axis { overflow:hidden; height:35px; border-bottom:1px solid #31463c; background:#14211e; }
+.growth-axis svg,.growth-scroll svg { display:block; max-width:none; }
+.growth-scroll { height:min(62vh,var(--growth-height,640px)); min-height:380px; overflow:auto; scrollbar-color:#486257 #0d1818; }
+.growth-network svg { font-family:Arial,sans-serif; }
+.growth-domain,.growth-tick,.growth-birth,.growth-connection { cursor:pointer; }
+.growth-connection { pointer-events:stroke; }
+.growth-connection:hover { opacity:1 !important; stroke:#f5d488; }
+.growth-birth:hover circle,.growth-birth:focus circle { stroke:#fff; stroke-width:3; }
+.growth-tick:focus text,.growth-domain:focus { fill:#fff; }
+.growth-tooltip { position:absolute; left:160px; bottom:16px; padding:10px 14px; max-width:340px; background:#182d26f5; border:1px solid #799985; border-radius:4px; color:#dbe7df; font:12px/1.7 Arial,sans-serif; pointer-events:none; overflow-wrap:anywhere; z-index:2; }
+.growth-tooltip strong { display:block; color:#eed59b; margin-bottom:5px; }
+.legend-persistence { width:23px; border-top:2px solid #627d70; }
+.legend-curve { width:23px; height:10px; border-top:2px solid #b5d2c2; border-radius:50%; transform:rotate(-15deg); }
+.legend-ring.baseline { width:9px; height:9px; border-color:#b3c8bf; }
+body[data-evolution-view="time"] :is(.snapshot-legend,.lineage-highlight,.lineage-axis,#lineage-guide-mode) { display:none; }
+body[data-evolution-view="dependency"] .growth-legend { display:none; }
+@media(max-width:760px) {
+ .growth-network { margin-right:0; }
+ .growth-scroll { height:min(52vh,var(--growth-height,640px)); min-height:320px; }
+ .growth-tooltip { left:8px; right:8px; max-width:none; }
+}
+.growth-controls { display:flex; align-items:center; justify-content:space-between; min-height:31px; padding:2px 12px; border-bottom:1px solid #253b34; color:#9cb6aa; font:11px Arial,sans-serif; }
+.growth-controls label { display:flex; align-items:center; gap:6px; margin-left:auto; cursor:pointer; }
+.growth-controls input { accent-color:#91c6aa; }
+.growth-controls button { border:0; padding:4px 0; background:none; color:#bfdbc9; font:inherit; cursor:pointer; }
+.growth-controls button:focus-visible { outline:2px solid #e8c474; outline-offset:2px; }

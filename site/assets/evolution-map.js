@@ -1,3 +1,4 @@
+import {t} from './i18n.mjs';
 export function mountEvolution(host, { onSelect }) {
   const canvas = document.createElement("canvas"),
     tooltip = document.createElement("div");
@@ -27,8 +28,9 @@ export function mountEvolution(host, { onSelect }) {
       draw();
     });
   const selection = d3.select(canvas).call(zoom).on("dblclick.zoom", null);
-  const radius = (node) => 3.5 + Math.log2(node.nodes.length + 1) * 1.25;
+  const radius = (node) => Math.max(3 / transform.k, 3.5 + Math.log2(node.nodes.length + 1) * 1.25);
   function draw() {
+    if (host.hidden) return;
     const ratio = Math.min(devicePixelRatio || 1, 2);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.fillStyle = "#0a1012";
@@ -51,8 +53,8 @@ export function mountEvolution(host, { onSelect }) {
       ctx.strokeStyle = "#1c2c2e";
       ctx.lineWidth = 0.7 / transform.k;
       ctx.beginPath();
-      ctx.moveTo(30, lane.y + 125);
-      ctx.lineTo(Math.max(...scene.nodes.map((n) => n.x)) + 120, lane.y + 125);
+      ctx.moveTo(30, lane.bottom ?? lane.y + 125);
+      ctx.lineTo(Math.max(...scene.nodes.map((n) => n.x)) + 120, lane.bottom ?? lane.y + 125);
       ctx.stroke();
     }
     for (const edge of scene.edges) {
@@ -105,8 +107,8 @@ export function mountEvolution(host, { onSelect }) {
         ctx.arc(node.x, node.y, radius(node) + 6 / transform.k, 0, Math.PI * 2);
         ctx.stroke();
       }
-      if(inStep && node.nodes.some(n=>reusedIds.has(n.id))) {
-        ctx.strokeStyle='#78cbb6';ctx.lineWidth=2/transform.k;ctx.beginPath();ctx.arc(node.x,node.y,radius(node)+10/transform.k,0,Math.PI*2);ctx.stroke();
+      if(inStep && node.updatedCount > 0) {
+        ctx.strokeStyle='#bba6fa';ctx.lineWidth=2/transform.k;ctx.setLineDash([3/transform.k,2/transform.k]);ctx.beginPath();ctx.arc(node.x,node.y,radius(node)+10/transform.k,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
       }
       if (isSelected || node === hover) {
         ctx.strokeStyle = "#f1faf5";
@@ -126,6 +128,7 @@ export function mountEvolution(host, { onSelect }) {
           (a, b) =>
             (b.nodes.some((n) => n.id === selected) ? 1 : 0) -
               (a.nodes.some((n) => n.id === selected) ? 1 : 0) ||
+            (b.addedCount + b.updatedCount) - (a.addedCount + a.updatedCount) ||
             b.nodes.length - a.nodes.length,
         );
     ctx.font = "11px Arial";
@@ -137,6 +140,7 @@ export function mountEvolution(host, { onSelect }) {
     for (const node of candidates) {
       if(scene.kind==='time' && node.observation!==scene.selectedObservation)continue;
       if (selected && !selectedGroups.has(node.id)) continue;
+      if (changesOnly && !selected && !node.addedCount && !node.updatedCount && !node.nodes.some(n=>reusedIds.has(n.id))) continue;
       const [mappedX, y] = transform.apply([node.x, node.y]);
       const x = scene.kind === "time" ? 4 : mappedX;
       if (x < 0 || y < 12 || x > size.width - 30 || y > size.height - 10)
@@ -144,11 +148,14 @@ export function mountEvolution(host, { onSelect }) {
       if (
         transform.k < 0.45 &&
         node.nodes.length < 8 &&
+        !node.addedCount && !node.updatedCount &&
         !node.nodes.some((n) => n.id === selected)
       )
         continue;
       let title = node.title;
-      if (title.length > 31) title = title.slice(0, 29) + "...";
+      if (title.length > 31) title = title.slice(0, 29) + "…";
+      const badge = [node.addedCount ? `+${node.addedCount}` : '', node.updatedCount ? `↻${node.updatedCount}` : ''].filter(Boolean).join(' ');
+      if (badge) title += '  ' + badge;
       const w = ctx.measureText(title).width + 12,
         box = { x: x + 8, y: y - 17, w, h: 17 };
       if (
@@ -165,14 +172,15 @@ export function mountEvolution(host, { onSelect }) {
       boxes.push(box);
       ctx.fillStyle = "#0a1012e6";
       ctx.fillRect(box.x - 2, box.y - 2, w, 17);
-      ctx.fillStyle = node.color;
+      ctx.fillStyle = node.addedCount ? '#f0d391' : node.updatedCount ? '#cbbbfc' : node.color;
       ctx.fillText(title, box.x, box.y + 10);
     }
   }
-  function fit() {
-    if (!scene?.nodes.length) return;
-    const xs = scene.nodes.map((n) => n.x),
-      ys = scene.nodes.map((n) => n.y),
+  function fit(focus = null) {
+    if (!scene?.nodes.length || host.hidden || size.width <= 40 || size.height <= 50) return;
+    const visible=focus?.length ? focus : scene.nodes;
+    const xs = visible.map((n) => n.x),
+      ys = visible.map((n) => n.y),
       minX = Math.min(...xs) - 50,
       maxX = Math.max(...xs) + 140,
       minY = Math.min(...ys) - 35,
@@ -192,7 +200,14 @@ export function mountEvolution(host, { onSelect }) {
         .scale(k),
     );
   }
+  function fitChanges() {
+    const inStep=n=>scene.kind==='dependency'||n.observation===scene.selectedObservation;
+    const focal=scene.nodes.filter(n=>inStep(n)&&(n.addedCount || n.updatedCount));
+    const focus=focal.length ? focal : scene.nodes.filter(n=>inStep(n)&&n.nodes.some(m=>changedIds.has(m.id)));
+    fit(focus);
+  }
   const observer = new ResizeObserver(() => {
+    if (host.hidden) return;
     size = { width: host.clientWidth, height: host.clientHeight };
     const ratio = Math.min(devicePixelRatio || 1, 2);
     canvas.width = Math.round(size.width * ratio);
@@ -224,7 +239,7 @@ export function mountEvolution(host, { onSelect }) {
     tooltip.hidden = !hover;
     if (hover) {
       tooltip.textContent = (hover.hint || `${hover.title} / ${hover.nodes.length} modules`) +
-        (hover.addedCount ? ` Includes ${hover.addedCount} newly present modules.` : "");
+        (hover.addedCount ? ` · +${hover.addedCount} ${t('Added')}` : '') + (hover.updatedCount ? ` · ${hover.updatedCount} ${t('Updated')}` : '');
       tooltip.style.left =
         Math.max(4, Math.min(event.offsetX + 14, size.width - 220)) + "px";
       tooltip.style.top = Math.max(8, event.offsetY - 38) + "px";
@@ -250,6 +265,7 @@ export function mountEvolution(host, { onSelect }) {
       draw();
     },
     fit,
+    fitChanges,
     zoomBy(factor) {
       selection.call(zoom.scaleBy, factor);
     },

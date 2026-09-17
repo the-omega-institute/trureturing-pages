@@ -3,6 +3,7 @@ import argparse
 from functools import partial
 from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
 import json
+import gzip
 import re
 from pathlib import Path
 import threading
@@ -158,7 +159,64 @@ def main():
         assert page.locator('#lineage-release').count()==1
         assert page.locator('#release-play').count()==1
         assert page.locator('.lineage-guide').count()==1
+        page.wait_for_selector('#release-content-changes[data-state="ready"]',state='attached',timeout=60000)
+        assert before['mode']=='time'
+        assert 0 < before['growth']['lanes'] <= 8
+        assert page.locator('.growth-domain[data-lane="Naming"]').count()==0
+        page.locator('.growth-domain[data-lane="number-theory"]').click()
+        assert page.locator('.growth-domain[data-lane="number-theory/Arith"]').count()==1
+        page.locator('.growth-controls button').click()
+        assert page.locator('.growth-domain').count()==before['growth']['lanes']
+        assert page.locator('#evolution-growth').bounding_box()['y'] < 320
+        assert page.locator('#evolution-growth .growth-birth').count()>0
+        assert page.locator('#evolution-growth .growth-connection').count()>0
+        assert page.locator('#release-story').bounding_box()['y'] > page.locator('#evolution-growth').bounding_box()['y']
+        assert not page.locator('#release-story').evaluate('e=>e.open')
+        page.locator('#release-story > summary').click()
+        # Independently find a real adjacent pair with added source modules.
+        library=json.loads((args.site/'data/library-history.v1.json').read_text())['entries']
+        architecture=json.loads((args.site/'data/architecture-history.v1.json').read_text())['entries']
+        archived={(e['truth_release_digest'],e['atlas_graph_digest']):e for e in library}
+        def read_content(entry):
+            data=(args.site/entry['path']).read_bytes()
+            return json.loads(gzip.decompress(data) if entry['path'].endswith('.gz') else data)
+        for target in range(len(architecture)-1,0,-1):
+            pair=[archived.get((e['truth_release_digest'],e['atlas_graph_digest'])) for e in architecture[target-1:target+1]]
+            if not all(pair):continue
+            old,new=map(read_content,pair)
+            old_ids={n['id'] for n in old['graph']['nodes'] if n['kind']=='truth'}
+            new_ids={n['id'] for n in new['graph']['nodes'] if n['kind']=='truth'}
+            if new_ids-old_ids:break
+        else:raise AssertionError('Published history has no comparable module additions')
+        page.locator('#lineage-release').evaluate("(e,i)=>{e.value=i;e.dispatchEvent(new Event('input',{bubbles:true}))}",target)
+        page.wait_for_selector(f'#release-content-changes[data-state="ready"][data-observation="{target}"]',timeout=60000)
+        assert int(page.locator('[data-change-count="added"] strong').inner_text())==len(new_ids-old_ids)
+        page.locator('[data-change-kind="added"]').click()
+        page.wait_for_function("[...document.querySelectorAll('[data-change-record]')].length>0")
+        first_change=page.locator('[data-change-record]').first
+        changed_id=first_change.get_attribute('data-change-record')
+        assert changed_id in new_ids-old_ids
+        href=first_change.locator('a').first.get_attribute('href')
+        assert 'release/'+new['truth_release_digest'][7:]+'/node/' in href
+        page.locator('[data-change-search]').fill('no-matching-change-0xdeadbeef')
+        page.wait_for_function("document.querySelector('[data-change-record]')===null")
+        assert 'No matches' in page.locator('[data-change-records]').inner_text()
+        page.locator('[data-change-search]').fill('')
+        page.wait_for_selector('[data-change-record]')
+        page.locator('[data-change-record]').first.get_by_role('button',name='Locate on graph').click()
+        assert page.evaluate('window.architectureHistoryDiagnostics().selected')==changed_id
+        page.locator('#lineage-clear').click()
+        # Rapid changes must settle on the last selected pair, even if earlier
+        # snapshot requests complete later.
+        page.locator('#lineage-release').evaluate("(e,i)=>{for(const n of [i,0,i-1,i]){e.value=n;e.dispatchEvent(new Event('input',{bubbles:true}))}}",target)
+        page.wait_for_selector(f'#release-content-changes[data-state="ready"][data-observation="{target}"]',timeout=60000)
+        assert int(page.locator('[data-change-count="added"] strong').inner_text())==len(new_ids-old_ids)
+        page.screenshot(path=str(args.output/'evolution-release-changes.png'),full_page=True)
+        page.locator('#lineage-release').evaluate("(e,i)=>{e.value=i;e.dispatchEvent(new Event('input',{bubbles:true}))}",before['observation'])
+        page.wait_for_selector(f'#release-content-changes[data-state="ready"][data-observation="{before["observation"]}"]',timeout=60000)
+        events.append('Exact adjacent release content yields readable counts, module explanations, pinned links, filters and synchronized graph selection')
         page.screenshot(path=str(args.output/'evolution-restored-desktop.png'),full_page=True)
+        page.locator('#release-story > summary').click()
         page.locator('#evolution-detail .architecture-rank').first.click()
         page.wait_for_function("document.querySelector('.group-explanation') && !document.querySelector('.group-explanation').textContent.startsWith('Loading')")
         assert page.locator('.group-connections').count()==2
@@ -168,7 +226,7 @@ def main():
         selected_before=page.evaluate('window.architectureHistoryDiagnostics().selected')
         page.locator('[data-lineage="time"]').click()
         assert page.evaluate('window.architectureHistoryDiagnostics().mode')=='time'
-        assert 'selected' in page.locator('#release-comparison').inner_text() or 'compared' in page.locator('#release-comparison').inner_text()
+        assert '→' in page.locator('#release-comparison').inner_text()
         page.locator('#previous-observation').click()
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==before['observation']-1
         assert page.evaluate('window.architectureHistoryDiagnostics().selected')==selected_before
@@ -177,12 +235,16 @@ def main():
         page.locator('.architecture-scrubber').press('ArrowLeft')
         page.wait_for_function('Number(document.querySelector(".architecture-scrubber").value) === Number(document.querySelector("#lineage-release").value)')
         page.screenshot(path=str(args.output/'evolution-time-comparison.png'),full_page=True)
+        page.locator('[data-lineage="dependency"]').click()
         page.locator('#show-changes').uncheck()
         page.locator('#show-changes').check()
         page.locator('[data-lineage="dependency"]').click()
         page.locator('#lineage-release').evaluate("e=>{e.value=0;e.dispatchEvent(new Event('input',{bubbles:true}))}")
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==0
         assert 'baseline' in page.locator('#release-change-summary').inner_text().lower()
+        page.wait_for_function("document.querySelector('#release-content-changes').dataset.state!=='loading'")
+        assert page.locator('button[data-change-count]:visible').count()==0
+        assert page.locator('#release-content-changes').get_attribute('data-state') in ('ready','unavailable')
         page.locator('#release-play').click()
         page.wait_for_function('window.architectureHistoryDiagnostics().observation > 1')
         page.locator('#release-play').click()
@@ -193,6 +255,23 @@ def main():
         page.wait_for_function("!['Publication status','Checking publication status'].includes(document.getElementById('publication-summary').textContent)")
         assert page.locator('#publication-stages li').count() in [0,5]
         events.append('Publication diagnostics are an optional inline disclosure in Evolution')
+        # A corrupt Library artifact must never turn into zero changes, and a
+        # retry must evict the failed request instead of caching failure forever.
+        latest_path=library[-1]['path']
+        isolated=browser.new_context()
+        unavailable=isolated.new_page()
+        unavailable.on('pageerror',lambda e:errors.append(str(e)))
+        unavailable.route('**/'+latest_path,lambda route:route.fulfill(status=200,body='corrupt snapshot'))
+        unavailable.goto(base+'evolution.html?lang=en',wait_until='networkidle')
+        unavailable.wait_for_selector('#release-content-changes[data-state="unavailable"]',state='attached',timeout=60000)
+        unavailable.locator('#release-story > summary').click()
+        assert unavailable.locator('button[data-change-count]:visible').count()==0
+        assert unavailable.locator('#evolution-map canvas').count()==1
+        unavailable.unroute('**/'+latest_path)
+        unavailable.get_by_role('button',name='Retry comparison').click()
+        unavailable.wait_for_selector('#release-content-changes[data-state="ready"]',timeout=60000)
+        isolated.close()
+        events.append('Corrupt content fails visibly without blocking the graph; retry recovers after the artifact is available')
         page.goto(base+'spaces.html?lang=en',wait_until='domcontentloaded')
         page.wait_for_url('**/atlas.html?lang=en#*',timeout=30000)
         assert page.locator('#spaces-compare').count()==0

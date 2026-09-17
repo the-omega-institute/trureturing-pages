@@ -1,0 +1,80 @@
+/* Readable release content above the existing structural visualization. */
+.release-story { border:1px solid #304743; background:#101b1c; padding:0 22px 18px; margin:18px 0 24px; color:#dae5df; }
+.release-story [hidden] { display:none !important; }
+.release-story a { color:#b9ddca; text-underline-offset:4px; }
+.release-story .release-player { margin:0 0 12px; padding:15px 0; }
+.release-story .release-player > label { font-size:12px; }
+.release-change-status { font-size:16px; line-height:1.65; margin:12px 0 6px; color:#edf1eb; }
+.release-change-receipt { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 20px; color:#acbfb6; font-size:12px; }
+.release-change-toolbar [data-change-filters] button { display:inline-flex; gap:9px; align-items:center; }
+.release-change-toolbar button strong { font:11px ui-monospace,monospace; opacity:.8; }
+.release-change-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:end; gap:16px; margin-top:14px; }
+.release-change-toolbar [data-change-filters] { display:flex; flex-wrap:wrap; gap:7px; }
+.release-change-toolbar button,.release-change-more { color:#d1e1d8; border:1px solid #466257; background:transparent; padding:10px 14px; border-radius:4px; font:12px/1.5 Arial,sans-serif; cursor:pointer; }
+.release-change-toolbar button[aria-pressed="true"] { color:#10231a; background:#b9d8c5; border-color:#b9d8c5; }
+.release-change-toolbar label { display:grid; gap:7px; font-size:12px; color:#c0d2c8; }
+.release-change-toolbar input { width:260px; max-width:100%; box-sizing:border-box; min-height:40px; border:1px solid #466257; border-radius:4px; background:#0d1617; color:#e3eae4; padding:10px 12px; font-size:14px; }
+.release-change-toolbar input::placeholder { color:#a7bab1; }
+.release-change-count { font-size:12px; color:#afc4bc; margin:20px 0 8px; }
+.release-change-row { border-top:1px solid #30473f; padding:15px 0; }
+.release-change-type { display:inline-block; margin-bottom:6px; }
+.release-change-type { font-size:11px; line-height:1.6; color:#d4c087; margin:0 0 5px; }
+.release-change-body { min-width:0; }
+.release-change-row h3 { font:21px/1.4 Georgia,serif; margin:0 0 8px; color:#e6ece5; overflow-wrap:anywhere; }
+.release-change-description { font-size:14px; line-height:1.7; color:#bfcec6; max-width:100ch; margin:6px 0 12px; }
+.release-change-links { display:flex; flex-wrap:wrap; gap:12px 24px; margin-top:12px; font-size:12px; }
+.release-change-links button { font:inherit; background:none; color:#b9ddca; border:0; padding:0; cursor:pointer; text-decoration:underline; text-underline-offset:4px; }
+.release-outcome { display:inline-block; font-size:11px; color:#d1e8d9; background:#254234; border:1px solid #446653; padding:3px 8px; margin:2px 0 8px; border-radius:3px; }
+.release-change-row details { max-width:110ch; margin-top:12px; color:#bacdc2; font-size:13px; }
+.release-change-row summary { cursor:pointer; width:fit-content; }
+.release-change-scope { white-space:pre-wrap; line-height:1.75; overflow-wrap:anywhere; }
+.release-change-pair { display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; margin:18px 0; }
+.release-change-pair h4 { grid-column:1/-1; margin:0; font-size:13px; }
+.release-change-pair > div { padding:12px 16px; background:#182824; border-left:2px solid #637f6e; min-width:0; }
+.release-change-pair strong { font-size:11px; color:#aabfb2; }
+.release-change-pair p { white-space:pre-wrap; line-height:1.7; overflow-wrap:anywhere; }
+.release-change-empty { color:#afc4bc; padding:20px 0; font-size:14px; }
+.release-change-more { display:block; margin:20px auto 0; padding-inline:24px; }
+.release-story :is(button,a,input):focus-visible { outline:2px solid #e0c789; outline-offset:4px; }
+#evolution-map { scroll-margin-top:90px; }
+@media(max-width:760px) {
+ .release-story { padding:0 16px 16px; margin-top:18px; }
+ .release-story .release-player { gap:10px; }
+ .release-story .release-player output { overflow-wrap:anywhere; }
+ .release-change-toolbar label { width:100%; }
+ .release-change-toolbar input { width:100%; font-size:16px; }
+ .release-change-toolbar button { padding:8px 10px; }
+ .release-change-pair { grid-template-columns:1fr; }
+ .release-change-row h3 { font-size:19px; }
+}
+/* Keep the graph first; source records remain available below on request. */
+.evolution-heading { margin-bottom:10px; }
+.evolution-heading .eyebrow { display:none; }
+.evolution-heading h1 { font-size:27px; }
+.evolution-heading #evolution-status { font-size:11px; }
+.evolution-layout { border-top:0; }
+#lineage-axis-label { font-size:11px; }
+#lineage-focus-changes { width:auto; padding:0 10px; font-size:12px; }
+.lineage-highlight { display:flex; align-items:center; gap:5px; color:#b5c9c0; font-size:12px; }
+#lineage-focus-changes:focus-visible { outline:2px solid #e8c474; outline-offset:3px; }
+#evolution-map { height: min(62vh,680px); min-height:400px; }
+.lineage-guide { align-items:center; gap:10px 22px; padding-top:12px; font-size:12px; }
+.lineage-guide > span { display:inline-flex; align-items:center; gap:7px; }
+.lineage-guide #lineage-guide-mode { flex-basis:auto; margin-left:auto; }
+.legend-dot { width:7px; height:7px; border-radius:50%; background:#b3c8bf; }
+.legend-ring { width:12px; height:12px; border-radius:50%; border:2px solid #e8c474; }
+.legend-ring.updated { border-color:#bba6fa; border-style:dashed; }
+.legend-line { width:23px; border-top:2px solid #e8c474; }
+.graph-help { color:#afc4bb; font-size:12px; margin:12px 0 18px; }
+.graph-help > summary { cursor:pointer; width:fit-content; }
+.graph-help p { margin:9px 0; }
+#release-story { padding:0 20px; margin:22px 0; background:transparent; }
+#release-story > summary { padding:14px 0; font-size:13px; color:#c4d8cd; cursor:pointer; }
+#release-story[open] { padding-bottom:18px; }
+#publication-status { margin:12px 0; }
+@media(max-width:760px) {
+ .evolution-workspace { padding-top:14px; }
+ #evolution-map { height:52vh; min-height:320px; }
+ .lineage-guide { font-size:11px; gap:8px 16px; }
+ .lineage-guide #lineage-guide-mode { margin-left:0; }
+}

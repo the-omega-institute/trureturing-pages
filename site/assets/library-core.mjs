@@ -87,7 +87,7 @@ export async function loadLibrary(base) {
             )
               throw new Error("Library snapshot release mismatch.");
             return snapshot;
-          }),
+          }).catch(error => { cache.delete(i); throw error; }),
         );
       return cache.get(i);
     },

@@ -61,6 +61,14 @@ export function dependencyScene(
         ),
       ].sort(),
     );
+  // Give every repository domain a stable row across the whole history.
+  // A fixed family height used to overlap families with many domains.
+  const lanePositions = new Map();
+  let laneY = 36;
+  for (const family of FAMILIES) {
+    lanePositions.set(family.id,laneY);
+    laneY += Math.max(85,domainRows.get(family.id).length * 22 + 34);
+  }
   const slots = new Map();
   for (const node of universe)
     if (node.domain === expandedDomain) {
@@ -75,8 +83,7 @@ export function dependencyScene(
       expanded = node.domain === expandedDomain;
     const key = expanded ? node.id : JSON.stringify([node.domain, node.depth]);
     if (!groups.has(key)) {
-      const row = domainRows.get(family.id).indexOf(node.domain),
-        lane = FAMILIES.indexOf(family);
+      const row = domainRows.get(family.id).indexOf(node.domain);
       groups.set(key, {
         id: key,
         title: expanded ? node.title : node.domain,
@@ -87,9 +94,8 @@ export function dependencyScene(
         nodes: [],
         x: 90 + Math.log2(1 + node.depth) * 280,
         y:
-          80 +
-          lane * 145 +
-          row * 13 +
+          lanePositions.get(family.id) + 24 +
+          row * 22 +
           (expanded
             ? (expandedRows.get(node.depth).indexOf(node.id) -
                 (expandedRows.get(node.depth).length - 1) / 2) *
@@ -121,10 +127,9 @@ export function dependencyScene(
     nodes: [...groups.values()],
     edges: [...edges.values()],
     membership,
-    lanes: FAMILIES.map((f, i) => ({
-      name: f.name,
-      color: f.color,
-      y: 80 + i * 145,
+    lanes: FAMILIES.filter(f=>domainRows.get(f.id).length).map(f => ({
+      name:f.name,color:f.color,y:lanePositions.get(f.id),
+      bottom:lanePositions.get(f.id)+Math.max(85,domainRows.get(f.id).length*22+34)-12,
     })),
     axis: "Dependency depth",
     kind: "dependency",
