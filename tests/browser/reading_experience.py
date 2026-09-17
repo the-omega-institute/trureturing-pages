@@ -101,55 +101,58 @@ def main():
         plain.close()
         events.append('All source results and their evidence remain accessible without JavaScript')
         requests.clear();page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
-        assert not any('research-catalog.json' in u for u in requests)
+        assert not any('research-catalog.json' in u or 'research-workbench.mjs' in u for u in requests)
         assert page.locator('.page-heading').count()==1
-        assert page.locator('.research-browser > aside').count()==1
-        assert page.locator('.research-stats').count()==1
-        assert page.locator('#research-workbench').count()==0
+        assert page.locator('.research-browser,.research-stats,#research-workbench,#completed-dossiers').count()==0
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
-        assert page.evaluate('getComputedStyle(document.documentElement).backgroundColor')=='rgb(247, 248, 250)'
         assert page.evaluate('window.__shifts.reduce((a,b)=>a+b,0)')<0.1
-        events.append('Conjectures preserves its original heading, sidebar and statistics without the initial notebook prepend')
-        page.screenshot(path=str(args.output/'conjectures-restored-desktop.png'),full_page=True)
-        assert page.locator('.research-activity').count()==0
-        assert page.locator('.journey-direction').count()>0
-        assert page.locator('#next-questions').bounding_box()['y'] < page.locator('#source-questions').bounding_box()['y']
-        page.locator('#source-questions > summary').click()
-        row=page.locator('.problem-row').first
-        if page.locator('.problem-row').count():
-            target=row.locator('h2').text_content()
-            page.locator('#research-search').fill(target)
-            page.wait_for_function("document.querySelector('#open-problems [data-reading-group][open]') !== null")
-            assert row.is_visible()
-            destination=urljoin(base,row.get_attribute('href'))
-            assert urlsplit(destination).path.startswith('/research/')
-            page.goto(destination,wait_until='networkidle');assert 'research.html' not in page.url
-        events.append('The existing question filters still reveal the correct group and open a direct dossier')
-        page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
-        page.locator('#research-directions > summary').click()
-        page.wait_for_selector('#research-workbench-slot #research-workbench',timeout=30000)
-        assert page.locator('#research-workbench').count()==1
-        assert page.locator('#source-questions .research-stats').count()==1
-        assert page.locator('#source-questions #open-problems').count()==1
-        assert page.locator('.rw-release-browser').count()==0
-        assert_readable_text(page)
-        page.locator('.rw-directions').screenshot(path=str(args.output/'conjectures-directions-readable.png'))
-        page.screenshot(path=str(args.output/'conjectures-notebook-desktop.png'),full_page=True)
-        # Arrive from another document: a same-page hash change retains an already opened notebook.
-        page.goto(base+'research.html?lang=en',wait_until='networkidle')
-        page.goto(base+'conjectures.html?lang=en#next-questions',wait_until='networkidle')
-        assert page.locator('#next-questions').is_visible()
+        curated=page.locator('[data-curated-question]')
+        assert curated.count()==20
+        assert page.locator('[data-curated-question]:visible').count()==6
+        page.screenshot(path=str(args.output/'conjectures-library-desktop.png'),full_page=True)
+        page.locator('[data-curated-source="oeis"]').click()
+        assert page.locator('[data-curated-question]:visible').count()==2
+        page.locator('[data-curated-field="numbers"]').click()
+        assert page.locator('[data-curated-question]:visible').count()==2
+        page.locator('#curated-search').fill('A006577')
+        assert page.locator('[data-curated-question]:visible').count()==1
+        assert 'Collatz' in page.locator('[data-curated-question]:visible').inner_text()
+        page.locator('#curated-search').fill('no-question-matches')
+        assert page.locator('#curated-empty').is_visible()
+        page.locator('#curated-reset').click()
+        page.locator('[data-curated-source="erdos"]').click()
+        assert page.locator('[data-curated-question]:visible').count()==2
+        page.locator('[data-curated-field="discrete"]').click()
+        assert page.locator('[data-curated-question]:visible').count()==1
+        assert 'Three-term case proved' in page.locator('[data-curated-question]:visible').inner_text()
+        page.locator('#curated-reset').click()
+        page.locator('[data-curated-field="computation"]').click()
+        assert page.locator('[data-curated-question]:visible').count()==1
+        assert '22-state' in page.locator('[data-curated-question]:visible').inner_text()
+        page.locator('#curated-reset').click()
+        page.locator('#curated-more').click()
+        assert page.locator('[data-curated-question]:visible').count()==12
+        page.goto(base+'conjectures.html?lang=en#direction-sic-povm-all-dimensions',wait_until='networkidle')
+        assert page.locator('#direction-sic-povm-all-dimensions').is_visible()
+        assert page.locator('#direction-sic-povm-all-dimensions > details').evaluate('e=>e.open')
+        page.goto(base+'conjectures.html?lang=en#rp=thue-morse-nonautomaticity',wait_until='networkidle')
+        page.wait_for_function("document.querySelector('#question-thue-morse-nonautomaticity').open")
+        assert page.locator('#question-thue-morse-nonautomaticity').is_visible()
         assert page.locator('#research-workbench').count()==0
-        assert not page.locator('#research-directions').evaluate('e=>e.open')
-        page.locator('#completed-dossiers > summary').click()
-        page.locator('#completed-oeis > summary').click()
-        assert page.locator('#completed-oeis .reading-item:visible').count()<=12
-        link=page.locator('#completed-oeis .reading-item a').first
-        link.hover()
-        assert link.evaluate('e=>getComputedStyle(e).color')=='rgb(24, 59, 55)'
-        page.screenshot(path=str(args.output/'conjectures-archive-desktop.png'),full_page=True)
-        events.append('Notebook leaves the original source browser in place; next-questions selects the real follow-ups')
-        events.append('The notebook remains available on request in its reserved slot')
+        page.locator('#question-thue-morse-nonautomaticity').screenshot(path=str(args.output/'conjectures-subquestion.png'))
+        events.append('Source, mathematical field and search intersect; pagination, empty results, reset and legacy subquestion links work')
+        page.goto(base+'conjectures.html?lang=en#millennium-entry',wait_until='networkidle')
+        assert page.locator('.horizon-card').count()==7
+        assert 'Grigori Perelman' in page.locator('[data-horizon="poincare"]').inner_text()
+        assert page.locator('[data-horizon="poincare"]').get_attribute('data-scientific-state')=='solved'
+        assert page.locator('[data-horizon="navier-stokes"]').get_attribute('data-scientific-state')=='open'
+        page.locator('.horizon-grid').screenshot(path=str(args.output/'conjectures-future-pursuits.png'))
+        plain=browser.new_context(java_script_enabled=False)
+        plain_page=plain.new_page();plain_page.goto(base+'conjectures.html?lang=en')
+        assert plain_page.locator('[data-curated-question]:visible').count()==20
+        assert plain_page.locator('.curated-target').count()==34
+        plain.close()
+        events.append('All 20 curated questions, 34 subquestions and seven future pursuits remain available without JavaScript')
         page.goto(base+'evolution.html?lang=en',wait_until='networkidle')
         page.wait_for_function('typeof window.architectureHistoryDiagnostics === "function"',timeout=60000)
         before=page.evaluate('window.architectureHistoryDiagnostics()')
@@ -282,12 +285,10 @@ def main():
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name
             page.screenshot(path=str(args.output/(name+'-restored-mobile.png')),full_page=True)
             if name=='conjectures':
-                page.locator('#research-directions > summary').click()
-                page.wait_for_selector('.rw-next-step')
-                assert_readable_text(page)
+                page.locator('[data-curated-source="erdos"]').click()
+                assert page.locator('[data-curated-question]:visible').count()==2
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1')
-                page.locator('.rw-directions').screenshot(path=str(args.output/'conjectures-directions-mobile.png'))
-        events.append('Conjectures direction text meets 4.5:1 contrast with readable sizes on desktop and mobile')
+                page.locator('#millennium-entry').screenshot(path=str(args.output/'conjectures-future-mobile.png'))
         events.append('Restored pages fit a 390px viewport')
         browser.close()
     server.shutdown()

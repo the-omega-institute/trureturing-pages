@@ -164,7 +164,9 @@ class ProblemQuarantineTests(unittest.TestCase):
             self.assertEqual({k: v for k, v in problem.items() if k != "resolution"}, expected)
         resolved = next(p for p in snapshot["problems"] if p["slug"] == "test-question")
         self.assertEqual(resolved["resolution"]["kernel_verified"]["freeze_status"], "frozen")
-        self.assertIn('href="research/test-question/"', (self.output / "conjectures.html").read_text())
+        dossier = (self.output / "research/test-question/index.html").read_text()
+        self.assertIn('Repository record: proved', dossier)
+        self.assertNotIn('id="completed-dossiers"', (self.output / "conjectures.html").read_text())
 
     def test_multiple_failures_keep_exact_reasons_and_deterministic_archives(self):
         self.sources["Problems/aaa-invalid.md"] = b"Missing frontmatter"

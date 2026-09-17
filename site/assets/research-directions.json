@@ -1,6 +1,6 @@
 {
   "schema_version": "pages-research-catalog.v1",
-  "revision": "2026-09-08.1",
+  "revision": "2026-09-18.1",
   "source_repo": "the-omega-institute/trureturing",
   "source_commit": "89231f9140ce2138a4e74d4d03421c724149ac24",
   "reviewed": "2026-09-08",
@@ -8,24 +8,76 @@
   "families": [
     {
       "id": "thue-morse-reduced-abelian-even",
-      "title": "What completes the Thue-Morse reduced abelian recurrence?",
+      "title": "What determines the signed even recurrence of Thue–Morse complexity?",
       "area": "Sequence complexity",
       "scope": "window",
       "doi": "10.48550/arXiv.2509.16034",
-      "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
+      "source_commit": "f59a9fa2130589e591661194c72074ea8d10538a",
       "builds_on": "thue-morse-reduced-abelian-odd",
-      "anchors": ["D5/S1/Words/Complexity/ThueMorseReducedAbelianOdd"],
-      "question": "With R(2n+1) = R(n+1) proved, can the even-index values be described by an explicit recurrence, and is the resulting reduced abelian complexity sequence non-k-automatic for every integer k >= 2?",
-      "foothold": "The proved all-start odd recurrence and the bridge from literal run compression to Parikh classes fix the exact object whose even values remain to be studied.",
-      "gap": "The odd recurrence supplies no rule for R(4n). Section 3 separately asks for equation (11), the sign of its nonzero difference, and non-k-automaticity. None follows just by iterating the odd theorem.",
-      "next_step": "Work with the same all-start class definitions and derive a candidate relation for the even-length run codes.",
-      "success": "An all-index even recurrence, a proof or counterexample for equation (11), or a theorem deciding the stated automaticity question. Finite samples are evidence only.",
-      "keywords": ["Thue-Morse", "even recurrence", "Parikh", "reduced abelian", "automaticity"],
-      "source": {"arxiv_id": "2509.16034", "version": "v1", "title": "Reduced complexities for sequences over finite alphabets", "submitted": "2025-09-19", "revised": "2025-09-19", "checked": "2026-09-08", "locator": "Section 3: equation (11), the even-index recursion and non-k-automaticity", "status": "open-in-source", "note": "The odd recurrence is already proved in our result. These are the distinct remaining questions in the cited version, not an assertion that all later literature and ongoing work have been exhaustively checked."},
+      "anchors": [
+        "D5/S1/Words/Complexity/ThueMorseReducedAbelianOdd",
+        "D5/S1/Words/Complexity/ThueMorseReducedAbelianEven"
+      ],
+      "question": "For the same run-compressed class count R, what determines the sign of R(4n+2)-R(4n), and can R(4n) and the full sequence be described by an exact recursion?",
+      "foothold": "The odd-index recurrence and the even absolute-difference result study the same run-compressed class count and its alternation extrema.",
+      "gap": "Equation (11) fixes the absolute difference, but its published resolution does not cover the sign, R(4n), or a full recursion. Nonautomaticity has a written unboundedness argument; a separate kernel-checked endpoint remains to be identified or formalized.",
+      "next_step": "Start from the released even-complexity theorem and the extrema recurrences. Isolate the information needed for the sign and R(4n), keeping the nonautomaticity formalization as a separate target.",
+      "success": "A signed all-index relation or a full recursion for the same class count. A kernel-checked unboundedness/nonautomaticity endpoint is a separate formalization contribution.",
+      "keywords": [
+        "Thue-Morse",
+        "even recurrence",
+        "Parikh",
+        "reduced abelian",
+        "automaticity"
+      ],
+      "source": {
+        "arxiv_id": "2509.16034",
+        "version": "v1",
+        "title": "Reduced complexities for sequences over finite alphabets",
+        "submitted": "2025-09-19",
+        "revised": "2025-09-19",
+        "checked": "2026-09-08",
+        "locator": "Section 3: equation (11), the even-index recursion and non-k-automaticity",
+        "status": "open-in-source",
+        "note": "The cited paper records these related questions. The released Equation (11) dossier now covers the absolute difference. Its scope note distinguishes the sign and full recursion, and records a written nonautomaticity argument without a separately kernel-checked endpoint. This is a scope update from the release dossier, not a new literature search."
+      },
       "targets": [
-        {"id": "thue-morse-even-difference", "title": "An exact even-length class relation", "kind": "bridge", "question": "Can the difference R(4n+2)-R(4n) be characterized for every n >= 1, including its sign when nonzero?", "gap": "Equation (11) predicts only the absolute difference from Thue-Morse symbols. It does not determine its sign or R(4n).", "next_step": "Translate even factors to run codes, separating the two starting parities, and test which class endpoints survive the reflection used in the odd proof.", "success": "A proved relation for all natural starts and all n >= 1, with equation (11) and any stronger sign claim stated separately.", "related": ["thue-morse-nonautomaticity"]},
-        {"id": "thue-morse-nonautomaticity", "title": "Does the complexity sequence escape every finite-output automaton?", "kind": "research-question", "question": "Can one prove that R(n), for n >= 1, is not k-automatic for any k >= 2?", "gap": "The constant subsequence R(2^j+1)=3 does not imply boundedness or automaticity of the whole sequence.", "next_step": "Search for and then prove an unbounded subsequence, or identify another obstruction to a finite k-kernel.", "success": "An unboundedness theorem or another rigorous obstruction covering each k >= 2; a finite graph or sampled values alone do not suffice.", "related": ["thue-morse-even-difference"]}
-      ]
+        {
+          "id": "thue-morse-even-difference",
+          "title": "Determine the sign and the remaining even recursion",
+          "kind": "bridge",
+          "question": "Can the difference R(4n+2)-R(4n) be characterized for every n >= 1, including its sign when nonzero?",
+          "gap": "The released absolute-difference theorem fixes the magnitude only; it leaves the sign and R(4n) outside its stated scope.",
+          "next_step": "Read the released even-complexity proof and its alternation-extrema recurrences, then isolate the additional information needed to recover the signed difference.",
+          "success": "An all-index signed relation for the same class count, or a recurrence that determines the remaining even values.",
+          "related": [
+            "thue-morse-nonautomaticity"
+          ]
+        },
+        {
+          "id": "thue-morse-nonautomaticity",
+          "title": "Formalize the nonautomaticity argument",
+          "kind": "research-question",
+          "question": "Can one prove that R(n), for n >= 1, is not k-automatic for any k >= 2?",
+          "gap": "The dossier points to a written unboundedness argument, but does not bind a separate kernel-checked nonautomaticity endpoint.",
+          "next_step": "Locate any newer formal endpoint first. Otherwise formalize the written unboundedness argument for positive lengths and connect it to the finite-output definition of k-automaticity.",
+          "success": "A release-bound unboundedness or non-k-automaticity theorem with the sequence definition and quantified bases explicit.",
+          "related": [
+            "thue-morse-even-difference"
+          ]
+        }
+      ],
+      "release_updates": [
+        {
+          "problem": "campbell-currie-rampersad-eq-11",
+          "label": "Equation (11) is now a released result",
+          "scope": "The absolute difference is covered. The sign and full recursion are separate questions."
+        }
+      ],
+      "display": {
+        "connection": "Our odd and even recurrences use the same run-compressed class count.",
+        "gap": "Recover the signed difference and the missing even recursion beyond Equation (11)."
+      }
     },
     {
       "id": "pochhammer-higher-even-intervals",
@@ -35,18 +87,62 @@
       "doi": "10.48550/arXiv.2608.03723",
       "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
       "builds_on": "pochhammer-conjecture-6-5",
-      "anchors": ["D5/S3/Zeros/PochhammerDeformation/QuadraticInterval"],
+      "anchors": [
+        "D5/S3/Zeros/PochhammerDeformation/QuadraticInterval"
+      ],
       "question": "After the degree-two counterexample to c_(2k)(a) < 2a, is M_(2k)(a) still a single symmetric interval for all k >= 2 and a > 0, and what can be proved about the sequence of its left endpoint radii?",
       "foothold": "The actual Pochhammer operator, all-complex-root interval condition and exact quadratic classification are already formalized. The failure of the strict bound leaves the interval shape and degree comparisons as separate questions.",
       "gap": "The original conjunction is false. Its interval and monotonicity clauses must be tested independently, without importing the disproved bound or assuming that a > 1/24 repairs every degree.",
       "next_step": "Start with degree four, derive the transformed coefficients exactly, and isolate parameter ranges with certified real-root counts.",
       "success": "An exact degree-four classification or a checked counterexample to interval connectedness or monotonicity; any general statement must retain its parameter conditions.",
-      "keywords": ["Pochhammer", "real roots", "quartic", "monotonicity", "interval"],
-      "source": {"arxiv_id": "2608.03723", "version": "v1", "title": "Polynomially Deformed Normalized Pochhammer Sequences Having Generating Functions With Only Real Non-positive Zeros", "submitted": "2026-08-04", "revised": "2026-08-04", "checked": "2026-09-08", "locator": "Example 6.4 and Conjecture 6.5: interval, monotonicity and limiting-value clauses", "status": "open-in-source", "note": "Our quadratic result refutes the original strict upper bound. This family asks about the remaining clauses separately. Degree-two root-radius progress in upstream QuadraticRadii addresses other questions and is not an all-even-degree result."},
+      "keywords": [
+        "Pochhammer",
+        "real roots",
+        "quartic",
+        "monotonicity",
+        "interval"
+      ],
+      "source": {
+        "arxiv_id": "2608.03723",
+        "version": "v1",
+        "title": "Polynomially Deformed Normalized Pochhammer Sequences Having Generating Functions With Only Real Non-positive Zeros",
+        "submitted": "2026-08-04",
+        "revised": "2026-08-04",
+        "checked": "2026-09-08",
+        "locator": "Example 6.4 and Conjecture 6.5: interval, monotonicity and limiting-value clauses",
+        "status": "open-in-source",
+        "note": "Our quadratic result refutes the original strict upper bound. This family asks about the remaining clauses separately. Degree-two root-radius progress in upstream QuadraticRadii addresses other questions and is not an all-even-degree result."
+      },
       "targets": [
-        {"id": "pochhammer-quartic-interval", "title": "A certified degree-four admissible interval", "kind": "certificate", "question": "For each positive a, is the set of t for which every root of L_a((X+t)^4) lies in [-1,0] a single interval?", "gap": "The quadratic discriminant argument does not classify all four complex roots of the quartic.", "next_step": "Construct L_a((X+t)^4) from the same basis action and use exact root isolation or a Sturm certificate, including repeated roots and endpoints.", "success": "A proved parameter classification or an exact disconnected-set counterexample, with every complex root accounted for.", "related": ["pochhammer-degree-monotonicity"]},
-        {"id": "pochhammer-degree-monotonicity", "title": "Compare the degree-two and degree-four radii", "kind": "research-question", "question": "With c_(2k)(a) defined independently from the admissible set, does c2(a) <= c4(a) hold for every a > 0?", "gap": "Monotonicity was bundled with a false strict bound in the source conjecture. Its validity has to be established separately.", "next_step": "Use the proved c2 closed form as a baseline for the exact quartic endpoint, preserving infimum existence and boundedness obligations.", "success": "A universal comparison or a certified parameter counterexample. Later degree comparisons and the limiting value remain separate targets.", "related": ["pochhammer-quartic-interval"]}
-      ]
+        {
+          "id": "pochhammer-quartic-interval",
+          "title": "A certified degree-four admissible interval",
+          "kind": "certificate",
+          "question": "For each positive a, is the set of t for which every root of L_a((X+t)^4) lies in [-1,0] a single interval?",
+          "gap": "The quadratic discriminant argument does not classify all four complex roots of the quartic.",
+          "next_step": "Construct L_a((X+t)^4) from the same basis action and use exact root isolation or a Sturm certificate, including repeated roots and endpoints.",
+          "success": "A proved parameter classification or an exact disconnected-set counterexample, with every complex root accounted for.",
+          "related": [
+            "pochhammer-degree-monotonicity"
+          ]
+        },
+        {
+          "id": "pochhammer-degree-monotonicity",
+          "title": "Compare the degree-two and degree-four radii",
+          "kind": "research-question",
+          "question": "With c_(2k)(a) defined independently from the admissible set, does c2(a) <= c4(a) hold for every a > 0?",
+          "gap": "Monotonicity was bundled with a false strict bound in the source conjecture. Its validity has to be established separately.",
+          "next_step": "Use the proved c2 closed form as a baseline for the exact quartic endpoint, preserving infimum existence and boundedness obligations.",
+          "success": "A universal comparison or a certified parameter counterexample. Later degree comparisons and the limiting value remain separate targets.",
+          "related": [
+            "pochhammer-quartic-interval"
+          ]
+        }
+      ],
+      "display": {
+        "connection": "The exact quadratic classification gives a starting point for higher-degree root geometry.",
+        "gap": "Which interval and monotonicity claims survive the counterexample to the original bound?"
+      }
     },
     {
       "id": "greedy-three-sumfree-third-seed-one",
@@ -56,18 +152,63 @@
       "doi": "10.48550/arXiv.2503.04122",
       "source_commit": "b9afa2151caf868e9018c02df14489bc7e409da8",
       "builds_on": "bosma-conjecture-17",
-      "anchors": ["D5/S1/Words/Sumfree/GreedyThreeSumfreeTwoParameter"],
+      "anchors": [
+        "D5/S1/Words/Sumfree/GreedyThreeSumfreeTwoParameter"
+      ],
       "question": "For every g >= 2, does the literal greedy three-sumfree sequence starting 1,g,g+1 have the membership formula in published Conjecture 16, with modulus 10g+3 and its two residue intervals?",
       "foothold": "Conjecture 17 establishes a proof route from explicit accepted blocks through forbidden sums to the literal least-next-entry process.",
       "gap": "Putting d=1 into Conjecture 17 violates its hypothesis d>=2. The g+1 family has different exceptional values, modulus and two residue intervals; its universal claim needs a new proof.",
       "next_step": "Encode the published Conjecture 16 candidate and prove its accepted and forbidden block statements uniformly in g.",
       "success": "The exact membership equivalence for every natural g>=2 and every positive candidate value, linked to the literal greedy sequence, or an exact counterexample.",
-      "keywords": ["Bosma", "Conjecture 16", "greedy", "three-sumfree", "g+1", "Walnut"],
-      "source": {"arxiv_id": "2503.04122", "version": "v1", "title": "Using Walnut to solve problems from the OEIS", "submitted": "2025-03-06", "revised": "2025-03-06", "checked": "2026-09-08", "locator": "The g+1 third-seed conjecture; numbered Conjecture 16 in JIS 28 (2025), Article 25.3.8", "status": "open-in-source", "note": "The source gives fixed-parameter checks, distinct from the universal conjecture. Published Conjecture 16 and our solved Conjecture 17 are separate families. Numbering differs in the early arXiv version."},
+      "keywords": [
+        "Bosma",
+        "Conjecture 16",
+        "greedy",
+        "three-sumfree",
+        "g+1",
+        "Walnut"
+      ],
+      "source": {
+        "arxiv_id": "2503.04122",
+        "version": "v1",
+        "title": "Using Walnut to solve problems from the OEIS",
+        "submitted": "2025-03-06",
+        "revised": "2025-03-06",
+        "checked": "2026-09-08",
+        "locator": "The g+1 third-seed conjecture; numbered Conjecture 16 in JIS 28 (2025), Article 25.3.8",
+        "status": "open-in-source",
+        "note": "The source gives fixed-parameter checks, distinct from the universal conjecture. Published Conjecture 16 and our solved Conjecture 17 are separate families. Numbering differs in the early arXiv version."
+      },
       "targets": [
-        {"id": "greedy-g-plus-one-blocks", "title": "Accepted blocks and forbidden sums for g+1", "kind": "bridge", "question": "Can the candidate set with exceptions 1,2g+1,6g+1 and residue intervals [g,2g] and [6g+2,7g+1] modulo 10g+3 be characterized by restricted triple sums?", "gap": "The single-interval periodic decomposition from Conjecture 17 cannot be reused without handling both new intervals and all cross-sums.", "next_step": "Prove three-sumfreeness and explicit representations of every excluded later value, separating the initial segment from periodic translates.", "success": "A uniform accepted/forbidden partition for every g>=2 that preserves the requirement of three distinct earlier summands.", "related": ["greedy-g-plus-one-literal"]},
-        {"id": "greedy-g-plus-one-literal", "title": "Connect the candidate to the least-next-entry sequence", "kind": "bridge", "question": "Does the new candidate describe every term selected by the literal greedy process from 1,g,g+1?", "gap": "A sumfree candidate by itself does not prove that the greedy algorithm generates it.", "next_step": "Adapt the prefix invariant and uniqueness argument to the new accepted/forbidden partition, including the seed boundary.", "success": "An all-parameter membership theorem matching Conjecture 16. Verified samples remain examples, not the universal result.", "related": ["greedy-g-plus-one-blocks"]}
-      ]
+        {
+          "id": "greedy-g-plus-one-blocks",
+          "title": "Accepted blocks and forbidden sums for g+1",
+          "kind": "bridge",
+          "question": "Can the candidate set with exceptions 1,2g+1,6g+1 and residue intervals [g,2g] and [6g+2,7g+1] modulo 10g+3 be characterized by restricted triple sums?",
+          "gap": "The single-interval periodic decomposition from Conjecture 17 cannot be reused without handling both new intervals and all cross-sums.",
+          "next_step": "Prove three-sumfreeness and explicit representations of every excluded later value, separating the initial segment from periodic translates.",
+          "success": "A uniform accepted/forbidden partition for every g>=2 that preserves the requirement of three distinct earlier summands.",
+          "related": [
+            "greedy-g-plus-one-literal"
+          ]
+        },
+        {
+          "id": "greedy-g-plus-one-literal",
+          "title": "Connect the candidate to the least-next-entry sequence",
+          "kind": "bridge",
+          "question": "Does the new candidate describe every term selected by the literal greedy process from 1,g,g+1?",
+          "gap": "A sumfree candidate by itself does not prove that the greedy algorithm generates it.",
+          "next_step": "Adapt the prefix invariant and uniqueness argument to the new accepted/forbidden partition, including the seed boundary.",
+          "success": "An all-parameter membership theorem matching Conjecture 16. Verified samples remain examples, not the universal result.",
+          "related": [
+            "greedy-g-plus-one-blocks"
+          ]
+        }
+      ],
+      "display": {
+        "connection": "The two-parameter theorem links accepted blocks to the literal greedy process.",
+        "gap": "The separate g+1 seed family falls outside that theorem’s d ≥ 2 hypothesis."
+      }
     },
     {
       "id": "golden-ratio-base4-dfao-minimality",
@@ -116,7 +257,11 @@
           "success": "Every globally correct DFAO must satisfy the sample; a sound finite UNSAT certificate therefore proves the lower bound. Finite sample completeness is unnecessary for this direction.",
           "related": []
         }
-      ]
+      ],
+      "display": {
+        "connection": "Exact golden-ratio digits and Zeckendorf encodings supply arithmetic inputs.",
+        "gap": "Does the sparse powers-of-four input language really require all 22 states?"
+      }
     },
     {
       "id": "mub-six-fourth-basis",
@@ -188,7 +333,11 @@
           "status": "route-obstruction",
           "note": "The preprint reports a degree-four obstruction for the two specified vector-coordinate encodings. Centered projectors recover m <= d+1, which still allows four bases in dimension six. Neither result decides the fourth-basis question; no independent proof replay is claimed."
         }
-      ]
+      ],
+      "display": {
+        "connection": "Our rank-one contexts and overlap identities describe the relevant basis geometry.",
+        "gap": "Four bases in dimension six must satisfy all pairwise compatibility equations at once."
+      }
     },
     {
       "id": "base-phi-negative-prefix-trident",
@@ -262,7 +411,11 @@
           "status": "proved-in-source",
           "note": "The paper reports a proof of the exponent-doubling criterion for symmetric phi-representations. It supplies a conversion test case, not a proof of the general negative-prefix trident classification. The arXiv revision is March 2026, not its HTML generation date."
         }
-      ]
+      ],
+      "display": {
+        "connection": "Canonical golden numeration provides exact order and digit representations.",
+        "gap": "Connect negative-prefix occurrences to the proposed trident classification."
+      }
     },
     {
       "id": "ordered-zeckendorf-long-game-strategy",
@@ -311,7 +464,11 @@
           "success": "Proved height dominance for every reachable strategy state, followed by well-founded induction. A failed exchange refutes that route only.",
           "related": []
         }
-      ]
+      ],
+      "display": {
+        "connection": "The rewriting rules and exact sequence encodings provide a concrete game model.",
+        "gap": "Prove that the proposed long-game strategy is optimal over every legal play."
+      }
     },
     {
       "id": "random-zeckendorf-game-gaussianity",
@@ -362,7 +519,11 @@
             "negative-prefix-transducer"
           ]
         }
-      ]
+      ],
+      "display": {
+        "connection": "Exact game paths and arithmetic structure provide objects for a probabilistic model.",
+        "gap": "Identify a mechanism that yields a Gaussian limit for random game lengths."
+      }
     },
     {
       "id": "wall-sun-sun-golden-unit-lift",
@@ -410,7 +571,11 @@
           "success": "A proved local lift dichotomy with every prime case covered. This does not settle whether a vanishing defect ever occurs.",
           "related": []
         }
-      ]
+      ],
+      "display": {
+        "connection": "Golden-unit orders and their lifts connect Fibonacci periods to local arithmetic.",
+        "gap": "Determine whether a prime can retain the same period when lifted to its square."
+      }
     },
     {
       "id": "zeckendorf-polynomial-maximum-order-complexity",
@@ -462,7 +627,11 @@
             "dfao-sparse-distinguishability"
           ]
         }
-      ]
+      ],
+      "display": {
+        "connection": "Zeckendorf order and carry structure offer exact tools for polynomial subsequences.",
+        "gap": "Control successor behavior well enough to bound maximum order complexity."
+      }
     },
     {
       "id": "weil-ground-mode-xi-limit",
@@ -536,7 +705,11 @@
           "status": "conditional-route",
           "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
         }
-      ]
+      ],
+      "display": {
+        "connection": "Finite-scale Weil forms provide a concrete spectral starting point.",
+        "gap": "Relate genuine lowest modes to the Xi limit; the explicit model alone is insufficient."
+      }
     },
     {
       "id": "suzuki-boundary-characteristic-limit",
@@ -600,7 +773,11 @@
         "status": "conditional-route",
         "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
       },
-      "updates": []
+      "updates": [],
+      "display": {
+        "connection": "Our finite resolvent identities supply nearby operator and spectral constructions.",
+        "gap": "Identify the actual boundary operator and prove the stated limiting relation."
+      }
     },
     {
       "id": "balan-wang-universal-stability",
@@ -675,7 +852,11 @@
           "status": "proved-in-source",
           "note": "The source reports omega(A_m)=4^(-m+o_P(m)) for real Gaussian matrices. This addresses the Gaussian question in Open Problem 21, not the universal deterministic Conjecture 20. Its proof has not been independently replayed here."
         }
-      ]
+      ],
+      "display": {
+        "connection": "Rank-one measurements and exact overlap geometry connect to phase retrieval.",
+        "gap": "A Gaussian asymptotic does not establish the universal deterministic stability claim."
+      }
     },
     {
       "id": "complex-phase-retrieval-probability",
@@ -737,7 +918,11 @@
         "status": "open-in-source",
         "note": "The statement is recorded in the checked survey. The 11-measurement example in C^4 refutes the older necessity claim, not these two probability clauses. This entry does not assert exhaustive absence of later work."
       },
-      "updates": []
+      "updates": [],
+      "display": {
+        "connection": "Complex measurement geometry offers a shared language for injectivity.",
+        "gap": "Understand the probability of injectivity at the 4M−5 measurement threshold."
+      }
     },
     {
       "id": "sic-povm-all-dimensions",
@@ -801,7 +986,11 @@
         "status": "open-in-source",
         "note": "The survey records the SIC existence conjecture and conditional number-theoretic progress. Neither those assumptions nor the MUB conjecture are identified with an unconditional all-dimension SIC proof."
       },
-      "updates": []
+      "updates": [],
+      "display": {
+        "connection": "Weyl displacement identities provide algebraic inputs for symmetric measurements.",
+        "gap": "Construct a valid SIC in every dimension, beyond the available conditional identities."
+      }
     },
     {
       "id": "random-circulant-lovasz-theta",
@@ -864,7 +1053,12 @@
         "status": "open-in-source",
         "note": "The survey gives an O(sqrt(n log log n)) upper estimate and the sharper leading-constant conjecture. Its arXiv submission date is 31 March 2026; HTML generation in August is not a new arXiv version."
       },
-      "updates": []
+      "updates": [],
+      "display": {
+        "connection": "Finite Fourier analysis supplies the characters of the cyclic model.",
+        "gap": "Bridge that structure to a probabilistic bound with the conjectured leading constant."
+      }
     }
-  ]
+  ],
+  "editorial_updated": "2026-09-18"
 }

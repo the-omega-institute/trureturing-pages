@@ -1,4 +1,5 @@
 import { loadLibrary, verifiedJSON, nodeSlug } from "./library-core.mjs";
+import { t, ready as languageReady } from "./i18n.mjs";
 const base = new URL(document.body.dataset.siteRoot || "./", location.href);
 const $ = (selector) => document.querySelector(selector);
 const el = (tag, text, className) => {
@@ -27,27 +28,39 @@ const library = () => (libraryPromise ||= loadLibrary(base));
 if ($("#research-search")) {
   const rows = [...document.querySelectorAll(".problem-row")];
   const initial = new URLSearchParams(location.hash.slice(1));
-  const node = initial.get("node");
+  let node = initial.get("node");
   if (initial.get("q")) $("#research-search").value = initial.get("q");
   if (node) $("#research-clear-node").hidden = false;
   const filter = () => {
     const q = $("#research-search").value.trim().toLowerCase(),
-      triage = $("#research-triage").value;
+      triage = $("#research-triage").value,
+      status = $("#research-status")?.value;
     let count = 0;
     for (const row of rows) {
       row.hidden =
         !row.dataset.search.includes(q) ||
         Boolean(triage && row.dataset.triage !== triage) ||
+        Boolean(status && row.dataset.status !== status) ||
         Boolean(node && !JSON.parse(row.dataset.gids).includes(node));
       if (!row.hidden) count++;
     }
     $("#research-count").textContent =
-      `${count} dossiers${node ? " / selected concept" : ""}`;
+      node ? t("{0} dossiers / selected concept", count) : t("{0} dossiers", count);
     $("#research-empty").hidden = count > 0;
   };
   $("#research-search").addEventListener("input", filter);
   $("#research-triage").addEventListener("change", filter);
+  $("#research-status")?.addEventListener("change", filter);
+  addEventListener("hashchange", () => {
+    const params = new URLSearchParams(location.hash.slice(1));
+    if (!params.has("q") && !params.has("node")) return;
+    node = params.get("node");
+    $("#research-search").value = params.get("q") || "";
+    $("#research-clear-node").hidden = !node;
+    filter();
+  });
   filter();
+  languageReady.then(filter);
 
 }
 

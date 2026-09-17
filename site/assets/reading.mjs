@@ -1,7 +1,9 @@
 import {questionDestination, matchesQuery, hashTarget} from './reading-core.mjs';
+import {t, ready as languageReady} from './i18n.mjs';
 
 export function revealHash() {
-  const target = document.getElementById(hashTarget(location.hash));
+  const params = new URLSearchParams(location.hash.slice(1));
+  const target = document.getElementById(['node','q'].some(k=>params.has(k)) ? 'open-problems' : hashTarget(location.hash));
   if (!target) return;
   for (let p = target; p; p = p.parentElement) { p.hidden = false; if (p.tagName === 'DETAILS') p.open = true; }
   requestAnimationFrame(() => target.scrollIntoView({block:'start', behavior:'instant'}));
@@ -21,6 +23,7 @@ for (const catalog of document.querySelectorAll('[data-reading-catalog]')) {
   // rows rather than introducing a second interpretation of those filters.
   const legacy = input.id === 'research-search';
   const triage = catalog.querySelector('[data-reading-triage]');
+  const status = catalog.querySelector('[data-reading-status]');
   let prior = null, lastKey = '';
   const limits = new Map(groups.map(g => [g, 12]));
   const buttons = new Map(groups.map(group => {
@@ -31,8 +34,8 @@ for (const catalog of document.querySelectorAll('[data-reading-catalog]')) {
     return [group, button];
   }));
   function filter() {
-    const query = input.value.trim(), key = query + '\0' + (triage?.value || '');
-    const active = !!query || !!triage?.value || (legacy && !!new URLSearchParams(location.hash.slice(1)).get('node'));
+    const query = input.value.trim(), key = query + '\0' + (triage?.value || '') + '\0' + (status?.value || '');
+    const active = !!query || !!triage?.value || !!status?.value || (legacy && !!new URLSearchParams(location.hash.slice(1)).get('node'));
     if (key !== lastKey) {for (const g of groups) limits.set(g, 12); lastKey = key;}
     if (active && !prior) prior = new Map(groups.map(g => [g, g.open]));
     let total = 0;
@@ -45,12 +48,12 @@ for (const catalog of document.querySelectorAll('[data-reading-catalog]')) {
       }
       const more = buttons.get(group);
       more.hidden = count <= limits.get(group);
-      more.textContent = `Show 12 more (${Math.max(0, count - limits.get(group))} remaining)`;
+      more.textContent = t('Show 12 more ({0} remaining)', Math.max(0, count - limits.get(group)));
       group.hidden = active && count === 0;
       if (active) group.open = count > 0;
       else if (prior) group.open = prior.get(group);
       const label = group.querySelector('[data-group-count]');
-      if (label) label.textContent = `${count} ${catalog.id === 'open-problems' ? 'questions' : 'results'}`;
+      if (label) label.textContent = t(catalog.id === 'open-problems' ? '{0} questions' : '{0} results', count);
       total += count;
     }
     const count = catalog.querySelector('[data-search-count]');
@@ -58,9 +61,11 @@ for (const catalog of document.querySelectorAll('[data-reading-catalog]')) {
     if (!active) prior = null;
   }
   filter();
+  languageReady.then(filter);
   const schedule = () => queueMicrotask(filter);
   input.addEventListener('input', schedule);
   triage?.addEventListener('change', schedule);
+  status?.addEventListener('change', schedule);
   if (legacy) {
     const observer = new MutationObserver(changes => {
       if (changes.some(c => c.target.matches?.('.problem-row'))) filter();
@@ -78,6 +83,3 @@ for (const event of ['click','auxclick']) document.addEventListener(event, e => 
 addEventListener('hashchange', revealHash);
 addEventListener('reading-notebook-ready', () => {normalizeLinks(document);revealHash();});
 revealHash();
-
-// Node/query links still open the complete source browser directly.
-if (document.getElementById('source-questions') && ['node','q'].some(k=>new URLSearchParams(location.hash.slice(1)).has(k))) document.getElementById('source-questions').open=true;

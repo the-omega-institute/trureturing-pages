@@ -1,7 +1,9 @@
 import "./living-library-release.js";
 
 const home = document.querySelector('.research-home');
-if (home?.hasAttribute('data-reading-home')) {
+if (home?.hasAttribute('data-curated-home')) {
+  // Curated questions render their own details; no personal notebook mounts here.
+} else if (home?.hasAttribute('data-reading-home')) {
   // The first viewport is server-rendered. Expensive notebook enhancement is explicit.
   const shell = document.querySelector('[data-notebook-shell]');
   const slot = document.getElementById('research-workbench-slot');

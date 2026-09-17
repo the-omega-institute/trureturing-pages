@@ -238,6 +238,12 @@ export async function mountResearchWorkbench() {
     if (item.id !== item.familyId) body.append(link(`Parent: ${item.familyTitle}`, questionURL(location.href, item.familyId)));
     detailText(body, "Why this belongs in trureturing", item.foothold);
     if (item.buildsOn) body.append(link("Read the completed result behind this direction", `results/${item.buildsOn}/`));
+    for(const update of item.releaseUpdates) {
+      if(resolutions.has(update.problem)) {
+        body.append(link(update.label, `research/${update.problem}/`));
+        body.append(el('p',update.scope,'rw-meta'));
+      }
+    }
     detailText(body, "Research gap to recheck", item.gap);
     detailText(body, "Next concrete step", item.next_step);
     detailText(body, "What would count as progress", item.success);

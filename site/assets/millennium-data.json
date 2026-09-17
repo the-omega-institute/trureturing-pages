@@ -1,6 +1,6 @@
 {
   "schema": "pages-millennium.v1",
-  "revision": "2026-09-08.manual-1",
+  "revision": "2026-09-18.public-status-1",
   "reviewed": "2026-09-08",
   "sources": {
     "atlas": {"kind":"repo","label":"RH atlas / 93 specifications and coverage gaps","repo":"the-omega-institute/trureturing","commit":"915a86bf19ec91fdbd690a70e75c84014d237b7d","path":"docs/develop/theory/RH_RESEARCH_LANE_THEORY.md","pr":6412},
@@ -21,7 +21,7 @@
     "clay-rh": {"kind":"literature","label":"Clay Mathematics Institute / Millennium Problems","url":"https://www.claymath.org/millennium-problems/"},
     "clay-pnp": {"kind":"literature","label":"Clay Mathematics Institute / Millennium Problems","url":"https://www.claymath.org/millennium-problems/"},
     "clay-hodge": {"kind":"literature","label":"Clay Mathematics Institute / Millennium Problems","url":"https://www.claymath.org/millennium-problems/"},
-    "clay-navier-stokes": {"kind":"literature","label":"Clay Mathematics Institute / Millennium Problems","url":"https://www.claymath.org/millennium-problems/"},
+    "clay-navier-stokes": {"kind":"literature","label":"Clay Mathematics Institute / Navier–Stokes","url":"https://www.claymath.org/millennium/navier-stokes-equation/"},
     "clay-yang-mills": {"kind":"literature","label":"Clay Mathematics Institute / Millennium Problems","url":"https://www.claymath.org/millennium-problems/"},
     "clay-bsd": {"kind":"literature","label":"Clay Mathematics Institute / Millennium Problems","url":"https://www.claymath.org/millennium-problems/"},
     "clay-poincare": {"kind":"literature","label":"Clay Mathematics Institute / Millennium Problems","url":"https://www.claymath.org/millennium-problems/"}
@@ -459,6 +459,7 @@
       "title": "Poincaré Conjecture",
       "subtitle": "Poincare Conjecture",
       "scientific_state": "solved",
+      "public_milestone": {"by": "Grigori Perelman", "date": "2002–2003", "url": "https://www.claymath.org/millennium/poincare-conjecture/", "checked": "2026-09-18"},
       "coverage": "starter",
       "summary": "An independent starter map is available; repository sources, equivalent formulations and proof progress have not yet been inventoried.",
       "question": "Is every simply connected closed three-manifold homeomorphic to the three-sphere?",
