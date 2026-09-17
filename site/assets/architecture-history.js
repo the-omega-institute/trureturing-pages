@@ -1,3 +1,7 @@
+import { SUBJECTS } from './mathematical-subjects.mjs';
+import { t } from './i18n.mjs';
+import { growthHistory } from './evolution-growth.mjs';
+import { mountGrowth } from './evolution-growth-view.mjs';
 import { mountReleaseChanges } from './evolution-changes.mjs';
 import { annotateScene, readableName, groupContext, releaseInsights } from "./evolution-labels.mjs";
 import {
@@ -14,7 +18,6 @@ import {
 import { FAMILIES } from "./atlas-public-core.mjs";
 import {
   dependencyScene,
-  timeScene,
   releaseDelta,
   lineageIds,
 } from "./evolution-core.mjs";
@@ -33,25 +36,35 @@ let snapshots = [],
   nodes = [],
   selected = initial.get("node"),
   observation = 0,
-  mode = initial.get("view") === "time" ? "time" : "dependency",
+  mode = initial.get("view") === "dependency" ? "dependency" : "time",
+  growth,
   expanded = null,
   scene,
-  cachedTimeScene,
   universe = [],
   changesOnly = true,
   player = null;
 const metric = Object.hasOwn(METRICS, initial.get("metric"))
   ? initial.get("metric")
   : "reach";
-const renderer = mountEvolution($("#evolution-map"), {
-  onSelect: (group) => {
-    if (group.observation !== undefined && group.observation !== observation) {
-      observation = group.observation;
-      $("#lineage-release").value = observation;
-    }
-    selectNode((group.changedNodes?.length ? group.changedNodes : group.nodes).slice().sort((a, b) => b.reach - a.reach)[0].id);
-  },
+function selectGroup(group) {
+  stop();
+  if (group.observation !== undefined && group.observation !== observation) {
+    observation = group.observation;
+    $("#lineage-release").value = observation;
+    renderMap();
+  }
+  const candidates = group.changedNodes?.length ? group.changedNodes : group.nodes;
+  const current = new Set(snapshots[observation].nodes.map(n => n.id));
+  const node = candidates.filter(n => current.has(n.id)).sort((a,b) => b.reach-a.reach)[0];
+  if (node) selectNode(node.id);
+}
+const renderer = mountEvolution($("#evolution-map"), {onSelect: selectGroup});
+const growthRenderer = mountGrowth($('#evolution-growth'), {
+  onSelect: selectGroup,
+  onGroupChange: () => renderDetail(),
+  onObserve: index => { $('#lineage-release').value=index; $('#lineage-release').oninput(); },
 });
+const activeRenderer = () => mode === 'time' ? growthRenderer : renderer;
 function stateURL() {
   history.replaceState(
     null,
@@ -86,8 +99,8 @@ function showGroup(group) {
   const context = groupContext(group,snapshot);
   if (group.changedNodes?.length) context.examples=group.changedNodes.slice(0,3);
   const family = FAMILIES.find(f => f.id === group.family);
-  root.replaceChildren(el("h3", `${readableName(group.domain)} · ${group.nodes.length} modules`));
-  root.append(el("p", family?.name || 'Source group', "architecture-provenance"));
+  root.replaceChildren(el("h3", `${t(group.title || readableName(group.domain))} · ${group.nodes.length} modules`));
+  root.append(el("p", group.subject ? [...new Set(group.nodes.map(n=>n.domain))].join(' · ') : family?.name || 'Source group', "architecture-provenance"));
   for (const n of context.examples) {
     const button=el('button',n.title,'group-module');button.onclick=()=>selectNode(n.id);root.append(button);
   }
@@ -150,7 +163,7 @@ const contentChanges = mountReleaseChanges($('#release-content-changes'), {
   },
   onSelect: id => {
     selectNode(id);
-    $('#evolution-map').scrollIntoView({block:'start',behavior:'smooth'});
+    $(mode==='time'?'#evolution-growth':'#evolution-map').scrollIntoView({block:'start',behavior:'smooth'});
   },
 });
 async function renderDetail() {
@@ -161,7 +174,10 @@ async function renderDetail() {
     known = nodes.find((n) => n.id === selected);
   root.replaceChildren();
   if (node) {
-    const group=scene.nodes.find(g=>g.nodes.some(n=>n.id===selected) && (g.observation===undefined || g.observation===observation));
+    const cohort = mode === 'time' && growthRenderer.groupFor(selected);
+    const group = cohort
+      ? {...cohort, nodes: current.nodes.filter(n => cohort.presence.get(observation)?.has(n.id))}
+      : scene.nodes.find(g=>g.nodes.some(n=>n.id===selected));
     if(group)showGroup(group);
     else {groupVersion++; $("#lineage-group").replaceChildren();}
   } else {groupVersion++; $("#lineage-group").replaceChildren();}
@@ -282,22 +298,24 @@ function renderChanges(snapshot) {
 
 function renderMap(reset = false) {
   if (!snapshots.length) return;
-  scene =
-    mode === "time"
-      ? (cachedTimeScene ||= timeScene(snapshots))
-      : dependencyScene(
-          snapshots[observation],
-          expanded,
-          universe,
-        );
+  scene = dependencyScene(snapshots[observation], expanded, universe);
   const updated = contentObservation===observation ? contentUpdated : new Set();
   scene = annotateScene(scene, releaseDelta(snapshots[observation - 1], snapshots[observation]), observation, updated);
-  const ids =
-    mode === "time"
-      ? new Set(snapshots.flatMap((s) => [...lineageIds(s, selected)]))
-      : lineageIds(snapshots[observation], selected);
-  const insight=releaseInsights(snapshots[observation-1], snapshots[observation]);
-  renderer.update(scene, { selectedId: selected, ids, reset, changesOnly:changesOnly && insight.kind==='comparable' && (insight.changedIds.length>0 || updated.size>0), changedIds:new Set([...insight.changedIds,...updated]), reusedIds:new Set(insight.reuse.map(n=>n.id)) });
+  $('#evolution-map').hidden = mode === 'time';
+  $('#evolution-growth').hidden = mode !== 'time';
+  document.body.dataset.evolutionView = mode;
+  $('#lineage-key').replaceChildren();
+  for(const family of mode==='time'?SUBJECTS.filter(s=>!s.auxiliary):FAMILIES) {
+    const item=el('span',t(family.name));item.style.setProperty('--family-color',family.color);$('#lineage-key').append(item);
+  }
+  $('#graph-color-help').textContent=mode==='time'?'Color = mathematical field':'Color = source group';
+  if (mode === 'time') growthRenderer.update(growth, observation, selected);
+  else {
+    const insight=releaseInsights(snapshots[observation-1], snapshots[observation]);
+    renderer.update(scene, { selectedId: selected, ids: lineageIds(snapshots[observation], selected), reset,
+      changesOnly:changesOnly && insight.kind==='comparable' && (insight.changedIds.length>0 || updated.size>0),
+      changedIds:new Set([...insight.changedIds,...updated]), reusedIds:new Set(insight.reuse.map(n=>n.id)) });
+  }
   document
     .querySelectorAll("[data-lineage]")
     .forEach((b) =>
@@ -310,7 +328,7 @@ function renderMap(reset = false) {
   $("#lineage-collapse").hidden = !expanded || mode !== "dependency";
   $("#lineage-clear").disabled = !selected;
   document.getElementById("lineage-guide-mode").textContent = mode === "time"
-    ? "Same modules → next release"
+    ? "Prerequisite → consumer"
     : "Prerequisite → consumer";
   releaseSummary();
   stateURL();
@@ -354,8 +372,8 @@ $('#show-changes').onchange = () => { changesOnly=$('#show-changes').checked;ren
 $('#previous-observation').onclick=()=>{if(observation>0){$('#lineage-release').value=observation-1;$('#lineage-release').oninput();}};
 $('#next-observation').onclick=()=>{if(observation<snapshots.length-1){$('#lineage-release').value=observation+1;$('#lineage-release').oninput();}};
 $("#evolution-search").oninput = search;
-$("#lineage-fit").onclick = () => renderer.fit();
-$("#lineage-focus-changes").onclick = () => renderer.fitChanges();
+$("#lineage-fit").onclick = () => activeRenderer().fit();
+$("#lineage-focus-changes").onclick = () => activeRenderer().fitChanges();
 $("#lineage-clear").onclick = () => {
   selected = null;
   $("#lineage-group").replaceChildren();
@@ -363,8 +381,8 @@ $("#lineage-clear").onclick = () => {
   renderDetail();
   search();
 };
-$("#lineage-zoom-in").onclick = () => renderer.zoomBy(1.3);
-$("#lineage-zoom-out").onclick = () => renderer.zoomBy(1 / 1.3);
+$("#lineage-zoom-in").onclick = () => activeRenderer().zoomBy(1.3);
+$("#lineage-zoom-out").onclick = () => activeRenderer().zoomBy(1 / 1.3);
 $("#lineage-collapse").onclick = () => {
   expanded = null;
   renderMap(true);
@@ -381,6 +399,7 @@ document.querySelectorAll("[data-lineage]").forEach(
 window.addEventListener("pagehide", () => {
   stop();
   renderer.destroy();
+  growthRenderer.destroy();
 });
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) stop();
@@ -422,6 +441,7 @@ document.addEventListener("visibilitychange", () => {
       Number(initial.get("observation") ?? snapshots.length - 1) || 0,
     ),
   );
+  growth = growthHistory(snapshots);
   universe = snapshots.flatMap(s=>s.nodes);
   const byId = new Map();
   snapshots.forEach((s) => s.nodes.forEach((n) => byId.set(n.id, n)));
@@ -435,11 +455,6 @@ document.addEventListener("visibilitychange", () => {
   $("#release-play").disabled = snapshots.length < 2;
   $("#evolution-status").textContent =
     `${snapshots.length} verified observations / ${new Set(snapshots.map((s) => s.truth_release_digest)).size} Truth releases / ${nodes.length.toLocaleString()} tracked modules`;
-  for (const family of FAMILIES) {
-    const item = el("span", family.name);
-    item.style.setProperty("--family-color", family.color);
-    $("#lineage-key").append(item);
-  }
   window.lucide?.createIcons();
   renderMap(true);
   await renderDetail();
@@ -449,6 +464,7 @@ document.addEventListener("visibilitychange", () => {
     nodes: nodes.length,
     observation,
     mode,
+    growth: growthRenderer.diagnostics(),
     sceneNodes: scene.nodes.length,
     sceneEdges: scene.edges.length,
   });

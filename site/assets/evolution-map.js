@@ -30,6 +30,7 @@ export function mountEvolution(host, { onSelect }) {
   const selection = d3.select(canvas).call(zoom).on("dblclick.zoom", null);
   const radius = (node) => Math.max(3 / transform.k, 3.5 + Math.log2(node.nodes.length + 1) * 1.25);
   function draw() {
+    if (host.hidden) return;
     const ratio = Math.min(devicePixelRatio || 1, 2);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.fillStyle = "#0a1012";
@@ -176,7 +177,7 @@ export function mountEvolution(host, { onSelect }) {
     }
   }
   function fit(focus = null) {
-    if (!scene?.nodes.length) return;
+    if (!scene?.nodes.length || host.hidden || size.width <= 40 || size.height <= 50) return;
     const visible=focus?.length ? focus : scene.nodes;
     const xs = visible.map((n) => n.x),
       ys = visible.map((n) => n.y),
@@ -206,6 +207,7 @@ export function mountEvolution(host, { onSelect }) {
     fit(focus);
   }
   const observer = new ResizeObserver(() => {
+    if (host.hidden) return;
     size = { width: host.clientWidth, height: host.clientHeight };
     const ratio = Math.min(devicePixelRatio || 1, 2);
     canvas.width = Math.round(size.width * ratio);

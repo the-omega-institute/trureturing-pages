@@ -160,8 +160,17 @@ def main():
         assert page.locator('#release-play').count()==1
         assert page.locator('.lineage-guide').count()==1
         page.wait_for_selector('#release-content-changes[data-state="ready"]',state='attached',timeout=60000)
-        assert page.locator('#evolution-map').bounding_box()['y'] < 320
-        assert page.locator('#release-story').bounding_box()['y'] > page.locator('#evolution-map').bounding_box()['y']
+        assert before['mode']=='time'
+        assert 0 < before['growth']['lanes'] <= 8
+        assert page.locator('.growth-domain[data-lane="Naming"]').count()==0
+        page.locator('.growth-domain[data-lane="number-theory"]').click()
+        assert page.locator('.growth-domain[data-lane="number-theory/Arith"]').count()==1
+        page.locator('.growth-controls button').click()
+        assert page.locator('.growth-domain').count()==before['growth']['lanes']
+        assert page.locator('#evolution-growth').bounding_box()['y'] < 320
+        assert page.locator('#evolution-growth .growth-birth').count()>0
+        assert page.locator('#evolution-growth .growth-connection').count()>0
+        assert page.locator('#release-story').bounding_box()['y'] > page.locator('#evolution-growth').bounding_box()['y']
         assert not page.locator('#release-story').evaluate('e=>e.open')
         page.locator('#release-story > summary').click()
         # Independently find a real adjacent pair with added source modules.
@@ -226,6 +235,7 @@ def main():
         page.locator('.architecture-scrubber').press('ArrowLeft')
         page.wait_for_function('Number(document.querySelector(".architecture-scrubber").value) === Number(document.querySelector("#lineage-release").value)')
         page.screenshot(path=str(args.output/'evolution-time-comparison.png'),full_page=True)
+        page.locator('[data-lineage="dependency"]').click()
         page.locator('#show-changes').uncheck()
         page.locator('#show-changes').check()
         page.locator('[data-lineage="dependency"]').click()
