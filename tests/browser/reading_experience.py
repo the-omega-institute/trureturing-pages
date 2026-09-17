@@ -39,6 +39,7 @@ def main():
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
         rows=page.locator('#results [data-result-row]')
+        assert page.locator('#resolved-questions-archive, #resolved-questions').count()==0
         total=rows.count()
         assert total>0
         assert rows.locator(':scope > summary').count()==total
@@ -69,12 +70,26 @@ def main():
         assert rows.first.is_visible()
         rows.first.locator(':scope > summary').click()
         assert rows.first.locator('.news-result').is_visible()
+        assert rows.first.locator('.result-statement').is_visible()
+        assert rows.first.locator('.result-statement').inner_text().strip()
         page.screenshot(path=str(args.output/'research-result-expanded.png'),full_page=True)
         identity=rows.last.locator('.news-result').get_attribute('id')
         page.goto(base+'research.html?lang=en#'+identity,wait_until='networkidle')
         assert page.locator('[id="'+identity+'"]').is_visible()
+        page.goto(base+'research.html?lang=en#resolved-'+identity,wait_until='networkidle')
+        assert page.locator('[id="'+identity+'"] .result-statement').is_visible()
         page.goto(base+'research.html?lang=en#results-oeis',wait_until='networkidle')
         assert page.locator('#results-oeis').get_attribute('aria-pressed')=='true'
+        # Source intros such as "The OEIS entry states, verbatim:" must include
+        # the following quote on the first expansion, not behind another toggle.
+        records=json.loads((args.site/'assets/research-news.json').read_text())['results']
+        quotations=[r for r in records if r.get('summary','').endswith(':') and '\n\n>' in r.get('scope','')]
+        for record in quotations[:2]:
+            page.goto(base+'research.html?lang=en#resolved-'+record['id'],wait_until='networkidle')
+            card=page.locator('[id="'+record['id']+'"]')
+            assert card.locator('.result-statement blockquote').first.is_visible()
+            assert not card.locator('details').evaluate('e=>e.open')
+        events.append('Full source quotations are visible on first expansion; duplicate archive is absent')
         events.append('Collection/outcome/search filters compose; reset, pagination, keyboard focus and old permalinks work')
         plain=browser.new_context(java_script_enabled=False)
         plain_page=plain.new_page()

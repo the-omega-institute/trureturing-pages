@@ -52,7 +52,9 @@ class ReadingViewsTests(unittest.TestCase):
             self.assertEqual(1,out.count(f'id="{r["id"]}"'))
             self.assertIn(f'Scope {r["id"]}',out)
             self.assertIn('https://example.org/proof/'+r['id'],out)
-        self.assertIn('id="resolved-sequence"',out)
+        self.assertIn('data-result-row',p.select(id='resolved-sequence')[0].attrs)
+        self.assertNotIn('id="resolved-questions"',out)
+        self.assertNotIn('Question dossiers &amp; evidence archive',out)
 
     def test_original_research_heading_and_papers_are_retained(self):
         records,source=results();out=render_research_groups(source,{},records)

@@ -55,17 +55,22 @@
 .research-news .result-item[open] > summary { background:#edf2ee; }
 .research-news .result-item .reading-item-body { margin:0 8px 26px; padding:4px 24px 8px; border-left:2px solid #8faa99; background:#f0f3f1; }
 .research-news .reading-item-body .news-result { border:0; padding:16px 0; }
-.research-news .reading-item-body .news-result h3 { display:none; }
+.research-news .reading-item-body .news-result > div > h3 { display:none; }
 .research-news .reading-item-body .news-result p { font-size:14px; line-height:1.8; }
 .research-news .reading-item-body .news-result details { margin-top:20px; }
+.research-news .result-statement { color:var(--text); font-size:14px; line-height:1.8; overflow-wrap:anywhere; }
+.research-news .result-statement blockquote { margin:16px 0; padding:2px 18px; border-left:2px solid #afc1b4; color:#46594f; }
+.research-news .result-statement blockquote p { white-space:pre-line; }
+.research-news .result-statement :is(ul,ol) { padding-left:24px; }
+.research-news .result-statement pre { white-space:pre-wrap; }
+.research-news .result-statement code { color:#244b3a; background:#e2eae5; padding:1px 3px; border-radius:2px; overflow-wrap:anywhere; }
+.research-news .news-result :is(a,code,small) { overflow-wrap:anywhere; }
 .research-pagination { display:flex; justify-content:center; padding:26px 0 4px; }
 .research-pagination button { background:transparent; border:1px solid #afc1b4; color:#315e43; padding:12px 30px; border-radius:4px; min-height:44px; cursor:pointer; font:13px Arial,sans-serif; }
 .research-pagination button:hover { background:#e8eee9; }
 .research-no-results { padding:45px 20px; text-align:center; background:#f0f3f1; }
 .research-no-results h3 { font:23px Georgia,serif; margin:0 0 12px; }
 .research-no-results p { font-size:14px; color:var(--muted); }
-.research-news #resolved-questions-archive { border:0; margin:30px 0 0; }
-.research-news #resolved-questions-archive > summary { font-size:12px; color:#66756c; padding:12px 0; }
 .research-news #publications { margin-top:32px; border-top:1px solid #cdd5cf; }
 .research-news #publications > h2 { font-size:34px; letter-spacing:-.025em; margin-bottom:24px; }
 .research-news .news-paper { gap:32px; padding:32px 0; }

@@ -138,7 +138,6 @@ def render_research_groups(document, snapshot, records):
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
     papers = parsed.select(id='publications')
-    evidence = parsed.select(id='resolved-questions')
     collections = [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')]
     counts = defaultdict(int)
     rows = []
@@ -154,10 +153,10 @@ def render_research_groups(document, snapshot, records):
         excerpt = str(r.get('summary') or '').strip()
         # Provenance introductions belong in the expanded source record, not the
         # index's one-line preview. Do not invent a mathematical paraphrase.
-        if re.match(r'^(?:OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
+        if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
             excerpt = ''
         preview = f'<span class="result-excerpt">{esc(excerpt)}</span>' if excerpt else ''
-        rows.append(f'<details class="reading-item result-item" data-result-row data-collection="{key}" '
+        rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row data-collection="{key}" '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
             f'<summary><span class="result-summary"><span class="result-source">{esc(source_label)}</span>'
             f'<strong>{esc(r["title"])}</strong>{preview}</span>'
@@ -198,8 +197,6 @@ def render_research_groups(document, snapshot, records):
         '<div class="research-no-results" data-result-empty hidden><h3>No matching results</h3>'
         '<p>Try a different title, sequence number or collection.</p></div>'
         '<div class="research-pagination"><button type="button" data-result-more hidden>Show more results</button></div></section>'
-        '<details id="resolved-questions-archive" class="reading-group"><summary>Question dossiers &amp; evidence archive</summary>'
-        + (parsed.raw(evidence[0]) if evidence else '') + '</details>'
         + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
         + '<section id="frontier" class="news-onward"><div><p class="eyebrow">CONTINUE THE INQUIRY</p>'
         '<h2>Every result opens a new question.</h2><p>Explore what comes next, or build on a proof already in the Library.</p></div>'

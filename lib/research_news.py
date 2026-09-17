@@ -179,19 +179,17 @@ if __name__ == "__main__":
     main()
 
 
-def resolved_questions(snapshot, catalog_path=None):
-    rows = []
-    for item in result_records(snapshot, catalog_path):
-        if item.get("resolution_record") and not _kernel_verified(item["resolution_record"]):
-            continue
-        registration = "Kernel-verified in this truth release" if item.get("resolution_record") else "Pinned upstream source record"
-        slug = item.get("problem_slug")
-        dossier = f'<a href="research/{slug}/">Release dossier</a>' if item.get("resolution_record") else ''
-        attributes = f' data-problem-slug="{esc(slug)}" data-resolution-kind="{item["kind"]}"' if item.get("resolution_record") else ''
-        result_url = item.get("result_path", f'research.html#{item["id"]}')
-        rows.append(f'''<article class="resolved-question" id="resolved-{item['id']}"><p class="eyebrow">{esc(item['field'])}</p><h3>{esc(item['title'])}</h3><p><span class="news-status {item['kind']}">{_status(item)}</span></p><p>{esc(item['summary'])}</p><small>{registration}</small><div class="news-links"><a href="{result_url}">Result &amp; exact scope <i data-lucide="arrow-up-right"></i></a><a href="{BOOK}Blueprint/{item['module']}.html">mdBook explanation <i data-lucide="arrow-up-right"></i></a>{dossier}</div></article>''')
-        rows[-1] = rows[-1].replace('class="resolved-question"', 'class="resolved-question"' + attributes, 1)
-    return f'''<section class="resolved-questions" id="resolved-questions" aria-labelledby="resolved-title"><div class="news-section-heading"><div><p class="eyebrow">QUESTIONS WITH RESULTS</p><h2 id="resolved-title">Resolved questions</h2></div><a href="{BOOK}open-problems.html">Further reading / mdBook <i data-lucide="arrow-up-right"></i></a></div><div class="resolved-question-list">{''.join(rows)}</div></section>'''
+def _result_statement(item):
+    """Render complete scope, keeping optional editorial prose without repeating it."""
+    from lib.living_library import MARKDOWN
+    scope = str(item.get("scope") or "").strip()
+    summary = str(item.get("summary") or "").strip()
+    # Derived summaries are the first paragraph (sometimes truncated). They must
+    # never replace the source text or leave a quotation introduction dangling.
+    prefix = summary.removesuffix("…").rstrip()
+    repeated = bool(prefix) and " ".join(scope.split()).startswith(" ".join(prefix.split()))
+    introduction = f'<p>{esc(summary)}</p>' if summary and not repeated else ''
+    return introduction + f'<div class="result-statement prose">{MARKDOWN.render(scope)}</div>'
 
 
 def render_news(output, snapshot, shell, catalog_path=None):
@@ -216,14 +214,14 @@ def render_news(output, snapshot, shell, catalog_path=None):
         proof = f'<a href="{REPO}/pull/{item["pr"]}">Development PR #{item["pr"]}</a>' if item.get("pr") else ''
         binding = f'<a href="research/{item["problem_slug"]}/">Release problem dossier</a>' if item.get("resolution_record") else ''
         reading = f'<a href="{item["result_path"]}">Read result <i data-lucide="arrow-up-right"></i></a><a href="{item["result_path"]}#lean">Lean theorem <i data-lucide="code-xml"></i></a>' if item.get("result_path") else f'<a href="{REPO}/blob/{commit}/Blueprint/{module}.md">Proof explanation <i data-lucide="arrow-up-right"></i></a>'
-        body = f'''<article class="news-result" id="{item['id']}"><div class="news-result-meta">{date}<span class="news-status {item['kind']}">{status}</span></div><div><p class="eyebrow">{esc(item['field'])}</p><h3>{esc(item['title'])}</h3><p>{esc(item['summary'])}</p><div class="news-links">{reading}<a href="{esc(item['source_url'])}">Original question</a><a href="research.html#resolved-{item['id']}">Question record</a>{binding}</div><details><summary>Exact scope &amp; proof record</summary><p>{esc(item['scope'])}</p><p class="news-release-state">{release_state}</p><p><a href="{REPO}/blob/{commit}/{module}.lean">{esc(module + '.' + item['declaration'])}</a></p><div class="news-links">{proof}<a href="{BOOK}Blueprint/{module}.html">Read in mdBook <i data-lucide="arrow-up-right"></i></a></div><p><a href="{evidence}">Frozen module record</a> <code>{esc(item.get('statement_id', 'Source marker; typed-claim and Lean validation are not replayed by Pages.'))}</code></p><small>Evidence snapshot: {commit}. The linked mdBook follows upstream development.</small></details></div></article>'''
+        body = f'''<article class="news-result" id="{item['id']}"><div class="news-result-meta">{date}<span class="news-status {item['kind']}">{status}</span></div><div><p class="eyebrow">{esc(item['field'])}</p><h3>{esc(item['title'])}</h3>{_result_statement(item)}<div class="news-links">{reading}<a href="{esc(item['source_url'])}">Original question</a>{binding}</div><details><summary>Proof record</summary><p class="news-release-state">{release_state}</p><p><a href="{REPO}/blob/{commit}/{module}.lean">{esc(module + '.' + item['declaration'])}</a></p><div class="news-links">{proof}<a href="{BOOK}Blueprint/{module}.html">Read in mdBook <i data-lucide="arrow-up-right"></i></a></div><p><a href="{evidence}">Frozen module record</a> <code>{esc(item.get('statement_id', 'Source marker; typed-claim and Lean validation are not replayed by Pages.'))}</code></p><small>Evidence snapshot: {commit}. The linked mdBook follows upstream development.</small></details></div></article>'''
         results.append(body)
     for item in catalog["publications"]:
         preview = f'<a class="paper-preview" href="{esc(item["url"])}"><img src="{item["image"]}" alt="First page of {esc(item["title"])}" width="340" height="480" loading="lazy"></a>' if item.get("image") else '<div class="journal-mark" aria-label="RAIRO journal article"><strong>RAIRO</strong><span>Theoretical Informatics<br>and Applications</span><span>60 / 2026 / 29</span><a href="https://doi.org/10.1051/ita/2026032">10.1051/ita/2026032</a></div>'
         qualification = f'<p class="news-qualification">{esc(item["qualification"])}</p>' if item.get("qualification") else ''
         publications.append(f'''<article class="news-paper" id="{item['id']}">{preview}<div><p class="eyebrow"><time datetime="{item['date']}">{item['date']}</time> / {esc(item['status'])}</p><h3><a href="{esc(item['url'])}">{esc(item['title'])}</a></h3><p class="paper-authors">{esc(item['authors'])}</p><p class="paper-venue">{esc(item['venue'])}</p><p>{esc(item['summary'])}</p><p class="paper-highlight">{esc(item['highlight'])}</p>{qualification}<div class="news-links"><a href="{esc(item['url'])}">Read article <i data-lucide="arrow-up-right"></i></a></div><details><summary>Source &amp; evidence</summary><p>{esc(item['evidence'])}</p></details></div></article>''')
     # Evidence cards are built once. The reading projection groups these same cards.
-    body = ('<main class="site-main research-news">' + ''.join(results) + resolved_questions(snapshot, catalog_path)
+    body = ('<main class="site-main research-news">' + ''.join(results)
             + '<section id="publications" class="news-section"><h2>Publications</h2>'
             + ''.join(publications) + '</section></main>')
     document = shell("Research", "", body, appearance="editorial").replace('</head>',
