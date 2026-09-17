@@ -1,3 +1,4 @@
+import { mountReleaseChanges } from './evolution-changes.mjs';
 import { annotateScene, readableName, groupContext, releaseInsights } from "./evolution-labels.mjs";
 import {
   METRICS,
@@ -137,6 +138,13 @@ const explanationSnapshot = async (snapshot) => {
   if (index < 0) throw Error('No matching explanation snapshot');
   return library.snapshot(index);
 };
+const contentChanges = mountReleaseChanges($('#release-content-changes'), {
+  loadSnapshot: explanationSnapshot,
+  onSelect: id => {
+    selectNode(id);
+    $('#evolution-map').scrollIntoView({block:'start',behavior:'smooth'});
+  },
+});
 async function renderDetail() {
   const version = ++detailVersion,
     root = $("#evolution-detail"),
@@ -218,6 +226,7 @@ function releaseSummary() {
   $("#previous-observation").disabled=observation===0;
   $("#next-observation").disabled=observation===snapshots.length-1;
   renderChanges(snapshot);
+  contentChanges.update(snapshots[observation - 1], snapshot, observation, snapshots.length);
   const root = $("#release-events");
   root.replaceChildren();
   if (delta.kind === "comparable")

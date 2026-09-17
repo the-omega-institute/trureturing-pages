@@ -162,6 +162,6 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertNotIn('spaces-compare',page)
 
     def test_display_annotation_contracts(self):
-        subprocess.run(['node','--test','tests/js/evolution-labels.test.mjs'],cwd=ROOT,check=True,capture_output=True,text=True)
+        subprocess.run(['node','--test','tests/js/evolution-labels.test.mjs','tests/js/reading.test.mjs'],cwd=ROOT,check=True,capture_output=True,text=True)
 
 if __name__=='__main__':unittest.main()

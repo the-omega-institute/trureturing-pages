@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="assets/architecture.css" />
     <link rel="stylesheet" href="assets/evolution.css" />
     <link rel="stylesheet" href="assets/evolution-readable.css" />
+    <link rel="stylesheet" href="assets/evolution-changes.css" />
     <script type="module" src="assets/evolution-status.mjs"></script>
     <script defer src="assets/vendor/d3.min.js"></script>
     <script defer src="assets/vendor/lucide.min.js"></script>
@@ -41,6 +42,40 @@
         <ol id="publication-stages" aria-label="Publication stages"></ol><small id="publication-date"></small>
         <a href="version-status.html">Diagnostic details</a>
       </details>
+      <section id="release-story" class="release-story" aria-labelledby="release-story-title">
+        <header class="release-story-heading"><div><p class="eyebrow">RELEASE BY RELEASE</p>
+          <h2 id="release-story-title">What changed in this release?</h2>
+          <p>Compare the recorded results and module content with the previous release.</p></div>
+          <a href="#evolution-map">Explore the structure below ↓</a></header>
+          <div class="release-player">
+            <button
+              id="release-play"
+              aria-label="Play release evolution"
+              title="Play release evolution"
+              disabled
+            >
+              <i data-lucide="play"></i></button
+            ><label for="lineage-release">Release snapshot</label
+            ><input
+              id="lineage-release"
+              type="range"
+              min="0"
+              max="0"
+              value="0"
+              disabled
+            /><output id="lineage-release-label"></output><button id="previous-observation" aria-label="Previous observation">←</button><button id="next-observation" aria-label="Next observation">→</button>
+          </div>
+        <div id="release-content-changes" data-state="loading" aria-busy="true">
+          <p class="release-change-status" data-change-status role="status">Loading the changes in this release…</p>
+          <div class="release-change-receipt" data-change-receipt></div>
+          <div class="release-change-counts" data-change-counts></div>
+          <div class="release-change-toolbar"><div data-change-filters hidden role="group" aria-label="Change category"></div>
+            <label>Find a change<input type="search" data-change-search placeholder="Result, module or keyword" disabled></label></div>
+          <p class="release-change-count" data-change-count aria-live="polite"></p>
+          <div data-change-records></div>
+          <button type="button" class="release-change-more" data-change-more hidden>Show more changes</button>
+        </div>
+      </section>
       <div class="evolution-layout">
         <section class="evolution-primary" aria-label="Structural lineage">
           <div class="lineage-toolbar">
@@ -96,24 +131,6 @@
             <span id="lineage-guide-mode">Left to right: prerequisite to consumer. Thicker line: more recorded dependencies.</span>
           </div>
           <div id="lineage-key" class="lineage-key"></div>
-          <div class="release-player">
-            <button
-              id="release-play"
-              aria-label="Play release evolution"
-              title="Play release evolution"
-              disabled
-            >
-              <i data-lucide="play"></i></button
-            ><label for="lineage-release">Observation</label
-            ><input
-              id="lineage-release"
-              type="range"
-              min="0"
-              max="0"
-              value="0"
-              disabled
-            /><output id="lineage-release-label"></output><button id="previous-observation" aria-label="Previous observation">←</button><button id="next-observation" aria-label="Next observation">→</button>
-          </div>
           <div id="release-change-summary" role="status"></div>
           <div id="release-events" class="release-events"></div>
         </section>

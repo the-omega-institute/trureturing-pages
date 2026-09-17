@@ -3,6 +3,7 @@ import argparse
 from functools import partial
 from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
 import json
+import gzip
 import re
 from pathlib import Path
 import threading
@@ -158,6 +159,50 @@ def main():
         assert page.locator('#lineage-release').count()==1
         assert page.locator('#release-play').count()==1
         assert page.locator('.lineage-guide').count()==1
+        page.wait_for_selector('#release-content-changes[data-state="ready"]',timeout=60000)
+        assert page.locator('#release-story').bounding_box()['y'] < page.locator('#evolution-map').bounding_box()['y']
+        # Independently find a real adjacent pair with added source modules.
+        library=json.loads((args.site/'data/library-history.v1.json').read_text())['entries']
+        architecture=json.loads((args.site/'data/architecture-history.v1.json').read_text())['entries']
+        archived={(e['truth_release_digest'],e['atlas_graph_digest']):e for e in library}
+        def read_content(entry):
+            data=(args.site/entry['path']).read_bytes()
+            return json.loads(gzip.decompress(data) if entry['path'].endswith('.gz') else data)
+        for target in range(len(architecture)-1,0,-1):
+            pair=[archived.get((e['truth_release_digest'],e['atlas_graph_digest'])) for e in architecture[target-1:target+1]]
+            if not all(pair):continue
+            old,new=map(read_content,pair)
+            old_ids={n['id'] for n in old['graph']['nodes'] if n['kind']=='truth'}
+            new_ids={n['id'] for n in new['graph']['nodes'] if n['kind']=='truth'}
+            if new_ids-old_ids:break
+        else:raise AssertionError('Published history has no comparable module additions')
+        page.locator('#lineage-release').evaluate("(e,i)=>{e.value=i;e.dispatchEvent(new Event('input',{bubbles:true}))}",target)
+        page.wait_for_selector(f'#release-content-changes[data-state="ready"][data-observation="{target}"]',timeout=60000)
+        assert int(page.locator('[data-change-count="added"] strong').inner_text())==len(new_ids-old_ids)
+        page.locator('[data-change-kind="added"]').click()
+        page.wait_for_function("[...document.querySelectorAll('[data-change-record]')].length>0")
+        first_change=page.locator('[data-change-record]').first
+        changed_id=first_change.get_attribute('data-change-record')
+        assert changed_id in new_ids-old_ids
+        href=first_change.locator('a').first.get_attribute('href')
+        assert 'release/'+new['truth_release_digest'][7:]+'/node/' in href
+        page.locator('[data-change-search]').fill('no-matching-change-0xdeadbeef')
+        page.wait_for_function("document.querySelector('[data-change-record]')===null")
+        assert 'No changes match' in page.locator('[data-change-records]').inner_text()
+        page.locator('[data-change-search]').fill('')
+        page.wait_for_selector('[data-change-record]')
+        page.locator('[data-change-record]').first.get_by_role('button',name='Locate on graph').click()
+        assert page.evaluate('window.architectureHistoryDiagnostics().selected')==changed_id
+        page.locator('#lineage-clear').click()
+        # Rapid changes must settle on the last selected pair, even if earlier
+        # snapshot requests complete later.
+        page.locator('#lineage-release').evaluate("(e,i)=>{for(const n of [i,0,i-1,i]){e.value=n;e.dispatchEvent(new Event('input',{bubbles:true}))}}",target)
+        page.wait_for_selector(f'#release-content-changes[data-state="ready"][data-observation="{target}"]',timeout=60000)
+        assert int(page.locator('[data-change-count="added"] strong').inner_text())==len(new_ids-old_ids)
+        page.screenshot(path=str(args.output/'evolution-release-changes.png'),full_page=True)
+        page.locator('#lineage-release').evaluate("(e,i)=>{e.value=i;e.dispatchEvent(new Event('input',{bubbles:true}))}",before['observation'])
+        page.wait_for_selector(f'#release-content-changes[data-state="ready"][data-observation="{before["observation"]}"]',timeout=60000)
+        events.append('Exact adjacent release content yields readable counts, module explanations, pinned links, filters and synchronized graph selection')
         page.screenshot(path=str(args.output/'evolution-restored-desktop.png'),full_page=True)
         page.locator('#evolution-detail .architecture-rank').first.click()
         page.wait_for_function("document.querySelector('.group-explanation') && !document.querySelector('.group-explanation').textContent.startsWith('Loading')")
@@ -183,6 +228,9 @@ def main():
         page.locator('#lineage-release').evaluate("e=>{e.value=0;e.dispatchEvent(new Event('input',{bubbles:true}))}")
         assert page.evaluate('window.architectureHistoryDiagnostics().observation')==0
         assert 'baseline' in page.locator('#release-change-summary').inner_text().lower()
+        page.wait_for_function("document.querySelector('#release-content-changes').dataset.state!=='loading'")
+        assert page.locator('[data-change-counts] button').count()==0
+        assert page.locator('#release-content-changes').get_attribute('data-state') in ('ready','unavailable')
         page.locator('#release-play').click()
         page.wait_for_function('window.architectureHistoryDiagnostics().observation > 1')
         page.locator('#release-play').click()
