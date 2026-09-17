@@ -241,6 +241,22 @@ def main():
         page.wait_for_function("!['Publication status','Checking publication status'].includes(document.getElementById('publication-summary').textContent)")
         assert page.locator('#publication-stages li').count() in [0,5]
         events.append('Publication diagnostics are an optional inline disclosure in Evolution')
+        # A corrupt Library artifact must never turn into zero changes, and a
+        # retry must evict the failed request instead of caching failure forever.
+        latest_path=library[-1]['path']
+        isolated=browser.new_context()
+        unavailable=isolated.new_page()
+        unavailable.on('pageerror',lambda e:errors.append(str(e)))
+        unavailable.route('**/'+latest_path,lambda route:route.fulfill(status=200,body='corrupt snapshot'))
+        unavailable.goto(base+'evolution.html?lang=en',wait_until='networkidle')
+        unavailable.wait_for_selector('#release-content-changes[data-state="unavailable"]',timeout=60000)
+        assert unavailable.locator('[data-change-counts] button').count()==0
+        assert unavailable.locator('#evolution-map canvas').count()==1
+        unavailable.unroute('**/'+latest_path)
+        unavailable.get_by_role('button',name='Retry comparison').click()
+        unavailable.wait_for_selector('#release-content-changes[data-state="ready"]',timeout=60000)
+        isolated.close()
+        events.append('Corrupt content fails visibly without blocking the graph; retry recovers after the artifact is available')
         page.goto(base+'spaces.html?lang=en',wait_until='domcontentloaded')
         page.wait_for_url('**/atlas.html?lang=en#*',timeout=30000)
         assert page.locator('#spaces-compare').count()==0
