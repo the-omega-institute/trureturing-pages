@@ -56,3 +56,9 @@ is not evidence of Lean verification. `publications` remain editorial records.
 Manual refresh: run `sync-upstream.yml` on `dev`. Presentation-only refresh: run
 `pages.yml` with `rebuild_current=true`. Plain `pages.yml` dispatch defaults to real
 publication reconciliation; the fixture requires an explicit `mock` input.
+
+Dossier presentation accepts multiple valid source identifiers (for example, a
+DOI plus an arXiv URL), preserving each value and validating every supplied field.
+The existing primary-link preference is DOI, then arXiv, then URL. A missing H1
+uses the validated dossier slug as its display title; required sections, source
+hashes, declaration binding and the verified-resolution gate still apply.

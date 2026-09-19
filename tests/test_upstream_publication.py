@@ -71,6 +71,8 @@ class SourcePublicationTests(unittest.TestCase):
             if path == 'actions/workflows/ci-push.yml':
                 return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
+            if path.startswith('contents/'):
+                return {'type': 'file', 'path': '.github/workflows/ci-push.yml'}
             return {'workflow_runs': [run()]}
         upstream.get_json = upstream_get
         pages = GitHub('owner/pages')
@@ -131,6 +133,8 @@ class SourcePublicationTests(unittest.TestCase):
             if path == 'actions/workflows/ci-push.yml':
                 return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
+            if path.startswith('contents/'):
+                return {'type': 'file', 'path': '.github/workflows/ci-push.yml'}
             if '/runs?' in path: return {'workflow_runs': [newer, older]}
             if '/jobs?' in path:
                 sha = C if '/43/' in path else B
@@ -206,3 +210,18 @@ class SourcePublicationTests(unittest.TestCase):
             self.assertIn('engineering=success', commands[2])
             self.assertIn('current=success', commands[2])
             self.assertFalse(any(word in {'lake', 'lean', 'build', 'transport-pack'} for cmd in commands for word in cmd))
+
+    def test_removed_workflow_cannot_reuse_historical_success_as_freshness(self):
+        upstream, pages = GitHub(), GitHub('owner/pages')
+        upstream.dev_head = lambda: C
+        def get(path):
+            if path == 'actions/workflows/ci-push.yml':
+                return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
+            if path == 'branches/dev': return {'protected': True}
+            if path.startswith('contents/'):
+                raise HTTPError(path, 404, 'Not Found', {}, None)
+            raise AssertionError('Historical run lookup must not happen after a workflow rename: ' + path)
+        upstream.get_json = get
+        with patch.object(publication, 'GitHub', side_effect=[upstream, pages]):
+            with self.assertRaisesRegex(ValueError, 'removed from dev'):
+                publication.plan('owner/pages')

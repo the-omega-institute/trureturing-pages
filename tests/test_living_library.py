@@ -39,6 +39,15 @@ class LivingLibraryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Duplicate"):
             parse_problem(problem_source().replace("slug: test-question", "slug: test-question\nslug: test-question"), "test-question.md")
 
+    def test_missing_display_title_uses_slug_but_still_requires_complete_sections(self):
+        source = problem_source().replace("# Test question\n", "")
+        problem = parse_problem(source, "test-question.md")
+        self.assertEqual(problem["title"], "test question")
+        self.assertNotIn("resolution", problem)
+        self.assertEqual(problem["source_digest"], digest(source.encode()))
+        with self.assertRaisesRegex(ValueError, "sections"):
+            parse_problem(source.replace("## Gap", "## Missing"), "test-question.md")
+
     def test_anchor_updates_trigger_reassessment_without_promoting_route(self):
         problem = parse_problem(problem_source(), "test-question.md")
         a = create_snapshot(graph(), "sha256:" + "1" * 64, [problem], {"A.lean": "1" * 40})

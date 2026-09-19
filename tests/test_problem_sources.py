@@ -101,13 +101,14 @@ class ProblemSourceTests(unittest.TestCase):
             with self.subTest(key=key, value=value, fallback=True), self.assertRaises(ValueError):
                 parse_source(metadata + "url: https://oeis.org/A068012\n")
 
-    def test_multiple_non_null_sources_fail_closed(self):
+    def test_multiple_valid_sources_are_preserved(self):
         candidates = ("doi: 10.1051/ita/2026032\n", "arxiv_id: 2405.02727\n",
                       "url: https://oeis.org/A068012\n")
         for count in (2, 3):
             for sources in itertools.combinations(candidates, count):
-                with self.subTest(sources=sources), self.assertRaises(ValueError):
-                    parse_source("".join(sources))
+                with self.subTest(sources=sources):
+                    problem = parse_source("".join(sources))
+                    self.assertEqual(len(source_fields(problem)), count)
 
     def test_snapshot_preserves_url_metadata_through_json(self):
         problem = url_problem()
@@ -240,3 +241,10 @@ class ProblemSourceTests(unittest.TestCase):
                             living_library.build_library(root / "graph.json", root / "manifest.json", root / "site", root)
                         self.assertFalse((root / "site/data/library-history.v1.json").exists())
                         self.assertFalse((root / "site/research.html").exists())
+
+    def test_valid_primary_source_does_not_hide_invalid_additional_sources(self):
+        for metadata in ('doi: 10.1051/ita/2026032\nurl: javascript:alert(1)\n',
+                         'doi: 10.1051/ita/2026032\narxiv_id: invalid\n',
+                         'arxiv_id: 2405.02727\nurl: not-a-url\n'):
+            with self.subTest(metadata=metadata), self.assertRaises(ValueError):
+                parse_source(metadata)

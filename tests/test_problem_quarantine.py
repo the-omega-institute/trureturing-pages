@@ -18,7 +18,9 @@ from tests.test_living_library import problem_source
 FIXTURES = Path(__file__).parent / "fixtures"
 BAD_SLUG = "oeis-a385590-alternating-binomial"
 BAD_PATH = f"Problems/{BAD_SLUG}.md"
-BAD_SOURCE = (FIXTURES / "problems" / Path(BAD_PATH).name).read_text()
+MISSING_H1_SOURCE = (FIXTURES / "problems" / Path(BAD_PATH).name).read_text()
+# Missing mathematical sections still quarantine a dossier; a missing display title does not.
+BAD_SOURCE = MISSING_H1_SOURCE.replace("## Gap", "## Missing")
 BAD_REASON = f"Problem sections differ from catalog contract: {BAD_SLUG}"
 OEIS_FILE = FIXTURES / "problems/oeis-a068012-correction-recurrence.md"
 HOST = "D5/S1/Example"
@@ -129,7 +131,10 @@ class ProblemQuarantineTests(unittest.TestCase):
         self.assertFalse((self.output / "research.html").exists())
         self.assertEqual(list((self.output / "data/library").glob("*")), [])
 
-    def test_missing_h1_fixture_still_fails_the_parser_contract(self):
+    def test_missing_h1_fixture_uses_slug_but_incomplete_sections_are_quarantined(self):
+        problem = living_library.parse_problem(MISSING_H1_SOURCE, Path(BAD_PATH).name)
+        self.assertEqual(problem["title"], BAD_SLUG.replace("-", " "))
+        self.assertEqual(problem["source_digest"], living_library.digest(MISSING_H1_SOURCE.encode()))
         with self.assertRaisesRegex(ValueError, BAD_REASON):
             living_library.parse_problem(BAD_SOURCE, Path(BAD_PATH).name)
 

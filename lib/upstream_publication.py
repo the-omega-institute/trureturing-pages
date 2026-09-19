@@ -142,6 +142,17 @@ def plan(pages_repository):
     if source.get_json("branches/dev").get("protected") is not True:
         raise ValueError("upstream dev is not protected")
     head = source.dev_head()
+    # GitHub keeps historical workflow records after the YAML has been removed.
+    # Check the dev tree too, or another rename can recreate the stale-green bug.
+    workflow_path = ".github/workflows/" + WORKFLOW
+    try:
+        current_workflow = source.get_json(f"contents/{workflow_path}?ref={head}")
+    except HTTPError as error:
+        if error.code == 404:
+            raise ValueError("canonical CI workflow was removed from dev; update the downstream adapter") from error
+        raise
+    if current_workflow.get("type") != "file" or current_workflow.get("path") != workflow_path:
+        raise ValueError("canonical CI workflow is not a file on current dev")
     skipped = []
     latest = None
     # API pages follow original creation time, so a late rerun cannot outrank a
