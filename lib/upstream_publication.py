@@ -1,6 +1,6 @@
 """Project an upstream CI report into a durable Pages source publication.
 
-No Lean execution. Only successful push runs of upstream dev's canonical ci.yml
+No Lean execution. Only successful push runs of upstream dev's canonical ci-push.yml
 are eligible. Published bundles live in Pages so rebuilds outlive CI retention.
 """
 from __future__ import annotations
@@ -8,8 +8,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
+import shutil
+import tempfile
 import zipfile
 from urllib.error import HTTPError
 
@@ -17,10 +20,10 @@ from lib.reconcile_releases import GitHub, REPOSITORY, require_digest, require_o
 from lib import vertical_smoke
 
 SCHEMA = "pages-upstream-ci-publication.v1"
-CHECKS = ("Candidate harness engineering checks", "Canonical Lean report production",
-          "Content-addressed dev baseline admission")
-SUFFIXES = ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip")
-REPORT = "candidate-lean-report.json"
+WORKFLOW = "ci-push.yml"
+CHECKS = ("engineering", "current")
+REPORT = ".lake/build/stratalint/raw-lean-report.json"
+ARCHIVE = "ci-current.tar.gz"
 
 
 def normalize_publication(item):
@@ -61,7 +64,7 @@ def select_run(client, runs, dev_head):
     for run in runs:
         if (run.get("event") != "push" or run.get("head_branch") != "dev"
                 or run.get("conclusion") != "success" or run.get("status") != "completed"
-                or run.get("path") != ".github/workflows/ci.yml"
+                or run.get("path") != ".github/workflows/" + WORKFLOW
                 or run.get("repository", {}).get("full_name") != REPOSITORY
                 or run.get("head_repository", {}).get("full_name") != REPOSITORY):
             continue
@@ -85,64 +88,148 @@ def verify_checks(run, jobs):
             raise ValueError("upstream required check is not successful for this source: " + name)
 
 
+def artifact_for(run, artifacts, prefix):
+    name = f"{prefix}-{run['id']}-{run['run_attempt']}"
+    matches = [a for a in artifacts if a.get("name") == name and not a.get("expired")]
+    if (len(matches) != 1 or matches[0].get("workflow_run", {}).get("head_sha") != run["head_sha"]
+            or matches[0].get("workflow_run", {}).get("id") != run["id"]):
+        raise ValueError("missing or ambiguous exact-run artifact: " + name)
+    require_digest(matches[0].get("digest", ""))
+    return matches[0]
+
+
+def download_artifact(artifact_id, digest, archive):
+    require_digest(digest)
+    with Path(archive).open("wb") as output:
+        subprocess.run(["gh", "api", f"repos/{REPOSITORY}/actions/artifacts/{int(artifact_id)}/zip"],
+                       stdout=output, check=True)
+    with Path(archive).open("rb") as raw:
+        actual = "sha256:" + hashlib.file_digest(raw, "sha256").hexdigest()
+    if actual != digest:
+        raise ValueError("downloaded CI artifact differs from GitHub digest")
+
+
+def report_required(run, jobs, artifacts):
+    """Diagnostics only route candidates; native transport verification admits them."""
+    current = next(job for job in jobs if job["name"] == "current")
+    execution = [step for step in current.get("steps", []) if step.get("name") == "Execute selected stage"]
+    if len(execution) == 1 and execution[0].get("conclusion") == "skipped":
+        return False
+    diagnostic = artifact_for(run, artifacts, "ci-current-diagnostics")
+    with tempfile.TemporaryDirectory(prefix="pages-ci-diagnostics-") as temp:
+        archive = Path(temp) / "diagnostics.zip"
+        download_artifact(diagnostic["id"], diagnostic["digest"], archive)
+        with zipfile.ZipFile(archive) as bundle:
+            name = "current-result.json"
+            if bundle.namelist().count(name) != 1 or bundle.getinfo(name).file_size > 32 * 1024 ** 2:
+                raise ValueError("missing or invalid current diagnostic receipt")
+            receipt = json.loads(bundle.read(name))
+    if (receipt.get("stage") != "current" or receipt.get("status") != "completed"
+            or receipt.get("git_candidate", {}).get("commit") != run["head_sha"]):
+        raise ValueError("current diagnostic receipt differs from selected source")
+    steps = receipt["scope"]["execution"]["steps"]
+    if not isinstance(steps, list) or not all(isinstance(step, str) for step in steps):
+        raise ValueError("invalid current diagnostic execution plan")
+    return "lean-report" in steps
+
+
 def plan(pages_repository):
     source = GitHub(REPOSITORY)
     pages = GitHub(pages_repository)
-    runs = source.get_json("actions/workflows/ci.yml/runs?branch=dev&event=push&status=success&per_page=20")["workflow_runs"]
-    run = select_run(source, runs, source.dev_head())
-    existing = pages_release(pages, run["head_sha"])
-    if existing:
-        expected = existing["tag_name"] + ".tar.gz"
-        if not any(a.get("name") == expected and a.get("state") == "uploaded" and a.get("size", 0) > 0
-                   for a in existing.get("assets", [])):
-            raise ValueError("existing Pages source publication is missing its bundle")
-        return {"should_build": False, "source_commit": run["head_sha"]}
+    workflow = source.get_json("actions/workflows/" + WORKFLOW)
+    if workflow.get("path") != ".github/workflows/" + WORKFLOW or workflow.get("state") != "active":
+        raise ValueError("canonical upstream workflow is missing or inactive")
     if source.get_json("branches/dev").get("protected") is not True:
         raise ValueError("upstream dev is not protected")
-    jobs = source.get_json(f"actions/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")["jobs"]
-    verify_checks(run, jobs)
-    artifacts = source.get_json(f"actions/runs/{run['id']}/artifacts?per_page=100")["artifacts"]
-    matches = [a for a in artifacts if a.get("name") == "raw-lean-reports" and not a.get("expired")]
-    if len(matches) != 1 or matches[0].get("workflow_run", {}).get("head_sha") != run["head_sha"]:
-        raise ValueError("missing or ambiguous exact-source raw-lean-reports artifact")
-    artifact = matches[0]
-    if not artifact.get("digest", "").startswith("sha256:"):
-        raise ValueError("upstream artifact has no GitHub content digest")
-    commit = source.get_json("commits/" + run["head_sha"])
-    return {"should_build": True, "source_commit": run["head_sha"],
-            "source_tree": commit["commit"]["tree"]["sha"],
-            "produced_at": commit["commit"]["committer"]["date"],
-            "ci_run_id": run["id"], "ci_run_attempt": run["run_attempt"],
-            "ci_url": run["html_url"], "artifact_id": artifact["id"],
-            "artifact_digest": artifact["digest"], "required_checks": list(CHECKS)}
+    head = source.dev_head()
+    skipped = []
+    latest = None
+    # API pages follow original creation time, so a late rerun cannot outrank a
+    # newer dev push. Every accepted source must still belong to protected dev.
+    for page in range(1, 11):
+        runs = source.get_json(f"actions/workflows/{WORKFLOW}/runs?branch=dev&event=push&status=success&per_page=100&page={page}")["workflow_runs"]
+        for run in sorted(runs, key=lambda row: row["id"], reverse=True):
+            if run.get("workflow_id") != workflow["id"]:
+                continue
+            try:
+                select_run(source, [run], head)
+            except ValueError as error:
+                if str(error) == "no successful canonical upstream dev CI run available":
+                    continue
+                raise
+            latest = latest or run["head_sha"]
+            freshness = {"upstream_dev_head": head, "latest_successful_ci_source": latest,
+                         "skipped_without_report": skipped.copy()}
+            existing = pages_release(pages, run["head_sha"])
+            if existing:
+                expected = existing["tag_name"] + ".tar.gz"
+                if not any(a.get("name") == expected and a.get("state") == "uploaded" and a.get("size", 0) > 0
+                           for a in existing.get("assets", [])):
+                    raise ValueError("existing Pages source publication is missing its bundle")
+                return {"should_build": False, "status": "latest-report-already-published",
+                        "source_commit": run["head_sha"], **freshness}
+            jobs = source.get_json(f"actions/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")["jobs"]
+            verify_checks(run, jobs)
+            artifacts = source.get_json(f"actions/runs/{run['id']}/artifacts?per_page=100")["artifacts"]
+            if not report_required(run, jobs, artifacts):
+                skipped.append({"source_commit": run["head_sha"], "ci_run_id": run["id"],
+                                "reason": "lean-report-not-required"})
+                continue
+            artifact = artifact_for(run, artifacts, "ci-current")
+            commit = source.get_json("commits/" + run["head_sha"])
+            return {"should_build": True, "status": "new-report-awaiting-transport-verification", **freshness,
+                    "source_commit": run["head_sha"],
+                    "source_tree": commit["commit"]["tree"]["sha"],
+                    "produced_at": commit["commit"]["committer"]["date"],
+                    "ci_run_id": run["id"], "ci_run_attempt": run["run_attempt"],
+                    "ci_url": run["html_url"], "artifact_id": artifact["id"],
+                    "artifact_digest": artifact["digest"], "required_checks": list(CHECKS)}
+        if len(runs) < 100:
+            break
+    raise ValueError("no publishable current CI report found; refusing to report stale data as synchronized")
 
 
 def acquire_report(selection, destination):
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
     archive = destination / "report.zip"
-    with archive.open("wb") as output:
-        subprocess.run(["gh", "api", f"repos/{REPOSITORY}/actions/artifacts/{int(selection['artifact_id'])}/zip"],
-                       stdout=output, check=True)
-    with archive.open("rb") as raw:
-        digest = "sha256:" + hashlib.file_digest(raw, "sha256").hexdigest()
-    if digest != selection["artifact_digest"]:
-        raise ValueError("downloaded CI artifact differs from GitHub digest")
+    download_artifact(selection["artifact_id"], selection["artifact_digest"], archive)
     with zipfile.ZipFile(archive) as bundle:
-        expected = {REPORT + suffix for suffix in SUFFIXES}
-        names = bundle.namelist()
-        if any(names.count(name) != 1 for name in expected):
-            raise ValueError("report artifact is missing required evidence or contains duplicate paths")
-        if sum(bundle.getinfo(name).file_size for name in expected) > 1024 ** 3:
-            raise ValueError("report artifact exceeds size limit")
-        for name in sorted(expected):
-            (destination / name).write_bytes(bundle.read(name))
+        if bundle.namelist() != [ARCHIVE] or bundle.getinfo(ARCHIVE).file_size > 2 * 1024 ** 3:
+            raise ValueError("current artifact has unexpected contents or exceeds size limit")
+        with bundle.open(ARCHIVE) as reader, (destination / ARCHIVE).open("wb") as writer:
+            shutil.copyfileobj(reader, writer)
     archive.unlink()
-    report = destination / REPORT
-    actual = hashlib.sha256(report.read_bytes()).hexdigest()
-    if (report.with_name(REPORT + ".sha256").read_text().split() != [actual, REPORT]
-            or json.loads(report.with_name(REPORT + ".provenance.json").read_text())["report_sha256"] != actual):
-        raise ValueError("upstream report checksum/provenance mismatch")
+
+
+def project(selection, repository, archive, destination):
+    """Reuse the source commit's transport verifier and compiled exporter, without Lean."""
+    repository = Path(repository).resolve()
+    commit = require_oid(selection["source_commit"])
+    identity = subprocess.check_output(["git", "rev-parse", "HEAD", "HEAD^{tree}"], cwd=repository, text=True).splitlines()
+    if identity != [commit, selection["source_tree"]]:
+        raise ValueError("upstream checkout differs from selected source")
+    # Transport identity is the source repository, not this Pages workflow.
+    environment = {**os.environ, "GITHUB_REPOSITORY": REPOSITORY, "STRATALINT_CACHE_WRITES": "false"}
+    helper = "tools/scripts/workflow/ci.py"
+    subprocess.run(["python3", helper, "checkout", "--repository", str(repository), "--commit", commit],
+                   cwd=repository, check=True, env=environment)
+    subprocess.run(["python3", helper, "restore", "--repository", str(repository), "--stage", "current",
+                    "--commit", commit, "--run-id", str(selection["ci_run_id"]),
+                    "--run-attempt", str(selection["ci_run_attempt"]), "--archive", str(Path(archive).resolve())],
+                   cwd=repository, check=True, env=environment)
+    current = json.loads((repository / "build/ci/current.json").read_text())
+    if not any(step["name"] == "lean-report" for step in current["steps"]) or not (repository / REPORT).is_file():
+        raise ValueError("verified current transport has no complete Lean report")
+    if selection["required_checks"] != list(CHECKS):
+        raise ValueError("unexpected selected check contract")
+    command = ["dotnet", "tools/StrataLint.Cli/bin/Release/net10.0/StrataLint.dll", "truth-release",
+               "--out", str(Path(destination).resolve()), "--candidate-lean-report", str(repository / REPORT),
+               "--producer-package-commit", commit, "--produced-at", selection["produced_at"],
+               "--commit-on-protected-dev", "true"]
+    for check in selection["required_checks"]:
+        command.extend(["--required-check", check + "=success"])
+    subprocess.run(command, cwd=repository, check=True, env=environment)
 
 
 def publication_metadata(selection, bundle):
@@ -165,6 +252,11 @@ def main():
     download = commands.add_parser("acquire")
     download.add_argument("--selection", type=Path, required=True)
     download.add_argument("--destination", type=Path, required=True)
+    export = commands.add_parser("project")
+    export.add_argument("--selection", type=Path, required=True)
+    export.add_argument("--repository", type=Path, required=True)
+    export.add_argument("--archive", type=Path, required=True)
+    export.add_argument("--destination", type=Path, required=True)
     metadata = commands.add_parser("metadata")
     metadata.add_argument("--selection", type=Path, required=True)
     metadata.add_argument("--bundle", type=Path, required=True)
@@ -178,6 +270,8 @@ def main():
                 output.write(f"should_build={str(value['should_build']).lower()}\nsource_commit={value['source_commit']}\n")
     elif args.command == "acquire":
         acquire_report(json.loads(args.selection.read_text()), args.destination)
+    elif args.command == "project":
+        project(json.loads(args.selection.read_text()), args.repository, args.archive, args.destination)
     else:
         args.output.write_text(json.dumps(publication_metadata(json.loads(args.selection.read_text()), args.bundle), indent=2) + "\n")
 
