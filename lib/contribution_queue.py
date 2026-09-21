@@ -169,7 +169,7 @@ def pr_reasons(p, repo_id):
 
 def ci_run_identity(run):
     return {key: run.get(key) for key in (
-        "id", "workflow_id", "path", "event", "head_sha", "check_suite_id", "run_number", "run_attempt",
+        "id", "workflow_id", "path", "event", "head_sha", "check_suite_id", "run_attempt",
         "status", "conclusion", "repository", "pull_requests")}
 
 
@@ -191,7 +191,6 @@ def ci(api, root, repo, repo_id, p, rules):
     if any(not positive(r.get("id")) for r in runs):
         return evidence, [reason("ci_source_mismatch")]
     # IDs order workflow executions; do not use updated_at (old runs can be rerun).
-    # A later attempt of an older run is checked below as well.
     latest = max(runs, key=lambda r: r["id"])
     run_id = latest["id"]
     run = api.get(f"{root}/actions/runs/{run_id}")
@@ -261,16 +260,12 @@ def ci(api, root, repo, repo_id, p, rules):
                  and c.get("name") in required_apps
                  and c.get("app", {}).get("id") == required_apps[c["name"]]
                  and (c.get("status") != "completed" or c.get("conclusion") != "success")}
-    # GitHub run_number increases for each new execution of a workflow;
-    # run_attempt increases for reruns. Check IDs have no ordering role here.
+    # Only an earlier attempt of the selected execution can prove that its
+    # matching failed check was superseded. Attempts are ordered by GitHub and
+    # necessarily finished before the selected rerun. A competing check from a
+    # different execution remains ambiguous: run_number and timestamps do not
+    # establish completion ordering across executions.
     histories = [(run, a) for a in range(1, attempt)]
-    histories.extend((r, 1) for r in runs
-                     if r["id"] != run_id and r.get("run_attempt") == 1
-                     and r.get("status") == "completed" and positive(r.get("check_suite_id"))
-                     and positive(r.get("run_number")) and positive(run.get("run_number"))
-                     and r["run_number"] < run["run_number"]
-                     and all(r.get(k) == run.get(k) for k in
-                             ("workflow_id", "path", "event", "head_sha", "repository")))
     for previous, previous_attempt in histories:
         suite = previous["check_suite_id"]
         if not any(c.get("check_suite", {}).get("id") == suite for c in competing.values()):

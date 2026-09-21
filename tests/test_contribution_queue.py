@@ -204,23 +204,16 @@ class QueueTests(unittest.TestCase):
         old_job["check_run_url"] = f"https://api.github.com{ROOT}/check-runs/1234"
         self.waiting("required_check_ambiguous")
 
-    def test_new_execution_supersedes_proven_old_workflow_check(self):
-        old = dict(run(29), check_suite_id=900, conclusion="failure")
+    def test_new_execution_does_not_prove_cross_execution_supersession(self):
+        old = dict(run(29), check_suite_id=900, conclusion="failure",
+                   completed_at="2026-09-21T12:05:00Z")
+        self.api.data[ROOT + "/actions/runs/30"]["completed_at"] = "2026-09-21T12:00:00Z"
         self.api.data[ROOT + "/actions/workflows/10/runs"].append(old)
         self.competing_check()
         old_job = dict(self.api.data[ROOT + "/actions/runs/30/attempts/1/jobs"][0],
                        id=999, run_id=29, conclusion="failure",
                        check_run_url=f"https://api.github.com{ROOT}/check-runs/999")
         self.api.data[ROOT + "/actions/runs/29/attempts/1/jobs"] = [old_job]
-        self.assertEqual(len(self.scan()["prs"]["ready"]), 1)
-        for field, value in (("run_number", None), ("run_number", 31), ("workflow_id", 99),
-                             ("check_suite_id", 901), ("head_sha", "d" * 40)):
-            with self.subTest(field=field):
-                saved = old[field]
-                old[field] = value
-                self.waiting("required_check_ambiguous")
-                old[field] = saved
-        old_job["run_attempt"] = 2
         self.waiting("required_check_ambiguous")
 
     def test_required_legacy_status_conflict_waits(self):

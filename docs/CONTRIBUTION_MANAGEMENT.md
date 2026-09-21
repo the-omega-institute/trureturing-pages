@@ -110,9 +110,11 @@ rebase, a new merge SHA build, or CI against the latest `dev` tip. The adapter:
   superseded which. This may exclude otherwise acceptable GitHub CI histories.
 - Also checks competing current-head checks for each protected context/app. An
   unselected non-success check waits unless its suite and exact job reference
-  prove it belongs to a prior attempt of the selected run, or a completed,
-  never-rerun execution of the same workflow with a lower GitHub
-  [`run_number`](https://docs.github.com/en/actions/reference/workflows-and-actions/variables).
+  prove it belongs to an earlier attempt of the selected run. Checks from any
+  other workflow execution remain ambiguous, even when their `run_number` or
+  timestamps look older; those fields do not establish completion ordering
+  across executions. This conservative rule may exclude otherwise acceptable
+  histories and requires a fresh full execution or maintainer inspection.
   Check IDs do not establish ordering; unknown suites remain ambiguous.
 - Reads the latest legacy commit status per context from GitHub's combined-status
   endpoint. A same-name required status must also succeed: GitHub documents that
