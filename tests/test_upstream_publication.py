@@ -196,7 +196,15 @@ class SourcePublicationTests(unittest.TestCase):
             (root / 'build/ci/current.json').write_text(json.dumps({'steps': [{'name': 'lean-report'}]}))
             (root / publication.REPORT).parent.mkdir(parents=True)
             (root / publication.REPORT).write_text('{}')
-            with patch.dict('os.environ', {'GITHUB_REPOSITORY': 'owner/pages'}), \
+            with patch.dict('os.environ', {
+                     'GITHUB_REPOSITORY': 'owner/pages', 'GITHUB_EVENT_NAME': 'push',
+                     'GITHUB_EVENT_PATH': '/pages/push-event.json', 'GITHUB_SHA': C,
+                     'GITHUB_RUN_ID': '999', 'GITHUB_OUTPUT': '/pages/outputs',
+                     'CI_WORKFLOW_INPUTS': json.dumps({'candidate_sha': C}),
+                     'CI_PLAN_PATH': '/pages/plan.json', 'CANDIDATE_SHA': C,
+                     'BASE_SHA': A, 'GH_TOKEN': 'pages-only-token',
+                     'DOTNET_ROOT': '/dotnet',
+                 }), \
                  patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
                  patch.object(publication.subprocess, 'run') as execute:
                 publication.project(selection, root, root / 'current.tar.gz', root / 'out')
@@ -204,6 +212,12 @@ class SourcePublicationTests(unittest.TestCase):
             for call in execute.call_args_list:
                 self.assertEqual(call.kwargs['env']['GITHUB_REPOSITORY'], REPOSITORY)
                 self.assertEqual(call.kwargs['env']['STRATALINT_CACHE_WRITES'], 'false')
+                self.assertEqual(call.kwargs['env']['DOTNET_ROOT'], '/dotnet')
+                self.assertEqual([key for key in call.kwargs['env'] if key.startswith('GITHUB_')],
+                                 ['GITHUB_REPOSITORY'])
+                self.assertFalse(any(key.startswith('CI_') for key in call.kwargs['env']))
+                for key in ('CANDIDATE_SHA', 'BASE_SHA', 'GH_TOKEN'):
+                    self.assertNotIn(key, call.kwargs['env'])
             commands = [call.args[0] for call in execute.call_args_list]
             self.assertIn('restore', commands[1])
             self.assertIn('truth-release', commands[2])
