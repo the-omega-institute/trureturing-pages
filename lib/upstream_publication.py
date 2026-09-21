@@ -220,8 +220,13 @@ def project(selection, repository, archive, destination):
     identity = subprocess.check_output(["git", "rev-parse", "HEAD", "HEAD^{tree}"], cwd=repository, text=True).splitlines()
     if identity != [commit, selection["source_tree"]]:
         raise ValueError("upstream checkout differs from selected source")
-    # Transport identity is the source repository, not this Pages workflow.
-    environment = {**os.environ, "GITHUB_REPOSITORY": REPOSITORY, "STRATALINT_CACHE_WRITES": "false"}
+    # Verify an external transport with its explicit source/run coordinates. A
+    # Pages push event describes a different repository and must not become an
+    # upstream planning input (nor may the helper write into Pages step outputs).
+    environment = {key: value for key, value in os.environ.items()
+                   if not key.startswith(("GITHUB_", "CI_"))
+                   and key not in {"CANDIDATE_SHA", "BASE_SHA", "GH_TOKEN"}}
+    environment.update(GITHUB_REPOSITORY=REPOSITORY, STRATALINT_CACHE_WRITES="false")
     helper = "tools/scripts/workflow/ci.py"
     subprocess.run(["python3", helper, "checkout", "--repository", str(repository), "--commit", commit],
                    cwd=repository, check=True, env=environment)

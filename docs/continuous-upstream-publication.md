@@ -68,3 +68,9 @@ revalidation. Moving dev references and run/release lists must not reuse a stale
 intermediary response across polling runs: an old dev head would otherwise reject
 new successful CI sources as non-ancestors. Immutable artifact digests and source
 identity checks remain the admission evidence.
+
+The projection subprocess does not inherit the Pages workflow's GitHub event,
+SHA, run ID, output files, or CI planning variables. The upstream verifier reads
+its retained transport plan and explicit upstream commit/run arguments. This is
+necessary for post-merge `push` runs: the Pages event's `after` commit belongs to
+a different repository. The source repository identity remains explicit.
