@@ -62,3 +62,9 @@ DOI plus an arXiv URL), preserving each value and validating every supplied fiel
 The existing primary-link preference is DOI, then arXiv, then URL. A missing H1
 uses the validated dossier slug as its display title; required sections, source
 hashes, declaration binding and the verified-resolution gate still apply.
+
+GitHub metadata reads carry a unique observation parameter and request cache
+revalidation. Moving dev references and run/release lists must not reuse a stale
+intermediary response across polling runs: an old dev head would otherwise reject
+new successful CI sources as non-ancestors. Immutable artifact digests and source
+identity checks remain the admission evidence.

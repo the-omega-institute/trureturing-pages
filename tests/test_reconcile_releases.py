@@ -116,6 +116,20 @@ class ReconciliationPlanTests(unittest.TestCase):
             self.assertEqual(client.get_json("releases?per_page=100&page=1"), [])
         self.assertFalse(request.call_args.args[0].has_header("Authorization"))
 
+    def test_metadata_observations_do_not_reuse_cached_moving_refs(self):
+        from urllib.parse import urlparse, parse_qs
+        first, second = reconcile.GitHub(token=""), reconcile.GitHub(token="")
+        urls = []
+        for client, path in [(first, "commits/dev"), (first, "actions/runs?per_page=100"), (second, "commits/dev")]:
+            with patch.object(reconcile, "urlopen", return_value=BytesIO(b"{}")) as fetch:
+                client.get_json(path)
+                request = fetch.call_args.args[0]
+                self.assertEqual(request.get_header("Cache-control"), "no-cache")
+                urls.append(parse_qs(urlparse(request.full_url).query))
+        self.assertEqual(urls[1]["per_page"], ["100"])
+        self.assertEqual(urls[0]["pages_observation"], urls[1]["pages_observation"])
+        self.assertNotEqual(urls[0]["pages_observation"], urls[2]["pages_observation"])
+
     def test_http_failure_is_not_an_empty_history(self):
         from urllib.error import HTTPError
         with patch.object(living_library, "urlopen", side_effect=HTTPError("https://example.test/", 503, "Unavailable", {}, None)):

@@ -18,6 +18,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import uuid
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -58,12 +59,18 @@ class GitHub:
         self.repository = repository
         self.publication_repository = publication_repository or os.environ.get("PAGES_PUBLICATION_REPOSITORY")
         self.token = os.environ.get("GH_TOKEN", "") if token is None else token
+        self.observation = uuid.uuid4().hex
 
     def get_json(self, path):
-        headers = {"User-Agent": "pages-release-reconciler", "Accept": "application/vnd.github+json"}
+        headers = {"User-Agent": "pages-release-reconciler", "Accept": "application/vnd.github+json",
+                   "Cache-Control": "no-cache"}
         if self.token:
             headers["Authorization"] = "Bearer " + self.token
-        request = Request(f"https://api.github.com/repos/{self.repository}/{path}", headers=headers)
+        # Branches, run lists and release assets can change between observations.
+        # An intermediary has served an old commits/dev response while branches/dev
+        # was fresh; that incorrectly excluded newer successful CI as non-ancestors.
+        separator = "&" if "?" in path else "?"
+        request = Request(f"https://api.github.com/repos/{self.repository}/{path}{separator}pages_observation={self.observation}", headers=headers)
         with urlopen(request, timeout=30) as response:
             raw = response.read(MAX_METADATA_BYTES + 1)
         if len(raw) > MAX_METADATA_BYTES:
