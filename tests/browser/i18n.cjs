@@ -72,7 +72,7 @@ const route = path => root + path;
       ['knowledge/node/35b9ed520bf5997fd92ed38277ff38290799a1eb64af4b31738a853ddaaf7d4c/','main']
     ]) {
       await open(path, selector); await english();
-      assert.deepEqual(await page.locator('body > header nav a').allTextContents(),['Explore','Research','Conjectures','Library','Evolution'],path);
+      assert.deepEqual(await page.locator('body > header nav a').allTextContents(),['Explore','Research','Conjectures','Library','Evolution','Contribute'],path);
     }
     await open('conjectures.html?lang=zh-CN#next-questions','.mm-entry-cards');
     const navier=page.locator('.mm-entry-cards a[href*="navier-stokes"]');

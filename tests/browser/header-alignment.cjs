@@ -48,7 +48,7 @@ const routes = [
             .locator("a")
             .allTextContents()
             .then((items) => items.map((s) => s.trim())),
-          ["Explore", "Research", "Conjectures", "Library", "Evolution"],
+          ["Explore", "Research", "Conjectures", "Library", "Evolution", "Contribute"],
         );
         const header = page.locator("body > header").first();
         const brand = await header.locator(".brand").boundingBox();
