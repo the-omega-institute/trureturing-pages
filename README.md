@@ -36,6 +36,13 @@ containing the published source commit. Research is generated at `research.html`
 content history is at `library-history.html`. See [Living knowledge](docs/LIVING_KNOWLEDGE.md)
 for the two update clocks, archive format, research evidence boundaries, and tests.
 
+## Contribution management
+
+Maintainers and agents can run the read-only [external PR/Issue queue](docs/CONTRIBUTION_MANAGEMENT.md)
+with `python3 -m lib.contribution_queue`. Organization owners are exempt; external
+PRs become review-ready only with current, attributable protected CI success.
+Issues are triaged separately. This manual command does not change upstream state.
+
 ## Truth boundary
 
 The site only consumes manually approved, frozen truth from trureturing, represented by a `source-snapshot.v1` input. It must not become a second source of truth: prose, node state, conclusions, and provenance stay owned by the frozen upstream snapshot.
