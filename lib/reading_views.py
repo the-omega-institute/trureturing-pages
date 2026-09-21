@@ -109,7 +109,7 @@ def replace_main(document: str, body: str):
 
 
 def add_spaces_navigation(document: str, root=''):
-    """Compatibility name. Restore the five original primary destinations.
+    """Compatibility name. Keep knowledge and contribution destinations in primary navigation.
 
     The diagnostic page and old Spaces URLs remain resolvable, but neither is a
     primary knowledge destination. Do not alter citation or evidence links.

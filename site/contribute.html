@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f8fa">
+  <meta name="description" content="Help grow an open mathematical library. Explore the knowledge graph, work on a question, improve an explanation, and contribute through GitHub.">
+  <title>Contribute | trureturing</title>
+  <link rel="stylesheet" href="assets/site-theme.css">
+  <link rel="stylesheet" href="assets/research-editorial.css">
+  <link rel="stylesheet" href="assets/contribute.css">
+  <script type="module" src="assets/i18n.mjs"></script>
+  <script type="module" src="assets/contribute.mjs"></script>
+</head>
+<body class="site-themed research-editorial contribute-page">
+  <header class="knowledge-header">
+    <a class="brand" href="index.html">trureturing</a>
+    <nav aria-label="Primary navigation"><a href="atlas.html">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a><a href="contribute.html" aria-current="page">Contribute</a></nav>
+    <span class="header-coordinate"><a href="https://github.com/the-omega-institute/trureturing">GitHub ↗</a></span>
+  </header>
+  <main class="contribute-main">
+    <section class="contribute-intro">
+      <p class="contribute-kicker">OPEN MATHEMATICS / OPEN CONTRIBUTIONS</p>
+      <h1>Build on what<br>we know.</h1>
+      <p class="contribute-lede">A proof, a useful connection, a clearer explanation. Help grow a mathematical library that others can build on.</p>
+      <div class="contribute-actions"><a class="contribute-primary" href="#start">Work with your agent <span aria-hidden="true">↗</span></a><a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/CONTRIBUTING.md">Contributor guide ↗</a></div>
+    </section>
+    <section class="contribute-workspace" id="start" aria-labelledby="start-heading">
+      <div class="contribute-choices">
+        <p class="contribute-kicker">01 / FIND YOUR START</p>
+        <h2 id="start-heading">What would you like to work on?</h2>
+        <fieldset id="contribution-kind">
+          <legend class="visually-hidden">Contribution type</legend>
+          <label class="contribute-choice"><input type="radio" name="kind" value="library" checked><span><strong>Extend the library</strong><small>Prove a useful result, reuse a theorem, or connect existing ideas.</small></span><span aria-hidden="true">↗</span></label>
+          <label class="contribute-choice"><input type="radio" name="kind" value="problem"><span><strong>Explore a question</strong><small>Investigate a conjecture, find a counterexample, or clarify a missing step.</small></span><span aria-hidden="true">↗</span></label>
+          <label class="contribute-choice"><input type="radio" name="kind" value="theory"><span><strong>Bring in research</strong><small>Connect a paper or theory to material the library can use.</small></span><span aria-hidden="true">↗</span></label>
+          <label class="contribute-choice"><input type="radio" name="kind" value="improve"><span><strong>Improve what is here</strong><small>Clarify an explanation, correct a source, or fix a tool.</small></span><span aria-hidden="true">↗</span></label>
+        </fieldset>
+        <a class="contribute-browse" id="browse-work" href="atlas.html">Explore the knowledge graph ↗</a>
+      </div>
+      <div class="contribute-agent">
+        <p class="contribute-kicker">02 / GIVE YOUR AGENT A STARTING POINT</p>
+        <h2>Bring your curiosity.<br>Your agent can help.</h2>
+        <label for="contribution-target">What do you want to work on? <span>Optional</span></label>
+        <input id="contribution-target" type="text" maxlength="1200" placeholder="A question, node link, paper, or source path" autocomplete="off">
+        <label class="visually-hidden" for="agent-prompt">Instructions for your agent</label>
+        <textarea id="agent-prompt" rows="10" readonly spellcheck="false" translate="no">Open https://github.com/the-omega-institute/trureturing and read AGENTS.md and docs/CONTRIBUTING.md on dev. Help me make one useful contribution to the mathematical library. Search for existing results first, follow the repository rules, and prepare a focused pull request to dev with appropriate checks and independent review. Explain any unverified claims.</textarea>
+        <div class="contribute-copy-row"><button type="button" class="contribute-primary" id="copy-prompt" hidden>Copy instructions <span aria-hidden="true">↗</span></button><span id="copy-status" role="status" aria-live="polite">Paste into your coding agent.</span></div>
+        <noscript><p>Select and copy the instructions above, or follow the contributor guide.</p></noscript>
+      </div>
+    </section>
+    <section class="contribute-finish" aria-labelledby="finish-heading">
+      <div><p class="contribute-kicker">03 / CONTRIBUTE ON GITHUB</p><h2 id="finish-heading">One focused pull request.</h2></div>
+      <div><p>Fork the repository, make your change, and open a pull request to dev. Include what changed, why it helps, and how it was checked.</p><p class="contribute-muted">CI checks the change. Review checks its meaning and fit. Accepted contributions become part of the library and its next published update.</p><div class="contribute-actions"><a href="https://github.com/the-omega-institute/trureturing/compare/dev...dev?expand=1">Open a pull request ↗</a><a href="https://github.com/the-omega-institute/trureturing/fork">Fork the repository ↗</a></div></div>
+    </section>
+    <aside class="contribute-issue"><div><h2>Found a problem?</h2><p>A precise question, broken link, or mathematical mismatch is useful too.</p></div><a href="https://github.com/the-omega-institute/trureturing/issues/new?title=&amp;body=Source%20or%20page%3A%0A%0AQuestion%20or%20problem%3A%0A%0AExpected%20and%20observed%3A%0A%0AEvidence%20or%20reproduction%3A%0A">Open an issue ↗</a></aside>
+  </main>
+  <footer class="site-footer">THE OMEGA INSTITUTE / LIVING MATHEMATICS</footer>
+</body>
+</html>

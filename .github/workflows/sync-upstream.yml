@@ -24,7 +24,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,7 +44,7 @@ jobs:
             --output "$RUNNER_TEMP/source-selection.json" --github-output "$GITHUB_OUTPUT"
           cat "$RUNNER_TEMP/source-selection.json" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Download the existing report with its provenance and materials
+      - name: Download the current CI transport with its GitHub digest
         if: steps.source.outputs.should_build == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -59,6 +59,7 @@ jobs:
           repository: the-omega-institute/trureturing
           ref: ${{ steps.source.outputs.source_commit }}
           path: _source
+          fetch-depth: 0
           persist-credentials: false
 
       - uses: actions/setup-dotnet@v4
@@ -68,28 +69,16 @@ jobs:
 
       - name: Project the upstream report into the existing website data contract
         if: steps.source.outputs.should_build == 'true'
-        working-directory: _source
         env:
-          SOURCE_COMMIT: ${{ steps.source.outputs.source_commit }}
           DOTNET_GCHeapHardLimitPercent: '0x46'
           DOTNET_GCConserveMemory: '9'
+          STRATALINT_CACHE_WRITES: 'false'
         run: |
-          set -euo pipefail
-          dotnet restore tools/StrataLint.Cli/StrataLint.Cli.csproj --locked-mode \
-            --configfile "$GITHUB_WORKSPACE/config/upstream-export.nuget.config"
-          dotnet build tools/StrataLint.Cli/StrataLint.Cli.csproj --configuration Release --no-restore
-          # Reuse the upstream Inspector report. Never invoke Lean, lake, or a report-production fallback.
-          # These check conclusions were verified against this exact CI run by the selector.
-          dotnet run --project tools/StrataLint.Cli/StrataLint.Cli.csproj \
-            --configuration Release --no-build --no-restore -- \
-            truth-release --out "$RUNNER_TEMP/pages-source-bundle" \
-            --candidate-lean-report "$RUNNER_TEMP/upstream-report/candidate-lean-report.json" \
-            --producer-package-commit "$SOURCE_COMMIT" \
-            --produced-at "$(jq -r .produced_at "$RUNNER_TEMP/source-selection.json")" \
-            --commit-on-protected-dev true \
-            --required-check 'Candidate harness engineering checks=success' \
-            --required-check 'Canonical Lean report production=success' \
-            --required-check 'Content-addressed dev baseline admission=success'
+          python -m lib.upstream_publication project \
+            --selection "$RUNNER_TEMP/source-selection.json" \
+            --repository "$GITHUB_WORKSPACE/_source" \
+            --archive "$RUNNER_TEMP/upstream-report/ci-current.tar.gz" \
+            --destination "$RUNNER_TEMP/pages-source-bundle"
 
       - name: Verify the projected bundle and bind its CI provenance
         if: steps.source.outputs.should_build == 'true'

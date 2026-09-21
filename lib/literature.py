@@ -27,7 +27,7 @@ def validate_http_url(url):
 
 
 def problem_source_url(problem):
-    """Link to the single DOI, arXiv or URL source retained in a problem snapshot."""
+    """Choose the primary link from the retained DOI, arXiv and URL sources."""
     if problem.get('doi'):
         return 'https://doi.org/' + quote(problem['doi'], safe='/')
     if problem.get('arxiv_id'):

@@ -590,3 +590,16 @@
 @media (max-width: 700px) {
   .site-themed :is(.site-header, .knowledge-header, .atlas-header) > .header-tools { grid-column: 2; }
 }
+
+/* Keep the contribution entry reachable on small screens. */
+@media (max-width: 1100px) and (min-width: 701px) {
+  .site-themed :is(.site-header, .knowledge-header, .atlas-header) nav,
+  .site-themed :is(.site-header, .knowledge-header, .atlas-header) nav ul { gap: 16px; }
+  .header-tools .header-coordinate { display: none; }
+}
+@media (max-width: 700px) {
+  .site-themed :is(.site-header, .knowledge-header, .atlas-header) { grid-template-rows: 30px auto; }
+  .site-themed :is(.site-header, .knowledge-header, .atlas-header) nav,
+  .site-themed :is(.site-header, .knowledge-header, .atlas-header) nav ul { flex-wrap: wrap; gap: 0 12px; height: auto; }
+  .site-themed :is(.site-header, .knowledge-header, .atlas-header) nav a { min-height: 44px; }
+}

@@ -95,15 +95,15 @@ def parse_problem(text: str, filename: str) -> dict:
     if meta.get("triage") not in ("theorem", "window", "wall"):
         raise ValueError(f"Invalid problem triage: {slug}")
     source = {key: meta[key] for key in PROBLEM_SOURCES if meta.get(key) is not None}
-    if len(source) != 1:
-        raise ValueError(f"Exactly one problem source (doi, arxiv_id or url) is required: {slug}")
+    if not source:
+        raise ValueError(f"At least one problem source (doi, arxiv_id or url) is required: {slug}")
     if "doi" in source:
         if not isinstance(meta["doi"], str) or not re.fullmatch(r"10\.\d{4,9}/[^\s<>\"]+", meta["doi"]):
             raise ValueError(f"Invalid DOI source: {slug}")
-    elif "arxiv_id" in source:
+    if "arxiv_id" in source:
         if not isinstance(meta.get("arxiv_id"), str) or not re.fullmatch(r"\d{4}\.\d{4,5}(?:v\d+)?", meta["arxiv_id"]):
             raise ValueError(f"Invalid arXiv source: {slug}")
-    else:
+    if "url" in source:
         try:
             validate_http_url(meta["url"])
         except ValueError as error:
@@ -127,8 +127,10 @@ def parse_problem(text: str, filename: str) -> dict:
             if current:
                 sections[current]["end"] = token.map[0]
             current = heading
-    if not title or set(sections) != set(SECTIONS):
+    if set(sections) != set(SECTIONS):
         raise ValueError(f"Problem sections differ from catalog contract: {slug}")
+    # A missing display heading does not invalidate source-bound mathematics.
+    title = title or slug.replace("-", " ")
     lines = parts[1].splitlines()
     content = {name: "\n".join(lines[item["start"]:item.get("end", len(lines))]).strip() for name, item in sections.items()}
     if any(not value for value in content.values()):
