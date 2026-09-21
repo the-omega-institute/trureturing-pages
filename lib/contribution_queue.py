@@ -169,7 +169,7 @@ def pr_reasons(p, repo_id):
 
 def ci_run_identity(run):
     return {key: run.get(key) for key in (
-        "id", "workflow_id", "path", "event", "head_sha", "check_suite_id", "run_attempt",
+        "id", "workflow_id", "path", "event", "head_sha", "check_suite_id", "run_number", "run_attempt",
         "status", "conclusion", "repository", "pull_requests")}
 
 
@@ -220,6 +220,7 @@ def ci(api, root, repo, repo_id, p, rules):
     checks = api.pages(f"{root}/commits/{p['head']['sha']}/check-runs", "check_runs", filter="all")
     by_id = {c["id"]: c for c in checks}
     reasons = []
+    selected_checks = set()
     for required in rules["required_checks"]:
         context, app_id = required["context"], required["app_id"]
         matching = [j for j in jobs if j.get("name") == context]
@@ -241,6 +242,7 @@ def ci(api, root, repo, repo_id, p, rules):
             if check is None:
                 reasons.append(reason("required_check_missing", context=context))
                 continue
+            selected_checks.add(check["id"])
             evidence["checks"].append({"context": context, "app_id": check.get("app", {}).get("id"),
                                        "check_run_id": check["id"], "job_id": job["id"],
                                        "status": check.get("status"), "conclusion": check.get("conclusion")})
@@ -251,6 +253,48 @@ def ci(api, root, repo, repo_id, p, rules):
                 reasons.append(reason("required_check_source_mismatch", context=context))
             if check.get("status") != "completed" or check.get("conclusion") != "success":
                 reasons.append(reason("required_check_not_successful", context=context))
+    # Protection binds context/app, not workflow. A competing non-success cannot
+    # be discarded just because the chosen attempt's jobs do not reference it.
+    required_apps = {r["context"]: r["app_id"] for r in rules["required_checks"]}
+    competing = {c["id"]: c for c in checks
+                 if c["id"] not in selected_checks and c.get("head_sha") == p["head"]["sha"]
+                 and c.get("name") in required_apps
+                 and c.get("app", {}).get("id") == required_apps[c["name"]]
+                 and (c.get("status") != "completed" or c.get("conclusion") != "success")}
+    # GitHub run_number increases for each new execution of a workflow;
+    # run_attempt increases for reruns. Check IDs have no ordering role here.
+    histories = [(run, a) for a in range(1, attempt)]
+    histories.extend((r, 1) for r in runs
+                     if r["id"] != run_id and r.get("run_attempt") == 1
+                     and r.get("status") == "completed" and positive(r.get("check_suite_id"))
+                     and positive(r.get("run_number")) and positive(run.get("run_number"))
+                     and r["run_number"] < run["run_number"]
+                     and all(r.get(k) == run.get(k) for k in
+                             ("workflow_id", "path", "event", "head_sha", "repository")))
+    for previous, previous_attempt in histories:
+        suite = previous["check_suite_id"]
+        if not any(c.get("check_suite", {}).get("id") == suite for c in competing.values()):
+            continue
+        old_jobs = api.pages(f"{root}/actions/runs/{previous['id']}/attempts/{previous_attempt}/jobs", "jobs")
+        for job in old_jobs:
+            if (job.get("run_id") != previous["id"] or job.get("run_attempt") != previous_attempt
+                    or job.get("head_sha") != p["head"]["sha"]):
+                continue
+            for check_id, check in list(competing.items()):
+                if (check.get("check_suite", {}).get("id") == suite
+                        and job.get("name") == check["name"]
+                        and job.get("check_run_url") == f"https://api.github.com{root}/check-runs/{check_id}"):
+                    del competing[check_id]
+    for check in competing.values():
+        reasons.append(reason("required_check_ambiguous", context=check["name"],
+                              check_run_id=check["id"], check_suite_id=check.get("check_suite", {}).get("id")))
+    # GitHub requires both a check and a same-name legacy status to pass. The
+    # combined endpoint returns the latest status per context, not its history.
+    statuses = api.pages(f"{root}/commits/{p['head']['sha']}/status", "statuses")
+    for status in statuses:
+        if status.get("context") in required_apps and status.get("state") != "success":
+            reasons.append(reason("required_status_not_successful", context=status["context"],
+                                  status_id=status.get("id"), state=status.get("state")))
     # Observe a rerun that started during check retrieval before returning green.
     fresh_run = api.get(f"{root}/actions/runs/{run_id}")
     if ci_run_identity(fresh_run) != ci_run_identity(run):

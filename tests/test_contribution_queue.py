@@ -28,7 +28,7 @@ def pr(number=7, author="contributor"):
 def run(run_id=30, attempt=1):
     return {"id": run_id, "workflow_id": 10, "path": ".github/workflows/ci-pr.yml",
             "event": "pull_request", "head_sha": HEAD, "check_suite_id": 40,
-            "run_attempt": attempt, "status": "completed", "conclusion": "success",
+            "run_number": run_id, "run_attempt": attempt, "status": "completed", "conclusion": "success",
             "repository": {"id": 1, "full_name": REPO},
             "pull_requests": [{"number": 7, "head": {"sha": HEAD, "repo": {"id": 2}},
                                "base": {"ref": "dev", "sha": BASE, "repo": {"id": 1}}}]}
@@ -59,6 +59,7 @@ class FakeGitHub:
             ROOT + "/actions/runs/30": run(),
             ROOT + "/actions/runs/30/attempts/1/jobs": [],
             ROOT + "/commits/" + HEAD + "/check-runs": [],
+            ROOT + "/commits/" + HEAD + "/status": [],
         }
         for index, name in enumerate(("delta", "push / current"), 50):
             self.data[ROOT + "/actions/runs/30/attempts/1/jobs"].append({
@@ -156,6 +157,99 @@ class QueueTests(unittest.TestCase):
         self.api = FakeGitHub()
         self.api.data[ROOT + "/commits/" + HEAD + "/check-runs"][0]["check_suite"]["id"] = 999
         self.waiting("required_check_source_mismatch")
+
+    def competing_check(self, **changes):
+        checks = self.api.data[ROOT + "/commits/" + HEAD + "/check-runs"]
+        check = dict(copy.deepcopy(checks[0]), id=999, conclusion="failure", check_suite={"id": 900})
+        check.update(changes)
+        checks.append(check)
+        return check
+
+    def test_outside_suite_failed_or_pending_required_check_waits(self):
+        for check_id in (1, 999):  # IDs do not establish supersession.
+            for status, conclusion in (("completed", "failure"), ("queued", None), ("in_progress", None)):
+                with self.subTest(check_id=check_id, status=status):
+                    self.api = FakeGitHub()
+                    self.competing_check(id=check_id, status=status, conclusion=conclusion)
+                    result = self.waiting("required_check_ambiguous")
+                    conflict = next(r for r in result["prs"]["waiting"][0]["reasons"]
+                                    if r["code"] == "required_check_ambiguous")
+                    self.assertEqual(conflict["check_run_id"], check_id)
+                    self.assertEqual(conflict["check_suite_id"], 900)
+
+    def test_unrelated_check_conflicts_do_not_block(self):
+        for changes in ({"name": "optional"}, {"app": {"id": 99}}, {"head_sha": "d" * 40},
+                        {"conclusion": "success"}):
+            with self.subTest(changes=changes):
+                self.api = FakeGitHub()
+                self.competing_check(**changes)
+                self.assertEqual(len(self.scan()["prs"]["ready"]), 1)
+
+    def test_full_successful_rerun_supersedes_proven_old_attempt_checks(self):
+        old_check = self.api.data[ROOT + "/commits/" + HEAD + "/check-runs"][0]
+        old_check["conclusion"] = "failure"
+        old_job = self.api.data[ROOT + "/actions/runs/30/attempts/1/jobs"][0]
+        old_job["conclusion"] = "failure"
+        self.api.data[ROOT + "/actions/workflows/10/runs"] = [run(attempt=2)]
+        self.api.data[ROOT + "/actions/runs/30"] = run(attempt=2)
+        new_jobs = []
+        for job in self.api.data[ROOT + "/actions/runs/30/attempts/1/jobs"]:
+            check_id = job["id"] + 100
+            new_jobs.append(dict(job, id=check_id, run_attempt=2, conclusion="success",
+                                 check_run_url=f"https://api.github.com{ROOT}/check-runs/{check_id}"))
+            self.competing_check(id=check_id, name=job["name"], conclusion="success", check_suite={"id": 40})
+        self.api.data[ROOT + "/actions/runs/30/attempts/2/jobs"] = new_jobs
+        self.assertEqual(len(self.scan()["prs"]["ready"]), 1)
+        # A same-suite check with no job in the old attempt remains ambiguous.
+        old_job["check_run_url"] = f"https://api.github.com{ROOT}/check-runs/1234"
+        self.waiting("required_check_ambiguous")
+
+    def test_new_execution_supersedes_proven_old_workflow_check(self):
+        old = dict(run(29), check_suite_id=900, conclusion="failure")
+        self.api.data[ROOT + "/actions/workflows/10/runs"].append(old)
+        self.competing_check()
+        old_job = dict(self.api.data[ROOT + "/actions/runs/30/attempts/1/jobs"][0],
+                       id=999, run_id=29, conclusion="failure",
+                       check_run_url=f"https://api.github.com{ROOT}/check-runs/999")
+        self.api.data[ROOT + "/actions/runs/29/attempts/1/jobs"] = [old_job]
+        self.assertEqual(len(self.scan()["prs"]["ready"]), 1)
+        for field, value in (("run_number", None), ("run_number", 31), ("workflow_id", 99),
+                             ("check_suite_id", 901), ("head_sha", "d" * 40)):
+            with self.subTest(field=field):
+                saved = old[field]
+                old[field] = value
+                self.waiting("required_check_ambiguous")
+                old[field] = saved
+        old_job["run_attempt"] = 2
+        self.waiting("required_check_ambiguous")
+
+    def test_required_legacy_status_conflict_waits(self):
+        for state in ("failure", "pending", "error"):
+            with self.subTest(state=state):
+                self.api = FakeGitHub()
+                self.api.data[ROOT + "/commits/" + HEAD + "/status"] = [
+                    {"id": 700, "context": "delta", "state": state}]
+                self.waiting("required_status_not_successful")
+
+    def test_combined_latest_success_and_unrequired_legacy_status_are_eligible(self):
+        self.api.data[ROOT + "/commits/" + HEAD + "/status"] = [
+            {"id": 700, "context": "delta", "state": "success"},
+            {"id": 701, "context": "optional", "state": "failure"}]
+        self.assertEqual(len(self.scan()["prs"]["ready"]), 1)
+        self.assertFalse(any(path.endswith("/statuses") for path, _ in self.api.calls))
+
+    def test_competing_check_during_final_validation_invalidates_ready(self):
+        path = ROOT + "/commits/" + HEAD + "/check-runs"
+        original = copy.deepcopy(self.api.data[path])
+        self.competing_check(status="in_progress", conclusion=None)
+        self.api.hooks[path] = lambda n: original if n == 1 else self.api.data[path]
+        self.waiting("ci_changed")
+
+    def test_legacy_status_visibility_failure_aborts_scan(self):
+        self.api.data[ROOT + "/commits/" + HEAD + "/status"] = q.QueueError("api_error", "Access denied")
+        with self.assertRaises(q.QueueError) as caught:
+            self.scan()
+        self.assertEqual(caught.exception.code, "api_error")
 
     def test_new_run_or_rerun_cannot_use_old_green(self):
         self.api.data[ROOT + "/actions/workflows/10/runs"].append(run(31))

@@ -33,7 +33,7 @@ No PR code, workflow contents, arbitrary details URLs, or instructions are execu
 
 The authenticated identity must have active membership in the target organization,
 with `read:org` or equivalent Members-read visibility of **all** organization admins,
-and the repository read rights needed for PRs, Issues, Actions, Checks and branch
+and the repository read rights needed for PRs, Issues, Actions, Checks, commit statuses and branch
 protection (Administration read where required). Private repositories also require
 repository access. Merely seeing public members is insufficient. The command checks
 its own active membership, enumerates `role=admin` across all pages, and repeats
@@ -108,6 +108,16 @@ rebase, a new merge SHA build, or CI against the latest `dev` tip. The adapter:
   with an older rerun or an unfinished older run are conservatively reported as
   ambiguous; a maintainer must inspect them, and the command does not guess which
   superseded which. This may exclude otherwise acceptable GitHub CI histories.
+- Also checks competing current-head checks for each protected context/app. An
+  unselected non-success check waits unless its suite and exact job reference
+  prove it belongs to a prior attempt of the selected run, or a completed,
+  never-rerun execution of the same workflow with a lower GitHub
+  [`run_number`](https://docs.github.com/en/actions/reference/workflows-and-actions/variables).
+  Check IDs do not establish ordering; unknown suites remain ambiguous.
+- Reads the latest legacy commit status per context from GitHub's combined-status
+  endpoint. A same-name required status must also succeed: GitHub documents that
+  [both a check and a commit status must pass when their shared name is required](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks).
+  Unrequired statuses do not affect admission.
 - Re-fetches the run after reading checks, then re-observes candidate CI, protection,
   PR identity and organization ownership at the end. Changed CI/policy/head,
   merge candidate, draft, open state or mergeability invalidates readiness. A base
@@ -150,6 +160,8 @@ must always be refreshed; no multi-request scan can be atomic.
 | `unsupported_rulesets`, `unsupported_strict_policy`, `unsupported_required_checks` | Maintainer must inspect policy; this adapter cannot assert eligibility. |
 | `ci_workflow_unavailable`, `ci_run_missing`, `ci_source_mismatch`, `ci_execution_ambiguous` | Inspect genuine target-repository CI execution and associations. |
 | `ci_run_not_successful`, `required_job_missing`, `required_job_not_successful`, `required_check_missing`, `required_check_source_mismatch`, `required_check_not_successful` | Wait for or inspect the current required CI; context appears in reason details. |
+| `required_check_ambiguous` | Inspect the competing required check/suite IDs; supersession could not be proved from workflow execution and attempt provenance. |
+| `required_status_not_successful` | Inspect the latest same-name required legacy status; context, status ID and state appear in reason details. |
 | `snapshot_changed`, `policy_changed`, `ci_changed` | Rescan; the proposed selection became stale during observation. |
 | `needs_triage` | Review the Issue independently of CI. |
 | Error `owner_visibility_unknown`, `author_identity_unknown`, `owner_snapshot_changed`, `api_error`, `api_unavailable`, `pagination_changed`, `pagination_incomplete`, `invalid_api_response` | Repair read visibility or retry; no classification is returned. |
