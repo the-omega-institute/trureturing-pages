@@ -206,7 +206,10 @@ def _result_statement(item):
     # Derived summaries are the first paragraph (sometimes truncated). They must
     # never replace the source text or leave a quotation introduction dangling.
     prefix = summary.removesuffix("…").rstrip()
-    repeated = bool(prefix) and " ".join(scope.split()).startswith(" ".join(prefix.split()))
+    repeated = bool(prefix) and (
+        " ".join(scope.split()).startswith(" ".join(prefix.split()))
+        or summary == _problem_summary({"sections": {"Problem": scope}})
+    )
     introduction = f'<p>{esc(summary)}</p>' if summary and not repeated else ''
     return introduction + f'<div class="result-statement prose">{MARKDOWN.render(scope)}</div>'
 
