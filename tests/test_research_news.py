@@ -65,6 +65,28 @@ class ResearchNewsTests(unittest.TestCase):
             with self.subTest(source=source):
                 self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
 
+    def test_actual_library_fenced_source_and_substantive_lead(self):
+        from lib.research_news import _problem_summary
+        # Actual opening blocks from the 350-result review library. The fenced
+        # definition follows a source lead; the tournament prose is substantive.
+        cases = [
+            ('OEIS A300657 defines\n\n```text\na(n) = Sum_{d|n} sigma(d) mod d.\n```',
+             'a(n) = Sum_{d|n} sigma(d) mod d.'),
+            ('Alexander Bastien and Omid Khormali, *On Link-irregular Digraphs*,\n'
+             '[arXiv:2512.20494v1](https://arxiv.org/abs/2512.20494v1), Conjecture 6,\n'
+             'assert that a link-irregular tournament exists on `n` vertices if and only\n'
+             'if `n >= 6`. The precise resolution here is its nonvacuous reading:\n\n'
+             '```lean\n∀ n : Nat, 2 ≤ n →\n'
+             '  ((∃ R : Fin n → Fin n → Prop, IsTournament R ∧ LinkIrregular R) ↔ 6 ≤ n)\n```',
+             'Alexander Bastien and Omid Khormali, *On Link-irregular Digraphs*, '
+             '[arXiv:2512.20494v1](https://arxiv.org/abs/2512.20494v1), Conjecture 6, '
+             'assert that a link-irregular tournament exists on `n` vertices if and only '
+             'if `n >= 6`. The precise resolution here is its nonvacuous reading:'),
+        ]
+        for source, expected in cases:
+            with self.subTest(source=source):
+                self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
+
     def _verified_snapshot(self, problem, kind="proved"):
         problem = dict(problem)
         problem.setdefault("triage", "theorem")
@@ -75,6 +97,68 @@ class ResearchNewsTests(unittest.TestCase):
                                                        "freeze_status": "frozen"}}
         return {"graph": {"source_snapshot": {"source_commit": "b" * 40}, "nodes": []},
                 "problems": [problem], "truth_release_digest": "sha256:" + "c" * 64}
+
+    def test_actual_long_paragraphs_keep_literal_excerpts_and_migrate(self):
+        from lib.research_catalog import build_catalog
+        from lib.research_news import _problem_summary, _result_statement
+        # Complete source records copied from the 350-result review snapshot.
+        snapshot = json.loads((Path(__file__).parent / 'fixtures/research-summary-paragraphs.json').read_text())
+        cases = {
+            'oeis-a385590-alternating-binomial': (
+                "The single statement considered here is the formula-field conjecture in "
+                "Werner Schulte's OEIS A385590, dated 2025-07-03.",
+                "The single statement considered here is the formula-field conjecture in "
+                "Werner Schulte's OEIS A385590, dated 2025-07-03. For every integer n >= 1, "
+                "let i > 1 be the unique index with F(i) <= n < F(i+1), with F(0)=0 and F(1)=1. "
+                "Put T(n,k) = F(i-1)^2 + 1 - ((i-1) mod 2) + (n-F(i))*F(i-2) "
+                "+ (k-1)*F(i-1). Is the sum from k…"),
+            'erdos-deep-triple-classification-refutation': (
+                'Conjecture 1.',
+                'Conjecture 1. An Erdős-deep family of three APs of lengths `k1 ≥ k2 ≥ k3` in '
+                '`Z_n` exists if and only if `(k1, k2, k3) ∈ {(4, 4, 3), (6, 3, 3)}`, each for '
+                'infinitely many n, or `(k1, k2, k3) ∈ {(6, 5, 3), (6, 6, 4), (6, 6, 6), '
+                '(7, 7, 3), (9, 4, 3), (8, 7, 4), (8, 8, 5), (10, 6, 4), (12, 4, 4), (13, 5, 3), '
+                '(13, 7, 4),…'),
+        }
+        families = {f['id']: f for f in build_catalog(snapshot)['families']}
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'news.json'
+            for problem in snapshot['problems']:
+                slug = problem['slug']
+                legacy, expected = cases[slug]
+                scope = problem['sections']['Problem']
+                current = {**snapshot, 'problems': [problem]}
+                self.assertEqual(_problem_summary(problem), expected)
+                self.assertEqual(families[slug]['summary'], expected)
+                self.assertLessEqual(len(expected), 320)
+                path.write_text(json.dumps({'results': []}))
+                fresh = append_verified(current, path)['results'][0]
+                self.assertEqual(fresh['summary'], expected)
+                editorial = legacy + ' Editorial: retain this chosen explanation.'
+                for saved in (legacy, expected, editorial):
+                    for updated_scope in (scope, 'Updated mathematical question.\n\nFull scope boundary.'):
+                        with self.subTest(source=slug, saved=saved, updated=updated_scope != scope):
+                            path.write_text(json.dumps({'results': [{**fresh, 'summary': saved}]}))
+                            updated = {**problem, 'sections': {**problem['sections'], 'Problem': updated_scope}}
+                            update = {**snapshot, 'problems': [updated]}
+                            record = append_verified(update, path)['results'][0]
+                            wanted = editorial if saved == editorial else (
+                                expected if updated_scope == scope else 'Updated mathematical question.')
+                            self.assertEqual(record['summary'], wanted)
+                            self.assertEqual(record['scope'], updated_scope)
+                            html = _result_statement(record)
+                            self.assertEqual('Editorial:' in html, saved == editorial)
+                            first = path.read_bytes()
+                            append_verified(update, path)
+                            self.assertEqual(path.read_bytes(), first)
+
+    def test_literal_summary_limit_ignores_sentence_like_punctuation(self):
+        from lib.research_news import _short_summary
+        for lead in ('Conjecture 1. ', 'A. Author: ', '[1]. ', '... '):
+            text = lead + 'x' * (320 - len(lead))
+            with self.subTest(lead=lead):
+                self.assertEqual(_short_summary(text), text)
+                self.assertEqual(_short_summary(text + 'y'), text[:319] + '…')
 
     def test_kernel_verified_external_resolution_derives_editorial_record_and_lean_status(self):
         problem = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",

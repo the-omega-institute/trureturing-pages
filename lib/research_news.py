@@ -52,18 +52,27 @@ def _derived_field(problem, source_url, resolution=None):
     return str(domain) if domain else "Open problem"
 
 
-def _short_summary(text, limit=320, *, legacy=False):
+def _short_summary(text, limit=320):
+    text = " ".join(text.split())
+    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
+
+
+def _legacy_short_summary(text, limit=320, *, preserve_omission=False):
+    """Reproduce sentence truncation only to recognize saved auto summaries."""
     text = " ".join(text.split())
     if len(text) <= limit:
         return text
-    # A leading omission marker is not a sentence. Retain it with the excerpt.
-    first = re.search(r".+?[.!?。！？](?:\s|$)" if legacy else r".*?\w.*?[.!?。！？](?:\s|$)", text)
+    first = re.search(r".*?\w.*?[.!?。！？](?:\s|$)" if preserve_omission else r".+?[.!?。！？](?:\s|$)", text)
     if first and len(first.group(0).strip()) <= limit:
         return first.group(0).strip()
     return text[: limit - 1].rstrip() + "…"
 
 
 def _problem_summary(problem, limit=320):
+    return _short_summary(_problem_excerpt(problem), limit)
+
+
+def _problem_excerpt(problem):
     from lib.living_library import MARKDOWN
     raw = str(problem.get("sections", {}).get("Problem", "")).strip()
     blocks, depth = [], 0
@@ -75,41 +84,53 @@ def _problem_summary(problem, limit=320):
         elif token.type in ("inline", "fence", "code_block"):
             blocks.append((token, depth > 0))
     if not blocks:
-        return _short_summary(raw, limit)
+        return raw
     lead = blocks[0][0].content
     index = 0
-    label = r"(?:NAME|COMMENTS?|FORMULA)(?:\s*\([^)]*\))?:"
+    label = (r"(?:(?:OEIS\s+)?A\d{6}(?:,\s*[^:\n]+,)?\s+)?"
+             r"(?:NAME|COMMENTS?|FORMULA)(?:\s*\([^)]*\))?")
+    oeis_lead = (re.fullmatch(r"OEIS A\d{6} defines(?:\s+.+\s+by)?", lead, re.S)
+                 or (re.match(r"OEIS A\d{6}\b", lead)
+                     and re.search(r"\bquotations\b", lead)))
     if (len(blocks) > 1 and not blocks[0][1]
-            and (lead.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", lead, re.I))):
+            and (lead.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", lead, re.I)
+                 or oeis_lead)):
         index = 1
-        while index < len(blocks) and re.fullmatch(label, blocks[index][0].content.strip(), re.I):
+        while index < len(blocks) and re.fullmatch(label + ":", blocks[index][0].content.strip(), re.I):
             index += 1
     if index < len(blocks):
         token, quoted = blocks[index]
         # Read raw token content, never inline children: '*' may be multiplication.
         field = re.search(r"(?m)^%[NCF] A\d{6} (.+)", token.content)
         if field:
-            return _short_summary(field.group(1), limit)
+            return field.group(1)
+        inline_quote = re.fullmatch(label + r'\s+"([^"]+)"(.*)', token.content, re.I | re.S)
+        if inline_quote:
+            return inline_quote.group(1) + inline_quote.group(2)
+        if oeis_lead and token.type in ("fence", "code_block"):
+            return token.content
         if quoted:
             # A source paragraph may span several Markdown blocks (e.g. display
             # math or lines containing only '>'). Keep that entire excerpt.
             raw = "\n".join(raw.splitlines()[token.map[0]:])
     paragraph = re.split(r"\n\s*\n", raw, maxsplit=1)[0]
-    return _short_summary(re.sub(r"(?m)^\s*>\s?", "", paragraph), limit)
+    return re.sub(r"(?m)^\s*>\s?", "", paragraph)
 
 
 def _generated_summaries(scope):
-    """Recognize both former generators against the saved scope, before updating it."""
+    """Recognize former and current generators against the saved scope."""
     raw = scope.strip()
     paragraphs = re.split(r"\n\s*\n", raw)
     paragraph = paragraphs[0]
-    summaries = {_short_summary(paragraph, legacy=True)}
+    summaries = {_legacy_short_summary(paragraph)}
     if (len(paragraphs) > 1 and paragraphs[1].lstrip().startswith(">")
             and (paragraph.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", paragraph, re.I))):
         paragraph = paragraphs[1]
     paragraph = re.sub(r"(?m)^\s*>\s?", "", paragraph)
-    summaries.add(_short_summary(paragraph, legacy=True))
-    summaries.add(_problem_summary({"sections": {"Problem": scope}}))
+    summaries.add(_legacy_short_summary(paragraph))
+    excerpt = _problem_excerpt({"sections": {"Problem": scope}})
+    summaries.add(_legacy_short_summary(excerpt, preserve_omission=True))
+    summaries.add(_short_summary(excerpt))
     return summaries
 
 
