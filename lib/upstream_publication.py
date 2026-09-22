@@ -88,6 +88,21 @@ def verify_checks(run, jobs):
             raise ValueError("upstream required check is not successful for this source: " + name)
 
 
+def no_work_run(run, jobs):
+    """A successful build can explicitly skip both stages without a report.
+
+    This excludes a run from publication; it never admits skipped CI as proof.
+    Missing, duplicate or mismatched job evidence is not a no-work observation.
+    """
+    for name, conclusion in (("build", "success"), ("engineering", "skipped"), ("current", "skipped")):
+        matches = [job for job in jobs if job.get("name") == name]
+        if (len(matches) != 1 or matches[0].get("status") != "completed"
+                or matches[0].get("conclusion") != conclusion
+                or matches[0].get("head_sha") != run["head_sha"]):
+            return False
+    return True
+
+
 def artifact_for(run, artifacts, prefix):
     name = f"{prefix}-{run['id']}-{run['run_attempt']}"
     matches = [a for a in artifacts if a.get("name") == name and not a.get("expired")]
@@ -180,6 +195,10 @@ def plan(pages_repository):
                 return {"should_build": False, "status": "latest-report-already-published",
                         "source_commit": run["head_sha"], **freshness}
             jobs = source.get_json(f"actions/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")["jobs"]
+            if no_work_run(run, jobs):
+                skipped.append({"source_commit": run["head_sha"], "ci_run_id": run["id"],
+                                "reason": "current-stage-not-run"})
+                continue
             verify_checks(run, jobs)
             artifacts = source.get_json(f"actions/runs/{run['id']}/artifacts?per_page=100")["artifacts"]
             if not report_required(run, jobs, artifacts):
