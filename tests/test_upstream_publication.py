@@ -176,6 +176,63 @@ class SourcePublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'missing or ambiguous'):
             publication.report_required(run(), [{'name': 'current'}], [])
 
+    def test_plan_passes_a_completed_no_work_run_to_reach_a_report(self):
+        upstream, pages = GitHub(), GitHub('owner/pages')
+        upstream.dev_head = lambda: C
+        upstream.is_ancestor = lambda a, b: a <= b
+        newer, older = run(C), run(B)
+        newer['id'] = 43
+        no_work = [{'name': name, 'head_sha': C, 'status': 'completed',
+                    'conclusion': 'success' if name == 'build' else 'skipped'}
+                   for name in ('build', 'engineering', 'current')]
+        artifact = {'name': 'ci-current-42-1', 'id': 123, 'expired': False,
+                    'digest': DIGEST, 'workflow_run': {'id': 42, 'head_sha': B}}
+        calls = []
+        def get(path):
+            calls.append(path)
+            if path == 'actions/workflows/ci-push.yml':
+                return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
+            if path == 'branches/dev': return {'protected': True}
+            if path.startswith('contents/'):
+                return {'type': 'file', 'path': '.github/workflows/ci-push.yml'}
+            if '/runs?' in path: return {'workflow_runs': [newer, older]}
+            if '/43/attempts/1/jobs?' in path: return {'jobs': no_work}
+            if '/42/attempts/1/jobs?' in path:
+                return {'jobs': [{'name': n, 'head_sha': B, 'conclusion': 'success'}
+                                 for n in publication.CHECKS]}
+            if '/42/artifacts?' in path: return {'artifacts': [artifact]}
+            if path == 'commits/' + B:
+                return {'commit': {'tree': {'sha': A}, 'committer': {'date': '2026-09-22T00:00:00Z'}}}
+            raise AssertionError(path)
+        upstream.get_json = get
+        def select():
+            with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
+                 patch.object(publication, 'pages_release', return_value=None), \
+                 patch.object(publication, 'report_required', return_value=True) as reports:
+                value = publication.plan('owner/pages')
+                self.assertEqual(reports.call_count, 1)
+                return value
+        selected = select()
+        self.assertEqual(selected['source_commit'], B)
+        self.assertEqual(selected['latest_successful_ci_source'], C)
+        self.assertEqual(selected['skipped_without_report'], [
+            {'source_commit': C, 'ci_run_id': 43, 'reason': 'current-stage-not-run'}])
+        self.assertFalse(any('/43/artifacts?' in path for path in calls))
+        # Incomplete, stale, failed or inconsistent evidence cannot become a skip.
+        good = copy.deepcopy(no_work)
+        for mutation in (
+            lambda rows: rows.pop(0),
+            lambda rows: rows.append(copy.deepcopy(rows[0])),
+            lambda rows: rows[0].update(conclusion='failure'),
+            lambda rows: rows[1].update(conclusion='failure'),
+            lambda rows: rows[2].update(status='in_progress'),
+            lambda rows: rows[2].update(head_sha=A),
+        ):
+            no_work[:] = copy.deepcopy(good)
+            mutation(no_work)
+            with self.assertRaises(ValueError):
+                select()
+
     def test_projection_stops_when_native_transport_verification_fails(self):
         selection = {'source_commit': B, 'source_tree': A, 'ci_run_id': 42, 'ci_run_attempt': 1}
         import subprocess
