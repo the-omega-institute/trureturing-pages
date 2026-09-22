@@ -52,16 +52,119 @@ def _derived_field(problem, source_url, resolution=None):
     return str(domain) if domain else "Open problem"
 
 
-def _problem_summary(problem, limit=320):
-    raw = str(problem.get("sections", {}).get("Problem", "")).strip()
-    paragraph = re.split(r"\n\s*\n", raw, maxsplit=1)[0]
-    text = " ".join(paragraph.split())
+def _short_summary(text, limit=320):
+    text = " ".join(text.split())
+    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
+
+
+def _legacy_short_summary(text, limit=320, *, preserve_omission=False):
+    """Reproduce sentence truncation only to recognize saved auto summaries."""
+    text = " ".join(text.split())
     if len(text) <= limit:
         return text
-    first = re.search(r".+?[.!?。！？](?:\s|$)", text)
+    first = re.search(r".*?\w.*?[.!?。！？](?:\s|$)" if preserve_omission else r".+?[.!?。！？](?:\s|$)", text)
     if first and len(first.group(0).strip()) <= limit:
         return first.group(0).strip()
     return text[: limit - 1].rstrip() + "…"
+
+
+def _problem_summary(problem, limit=320):
+    return _short_summary(_problem_excerpt(problem), limit)
+
+
+def _oeis_field_header(text):
+    """Identify explicit OEIS field headings, not the prose or quoted values."""
+    text = text.strip()
+    if not text.endswith(":"):
+        return None
+    code = re.search(r"\(\s*`?%([A-Z])`?\s*[,;)]", text)
+    if code:
+        return code.group(1)
+    label = re.fullmatch(
+        r"(?:(?:OEIS\s+)?A\d{6},?\s+)?"
+        r"(NAME|COMMENTS?|FORMULA|OFFSET|AUTHOR|DATA|KEYWORDS?)"
+        r"(?:\s*\([^)]*\))?:", text, re.I)
+    if label:
+        return {"NAME": "N", "COMMENT": "C", "COMMENTS": "C", "FORMULA": "F",
+                "OFFSET": "O", "AUTHOR": "A", "DATA": "S",
+                "KEYWORD": "K", "KEYWORDS": "K"}[label.group(1).upper()]
+    return None
+
+
+def _problem_excerpt(problem, *, skip_oeis_metadata=True):
+    from lib.living_library import MARKDOWN
+    raw = str(problem.get("sections", {}).get("Problem", "")).strip()
+    blocks, depth = [], 0
+    for token in MARKDOWN.parse(raw):
+        if token.type == "blockquote_open":
+            depth += 1
+        elif token.type == "blockquote_close":
+            depth -= 1
+        elif token.type in ("inline", "fence", "code_block"):
+            blocks.append((token, depth > 0))
+    if not blocks:
+        return raw
+    lead = blocks[0][0].content
+    index = 0
+    label = (r"(?:(?:OEIS\s+)?A\d{6}(?:,\s*[^:\n]+,)?\s+)?"
+             r"(?:NAME|COMMENTS?|FORMULA)(?:\s*\([^)]*\))?")
+    oeis_lead = (re.fullmatch(r"OEIS A\d{6} defines(?:\s+.+\s+by)?", lead, re.S)
+                 or (re.match(r"OEIS A\d{6}\b", lead)
+                     and re.search(r"\bquotations\b", lead)))
+    if (len(blocks) > 1 and not blocks[0][1]
+            and (lead.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", lead, re.I)
+                 or oeis_lead)):
+        index = 1
+        while index < len(blocks) and re.fullmatch(label + ":", blocks[index][0].content.strip(), re.I):
+            index += 1
+    if skip_oeis_metadata and not blocks[0][1]:
+        first_field = _oeis_field_header(lead)
+        if first_field and first_field not in "NCF":
+            # OFFSET, DATA, AUTHOR, etc. describe the entry. Prefer an explicitly
+            # labelled mathematical field when available; otherwise keep the
+            # former fallback. Never discard any of these fields from scope.
+            for candidate in range(1, len(blocks) - 1):
+                token, quoted = blocks[candidate]
+                if not quoted and _oeis_field_header(token.content) in ("N", "C", "F"):
+                    index = candidate + 1
+                    break
+    if index < len(blocks):
+        token, quoted = blocks[index]
+        # Read raw token content, never inline children: '*' may be multiplication.
+        field = re.search(r"(?m)^%[NCF] A\d{6} (.+)", token.content)
+        if field:
+            return field.group(1)
+        inline_quote = re.fullmatch(label + r'\s+"([^"]+)"(.*)', token.content, re.I | re.S)
+        if inline_quote:
+            return inline_quote.group(1) + inline_quote.group(2)
+        if oeis_lead and token.type in ("fence", "code_block"):
+            return token.content
+        if quoted:
+            # A source paragraph may span several Markdown blocks (e.g. display
+            # math or lines containing only '>'). Keep that entire excerpt.
+            raw = "\n".join(raw.splitlines()[token.map[0]:])
+    paragraph = re.split(r"\n\s*\n", raw, maxsplit=1)[0]
+    return re.sub(r"(?m)^\s*>\s?", "", paragraph)
+
+
+def _generated_summaries(scope):
+    """Recognize former and current generators against the saved scope."""
+    raw = scope.strip()
+    paragraphs = re.split(r"\n\s*\n", raw)
+    paragraph = paragraphs[0]
+    summaries = {_legacy_short_summary(paragraph)}
+    if (len(paragraphs) > 1 and paragraphs[1].lstrip().startswith(">")
+            and (paragraph.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", paragraph, re.I))):
+        paragraph = paragraphs[1]
+    paragraph = re.sub(r"(?m)^\s*>\s?", "", paragraph)
+    summaries.add(_legacy_short_summary(paragraph))
+    # Keep the previous field-unaware extractor too: its saved outputs (e.g.
+    # an OFFSET value) are generated text, not an editorial customization.
+    for skip_metadata in (False, True):
+        excerpt = _problem_excerpt({"sections": {"Problem": scope}}, skip_oeis_metadata=skip_metadata)
+        summaries.add(_legacy_short_summary(excerpt, preserve_omission=True))
+        summaries.add(_short_summary(excerpt))
+    return summaries
 
 
 def _derived_record(problem, resolution, snapshot):
@@ -142,6 +245,9 @@ def append_verified(snapshot, catalog=None):
         if all(prior.get(key) == record[key] for key in ("kind", "module", "declaration")):
             for key in ("title", "field", "summary", "pr"):
                 if key in prior:
+                    if key == "summary":
+                        if prior[key] in _generated_summaries(str(prior.get("scope") or "")):
+                            continue
                     record[key] = prior[key]
         results.append(record)
     if snapshot.get("schema_version") != "pages-library-snapshot.v1":
@@ -187,9 +293,28 @@ def _result_statement(item):
     # Derived summaries are the first paragraph (sometimes truncated). They must
     # never replace the source text or leave a quotation introduction dangling.
     prefix = summary.removesuffix("…").rstrip()
-    repeated = bool(prefix) and " ".join(scope.split()).startswith(" ".join(prefix.split()))
+    repeated = bool(prefix) and (
+        " ".join(scope.split()).startswith(" ".join(prefix.split()))
+        or summary in _generated_summaries(scope)
+    )
     introduction = f'<p>{esc(summary)}</p>' if summary and not repeated else ''
-    return introduction + f'<div class="result-statement prose">{MARKDOWN.render(scope)}</div>'
+    tokens = MARKDOWN.parse(scope)
+    quote_depth = 0
+    for token in tokens:
+        if token.type == "blockquote_open":
+            quote_depth += 1
+        elif token.type == "blockquote_close":
+            quote_depth -= 1
+        elif (quote_depth and token.type == "inline" and "=" in token.content
+              and re.search(r"\b[a-zA-Z]\([^)]*\)", token.content)):
+            # Plain-text sequence equations use '*' as multiplication. CommonMark
+            # otherwise silently removes paired operators as emphasis delimiters.
+            for child in token.children or []:
+                if child.type in ("em_open", "em_close") and child.markup == "*":
+                    child.type, child.tag, child.nesting = "text", "", 0
+                    child.content = child.markup
+    rendered = MARKDOWN.renderer.render(tokens, MARKDOWN.options, {})
+    return introduction + f'<div class="result-statement prose">{rendered}</div>'
 
 
 def render_news(output, snapshot, shell, catalog_path=None):

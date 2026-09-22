@@ -1,0 +1,143 @@
+{
+  "schema_version": "pages-library-snapshot.v1",
+  "graph": {
+    "source_snapshot": {
+      "algorithm_profile_digest": "sha256:0c93a6ac785ac5a85f99597e513e18689114ae256d15b48708a8ca2ac7454b4c",
+      "atlas_projection_profile": "pages-atlas-projection-v1",
+      "certified_topology_digest": "sha256:fe1c6df5214e652d68a01e068fe08dff8716241e813b8ec2de3acff71c4bf1ea",
+      "source_commit": "193981019ada7cc3be5f098b33de471f8a95c771",
+      "source_repo": "the-omega-institute/trureturing",
+      "source_tree": "30ee8781b1e5281d71b45ed30fcec1f942fd9534",
+      "topology_algorithm": "Trureturing.Topology/0.2.0-alpha.1",
+      "topology_atlas_digest": "sha256:4540ccb613af41382162ef276d516ba18582eef927b46c5cd83be1009a8b7152",
+      "topology_atlas_producer_commit": "dbd407d52806b4a87bb3c129f810a10d438a2b53",
+      "topology_atlas_profile_digest": "sha256:7b6a921e199aeedb9c6d56b7bebfd1fd8ad673e35962dd562dc102392be7173a",
+      "topology_producer_commit": "dbd407d52806b4a87bb3c129f810a10d438a2b53",
+      "truth_graph_sha256": "sha256:c6cf7fdc25b8f9ca32111d7cb245264b9d30c30f0955ab14cb728b75c4e0caf7",
+      "truth_release_digest": "sha256:10919171673548c053dbd1b7deea1e627d8a7fb40878a6627e655647e0a4b0fb"
+    },
+    "nodes": []
+  },
+  "problems": [
+    {
+      "bibkey": "dukesgaede2023erdosdeep",
+      "doi": "10.48550/arXiv.2208.05527",
+      "last_literature_check": null,
+      "literature_status": "not-rechecked",
+      "motivation_gids": [
+        "D5/S3/Combinatorics/ErdosDeepTripleClassificationRefutation.result"
+      ],
+      "resolution": {
+        "declaration_gid": "D5/S3/Combinatorics/ErdosDeepTripleClassificationRefutation.result",
+        "evidence": "source-recorded-markdown",
+        "kernel_verified": {
+          "freeze_status": "frozen",
+          "frozen_node_id": "sha256:3920328ff30770eaf26cd487a73d0cf4bea7d2f99c7228b6439784f2b6366f91",
+          "node_axiom_closure": [
+            "Classical.choice",
+            "Quot.sound",
+            "propext"
+          ]
+        },
+        "kind": "refuted",
+        "source_path": "Blueprint/D5/S3/Combinatorics/ErdosDeepTripleClassificationRefutation.md"
+      },
+      "route_status": "proposed",
+      "sections": {
+        "ASSUMED-UNVERIFIED": "The literature screen is bounded: the journal article, the sole arXiv version and\nGaede's thesis were opened; citation-index result pages were not reachable, so no\nworldwide priority claim is made.\n\nThe classification itself is not supplied here. The eleven extra triples listed\nabove are what one search over `n ≤ 84` and `k ≤ 28` returns; nothing is claimed\nabout triples outside that range, about which of them occur for infinitely many\n`n`, or about the correct form of the conjecture.\n\nSeparately, the article states that the geometric infinite family\n`{{0,1,2,3}, {0,3,6,9}, {0,1,2}}` is realised for `n ≥ 15`. At `n = 15` the\ndistance `9` folds to `|9|₁₅ = 6`, giving multiplicity three twice, so that\nfamily is Erdős-deep only for `n ≥ 16`. This does not bear on Conjecture 1, which\nclaims only that the triple occurs for infinitely many `n`.",
+        "Evidence": "An independent search under the source's conventions over `n ≤ 84` and `k ≤ 28`\nreproduces all fifteen of its triples and returns twenty-seven in total. Eleven\nof the twelve extra triples also satisfy the thesis bound on `k₁`:\n`(9,9,4), (10,9,5), (10,10,6), (11,10,9), (11,11,5), (12,6,5), (12,9,3),\n(12,11,6), (18,6,3), (20,5,5), (25,6,5)`. Nine witnesses were cross-checked\nagainst a second, independent implementation, and the two used here were verified\nby hand. The second hand-checkable witness is `n = 50`, `(20,5,5)`,\n`g = (1,10,10)`: `A₁ = {0,…,19}` gives distance `d` multiplicity `20 − d`, and\n`A₂ = A₃ = {0,10,20,30,40}` each give `10` five times and `20` five times, so the\nmultiplicities are `1` through `20`.\n\nThe witness lies inside the search the thesis prints: `k ∈ [4, 28]`,\n`g₁, g₂, g₃ ≤ ⌊n/2⌋`, `3 ≤ k₃ ≤ k₂ ≤ k₁ ≤ ⌊n/(2·gcd(n,g₁))⌋`, `n ∈ [2k₁, 60]`,\nand `g₁ = 1` whenever `gcd(g₁, n) = 1`. Here `n = 27 ≤ 60`, `g₁ = 1`,\n`k₁ = 12 ≤ ⌊27/2⌋ = 13` and `k = 14 ∈ [4, 28]`, so the triple was within the\nstated range.",
+        "Falsifier": "A single distance recomputed differently would break the witness. The two\nindependent checks are the pair count, `66 + 15 + 10 = 91 = 13·14/2`, and the\nrequirement that each multiplicity from one to thirteen occurs exactly once; both\nare visible in the table above. Widening the length conventions produces spurious\ncounterexamples and must be avoided: admitting progressions of length two yields\ntriples such as `(11, 5, 2)`, which the source's conventions exclude.",
+        "Gap": "The journal article, the arXiv record 2208.05527 (v1 only, no later version) and\nthe full text of Gaede's thesis were opened. The thesis presents the statement as\na conjecture and records no refutation; no later work by either author on the\ntopic was found. Citation-index result pages were not reachable, so this is a\nbounded negative finding.",
+        "Motivation": "The frozen theorem\n`D5/S3/Combinatorics/ErdosDeepTripleClassificationRefutation.result` refutes the\nstronger of the two forms, hence both. The classification of Erdős-deep triples\ntherefore remains open, and the list published for it is incomplete rather than\nmerely unproved.",
+        "Problem": "Dukes and Gaede, *INTEGERS* 23 (2023), Article #A25, work in `Z_n` with\n`|x|_n := min(x, −x)` and `dist(x, y) = |x − y|_n`. For a family\n`F = {A_1, …, A_s}`, `ΔF` is the multiset of distances `dist(x, y)` over pairs\n`{x, y} ⊆ A_i`, and `F` is Erdős-deep when \"the multiplicities of distances that\noccur in `ΔF` are precisely `1, 2, …, k − 1` for some integer `k`\". They write\n`AP_n(g, k) := {0, g, 2g, …, (k−1)g}`, and Theorem 2 fixes the conventions for\nfamilies of APs: lengths at least three and `gcd(n, g_1, …, g_s) = 1`. Section 5\nstates:\n\n> Conjecture 1. An Erdős-deep family of three APs of lengths `k1 ≥ k2 ≥ k3` in\n> `Z_n` exists if and only if `(k1, k2, k3) ∈ {(4, 4, 3), (6, 3, 3)}`, each for\n> infinitely many n, or `(k1, k2, k3) ∈ {(6, 5, 3), (6, 6, 4), (6, 6, 6),\n> (7, 7, 3), (9, 4, 3), (8, 7, 4), (8, 8, 5), (10, 6, 4), (12, 4, 4), (13, 5, 3),\n> (13, 7, 4), (16, 5, 4), (21, 6, 4)}`, each for a finite number of values of n.\n\nConjecture 4.5 of Gaede's University of Victoria thesis states the same with one\nfurther hypothesis, `3 ≤ k3 ≤ k2 ≤ k1 ≤ ⌊n / (2·gcd(n, g1))⌋ + 1`.",
+        "Route": "In `Z_27` take the three progressions\n\n    A₁ = AP₂₇(1, 12) = {0,1,2,3,4,5,6,7,8,9,10,11}\n    A₂ = AP₂₇(12, 6) = {0, 12, 24, 9, 21, 6}\n    A₃ = AP₂₇(7, 5)  = {0, 7, 14, 21, 1}.\n\nTheir distance multisets are\n\n    ΔA₁ = {1:11, 2:10, 3:9, 4:8, 5:7, 6:6, 7:5, 8:4, 9:3, 10:2, 11:1}\n    ΔA₂ = {3:4, 6:3, 9:3, 12:5}\n    ΔA₃ = {1:1, 6:2, 7:4, 13:3}\n\nwith 66, 15 and 10 pairs respectively, so\n\n    ΔF = {1:12, 2:10, 3:13, 4:8, 5:7, 6:11, 7:9, 8:4, 9:6, 10:2, 11:1, 12:5, 13:3}.\n\nThirteen distances occur and their multiplicities are `1` through `13`, each\nexactly once, so `F` is Erdős-deep with `k = 14`, matching\n`14·13 = 182 = 12·11 + 6·5 + 5·4`. Every convention holds: `3 ≤ 5 ≤ 6 ≤ 12`,\n`gcd(27, 1, 12, 7) = 1`, and `k₁ = 12 ≤ ⌊27/(2·1)⌋ + 1 = 14`. The triple\n`(12, 6, 5)` is neither of the two infinite families nor one of the thirteen\nsporadic triples, so the conjectured classification fails.",
+        "Triage": "`theorem`; Tier 1 named external open problem, preregistered in issue 9317 before\nimplementation. The admission basis is `open-problem-resolution`. The\nclassification is `proof_shape: content`; the escape content is that the three\nprogressions named above realise the multiplicities one through thirteen exactly\nonce each, which is not an instantiation, projection or normalisation of a pinned\nupstream statement. The computational use is a `certified-instance` with a typed\n`refutes` edge from `result` to `claim`."
+      },
+      "slug": "erdos-deep-triple-classification-refutation",
+      "source_digest": "sha256:c5a314d469912b8bfa81c3bb7a55d0f65c3adeae19233b36fcd9c050b85e7f9d",
+      "title": "Erdos Deep Triple Classification Refutation",
+      "triage": "theorem",
+      "url": "https://math.colgate.edu/~integers/x25/x25.pdf"
+    },
+    {
+      "bibkey": "schulte2025a385590",
+      "last_literature_check": null,
+      "literature_status": "not-rechecked",
+      "motivation_gids": [
+        "D5/S1/Recurrence/FibAlternatingSum"
+      ],
+      "resolution": {
+        "declaration_gid": "D5/S1/Recurrence/Parity/A385590.alternating_binomial_sum",
+        "evidence": "source-recorded-markdown",
+        "kernel_verified": {
+          "freeze_status": "frozen",
+          "frozen_node_id": "sha256:c8bd11a1e8339d937091e05ad5066a188481225e26b69e77e167dac8e3f46f66",
+          "node_axiom_closure": [
+            "Classical.choice",
+            "Quot.sound",
+            "propext"
+          ]
+        },
+        "kind": "proved",
+        "source_path": "Blueprint/D5/S1/Recurrence/Parity/A385590.md"
+      },
+      "route_status": "proposed",
+      "sections": {
+        "ASSUMED-UNVERIFIED": "The source-to-formal-statement correspondence is checked by reading.\nPublic-index searches have not established the absence of every earlier\nproof; the search limitations are recorded in the linked Library note.\nNo DOI is supplied by the OEIS entry; its stable entry URL is used.",
+        "Evidence": "The caller evaluated n=1 through 12 and obtained -1, 1, and then zeros.\nThese finite observations motivate the question and do not prove it.\nThe worker retrieved https://oeis.org/A385590/internal on 2026-09-08\nand checked the formula, author, date, and triangle definition directly.",
+        "Falsifier": "A positive n with a different exact integer sum would contradict this\nstatement. A counterexample to the permutation conjecture would not.",
+        "Gap": "The parity-descending sum does not give the binomial transform of this triangle.\nThe OEIS formula field still labels this identity Conjecture on 2026-09-08.",
+        "Motivation": "D5/S1/Recurrence/FibAlternatingSum establishes a parity-descending Fibonacci\nsum. This question concerns a different alternating operation on a triangle\nwhose rows are selected by Fibonacci intervals.",
+        "Problem": "The single statement considered here is the formula-field conjecture in\nWerner Schulte's OEIS A385590, dated 2025-07-03. For every integer n >= 1,\nlet i > 1 be the unique index with F(i) <= n < F(i+1), with F(0)=0 and F(1)=1.\nPut T(n,k) = F(i-1)^2 + 1 - ((i-1) mod 2) + (n-F(i))*F(i-2)\n+ (k-1)*F(i-1). Is the sum from k=1 to n of\n(-1)^k * binomial(n-1,k-1) * T(n,k) equal to (-1)^n when n<3,\nand zero otherwise? All triangle values and the sum are integers.\nThe entry's separate permutation conjecture is outside this question.",
+        "Route": "Fix the row, write T(n,k)=A+(k-1)B, and cancel the constant and linear\nmoments of the alternating binomial coefficients for n>=3. Evaluate the\ntwo boundary rows separately. The Fibonacci inverse must agree with the\nsource's unique interval index.",
+        "Triage": "Theorem: the required statement quantifies over every positive row, and\nthe affine binomial transform offers a symbolic proof route."
+      },
+      "slug": "oeis-a385590-alternating-binomial",
+      "source_digest": "sha256:2e74268c89392a2ad895e6c7ff1f9a36e84bb6790f7a969c6ba8a031fd91ea8b",
+      "title": "oeis a385590 alternating binomial",
+      "triage": "theorem",
+      "url": "https://oeis.org/A385590"
+    },
+    {
+      "bibkey": "yanev2017a030101",
+      "last_literature_check": null,
+      "literature_status": "not-rechecked",
+      "motivation_gids": [
+        "D5/S1/Digit/YanevBinaryReversalPositionIdentity.result"
+      ],
+      "resolution": {
+        "declaration_gid": "D5/S1/Digit/YanevBinaryReversalPositionIdentity.result",
+        "evidence": "source-recorded-markdown",
+        "kernel_verified": {
+          "freeze_status": "frozen",
+          "frozen_node_id": "sha256:240211ad15e11ffea688620c2e0cc5cddfbafa552624667ac8cd799592bbaa8d",
+          "node_axiom_closure": [
+            "Classical.choice",
+            "Quot.sound",
+            "propext"
+          ]
+        },
+        "kind": "proved",
+        "source_path": "Blueprint/D5/S1/Digit/YanevBinaryReversalPositionIdentity.md"
+      },
+      "route_status": "proposed",
+      "sections": {
+        "ASSUMED-UNVERIFIED": "The source endpoints establish what OEIS displayed on 2026-09-16, not an\nexhaustive world-literature priority claim. The bounded repository and pinned\nMathlib searches establish only `not-found-in-searched-scope`.",
+        "Evidence": "The Lean kernel checks the binary-induction proof under the pinned toolchain.\nThe Scribe document mirrors each public definition and the full theorem. The\ncanonical repository doors record the exact source-bound Lean report, emitted\nMarkdown, freeze state, and admission result.",
+        "Falsifier": "Any positive natural `n` for which\n`rev n + 2 * w (stripTop n) + 1 ≠ 2 * w n` would refute the theorem. A mismatch\nbetween any formal definition and its displayed OEIS recurrence would refute\nthe source interpretation independently of the theorem.",
+        "Gap": "The A030101 text endpoint read on 2026-09-16 still labels Yanev's formula\n`Conjecture` and contains no settlement line. The target and the content-form\nescape witness were registered in issue #8214 before this implementation.\nRepository searches over `D5`, `Blueprint`, `Library`, and `Problems` found no\nA030101 or A264596 result before this addition. A statement-shape search in\nthe repository and a binary-reversal/lexicographic-position search in pinned\nMathlib found no dominating theorem in those searched scopes.",
+        "Motivation": "The conjecture connects two independent views of a binary word: reversal of\nits digits and its lexicographic rank when the least significant digit is read\nfirst. The theorem establishes the identity for every positive natural input,\nnot merely a finite range.",
+        "Problem": "OEIS A030101, OFFSET (`%O`, verbatim):\n\n> 0,4\n\nOEIS A030101, initial sequence line (`%S`, verbatim):\n\n> 0,1,1,3,1,5,3,7,1,9,5,13,3,11,7,15,1,17,9,25,5,21,13,29,3,19,11,27,7,\n\nOEIS A030101, NAME (`%N`, verbatim):\n\n> a(n) is the number produced when n is converted to binary digits, the binary digits are reversed and then converted back into a decimal number.\n\nRalf Stephan's A030101 recurrence (`%F`, verbatim):\n\n> a(n) = 0, a(2n) = a(n), a(2n+1) = a(n) + 2^(floor(log_2(n)) + 1). For n > 0, a(n) = 2*A030109(n) - 1. - _Ralf Stephan_, Sep 15 2003\n\nVelin Yanev's A030101 conjecture (`%F`, verbatim):\n\n> Conjecture: a(n) = 2*w(n) - 2*w(A053645(n)) - 1 for n > 0, where w = A264596. - _Velin Yanev_, Sep 12 2017\n\nOEIS A030101, AUTHOR (`%A`, verbatim):\n\n> _David W. Wilson_\n\nOEIS A264596, NAME (`%N`, verbatim):\n\n> Let S_n be the list of the first n nonnegative numbers written in binary, with least significant bits on the left, and sorted into lexicographic order; a(n) = position of n in S_n, starting indexing at 0.\n\nHeinz's A264596 recurrence (`%F`, verbatim):\n\n> a(2n) = a(n), a(2n+1) = a(n) + n+1, a(0) = 0. - _Alois P. Heinz_, Nov 19 2015\n\nOEIS A053645, NAME (`%N`, verbatim):\n\n> Distance to largest power of 2 less than or equal to n; write n in binary, change the first digit to zero, and convert back to decimal.\n\nOEIS A053645, defining formula (`%F`, verbatim):\n\n> a(n) = n - 2^A000523(n).\n\nThe formal definitions are:\n\n```lean\ndef w : ℕ → ℕ :=\n  Nat.binaryRec 0 (fun bit n previous => if bit then previous + n + 1 else previous)\n\ndef stripTop (n : ℕ) : ℕ := n - 2 ^ Nat.log 2 n\n\ndef rev : ℕ → ℕ :=\n  Nat.binaryRec 0 fun bit n previous =>\n    if bit then if n = 0 then 1 else previous + 2 ^ (Nat.log 2 n + 1) else previous\n```\n\nThe proved statement is:\n\n```lean\ntheorem result (n : ℕ) (hn : 1 ≤ n) :\n    rev n + 2 * w (stripTop n) + 1 = 2 * w n\n```\n\nThe source writes the result with subtraction on the right. Lean natural\nsubtraction truncates, so the theorem moves the two subtracted quantities to\nthe additive side. It proves the source equality together with the\nnon-negativity needed for the source subtraction. The printed recurrence\nbegins `a(n) = 0`, rather than `a(0) = 0`; its initial sequence value and the\nrest of the recurrence identify the intended zero boundary used by `rev`.\n\nNot claimed: A264596 contains a separate Yanev conjecture dated Sep 12 2017.\nThat conjecture is outside this dossier and is not asserted or resolved here.",
+        "Route": "1. Define `w` by Heinz's even and odd recurrence and `rev` by Stephan's even\n   and odd recurrence, both through `Nat.binaryRec`.\n2. Use binary induction. At each positive half-index, `Nat.log_two_bit`\n   identifies the new leading power and `Nat.pow_log_le_self` bounds the power\n   removed by `stripTop`.\n3. Show locally that `stripTop` doubles in the even branch and doubles then\n   adds one in the odd branch. Apply the corresponding `w` recurrence and the\n   induction hypothesis.\n4. In the odd branch, use `Nat.sub_add_cancel` for the leading power and close\n   the resulting natural arithmetic identity.\n\n`result` has `proof_shape: content`. Its escape witness is form (2), the\npublic conclusion itself, produced on the live binary-induction path. There\nare no frozen project dependencies and no separate helper declarations. The\nmodule has `admission_basis: escape-witness`. All four declarations have\n`utility: none`: the definitions are symbolic recurrences and the theorem is\nan unbounded universal identity, not a finite enumeration, checker, numeric\nreduction, or certified instance.",
+        "Triage": "`theorem`; resolution `proved`. The formal result settles the displayed\nA030101 identity for every positive natural input."
+      },
+      "slug": "oeis-a030101-yanev-binary-reversal-position-identity",
+      "source_digest": "sha256:700b5a46a80e64f8556d53aca4482fe7561da66fa143b1f4c1ae0bb514f7f895",
+      "title": "Yanev's position identity for binary reversal",
+      "triage": "theorem",
+      "url": "https://oeis.org/A030101"
+    }
+  ],
+  "truth_release_digest": "sha256:10919171673548c053dbd1b7deea1e627d8a7fb40878a6627e655647e0a4b0fb",
+  "atlas_graph_digest": "sha256:89bc77e0afde0ae6baf2a826b7de8dcba8838798c72d3f942a65cd9323b791b5"
+}

@@ -11,6 +11,102 @@ from tests.test_living_library import graph, problem_source
 
 
 class ResearchNewsTests(unittest.TestCase):
+    def test_oeis_summary_uses_quoted_mathematics_and_preserves_scope(self):
+        from lib.research_news import _problem_summary, _result_statement
+        source = ('OEIS A163617, `%N` (verbatim):\n\n'
+                  '> a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n) + 2 + (-1)^n,\n'
+                  '> for all n in Z.\n\n'
+                  'FORMULA (verbatim; Velin Yanev, Dec 17 2016):\n\n'
+                  '> Conjecture: a(n) = A003188(n) + (6*n + 1 - (-1)^n)/4.\n\n'
+                  'Only the natural-number half, initialized by `a(0) = 0`, is formalized.')
+        problem = {'slug': 'oeis-a163617', 'title': 'Gray-code formula',
+                   'url': 'https://oeis.org/A163617', 'sections': {'Problem': source}}
+        expected = 'a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n) + 2 + (-1)^n, for all n in Z.'
+        self.assertEqual(_problem_summary(problem), expected)
+        html = _result_statement({'summary': expected, 'scope': source})
+        self.assertTrue(html.startswith('<div class="result-statement prose">'))
+        self.assertIn('a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n)', html)
+        self.assertNotIn('<em>', html)
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'news.json'
+            prior = {'id': problem['slug'], 'kind': 'proved', 'module': 'D5/S1/Example',
+                     'declaration': 'result', 'summary': source.split('\n\n')[0], 'scope': source}
+            path.write_text(json.dumps({'results': [prior], 'publications': []}))
+            result = append_verified(self._verified_snapshot(problem), path)['results'][0]
+            self.assertEqual(result['summary'], expected)
+            self.assertEqual(result['scope'], source)
+            self.assertEqual(append_verified(self._verified_snapshot(problem), path)['results'][0], result)
+            result['summary'] = 'A closed form connecting the recurrence to binary Gray code.'
+            path.write_text(json.dumps({'results': [result], 'publications': []}))
+            self.assertEqual(append_verified(self._verified_snapshot(problem), path)['results'][0]['summary'], result['summary'])
+
+    def test_summary_preserves_substantive_leads_and_source_notation(self):
+        from lib.research_news import _problem_summary
+        cases = [
+            ('Does **every** [term](https://oeis.org/A163617) satisfy `a(n) > 0`?\n\n> A quote.',
+             'Does **every** [term](https://oeis.org/A163617) satisfy `a(n) > 0`?'),
+            ('OEIS A004123 NAME:\n\n> Generalized weak orders.', 'Generalized weak orders.'),
+            ('OEIS text copied verbatim from the source.\n\n> A sequence.', 'A sequence.'),
+            ('A substantive question.\n\n> Supporting quotation.', 'A substantive question.'),
+            ('Does a(n) = n*n hold?\n\nNAME:\n> Supporting quotation.', 'Does a(n) = n*n hold?'),
+            ('Source, quoted verbatim:\n\nNAME:\n> a(n) = n*n*n.', 'a(n) = n*n*n.'),
+            ('NAME:\n\n> a(n) = n*n*n.', 'a(n) = n*n*n.'),
+            ('Source statement:\n\n> For all n,\n>\n>     a(n) = n*n.\n>\n> Here n >= 0.\n\nBoundary.',
+             'For all n, a(n) = n*n. Here n >= 0.'),
+            ('Put a(n) = n*n\n+ (n-1)*n. Is a(n) even?\n\n> Supporting quote.',
+             'Put a(n) = n*n + (n-1)*n. Is a(n) even?'),
+            ('Source, quoted verbatim:\n\n```text\n%N A000001 a(n) = n*n*n.\n%C A000001 Further conjecture.\n```',
+             'a(n) = n*n*n.'),
+            ('> Is `a(n)` always even?', 'Is `a(n)` always even?'),
+            (r'\[a(n) = n*n\]', r'\[a(n) = n*n\]'),
+            ('', ''),
+        ]
+        for source, expected in cases:
+            with self.subTest(source=source):
+                self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
+
+    def test_actual_library_fenced_source_and_substantive_lead(self):
+        from lib.research_news import _problem_summary
+        # Actual opening blocks from the 350-result review library. The fenced
+        # definition follows a source lead; the tournament prose is substantive.
+        cases = [
+            ('OEIS A300657 defines\n\n```text\na(n) = Sum_{d|n} sigma(d) mod d.\n```',
+             'a(n) = Sum_{d|n} sigma(d) mod d.'),
+            ('Alexander Bastien and Omid Khormali, *On Link-irregular Digraphs*,\n'
+             '[arXiv:2512.20494v1](https://arxiv.org/abs/2512.20494v1), Conjecture 6,\n'
+             'assert that a link-irregular tournament exists on `n` vertices if and only\n'
+             'if `n >= 6`. The precise resolution here is its nonvacuous reading:\n\n'
+             '```lean\n∀ n : Nat, 2 ≤ n →\n'
+             '  ((∃ R : Fin n → Fin n → Prop, IsTournament R ∧ LinkIrregular R) ↔ 6 ≤ n)\n```',
+             'Alexander Bastien and Omid Khormali, *On Link-irregular Digraphs*, '
+             '[arXiv:2512.20494v1](https://arxiv.org/abs/2512.20494v1), Conjecture 6, '
+             'assert that a link-irregular tournament exists on `n` vertices if and only '
+             'if `n >= 6`. The precise resolution here is its nonvacuous reading:'),
+        ]
+        for source, expected in cases:
+            with self.subTest(source=source):
+                self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
+
+    def test_oeis_metadata_fields_prefer_available_mathematical_fields(self):
+        from lib.research_news import _generated_summaries, _problem_summary
+        for metadata in ('OFFSET (`%O`, verbatim)', 'initial sequence line (`%S`, verbatim)',
+                         'AUTHOR (`%A`, verbatim)', 'OFFSET', 'DATA', 'KEYWORDS'):
+            for field in ('NAME (`%N`, verbatim)', 'COMMENT (`%C`, verbatim)',
+                          'FORMULA (`%F`, verbatim)', 'NAME', 'COMMENT', 'FORMULA'):
+                with self.subTest(metadata=metadata, field=field):
+                    source = (f'OEIS A000001, {metadata}:\n> 0,4\n\n'
+                              f'OEIS A000001, {field}:\n\n> a(n) = n*n.\n\nFull boundary.')
+                    self.assertEqual(_problem_summary({'sections': {'Problem': source}}), 'a(n) = n*n.')
+                    self.assertIn('0,4', _generated_summaries(source))
+        for source, expected in (
+            ('OEIS A000001, OFFSET (`%O`, verbatim):\n\n> 0,4', '0,4'),
+            ('NAME:\n\n> 0,4\n\nFORMULA:\n\n> a(n) = n*n.', '0,4'),
+            ('A substantive question.\n\nOFFSET:\n\n> 0,4\n\nNAME:\n\n> A sequence.',
+             'A substantive question.'),
+        ):
+            with self.subTest(source=source):
+                self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
+
     def _verified_snapshot(self, problem, kind="proved"):
         problem = dict(problem)
         problem.setdefault("triage", "theorem")
@@ -21,6 +117,72 @@ class ResearchNewsTests(unittest.TestCase):
                                                        "freeze_status": "frozen"}}
         return {"graph": {"source_snapshot": {"source_commit": "b" * 40}, "nodes": []},
                 "problems": [problem], "truth_release_digest": "sha256:" + "c" * 64}
+
+    def test_actual_source_paragraphs_keep_literal_excerpts_and_migrate(self):
+        from lib.research_catalog import build_catalog
+        from lib.research_news import _problem_summary, _result_statement
+        # Complete source records copied from the 350-result review snapshot.
+        snapshot = json.loads((Path(__file__).parent / 'fixtures/research-summary-paragraphs.json').read_text())
+        cases = {
+            'oeis-a030101-yanev-binary-reversal-position-identity': (
+                '0,4',
+                'a(n) is the number produced when n is converted to binary digits, '
+                'the binary digits are reversed and then converted back into a decimal number.'),
+            'oeis-a385590-alternating-binomial': (
+                "The single statement considered here is the formula-field conjecture in "
+                "Werner Schulte's OEIS A385590, dated 2025-07-03.",
+                "The single statement considered here is the formula-field conjecture in "
+                "Werner Schulte's OEIS A385590, dated 2025-07-03. For every integer n >= 1, "
+                "let i > 1 be the unique index with F(i) <= n < F(i+1), with F(0)=0 and F(1)=1. "
+                "Put T(n,k) = F(i-1)^2 + 1 - ((i-1) mod 2) + (n-F(i))*F(i-2) "
+                "+ (k-1)*F(i-1). Is the sum from k…"),
+            'erdos-deep-triple-classification-refutation': (
+                'Conjecture 1.',
+                'Conjecture 1. An Erdős-deep family of three APs of lengths `k1 ≥ k2 ≥ k3` in '
+                '`Z_n` exists if and only if `(k1, k2, k3) ∈ {(4, 4, 3), (6, 3, 3)}`, each for '
+                'infinitely many n, or `(k1, k2, k3) ∈ {(6, 5, 3), (6, 6, 4), (6, 6, 6), '
+                '(7, 7, 3), (9, 4, 3), (8, 7, 4), (8, 8, 5), (10, 6, 4), (12, 4, 4), (13, 5, 3), '
+                '(13, 7, 4),…'),
+        }
+        families = {f['id']: f for f in build_catalog(snapshot)['families']}
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'news.json'
+            for problem in snapshot['problems']:
+                slug = problem['slug']
+                legacy, expected = cases[slug]
+                scope = problem['sections']['Problem']
+                current = {**snapshot, 'problems': [problem]}
+                self.assertEqual(_problem_summary(problem), expected)
+                self.assertEqual(families[slug]['summary'], expected)
+                self.assertLessEqual(len(expected), 320)
+                path.write_text(json.dumps({'results': []}))
+                fresh = append_verified(current, path)['results'][0]
+                self.assertEqual(fresh['summary'], expected)
+                editorial = legacy + ' Editorial: retain this chosen explanation.'
+                for saved in (legacy, expected, editorial):
+                    for updated_scope in (scope, 'Updated mathematical question.\n\nFull scope boundary.'):
+                        with self.subTest(source=slug, saved=saved, updated=updated_scope != scope):
+                            path.write_text(json.dumps({'results': [{**fresh, 'summary': saved}]}))
+                            updated = {**problem, 'sections': {**problem['sections'], 'Problem': updated_scope}}
+                            update = {**snapshot, 'problems': [updated]}
+                            record = append_verified(update, path)['results'][0]
+                            wanted = editorial if saved == editorial else (
+                                expected if updated_scope == scope else 'Updated mathematical question.')
+                            self.assertEqual(record['summary'], wanted)
+                            self.assertEqual(record['scope'], updated_scope)
+                            html = _result_statement(record)
+                            self.assertEqual('Editorial:' in html, saved == editorial)
+                            first = path.read_bytes()
+                            append_verified(update, path)
+                            self.assertEqual(path.read_bytes(), first)
+
+    def test_literal_summary_limit_ignores_sentence_like_punctuation(self):
+        from lib.research_news import _short_summary
+        for lead in ('Conjecture 1. ', 'A. Author: ', '[1]. ', '... '):
+            text = lead + 'x' * (320 - len(lead))
+            with self.subTest(lead=lead):
+                self.assertEqual(_short_summary(text), text)
+                self.assertEqual(_short_summary(text + 'y'), text[:319] + '…')
 
     def test_kernel_verified_external_resolution_derives_editorial_record_and_lean_status(self):
         problem = {"slug": "oeis-a123456", "title": "An OEIS question", "url": "https://oeis.org/A123456",
