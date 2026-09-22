@@ -52,27 +52,65 @@ def _derived_field(problem, source_url, resolution=None):
     return str(domain) if domain else "Open problem"
 
 
-def _short_summary(text, limit=320):
+def _short_summary(text, limit=320, *, legacy=False):
     text = " ".join(text.split())
     if len(text) <= limit:
         return text
-    first = re.search(r".+?[.!?。！？](?:\s|$)", text)
+    # A leading omission marker is not a sentence. Retain it with the excerpt.
+    first = re.search(r".+?[.!?。！？](?:\s|$)" if legacy else r".*?\w.*?[.!?。！？](?:\s|$)", text)
     if first and len(first.group(0).strip()) <= limit:
         return first.group(0).strip()
     return text[: limit - 1].rstrip() + "…"
 
 
 def _problem_summary(problem, limit=320):
+    from lib.living_library import MARKDOWN
     raw = str(problem.get("sections", {}).get("Problem", "")).strip()
+    blocks, depth = [], 0
+    for token in MARKDOWN.parse(raw):
+        if token.type == "blockquote_open":
+            depth += 1
+        elif token.type == "blockquote_close":
+            depth -= 1
+        elif token.type in ("inline", "fence", "code_block"):
+            blocks.append((token, depth > 0))
+    if not blocks:
+        return _short_summary(raw, limit)
+    lead = blocks[0][0].content
+    index = 0
+    label = r"(?:NAME|COMMENTS?|FORMULA)(?:\s*\([^)]*\))?:"
+    if (len(blocks) > 1 and not blocks[0][1]
+            and (lead.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", lead, re.I))):
+        index = 1
+        while index < len(blocks) and re.fullmatch(label, blocks[index][0].content.strip(), re.I):
+            index += 1
+    if index < len(blocks):
+        token, quoted = blocks[index]
+        # Read raw token content, never inline children: '*' may be multiplication.
+        field = re.search(r"(?m)^%[NCF] A\d{6} (.+)", token.content)
+        if field:
+            return _short_summary(field.group(1), limit)
+        if quoted:
+            # A source paragraph may span several Markdown blocks (e.g. display
+            # math or lines containing only '>'). Keep that entire excerpt.
+            raw = "\n".join(raw.splitlines()[token.map[0]:])
+    paragraph = re.split(r"\n\s*\n", raw, maxsplit=1)[0]
+    return _short_summary(re.sub(r"(?m)^\s*>\s?", "", paragraph), limit)
+
+
+def _generated_summaries(scope):
+    """Recognize both former generators against the saved scope, before updating it."""
+    raw = scope.strip()
     paragraphs = re.split(r"\n\s*\n", raw)
     paragraph = paragraphs[0]
-    # A citation introducing a block quote is not the question itself.
+    summaries = {_short_summary(paragraph, legacy=True)}
     if (len(paragraphs) > 1 and paragraphs[1].lstrip().startswith(">")
             and (paragraph.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", paragraph, re.I))):
         paragraph = paragraphs[1]
     paragraph = re.sub(r"(?m)^\s*>\s?", "", paragraph)
-    # Keep source notation literal: Markdown emphasis can eat multiplication '*'.
-    return _short_summary(paragraph, limit)
+    summaries.add(_short_summary(paragraph, legacy=True))
+    summaries.add(_problem_summary({"sections": {"Problem": scope}}))
+    return summaries
 
 
 def _derived_record(problem, resolution, snapshot):
@@ -154,12 +192,7 @@ def append_verified(snapshot, catalog=None):
             for key in ("title", "field", "summary", "pr"):
                 if key in prior:
                     if key == "summary":
-                        old_scope = str(prior.get("scope") or "").strip()
-                        old_lead = re.split(r"\n\s*\n", old_scope, maxsplit=1)[0]
-                        if prior[key] in (
-                            _short_summary(old_lead),
-                            _problem_summary({"sections": {"Problem": old_scope}}),
-                        ):
+                        if prior[key] in _generated_summaries(str(prior.get("scope") or "")):
                             continue
                     record[key] = prior[key]
         results.append(record)
@@ -208,7 +241,7 @@ def _result_statement(item):
     prefix = summary.removesuffix("…").rstrip()
     repeated = bool(prefix) and (
         " ".join(scope.split()).startswith(" ".join(prefix.split()))
-        or summary == _problem_summary({"sections": {"Problem": scope}})
+        or summary in _generated_summaries(scope)
     )
     introduction = f'<p>{esc(summary)}</p>' if summary and not repeated else ''
     tokens = MARKDOWN.parse(scope)
@@ -218,8 +251,8 @@ def _result_statement(item):
             quote_depth += 1
         elif token.type == "blockquote_close":
             quote_depth -= 1
-        elif (quote_depth and token.type == "inline"
-              and re.search(r"\b[a-zA-Z]\([^)]*\)\s*=", token.content)):
+        elif (quote_depth and token.type == "inline" and "=" in token.content
+              and re.search(r"\b[a-zA-Z]\([^)]*\)", token.content)):
             # Plain-text sequence equations use '*' as multiplication. CommonMark
             # otherwise silently removes paired operators as emphasis delimiters.
             for child in token.children or []:

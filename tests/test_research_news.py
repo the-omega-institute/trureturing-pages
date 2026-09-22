@@ -48,7 +48,17 @@ class ResearchNewsTests(unittest.TestCase):
             ('OEIS A004123 NAME:\n\n> Generalized weak orders.', 'Generalized weak orders.'),
             ('OEIS text copied verbatim from the source.\n\n> A sequence.', 'A sequence.'),
             ('A substantive question.\n\n> Supporting quotation.', 'A substantive question.'),
+            ('Does a(n) = n*n hold?\n\nNAME:\n> Supporting quotation.', 'Does a(n) = n*n hold?'),
+            ('Source, quoted verbatim:\n\nNAME:\n> a(n) = n*n*n.', 'a(n) = n*n*n.'),
+            ('NAME:\n\n> a(n) = n*n*n.', 'a(n) = n*n*n.'),
+            ('Source statement:\n\n> For all n,\n>\n>     a(n) = n*n.\n>\n> Here n >= 0.\n\nBoundary.',
+             'For all n, a(n) = n*n. Here n >= 0.'),
+            ('Put a(n) = n*n\n+ (n-1)*n. Is a(n) even?\n\n> Supporting quote.',
+             'Put a(n) = n*n + (n-1)*n. Is a(n) even?'),
+            ('Source, quoted verbatim:\n\n```text\n%N A000001 a(n) = n*n*n.\n%C A000001 Further conjecture.\n```',
+             'a(n) = n*n*n.'),
             ('> Is `a(n)` always even?', 'Is `a(n)` always even?'),
+            (r'\[a(n) = n*n\]', r'\[a(n) = n*n\]'),
             ('', ''),
         ]
         for source, expected in cases:

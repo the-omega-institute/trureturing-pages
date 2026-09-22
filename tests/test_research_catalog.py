@@ -6,13 +6,21 @@ import unittest
 from pathlib import Path
 
 from lib.discovery import build_index
-from lib.living_library import render_research
-from lib.research_news import append_verified
+from lib.living_library import MARKDOWN, render_research
+from lib.research_news import _result_statement, append_verified
 from lib.research_catalog import build_catalog, write_catalog
 
 
 FIXTURE = Path(__file__).parent / "fixtures/current-snapshot.json.gz"
 ASSETS = Path(__file__).parents[1] / "site/assets"
+SUMMARY_CASES = {
+    "oeis-a122399-": "a(n) = Sum_{k=0..n} k^n * k! * Stirling2(n,k).",
+    "oeis-a163617-": "a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n) + 2 + (-1)^n, for all n in Z.",
+    "oeis-a338636-": "G.f. A(x) satisfies: 1 = A(x) - x/(A(x) - 3^2*x/(A(x) - 5^2*x/(A(x) - 7^2*x/(A(x) - 9^2*x/(A(x) - ...))))), a continued fraction relation.",
+    "oeis-a396793-": "G.f. A(x) satisfies A(x) * A(A(x)) = x^2 + 9*x^3.",
+    "oeis-a396803-": "E.g.f. satisfies A(x) = x*exp( A^3(x) ).",
+    "fiebig-mbirika-spilker-even-period-exception": "... when `p = 0 (mod 4)`, then it appears that the corollary holds for all even values `m > 2` except for the single value of `m = 4`.",
+}
 
 
 class ResearchCatalogTests(unittest.TestCase):
@@ -38,6 +46,54 @@ class ResearchCatalogTests(unittest.TestCase):
         snapshot = {**self.snapshot, "problems": [dict(self.snapshot["problems"][0], slug="unverified",
                      resolution={"kind": "proved", "declaration_gid": "Example.theorem"})]}
         self.assertEqual(build_catalog(snapshot)["families"], [])
+
+    def test_actual_source_summaries_preserve_math_and_full_scope(self):
+        families = {f['id']: f for f in build_catalog(self.snapshot)['families']}
+        with tempfile.TemporaryDirectory() as temp:
+            news = Path(temp) / 'news.json'
+            news.write_bytes((ASSETS / 'research-news.json').read_bytes())
+            records = {r['id']: r for r in append_verified(self.snapshot, news)['results']}
+            for prefix, expected in SUMMARY_CASES.items():
+                problem = next(p for p in self.snapshot['problems'] if p['slug'].startswith(prefix))
+                with self.subTest(source=problem['slug']):
+                    record = records[problem['slug']]
+                    scope = problem['sections']['Problem']
+                    self.assertEqual(record['summary'], expected)
+                    self.assertEqual(families[problem['slug']]['summary'], expected)
+                    self.assertEqual(record['scope'], scope)
+                    html = _result_statement(record)
+                    self.assertTrue(html.startswith('<div class="result-statement prose">'))
+                    self.assertIn(MARKDOWN.render(scope.rsplit('\n\n', 1)[-1]).strip(), html)
+                    if prefix.startswith('oeis-'):
+                        self.assertIn(expected, html)
+                        self.assertEqual(html.count('*'), scope.count('*'))
+
+    def test_actual_generated_and_edited_summaries_across_source_update(self):
+        old = {r['id']: r for r in json.loads((ASSETS / 'research-news.json').read_text())['results']}
+        new_scope = 'OEIS source, quoted verbatim:\n\n> Updated equation: a(n) = 3*n.\n\nNew scope boundary.'
+        with tempfile.TemporaryDirectory() as temp:
+            news = Path(temp) / 'news.json'
+            for prefix, expected in SUMMARY_CASES.items():
+                problem = next(p for p in self.snapshot['problems'] if p['slug'].startswith(prefix))
+                prior = {**old[problem['slug']], 'scope': problem['sections']['Problem']}
+                editorial = expected + ' Editorial: this is the selected mathematical connection.'
+                summaries = [prior['summary'], expected, editorial]
+                if prefix.startswith('fiebig-'):
+                    summaries.append('...')  # The candidate's former sentence truncation.
+                for summary in summaries:
+                    with self.subTest(source=problem['slug'], summary=summary):
+                        news.write_text(json.dumps({'results': [{**prior, 'summary': summary}]}))
+                        updated = {**problem, 'sections': {**problem['sections'], 'Problem': new_scope}}
+                        snapshot = {**self.snapshot, 'problems': [updated]}
+                        record = append_verified(snapshot, news)['results'][0]
+                        self.assertEqual(record['summary'], editorial if summary == editorial else 'Updated equation: a(n) = 3*n.')
+                        self.assertEqual(record['scope'], new_scope)
+                        html = _result_statement(record)
+                        self.assertEqual(html.count('Updated equation: a(n) = 3*n.'), 1)
+                        self.assertEqual('Editorial:' in html, summary == editorial)
+                        first = news.read_bytes()
+                        append_verified(snapshot, news)
+                        self.assertEqual(news.read_bytes(), first)
 
     def test_news_discovery_and_catalog_use_same_verified_set_and_are_idempotent(self):
         with tempfile.TemporaryDirectory() as temp:
