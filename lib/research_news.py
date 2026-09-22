@@ -52,16 +52,27 @@ def _derived_field(problem, source_url, resolution=None):
     return str(domain) if domain else "Open problem"
 
 
-def _problem_summary(problem, limit=320):
-    raw = str(problem.get("sections", {}).get("Problem", "")).strip()
-    paragraph = re.split(r"\n\s*\n", raw, maxsplit=1)[0]
-    text = " ".join(paragraph.split())
+def _short_summary(text, limit=320):
+    text = " ".join(text.split())
     if len(text) <= limit:
         return text
     first = re.search(r".+?[.!?。！？](?:\s|$)", text)
     if first and len(first.group(0).strip()) <= limit:
         return first.group(0).strip()
     return text[: limit - 1].rstrip() + "…"
+
+
+def _problem_summary(problem, limit=320):
+    raw = str(problem.get("sections", {}).get("Problem", "")).strip()
+    paragraphs = re.split(r"\n\s*\n", raw)
+    paragraph = paragraphs[0]
+    # A citation introducing a block quote is not the question itself.
+    if (len(paragraphs) > 1 and paragraphs[1].lstrip().startswith(">")
+            and (paragraph.rstrip().endswith(":") or re.search(r"\b(verbatim|quoted)\b", paragraph, re.I))):
+        paragraph = paragraphs[1]
+    paragraph = re.sub(r"(?m)^\s*>\s?", "", paragraph)
+    # Keep source notation literal: Markdown emphasis can eat multiplication '*'.
+    return _short_summary(paragraph, limit)
 
 
 def _derived_record(problem, resolution, snapshot):
@@ -142,6 +153,14 @@ def append_verified(snapshot, catalog=None):
         if all(prior.get(key) == record[key] for key in ("kind", "module", "declaration")):
             for key in ("title", "field", "summary", "pr"):
                 if key in prior:
+                    if key == "summary":
+                        old_scope = str(prior.get("scope") or "").strip()
+                        old_lead = re.split(r"\n\s*\n", old_scope, maxsplit=1)[0]
+                        if prior[key] in (
+                            _short_summary(old_lead),
+                            _problem_summary({"sections": {"Problem": old_scope}}),
+                        ):
+                            continue
                     record[key] = prior[key]
         results.append(record)
     if snapshot.get("schema_version") != "pages-library-snapshot.v1":

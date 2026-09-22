@@ -11,6 +11,46 @@ from tests.test_living_library import graph, problem_source
 
 
 class ResearchNewsTests(unittest.TestCase):
+    def test_oeis_summary_uses_quoted_mathematics_and_preserves_scope(self):
+        from lib.research_news import _problem_summary
+        source = ('OEIS A163617, `%N` (verbatim):\n\n'
+                  '> a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n) + 2 + (-1)^n,\n'
+                  '> for all n in Z.\n\n'
+                  'FORMULA (verbatim; Velin Yanev, Dec 17 2016):\n\n'
+                  '> Conjecture: a(n) = A003188(n) + (6*n + 1 - (-1)^n)/4.\n\n'
+                  'Only the natural-number half, initialized by `a(0) = 0`, is formalized.')
+        problem = {'slug': 'oeis-a163617', 'title': 'Gray-code formula',
+                   'url': 'https://oeis.org/A163617', 'sections': {'Problem': source}}
+        expected = 'a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n) + 2 + (-1)^n, for all n in Z.'
+        self.assertEqual(_problem_summary(problem), expected)
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'news.json'
+            prior = {'id': problem['slug'], 'kind': 'proved', 'module': 'D5/S1/Example',
+                     'declaration': 'result', 'summary': source.split('\n\n')[0], 'scope': source}
+            path.write_text(json.dumps({'results': [prior], 'publications': []}))
+            result = append_verified(self._verified_snapshot(problem), path)['results'][0]
+            self.assertEqual(result['summary'], expected)
+            self.assertEqual(result['scope'], source)
+            self.assertEqual(append_verified(self._verified_snapshot(problem), path)['results'][0], result)
+            result['summary'] = 'A closed form connecting the recurrence to binary Gray code.'
+            path.write_text(json.dumps({'results': [result], 'publications': []}))
+            self.assertEqual(append_verified(self._verified_snapshot(problem), path)['results'][0]['summary'], result['summary'])
+
+    def test_summary_preserves_substantive_leads_and_source_notation(self):
+        from lib.research_news import _problem_summary
+        cases = [
+            ('Does **every** [term](https://oeis.org/A163617) satisfy `a(n) > 0`?\n\n> A quote.',
+             'Does **every** [term](https://oeis.org/A163617) satisfy `a(n) > 0`?'),
+            ('OEIS A004123 NAME:\n\n> Generalized weak orders.', 'Generalized weak orders.'),
+            ('OEIS text copied verbatim from the source.\n\n> A sequence.', 'A sequence.'),
+            ('A substantive question.\n\n> Supporting quotation.', 'A substantive question.'),
+            ('> Is `a(n)` always even?', 'Is `a(n)` always even?'),
+            ('', ''),
+        ]
+        for source, expected in cases:
+            with self.subTest(source=source):
+                self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
+
     def _verified_snapshot(self, problem, kind="proved"):
         problem = dict(problem)
         problem.setdefault("triage", "theorem")
