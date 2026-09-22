@@ -23,7 +23,10 @@ class ResearchNewsTests(unittest.TestCase):
                    'url': 'https://oeis.org/A163617', 'sections': {'Problem': source}}
         expected = 'a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n) + 2 + (-1)^n, for all n in Z.'
         self.assertEqual(_problem_summary(problem), expected)
-        self.assertTrue(_result_statement({'summary': expected, 'scope': source}).startswith('<div class="result-statement prose">'))
+        html = _result_statement({'summary': expected, 'scope': source})
+        self.assertTrue(html.startswith('<div class="result-statement prose">'))
+        self.assertIn('a(2*n) = 2*a(n), a(2*n + 1) = 2*a(n)', html)
+        self.assertNotIn('<em>', html)
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / 'news.json'
             prior = {'id': problem['slug'], 'kind': 'proved', 'module': 'D5/S1/Example',

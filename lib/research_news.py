@@ -211,7 +211,23 @@ def _result_statement(item):
         or summary == _problem_summary({"sections": {"Problem": scope}})
     )
     introduction = f'<p>{esc(summary)}</p>' if summary and not repeated else ''
-    return introduction + f'<div class="result-statement prose">{MARKDOWN.render(scope)}</div>'
+    tokens = MARKDOWN.parse(scope)
+    quote_depth = 0
+    for token in tokens:
+        if token.type == "blockquote_open":
+            quote_depth += 1
+        elif token.type == "blockquote_close":
+            quote_depth -= 1
+        elif (quote_depth and token.type == "inline"
+              and re.search(r"\b[a-zA-Z]\([^)]*\)\s*=", token.content)):
+            # Plain-text sequence equations use '*' as multiplication. CommonMark
+            # otherwise silently removes paired operators as emphasis delimiters.
+            for child in token.children or []:
+                if child.type in ("em_open", "em_close") and child.markup == "*":
+                    child.type, child.tag, child.nesting = "text", "", 0
+                    child.content = child.markup
+    rendered = MARKDOWN.renderer.render(tokens, MARKDOWN.options, {})
+    return introduction + f'<div class="result-statement prose">{rendered}</div>'
 
 
 def render_news(output, snapshot, shell, catalog_path=None):
