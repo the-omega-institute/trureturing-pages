@@ -87,6 +87,26 @@ class ResearchNewsTests(unittest.TestCase):
             with self.subTest(source=source):
                 self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
 
+    def test_oeis_metadata_fields_prefer_available_mathematical_fields(self):
+        from lib.research_news import _generated_summaries, _problem_summary
+        for metadata in ('OFFSET (`%O`, verbatim)', 'initial sequence line (`%S`, verbatim)',
+                         'AUTHOR (`%A`, verbatim)', 'OFFSET', 'DATA', 'KEYWORDS'):
+            for field in ('NAME (`%N`, verbatim)', 'COMMENT (`%C`, verbatim)',
+                          'FORMULA (`%F`, verbatim)', 'NAME', 'COMMENT', 'FORMULA'):
+                with self.subTest(metadata=metadata, field=field):
+                    source = (f'OEIS A000001, {metadata}:\n> 0,4\n\n'
+                              f'OEIS A000001, {field}:\n\n> a(n) = n*n.\n\nFull boundary.')
+                    self.assertEqual(_problem_summary({'sections': {'Problem': source}}), 'a(n) = n*n.')
+                    self.assertIn('0,4', _generated_summaries(source))
+        for source, expected in (
+            ('OEIS A000001, OFFSET (`%O`, verbatim):\n\n> 0,4', '0,4'),
+            ('NAME:\n\n> 0,4\n\nFORMULA:\n\n> a(n) = n*n.', '0,4'),
+            ('A substantive question.\n\nOFFSET:\n\n> 0,4\n\nNAME:\n\n> A sequence.',
+             'A substantive question.'),
+        ):
+            with self.subTest(source=source):
+                self.assertEqual(_problem_summary({'sections': {'Problem': source}}), expected)
+
     def _verified_snapshot(self, problem, kind="proved"):
         problem = dict(problem)
         problem.setdefault("triage", "theorem")
@@ -98,12 +118,16 @@ class ResearchNewsTests(unittest.TestCase):
         return {"graph": {"source_snapshot": {"source_commit": "b" * 40}, "nodes": []},
                 "problems": [problem], "truth_release_digest": "sha256:" + "c" * 64}
 
-    def test_actual_long_paragraphs_keep_literal_excerpts_and_migrate(self):
+    def test_actual_source_paragraphs_keep_literal_excerpts_and_migrate(self):
         from lib.research_catalog import build_catalog
         from lib.research_news import _problem_summary, _result_statement
         # Complete source records copied from the 350-result review snapshot.
         snapshot = json.loads((Path(__file__).parent / 'fixtures/research-summary-paragraphs.json').read_text())
         cases = {
+            'oeis-a030101-yanev-binary-reversal-position-identity': (
+                '0,4',
+                'a(n) is the number produced when n is converted to binary digits, '
+                'the binary digits are reversed and then converted back into a decimal number.'),
             'oeis-a385590-alternating-binomial': (
                 "The single statement considered here is the formula-field conjecture in "
                 "Werner Schulte's OEIS A385590, dated 2025-07-03.",

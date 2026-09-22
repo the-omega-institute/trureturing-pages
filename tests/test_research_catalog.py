@@ -151,3 +151,37 @@ class ResearchCatalogTests(unittest.TestCase):
             self.assertEqual({r["id"].removeprefix("result:") for r in index["records"]
                               if r["kind"] == "result"}, self.verified)
             self.assertEqual({f["id"] for f in json.loads((out / "assets/research-catalog.json").read_text())["families"]}, self.verified)
+
+    def test_actual_offset_summary_migrates_into_rendered_research_preview(self):
+        from lib.reading_views import Fragments
+        snapshot = json.loads((Path(__file__).parent / 'fixtures/research-summary-paragraphs.json').read_text())
+        slug = 'oeis-a030101-yanev-binary-reversal-position-identity'
+        problem = next(p for p in snapshot['problems'] if p['slug'] == slug)
+        snapshot = {**snapshot, 'problems': [problem]}
+        scope = problem['sections']['Problem']
+        expected = ('a(n) is the number produced when n is converted to binary digits, '
+                    'the binary digits are reversed and then converted back into a decimal number.')
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / 'site'
+            shutil.copytree(ASSETS.parent, out)
+            news = out / 'assets/research-news.json'
+            news.write_text(json.dumps({'results': [], 'publications': []}))
+            saved = append_verified(snapshot, news)
+            saved['results'][0]['summary'] = '0,4'
+            news.write_text(json.dumps(saved))
+            render_research(snapshot, out, {'path': 'data/library/current.json.gz',
+                                            'digest': 'sha256:' + 'a' * 64})
+            record = json.loads(news.read_text())['results'][0]
+            self.assertEqual(record['summary'], expected)
+            self.assertEqual(record['scope'], scope)
+            family = json.loads((out / 'assets/research-catalog.json').read_text())['families'][0]
+            self.assertEqual(family['summary'], expected)
+            parsed = Fragments((out / 'research.html').read_text())
+            row = Fragments(parsed.raw(parsed.select(id='resolved-' + slug)[0]))
+            preview = row.raw(row.select(cls='result-excerpt')[0])
+            self.assertEqual(preview, '<span class="result-excerpt">' + expected + '</span>')
+            statement = row.raw(row.select(cls='result-statement')[0])
+            self.assertIn('<p>0,4</p>', statement)
+            self.assertIn(expected, statement)
+            self.assertEqual(statement, _result_statement(record))
+            self.assertIn(MARKDOWN.render(scope.rsplit('\n\n', 1)[-1]).strip(), statement)

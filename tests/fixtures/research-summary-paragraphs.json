@@ -97,7 +97,47 @@
       "title": "oeis a385590 alternating binomial",
       "triage": "theorem",
       "url": "https://oeis.org/A385590"
+    },
+    {
+      "bibkey": "yanev2017a030101",
+      "last_literature_check": null,
+      "literature_status": "not-rechecked",
+      "motivation_gids": [
+        "D5/S1/Digit/YanevBinaryReversalPositionIdentity.result"
+      ],
+      "resolution": {
+        "declaration_gid": "D5/S1/Digit/YanevBinaryReversalPositionIdentity.result",
+        "evidence": "source-recorded-markdown",
+        "kernel_verified": {
+          "freeze_status": "frozen",
+          "frozen_node_id": "sha256:240211ad15e11ffea688620c2e0cc5cddfbafa552624667ac8cd799592bbaa8d",
+          "node_axiom_closure": [
+            "Classical.choice",
+            "Quot.sound",
+            "propext"
+          ]
+        },
+        "kind": "proved",
+        "source_path": "Blueprint/D5/S1/Digit/YanevBinaryReversalPositionIdentity.md"
+      },
+      "route_status": "proposed",
+      "sections": {
+        "ASSUMED-UNVERIFIED": "The source endpoints establish what OEIS displayed on 2026-09-16, not an\nexhaustive world-literature priority claim. The bounded repository and pinned\nMathlib searches establish only `not-found-in-searched-scope`.",
+        "Evidence": "The Lean kernel checks the binary-induction proof under the pinned toolchain.\nThe Scribe document mirrors each public definition and the full theorem. The\ncanonical repository doors record the exact source-bound Lean report, emitted\nMarkdown, freeze state, and admission result.",
+        "Falsifier": "Any positive natural `n` for which\n`rev n + 2 * w (stripTop n) + 1 ≠ 2 * w n` would refute the theorem. A mismatch\nbetween any formal definition and its displayed OEIS recurrence would refute\nthe source interpretation independently of the theorem.",
+        "Gap": "The A030101 text endpoint read on 2026-09-16 still labels Yanev's formula\n`Conjecture` and contains no settlement line. The target and the content-form\nescape witness were registered in issue #8214 before this implementation.\nRepository searches over `D5`, `Blueprint`, `Library`, and `Problems` found no\nA030101 or A264596 result before this addition. A statement-shape search in\nthe repository and a binary-reversal/lexicographic-position search in pinned\nMathlib found no dominating theorem in those searched scopes.",
+        "Motivation": "The conjecture connects two independent views of a binary word: reversal of\nits digits and its lexicographic rank when the least significant digit is read\nfirst. The theorem establishes the identity for every positive natural input,\nnot merely a finite range.",
+        "Problem": "OEIS A030101, OFFSET (`%O`, verbatim):\n\n> 0,4\n\nOEIS A030101, initial sequence line (`%S`, verbatim):\n\n> 0,1,1,3,1,5,3,7,1,9,5,13,3,11,7,15,1,17,9,25,5,21,13,29,3,19,11,27,7,\n\nOEIS A030101, NAME (`%N`, verbatim):\n\n> a(n) is the number produced when n is converted to binary digits, the binary digits are reversed and then converted back into a decimal number.\n\nRalf Stephan's A030101 recurrence (`%F`, verbatim):\n\n> a(n) = 0, a(2n) = a(n), a(2n+1) = a(n) + 2^(floor(log_2(n)) + 1). For n > 0, a(n) = 2*A030109(n) - 1. - _Ralf Stephan_, Sep 15 2003\n\nVelin Yanev's A030101 conjecture (`%F`, verbatim):\n\n> Conjecture: a(n) = 2*w(n) - 2*w(A053645(n)) - 1 for n > 0, where w = A264596. - _Velin Yanev_, Sep 12 2017\n\nOEIS A030101, AUTHOR (`%A`, verbatim):\n\n> _David W. Wilson_\n\nOEIS A264596, NAME (`%N`, verbatim):\n\n> Let S_n be the list of the first n nonnegative numbers written in binary, with least significant bits on the left, and sorted into lexicographic order; a(n) = position of n in S_n, starting indexing at 0.\n\nHeinz's A264596 recurrence (`%F`, verbatim):\n\n> a(2n) = a(n), a(2n+1) = a(n) + n+1, a(0) = 0. - _Alois P. Heinz_, Nov 19 2015\n\nOEIS A053645, NAME (`%N`, verbatim):\n\n> Distance to largest power of 2 less than or equal to n; write n in binary, change the first digit to zero, and convert back to decimal.\n\nOEIS A053645, defining formula (`%F`, verbatim):\n\n> a(n) = n - 2^A000523(n).\n\nThe formal definitions are:\n\n```lean\ndef w : ℕ → ℕ :=\n  Nat.binaryRec 0 (fun bit n previous => if bit then previous + n + 1 else previous)\n\ndef stripTop (n : ℕ) : ℕ := n - 2 ^ Nat.log 2 n\n\ndef rev : ℕ → ℕ :=\n  Nat.binaryRec 0 fun bit n previous =>\n    if bit then if n = 0 then 1 else previous + 2 ^ (Nat.log 2 n + 1) else previous\n```\n\nThe proved statement is:\n\n```lean\ntheorem result (n : ℕ) (hn : 1 ≤ n) :\n    rev n + 2 * w (stripTop n) + 1 = 2 * w n\n```\n\nThe source writes the result with subtraction on the right. Lean natural\nsubtraction truncates, so the theorem moves the two subtracted quantities to\nthe additive side. It proves the source equality together with the\nnon-negativity needed for the source subtraction. The printed recurrence\nbegins `a(n) = 0`, rather than `a(0) = 0`; its initial sequence value and the\nrest of the recurrence identify the intended zero boundary used by `rev`.\n\nNot claimed: A264596 contains a separate Yanev conjecture dated Sep 12 2017.\nThat conjecture is outside this dossier and is not asserted or resolved here.",
+        "Route": "1. Define `w` by Heinz's even and odd recurrence and `rev` by Stephan's even\n   and odd recurrence, both through `Nat.binaryRec`.\n2. Use binary induction. At each positive half-index, `Nat.log_two_bit`\n   identifies the new leading power and `Nat.pow_log_le_self` bounds the power\n   removed by `stripTop`.\n3. Show locally that `stripTop` doubles in the even branch and doubles then\n   adds one in the odd branch. Apply the corresponding `w` recurrence and the\n   induction hypothesis.\n4. In the odd branch, use `Nat.sub_add_cancel` for the leading power and close\n   the resulting natural arithmetic identity.\n\n`result` has `proof_shape: content`. Its escape witness is form (2), the\npublic conclusion itself, produced on the live binary-induction path. There\nare no frozen project dependencies and no separate helper declarations. The\nmodule has `admission_basis: escape-witness`. All four declarations have\n`utility: none`: the definitions are symbolic recurrences and the theorem is\nan unbounded universal identity, not a finite enumeration, checker, numeric\nreduction, or certified instance.",
+        "Triage": "`theorem`; resolution `proved`. The formal result settles the displayed\nA030101 identity for every positive natural input."
+      },
+      "slug": "oeis-a030101-yanev-binary-reversal-position-identity",
+      "source_digest": "sha256:700b5a46a80e64f8556d53aca4482fe7561da66fa143b1f4c1ae0bb514f7f895",
+      "title": "Yanev's position identity for binary reversal",
+      "triage": "theorem",
+      "url": "https://oeis.org/A030101"
     }
   ],
-  "truth_release_digest": "sha256:10919171673548c053dbd1b7deea1e627d8a7fb40878a6627e655647e0a4b0fb"
+  "truth_release_digest": "sha256:10919171673548c053dbd1b7deea1e627d8a7fb40878a6627e655647e0a4b0fb",
+  "atlas_graph_digest": "sha256:89bc77e0afde0ae6baf2a826b7de8dcba8838798c72d3f942a65cd9323b791b5"
 }

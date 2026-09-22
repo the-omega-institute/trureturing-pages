@@ -72,7 +72,26 @@ def _problem_summary(problem, limit=320):
     return _short_summary(_problem_excerpt(problem), limit)
 
 
-def _problem_excerpt(problem):
+def _oeis_field_header(text):
+    """Identify explicit OEIS field headings, not the prose or quoted values."""
+    text = text.strip()
+    if not text.endswith(":"):
+        return None
+    code = re.search(r"\(\s*`?%([A-Z])`?\s*[,;)]", text)
+    if code:
+        return code.group(1)
+    label = re.fullmatch(
+        r"(?:(?:OEIS\s+)?A\d{6},?\s+)?"
+        r"(NAME|COMMENTS?|FORMULA|OFFSET|AUTHOR|DATA|KEYWORDS?)"
+        r"(?:\s*\([^)]*\))?:", text, re.I)
+    if label:
+        return {"NAME": "N", "COMMENT": "C", "COMMENTS": "C", "FORMULA": "F",
+                "OFFSET": "O", "AUTHOR": "A", "DATA": "S",
+                "KEYWORD": "K", "KEYWORDS": "K"}[label.group(1).upper()]
+    return None
+
+
+def _problem_excerpt(problem, *, skip_oeis_metadata=True):
     from lib.living_library import MARKDOWN
     raw = str(problem.get("sections", {}).get("Problem", "")).strip()
     blocks, depth = [], 0
@@ -98,6 +117,17 @@ def _problem_excerpt(problem):
         index = 1
         while index < len(blocks) and re.fullmatch(label + ":", blocks[index][0].content.strip(), re.I):
             index += 1
+    if skip_oeis_metadata and not blocks[0][1]:
+        first_field = _oeis_field_header(lead)
+        if first_field and first_field not in "NCF":
+            # OFFSET, DATA, AUTHOR, etc. describe the entry. Prefer an explicitly
+            # labelled mathematical field when available; otherwise keep the
+            # former fallback. Never discard any of these fields from scope.
+            for candidate in range(1, len(blocks) - 1):
+                token, quoted = blocks[candidate]
+                if not quoted and _oeis_field_header(token.content) in ("N", "C", "F"):
+                    index = candidate + 1
+                    break
     if index < len(blocks):
         token, quoted = blocks[index]
         # Read raw token content, never inline children: '*' may be multiplication.
@@ -128,9 +158,12 @@ def _generated_summaries(scope):
         paragraph = paragraphs[1]
     paragraph = re.sub(r"(?m)^\s*>\s?", "", paragraph)
     summaries.add(_legacy_short_summary(paragraph))
-    excerpt = _problem_excerpt({"sections": {"Problem": scope}})
-    summaries.add(_legacy_short_summary(excerpt, preserve_omission=True))
-    summaries.add(_short_summary(excerpt))
+    # Keep the previous field-unaware extractor too: its saved outputs (e.g.
+    # an OFFSET value) are generated text, not an editorial customization.
+    for skip_metadata in (False, True):
+        excerpt = _problem_excerpt({"sections": {"Problem": scope}}, skip_oeis_metadata=skip_metadata)
+        summaries.add(_legacy_short_summary(excerpt, preserve_omission=True))
+        summaries.add(_short_summary(excerpt))
     return summaries
 
 
