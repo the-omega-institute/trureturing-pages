@@ -125,6 +125,14 @@ const sha = (text) =>
     assert.equal(diagnostics.changes.added, 1);
     assert.equal(diagnostics.changes.changed, 1);
     assert.ok(diagnostics.changes.edgesAdded > 0);
+    const releasePanel = page.locator("#release-discover");
+    assert.equal(await releasePanel.isVisible(), true);
+    assert.equal(
+      await page.locator("#release-discover-toggle").getAttribute("aria-expanded"),
+      "true",
+    );
+    assert.match(await releasePanel.innerText(), /\+1 concept\b/);
+    assert.equal(await page.locator("#release-discover-topics .release-node").count(), 1);
     assert.equal(
       diagnostics.changes.active,
       false,
@@ -142,11 +150,11 @@ const sha = (text) =>
         "What changed",
       ),
     );
-    const output = path.resolve("artifacts/atlas-preview/screenshots");
-    fs.mkdirSync(output, { recursive: true });
-    await page.screenshot({
-      path: path.join(output, "visual-release-changes-fixture.png"),
-    });
+    await page.locator("#release-discover-toggle").click();
+    assert.equal(await page.locator("#release-discover-body").isVisible(), false);
+    await page.locator("#release-discover-toggle").click();
+    await page.locator("#release-discover-all").click();
+    assert.equal(await page.locator("#wiki-content .concept-row").count(), 2);
     await page
       .getByRole("button", { name: "Show release changes", exact: true })
       .click();
@@ -154,6 +162,43 @@ const sha = (text) =>
       await page.evaluate(() => window.atlasDiagnostics().visuals.changeHalos),
       0,
     );
+    await page.locator("#release-discover-topics .release-node").click();
+    assert.equal(await page.evaluate(() => window.atlasDiagnostics().selected), added);
+    const output = path.resolve("artifacts/atlas-preview/screenshots");
+    fs.mkdirSync(output, { recursive: true });
+    await page.goto(`${root}/atlas.html`);
+    await page.waitForFunction(() => window.atlasDiagnostics?.().changes?.kind === "comparable");
+    await page.screenshot({ path: path.join(output, "visual-release-changes-desktop.png") });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${root}/atlas.html`);
+    await page.waitForFunction(() => window.atlasDiagnostics?.().changes?.kind === "comparable");
+    assert.equal(await page.locator("#release-discover").isVisible(), true);
+    assert.equal(await page.locator("#release-discover-toggle").getAttribute("aria-expanded"), "false");
+    for (const [width, height] of [[390, 844], [360, 780]]) {
+      await page.setViewportSize({ width, height });
+      const overlaps = await page.evaluate(() => {
+        const panel = document.querySelector("#release-discover").getBoundingClientRect();
+        return [...document.querySelectorAll(".family-label, .atlas-bottom")]
+          .filter((label) => {
+            const rect = label.getBoundingClientRect();
+            return rect.width && rect.height && rect.left < panel.right &&
+              rect.right > panel.left && rect.top < panel.bottom &&
+              rect.bottom > panel.top;
+          })
+          .map((label) => label.textContent.trim());
+      });
+      assert.deepEqual(overlaps, [], `${width}px release entry covers a graph label`);
+      await page.screenshot({
+        path: path.join(output, `visual-release-changes-mobile-${width}-default.png`),
+      });
+    }
+    await page.locator("#release-discover-toggle").click();
+    assert.equal(await page.locator("#release-discover-topics .release-node").isVisible(), true);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+    assert.equal(overflow, false);
+    await page.screenshot({
+      path: path.join(output, "visual-release-changes-fixture.png"),
+    });
     console.log(
       "PASS: a browser-only second-release fixture activates exact new-node, changed-content and new-dependency highlights; manual controls work and reduced motion suppresses automatic pulses.",
     );

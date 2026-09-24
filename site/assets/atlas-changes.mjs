@@ -50,3 +50,23 @@ export async function loadReleaseHighlights(snapshots, library) {
   if (baseline.kind !== "comparable") return baseline;
   return releaseHighlights(snapshots, library.index, await library.timeline());
 }
+
+export function addedTopics(changes, model) {
+  const families = new Map(model.families.map((family) => [family.id, family]));
+  const groups = new Map();
+  for (const id of changes.added) {
+    const node = model.byId.get(id);
+    if (!node || node.kind !== "truth") continue;
+    const family = families.get(node.family);
+    if (!family) continue;
+    if (!groups.has(family.id)) groups.set(family.id, { family, nodes: [] });
+    groups.get(family.id).nodes.push(node);
+  }
+  return [...groups.values()]
+    .map(({ family, nodes }) => ({
+      name: family.name,
+      color: family.color,
+      nodes: nodes.sort((a, b) => a.id.localeCompare(b.id)),
+    }))
+    .sort((a, b) => b.nodes.length - a.nodes.length || a.name.localeCompare(b.name));
+}

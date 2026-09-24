@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import {
   createPublicModel,
   computeLayout,
+  familyFor,
   searchNodes,
   verifyGraph,
   viewFor,
@@ -59,6 +60,13 @@ test("public map keeps mathematical nodes and only certified dependency edges", 
     3,
   );
   assert.equal(graph.nodes[0].family, undefined);
+});
+test("editorial families give discrete and arithmetic domains mathematical homes", () => {
+  for (const domain of ["Words", "Combinatorics"])
+    assert.equal(familyFor({ domain }).id, "discrete");
+  for (const domain of ["Constants", "PrimeGaps", "ArithSums"])
+    assert.equal(familyFor({ domain }).id, "numbers");
+  assert.equal(familyFor({ domain: "UnmappedFutureDomain" }).id, "foundations");
 });
 test("focus retains proof lineage, affinities and documents across a family filter", () => {
   const model = createPublicModel(graph);

@@ -33,7 +33,7 @@ import {
   researchMarkers,
   visualLevel,
 } from "./atlas-visual-core.mjs";
-import { loadReleaseHighlights } from "./atlas-changes.mjs";
+import { addedTopics, loadReleaseHighlights } from "./atlas-changes.mjs";
 
 const $ = (selector) => document.querySelector(selector);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -953,7 +953,7 @@ function renderResearch(root) {
   research.href = "conjectures.html";
   research.append(icon("arrow-up-right"));
   const bridges = el("a", "research-link", "Papers & research bridges");
-  bridges.href = `discover.html?record=${encodeURIComponent("module:" + node.id)}`;
+  bridges.href = "discover.html";
   root.append(research, bridges);
 }
 function researchPath(problem) {
@@ -1727,6 +1727,7 @@ function updateReleaseChanges() {
           ? `+${changes.added.size} / ${changes.changed.size} updated`
           : label;
       note.title = label;
+      renderReleaseDiscover();
       const key = `atlas-seen-release:${changes.release}`;
       let seen = true;
       try {
@@ -1749,6 +1750,38 @@ function updateReleaseChanges() {
       state.changeError = error.message;
       $("#release-change-note").textContent = "Change history unavailable";
     });
+}
+function renderReleaseDiscover() {
+  const changes = state.changes;
+  const panel = $("#release-discover");
+  panel.hidden = changes?.kind !== "comparable" ||
+    !(changes.added.size || changes.changed.size || changes.edgesAdded.size);
+  if (panel.hidden) return;
+  const topics = addedTopics(changes, state.model);
+  $("#release-discover-count").textContent = changes.added.size
+    ? `+${changes.added.size} ${changes.added.size === 1 ? "concept" : "concepts"}`
+    : changes.changed.size
+      ? `${changes.changed.size} updated`
+      : `+${changes.edgesAdded.size} proof ${changes.edgesAdded.size === 1 ? "connection" : "connections"}`;
+  const links = $("#release-discover-links");
+  links.hidden = !changes.edgesKnown || !changes.edgesAdded.size ||
+    !(changes.added.size || changes.changed.size);
+  if (!links.hidden)
+    links.textContent = `+${changes.edgesAdded.size} proof ${changes.edgesAdded.size === 1 ? "connection" : "connections"}`;
+  const root = $("#release-discover-topics");
+  root.replaceChildren();
+  for (const topic of topics) {
+    const group = el("div", "release-topic");
+    group.style.setProperty("--topic-color", topic.color);
+    group.append(el("h3", "", `${topic.name} · ${topic.nodes.length}`));
+    for (const node of topic.nodes)
+      group.append(action(title(node), "release-node", () => selectNode(node.id)));
+    root.append(group);
+  }
+  const expanded = !matchMedia("(max-width: 700px)").matches;
+  $("#release-discover-toggle").setAttribute("aria-expanded", String(expanded));
+  $("#release-discover-body").hidden = !expanded;
+  icons();
 }
 function renderChanges(root) {
   const changes = state.changes;
@@ -1918,17 +1951,38 @@ $("#toggle-bundles").addEventListener("click", () => {
   updateVisualLevel();
   positionLabels();
 });
-$("#toggle-changes").addEventListener("click", () => {
-  if (state.changes?.kind !== "comparable") return;
+function showChangesPanel() {
   rememberView();
   state.changePulseUntil = 0;
-  state.showChanges = !state.showChanges;
-  state.changesPanel = state.showChanges;
+  state.showChanges = true;
+  state.changesPanel = true;
   state.selected = null;
   state.bundle = null;
-  $("#toggle-changes").setAttribute("aria-pressed", String(state.showChanges));
+  $("#toggle-changes").setAttribute("aria-pressed", "true");
   renderGraph();
   renderWiki();
+}
+$("#toggle-changes").addEventListener("click", () => {
+  if (state.changes?.kind !== "comparable") return;
+  if (!state.showChanges || !state.changesPanel) {
+    showChangesPanel();
+    return;
+  }
+  state.showChanges = false;
+  state.changesPanel = false;
+  $("#toggle-changes").setAttribute("aria-pressed", "false");
+  renderGraph();
+  renderWiki();
+});
+$("#release-discover-toggle").addEventListener("click", () => {
+  const toggle = $("#release-discover-toggle");
+  const expanded = toggle.getAttribute("aria-expanded") !== "true";
+  toggle.setAttribute("aria-expanded", String(expanded));
+  $("#release-discover-body").hidden = !expanded;
+});
+$("#release-discover-all").addEventListener("click", () => {
+  if (state.changes?.kind !== "comparable") return;
+  showChangesPanel();
 });
 
 document

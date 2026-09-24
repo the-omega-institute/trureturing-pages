@@ -85,6 +85,17 @@
             </select>
           </div>
         </div>
+        <section id="release-discover" class="release-discover" aria-label="Latest release additions" hidden>
+          <button id="release-discover-toggle" class="release-discover-toggle" type="button" aria-expanded="false" aria-controls="release-discover-body">
+            <span><small>Latest release</small><strong id="release-discover-count"></strong></span>
+            <i data-lucide="chevron-down"></i>
+          </button>
+          <div id="release-discover-body" class="release-discover-body" hidden>
+            <p id="release-discover-links" class="release-discover-links"></p>
+            <div id="release-discover-topics"></div>
+            <button id="release-discover-all" class="release-discover-all" type="button">All changes <i data-lucide="arrow-right"></i></button>
+          </div>
+        </section>
         <div
           id="family-labels"
           class="family-labels"
