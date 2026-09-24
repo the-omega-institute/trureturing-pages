@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { releaseHighlights } from "../../site/assets/atlas-changes.mjs";
+import { addedTopics, releaseHighlights } from "../../site/assets/atlas-changes.mjs";
 
 const before = {
   truth_release_digest: "old",
@@ -55,4 +55,19 @@ test("missing edge archives and mismatched content coordinates are unknown, not 
   assert.equal(result.contentKnown, false);
   assert.equal(result.changed.size, 0);
   assert.equal(result.added.size, 1);
+});
+test("new release topics match Atlas families and contain only current mathematical nodes", () => {
+  const changes = { added: new Set(["new-1", "missing", "new-2", "new-3", "doc"]) };
+  const model = { byId: new Map([
+    ["new-1", { id: "new-1", kind: "truth", domain: "PrimeGaps", family: "numbers" }],
+    ["new-2", { id: "new-2", kind: "truth", domain: "Constants", family: "numbers" }],
+    ["new-3", { id: "new-3", kind: "truth", domain: "Words", family: "discrete" }],
+    ["doc", { id: "doc", kind: "blueprint", domain: "Document" }],
+  ]), families: [
+    { id: "numbers", name: "Numbers & arithmetic", color: "#edc66d" },
+    { id: "discrete", name: "Discrete mathematics", color: "#e4ac8c" },
+  ] };
+  assert.deepEqual(addedTopics(changes, model).map(({ name, nodes }) => [
+    name, nodes.map((node) => node.id),
+  ]), [["Numbers & arithmetic", ["new-1", "new-2"]], ["Discrete mathematics", ["new-3"]]]);
 });

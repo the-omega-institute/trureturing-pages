@@ -15,7 +15,7 @@ fs.mkdirSync(output, { recursive: true });
       deviceScaleFactor: 1,
     });
     const errors = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("pageerror", (error) => errors.push(error.stack || error.message));
     await page.goto(url);
     await page.waitForFunction(
       () => typeof window.atlasDiagnostics === "function",
@@ -240,6 +240,14 @@ fs.mkdirSync(output, { recursive: true });
         false,
         `${name} has horizontal overflow`,
       );
+      if (name !== "wide") {
+        const heading = await page.locator(".atlas-heading").boundingBox();
+        const search = await page.locator("#concept-search").boundingBox();
+        assert.ok(
+          search.y >= heading.y + heading.height,
+          `${name} search overlaps the Atlas heading`,
+        );
+      }
       await page.screenshot({
         path: path.join(output, `${name}-overview.png`),
       });

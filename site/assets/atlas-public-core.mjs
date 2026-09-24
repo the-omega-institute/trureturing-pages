@@ -52,8 +52,18 @@ export const FAMILIES = [
       "PrimeForms",
       "Factorization",
       "Digit",
+      "ArithSums",
+      "Constants",
+      "PrimeGaps",
     ],
     position: [490, 90, 20],
+  },
+  {
+    id: "discrete",
+    name: "Discrete mathematics",
+    color: "#e4ac8c",
+    domains: ["Words", "Combinatorics"],
+    position: [120, 25, 230],
   },
   {
     id: "analysis",
