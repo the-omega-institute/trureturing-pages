@@ -2,16 +2,17 @@
 
 `site/open-math.html` is a fourteen-slide pitch, linked from Contribute, for a
 conversation with SAIR's Open Math Model initiative. It leads with the
-project's own story and ends with why the two efforts fit:
+project's own evidence and ends with one concrete collaboration ask: a four-week
+pilot with one open model, one topic and one public, kernel-checked result:
 
-1. **true · return · Turing**: a scientific method for discovering truth, for
-   people and AI.
+1. **true · return · Turing**: a working harness where open models produce
+   mathematics people can check.
 2. **#1 on every leaderboard** of SAIR's Equational Theories Stage 2 (Team
    Omega): 1889/1889 public problems certified, zero LLM calls
    ([solver repository](https://github.com/the-omega-institute/sair-eqt2-stage2-solver),
    arXiv:2609.00706).
-3. **Logic is the subject**: mathematics (411 problem dossiers), physics (294
-   quantum modules), concepts and ethics (940 ConceptDynamics modules).
+3. **The offer**: give an open model a place to do real mathematics, with
+   definitions, relations and visible dependencies.
 4. **Information escape, defined**: readout `q`, question `T`, and
    `E(q, T) = { (x, y) : q(x) = q(y), T(x) ≠ T(y) }`.
 5. **The engine**: `E(q ∨ d, T) = E(q, T) ∩ ker d` (DECT). What still escapes
@@ -30,8 +31,9 @@ project's own story and ends with why the two efforts fit:
 12. **Real mathematics**: 164 open problems settled; the original authors are
     contacted, three collaborations are under way and the first joint paper is
     headed to arXiv.
-13. **SAIR Open Math Model × trureturing** and a first four-week project.
-14. **Let's build Math 2.0 on ground that checks itself.**
+13. **The pilot proposal**: one model, one topic, four weeks; the output is a
+    public, kernel-checked result and its evaluation record.
+14. **The next step**: choose the first problem and run the pilot.
 
 Repository counts refer to trureturing `6fec50cf0`. Speaker notes carry the
 supporting detail; the slides stay short.
