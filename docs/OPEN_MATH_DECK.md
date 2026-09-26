@@ -61,4 +61,5 @@ This starts its own local HTTP server and isolated headless browser. It checks
 English and Chinese slide containment, keyboard and chapter navigation, notes,
 reading-mode navigation, mobile width, no-JavaScript reading, and printing.
 It writes screenshots and both PDF versions to the requested output directory.
+Exported PDF links point to public Pages rather than the temporary local server.
 No full site generation, Lean build or release changes are needed.

@@ -81,6 +81,16 @@ def main():
                 # Printing must include every slide even from presentation mode.
                 page.emulate_media(media='print')
                 assert page.locator('.deck-slide:visible').count() == 12
+                # Shared PDFs must point to the public site, never this ephemeral server.
+                page.evaluate('''() => {
+                  const root = 'https://the-omega-institute.github.io/trureturing-pages/';
+                  for (const a of document.querySelectorAll('.deck a[href]')) {
+                    const u = new URL(a.href);
+                    if (u.origin === location.origin)
+                      a.href = root + u.pathname.slice(1) + u.search + u.hash;
+                  }
+                }''')
+                assert page.locator('.deck a[href^="http://127.0.0.1"]').count() == 0
                 page.pdf(path=str(args.output / f'trureturing-open-math-{lang}.pdf'), prefer_css_page_size=True, print_background=True)
                 page.close()
                 mobile = browser.new_page(viewport={'width': 390, 'height': 844}, reduced_motion='reduce')
