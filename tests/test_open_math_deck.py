@@ -89,6 +89,48 @@ class OpenMathDeckTests(unittest.TestCase):
                                 capture_output=True, text=True, timeout=15, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_excerpt_edges_match_import_records(self):
+        data = json.loads((ROOT / 'site/assets/open-math/atlas-excerpt.json').read_text())
+        nodes = {n['id']: n for n in data['nodes']}
+        visible = set(data['visible'])
+        expected = {(parent, ident) for ident in visible for parent in nodes[ident]['parents'] if parent in visible}
+        actual = {(edge['source'], edge['target']) for edge in data['edges']}
+        self.assertEqual(actual, expected)
+        self.assertEqual(len(actual), len(data['edges']))
+        self.assertEqual(data['granularity'], 'module-import')
+        for node in nodes.values():
+            self.assertEqual(node['in_degree'], len(node['parents']))
+            self.assertEqual(node['out_degree'], len(node['children']))
+
+    def test_excerpt_contains_the_complete_seed_downstream_network(self):
+        data = json.loads((ROOT / 'site/assets/open-math/atlas-excerpt.json').read_text())
+        nodes = {n['id']: n for n in data['nodes']}
+        seen, frontier = set(), {data['seed']}
+        while frontier:
+            seen.update(frontier)
+            frontier = {child for ident in frontier for child in nodes[ident]['children']} - seen
+        self.assertEqual(len(seen) - 1, nodes[data['seed']]['descendant_count'])
+        self.assertEqual(set(data['visible']), seen | set(nodes[data['seed']]['parents']))
+        self.assertEqual(set(data['positions']), set(data['visible']))
+        # These are the user-facing counts on the cover and graph controls.
+        self.assertEqual((len(data['visible']), len(data['edges']), len(seen) - 1), (79, 97, 75))
+
+    def test_showcase_evidence_is_pinned_and_local(self):
+        data = json.loads((ROOT / 'site/assets/open-math/atlas-excerpt.json').read_text())
+        for node in data['nodes']:
+            self.assertTrue(node['release_page'].startswith('release/' + data['release'].split(':')[1] + '/node/'))
+        self.assertEqual(data['observations'][-1]['source_commit'], data['source_commit'])
+        self.assertEqual(data['observations'][-1]['atlas_graph_digest'], data['atlas_graph_digest'])
+        self.assertEqual([o['reach'] for o in data['observations']], [67, 69, 74, 75, 75])
+        self.assertEqual(len(data['source_excerpts']), 3)
+        for excerpt in data['source_excerpts'].values():
+            self.assertTrue(excerpt['text'].startswith('theorem '))
+            self.assertRegex(excerpt['sha256'], r'^[a-f0-9]{64}$')
+        self.assertIn('assets/open-math-showcase.mjs', self.html)
+        result = subprocess.run(['node', '--check', 'site/assets/open-math-showcase.mjs'], cwd=ROOT,
+                                capture_output=True, text=True, timeout=15, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
 
 if __name__ == '__main__':
     unittest.main()

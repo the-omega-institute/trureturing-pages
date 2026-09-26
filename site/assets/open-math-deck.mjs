@@ -57,6 +57,7 @@ function show(target, { updateHash = true } = {}) {
   const present = currentMode() === 'present';
   slides.forEach((slide, position) => {
     const current = position === index;
+    if (present && !current && slide.contains(document.activeElement)) document.activeElement.blur?.();
     slide.classList.toggle('is-current', current);
     slide.inert = present && !current;
     if (present && !current) slide.setAttribute('aria-hidden', 'true');
@@ -138,7 +139,7 @@ if (document.fullscreenEnabled) {
 
 document.addEventListener('keydown', event => {
   if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
-  if (event.target.closest?.('input, textarea, select, [contenteditable]')) return;
+  if (event.target.closest?.('input, textarea, select, [contenteditable], [data-deck-interactive]')) return;
   if (event.key === ' ' && event.target.closest?.('button, a')) return;
   const key = event.key;
   if (key === 'n' || key === 'N') { toggleNotes(); return; }
@@ -156,7 +157,7 @@ document.addEventListener('keydown', event => {
 
 let touchStart = null;
 deck.addEventListener('touchstart', event => {
-  touchStart = event.touches.length === 1 ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null;
+  touchStart = !event.target.closest('[data-deck-interactive]') && event.touches.length === 1 ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null;
 }, { passive: true });
 deck.addEventListener('touchend', event => {
   if (!touchStart || currentMode() !== 'present') return;
