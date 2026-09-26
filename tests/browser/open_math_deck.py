@@ -38,7 +38,7 @@ def main():
                 assert page.locator('.deck-slide:visible').count() == 1
                 page.wait_for_selector('.atlas-workbench[data-ready="true"]', state='attached')
                 count = page.locator('.deck-slide').count()
-                assert count == 12
+                assert count == 13
                 for i in range(count):
                     page.locator('#deck-jump').select_option(str(i))
                     assert page.locator('#deck-counter').inner_text() == f'{i+1} / {count}'
@@ -47,7 +47,7 @@ def main():
                     # Screen geometry catches clipped children even if the stage has overflow:clip.
                     overflow = slide.evaluate('''s => {
                       const box=s.getBoundingClientRect();
-                      return [...s.querySelectorAll('h1,h2,h3,p,figure,table,li,.evidence-links,.cover-bottom,.scope-grid,.atlas-workbench,.atlas-canvas,.atlas-inspector,.atlas-legend,.atlas-guided-path,.history-card,.case-trace')]
+                      return [...s.querySelectorAll('h1,h2,h3,p,figure,table,li,.evidence-links,.cover-bottom,.atlas-workbench,.atlas-canvas,.atlas-inspector,.atlas-legend,.atlas-guided-path,.history-card,.case-trace')]
                         .filter(e=>e.getClientRects().length && !e.closest('.deck-notes'))
                         .filter(e=>{const r=e.getBoundingClientRect();return r.bottom>box.bottom-12 || r.right>box.right+1 || r.left<box.left-1;})
                         .map(e=>e.tagName+': '+e.textContent.slice(0,100));
@@ -56,7 +56,7 @@ def main():
                         layout_errors.append((lang, i+1, overflow))
                     page.screenshot(path=str(args.output / f'{lang}-{i+1:02}.png'))
                 # Exercise the actual graph and evidence, not only slide navigation.
-                page.locator('#deck-jump').select_option('5')
+                page.locator('#deck-jump').select_option('7')
                 assert page.locator('#deck-dependency-graph [data-node]').count() == 79
                 assert page.locator('#deck-dependency-graph .atlas-edges path').count() == 97
                 page.screenshot(path=str(args.output / f'{lang}-atlas-network.png'))
@@ -72,7 +72,7 @@ def main():
                 page.screenshot(path=str(args.output / f'{lang}-atlas-source.png'))
                 page.keyboard.press('ArrowRight')
                 assert page.locator('[data-inspector-tab="record"]').get_attribute('aria-selected') == 'true'
-                assert page.locator('#deck-counter').inner_text() == '6 / 12'
+                assert page.locator('#deck-counter').inner_text() == '8 / 13'
                 assert '/commits/a450fbe4' in page.locator('#deck-inspector-content a').nth(1).get_attribute('href')
                 page.screenshot(path=str(args.output / f'{lang}-atlas-record.png'))
                 page.locator('[data-focus-node="D5/S1/Deficit/AlmostAdditivity"]').click()
@@ -81,7 +81,7 @@ def main():
                 assert '/node/90db4f0d' in page.locator('#deck-inspector-content a').first.get_attribute('href')
                 page.locator('[data-focus-node="D5/S1/Deficit/DeficitInteger"]').click()
                 page.screenshot(path=str(args.output / f'{lang}-atlas-local.png'))
-                page.locator('#deck-jump').select_option('7')
+                page.locator('#deck-jump').select_option('6')
                 page.locator('[data-observation="0"]').click()
                 assert '2,890' in page.locator('#deck-history-detail').inner_text()
                 assert '1dbc67a6' in page.locator('#deck-history-detail a').get_attribute('href')
@@ -90,30 +90,30 @@ def main():
                 page.locator('#deck-jump').select_option('0')
                 page.locator('#deck-jump').blur()
                 page.keyboard.press('ArrowRight')
-                assert page.locator('#deck-counter').inner_text() == '2 / 12'
+                assert page.locator('#deck-counter').inner_text() == '2 / 13'
                 page.locator('#deck-notes-toggle').click()
                 assert page.locator('#deck-notes-panel').is_visible()
                 assert page.locator('#deck-notes-panel').inner_text().strip()
                 page.locator('#deck-notes-toggle').click()
                 page.locator('#deck-read-toggle').click()
-                assert page.locator('.deck-slide:visible').count() == 12
+                assert page.locator('.deck-slide:visible').count() == 13
                 page.locator('#deck-next').click()
-                assert page.locator('#deck-counter').inner_text() == '3 / 12'
+                assert page.locator('#deck-counter').inner_text() == '3 / 13'
                 page.locator('#deck-prev').click()
-                assert page.locator('#deck-counter').inner_text() == '2 / 12'
-                page.locator('#deck-jump').select_option('5')
-                assert abs(page.locator('#s6').bounding_box()['y']-78) < 5
+                assert page.locator('#deck-counter').inner_text() == '2 / 13'
+                page.locator('#deck-jump').select_option('7')
+                assert abs(page.locator('#s8').bounding_box()['y']-78) < 5
                 page.locator('#deck-read-toggle').click()
-                assert page.locator('#s6').is_visible()
-                assert page.locator('#deck-counter').inner_text() == '6 / 12'
+                assert page.locator('#s8').is_visible()
+                assert page.locator('#deck-counter').inner_text() == '8 / 13'
                 # Standard presentation size remains readable and completely contained.
                 page.set_viewport_size({'width': 1024, 'height': 768})
-                page.wait_for_function("() => { const r = document.querySelector('#s6').getBoundingClientRect(); return r.x >= 0 && r.y >= 63 && r.bottom <= 707; }")
-                rect=page.locator('#s6').bounding_box()
+                page.wait_for_function("() => { const r = document.querySelector('#s8').getBoundingClientRect(); return r.x >= 0 && r.y >= 63 && r.bottom <= 707; }")
+                rect=page.locator('#s8').bounding_box()
                 assert rect['x'] >= 0 and rect['y'] >= 63 and rect['y']+rect['height'] <= 707
                 # Printing must include every slide even from presentation mode.
                 page.emulate_media(media='print')
-                assert page.locator('.deck-slide:visible').count() == 12
+                assert page.locator('.deck-slide:visible').count() == 13
                 # Shared PDFs must point to the public site, never this ephemeral server.
                 page.evaluate('''() => {
                   const root = 'https://the-omega-institute.github.io/trureturing-pages/';
@@ -130,19 +130,19 @@ def main():
                 mobile.goto(f'{base}?lang={lang}', wait_until='networkidle')
                 assert mobile.locator('body').get_attribute('data-mode') == 'read'
                 assert mobile.evaluate('document.documentElement.scrollWidth <= innerWidth')
-                for i in [0,4,5,8,9]:
+                for i in [0,1,3,7,10]:
                     mobile.locator(f'#s{i+1}').screenshot(path=str(args.output / f'{lang}-mobile-{i+1:02}.png'))
-                mobile.locator('#s6').scroll_into_view_if_needed()
+                mobile.locator('#s8').scroll_into_view_if_needed()
                 mobile.locator('[data-focus-node="D5/S1/Deficit/AlmostAdditivity"]').click()
                 assert mobile.locator('#deck-node-title').inner_text() == 'AlmostAdditivity'
                 mobile.locator('[data-inspector-tab="source"]').click()
                 assert 'lambdaMinus_almost_additive' in mobile.locator('#deck-inspector-content').inner_text()
                 mobile.close()
-                report.append(f'{lang}: 12 slides, navigation, notes, reading position, 1024px presentation, 390px reading and print')
+                report.append(f'{lang}: 13 slides, navigation, notes, reading position, 1024px presentation, 390px reading and print')
             plain = browser.new_context(java_script_enabled=False, viewport={'width':390,'height':844})
             page = plain.new_page()
             page.goto(base)
-            assert page.locator('.deck-slide:visible').count() == 12
+            assert page.locator('.deck-slide:visible').count() == 13
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
             assert page.locator('#deck-print').is_hidden()
             assert page.locator('#deck-dependency-graph [data-node]').count() == 8
@@ -150,7 +150,7 @@ def main():
             plain.close()
             offline = browser.new_page(viewport={'width':1440,'height':900})
             offline.route('**/open-math/atlas-excerpt.json', lambda route: route.abort())
-            offline.goto(base+'#s6', wait_until='networkidle')
+            offline.goto(base+'#s8', wait_until='networkidle')
             assert offline.locator('#deck-dependency-graph [data-node]').count() == 8
             assert offline.locator('[data-graph-mode="network"]').is_disabled()
             assert 'Static snapshot' in offline.locator('#deck-graph-hint').inner_text()

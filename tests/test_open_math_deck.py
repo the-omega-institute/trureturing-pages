@@ -14,12 +14,9 @@ VOID_TAGS = {'meta', 'link', 'br', 'img', 'input', 'hr', 'source', 'line', 'circ
 TRANSLATED_ATTRIBUTES = ('aria-label', 'title', 'placeholder')
 # Names, numbers, symbols, pull-request links and paper titles stay in the original.
 UNTRANSLATED = {
-    'trureturing', 'GitHub ↗', '→', '↺', '←', '↗', '✓', 'A', 'B', 'C', 'D',
-    '01', '02', '03', '04', '05', '06', '1', '2', '3', '4', '5',
-    '7,904', '5,061', '4,963', '406', '164', '48,223',
-    'PR #9405 ↗', 'PR #10124 ↗', 'PR #10147 ↗', 'PR #10054 ↗',
-    'A certificate-producing cascade for equational implication: the SAIR EQT2 Stage 2 solver',
-    'Mechanism-level routing failure in LLMs over Lean-verified algebraic structures',
+    'trureturing', 'true · return · Turing', '01 / true · return · Turing', 'THE OMEGA INSTITUTE', 'Team Omega',
+    '→', '←', '↗', '✓', '✕', '↻', '=',
+    'Sloane, OEIS A309221', 'Greathouse, OEIS A175406', 'Araújo, Bentz, Cameron, Hendrey, Kinyon · Problem 15.5',
 }
 # Labels written by site/assets/open-math-deck.mjs at runtime.
 RUNTIME_LABELS = {'Slide view', 'Reading view'}
