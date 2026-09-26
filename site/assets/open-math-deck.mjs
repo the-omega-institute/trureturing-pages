@@ -16,6 +16,8 @@ const notesToggle = document.getElementById('deck-notes-toggle');
 const readToggle = document.getElementById('deck-read-toggle');
 const fullscreen = document.getElementById('deck-fullscreen');
 const notesPanel = document.getElementById('deck-notes-panel');
+const jump = document.getElementById('deck-jump');
+const printButton = document.getElementById('deck-print');
 
 const clamp = i => Math.max(0, Math.min(slides.length - 1, i));
 const requested = new URL(location.href).searchParams.get('view');
@@ -61,6 +63,7 @@ function show(target, { updateHash = true } = {}) {
     else slide.removeAttribute('aria-hidden');
   });
   counter.textContent = `${index + 1} / ${slides.length}`;
+  jump.value = String(index);
   bar.style.width = `${((index + 1) / slides.length) * 100}%`;
   prev.disabled = index === 0;
   next.disabled = index === slides.length - 1;
@@ -93,7 +96,8 @@ function setMode(mode) {
 }
 
 function step(delta) {
-  if (currentMode() === 'present') show(index + delta);
+  show(index + delta);
+  if (currentMode() === 'read') slides[index].scrollIntoView({ block: 'start' });
 }
 
 function toggleNotes() {
@@ -108,6 +112,11 @@ function toggleFullscreen() {
   else document.documentElement.requestFullscreen?.().catch(() => { /* Refused by the browser; stay windowed. */ });
 }
 
+jump.addEventListener('change', () => {
+  show(Number(jump.value));
+  if (currentMode() === 'read') slides[index].scrollIntoView({ block: 'start' });
+});
+printButton.addEventListener('click', () => window.print());
 prev.addEventListener('click', () => step(-1));
 next.addEventListener('click', () => step(1));
 notesToggle.addEventListener('click', toggleNotes);
@@ -130,6 +139,7 @@ if (document.fullscreenEnabled) {
 document.addEventListener('keydown', event => {
   if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
   if (event.target.closest?.('input, textarea, select, [contenteditable]')) return;
+  if (event.key === ' ' && event.target.closest?.('button, a')) return;
   const key = event.key;
   if (key === 'n' || key === 'N') { toggleNotes(); return; }
   if (currentMode() !== 'present') return;
@@ -161,6 +171,16 @@ addEventListener('resize', () => {
   if (!chosenMode) setMode(automaticMode());
   fit();
 });
+
+let scrollPending = false;
+addEventListener('scroll', () => {
+  if (currentMode() !== 'read' || scrollPending) return;
+  scrollPending = true;
+  requestAnimationFrame(() => {
+    scrollPending = false;
+    show(slideNearestViewportTop(), { updateHash: false });
+  });
+}, { passive: true });
 
 controls.hidden = false;
 body.dataset.mode = chosenMode || automaticMode();

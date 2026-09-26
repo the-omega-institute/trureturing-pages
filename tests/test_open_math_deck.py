@@ -14,7 +14,7 @@ VOID_TAGS = {'meta', 'link', 'br', 'img', 'input', 'hr', 'source', 'line', 'circ
 TRANSLATED_ATTRIBUTES = ('aria-label', 'title', 'placeholder')
 # Names, numbers, symbols, pull-request links and paper titles stay in the original.
 UNTRANSLATED = {
-    'trureturing', 'GitHub ↗', '→', '↺', '←', 'A', 'B', 'C', 'D',
+    'trureturing', 'GitHub ↗', '→', '↺', '←', '↗', '✓', 'A', 'B', 'C', 'D',
     '01', '02', '03', '04', '05', '06', '1', '2', '3', '4', '5',
     '7,904', '5,061', '4,963', '406', '164', '48,223',
     'PR #9405 ↗', 'PR #10124 ↗', 'PR #10147 ↗', 'PR #10054 ↗',

@@ -1,351 +1,320 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f7f8fa">
-  <meta name="description" content="A discussion deck for the SAIR Open Math Model Initiative: trureturing is an open, machine-judged harness where anyone can turn an idea into kernel-checked mathematics, learn the method, and leave a visible dependency trace.">
-  <title>Open to everyone, strict about truth | trureturing</title>
-  <link rel="stylesheet" href="assets/site-theme.css">
-  <link rel="stylesheet" href="assets/research-editorial.css">
-  <link rel="stylesheet" href="assets/open-math-deck.css">
-  <script type="module" src="assets/i18n.mjs"></script>
-  <script type="module" src="assets/open-math-deck.mjs"></script>
-</head>
-<body class="site-themed research-editorial deck-page">
-  <header class="knowledge-header">
-    <a class="brand" href="index.html">trureturing</a>
-    <nav aria-label="Primary navigation"><a href="atlas.html">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a><a href="contribute.html">Contribute</a></nav>
-    <span class="header-coordinate"><a href="https://github.com/the-omega-institute/trureturing">GitHub ↗</a></span>
-  </header>
-
-  <main class="deck" id="deck" aria-roledescription="slide deck" aria-label="Open to everyone, strict about truth">
-
-    <!-- 01 Cover -->
-    <section class="deck-slide slide-cover" id="s1" data-no="01 / 15" aria-roledescription="slide" aria-label="1 of 15">
-      <p class="deck-kicker">THE OMEGA INSTITUTE / FOR THE SAIR OPEN MATH MODEL INITIATIVE</p>
-      <h1>Open to everyone.<br>Strict about truth.</h1>
-      <p class="deck-lede">trureturing is a public harness where anyone, working with an AI agent, can turn an idea into kernel-checked mathematics, learn the method along the way, and leave a trace that others build on.</p>
-      <div class="cover-facts">
-        <div><strong>Open contribution</strong><span>One pull request, the same machine gates for everyone.</span></div>
-        <div><strong>Strict harness</strong><span>Only the Lean kernel decides what is true.</span></div>
-        <div><strong>Visible dependency</strong><span>Every result is a node in one public proof graph.</span></div>
-      </div>
-      <p class="deck-foot">A discussion deck · September 2026 · github.com/the-omega-institute/trureturing · Apache-2.0</p>
-      <aside class="deck-notes">Thank SAIR for the reply. Our message in one line: SAIR is building open models and a community; we already run an open harness that turns community participation into verified, attributed, reusable mathematics.</aside>
-    </section>
-
-    <!-- 02 Alignment -->
-    <section class="deck-slide" id="s2" data-no="02 / 15" aria-roledescription="slide" aria-label="2 of 15">
-      <p class="deck-kicker">02 / SHARED PRINCIPLES</p>
-      <h2>Your principles, already running in a repository</h2>
-      <table class="align-table">
-        <thead><tr><th scope="col">SAIR Open Models, in its own words</th><th scope="col">What trureturing does today</th></tr></thead>
-        <tbody>
-          <tr><td><q>Mathematics advances through discoveries that others can examine and build upon.</q></td><td>Every accepted result is a Lean declaration in a public dependency graph. Anyone can re-check it and import it.</td></tr>
-          <tr><td><q>Participation should be open across institutions, regions, and career stages.</q></td><td>Anyone can open a pull request. Maintainers, agents and first-time contributors pass identical machine gates.</td></tr>
-          <tr><td><q>understanding difficult arguments, checking references, exploring examples, writing code, and formalizing proofs</q></td><td>These are our contribution types: explain, check a source, reproduce, find a counterexample, prove.</td></tr>
-          <tr><td><q>Model releases will report failures and limitations alongside successes.</q></td><td>A claim is proved, refuted, or explicitly marked open. Refutations are results in their own right; rejected pull requests stay public with their reasons.</td></tr>
-          <tr><td><q>receive credit for their mathematical ideas and results</q></td><td>Git history and pull-request records attribute every node, including which agent and reviewers took part.</td></tr>
-          <tr><td><q>Governance rules and decisions will be public</q></td><td>Our rules are public text and code. Changing a rule is itself a pull request through the same gates.</td></tr>
-        </tbody>
-      </table>
-      <p class="deck-source">Quotations: T. Tao, “SAIR’s Open Math Model initiative”, What’s new, 18 September 2026. trureturing is licensed Apache-2.0, one of the licenses the announcement names.</p>
-      <aside class="deck-notes">We are not asking SAIR to adopt new values. The announcement already describes how our repository works; the collaboration is about connecting their models and community to a harness that exists.</aside>
-    </section>
-
-    <!-- 03 What it is -->
-    <section class="deck-slide" id="s3" data-no="03 / 15" aria-roledescription="slide" aria-label="3 of 15">
-      <p class="deck-kicker">03 / WHAT TRURETURING IS</p>
-      <h2>Not a problem set. A method for finding truth together.</h2>
-      <p class="deck-body">People bring questions, ideas and sources. With an AI agent they turn them into Lean statements and proofs. The kernel decides what is true, and the result becomes a permanent node that others can build on.</p>
-      <div class="flow3">
-        <div class="flow3-card"><p class="flow3-label">IDEAS IN</p><h3>Anything precise enough to test</h3><p>A question, a conjecture from a paper, an intuition, a suspected counterexample, a whole theory.</p></div>
-        <div class="flow3-arrow" aria-hidden="true">→</div>
-        <div class="flow3-card flow3-core"><p class="flow3-label">THE HARNESS</p><h3>One discipline for everyone</h3><p>Search what is known, state it exactly, prove or refute it, pass the machine gates and independent review.</p></div>
-        <div class="flow3-arrow" aria-hidden="true">→</div>
-        <div class="flow3-card"><p class="flow3-label">TRUTH OUT</p><h3>A node, or an honest open</h3><p>A kernel-checked result in the shared graph, or a precisely stated question that remains open.</p></div>
-      </div>
-      <blockquote class="deck-quote">We are looking for the primes of truth: irreducible verified statements from which later results are built.</blockquote>
-      <aside class="deck-notes">Stress that the product is the method, not a leaderboard of solved problems. Problems are how the method is exercised; the durable output is the graph and the people who learned to extend it.</aside>
-    </section>
-
-    <!-- 04 Numbers -->
-    <section class="deck-slide" id="s4" data-no="04 / 15" aria-roledescription="slide" aria-label="4 of 15">
-      <p class="deck-kicker">04 / THE HARNESS AT WORK</p>
-      <h2>Eleven weeks of open, machine-judged growth</h2>
-      <div class="stat-grid">
-        <div class="stat"><strong>7,904</strong><span>merged pull requests since 11 July 2026, about 100 per day</span></div>
-        <div class="stat"><strong>5,061</strong><span>Lean modules, about 966,000 lines of formal mathematics</span></div>
-        <div class="stat"><strong>4,963</strong><span>modules kernel-verified and frozen into the truth graph</span></div>
-        <div class="stat"><strong>406</strong><span>problem dossiers that quote their sources from papers and OEIS</span></div>
-        <div class="stat"><strong>164</strong><span>resolutions in the public research catalogue: 150 proved, 14 refuted</span></div>
-        <div class="stat"><strong>48,223</strong><span>tracked source claims from 74 theory documents, open until formally settled</span></div>
-      </div>
-      <p class="deck-source">Measured on 26 September 2026: repository counts at dev commit 5eb49eb; merged pull requests from GitHub search; resolutions from the published catalogue at source commit fd6b22e. Most pull requests are written by people working through AI agents.</p>
-      <aside class="deck-notes">These numbers show throughput and discipline, not a large community yet. The pipeline already absorbs about a hundred verified changes a day; SAIR could bring the people and the open models.</aside>
-    </section>
-
-    <!-- 05 Contribution loop -->
-    <section class="deck-slide" id="s5" data-no="05 / 15" aria-roledescription="slide" aria-label="5 of 15">
-      <p class="deck-kicker">05 / HOW ANYONE CONTRIBUTES</p>
-      <h2>From an idea to a node others can use</h2>
-      <ol class="loop">
-        <li><span class="loop-no">01</span><strong>Ask</strong><span>A question, an idea, or a claim quoted from a paper.</span></li>
-        <li><span class="loop-no">02</span><strong>Search</strong><span>Reuse what is already proved: this repository, Mathlib, the literature.</span></li>
-        <li><span class="loop-no">03</span><strong>Formalize</strong><span>State it exactly in Lean, then prove it or refute it.</span></li>
-        <li><span class="loop-no">04</span><strong>Judge</strong><span>Three required machine checks, plus independent review of meaning.</span></li>
-        <li><span class="loop-no">05</span><strong>Freeze</strong><span>A merged result becomes a permanent, content-addressed node.</span></li>
-        <li><span class="loop-no">06</span><strong>Build on</strong><span>Others import it. The graph records the dependency.</span></li>
-      </ol>
-      <p class="loop-return"><span aria-hidden="true">↺</span> Every result exposes the next open question at the frontier.</p>
-      <div class="roles">
-        <div><p class="flow3-label">YOU BRING</p><p>The idea, and the judgement about what is worth asking.</p></div>
-        <div><p class="flow3-label">THE AGENT CARRIES</p><p>Search, Lean syntax, drafts and explanations.</p></div>
-        <div><p class="flow3-label">THE HARNESS CARRIES</p><p>Verification, review and the permanent record.</p></div>
-      </div>
-      <div class="deck-callout"><p>Works today with Claude Code or Codex. Any agent that can open a pull request, including an open-weight model, can take part through the same door.</p></div>
-      <aside class="deck-notes">No Lean expertise is needed to start. If there is time, open the Contribute page and show the instructions a newcomer pastes into an agent.</aside>
-    </section>
-
-    <!-- 06 Harness rules -->
-    <section class="deck-slide" id="s6" data-no="06 / 15" aria-roledescription="slide" aria-label="6 of 15">
-      <p class="deck-kicker">06 / THE HARNESS</p>
-      <h2>Strict rules, open door</h2>
-      <div class="rules">
-        <div class="rule"><span class="rule-no">1</span><div><h3>Only the kernel decides truth</h3><p>Lean 4 with Mathlib. No sorry, no unapproved axioms. Comments and prose carry no weight.</p></div></div>
-        <div class="rule"><span class="rule-no">2</span><div><h3>The same gates for everyone</h3><p>No trusted authors. Admission depends on the change, never on who made it.</p></div></div>
-        <div class="rule"><span class="rule-no">3</span><div><h3>Truth only accumulates</h3><p>A verified node is frozen. New rules may reject new bad work, but never overturn accepted truth.</p></div></div>
-        <div class="rule"><span class="rule-no">4</span><div><h3>Honest status</h3><p>Every claim is proved, refuted, open, or explicitly assumed-unverified. Nothing is claimed that is not on record.</p></div></div>
-        <div class="rule"><span class="rule-no">5</span><div><h3>People choose direction, machines judge correctness</h3><p>No gate waits for a person to decide right or wrong. People decide what is worth pursuing.</p></div></div>
-      </div>
-      <p class="deck-source">The rules are public and versioned in the repository. Changing a rule is itself a pull request through the same gates.</p>
-      <aside class="deck-notes">Strictness is what makes openness safe. Because the kernel and the gates do the judging, we can accept work from anyone, including models, without trusting them.</aside>
-    </section>
-
-    <!-- 07 Non-trivial -->
-    <section class="deck-slide" id="s7" data-no="07 / 15" aria-roledescription="slide" aria-label="7 of 15">
-      <p class="deck-kicker">07 / NON-TRIVIAL BY DESIGN</p>
-      <h2>Volume cannot counterfeit progress</h2>
-      <div class="three-col">
-        <div class="col-card"><h3>Wrappers do not count</h3><p>A new theorem that only instantiates, projects or repackages existing results is “bind-only”. Reviewers reject it; the credit stays with the result that already exists.</p></div>
-        <div class="col-card"><h3>Declare the new content first</h3><p>Before a probe, the contributor registers the non-trivial fact they expect and the criteria for success and refutation. No relabeling after the fact.</p></div>
-        <div class="col-card"><h3>Say where the idea escapes</h3><p>Each new theorem records where the difficulty was, how it was handled, what new information comes out, and where the problem continues.</p></div>
-      </div>
-      <div class="practice">
-        <div class="practice-card practice-cite"><p class="flow3-label">SETTLED BY CITATION</p><p>A statement that a general theorem holds at n = 60 is an instantiation. New claims of that shape are closed by citing the general theorem, not by adding a theorem.</p></div>
-        <div class="practice-card practice-new"><p class="flow3-label">NEW CONTENT</p><p>Answering Problem 15.5 needed a new object, a specific five-element semigroup, that no existing result provides.</p></div>
-      </div>
-      <div class="deck-callout"><p>We measure progress by questions resolved and known ranges extended, not by counts of theorems, modules or lines.</p></div>
-      <p class="deck-source">Kernel checks and frozen truth are enforced by machine. Non-triviality and faithfulness to the source are enforced by independent review; the escape record is currently audited as a warning, not a blocking gate.</p>
-      <aside class="deck-notes">This is the part most relevant to training data quality: the harness is built to refuse cheap outputs that look like progress.</aside>
-    </section>
-
-    <!-- 08 Worked example -->
-    <section class="deck-slide" id="s8" data-no="08 / 15" aria-roledescription="slide" aria-label="8 of 15">
-      <p class="deck-kicker">08 / ONE QUESTION, END TO END</p>
-      <h2>A question in a paper becomes a frozen node</h2>
-      <div class="example">
-        <ol class="example-steps">
-          <li><strong>Source</strong><span>Araújo, Bentz, Cameron, Hendrey and Kinyon, “Complete Mappings of Semigroups”, arXiv:2608.25092, Problem 15.5.</span></li>
-          <li><strong>Dossier</strong><span>The definitions are quoted page by page before anything is formalized.</span></li>
-          <li><strong>Statement</strong><span>The problem is read as a universal claim: every orthodox semigroup with an idempotent ordering has a complete mapping.</span></li>
-          <li><strong>Result</strong><span>A five-element Clifford semigroup answers it negatively; the kernel checks the certificate.</span></li>
-          <li><strong>Frozen</strong><span>Merged in pull request #9405 and pinned by the hash of its statement.</span></li>
-        </ol>
-        <figure class="example-code">
-          <pre translate="no"><code>def claim : Prop :=
-  ∀ (S : Type) [Semigroup S], Orthodox S → IdempotentOrdering S →
-    ∃ α : S → S, CompleteMapping α
-
--- W : a five-element Clifford semigroup (table omitted)
-theorem result : ¬ claim := by
-  intro h
-  have hOrthodox : Orthodox W := by
-    simp only [Orthodox]
-    decide
-  have hOrdering : IdempotentOrdering W := by
-    refine ⟨W.w0, [W.w1, W.w2, W.w3, W.w4], ?_⟩
-    decide
-  obtain ⟨α, hα⟩ := h W hOrthodox hOrdering
-  have hNoCompleteMapping : ∀ α : W → W, ¬ CompleteMapping α := by
-    simp only [CompleteMapping, Function.Bijective,
-      Function.Injective, Function.Surjective]
-    decide
-  exact hNoCompleteMapping α hα</code></pre>
-          <figcaption>D5/S0/Certificates/AraujoOrthodoxCompleteMappingRefutation.lean · frozen statement sha256:7385552d…</figcaption>
-        </figure>
-      </div>
-      <aside class="deck-notes">Walk through the chain slowly. The point is that every step is inspectable: source quote, exact statement, machine-checked proof, and a permanent identity.</aside>
-    </section>
-
-    <!-- 09 Trace -->
-    <section class="deck-slide" id="s9" data-no="09 / 15" aria-roledescription="slide" aria-label="9 of 15">
-      <p class="deck-kicker">09 / LEAVE A TRACE</p>
-      <h2>Every contribution stays visible, and so does what depends on it</h2>
-      <div class="trace">
-        <ul class="trace-points">
-          <li><strong>Content-addressed</strong><span>Each frozen node is pinned by the hash of its statement. Change the statement and the pin no longer matches, so the change cannot pass unnoticed.</span></li>
-          <li><strong>Real dependencies</strong><span>Edges come from the proofs themselves, not from prose. Reuse shows up in the graph.</span></li>
-          <li><strong>Public attribution</strong><span>Pull-request records name the author, the agent and skill used, and the independent reviewers.</span></li>
-          <li><strong>Public views</strong><span>The Atlas shows concept families; Evolution shows how the graph grew release by release; Research lists resolved questions with sources.</span></li>
-        </ul>
-        <figure class="trace-figure">
-          <svg viewBox="0 0 420 330" role="img" aria-label="Illustrative dependency graph: earlier results feed into your node, which later work imports">
-            <g class="dag-edges">
-              <line x1="70" y1="60" x2="210" y2="165"/><line x1="210" y1="45" x2="210" y2="165"/><line x1="350" y1="60" x2="210" y2="165"/>
-              <line x1="210" y1="165" x2="110" y2="280"/><line x1="210" y1="165" x2="310" y2="280"/><line x1="350" y1="60" x2="310" y2="280"/>
-            </g>
-            <g class="dag-prior"><circle cx="70" cy="60" r="15"/><circle cx="210" cy="45" r="15"/><circle cx="350" cy="60" r="15"/></g>
-            <circle class="dag-you" cx="210" cy="165" r="24"/>
-            <g class="dag-later"><circle cx="110" cy="280" r="15"/><circle cx="310" cy="280" r="15"/></g>
-            <text x="210" y="16" text-anchor="middle">earlier results</text>
-            <text x="248" y="171">your node</text>
-            <text x="210" y="322" text-anchor="middle">later work that imports it</text>
-          </svg>
-          <figcaption>Illustration. Live graph: the Atlas and Evolution pages of this site.</figcaption>
-        </figure>
-      </div>
-      <aside class="deck-notes">This is the answer to how credit works in AI-assisted mathematics: the graph itself shows who contributed which node and how much later work rests on it.</aside>
-    </section>
-
-    <!-- 10 Learn -->
-    <section class="deck-slide" id="s10" data-no="10 / 15" aria-roledescription="slide" aria-label="10 of 15">
-      <p class="deck-kicker">10 / LEARNING BY DOING</p>
-      <h2>A method you learn by using it</h2>
-      <div class="learn">
-        <ol class="learn-list">
-          <li><strong>Predict before you look.</strong><span>Register success and refutation criteria before the attempt.</span></li>
-          <li><strong>Search before you prove.</strong><span>Reuse exact matches from the repository, Mathlib and the literature.</span></li>
-          <li><strong>Separate what you know.</strong><span>Proved, refuted, open and assumed-unverified are different states.</span></li>
-          <li><strong>Measure instead of guessing.</strong><span>A reading and its source, never “probably”.</span></li>
-          <li><strong>When progress stalls, change the frame.</strong><span>A new representation, tool or level, not more grinding.</span></li>
-          <li><strong>Keep the result, not the diary.</strong><span>Failures become reusable criteria and regression tests.</span></li>
-        </ol>
-        <div class="learn-panel">
-          <p class="flow3-label">WHAT A CONTRIBUTOR TAKES AWAY</p>
-          <p>How to state a claim exactly.</p>
-          <p>How to find what is already known.</p>
-          <p>How a proof actually fails, and what the failure teaches.</p>
-          <p>How to hand a result to others so they can build on it.</p>
-          <p class="learn-note">The agent explains each step; the machine verdict is immediate and impartial. A student and a professor get the same honest feedback.</p>
-        </div>
-      </div>
-      <aside class="deck-notes">These habits are written into the repository rules and skills, so every agent session practises them. That makes the harness a teaching environment as much as a library.</aside>
-    </section>
-
-    <!-- 11 Frontier -->
-    <section class="deck-slide" id="s11" data-no="11 / 15" aria-roledescription="slide" aria-label="11 of 15">
-      <p class="deck-kicker">11 / AT THE FRONTIER</p>
-      <h2>What the method has settled recently</h2>
-      <div class="results">
-        <a class="result" href="https://github.com/the-omega-institute/trureturing/pull/9405"><span class="tag tag-refuted">Refuted</span><strong>Araújo–Bentz–Cameron–Hendrey–Kinyon, Problem 15.5</strong><span>Negative answer by a five-element Clifford semigroup (arXiv:2608.25092).</span><em>PR #9405 ↗</em></a>
-        <a class="result" href="https://github.com/the-omega-institute/trureturing/pull/10124"><span class="tag tag-proved">Proved</span><strong>Sloane’s knight-walk integrality conjecture</strong><span>E(n) · 2³ⁿ⁻³ is an integer (OEIS A309221).</span><em>PR #10124 ↗</em></a>
-        <a class="result" href="https://github.com/the-omega-institute/trureturing/pull/10147"><span class="tag tag-refuted">Refuted</span><strong>Song–Lin parity conjecture</strong><span>For n ≡ 2 (mod 4), zero transfer does not force an odd vertex: a counterexample on ℤ₃₀ (arXiv:2608.10643, Conj. 4.1).</span><em>PR #10147 ↗</em></a>
-        <a class="result" href="https://github.com/the-omega-institute/trureturing/pull/10054"><span class="tag tag-proved">Proved</span><strong>Lovas–Andai conjecture</strong><span>The least trace-distance contraction coefficient of a qubit channel over a fixed classical channel is |a − f|, and it is attained.</span><em>PR #10054 ↗</em></a>
-      </div>
-      <div class="deck-callout dossier-callout"><p>Each began as a public dossier: quoted source, gap, route, falsifier, evidence, triage and open assumptions. All four are merged and kernel-frozen.</p></div>
-      <div class="tiers">
-        <div><strong>Tier 1 · Recent small questions</strong><span>Paper conjectures and OEIS comments, literature-checked first. Hours per attempt.</span></div>
-        <div><strong>Tier 2 · Computational frontier</strong><span>The next unknown finite case: reduction, exhaustive search, kernel check. Weeks.</span></div>
-        <div><strong>Tier 3 · Core problems</strong><span>People choose the target; the output is a formal map of known results and obstacles.</span></div>
-      </div>
-      <aside class="deck-notes">All four are frozen at dev commit 5eb49eb. The Falsifier section is written before the attempt, so a refutation criterion exists before anyone knows the answer. The tiers keep us honest about what kind of progress each result is.</aside>
-    </section>
-
-    <!-- 12 Value for open models -->
-    <section class="deck-slide" id="s12" data-no="12 / 15" aria-roledescription="slide" aria-label="12 of 15">
-      <p class="deck-kicker">12 / WHY THIS MATTERS FOR OPEN MODELS</p>
-      <h2>What the harness can offer an open math model</h2>
-      <div class="value-grid">
-        <div class="value"><h3>Verifiable signal</h3><p>Every admitted result is kernel-checked and every rejection has a named reason: feedback that cannot be argued with.</p></div>
-        <div class="value"><h3>Uncontaminated evaluation</h3><p>Pre-registered open questions whose answers were unknown when they entered. Graded by the kernel, not by a reference answer.</p></div>
-        <div class="value"><h3>Honest negative data</h3><p>Refutations and countermodels are first-class results, and rejected pull requests stay public with the reasons they failed.</p></div>
-        <div class="value"><h3>A place to put models to work</h3><p>A model-agnostic harness: the same pull-request door for open-weight models, commercial agents and people.</p></div>
-      </div>
-      <div class="measures">
-        <q>reliable assistance, verifiable results, and the cost of sustained use</q>
-        <p>The announcement’s three measures. For any model working in the harness, we could report all three: the share of its changes that are admitted, what the kernel verifies, and the compute spent per admitted result.</p>
-      </div>
-      <div class="prior">
-        <p class="flow3-label">RELATED WORK BY OUR TEAM</p>
-        <p><a href="https://arxiv.org/abs/2609.00706">A certificate-producing cascade for equational implication: the SAIR EQT2 Stage 2 solver</a> (arXiv:2609.00706). Lean proofs for positive answers, countermodels for negative ones. Team-reported; official results pending.</p>
-        <p><a href="https://arxiv.org/abs/2607.04534">Mechanism-level routing failure in LLMs over Lean-verified algebraic structures</a> (arXiv:2607.04534). An empirical study of how models choose proof mechanisms.</p>
-      </div>
-      <aside class="deck-notes">Tie this to their phrase “verifiable results”. We already worked inside a SAIR competition; the harness generalizes that certificate discipline to open-ended mathematics.</aside>
-    </section>
-
-    <!-- 13 Pilots -->
-    <section class="deck-slide" id="s13" data-no="13 / 15" aria-roledescription="slide" aria-label="13 of 15">
-      <p class="deck-kicker">13 / PROPOSED PILOTS</p>
-      <h2>Four ways to start, each small and measurable</h2>
-      <div class="pilots">
-        <div class="pilot"><span class="pilot-id">A</span><h3>Open model as a contributor</h3><p>Run SAIR open models inside the harness on pre-registered targets. Publish admission rates, kernel outcomes and failures.</p><p class="pilot-step">First step: one model, fixed targets, a public report.</p></div>
-        <div class="pilot"><span class="pilot-id">B</span><h3>A live frontier benchmark</h3><p>Jointly curate a stream of questions that were open when registered, with kernel grading and reproducible reports.</p><p class="pilot-step">First step: agree on sources and the registration format.</p></div>
-        <div class="pilot"><span class="pilot-id">C</span><h3>A consent-first data commons</h3><p>Export contribution trajectories only with explicit contributor consent, under licenses agreed in advance.</p><p class="pilot-step">First step: draft consent terms with SAIR’s governance.</p></div>
-        <div class="pilot"><span class="pilot-id">D</span><h3>Community on-ramps</h3><p>Sessions at SAIR events: bring an idea, leave with a checked and attributed node, or a precisely stated open question.</p><p class="pilot-step">First step: one pilot session at a SAIR event.</p></div>
-      </div>
-      <div class="exchange">
-        <div><p class="flow3-label">WE BRING</p><p>The open harness and its infrastructure, the methodology and agent skills, a working frontier pipeline, and engineering time.</p></div>
-        <div><p class="flow3-label">WE WOULD VALUE FROM SAIR</p><p>Mathematicians’ judgement on direction, compute for open-model runs, and a governance and consent framework we can adopt.</p></div>
-      </div>
-      <aside class="deck-notes">These are proposals for the call, not commitments. Ask which pilot matches SAIR's first-phase priorities, and who on their side would own it.</aside>
-    </section>
-
-    <!-- 14 Boundaries -->
-    <section class="deck-slide" id="s14" data-no="14 / 15" aria-roledescription="slide" aria-label="14 of 15">
-      <p class="deck-kicker">14 / HONEST BOUNDARIES</p>
-      <h2>What we guarantee, and what we do not claim</h2>
-      <div class="bounds">
-        <div class="bound bound-hard"><h3>Guaranteed by machine</h3><ul><li>Lean kernel verification, with no sorry and only approved axioms.</li><li>Frozen results never silently change.</li><li>Required checks run on every pull request.</li></ul></div>
-        <div class="bound bound-review"><h3>Guaranteed by independent review</h3><ul><li>A formal statement faithfully captures its source.</li><li>A new result is genuinely non-trivial.</li><li>Computational work answers a real question.</li></ul></div>
-        <div class="bound bound-not"><h3>Not claimed</h3><ul><li>Theory prose is reference input, not truth.</li><li>Kernel-checked does not mean faithful to the source.</li><li>Team-reported competition results are not official rankings.</li><li>An open question stays marked open.</li></ul></div>
-      </div>
-      <div class="verify">
-        <p class="flow3-label">CHECK IT YOURSELF</p>
-        <div class="verify-links">
-          <a href="https://github.com/the-omega-institute/trureturing/blob/dev/CLAUDE.md"><strong>The rules</strong><span>CLAUDE.md, read by every agent</span></a>
-          <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/spec/golden-ledger-repo-spec.md"><strong>The specification</strong><span>What each gate checks</span></a>
-          <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Golden/Frozen/state"><strong>The frozen ledger</strong><span>One statement hash per verified module</span></a>
-          <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Problems"><strong>The dossiers</strong><span>Sources, falsifiers and open assumptions</span></a>
-        </div>
-      </div>
-      <aside class="deck-notes">Say this plainly: the kernel guarantees the proof, not the reading of the paper. That is why review exists and why we record open questions instead of hiding them.</aside>
-    </section>
-
-    <!-- 15 Start -->
-    <section class="deck-slide slide-cover" id="s15" data-no="15 / 15" aria-roledescription="slide" aria-label="15 of 15">
-      <p class="deck-kicker">15 / TRY IT</p>
-      <h2 class="cover-h2">Start in five minutes</h2>
-      <ol class="start-steps">
-        <li><strong>Explore the graph.</strong><span>Open the Atlas and follow any result to its dependencies.</span></li>
-        <li><strong>Give your agent the instructions.</strong><span>Paste this into Claude Code or Codex:</span></li>
-      </ol>
-      <pre class="start-prompt" translate="no">Open https://github.com/the-omega-institute/trureturing and read AGENTS.md and docs/CONTRIBUTING.md on dev. Help me make one useful contribution to the mathematical library. Search for existing results first, follow the repository rules, and prepare a focused pull request to dev with appropriate checks and independent review. Explain any unverified claims.</pre>
-      <ol class="start-steps" start="3">
-        <li><strong>Open one focused pull request.</strong><span>The gates judge the change; review checks its meaning.</span></li>
-      </ol>
-      <div class="start-links">
-        <a href="atlas.html">Atlas ↗</a>
-        <a href="contribute.html">Contribute ↗</a>
-        <a href="research.html">Research ↗</a>
-        <a href="https://github.com/the-omega-institute/trureturing">Repository ↗</a>
-      </div>
-      <p class="deck-foot">Let’s build Math 2.0 on ground that checks itself. · The Omega Institute</p>
-      <aside class="deck-notes">Close by proposing a concrete next step: choose one pilot and a date for a working session.</aside>
-    </section>
-  </main>
-
-  <div class="deck-notes-panel" id="deck-notes-panel" role="note" aria-label="Speaker notes" hidden></div>
-  <nav class="deck-controls" aria-label="Slide controls" hidden>
-    <button type="button" id="deck-prev" aria-label="Previous slide">←</button>
-    <span id="deck-counter" aria-live="polite"></span>
-    <button type="button" id="deck-next" aria-label="Next slide">→</button>
-    <span class="deck-controls-spacer"></span>
-    <button type="button" id="deck-notes-toggle" aria-pressed="false">Notes</button>
-    <button type="button" id="deck-read-toggle">Reading view</button>
-    <button type="button" id="deck-fullscreen">Full screen</button>
-  </nav>
-  <div class="deck-progress" aria-hidden="true"><span id="deck-progress-bar"></span></div>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102d2b"><meta name="description" content="An open contribution and verification environment for community-driven mathematics. A collaboration proposal for SAIR’s Open Math Model initiative."><title>Open mathematics, shared understanding | trureturing</title><link rel="stylesheet" href="assets/site-theme.css"><link rel="stylesheet" href="assets/open-math-deck.css"><script type="module" src="assets/i18n.mjs"></script><script type="module" src="assets/open-math-deck.mjs"></script></head><body class="site-themed deck-page">
+<header class="knowledge-header"><a class="brand" href="index.html">trureturing</a>
+<nav aria-label="Primary navigation"><a href="atlas.html">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a><a href="contribute.html">Contribute</a></nav>
+<span class="header-coordinate">Open Math / Discussion</span></header>
+<main class="deck" id="deck" aria-roledescription="slide deck" aria-label="Open mathematics, shared understanding">
+<section class="deck-slide slide-dark slide-cover" id="s1" data-no="01 / 12" aria-roledescription="slide" aria-label="1 of 12">
+<div class="slide-meta"><span>A DISCUSSION FOR SAIR</span><span translate="no">TRURETURING</span></div>
+<div class="cover-layout">
+<div>
+<h1>Mathematics grows<br>when more people<br><em>can build on it.</em></h1>
+<p class="deck-lede">An open contribution and verification environment for community-driven mathematics.</p>
+<p class="cover-description">People and AI explore questions together. Checked results become knowledge others can understand and reuse.</p>
+</div>
+<figure><svg class="cover-graph" viewBox="0 0 440 480" role="img" aria-label="Published module dependencies around the beta deficit"><g class="graph-grid" fill="none"><circle cx="218" cy="234" r="175"/><circle cx="218" cy="234" r="112"/><path d="M15 234H425M218 20V455"/></g><g class="graph-lines"><path d="M65 88L218 213M218 60V213M372 88L218 213M218 213V344M218 344L218 436M218 213L386 295M218 213L56 295"/></g><g class="graph-points"><circle cx="65" cy="88" r="6"/><circle cx="218" cy="60" r="6"/><circle cx="372" cy="88" r="6"/><circle cx="386" cy="295" r="6"/><circle cx="56" cy="295" r="6"/><circle cx="218" cy="436" r="6"/></g><circle class="graph-halo" cx="218" cy="213" r="30"/><circle class="graph-focus" cx="218" cy="213" r="10"/><circle class="graph-halo" cx="218" cy="344" r="20"/><circle class="graph-focus" cx="218" cy="344" r="7"/><g class="graph-labels" translate="no"><text x="65" y="68" text-anchor="middle">Conj</text><text x="218" y="38" text-anchor="middle">Addition</text><text x="372" y="68" text-anchor="middle">Embedding</text><text x="218" y="258" text-anchor="middle">DeficitInteger</text><text x="218" y="385" text-anchor="middle">DeficitThreeValued</text><text x="218" y="465" text-anchor="middle">AlmostAdditivity</text></g></svg><figcaption>A real dependency excerpt. Layout arranged for clarity.</figcaption></figure>
+</div>
+<div class="cover-bottom"><span>Open participation. Shared understanding.</span><span>September 2026 / Collaboration proposal</span></div>
+<aside class="deck-notes">This is a proposal for discussion, not an announced partnership. Lead with participation and understanding. The diagram uses recorded module imports from the published snapshot, not invented proof dependencies.</aside>
+</section>
+<section class="deck-slide" id="s2" data-no="02 / 12" aria-roledescription="slide" aria-label="2 of 12">
+<div class="slide-meta"><span>01 / SHARED DIRECTION</span><span translate="no">TRURETURING</span></div>
+<h2>Open models need places to do useful mathematics.</h2>
+<div class="alignment">
+<blockquote>“Our first phase will focus on everyday mathematical work”<cite><a href="https://sair.foundation/open-math-model/">SAIR Open Math Model initiative</a></cite></blockquote>
+<div class="alignment-rows">
+<div>
+<h3>Research people can inspect</h3>
+<p>Sources, exact statements and formal artifacts stay connected.</p>
+</div>
+<div>
+<h3>Participation across experience levels</h3>
+<p>Explanation, reproduction and proof each have a contribution path.</p>
+</div>
+<div>
+<h3>Evidence about model usefulness</h3>
+<p>A joint pilot can measure reliable help, verified results and sustained cost.</p>
+</div>
+</div>
+</div>
+<p class="takeaway">We offer an existing environment in which SAIR’s models and community could work together.</p>
+<aside class="deck-notes">The announcement also calls for open weights and code, reproducible evaluations, public governance and explicit consent for training use. Our contribution is the research environment and engineering experience. Community governance and model integration are matters to design together.</aside>
+</section>
+<section class="deck-slide" id="s3" data-no="03 / 12" aria-roledescription="slide" aria-label="3 of 12">
+<div class="slide-meta"><span>02 / OPEN CONTRIBUTION</span><span translate="no">TRURETURING</span></div>
+<h2>A useful contribution can start with a question.</h2>
+<p class="deck-lede">Participants choose a task they can understand and develop with an agent.</p>
+<div class="contribution-grid">
+<article><span class="path-number" translate="no">1</span>
+<h3>Make an argument clearer</h3>
+<p>Explain why an assumption matters. Improve a source-linked explanation.</p>
+</article>
+<article><span class="path-number" translate="no">2</span>
+<h3>Check and reproduce</h3>
+<p>Check a citation, reproduce an example, or report a precise mismatch.</p>
+</article>
+<article><span class="path-number" translate="no">3</span>
+<h3>Explore a mathematical question</h3>
+<p>Test examples, identify a missing lemma, or construct a counterexample.</p>
+</article>
+<article><span class="path-number" translate="no">4</span>
+<h3>Extend the formal library</h3>
+<p>Reuse existing results and contribute a useful proof or connection.</p>
+</article>
+</div>
+<div class="bottom-line">
+<p>Explanations and reproducible experiments are contributions in their own right.</p>
+<a href="contribute.html">Explore contribution paths ↗</a></div>
+<aside class="deck-notes">Open participation is an existing capability. Broad external adoption and learning outcomes still need measurement. No individual is promised a new theorem. Useful explanations, precise open questions and reproductions also count.</aside>
+</section>
+<section class="deck-slide" id="s4" data-no="04 / 12" aria-roledescription="slide" aria-label="4 of 12">
+<div class="slide-meta"><span>03 / THE CONTRIBUTION LOOP</span><span translate="no">TRURETURING</span></div>
+<h2>An idea becomes knowledge others can use.</h2>
+<ol class="journey">
+<li><span translate="no">01</span>
+<h3>Ask</h3>
+<p>Name the question and its source.</p>
+</li>
+<li><span translate="no">02</span>
+<h3>Find</h3>
+<p>Search the library and literature first.</p>
+</li>
+<li><span translate="no">03</span>
+<h3>Investigate</h3>
+<p>Explore examples and formulate the claim.</p>
+</li>
+<li><span translate="no">04</span>
+<h3>Check</h3>
+<p>Check proofs, assumptions and meaning.</p>
+</li>
+<li><span translate="no">05</span>
+<h3>Contribute</h3>
+<p>Submit focused work for review.</p>
+</li>
+<li><span translate="no">06</span>
+<h3>Build on</h3>
+<p>Explain, reuse and extend the result.</p>
+</li>
+</ol>
+<div class="learning-band">
+<div><span class="small-label">WHAT PEOPLE PRACTISE</span>
+<h3>Understanding is part of the work.</h3>
+</div>
+<p>Explain an assumption. Locate an existing result. Understand a failed attempt. Help the next person use what you found.</p>
+</div>
+<p class="deck-source">An unresolved investigation can contribute a precise open question and reusable evidence.</p>
+<aside class="deck-notes">The harness supports this workflow. Learning is a goal to assess in a pilot, not an established outcome for every contributor. Repository records retain useful artifacts and evidence, not complete private reasoning transcripts.</aside>
+</section>
+<section class="deck-slide" id="s5" data-no="05 / 12" aria-roledescription="slide" aria-label="5 of 12">
+<div class="slide-meta"><span>04 / A QUESTION, CHECKED</span><span translate="no">TRURETURING</span></div>
+<h2>A five-element counterexample</h2>
+<div class="case-layout">
+<div>
+<p class="case-reference">Araújo et al., “Complete Mappings of Semigroups”, Problem 15.5.</p>
+<h3>Does an orthodox semigroup with an idempotent ordering always have a complete mapping?</h3>
+<p>The recorded negative answer connects the quoted definitions, an exact Lean statement and a finite counterexample.</p>
+<div class="result-mark"><span>REFUTED</span><code>result : ¬ claim</code></div>
+<div class="evidence-links"><a href="https://arxiv.org/abs/2608.25092">Original question ↗</a><a href="https://github.com/the-omega-institute/trureturing/pull/9405">Reviewed contribution ↗</a><a href="https://github.com/the-omega-institute/trureturing/blob/a450fbe4eed778b0b5f5b4954ce7f9a500f074c0/D5/S0/Certificates/AraujoOrthodoxCompleteMappingRefutation.lean">Formal source ↗</a><a href="https://github.com/the-omega-institute/trureturing/blob/a450fbe4eed778b0b5f5b4954ce7f9a500f074c0/Golden/Frozen/state/D5/S0/Certificates/AraujoOrthodoxCompleteMappingRefutation.lean.json">Frozen record ↗</a></div>
+</div>
+<figure>
+<table class="multiplication" translate="no"><caption>W = C₂ ∪ C₃</caption>
+<thead>
+<tr><th>×</th><th>w0</th><th>w1</th><th>w2</th><th>w3</th><th>w4</th></tr>
+</thead>
+<tbody>
+<tr><th>w0</th><td class="cell-two">w0</td><td class="cell-two">w1</td><td class="cell-three">w2</td><td class="cell-three">w3</td><td class="cell-three">w4</td></tr>
+<tr><th>w1</th><td class="cell-two">w1</td><td class="cell-two">w0</td><td class="cell-three">w2</td><td class="cell-three">w3</td><td class="cell-three">w4</td></tr>
+<tr><th>w2</th><td class="cell-three">w2</td><td class="cell-three">w2</td><td class="cell-three">w2</td><td class="cell-three">w3</td><td class="cell-three">w4</td></tr>
+<tr><th>w3</th><td class="cell-three">w3</td><td class="cell-three">w3</td><td class="cell-three">w3</td><td class="cell-three">w4</td><td class="cell-three">w2</td></tr>
+<tr><th>w4</th><td class="cell-three">w4</td><td class="cell-three">w4</td><td class="cell-three">w4</td><td class="cell-three">w2</td><td class="cell-three">w3</td></tr>
+</tbody>
+</table>
+<figcaption>The concrete object in the formal source. Lean checks the finite claims used in the refutation.</figcaption></figure>
+</div>
+<p class="deck-source">Value: a source-backed question becomes an inspectable formal result. PR #9405, merged 21 September 2026.</p>
+<aside class="deck-notes">This result is classified bind-only under the repository rules and admitted under the preregistered external open-problem-resolution exception. Its value is resolving that named question. Do not describe it as a new general proof mechanism. It has no project-internal prerequisite or downstream node in the selected release.</aside>
+</section>
+<section class="deck-slide slide-dark" id="s6" data-no="06 / 12" aria-roledescription="slide" aria-label="6 of 12">
+<div class="slide-meta"><span>05 / KNOWLEDGE THAT ACCUMULATES</span><span translate="no">TRURETURING</span></div>
+<h2>Knowledge others can build on</h2>
+<p class="deck-lede">Follow one real chain in the published library.</p>
+<div class="dependency-chain"><a class="chain-node" href="https://the-omega-institute.github.io/trureturing-pages/release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e62f32a10218a83e88f256a47707c340959f9311d6b6262b53836343fe8f14e1/"><span class="small-label">FOUNDATION</span>
+<h3>An integer-valued deficit</h3>
+<code translate="no">DeficitInteger</code>
+<p>An arithmetic description of the addition deficit.</p>
+</a><span class="chain-arrow" aria-hidden="true">→</span><a class="chain-node" href="https://the-omega-institute.github.io/trureturing-pages/release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ff46beec090258adc9d40fe2d5c8bd57c4be221494c199ac1eebb4acad086468/"><span class="small-label">BUILDING ON IT</span>
+<h3>Only three possible values</h3>
+<code translate="no">DeficitThreeValued</code>
+<p>The deficit is restricted to −1, 0 or 1.</p>
+</a><span class="chain-arrow" aria-hidden="true">→</span><a class="chain-node" href="https://the-omega-institute.github.io/trureturing-pages/release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/90db4f0d4f4865732133897b069fd40e77a0f4e5ba3ee54a4a7e203a48a3b239/"><span class="small-label">FURTHER USE</span>
+<h3>A reusable addition bound</h3>
+<code translate="no">AlmostAdditivity</code>
+<p>A later module imports that result as a foundation.</p>
+</a></div>
+<div class="trace-columns">
+<div>
+<h3>Read the mathematics</h3>
+<p>Explanations connect the result to its assumptions and formal source.</p>
+</div>
+<div>
+<h3>Follow the record</h3>
+<p>Git and pull requests record contributions. Release snapshots preserve a version to inspect.</p>
+</div>
+</div>
+<p class="deck-source">Arrows show recorded module imports, not theorem-use counts or a measure of authorship. Snapshot a450fbe4.</p>
+<aside class="deck-notes">All three links open immutable release pages. This example complements the standalone counterexample. The wider Atlas also displays document and affinity relations, which must not be called proof dependencies.</aside>
+</section>
+<section class="deck-slide" id="s7" data-no="07 / 12" aria-roledescription="slide" aria-label="7 of 12">
+<div class="slide-meta"><span>06 / THE VERIFICATION HARNESS</span><span translate="no">TRURETURING</span></div>
+<h2>Open participation. Explicit checks.</h2>
+<p class="deck-lede">The harness combines formal verification with review of the intended mathematics.</p>
+<div class="checks-grid">
+<article><span class="check-symbol" aria-hidden="true">✓</span>
+<h3>Machine checks</h3>
+<ul>
+<li>Lean checks formal proofs and their assumptions.</li>
+<li>Admission checks reject sorry and unapproved axioms.</li>
+<li>Frozen statement records detect changes.</li>
+</ul>
+</article>
+<article><span class="check-symbol review-symbol" aria-hidden="true">↗</span>
+<h3>Independent review</h3>
+<ul>
+<li>Does the statement match its source?</li>
+<li>Does the work add useful mathematical content?</li>
+<li>Are reuse, attribution and limits clear?</li>
+</ul>
+</article>
+</div>
+<p class="takeaway">Kernel verification establishes a formal statement under its assumptions. Review assesses meaning and value, and can make mistakes.</p>
+<aside class="deck-notes">Explain that correctness, source fidelity and mathematical value are distinct. The bind-only policy has an explicit external open-problem exception. The information-escape audit currently reports warnings and is not a general blocking guarantee of non-triviality.</aside>
+</section>
+<section class="deck-slide" id="s8" data-no="08 / 12" aria-roledescription="slide" aria-label="8 of 12">
+<div class="slide-meta"><span>07 / WHAT EXISTS TODAY</span><span translate="no">TRURETURING</span></div>
+<h2>A working foundation for a joint pilot.</h2>
+<div class="metrics">
+<div><strong translate="no">5,061</strong><span>Lean modules</span></div>
+<div><strong translate="no">4,963</strong><span>frozen module records</span></div>
+<div><strong translate="no">406</strong><span>source-backed problem dossiers</span></div>
+</div>
+<p class="deck-source">Repository snapshot 5eb49eb, 26 September 2026. These are infrastructure counts, not measures of community size or mathematical novelty.</p>
+<div class="asset-row">
+<div>
+<h3>A public research environment</h3>
+<p>Contribution instructions, agent workflows, review rules and a browsable mathematical library.</p>
+</div>
+<div class="eqt"><span class="small-label">RELATED SAIR EXPERIENCE</span>
+<h3>Certificate-producing EQT2 solver</h3>
+<p>Our team’s solver returns Lean proofs or countermodels for a deterministic judge.</p>
+<a href="https://arxiv.org/abs/2609.00706">Read the paper ↗</a></div>
+</div>
+<p class="deck-source">The EQT2 paper reports public-set and playground measurements, not an official ranking or hidden-set result.</p>
+<aside class="deck-notes">Most current activity is by the team working with agents. We can demonstrate the infrastructure and artifacts. External adoption, novice learning outcomes and a particular open model’s usefulness should be measured in the joint pilot.</aside>
+</section>
+<section class="deck-slide" id="s9" data-no="09 / 12" aria-roledescription="slide" aria-label="9 of 12">
+<div class="slide-meta"><span>08 / A PROPOSED FOUR-WEEK PILOT</span><span translate="no">TRURETURING</span></div>
+<h2>One topic. An open model. A small community.</h2>
+<p class="deck-lede">Participants use an agreed model to make useful contributions in a jointly selected area.</p>
+<div class="pilot-timeline">
+<div><span class="small-label">WEEK 1</span>
+<h3>Choose and prepare</h3>
+<p>Agree on tasks, participants, model version, resources and evaluation criteria.</p>
+</div>
+<div><span class="small-label">WEEKS 2–3</span>
+<h3>Explore and contribute</h3>
+<p>Explain, reproduce and formalize with support. Review useful artifacts.</p>
+</div>
+<div><span class="small-label">WEEK 4</span>
+<h3>Evaluate together</h3>
+<p>Publish agreed artifacts and findings, including difficulties and unresolved questions.</p>
+</div>
+</div>
+<div class="pilot-measures"><span class="small-label">WHAT WE WOULD MEASURE</span>
+<div>
+<p><strong>Participation</strong><span>First useful contributions and help needed.</span></p>
+<p><strong>Understanding</strong><span>Explain assumptions and work through a nearby example.</span></p>
+<p><strong>Reliability</strong><span>Formal outcomes and source-fidelity review.</span></p>
+<p><strong>Cost</strong><span>Model, compute and reviewer time per useful contribution.</span></p>
+</div>
+</div>
+<p class="deck-source">Proposed scope and timing for discussion. Training use requires explicit consent and agreed terms.</p>
+<aside class="deck-notes">Freeze the model version, task inputs and budget before evaluation. Use timestamped prospective tasks and document exposure risks instead of claiming uncontaminated evaluation. Collect any contribution trajectories only prospectively with consent. The repository does not retain complete reasoning transcripts.</aside>
+</section>
+<section class="deck-slide slide-dark" id="s10" data-no="10 / 12" aria-roledescription="slide" aria-label="10 of 12">
+<div class="slide-meta"><span>09 / AN INVITATION TO COLLABORATE</span><span translate="no">TRURETURING</span></div>
+<div class="closing-title">
+<h2>More people contributing.<br><em>More mathematics to build on.</em></h2>
+<p class="deck-lede">A first working session can choose the topic, the model and a person on each side to coordinate the pilot.</p>
+</div>
+<div class="exchange">
+<div><span class="small-label">WE BRING</span>
+<p>The harness, contribution workflows, mathematical artifacts, public presentation and engineering support.</p>
+</div>
+<div><span class="small-label">TO SHAPE TOGETHER WITH SAIR</span>
+<p>Mathematical priorities, participants, open-model access, evaluation and contribution rights.</p>
+</div>
+</div>
+<div class="closing-links"><a class="primary-link" href="contribute.html">Start a contribution ↗</a><a href="atlas.html">Explore the library ↗</a><a href="https://github.com/the-omega-institute/trureturing">Open repository ↗</a></div>
+<p class="deck-source">Prepared for discussion with the SAIR Open Math Model initiative.</p>
+<aside class="deck-notes">Close with the proposed working session. Do not ask them to adopt the full system or commit to all possible collaborations. Choose a small first project with explicit ownership and a shared definition of useful progress.</aside>
+</section>
+<section class="deck-slide" id="s11" data-no="11 / 12" aria-roledescription="slide" aria-label="11 of 12">
+<div class="slide-meta"><span>APPENDIX / EVIDENCE</span><span translate="no">TRURETURING</span></div>
+<h2>The claims lead back to inspectable artifacts.</h2>
+<div class="source-list">
+<div><span translate="no">01</span>
+<div><a href="https://sair.foundation/open-math-model/">SAIR’s invitation</a>
+<p>Community priorities, everyday work, open development and consent.</p>
+</div>
+</div>
+<div><span translate="no">02</span>
+<div><a href="https://terrytao.wordpress.com/2026/09/18/sairs-open-math-model-initiative/">Terence Tao’s announcement, 18 September 2026</a>
+<p>The initiative’s context and invitation to contribute expertise and community building.</p>
+</div>
+</div>
+<div><span translate="no">03</span>
+<div><a href="https://github.com/the-omega-institute/trureturing/pull/9405">The counterexample and its review</a>
+<p>Source correspondence, admission basis, verification results and frozen identity.</p>
+</div>
+</div>
+<div><span translate="no">04</span>
+<div><a href="https://the-omega-institute.github.io/trureturing-pages/data/pages-atlas-manifest.v1.json">Published Atlas manifest</a>
+<p>The live site’s version coordinates. The deck’s case links pin snapshot a450fbe4.</p>
+</div>
+</div>
+<div><span translate="no">05</span>
+<div><a href="https://arxiv.org/abs/2609.00706">EQT2 certificate-producing solver</a>
+<p>Team-authored methods and measurements with explicit evaluation limits.</p>
+</div>
+</div>
+</div>
+<aside class="deck-notes">Evidence links are the appendix, not the main narrative. The live manifest may advance. Fixed case links and the repository-count snapshot remain explicitly versioned.</aside>
+</section>
+<section class="deck-slide" id="s12" data-no="12 / 12" aria-roledescription="slide" aria-label="12 of 12">
+<div class="slide-meta"><span>APPENDIX / SCOPE AND RIGHTS</span><span translate="no">TRURETURING</span></div>
+<h2>Clear boundaries make collaboration easier.</h2>
+<div class="scope-grid">
+<article>
+<h3>Formal results</h3>
+<p>A checked proof establishes its exact formal statement under its assumptions. Source fidelity and significance still require review.</p>
+</article>
+<article>
+<h3>Dependencies and credit</h3>
+<p>The current Pages graph records module imports and separately labeled document or affinity relations. Git and PRs supply contribution records.</p>
+</article>
+<article>
+<h3>Reuse and useful novelty</h3>
+<p>Existing results receive credit. The contribution rules discourage wrappers and include an explicit exception for named external open-problem resolutions.</p>
+</article>
+<article>
+<h3>Licensing and consent</h3>
+<p>Repository-produced Lean code: Apache-2.0. Text: CC BY 4.0. Data: CC0. Third-party terms remain applicable. Any pilot training use needs explicit consent and agreed terms.</p>
+</article>
+</div>
+<div class="evidence-links"><a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/CONTRIBUTING.md">Contributor guide ↗</a><a href="https://github.com/the-omega-institute/trureturing/blob/dev/CLAUDE.md">Repository rules ↗</a><a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/spec/golden-ledger-repo-spec.md">Specification ↗</a></div>
+<aside class="deck-notes">This appendix distinguishes the existing environment from proposed evaluation and data collection. Neither public availability nor a repository license substitutes for SAIR’s explicit-consent commitment for user data.</aside>
+</section>
+</main>
+<div class="deck-notes-panel" id="deck-notes-panel" role="note" aria-label="Speaker notes" hidden></div>
+<nav class="deck-controls" aria-label="Slide controls" hidden><button type="button" id="deck-prev" aria-label="Previous slide">←</button><span id="deck-counter" aria-live="polite"></span><button type="button" id="deck-next" aria-label="Next slide">→</button><select id="deck-jump" aria-label="Choose a slide"><option value="0">01 / Opening</option><option value="1">02 / Shared direction</option><option value="2">03 / Participation</option><option value="3">04 / Contribution loop</option><option value="4">05 / Checked example</option><option value="5">06 / Real dependencies</option><option value="6">07 / Verification</option><option value="7">08 / Existing assets</option><option value="8">09 / Proposed pilot</option><option value="9">10 / Next step</option><option value="10">11 / Evidence</option><option value="11">12 / Scope and rights</option></select><span class="deck-controls-spacer"></span><button type="button" id="deck-notes-toggle" aria-pressed="false">Notes</button><button type="button" id="deck-read-toggle">Reading view</button><button type="button" id="deck-print">Print / PDF</button><button type="button" id="deck-fullscreen">Full screen</button></nav>
+<div class="deck-progress" aria-hidden="true"><span id="deck-progress-bar"></span></div>
+</body></html>
