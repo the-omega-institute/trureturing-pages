@@ -1,0 +1,3589 @@
+{
+  "schema": "open-math-showcase.v1",
+  "source_commit": "a450fbe4eed778b0b5f5b4954ce7f9a500f074c0",
+  "release": "sha256:f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873",
+  "atlas_graph_digest": "sha256:5841574f82ceafbe52a1f3a63dff19822e25168a0c1adaeaa251e3eef460ae69",
+  "graph_source": "https://the-omega-institute.github.io/trureturing-pages/data/pages-atlas-view.v1.json",
+  "granularity": "module-import",
+  "seed": "D5/S1/Deficit/DeficitInteger",
+  "visible": [
+    "D5/S0/Carrier/Conj",
+    "D5/S1/Deficit/AlmostAdditivity",
+    "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+    "D5/S1/Deficit/Carry/GoldenCarryDeficitBridge",
+    "D5/S1/Deficit/ChargedCarryPath",
+    "D5/S1/Deficit/DeficitInteger",
+    "D5/S1/Deficit/DeficitThreeValued",
+    "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence",
+    "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+    "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms",
+    "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength",
+    "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength",
+    "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct",
+    "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+    "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit",
+    "D5/S1/Deficit/Displacement/PrimeRadicalPositivity",
+    "D5/S1/Deficit/Displacement/ZeckendorfNormSign",
+    "D5/S1/Deficit/DoubleFaceLength",
+    "D5/S1/Deficit/FixedModulusNoncongruence",
+    "D5/S1/Deficit/LambdaMinusAdditive",
+    "D5/S1/Deficit/ModelSet/GoldenCutAndProject",
+    "D5/S1/Deficit/ModelSet/GoldenModelSetDensity",
+    "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+    "D5/S1/Digit/Addition",
+    "D5/S1/Digit/PrimeAxis/ChargedTableNormalization",
+    "D5/S1/Digit/PrimeAxis/RawTableRewriting",
+    "D5/S1/Scale/Embedding",
+    "D5/S1/Words/Expansions/BasePhiCanonicalExpansion",
+    "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+    "D5/S1/Words/Expansions/BasePhiNegativeBridge",
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixPaddedReading",
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore",
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentDataPhase",
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge",
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentPhaseObstruction",
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport",
+    "D5/S1/Words/Expansions/BasePhiRecursiveStructure",
+    "D5/S1/Words/Expansions/BasePhiTailBounds",
+    "D5/S1/Words/Expansions/BasePhiTailFiber",
+    "D5/S1/Words/FibonacciMapFirstStart",
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentClassification",
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore",
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation",
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace",
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords",
+    "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne",
+    "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceBoundary",
+    "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceRegionOpen",
+    "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity",
+    "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesDifferentiability",
+    "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection",
+    "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesValueSet",
+    "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness",
+    "D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSlopeExtremes",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion",
+    "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+    "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum",
+    "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesAntitone",
+    "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone",
+    "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSecondOrderRegularity",
+    "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSmoothness",
+    "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound",
+    "D5/S3/Arith/YanevMaxExponentRadicalRecurrence",
+    "D5/S3/Arith/YanevSigmaRadicalIdentity",
+    "D5/S3/Axis/LambdaMinusDirichletSeries",
+    "D5/S3/Axis/MultiplicativeDigitInvariant",
+    "D5/S3/Constants/Irrationality/TribonacciTraceLattice",
+    "D5/S3/Constants/Irrationality/TwoFacedPrivilege",
+    "D5/S3/Fourier/GoldenModelSetDelone"
+  ],
+  "nodes": [
+    {
+      "id": "D5/S0/Carrier/Conj",
+      "human_title": "Golden Conjugation",
+      "human_abstract": "Golden conjugation is an involutive ring equivalence with integral trace.",
+      "repo_path": "D5/S0/Carrier/Conj.lean",
+      "blueprint_path": "Blueprint/D5/S0/Carrier/Conj.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/cc9305fc402923fab84f5c53498e796dab995709205941b4deb902cb1079e3e8/",
+      "in_degree": 1,
+      "out_degree": 4,
+      "descendant_count": 130,
+      "domain": "Carrier",
+      "parents": [
+        "D5/S0/Carrier/Ring"
+      ],
+      "children": [
+        "D5/S0/Carrier/Norm",
+        "D5/S0/Carrier/TraceConjugation",
+        "D5/S1/Deficit/DeficitInteger",
+        "Trureturing"
+      ]
+    },
+    {
+      "id": "D5/S0/Carrier/Euclidean",
+      "human_title": "Carrier: Euclidean",
+      "human_abstract": null,
+      "repo_path": "D5/S0/Carrier/Euclidean.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/99d2e01ae931c21a6af623e9e68e18b969ac71d8455f09cb3091cdea630a797c/",
+      "in_degree": 1,
+      "out_degree": 4,
+      "descendant_count": 18,
+      "domain": "Carrier",
+      "parents": [
+        "D5/S0/Carrier/Norm"
+      ],
+      "children": [
+        "D5/S0/Carrier/PrincipalIdeal",
+        "D5/S3/Arith/Lattices/GoldenIntegerRing",
+        "D5/S3/Fourier/GoldenModelSetDelone",
+        "D5/S3/Observer/GoldenCoding/GoldenSeparationBound"
+      ]
+    },
+    {
+      "id": "D5/S0/Carrier/Norm",
+      "human_title": "Golden Norm",
+      "human_abstract": "The golden norm is multiplicative and agrees with the scaled mathlib norm.",
+      "repo_path": "D5/S0/Carrier/Norm.lean",
+      "blueprint_path": "Blueprint/D5/S0/Carrier/Norm.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e04a80a84ab637fff26644ba7f98937fce5771b83a2a3735a88a84bcc15fecb3/",
+      "in_degree": 1,
+      "out_degree": 6,
+      "descendant_count": 128,
+      "domain": "Carrier",
+      "parents": [
+        "D5/S0/Carrier/Conj"
+      ],
+      "children": [
+        "D5/S0/Carrier/AlgebraicModel",
+        "D5/S0/Carrier/Euclidean",
+        "D5/S0/Carrier/NormPowers",
+        "D5/S0/Carrier/Units",
+        "D5/S1/Scale/Embedding",
+        "Trureturing"
+      ]
+    },
+    {
+      "id": "D5/S0/Carrier/Ring",
+      "human_title": "Golden Integer Ring",
+      "human_abstract": "Golden integers use integral coordinates with the quadratic relation built into multiplication.",
+      "repo_path": "D5/S0/Carrier/Ring.lean",
+      "blueprint_path": "Blueprint/D5/S0/Carrier/Ring.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9549587df62080f3f874fbc49102ff276e5a1cac9e48d468e96a8909ccd9fd6f/",
+      "in_degree": 0,
+      "out_degree": 4,
+      "descendant_count": 133,
+      "domain": "Carrier",
+      "parents": [],
+      "children": [
+        "D5/S0/Carrier/Conj",
+        "D5/S0/Carrier/ZsqrtdImage",
+        "D5/S3/Arith/Lattices/GoldenMaximalOrderCompletion",
+        "Trureturing"
+      ]
+    },
+    {
+      "id": "D5/S0/Carrier/TraceConjugation",
+      "human_title": "Trace Invariance Under Conjugation",
+      "human_abstract": "The golden trace is invariant under Galois conjugation.",
+      "repo_path": "D5/S0/Carrier/TraceConjugation.lean",
+      "blueprint_path": "Blueprint/D5/S0/Carrier/TraceConjugation.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e52246b7f71fdc66e61ca1d56f1f99121feabe5a7885986ccf2be2782a6ee726/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Carrier",
+      "parents": [
+        "D5/S0/Carrier/Conj"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Deficit/AlmostAdditivity",
+      "human_title": "Almost Additivity of the Contraction Reading",
+      "human_abstract": "The contraction reading is almost additive over prime exponents.",
+      "repo_path": "D5/S1/Deficit/AlmostAdditivity.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/AlmostAdditivity.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/90db4f0d4f4865732133897b069fd40e77a0f4e5ba3ee54a4a7e203a48a3b239/",
+      "in_degree": 1,
+      "out_degree": 5,
+      "descendant_count": 70,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/DeficitThreeValued"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/PrimeRadicalPositivity",
+        "D5/S1/Deficit/DoubleFaceLength",
+        "D5/S1/Deficit/LambdaMinusAdditive",
+        "D5/S3/Arith/YanevMaxExponentRadicalRecurrence",
+        "D5/S3/Arith/YanevSigmaRadicalIdentity"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+      "human_title": "Closed Forms for the Two Beta Readings",
+      "human_abstract": "The two beta readings are the Zeckendorf displacement minus a linear golden-slope term.",
+      "repo_path": "D5/S1/Deficit/Beatty/BetaBeattyClosedForms.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Beatty/BetaBeattyClosedForms.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/461e015abcbdea1fd6decd4937a5e7d346ddcb421956b35492fc2d1b68ed8382/",
+      "in_degree": 3,
+      "out_degree": 2,
+      "descendant_count": 4,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/DoubleFaceLength",
+        "D5/S1/Deficit/ZeckendorfDisplacementReading",
+        "D5/S1/Scale/Fibonacci"
+      ],
+      "children": [
+        "D5/S1/Deficit/ChargedCarryPath",
+        "D5/S1/Deficit/ModelSet/GoldenModelSetDensity"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Carry/GoldenCarryDeficitBridge",
+      "human_title": "The Golden Carry Deficit Bridge",
+      "human_abstract": "Internal golden carries preserve both faces, and the common signed integer deficit vanishes under difference decoding.",
+      "repo_path": "D5/S1/Deficit/Carry/GoldenCarryDeficitBridge.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Carry/GoldenCarryDeficitBridge.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d3da985e650de685dec242d616fb8dad48a854aadd37e52f265a31a86a003ab8/",
+      "in_degree": 2,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/DeficitInteger",
+        "D5/S1/Deficit/GoldenCarryLedger"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Deficit/ChargedCarryPath",
+      "human_title": "Charged Raw Carry Paths",
+      "human_abstract": "Raw Zeckendorf carry paths have a path-independent signed charge with exact golden-phase behavior.",
+      "repo_path": "D5/S1/Deficit/ChargedCarryPath.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/ChargedCarryPath.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/33d7612c4cdfee1474a845665fc5e641783add4aaaac8588e88d529fe136aaf4/",
+      "in_degree": 3,
+      "out_degree": 1,
+      "descendant_count": 2,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+        "D5/S1/Deficit/FixedModulusNoncongruence",
+        "D5/S1/Digit/CarryStepConfluence"
+      ],
+      "children": [
+        "D5/S1/Digit/PrimeAxis/ChargedTableNormalization"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/DeficitInteger",
+      "human_title": "The Normalized Beta Deficit Is an Integer Counting Bottom Carries",
+      "human_abstract": "The normalized beta deficit of golden addition is an integer counting bottom carries.",
+      "repo_path": "D5/S1/Deficit/DeficitInteger.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/DeficitInteger.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e62f32a10218a83e88f256a47707c340959f9311d6b6262b53836343fe8f14e1/",
+      "in_degree": 3,
+      "out_degree": 4,
+      "descendant_count": 75,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S0/Carrier/Conj",
+        "D5/S1/Digit/Addition",
+        "D5/S1/Scale/Embedding"
+      ],
+      "children": [
+        "D5/S1/Deficit/Carry/GoldenCarryDeficitBridge",
+        "D5/S1/Deficit/DeficitThreeValued",
+        "D5/S1/Deficit/FixedModulusNoncongruence",
+        "D5/S3/Constants/Irrationality/TwoFacedPrivilege"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/DeficitThreeValued",
+      "human_title": "The Normalized Beta Deficit Is Three-Valued",
+      "human_abstract": "The normalized beta deficit of golden addition takes only the values -1, 0, and 1.",
+      "repo_path": "D5/S1/Deficit/DeficitThreeValued.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/DeficitThreeValued.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ff46beec090258adc9d40fe2d5c8bd57c4be221494c199ac1eebb4acad086468/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 71,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/DeficitInteger"
+      ],
+      "children": [
+        "D5/S1/Deficit/AlmostAdditivity"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence",
+      "human_title": "Deficit: Displacement Series Divergence",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/01ef365b837f509f0e4fd6432fe8c70c70878877206b9e5aeb17be72199df07b/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 20,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+      "human_title": "Golden Contraction Radical Bound",
+      "human_abstract": "The contraction-face logarithmic error is controlled by the prime radical.",
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Displacement/GoldenContractionRadicalBound.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d3fd4a27f071e7454a3c191d86ea638839cb12425a5305526d6d158c34d09d8f/",
+      "in_degree": 1,
+      "out_degree": 4,
+      "descendant_count": 34,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+        "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace",
+        "D5/S3/Axis/LambdaMinusDirichletSeries"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms",
+      "human_title": "Golden Desubstitution Face-Length Closed Forms",
+      "human_abstract": "The two face lengths have individual closed forms in terms of the hidden product nS.",
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6d1b792f2fbe24ec1f39e8d6ab7bf1e619b19ce1e8b67f33b66e1912aa332b59/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 35,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength",
+        "D5/S1/Scale/Fibonacci"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength",
+      "human_title": "Golden Desubstitution on Conjugate-Face Length",
+      "human_abstract": "Golden substitution of prime exponents becomes Zeckendorf displacement in the conjugate-face length.",
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a2fda4c7d1cf69013309f29623e6744452983f469d7966bb2ecd87c150ecc172/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 36,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength",
+      "human_title": "Golden Desubstitution on Expansion-Face Length",
+      "human_abstract": "Golden substitution of prime exponents becomes Zeckendorf displacement in the expansion-face length.",
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Displacement/GoldenDesubstitutionLength.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/3d8085b770c1365d4d4092320edf7fdcf65885590ba9da393f00ce256d5febef/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 37,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/DoubleFaceLength",
+        "D5/S1/Words/Powers/GoldenDesubstitutionZeckendorf"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct",
+      "human_title": "Golden Displacement Euler Product",
+      "human_abstract": "The hidden golden-substitution product is multiplicative on coprimes and yields an absolutely convergent two-variable Euler product.",
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/321dda609b1ac8b117a08b58a0a9713e94940bd5543457d0a77d53cfc4953c39/",
+      "in_degree": 1,
+      "out_degree": 3,
+      "descendant_count": 28,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct",
+        "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenInverseRecurrence",
+      "human_title": "Deficit: Golden Inverse Recurrence",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenInverseRecurrence.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/babd819e5469a8424e73d24665edd7a51ef379a9db96b62afc9025585f9ba590/",
+      "in_degree": 0,
+      "out_degree": 1,
+      "descendant_count": 4,
+      "domain": "Deficit",
+      "parents": [],
+      "children": [
+        "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+      "human_title": "Golden Substitution-Start Sharpness",
+      "human_abstract": "The golden substitution-start error has an exact fractional-part form, and both endpoints of its window are sharp.",
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Displacement/GoldenSubstStartSharpness.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6871d8e918b5a0d63735f0f6b435cfc76a3c00bf0b57f25b1f9fdb3080308a4d/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 23,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound"
+      ],
+      "children": [
+        "D5/S1/Words/FibonacciMapFirstStart",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit",
+      "human_title": "Golden Substitution Orbit",
+      "human_abstract": "Golden substitution preserves prime support and admits uniform orbitwise error bounds.",
+      "repo_path": "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a3601d00ac70b390028bf5c73065017a107c0dc429351205a92a9533719a6b07/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 29,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/PrimeRadicalPositivity",
+      "human_title": "Deficit: Prime Radical Positivity",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Deficit/Displacement/PrimeRadicalPositivity.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/558096c0cee7360955eaa4a1c3c06f9525b1d8af449db5f7c6e49bf098523316/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/AlmostAdditivity"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Deficit/Displacement/ZeckendorfNormSign",
+      "human_title": "Deficit: Zeckendorf Norm Sign",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Deficit/Displacement/ZeckendorfNormSign.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/181636a73e60027aa408784bd94688d94edadcec8c664d40ff70e4f788cb00a4/",
+      "in_degree": 3,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/DoubleFaceLength",
+        "D5/S1/Deficit/ZeckendorfDisplacementReading",
+        "D5/S1/Scale/Fibonacci"
+      ],
+      "children": [
+        "D5/S3/Axis/MultiplicativeDigitInvariant"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/DoubleFaceLength",
+      "human_title": "The Two-Face Length Spread Is sqrt(5) log n",
+      "human_abstract": "The expansion-face length minus the contraction-face length is sqrt(5) times log n.",
+      "repo_path": "D5/S1/Deficit/DoubleFaceLength.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/DoubleFaceLength.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/092abc88c47f4ebaffb9980cec1f1f5feab7cafe9794ec7dbade2a0fce6d3abc/",
+      "in_degree": 1,
+      "out_degree": 7,
+      "descendant_count": 65,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/AlmostAdditivity"
+      ],
+      "children": [
+        "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength",
+        "D5/S1/Deficit/Displacement/ZeckendorfNormSign",
+        "D5/S1/Deficit/FixedModulusNoncongruence",
+        "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+        "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+        "D5/S1/Words/Expansions/BasePhiNegativeBridge"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/FixedModulusNoncongruence",
+      "human_title": "Fixed-Modulus Noncongruence of the Golden-Addition Deficit",
+      "human_abstract": "No fixed modulus at least two determines the golden-addition deficit.",
+      "repo_path": "D5/S1/Deficit/FixedModulusNoncongruence.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/FixedModulusNoncongruence.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/56b3fdc263ec0608ee90129948b9a70264a4a3b4d1362384b389ddca4bc4cffe/",
+      "in_degree": 5,
+      "out_degree": 1,
+      "descendant_count": 3,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/DeficitInteger",
+        "D5/S1/Deficit/DoubleFaceLength",
+        "D5/S1/Deficit/GoldenPhaseDeficit",
+        "D5/S1/Deficit/ZeckendorfDisplacementReading",
+        "D5/S1/Scale/Fibonacci"
+      ],
+      "children": [
+        "D5/S1/Deficit/ChargedCarryPath"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/GoldenCarryLedger",
+      "human_title": "The Two-Face Golden Carry Ledger",
+      "human_abstract": "The adjacency and doubling carries preserve value on both golden faces.",
+      "repo_path": "D5/S1/Deficit/GoldenCarryLedger.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/GoldenCarryLedger.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/b65f2aa7db1dbd6b2f3257eb1c875aba9c71964ca81d87b8aa849047ec7d677b/",
+      "in_degree": 0,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Deficit",
+      "parents": [],
+      "children": [
+        "D5/S1/Deficit/Carry/GoldenCarryDeficitBridge"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/GoldenPhaseDeficit",
+      "human_title": "Golden Phase Classification of the Beatty Deficit",
+      "human_abstract": "The golden Beatty deficit is classified exactly by two phase-sum thresholds.",
+      "repo_path": "D5/S1/Deficit/GoldenPhaseDeficit.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/GoldenPhaseDeficit.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/031151ec6ebcbf9f510a11a1f0aa814e96bba52ce25feb99e22dfc76106d8b4f/",
+      "in_degree": 0,
+      "out_degree": 2,
+      "descendant_count": 5,
+      "domain": "Deficit",
+      "parents": [],
+      "children": [
+        "D5/S1/Deficit/Blindness/PrimeBlindness",
+        "D5/S1/Deficit/FixedModulusNoncongruence"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/LambdaMinusAdditive",
+      "human_title": "Additivity of the Contraction Reading over Coprimes",
+      "human_abstract": "The contraction reading is additive over coprime factors.",
+      "repo_path": "D5/S1/Deficit/LambdaMinusAdditive.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/LambdaMinusAdditive.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e779b77d6055e5604137810ba3cc2c69dac0996bce2fd2e5190d789248139b34/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 2,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/AlmostAdditivity"
+      ],
+      "children": [
+        "D5/S3/Axis/LambdaMinusDirichletSeries",
+        "D5/S3/Axis/MultiplicativeDigitInvariant"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/ModelSet/GoldenCutAndProject",
+      "human_title": "Golden Cut-and-Project Inclusion",
+      "human_abstract": "The physical golden beta range lies in the golden-lattice cut-and-project set.",
+      "repo_path": "D5/S1/Deficit/ModelSet/GoldenCutAndProject.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/ModelSet/GoldenCutAndProject.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/06745020f8e21fbf2f5e9bccf58c01641ad9f1f7841e0abb91f097630e08eeef/",
+      "in_degree": 3,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+        "D5/S1/Scale/MinkowskiModelSet",
+        "D5/S1/Words/Expansions/BasePhiNegativeBridge"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Deficit/ModelSet/GoldenModelSetDensity",
+      "human_title": "Density of the Golden Model Set",
+      "human_abstract": "Golden model-set prefixes are exact half-open endpoint windows, and their counts have asymptotic density one over square root five.",
+      "repo_path": "D5/S1/Deficit/ModelSet/GoldenModelSetDensity.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/ModelSet/GoldenModelSetDensity.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/2d349af4934247800c2f98302f2b6b81db26e910d75ae8a48fecd0044121e377/",
+      "in_degree": 2,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+        "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+      "human_title": "Golden Model-Set Self-Similarity",
+      "human_abstract": "The golden conjugate window has unit volume, and the golden beta range splits into two disjoint self-similar branches.",
+      "repo_path": "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/3d3a1e785089c8d5c03d5f749a220293bed571b709e9f4accbd65fd875b2f21d/",
+      "in_degree": 3,
+      "out_degree": 3,
+      "descendant_count": 3,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenInverseRecurrence",
+        "D5/S1/Deficit/DoubleFaceLength",
+        "D5/S1/Digit/Admissibility/LeastDigitDecomposition"
+      ],
+      "children": [
+        "D5/S1/Deficit/ModelSet/GoldenCutAndProject",
+        "D5/S1/Deficit/ModelSet/GoldenModelSetDensity",
+        "D5/S3/Fourier/GoldenModelSetDelone"
+      ]
+    },
+    {
+      "id": "D5/S1/Deficit/ZeckendorfDisplacementReading",
+      "human_title": "The Zeckendorf Up-Shift Displacement Decode Is a Golden Beatty Reading",
+      "human_abstract": "The Zeckendorf up-shift displacement decode equals the shifted golden Beatty reading.",
+      "repo_path": "D5/S1/Deficit/ZeckendorfDisplacementReading.lean",
+      "blueprint_path": "Blueprint/D5/S1/Deficit/ZeckendorfDisplacementReading.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/bb2376cff27a4000e3c45e810a4b6ba8ce5ec63434c49937bda74febdfafad8d/",
+      "in_degree": 1,
+      "out_degree": 7,
+      "descendant_count": 53,
+      "domain": "Deficit",
+      "parents": [
+        "D5/S0/Conventions/WDigits"
+      ],
+      "children": [
+        "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+        "D5/S1/Deficit/Beatty/FiberCoordinateBeattyForms",
+        "D5/S1/Deficit/Blindness/PrimeBlindness",
+        "D5/S1/Deficit/Displacement/ZeckendorfNormSign",
+        "D5/S1/Deficit/FixedModulusNoncongruence",
+        "D5/S1/Eigenstructure/GoldenFiberCoordinates",
+        "D5/S1/Words/Powers/GoldenDesubstitutionZeckendorf"
+      ]
+    },
+    {
+      "id": "D5/S1/Depth/JointCoordinates",
+      "human_title": "Joint Golden Coordinates",
+      "human_abstract": "Joint golden coordinates combine logarithmic scale, canonical W digits, circle phase, and finite depth.",
+      "repo_path": "D5/S1/Depth/JointCoordinates.lean",
+      "blueprint_path": "Blueprint/D5/S1/Depth/JointCoordinates.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/b20c66c91004e61f6d6036a0e65ca864435823d219e7a2a0b7d18e9497cdf1f2/",
+      "in_degree": 3,
+      "out_degree": 3,
+      "descendant_count": 13,
+      "domain": "Depth",
+      "parents": [
+        "D5/S1/Digit/Addition",
+        "D5/S1/Phase/Basic",
+        "D5/S1/Scale/Log"
+      ],
+      "children": [
+        "D5/S1/Depth/FiniteMetric",
+        "D5/S1/Depth/JointDepth",
+        "D5/S1/Scale/MinkowskiModelSet"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/Addition",
+      "human_title": "Digit: Addition",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Digit/Addition.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f59b1ca165b7cb7c9015c2ec8c8522d4d133a512f6b148b9d86ddb414cbdbb49/",
+      "in_degree": 1,
+      "out_degree": 3,
+      "descendant_count": 120,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Digit/Normalize"
+      ],
+      "children": [
+        "D5/S1/Deficit/DeficitInteger",
+        "D5/S1/Depth/JointCoordinates",
+        "D5/S1/Digit/GoldenBase4AutomataOracle"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/Admissibility/LeastDigitDecomposition",
+      "human_title": "Least-Digit Zeckendorf Decomposition",
+      "human_abstract": "Positive canonical W digits split uniquely according to their least occupied position.",
+      "repo_path": "D5/S1/Digit/Admissibility/LeastDigitDecomposition.lean",
+      "blueprint_path": "Blueprint/D5/S1/Digit/Admissibility/LeastDigitDecomposition.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c5b1183c5d2f4e4097a0b3e8dacc995abbd5025eb8848e40cba3c1a99f58a653/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 4,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Digit/Raw"
+      ],
+      "children": [
+        "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/Carry/Successor",
+      "human_title": "Termination of Zeckendorf Successor Carries",
+      "human_abstract": "Zeckendorf successor carry chains terminate within the highest occupied index.",
+      "repo_path": "D5/S1/Digit/Carry/Successor.lean",
+      "blueprint_path": "Blueprint/D5/S1/Digit/Carry/Successor.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d7182f8f2325bd2edd819ab7eef6e66e04419bc8cd2d8a0311f9e937862b2949/",
+      "in_degree": 1,
+      "out_degree": 3,
+      "descendant_count": 19,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Digit/Normalize"
+      ],
+      "children": [
+        "D5/S1/Digit/Carry/RunChainLowerBound",
+        "D5/S1/Digit/Carry/SuccessorShortest",
+        "D5/S1/Words/Expansions/BasePhiCanonicalExpansion"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/CarryStepConfluence",
+      "human_title": "Confluence of Raw Zeckendorf Carries",
+      "human_abstract": "Arbitrary raw Zeckendorf carry paths preserve value, select one canonical endpoint, and are globally confluent.",
+      "repo_path": "D5/S1/Digit/CarryStepConfluence.lean",
+      "blueprint_path": "Blueprint/D5/S1/Digit/CarryStepConfluence.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ccf055f22453f2fb4baf618f937d2747116d891e393ed079a46682a53817e447/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 3,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Digit/Normalize"
+      ],
+      "children": [
+        "D5/S1/Deficit/ChargedCarryPath",
+        "D5/S1/Digit/PrimeAxis/RawTableRewriting"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/GoldenBase4AutomataOracle",
+      "human_title": "The Base-Four Golden-Ratio Automata Oracle",
+      "human_abstract": "Canonical Zeckendorf words and exact floor differences define the base-four golden-ratio DFAO specification.",
+      "repo_path": "D5/S1/Digit/GoldenBase4AutomataOracle.lean",
+      "blueprint_path": "Blueprint/D5/S1/Digit/GoldenBase4AutomataOracle.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/20b28af3b20d6c680a071d1390a1aae31a3ccdd0cd757c47fd44c752365ea8c6/",
+      "in_degree": 2,
+      "out_degree": 4,
+      "descendant_count": 31,
+      "domain": "Digit",
+      "parents": [
+        "D5/S0/Automata/TypedSampleIdentification",
+        "D5/S1/Digit/Addition"
+      ],
+      "children": [
+        "D5/S1/Digit/GoldenBase4DenseInput",
+        "D5/S1/Digit/GoldenDFAOMinimalityTargets",
+        "D5/S1/Digit/PublishedGoldenBase4BlockSample79",
+        "D5/S3/ConceptDynamics/CausalMoments/QuaternaryResponseTableCoding"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/Normalize",
+      "human_title": "Digit: Normalize",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Digit/Normalize.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f3c39b28617b0ad1fa1c64a2204fa2b5c4bbd0395bbbd2f7ca3e4427fff828e7/",
+      "in_degree": 1,
+      "out_degree": 6,
+      "descendant_count": 163,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Digit/Carry"
+      ],
+      "children": [
+        "D5/S1/Digit/Addition",
+        "D5/S1/Digit/Carry/SplitStabilization",
+        "D5/S1/Digit/Carry/Successor",
+        "D5/S1/Digit/CarryStepConfluence",
+        "D5/S1/Digit/PrimeAxisEncoding",
+        "D5/S1/Words/Expansions/BasePhiCarryTransducer"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/PrimeAxis/ChargedTableNormalization",
+      "human_title": "Charged Table Normalization",
+      "human_abstract": "Charged Table Normalization.",
+      "repo_path": "D5/S1/Digit/PrimeAxis/ChargedTableNormalization.lean",
+      "blueprint_path": "Blueprint/D5/S1/Digit/PrimeAxis/ChargedTableNormalization.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/98b1c2084cd74ce267119b964afd0a33fd0286f43d82a7dc82827834b70c722c/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Deficit/ChargedCarryPath",
+        "D5/S1/Digit/PrimeAxisTable"
+      ],
+      "children": [
+        "D5/S1/Digit/PrimeAxis/RawTableRewriting"
+      ]
+    },
+    {
+      "id": "D5/S1/Digit/PrimeAxis/RawTableRewriting",
+      "human_title": "Raw Table Rewriting",
+      "human_abstract": "Raw Table Rewriting.",
+      "repo_path": "D5/S1/Digit/PrimeAxis/RawTableRewriting.lean",
+      "blueprint_path": "Blueprint/D5/S1/Digit/PrimeAxis/RawTableRewriting.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/3aa6fc07fceeff631f8728801d7ffc9632ce374c745a3b3eaf0da0e119d0f3f6/",
+      "in_degree": 2,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Digit/CarryStepConfluence",
+        "D5/S1/Digit/PrimeAxis/ChargedTableNormalization"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Digit/PrimeAxisTable",
+      "human_title": "Prime-Axis W-Digit Tables",
+      "human_abstract": "Finite prime-indexed canonical W digits encode factorization exponents.",
+      "repo_path": "D5/S1/Digit/PrimeAxisTable.lean",
+      "blueprint_path": "Blueprint/D5/S1/Digit/PrimeAxisTable.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/3a9462abc3e345418da20e313342331311af4e744ce735783523bded1af703ef/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 35,
+      "domain": "Digit",
+      "parents": [
+        "D5/S1/Digit/Raw"
+      ],
+      "children": [
+        "D5/S1/Digit/PrimeAxis/ChargedTableNormalization",
+        "D5/S1/Digit/PrimeAxisEncoding"
+      ]
+    },
+    {
+      "id": "D5/S1/Eigenstructure/GoldenPowerCoordinates",
+      "human_title": "Unique Golden-Power Coordinates",
+      "human_abstract": "The second and third golden powers have unique nonnegative coordinates.",
+      "repo_path": "D5/S1/Eigenstructure/GoldenPowerCoordinates.lean",
+      "blueprint_path": "Blueprint/D5/S1/Eigenstructure/GoldenPowerCoordinates.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6eb62db626b42f82e26e9670c644897e8e1c28d049f725c9ecb92428c2c96641/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Eigenstructure",
+      "parents": [
+        "D5/S1/Scale/Embedding"
+      ],
+      "children": [
+        "D5/S1/Eigenstructure/GoldenExponentRays"
+      ]
+    },
+    {
+      "id": "D5/S1/Recurrence/GoldenPartition",
+      "human_title": "Golden Fibonacci Partition",
+      "human_abstract": "Consecutive Fibonacci weights on inverse golden powers partition one exactly.",
+      "repo_path": "D5/S1/Recurrence/GoldenPartition.lean",
+      "blueprint_path": "Blueprint/D5/S1/Recurrence/GoldenPartition.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/fdcae556ff3dfe4d3eeebadbfe68b0452625287e32795b8a6daa025327154484/",
+      "in_degree": 2,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Recurrence",
+      "parents": [
+        "D5/S1/Scale/Embedding",
+        "D5/S1/Scale/Fibonacci"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Scale/Embedding",
+      "human_title": "Golden Real Embedding",
+      "human_abstract": "The real embedding of golden integers is an injective ring homomorphism.",
+      "repo_path": "D5/S1/Scale/Embedding.lean",
+      "blueprint_path": "Blueprint/D5/S1/Scale/Embedding.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/bd6b69ca0793c1dffa27fc1e2318032898f4962497f54a227e06682d2f6c7b27/",
+      "in_degree": 1,
+      "out_degree": 6,
+      "descendant_count": 98,
+      "domain": "Scale",
+      "parents": [
+        "D5/S0/Carrier/Norm"
+      ],
+      "children": [
+        "D5/S1/Deficit/DeficitInteger",
+        "D5/S1/Eigenstructure/GoldenPowerCoordinates",
+        "D5/S1/Recurrence/GoldenPartition",
+        "D5/S1/Scale/Log",
+        "D5/S3/Observer/GoldenCoding/GoldenSeparationBound",
+        "Trureturing"
+      ]
+    },
+    {
+      "id": "D5/S1/Scale/Fibonacci",
+      "human_title": "Scale: Fibonacci",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Scale/Fibonacci.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/fdffd2428122960b567c248360895ca0b0851a9435d4072c824dfefff9003b37/",
+      "in_degree": 1,
+      "out_degree": 10,
+      "descendant_count": 68,
+      "domain": "Scale",
+      "parents": [
+        "D5/S0/Carrier/Units"
+      ],
+      "children": [
+        "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms",
+        "D5/S1/Deficit/Displacement/ZeckendorfNormSign",
+        "D5/S1/Deficit/FixedModulusNoncongruence",
+        "D5/S1/Recurrence/GoldenPartition",
+        "D5/S1/Scale/Lucas",
+        "D5/S1/Words/Expansions/BasePhiCanonicalExpansion",
+        "D5/S1/Words/FibonacciMapFirstStart",
+        "D5/S1/Words/NegativeExpansions/NegaFibonacci",
+        "D5/S3/Arith/GoldenApparition"
+      ]
+    },
+    {
+      "id": "D5/S1/Scale/Log",
+      "human_title": "Golden Logarithmic Scale",
+      "human_abstract": "Nonzero golden integers have an integer logarithmic scale with exact unit shifts.",
+      "repo_path": "D5/S1/Scale/Log.lean",
+      "blueprint_path": "Blueprint/D5/S1/Scale/Log.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1da52a260c4f871ebdc9ad6fa2389a43d81be3815b2e26f66f2e98b10bd54874/",
+      "in_degree": 2,
+      "out_degree": 4,
+      "descendant_count": 35,
+      "domain": "Scale",
+      "parents": [
+        "D5/S0/Carrier/Units",
+        "D5/S1/Scale/Embedding"
+      ],
+      "children": [
+        "D5/S1/Depth/JointCoordinates",
+        "D5/S1/Scale/Units",
+        "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+        "Trureturing"
+      ]
+    },
+    {
+      "id": "D5/S1/Scale/MinkowskiModelSet",
+      "human_title": "Golden Minkowski Model Set",
+      "human_abstract": "The two real embeddings form a golden lattice whose internal window selects model-set points.",
+      "repo_path": "D5/S1/Scale/MinkowskiModelSet.lean",
+      "blueprint_path": "Blueprint/D5/S1/Scale/MinkowskiModelSet.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/699361e7dd79815191f0a268e90f4d3e35cd5fbbff463a619dcca06454567092/",
+      "in_degree": 1,
+      "out_degree": 3,
+      "descendant_count": 4,
+      "domain": "Scale",
+      "parents": [
+        "D5/S1/Depth/JointCoordinates"
+      ],
+      "children": [
+        "D5/S1/Deficit/ModelSet/GoldenCutAndProject",
+        "D5/S1/Scale/MinkowskiHarnessWindow",
+        "D5/S3/Fourier/GoldenCutProjectSchemeAdapter"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiCanonicalExpansion",
+      "human_title": "Canonical Two-Sided Base-Phi Expansion",
+      "human_abstract": "Natural numbers have a unique finite two-sided canonical base-phi expansion.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiCanonicalExpansion.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiCanonicalExpansion.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/7379454071b3173c903aae020ad44a09d43e52c2b429c3bf5166c4a72c244e30/",
+      "in_degree": 4,
+      "out_degree": 2,
+      "descendant_count": 14,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Digit/Carry/Successor",
+        "D5/S1/Scale/Fibonacci",
+        "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+        "D5/S1/Words/Expansions/BasePhiNegativeBridge"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport",
+        "D5/S1/Words/Expansions/BasePhiTailBounds"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+      "human_title": "Words: Base Phi Carry Transducer",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/Expansions/BasePhiCarryTransducer.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/93a2b64891213f934cb4933d6f610f9fb1e86e37a3eadcb32761f53bc46a5107/",
+      "in_degree": 4,
+      "out_degree": 2,
+      "descendant_count": 15,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Deficit/DoubleFaceLength",
+        "D5/S1/Digit/Normalize",
+        "D5/S1/Scale/Log",
+        "D5/S1/Words/Expansions/BasePhiNegative"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiCanonicalExpansion",
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegative",
+      "human_title": "Negative Base-Phi Prefix Interfaces",
+      "human_abstract": "Negative base-phi prefixes have canonical local constraints and Lucas-gap sequence interfaces.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegative.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiNegative.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/551b8534be6e29092cb4b6e8545a08efc0bace8db67fdb71619cf606899985ac/",
+      "in_degree": 3,
+      "out_degree": 1,
+      "descendant_count": 16,
+      "domain": "Words",
+      "parents": [
+        "D5/S0/Carrier/Units",
+        "D5/S0/Conventions/WDigits",
+        "D5/S1/Scale/Lucas"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiCarryTransducer"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegativeBridge",
+      "human_title": "Words: Base Phi Negative Bridge",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegativeBridge.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/0318cc2d5c7490107fcc3f0c1ef0d4f8c26e3e31539ca907804d98bb1cad5262/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 16,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Deficit/DoubleFaceLength"
+      ],
+      "children": [
+        "D5/S1/Deficit/ModelSet/GoldenCutAndProject",
+        "D5/S1/Words/Expansions/BasePhiCanonicalExpansion"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegativePrefixPaddedReading",
+      "human_title": "Zero-Padded and Finite-Depth Negative Prefixes",
+      "human_abstract": "Zero padding identifies prefixes 01 and 010, whereas finite-depth occurrences differ exactly at 2, 3, and 4.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegativePrefixPaddedReading.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiNegativePrefixPaddedReading.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1859fb1bf9d7552fed748325d17c4424b43a19d1dbd68bfb4798705196ec8f3a/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore",
+      "human_title": "Words: Base Phi Negative Prefix Trident Core",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/94bc07489eb88ec74f4756d33e79f1797411df873811e5c010a8e4f2e5b8c149/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 3,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentDataPhase",
+      "human_title": "Data-Derived Frontier Gap Phases",
+      "human_abstract": "Exact core-gap data corrects the recursive-state projection and isolates the remaining global recurrence obligation.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentDataPhase.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiNegativePrefixTridentDataPhase.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/090c3991dd830674b3122499f69be1cd3bb867ae6cdaa55453973c48729326fa/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge",
+      "human_title": "Phase-Enriched Adjacent Core Edges",
+      "human_abstract": "Strict core enumerations have unique adjacent successors, while phase enrichment isolates the remaining gap-phase obligation.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/2bc5e22200cfb7aafd0aeaee9f4c032dc84eb9e461068e93f3880750d9e8f97f/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 2,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentDataPhase",
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentPhaseObstruction"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentPhaseObstruction",
+      "human_title": "Words: Base Phi Negative Prefix Trident Phase Obstruction",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentPhaseObstruction.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/4bf85043eacf7df301154ffcac7bf3e0314a12bb130adbdde0fc506c8ab27aa4/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport",
+      "human_title": "Words: Base Phi Negative Prefix Trident Support",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/0fa6544fcdba8b2f5366e5e0a3c1dcc5063ebc9c68167ea32fd6244699db2ec1/",
+      "in_degree": 3,
+      "out_degree": 3,
+      "descendant_count": 10,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiCanonicalExpansion",
+        "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+        "D5/S1/Words/Expansions/BasePhiTailFiber"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixPaddedReading",
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore",
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiRecursiveStructure",
+      "human_title": "Golden-Coordinate Recursive Tail Structure",
+      "human_abstract": "Golden floor coordinates have the two local fiber shapes needed to recurse across a fixed negative base-phi tail.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiRecursiveStructure.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiRecursiveStructure.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/2da4e85846a2ddaafbc25dced57298072a96c376b1840cd5708a59671d53e123/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 12,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiTailBounds",
+        "D5/S1/Words/ZeckendorfBeattyBridge"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiTailFiber"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiTailBounds",
+      "human_title": "Canonical Negative Base-Phi Tail Bounds",
+      "human_abstract": "A nonempty canonical negative base-phi tail lies in the unit interval, with its first digit selecting the side of the inverse-golden cut.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiTailBounds.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiTailBounds.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/79dd930ad58ece0536d488fa3f9eef79189a647092e9af5b8df6872ab0f02fed/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 13,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiCanonicalExpansion"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiRecursiveStructure"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Expansions/BasePhiTailFiber",
+      "human_title": "Complete Negative Base-Phi Tail Fibers",
+      "human_abstract": "Every nonempty complete negative base-phi tail of a positive natural has a singleton or three-consecutive fiber.",
+      "repo_path": "D5/S1/Words/Expansions/BasePhiTailFiber.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Expansions/BasePhiTailFiber.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6371b62076118b91e7af2c28bb37602fc1cbc52ea54f90bf16e62877e0162b3c/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 11,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiRecursiveStructure"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/FibonacciMapBound",
+      "human_title": "Fibonacci Word Progression Bound",
+      "human_abstract": "Bound the longest monochromatic arithmetic progression in the infinite Fibonacci word.",
+      "repo_path": "D5/S1/Words/FibonacciMapBound.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/FibonacciMapBound.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f628077a7b4eaedfafa2f30cc8f4fb7d5414dc7c70c0dd7fccc36d7eba50e206/",
+      "in_degree": 3,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Depth/GoldenHurwitzBound",
+        "D5/S1/Phase/ThreeGap/Returns",
+        "D5/S1/Words/Mechanical/MechanicalGoldenBridge"
+      ],
+      "children": [
+        "D5/S1/Words/FibonacciMapFirstStart"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/FibonacciMapFirstStart",
+      "human_title": "First Starts at Fibonacci Differences",
+      "human_abstract": "Locate the first longest monochromatic progression at every Fibonacci difference.",
+      "repo_path": "D5/S1/Words/FibonacciMapFirstStart.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/FibonacciMapFirstStart.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f4d980efacbe723e1e3de9c3486e04fa393ebcfc732b4fb5030f53f4dea45432/",
+      "in_degree": 3,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+        "D5/S1/Scale/Fibonacci",
+        "D5/S1/Words/FibonacciMapBound"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Words/GoldenDensity",
+      "human_title": "Words: Golden Density",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/GoldenDensity.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9598df8cd8bd27f20ae8c5175aad5c51c6a9578f1d5283ec87a82378e88e59b3/",
+      "in_degree": 1,
+      "out_degree": 3,
+      "descendant_count": 22,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/GoldenBalance"
+      ],
+      "children": [
+        "D5/S1/Deficit/Beatty/GoldenSubstStartAsymptoticSlope",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure",
+        "Trureturing"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentClassification",
+      "human_title": "Words: Base Phi Negative Prefix Trident Classification",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentClassification.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/4c8b72cf3263538318a12af0195e642493eabe1bad6941698bca082243e9d34b/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore",
+      "human_title": "Words: Base Phi Negative Prefix Trident Core",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6ebdbd306a5b6aa73fa18177c2d700c2bea3d69dba59799f48a93fbd37e8eec5/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 2,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords"
+      ],
+      "children": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation",
+      "human_title": "Negative-Prefix Trident Preservation",
+      "human_abstract": "Lucas-gap core classifications survive the initial-value shifts that lift a core to the full negative-prefix occurrence set.",
+      "repo_path": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/0612184091421c92056185af08d54655e07e286d1b0a5ace9d293e9f3eb7ee57/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore"
+      ],
+      "children": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentClassification"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace",
+      "human_title": "Words: Base Phi Negative Prefix Trident Trace",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/33cbae71b2eab4ee1f4d68b0e7e493855c283700ac0b064a73eb66f5900c39c0/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 4,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+      ],
+      "children": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords",
+      "human_title": "Words: Base Phi Negative Tail Words",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/06d83e2162187737cfc6eada347fc1fc96f7cfa0fab8bf47f1c0dc54861fd38f/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 3,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace",
+        "D5/S1/Words/NegativeExpansions/NegaFibonacci"
+      ],
+      "children": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/NegativeExpansions/NegaFibonacci",
+      "human_title": "Words: Nega Fibonacci",
+      "human_abstract": null,
+      "repo_path": "D5/S1/Words/NegativeExpansions/NegaFibonacci.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c9c32ab0b3e000b1b7e48cd103d088d48b08d50bf6faa8cda597b68f11591edd/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 4,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Scale/Fibonacci"
+      ],
+      "children": [
+        "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitutionZeckendorf",
+      "human_title": "Golden Desubstitution in Zeckendorf Coordinates",
+      "human_abstract": "Identify golden substitution boundaries and terminal desubstitution indices through uniform shifts of canonical Zeckendorf digits.",
+      "repo_path": "D5/S1/Words/Powers/GoldenDesubstitutionZeckendorf.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/Powers/GoldenDesubstitutionZeckendorf.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/fde3a805cf3b3058d19192ad449d21ceb06bf4b2cf6bcb7b3c3fa73b15e1c140/",
+      "in_degree": 2,
+      "out_degree": 3,
+      "descendant_count": 41,
+      "domain": "Words",
+      "parents": [
+        "D5/S1/Deficit/ZeckendorfDisplacementReading",
+        "D5/S1/Words/Powers/GoldenDesubstitutionNormalForm"
+      ],
+      "children": [
+        "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength",
+        "D5/S1/Deficit/GoldenHeckeMahlerFunctionalEquation",
+        "D5/S1/Words/Powers/GoldenDesubstitutionDepth"
+      ]
+    },
+    {
+      "id": "D5/S1/Words/ZeckendorfBeattyBridge",
+      "human_title": "Zeckendorf-Beatty Bridge",
+      "human_abstract": "Identify the least Zeckendorf digit with the shifted golden Beatty letter.",
+      "repo_path": "D5/S1/Words/ZeckendorfBeattyBridge.lean",
+      "blueprint_path": "Blueprint/D5/S1/Words/ZeckendorfBeattyBridge.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/83c075617d777d56c557ef4bf02c6c0d4fa1c3f5730019384b30089905cb200d/",
+      "in_degree": 2,
+      "out_degree": 3,
+      "descendant_count": 121,
+      "domain": "Words",
+      "parents": [
+        "D5/S0/Tower/GoldenGapZeckendorf",
+        "D5/S1/Words/GoldenMechanicalWord"
+      ],
+      "children": [
+        "D5/S1/Words/Expansions/BasePhiRecursiveStructure",
+        "D5/S1/Words/GoldenBalance",
+        "D5/S3/Analytic/PrimeZeckendorf/ZeckendorfGoldenBetaGapBridge"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne",
+      "human_title": "Golden Displacement Series Limit at Infinity",
+      "human_abstract": "The golden displacement series tends to one as its first parameter tends to infinity.",
+      "repo_path": "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/8149a6c84bbf79da5386f8b32c052ad2b71f5814594c3143f452b5fdeafdbda4/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 4,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone"
+      ],
+      "children": [
+        "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection",
+        "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceBoundary",
+      "human_title": "Golden Displacement Convergence Boundary",
+      "human_abstract": "The boundary of golden displacement convergence is exactly the graph of its critical-boundary function.",
+      "repo_path": "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceBoundary.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceBoundary.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1ab966ea3138ee54e25c858381bd96c39b45cae21f66aa11f5e2ae3db10a3c6a/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceRegionOpen",
+      "human_title": "Golden Displacement Convergence Region Is Open",
+      "human_abstract": "The golden displacement convergence region is open in its real parameter plane.",
+      "repo_path": "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceRegionOpen.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceRegionOpen.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c859cf72a642ceaf8a2998947c9853046814fb5da72c1a02c2e41279d12a599b/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity",
+      "human_title": "Golden Displacement Series Continuity",
+      "human_abstract": "The golden displacement sum is continuous at every point of its exact convergence region.",
+      "repo_path": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/16fecc257c72c3c4e68dd29c919fc573ed270f359271db7e2ec8fec1fa2cfc46/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 3,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": [
+        "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection",
+        "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesDifferentiability",
+      "human_title": "Golden Displacement Series Differentiability",
+      "human_abstract": "The golden displacement sum is differentiable at every point of its exact convergence region.",
+      "repo_path": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesDifferentiability.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Boundary/GoldenDisplacementSeriesDifferentiability.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/8a8b7b3fed397c7ca1a09b8449d79e0dce8c9dd3f4679109850b0f225fd76c92/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection",
+      "human_title": "Fixed-Parameter Golden Displacement Slice Bijection",
+      "human_abstract": "Every fixed-second-parameter golden displacement slice is classified by an exact summability ray and a bijection onto the open ray above one.",
+      "repo_path": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/776f21951546c88493fc5081f58e904f221e129b5e545ffb02373204ef3419c8/",
+      "in_degree": 3,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne",
+        "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity",
+        "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesValueSet",
+      "human_title": "Value Set of the Golden Displacement Series",
+      "human_abstract": "The values attained by convergent golden displacement series form exactly the open ray above one.",
+      "repo_path": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesValueSet.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesValueSet.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/2a568d56245a438a819b842b1732daac65d7c266ea7e751915a0c3b645ff516a/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness",
+      "human_title": "Path-Connectedness of Golden Displacement Series Values",
+      "human_abstract": "The attained golden displacement values form a path-connected set with no gaps above one.",
+      "repo_path": "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1359522ecf1aed058c5b82e03ff923d5624e0105f0cb7756f7f1f44708c81406/",
+      "in_degree": 3,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity",
+        "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum"
+      ],
+      "children": [
+        "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesValueSet"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity",
+      "human_title": "Golden Displacement Series Log-Convexity",
+      "human_abstract": "The logarithm of the golden displacement sum is convex on its exact convergence region.",
+      "repo_path": "D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ccb19fd1dfdae6c9d965d89acfdb18a87411a4dcebed556a917e7d30becd4c48/",
+      "in_degree": 2,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity",
+        "D5/S3/Analytic/SeriesInequalities/CountableWeightedHolderInterpolation"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint",
+      "human_title": "Analytic: Golden Displacement Binding Constraint",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d0b821d547df832cf6be0b4dd2b9764d143eb44e4712c5f6baa977f441216437/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": [
+        "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceBoundary"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct",
+      "human_title": "Complex Golden Displacement Euler Product",
+      "human_abstract": "The frozen displacement surface lifts to complex parameters and contains the convergent golden Euler germ as its conjugate section.",
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a4f9c1a08d4853ddf82de1b6d4772c5862556572dfed5713c0d93d35b56f3a91/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 25,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct",
+        "D5/S3/Analytic/GoldenEulerBeta"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa",
+      "human_title": "The Exact Golden Displacement Face Heat Abscissa",
+      "human_abstract": "A nonnegative Euler bridge promotes summable positive prime-power tails to a global sum, and collapses the expansion-face heat window to the exact golden abscissa.",
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/456e6ea88b9429a036ee7fd6732ac0a3e3ad03a6ff5c232d25aa2a4678d55cb7/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 23,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace",
+      "human_title": "Golden Displacement Face Heat Trace",
+      "human_abstract": "The expansion face supplies the golden germ heat trace, with its heat abscissa honestly bracketed in the golden window; the contraction face has no summable heat coefficient.",
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6ebf3fda407c12e7b5f1f2588f304cd832842cd4cc7c0dd0f84d8f2017e6de4c/",
+      "in_degree": 3,
+      "out_degree": 1,
+      "descendant_count": 24,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct",
+        "D5/S3/Midline/GoldenHeatSpectrum"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion",
+      "human_title": "Analytic: Golden Displacement Finite Region",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/fcb21451c119d61aa42550e71fc8db3efe28e37890e0299dae1fb50a4ee47614/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 16,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint",
+      "human_title": "Analytic: Golden Displacement Redundant Constraint",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/8f6711ce57e92ee49e861295c6363598ac0ad73a7e56bd86ec70437c1e6dea07/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 15,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity",
+      "human_title": "Analytic: Golden Displacement Region Convexity",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/69f8724871675fd55035eee31e80ea229baa0eaa228eef7b15ecb0d2671d014e/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 3,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": [
+        "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness",
+        "D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementSlopeExtremes",
+      "human_title": "Analytic: Golden Displacement Slope Extremes",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementSlopeExtremes.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/5cf3750014ac0983bb0c8da38ce91ea76eb6ae34e749d05b383abe29d02a97e6/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion",
+      "human_title": "Analytic: Golden Displacement Surface Exact Region",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/4cfec0198813065abd311ea1045353cf095f51573f5d17482780e8b4b583f2ee/",
+      "in_degree": 2,
+      "out_degree": 2,
+      "descendant_count": 21,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure",
+      "human_title": "Analytic: Golden Displacement Surface Negative Boundary Line Positive Failure",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ce688a78ecc4c0623f3bb62ba1f574e954679768336ae4dd26e98ca27b17898c/",
+      "in_degree": 3,
+      "out_degree": 2,
+      "descendant_count": 19,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence",
+        "D5/S1/Words/GoldenDensity",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint",
+        "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion",
+      "human_title": "The Exact Golden Displacement Surface Region",
+      "human_abstract": "The prime-exponent slices determine the exact convergence region of the golden displacement surface, including its hidden-product threshold and a point beyond the former half-plane.",
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/80c72126800c2a06ccf6ea1f44103bdbc8655dc1abe086edeec2ae15cbfb18d8/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 22,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "human_title": "Analytic: Golden Displacement Two Constraint Region",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6cdfb51fe97c27dc7104ce4100dc883cc91bb5c069ccbc96eb647240014f4b89/",
+      "in_degree": 1,
+      "out_degree": 9,
+      "descendant_count": 14,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint"
+      ],
+      "children": [
+        "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceRegionOpen",
+        "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity",
+        "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesDifferentiability",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSlopeExtremes",
+        "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesAntitone",
+        "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSecondOrderRegularity",
+        "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSmoothness"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum",
+      "human_title": "Unattained Infima of the Golden Displacement Series",
+      "human_abstract": "Each fixed-w golden series has one as its unattained greatest lower bound.",
+      "repo_path": "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/34d6e078ca7205e6fb41059cd83a85c0e1d4069fa0e2c2a89892144c5a05036c/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 2,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne",
+        "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound"
+      ],
+      "children": [
+        "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/GoldenEulerBeta",
+      "human_title": "Analytic: Golden Euler Beta",
+      "human_abstract": null,
+      "repo_path": "D5/S3/Analytic/GoldenEulerBeta.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9cf49a7bdf6921e5c9feca2f4de1b0b17555020391aa5d250e34c5e62654678d/",
+      "in_degree": 0,
+      "out_degree": 12,
+      "descendant_count": 101,
+      "domain": "Analytic",
+      "parents": [],
+      "children": [
+        "D5/S3/Analytic/Certified/TrigEnvelopePhaseReduction",
+        "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct",
+        "D5/S3/Analytic/EulerGerm/GoldenGermFourthOrderExponentCensus",
+        "D5/S3/Analytic/EulerGerm/GoldenGermThirdOrderLedger",
+        "D5/S3/Analytic/EulerGerm/GoldenLocalFactor",
+        "D5/S3/Analytic/EulerGerm/LocalFactorCriticalLineNonvanishing",
+        "D5/S3/Analytic/GoldenEulerBetaZeckendorf",
+        "D5/S3/Analytic/Isolation/GoldenAuxiliaryZetaNonzero",
+        "D5/S3/AnalyticClosure/MetallicAnchorExceptional",
+        "D5/S3/Midline/GoldenHeatSpectrum",
+        "D5/S3/Midline/GoldenSpectralMarker",
+        "D5/S3/Midline/HeatLayers/GoldenHeatLayers"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesAntitone",
+      "human_title": "Golden Displacement Series Antitonicity",
+      "human_abstract": "The golden displacement sum decreases when either parameter increases.",
+      "repo_path": "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesAntitone.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesAntitone.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/998e8aa22252e9b109780ef01242ff4f0aa3d0c46b43f509c32eb0e33ad9c2c6/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone",
+      "human_title": "Strict Antitonicity of the Golden Displacement Series",
+      "human_abstract": "A strict coordinate increase strictly lowers the golden displacement sum.",
+      "repo_path": "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/463f8a94f5f2bd64b03e076e4e72a2b3ce3d5b6eb6070a2964a4b542631be86b/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 5,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure"
+      ],
+      "children": [
+        "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSecondOrderRegularity",
+      "human_title": "Golden Displacement Series Second-Order Regularity",
+      "human_abstract": "The golden displacement sum is twice continuously differentiable at every point of its exact convergence region.",
+      "repo_path": "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSecondOrderRegularity.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSecondOrderRegularity.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/bf098fc8e226926d3b549fd73f02bb4b75886e32d2a510d627ed399a28e8c0ae/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSmoothness",
+      "human_title": "Golden Displacement Series Smoothness",
+      "human_abstract": "The golden displacement sum is smooth at every point of its exact convergence region.",
+      "repo_path": "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSmoothness.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSmoothness.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f8a80fe44c1e3f73e5e12f62d193f27888c631808e0ff5aceacc07452e2b83e8/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Analytic/SeriesInequalities/CountableWeightedHolderInterpolation",
+      "human_title": "Countable Weighted Holder Interpolation",
+      "human_abstract": "Nonnegative summable families obey weighted geometric-mean interpolation.",
+      "repo_path": "D5/S3/Analytic/SeriesInequalities/CountableWeightedHolderInterpolation.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/SeriesInequalities/CountableWeightedHolderInterpolation.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a4118bf9b75939be4fd266dadab4699298af1731e05a79b350c170b274ac1d02/",
+      "in_degree": 0,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Analytic",
+      "parents": [],
+      "children": [
+        "D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity"
+      ]
+    },
+    {
+      "id": "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound",
+      "human_title": "Strict Lower Bound for the Golden Displacement Series",
+      "human_abstract": "A summable golden displacement series is strictly greater than one.",
+      "repo_path": "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound.lean",
+      "blueprint_path": "Blueprint/D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6d0b51175c5c4382500c31243ca6cc2fe6a4c035c8c84e8c6ed59159cebf6244/",
+      "in_degree": 1,
+      "out_degree": 2,
+      "descendant_count": 4,
+      "domain": "Analytic",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct"
+      ],
+      "children": [
+        "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection",
+        "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum"
+      ]
+    },
+    {
+      "id": "D5/S3/Arith/YanevMaxExponentRadicalRecurrence",
+      "human_title": "Yanev's Maximum Exponent Radical Recurrence",
+      "human_abstract": "The maximum prime exponent drops by one when a positive integer greater than one is divided by its radical.",
+      "repo_path": "D5/S3/Arith/YanevMaxExponentRadicalRecurrence.lean",
+      "blueprint_path": "Blueprint/D5/S3/Arith/YanevMaxExponentRadicalRecurrence.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c89ea98021af2ef3a8c115d3ebb4f7bb8d0129ee4593812278bacfb0aace31d2/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Arith",
+      "parents": [
+        "D5/S1/Deficit/AlmostAdditivity"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Arith/YanevSigmaRadicalIdentity",
+      "human_title": "Yanev's Sigma-Radical Identity",
+      "human_abstract": "Yanev's identity expresses every positive divisor-power sum through ordinary divisor sums and the radical.",
+      "repo_path": "D5/S3/Arith/YanevSigmaRadicalIdentity.lean",
+      "blueprint_path": "Blueprint/D5/S3/Arith/YanevSigmaRadicalIdentity.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/96d9366187c66762e82fe12f05e28bc8dc9c4892c945a2ea7a8971dc3c9d8e2e/",
+      "in_degree": 1,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Arith",
+      "parents": [
+        "D5/S1/Deficit/AlmostAdditivity"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Axis/LambdaMinusDirichletSeries",
+      "human_title": "Contraction-Face Dirichlet Series",
+      "human_abstract": "The contraction-face Dirichlet series splits into zeta and a prime-axis factor.",
+      "repo_path": "D5/S3/Axis/LambdaMinusDirichletSeries.lean",
+      "blueprint_path": "Blueprint/D5/S3/Axis/LambdaMinusDirichletSeries.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/fe671257b180b72323c93f998a82434239769617328d5b64a62f68dafda05f72/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Axis",
+      "parents": [
+        "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+        "D5/S1/Deficit/LambdaMinusAdditive"
+      ],
+      "children": [
+        "D5/S3/Axis/MultiplicativeDigitInvariant"
+      ]
+    },
+    {
+      "id": "D5/S3/Axis/MultiplicativeDigitInvariant",
+      "human_title": "Multiplicative Digit Invariant",
+      "human_abstract": "The contraction reading is additive on coprimes, signed by digit shape, and splits off zeta.",
+      "repo_path": "D5/S3/Axis/MultiplicativeDigitInvariant.lean",
+      "blueprint_path": "Blueprint/D5/S3/Axis/MultiplicativeDigitInvariant.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/43aaff8e6ef243d2639df1ce61d9f1d8876df44d3ec77726544d23217c972415/",
+      "in_degree": 3,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Axis",
+      "parents": [
+        "D5/S1/Deficit/Displacement/ZeckendorfNormSign",
+        "D5/S1/Deficit/LambdaMinusAdditive",
+        "D5/S3/Axis/LambdaMinusDirichletSeries"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Constants/Irrationality/CubicConjugateTrace",
+      "human_title": "Conjugate Trace",
+      "human_abstract": "The two non-Perron roots sum to one minus the base, which is irrational.",
+      "repo_path": "D5/S3/Constants/Irrationality/CubicConjugateTrace.lean",
+      "blueprint_path": "Blueprint/D5/S3/Constants/Irrationality/CubicConjugateTrace.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/2b43f0c48d81ed494b64d8be637ac03f822f81d05a444f2363f81fe420ded3bd/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 2,
+      "domain": "Constants",
+      "parents": [
+        "D5/S0/Tower/Tribonacci/Binet",
+        "D5/S3/Constants/Irrationality/TribonacciIrrationality"
+      ],
+      "children": [
+        "D5/S3/Constants/Irrationality/TwoFacedPrivilege"
+      ]
+    },
+    {
+      "id": "D5/S3/Constants/Irrationality/TribonacciDeficitScanCertificate",
+      "human_title": "Tribonacci Deficit Scan Certificate",
+      "human_abstract": "The triangular Tribonacci scan has a strict bound, an exact nonintegral count, and an exact eight-point cubic spectrum.",
+      "repo_path": "D5/S3/Constants/Irrationality/TribonacciDeficitScanCertificate.lean",
+      "blueprint_path": "Blueprint/D5/S3/Constants/Irrationality/TribonacciDeficitScanCertificate.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d25ee7ac0cc0bddc614cbdfc864a314fbaf64226de1802edde05fb558bf25a0f/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Constants",
+      "parents": [
+        "D5/S3/Constants/Irrationality/TribonacciDeficitScan"
+      ],
+      "children": [
+        "D5/S3/Constants/Irrationality/TribonacciTraceLattice"
+      ]
+    },
+    {
+      "id": "D5/S3/Constants/Irrationality/TribonacciTraceLattice",
+      "human_title": "Tribonacci Deficit Integrality Contrast",
+      "human_abstract": "The Tribonacci deficit is nonintegral somewhere, and integrality distinguishes the Fibonacci encoding.",
+      "repo_path": "D5/S3/Constants/Irrationality/TribonacciTraceLattice.lean",
+      "blueprint_path": "Blueprint/D5/S3/Constants/Irrationality/TribonacciTraceLattice.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/5cc6059179c9375a9da341ea5409dc45de852cdca8237e67b2d837334cf772b4/",
+      "in_degree": 2,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Constants",
+      "parents": [
+        "D5/S3/Constants/Irrationality/TribonacciDeficitScanCertificate",
+        "D5/S3/Constants/Irrationality/TwoFacedPrivilege"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Constants/Irrationality/TwoFacedPrivilege",
+      "human_title": "Two Faced Privilege",
+      "human_abstract": "Deficit integrality holds on two faces and does not transfer to three.",
+      "repo_path": "D5/S3/Constants/Irrationality/TwoFacedPrivilege.lean",
+      "blueprint_path": "Blueprint/D5/S3/Constants/Irrationality/TwoFacedPrivilege.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/2d2308830e496908d5f7fb804cfa4624ca56902423742abe1448a3c0ce40e504/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Constants",
+      "parents": [
+        "D5/S1/Deficit/DeficitInteger",
+        "D5/S3/Constants/Irrationality/CubicConjugateTrace"
+      ],
+      "children": [
+        "D5/S3/Constants/Irrationality/TribonacciTraceLattice"
+      ]
+    },
+    {
+      "id": "D5/S3/Fourier/DeloneModelSetCertificate",
+      "human_title": "Delone Model-Set Certificates",
+      "human_abstract": "Explicit separation and covering certificates promote a cut-and-project model set to Mathlib's bundled DeloneSet.",
+      "repo_path": "D5/S3/Fourier/DeloneModelSetCertificate.lean",
+      "blueprint_path": "Blueprint/D5/S3/Fourier/DeloneModelSetCertificate.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c72a895c8eadebe04135102084bd913189a1ed1873464ebcfb5f9c64f2bf9891/",
+      "in_degree": 1,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Fourier",
+      "parents": [
+        "D5/S3/Fourier/CutProjectScheme"
+      ],
+      "children": [
+        "D5/S3/Fourier/GoldenModelSetDelone"
+      ]
+    },
+    {
+      "id": "D5/S3/Fourier/GoldenCutProjectSchemeAdapter",
+      "human_title": "Golden Cut-and-Project Adapter",
+      "human_abstract": "The existing golden Minkowski lattice instantiates the generic cut-and-project carrier without changing its model sets.",
+      "repo_path": "D5/S3/Fourier/GoldenCutProjectSchemeAdapter.lean",
+      "blueprint_path": "Blueprint/D5/S3/Fourier/GoldenCutProjectSchemeAdapter.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/3b703bd743642a464ee7fe5e92c0bd46d5cdec78c75f69e798b261e8c6d92d5b/",
+      "in_degree": 2,
+      "out_degree": 1,
+      "descendant_count": 1,
+      "domain": "Fourier",
+      "parents": [
+        "D5/S1/Scale/MinkowskiModelSet",
+        "D5/S3/Fourier/CutProjectScheme"
+      ],
+      "children": [
+        "D5/S3/Fourier/GoldenModelSetDelone"
+      ]
+    },
+    {
+      "id": "D5/S3/Fourier/GoldenModelSetDelone",
+      "human_title": "An Explicit Golden Delone Set",
+      "human_abstract": "The complete golden model set has explicit separation and global covering witnesses.",
+      "repo_path": "D5/S3/Fourier/GoldenModelSetDelone.lean",
+      "blueprint_path": "Blueprint/D5/S3/Fourier/GoldenModelSetDelone.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/621e5ef7657fcb83e4596d6cbc9ce167848bd090fd0ea50a116c462da791353a/",
+      "in_degree": 4,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Fourier",
+      "parents": [
+        "D5/S0/Carrier/Euclidean",
+        "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+        "D5/S3/Fourier/DeloneModelSetCertificate",
+        "D5/S3/Fourier/GoldenCutProjectSchemeAdapter"
+      ],
+      "children": []
+    },
+    {
+      "id": "D5/S3/Midline/GoldenHeatSpectrum",
+      "human_title": "The Golden Heat Spectrum and Its L2 Midline",
+      "human_abstract": "The excited golden Euler spectrum has heat abscissa one over phi squared and strict L2 threshold one over twice phi squared.",
+      "repo_path": "D5/S3/Midline/GoldenHeatSpectrum.lean",
+      "blueprint_path": "Blueprint/D5/S3/Midline/GoldenHeatSpectrum.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/dcf81594ca2556413efc7e0fa4e7020cd59b760f7c607d9ece9036e3e30e81ec/",
+      "in_degree": 2,
+      "out_degree": 5,
+      "descendant_count": 83,
+      "domain": "Midline",
+      "parents": [
+        "D5/S3/Analytic/GoldenEulerBeta",
+        "D5/S3/Midline/UniversalHeatTrace"
+      ],
+      "children": [
+        "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace",
+        "D5/S3/Analytic/EulerGerm/GermProductConvergence",
+        "D5/S3/Analytic/PrimeZeckendorf/PrimeZeckendorfFrequencyBridge",
+        "D5/S3/Midline/GoldenHeatBoundary",
+        "D5/S3/Midline/HeatLayers/GoldenHeatLayers"
+      ]
+    },
+    {
+      "id": "D5/S3/Observer/GoldenCoding/GoldenSeparationBound",
+      "human_title": "Golden Separation Bound",
+      "human_abstract": "Distinct integer points in a finite golden-slope window have an explicit positive minimum spectral spacing.",
+      "repo_path": "D5/S3/Observer/GoldenCoding/GoldenSeparationBound.lean",
+      "blueprint_path": "Blueprint/D5/S3/Observer/GoldenCoding/GoldenSeparationBound.md",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/07dde8d62c3dda15a65014fbab9bf18af65454d31a38b5c3b6a8ba4551b32fe9/",
+      "in_degree": 2,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Observer",
+      "parents": [
+        "D5/S0/Carrier/Euclidean",
+        "D5/S1/Scale/Embedding"
+      ],
+      "children": []
+    },
+    {
+      "id": "Trureturing",
+      "human_title": "Trureturing",
+      "human_abstract": null,
+      "repo_path": "Trureturing.lean",
+      "blueprint_path": null,
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a8e9c85168235cec36a1292b6c3a3d8f34e6ef6d54e236a57a9785da24a59876/",
+      "in_degree": 52,
+      "out_degree": 0,
+      "descendant_count": 0,
+      "domain": "Trureturing",
+      "parents": [
+        "D5/S0/Carrier/Conj",
+        "D5/S0/Carrier/Norm",
+        "D5/S0/Carrier/Ring",
+        "D5/S0/Carrier/Units",
+        "D5/S0/Conventions/Notation",
+        "D5/S0/Conventions/WDigits",
+        "D5/S0/Diagonal/CaptureCount",
+        "D5/S0/Diagonal/DistanceProfile",
+        "D5/S0/Diagonal/EquivariantEscape",
+        "D5/S0/Diagonal/EscapeAsymptotics",
+        "D5/S0/Diagonal/EscapeCount",
+        "D5/S0/Diagonal/MarginBound",
+        "D5/S0/Diagonal/MarginVanishing",
+        "D5/S0/Naming/NamingSystem",
+        "D5/S0/Tower/ChampionExtremality",
+        "D5/S0/Tower/ConstantArms",
+        "D5/S0/Tower/GoldenGapFrequency",
+        "D5/S1/Depth/PartialQuotientExtraction",
+        "D5/S1/Depth/StationingCombinatorics",
+        "D5/S1/Depth/TwelveScaleReduction",
+        "D5/S1/Digit/Carry",
+        "D5/S1/Digit/Raw",
+        "D5/S1/Phase/Basic",
+        "D5/S1/Phase/SeatTowerArithmetic",
+        "D5/S1/Phase/SeatTowerCombinatorics",
+        "D5/S1/Phase/SeatTowerConsequences",
+        "D5/S1/Phase/WalkFormula",
+        "D5/S1/Phase/ZeroOrbitCongruence",
+        "D5/S1/Recurrence/LucasCompanion",
+        "D5/S1/Recurrence/LucasEvenDescent",
+        "D5/S1/Recurrence/LucasEvenPeriods",
+        "D5/S1/Scale/Embedding",
+        "D5/S1/Scale/Log",
+        "D5/S1/Words/GoldenBalance",
+        "D5/S1/Words/GoldenDensity",
+        "D5/S1/Words/GoldenGapPrefix",
+        "D5/S1/Words/GoldenSubstFixed",
+        "D5/S1/Words/GoldenWord",
+        "D5/S1/Words/Palindromes/GoldenPalindromicFactorComplexity",
+        "D5/S1/Words/ReturnWords/GoldenArcFirstReturn",
+        "D5/S1/Words/ReturnWords/GoldenGapFirstReturn",
+        "D5/S3/ConceptDynamics/GraphIrregularity/RegularLinkIrregularEleven",
+        "D5/S3/Constants/MidslopeCurvature",
+        "D5/S3/Constants/MidslopeCurvatureValues",
+        "D5/S3/Constants/RecordEntropy",
+        "D5/S3/Divergence/LogDerivTrace",
+        "D5/S3/Quantum/CloningMachine",
+        "D5/S3/Quantum/EnvironmentRecords",
+        "D5/S3/Quantum/ObserverCommutator",
+        "D5/S3/Quantum/PointerBasis",
+        "D5/S3/Zeros/ZetaIdentities",
+        "D5/S3/Zeros/ZetaUpgrade"
+      ],
+      "children": []
+    }
+  ],
+  "boundary": {
+    "D5/S0/Automata/TypedSampleIdentification": {
+      "id": "D5/S0/Automata/TypedSampleIdentification",
+      "repo_path": "D5/S0/Automata/TypedSampleIdentification.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/0ef31bc31fb5ca8e7617c4e98143136e37e31e6cc3165729291fdb67306898ae/"
+    },
+    "D5/S0/Carrier/AlgebraicModel": {
+      "id": "D5/S0/Carrier/AlgebraicModel",
+      "repo_path": "D5/S0/Carrier/AlgebraicModel.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6dbc752e7459712f9915fd8fefcf6b68be8ec1031456fb0f2657584f46a73e9e/"
+    },
+    "D5/S0/Carrier/NormPowers": {
+      "id": "D5/S0/Carrier/NormPowers",
+      "repo_path": "D5/S0/Carrier/NormPowers.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e1dfba6896353326528279040ce1b1154420da15e693c867e4dbc312895241ba/"
+    },
+    "D5/S0/Carrier/PrincipalIdeal": {
+      "id": "D5/S0/Carrier/PrincipalIdeal",
+      "repo_path": "D5/S0/Carrier/PrincipalIdeal.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/726303dfc440e7b3343d201ff2ca7efce9a41d1304e389eb23855e29cb1a59f0/"
+    },
+    "D5/S0/Carrier/Units": {
+      "id": "D5/S0/Carrier/Units",
+      "repo_path": "D5/S0/Carrier/Units.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/3f735666789d6f7b88c69817f87ad7cd2c9dcfb8fded3856c4b5c946706aa0c0/"
+    },
+    "D5/S0/Carrier/ZsqrtdImage": {
+      "id": "D5/S0/Carrier/ZsqrtdImage",
+      "repo_path": "D5/S0/Carrier/ZsqrtdImage.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/550253306fba44bf4e583eb6d3c084ef18e2738b0e466d3a68aad990a4a26ba0/"
+    },
+    "D5/S0/Conventions/Notation": {
+      "id": "D5/S0/Conventions/Notation",
+      "repo_path": "D5/S0/Conventions/Notation.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a9807748e16842b65848947b0db9146598d0021f854a116ef00b7e8d06acbfe5/"
+    },
+    "D5/S0/Conventions/WDigits": {
+      "id": "D5/S0/Conventions/WDigits",
+      "repo_path": "D5/S0/Conventions/WDigits.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/0c72b9644cc7694cad5dae19483ba750f558dd2c5710b71006e827d379710c06/"
+    },
+    "D5/S0/Diagonal/CaptureCount": {
+      "id": "D5/S0/Diagonal/CaptureCount",
+      "repo_path": "D5/S0/Diagonal/CaptureCount.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ef5ff5f755e58b95cb4be2fa67b07331543f0bb2d82d2d58e19b5af11eac7fa9/"
+    },
+    "D5/S0/Diagonal/DistanceProfile": {
+      "id": "D5/S0/Diagonal/DistanceProfile",
+      "repo_path": "D5/S0/Diagonal/DistanceProfile.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f093b4da80db7a3cdd5cd639ddefbc4ea3fe39f7fd47900b269cb7bc2c483870/"
+    },
+    "D5/S0/Diagonal/EquivariantEscape": {
+      "id": "D5/S0/Diagonal/EquivariantEscape",
+      "repo_path": "D5/S0/Diagonal/EquivariantEscape.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ab5dba67eae187dad5d7eb55f64197c011e2a39b5763f55ddfb2846f07e2abd8/"
+    },
+    "D5/S0/Diagonal/EscapeAsymptotics": {
+      "id": "D5/S0/Diagonal/EscapeAsymptotics",
+      "repo_path": "D5/S0/Diagonal/EscapeAsymptotics.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/b0156a0bb35fce67caf3eae6f24c0af0a6801b3105031837776ba9b8d8459e55/"
+    },
+    "D5/S0/Diagonal/EscapeCount": {
+      "id": "D5/S0/Diagonal/EscapeCount",
+      "repo_path": "D5/S0/Diagonal/EscapeCount.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/328e139c561a2921982bc707a289c81ec8710bd456cc3cae7b0dd9b658188836/"
+    },
+    "D5/S0/Diagonal/MarginBound": {
+      "id": "D5/S0/Diagonal/MarginBound",
+      "repo_path": "D5/S0/Diagonal/MarginBound.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/b588cb03db5a411594939bc8dbdfeb992ca661738be42a4b5dcd2c6af34d0e22/"
+    },
+    "D5/S0/Diagonal/MarginVanishing": {
+      "id": "D5/S0/Diagonal/MarginVanishing",
+      "repo_path": "D5/S0/Diagonal/MarginVanishing.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6bf79bffc18e865cdcedfc895b21e8517d4cddccb54d19461730ce642d72741b/"
+    },
+    "D5/S0/Naming/NamingSystem": {
+      "id": "D5/S0/Naming/NamingSystem",
+      "repo_path": "D5/S0/Naming/NamingSystem.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9e250f780206b9e6b405d115331d75245e09426f7e28b7d696729813cc752653/"
+    },
+    "D5/S0/Tower/ChampionExtremality": {
+      "id": "D5/S0/Tower/ChampionExtremality",
+      "repo_path": "D5/S0/Tower/ChampionExtremality.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/621df95f96f7c0897aeed7563b78b6cba84f39ab1cb042805f6d045adde0a4cc/"
+    },
+    "D5/S0/Tower/ConstantArms": {
+      "id": "D5/S0/Tower/ConstantArms",
+      "repo_path": "D5/S0/Tower/ConstantArms.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f858c5b021b1783eb395a5db373f23c35380ec406e4dd5db4c51f107a50913d2/"
+    },
+    "D5/S0/Tower/GoldenGapFrequency": {
+      "id": "D5/S0/Tower/GoldenGapFrequency",
+      "repo_path": "D5/S0/Tower/GoldenGapFrequency.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/7080e774261a7408b5dc3692c7ac0d6efb3f79a32059921e91fa6ef4c9af0749/"
+    },
+    "D5/S0/Tower/GoldenGapZeckendorf": {
+      "id": "D5/S0/Tower/GoldenGapZeckendorf",
+      "repo_path": "D5/S0/Tower/GoldenGapZeckendorf.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e707cd014c0d90537913a1c3616eaef9f1de74d72352c84c3ba6aa9098b03f0b/"
+    },
+    "D5/S0/Tower/Tribonacci/Binet": {
+      "id": "D5/S0/Tower/Tribonacci/Binet",
+      "repo_path": "D5/S0/Tower/Tribonacci/Binet.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/cdf11eb02dc935f5e0c064be5024f2508e7478b931a1580c4735e611627d0bbe/"
+    },
+    "D5/S1/Deficit/Beatty/FiberCoordinateBeattyForms": {
+      "id": "D5/S1/Deficit/Beatty/FiberCoordinateBeattyForms",
+      "repo_path": "D5/S1/Deficit/Beatty/FiberCoordinateBeattyForms.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/97f75f9df2c45353546de8ec1fc4f0a6c0aa0b5b8c94420a0acf5c6340e2c4db/"
+    },
+    "D5/S1/Deficit/Beatty/GoldenSubstStartAsymptoticSlope": {
+      "id": "D5/S1/Deficit/Beatty/GoldenSubstStartAsymptoticSlope",
+      "repo_path": "D5/S1/Deficit/Beatty/GoldenSubstStartAsymptoticSlope.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d29dc2e4833a928805be87ed0a38bb761b611ae8c17769a74515e29ba675d08b/"
+    },
+    "D5/S1/Deficit/Blindness/PrimeBlindness": {
+      "id": "D5/S1/Deficit/Blindness/PrimeBlindness",
+      "repo_path": "D5/S1/Deficit/Blindness/PrimeBlindness.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/075a46ea82f8171712c079180ffce4771f11a8221557339e44225552af53562c/"
+    },
+    "D5/S1/Deficit/GoldenHeckeMahlerFunctionalEquation": {
+      "id": "D5/S1/Deficit/GoldenHeckeMahlerFunctionalEquation",
+      "repo_path": "D5/S1/Deficit/GoldenHeckeMahlerFunctionalEquation.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f05a0ea594d163e3c6a8c76fe8f0e8ba57eb86dbd0e09de5e55e0119e0f5d98c/"
+    },
+    "D5/S1/Depth/FiniteMetric": {
+      "id": "D5/S1/Depth/FiniteMetric",
+      "repo_path": "D5/S1/Depth/FiniteMetric.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c560ce36e34c77a749f64899ba95183014b3917dbd48bb5833c81ebaafb0bae6/"
+    },
+    "D5/S1/Depth/GoldenHurwitzBound": {
+      "id": "D5/S1/Depth/GoldenHurwitzBound",
+      "repo_path": "D5/S1/Depth/GoldenHurwitzBound.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/618bd6a32e48503ecaeff2d5653a8befb9442c82fd2ebc0c958e6d256be04188/"
+    },
+    "D5/S1/Depth/JointDepth": {
+      "id": "D5/S1/Depth/JointDepth",
+      "repo_path": "D5/S1/Depth/JointDepth.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d9ec4026cf770273f44374a698900b2932fe89f4ef1b0c79c1398dd98ca7fa4b/"
+    },
+    "D5/S1/Depth/PartialQuotientExtraction": {
+      "id": "D5/S1/Depth/PartialQuotientExtraction",
+      "repo_path": "D5/S1/Depth/PartialQuotientExtraction.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/fdc26470c36077a0d9dcc8eca6fdd5f47f321f04a0136dcda3ebef0cd79f31f9/"
+    },
+    "D5/S1/Depth/StationingCombinatorics": {
+      "id": "D5/S1/Depth/StationingCombinatorics",
+      "repo_path": "D5/S1/Depth/StationingCombinatorics.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/914907954d681ad56185ee1e4cfd1243bb4557a4f47eca92db2c4b72119498b5/"
+    },
+    "D5/S1/Depth/TwelveScaleReduction": {
+      "id": "D5/S1/Depth/TwelveScaleReduction",
+      "repo_path": "D5/S1/Depth/TwelveScaleReduction.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/94813ce837ae79c128de4eb6a9756b19d69315b51d787105c9eeb9d6948789ed/"
+    },
+    "D5/S1/Digit/Carry": {
+      "id": "D5/S1/Digit/Carry",
+      "repo_path": "D5/S1/Digit/Carry.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6fdc54ba6ef261155bddce47237895556d209c640a33fc14082efe46f311196f/"
+    },
+    "D5/S1/Digit/Carry/RunChainLowerBound": {
+      "id": "D5/S1/Digit/Carry/RunChainLowerBound",
+      "repo_path": "D5/S1/Digit/Carry/RunChainLowerBound.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/3cb425ed09c52f358f0b83bc323786c7a86752127a9ce15f64344a32f9c49dc2/"
+    },
+    "D5/S1/Digit/Carry/SplitStabilization": {
+      "id": "D5/S1/Digit/Carry/SplitStabilization",
+      "repo_path": "D5/S1/Digit/Carry/SplitStabilization.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/73c82ac83c4012e691a76d0870886523b717a0310c6ebcb40092bebf4ce3f064/"
+    },
+    "D5/S1/Digit/Carry/SuccessorShortest": {
+      "id": "D5/S1/Digit/Carry/SuccessorShortest",
+      "repo_path": "D5/S1/Digit/Carry/SuccessorShortest.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9d0f7397ef6b9f75d4582641910d143592bdeb0fc228a085906414d463eb83de/"
+    },
+    "D5/S1/Digit/GoldenBase4DenseInput": {
+      "id": "D5/S1/Digit/GoldenBase4DenseInput",
+      "repo_path": "D5/S1/Digit/GoldenBase4DenseInput.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/434ab0fcda478ace34f984e3c132e3b6884bb7784a413a241b488cf822d80e22/"
+    },
+    "D5/S1/Digit/GoldenDFAOMinimalityTargets": {
+      "id": "D5/S1/Digit/GoldenDFAOMinimalityTargets",
+      "repo_path": "D5/S1/Digit/GoldenDFAOMinimalityTargets.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/4fdb352e51e3e104051557d3255b9dfb23a1027e51f7394e62ee893fcf17f56b/"
+    },
+    "D5/S1/Digit/PrimeAxisEncoding": {
+      "id": "D5/S1/Digit/PrimeAxisEncoding",
+      "repo_path": "D5/S1/Digit/PrimeAxisEncoding.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d646544ddd259af5294dbbc841eab60889d541efa3815eeac5176dc0572395c4/"
+    },
+    "D5/S1/Digit/PublishedGoldenBase4BlockSample79": {
+      "id": "D5/S1/Digit/PublishedGoldenBase4BlockSample79",
+      "repo_path": "D5/S1/Digit/PublishedGoldenBase4BlockSample79.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/df8569401ea30fc54d20c56ed872fc8d896b3de4640159a0608ade0b553c3b10/"
+    },
+    "D5/S1/Digit/Raw": {
+      "id": "D5/S1/Digit/Raw",
+      "repo_path": "D5/S1/Digit/Raw.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/59fd9d1a0f85a7743083c59394c887e9f8790b3447f83fe353b0f1fb40e77b5e/"
+    },
+    "D5/S1/Eigenstructure/GoldenExponentRays": {
+      "id": "D5/S1/Eigenstructure/GoldenExponentRays",
+      "repo_path": "D5/S1/Eigenstructure/GoldenExponentRays.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ace7d645a8ab070d306f94e9bfd91197b7c4ebda07857d92259835882d7eb57a/"
+    },
+    "D5/S1/Eigenstructure/GoldenFiberCoordinates": {
+      "id": "D5/S1/Eigenstructure/GoldenFiberCoordinates",
+      "repo_path": "D5/S1/Eigenstructure/GoldenFiberCoordinates.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/df9cdd7a2d0a4a52ce1b5b465a8b8f4b3f99e2dfb6904caeb5576eac687ae79f/"
+    },
+    "D5/S1/Phase/Basic": {
+      "id": "D5/S1/Phase/Basic",
+      "repo_path": "D5/S1/Phase/Basic.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/4336a7ce1ab44e4d8dfb52f5a334c7e5c5de31be4e3ee27308d17296dbd044a6/"
+    },
+    "D5/S1/Phase/SeatTowerArithmetic": {
+      "id": "D5/S1/Phase/SeatTowerArithmetic",
+      "repo_path": "D5/S1/Phase/SeatTowerArithmetic.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d7e632508557fa42ccde2c1561ffc09b8cbd2701f3e63443f6a8f9c1e3125385/"
+    },
+    "D5/S1/Phase/SeatTowerCombinatorics": {
+      "id": "D5/S1/Phase/SeatTowerCombinatorics",
+      "repo_path": "D5/S1/Phase/SeatTowerCombinatorics.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a7a82f23f044a8e99615a389ba5d1b1f8cb18199d22950269d763d4d5cb627fd/"
+    },
+    "D5/S1/Phase/SeatTowerConsequences": {
+      "id": "D5/S1/Phase/SeatTowerConsequences",
+      "repo_path": "D5/S1/Phase/SeatTowerConsequences.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/14d55382aca24cada1ed59035ac4f7ca479c7f98b88c4b586833a3383de8a2e5/"
+    },
+    "D5/S1/Phase/ThreeGap/Returns": {
+      "id": "D5/S1/Phase/ThreeGap/Returns",
+      "repo_path": "D5/S1/Phase/ThreeGap/Returns.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c782ea73c6d8ce09acc05ea75811d71751c9d57405174edc139e19eadbd85dc6/"
+    },
+    "D5/S1/Phase/WalkFormula": {
+      "id": "D5/S1/Phase/WalkFormula",
+      "repo_path": "D5/S1/Phase/WalkFormula.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9a529195c5186fb1bc78543aa10aca34dcc039b080369ff119dbee615b8ef4a4/"
+    },
+    "D5/S1/Phase/ZeroOrbitCongruence": {
+      "id": "D5/S1/Phase/ZeroOrbitCongruence",
+      "repo_path": "D5/S1/Phase/ZeroOrbitCongruence.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d65db102bf93ea35d1d96b354564bd38b8b6c2ab0782bb5aa3135ac186b8586c/"
+    },
+    "D5/S1/Recurrence/LucasCompanion": {
+      "id": "D5/S1/Recurrence/LucasCompanion",
+      "repo_path": "D5/S1/Recurrence/LucasCompanion.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/05cea4e02fdddc942bfac4cfb76868871321b9d57aff4bfaaa2fbb4bb7ed200f/"
+    },
+    "D5/S1/Recurrence/LucasEvenDescent": {
+      "id": "D5/S1/Recurrence/LucasEvenDescent",
+      "repo_path": "D5/S1/Recurrence/LucasEvenDescent.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/19b26b8a58984b6b3552d6f1ca49baf9d7b09e00e46b27b8480490fee9acee72/"
+    },
+    "D5/S1/Recurrence/LucasEvenPeriods": {
+      "id": "D5/S1/Recurrence/LucasEvenPeriods",
+      "repo_path": "D5/S1/Recurrence/LucasEvenPeriods.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/bfcd1d4e73a99b0f5796b00d26e47ba6895baa9e91b266108424101c39f829f3/"
+    },
+    "D5/S1/Scale/Lucas": {
+      "id": "D5/S1/Scale/Lucas",
+      "repo_path": "D5/S1/Scale/Lucas.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/cbf9086c98ce1b7831314f3728000ea50f3663b5240a60c816dcf90a93eaa745/"
+    },
+    "D5/S1/Scale/MinkowskiHarnessWindow": {
+      "id": "D5/S1/Scale/MinkowskiHarnessWindow",
+      "repo_path": "D5/S1/Scale/MinkowskiHarnessWindow.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/04055f5bf1d2dc156fda6e61eccd03145d5d141065ab6c1e4454232c26a969f7/"
+    },
+    "D5/S1/Scale/Units": {
+      "id": "D5/S1/Scale/Units",
+      "repo_path": "D5/S1/Scale/Units.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/25541868aef13edfdd701268b50428f136213cd83ac6c084e1489f224a89ab95/"
+    },
+    "D5/S1/Words/GoldenBalance": {
+      "id": "D5/S1/Words/GoldenBalance",
+      "repo_path": "D5/S1/Words/GoldenBalance.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/74ed636a549d0344a55f6e53f27207b3db676eac8eb0a449b35d442d815a488f/"
+    },
+    "D5/S1/Words/GoldenGapPrefix": {
+      "id": "D5/S1/Words/GoldenGapPrefix",
+      "repo_path": "D5/S1/Words/GoldenGapPrefix.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/55dd77f59955c100d4f24a5953aca59d2ba4d014dcb2b1105228b18fe550803e/"
+    },
+    "D5/S1/Words/GoldenMechanicalWord": {
+      "id": "D5/S1/Words/GoldenMechanicalWord",
+      "repo_path": "D5/S1/Words/GoldenMechanicalWord.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/daa657e69ad269ec05c41adc4b61030265f7e5aca9791bb7473eff2fecd6d8d2/"
+    },
+    "D5/S1/Words/GoldenSubstFixed": {
+      "id": "D5/S1/Words/GoldenSubstFixed",
+      "repo_path": "D5/S1/Words/GoldenSubstFixed.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1b0797cd2a062ed689009938105b9cfbfbce3bd6bba231badbd5e8d68885003d/"
+    },
+    "D5/S1/Words/GoldenWord": {
+      "id": "D5/S1/Words/GoldenWord",
+      "repo_path": "D5/S1/Words/GoldenWord.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6a9509f41037cb17b10e4cb5b5267afd16d87f209a50a2e76110ad3a355a4306/"
+    },
+    "D5/S1/Words/Mechanical/MechanicalGoldenBridge": {
+      "id": "D5/S1/Words/Mechanical/MechanicalGoldenBridge",
+      "repo_path": "D5/S1/Words/Mechanical/MechanicalGoldenBridge.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e3e50bbd746dd11192a6dbf13fc87056a8898f33b48df8307ee5a4f4e35b9a3b/"
+    },
+    "D5/S1/Words/Palindromes/GoldenPalindromicFactorComplexity": {
+      "id": "D5/S1/Words/Palindromes/GoldenPalindromicFactorComplexity",
+      "repo_path": "D5/S1/Words/Palindromes/GoldenPalindromicFactorComplexity.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9ab409745265143c7f618a135ddf4a89eded2b6030493f2b1c91cfa5c162ede4/"
+    },
+    "D5/S1/Words/Powers/GoldenDesubstitutionDepth": {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitutionDepth",
+      "repo_path": "D5/S1/Words/Powers/GoldenDesubstitutionDepth.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/b8246d81deb9139e9d2668862e4aed71a169cb4a96f20afc02c6b6037625eb47/"
+    },
+    "D5/S1/Words/Powers/GoldenDesubstitutionNormalForm": {
+      "id": "D5/S1/Words/Powers/GoldenDesubstitutionNormalForm",
+      "repo_path": "D5/S1/Words/Powers/GoldenDesubstitutionNormalForm.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/2c3a9c22dbbdf854bbe5fa70dabc6944ac07816ddf9d337b7cca2afad4e03547/"
+    },
+    "D5/S1/Words/ReturnWords/GoldenArcFirstReturn": {
+      "id": "D5/S1/Words/ReturnWords/GoldenArcFirstReturn",
+      "repo_path": "D5/S1/Words/ReturnWords/GoldenArcFirstReturn.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/da403b8febecdd5e5eb7239f4c7841d9663a29d598b0a2d9dc69122d6021f8a8/"
+    },
+    "D5/S1/Words/ReturnWords/GoldenGapFirstReturn": {
+      "id": "D5/S1/Words/ReturnWords/GoldenGapFirstReturn",
+      "repo_path": "D5/S1/Words/ReturnWords/GoldenGapFirstReturn.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/131429644250940ab9e04791256d803839fa3d5f4b9baa357713275ace011eff/"
+    },
+    "D5/S3/Analytic/Certified/TrigEnvelopePhaseReduction": {
+      "id": "D5/S3/Analytic/Certified/TrigEnvelopePhaseReduction",
+      "repo_path": "D5/S3/Analytic/Certified/TrigEnvelopePhaseReduction.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/ebfe6f24b6d738e10f5d61260fd00b182e64a297f57cfec8cc9476243aacae17/"
+    },
+    "D5/S3/Analytic/EulerGerm/GermProductConvergence": {
+      "id": "D5/S3/Analytic/EulerGerm/GermProductConvergence",
+      "repo_path": "D5/S3/Analytic/EulerGerm/GermProductConvergence.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/27bfb1582ac5de0fbe234f9668c098d743456bf4a4693abfdbd4d3d5a7db6e62/"
+    },
+    "D5/S3/Analytic/EulerGerm/GoldenGermFourthOrderExponentCensus": {
+      "id": "D5/S3/Analytic/EulerGerm/GoldenGermFourthOrderExponentCensus",
+      "repo_path": "D5/S3/Analytic/EulerGerm/GoldenGermFourthOrderExponentCensus.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/a2eda2dff519e64cb3eb594718216d00ab29c9f4a59418556a9d2a105d560c68/"
+    },
+    "D5/S3/Analytic/EulerGerm/GoldenGermThirdOrderLedger": {
+      "id": "D5/S3/Analytic/EulerGerm/GoldenGermThirdOrderLedger",
+      "repo_path": "D5/S3/Analytic/EulerGerm/GoldenGermThirdOrderLedger.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/8f1f969f5e2980b04445ce104ddfd40ddc3c730bfbde7ac130166f19741e8b08/"
+    },
+    "D5/S3/Analytic/EulerGerm/GoldenLocalFactor": {
+      "id": "D5/S3/Analytic/EulerGerm/GoldenLocalFactor",
+      "repo_path": "D5/S3/Analytic/EulerGerm/GoldenLocalFactor.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1ad941b1674dddb95b08ca24dd35f9f00d3e66e9907aad06fe37c7c12126ac41/"
+    },
+    "D5/S3/Analytic/EulerGerm/LocalFactorCriticalLineNonvanishing": {
+      "id": "D5/S3/Analytic/EulerGerm/LocalFactorCriticalLineNonvanishing",
+      "repo_path": "D5/S3/Analytic/EulerGerm/LocalFactorCriticalLineNonvanishing.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1222b4567ec81998ba5c6136b218686621a0a438ce6751587425f4417190a42e/"
+    },
+    "D5/S3/Analytic/GoldenEulerBetaZeckendorf": {
+      "id": "D5/S3/Analytic/GoldenEulerBetaZeckendorf",
+      "repo_path": "D5/S3/Analytic/GoldenEulerBetaZeckendorf.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/546b7ebbfa2718f823722b7fb0a2dca9018e0b31748f973f48d395fd0a1d3ca3/"
+    },
+    "D5/S3/Analytic/Isolation/GoldenAuxiliaryZetaNonzero": {
+      "id": "D5/S3/Analytic/Isolation/GoldenAuxiliaryZetaNonzero",
+      "repo_path": "D5/S3/Analytic/Isolation/GoldenAuxiliaryZetaNonzero.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/379d6a9dd2791bd00d1c945867ebda6c262e2c843df9e54440a55f7c0c57f413/"
+    },
+    "D5/S3/Analytic/PrimeZeckendorf/PrimeZeckendorfFrequencyBridge": {
+      "id": "D5/S3/Analytic/PrimeZeckendorf/PrimeZeckendorfFrequencyBridge",
+      "repo_path": "D5/S3/Analytic/PrimeZeckendorf/PrimeZeckendorfFrequencyBridge.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/b7c064e80fd5392cd50eae961ec2b51d5eb6414a8a42056b88cc7031dcf90826/"
+    },
+    "D5/S3/Analytic/PrimeZeckendorf/ZeckendorfGoldenBetaGapBridge": {
+      "id": "D5/S3/Analytic/PrimeZeckendorf/ZeckendorfGoldenBetaGapBridge",
+      "repo_path": "D5/S3/Analytic/PrimeZeckendorf/ZeckendorfGoldenBetaGapBridge.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/905b16d34f6cd801bcc75f282bc88e11578be0b82d2ada00175cfe57682b189c/"
+    },
+    "D5/S3/AnalyticClosure/MetallicAnchorExceptional": {
+      "id": "D5/S3/AnalyticClosure/MetallicAnchorExceptional",
+      "repo_path": "D5/S3/AnalyticClosure/MetallicAnchorExceptional.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/1fa1556be79c690f8801be33aefe9eae1b14545493ae98eb57083341087ee1b7/"
+    },
+    "D5/S3/Arith/GoldenApparition": {
+      "id": "D5/S3/Arith/GoldenApparition",
+      "repo_path": "D5/S3/Arith/GoldenApparition.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/c42b86dcaae03ffb090ad102454a8aa333471369153363ffee65099fb12fb16b/"
+    },
+    "D5/S3/Arith/Lattices/GoldenIntegerRing": {
+      "id": "D5/S3/Arith/Lattices/GoldenIntegerRing",
+      "repo_path": "D5/S3/Arith/Lattices/GoldenIntegerRing.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/632044949950ffd5a67118b45a2162ce56a64fe992ec1f76e7a93bbc61b928b1/"
+    },
+    "D5/S3/Arith/Lattices/GoldenMaximalOrderCompletion": {
+      "id": "D5/S3/Arith/Lattices/GoldenMaximalOrderCompletion",
+      "repo_path": "D5/S3/Arith/Lattices/GoldenMaximalOrderCompletion.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/e7c90e2ee988c0c7f255da9d02b7c43e0cde764a81b687f81273251c0b53a707/"
+    },
+    "D5/S3/ConceptDynamics/CausalMoments/QuaternaryResponseTableCoding": {
+      "id": "D5/S3/ConceptDynamics/CausalMoments/QuaternaryResponseTableCoding",
+      "repo_path": "D5/S3/ConceptDynamics/CausalMoments/QuaternaryResponseTableCoding.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/65af70fb149b65b9b41cf7ebbcec85ec2d728dab8e80f2da332b98c7e9b83496/"
+    },
+    "D5/S3/ConceptDynamics/GraphIrregularity/RegularLinkIrregularEleven": {
+      "id": "D5/S3/ConceptDynamics/GraphIrregularity/RegularLinkIrregularEleven",
+      "repo_path": "D5/S3/ConceptDynamics/GraphIrregularity/RegularLinkIrregularEleven.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/54e8e502dce15ce160426c50cc5608919d8ed3bc10cb5b559b8b4d73ba09eb85/"
+    },
+    "D5/S3/Constants/Irrationality/TribonacciDeficitScan": {
+      "id": "D5/S3/Constants/Irrationality/TribonacciDeficitScan",
+      "repo_path": "D5/S3/Constants/Irrationality/TribonacciDeficitScan.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/0edad53bb03cf83cec4ce10f7c259fd1388e0434374d0cb268dc18ab9bc502df/"
+    },
+    "D5/S3/Constants/Irrationality/TribonacciIrrationality": {
+      "id": "D5/S3/Constants/Irrationality/TribonacciIrrationality",
+      "repo_path": "D5/S3/Constants/Irrationality/TribonacciIrrationality.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/88841bea559aaac59ddd3d5feffdea10f448589b5c3d06a19a530d4bf0b0b74e/"
+    },
+    "D5/S3/Constants/MidslopeCurvature": {
+      "id": "D5/S3/Constants/MidslopeCurvature",
+      "repo_path": "D5/S3/Constants/MidslopeCurvature.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/6267967f93e1b850532fd9a178bc3c40445046b3b4a7358ea8ac5fc62a51ad7b/"
+    },
+    "D5/S3/Constants/MidslopeCurvatureValues": {
+      "id": "D5/S3/Constants/MidslopeCurvatureValues",
+      "repo_path": "D5/S3/Constants/MidslopeCurvatureValues.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/15011d92ab26c0fb0e04075562fb64168cbf23cf7247ba2ae0885581a88d3064/"
+    },
+    "D5/S3/Constants/RecordEntropy": {
+      "id": "D5/S3/Constants/RecordEntropy",
+      "repo_path": "D5/S3/Constants/RecordEntropy.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f2c6314530e1091af36d658e75a2bc77f973001003b89bbf8e1f4f52a3fd405f/"
+    },
+    "D5/S3/Divergence/LogDerivTrace": {
+      "id": "D5/S3/Divergence/LogDerivTrace",
+      "repo_path": "D5/S3/Divergence/LogDerivTrace.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/d479e0a14ad577a4db306b3604b762cb2df4a33fce8363941ad2d0ef4b343e13/"
+    },
+    "D5/S3/Fourier/CutProjectScheme": {
+      "id": "D5/S3/Fourier/CutProjectScheme",
+      "repo_path": "D5/S3/Fourier/CutProjectScheme.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/de9950230b9ae8ed99d1c1605d8ec244dba35e30fd7c6b0e73a47c375e59e351/"
+    },
+    "D5/S3/Midline/GoldenHeatBoundary": {
+      "id": "D5/S3/Midline/GoldenHeatBoundary",
+      "repo_path": "D5/S3/Midline/GoldenHeatBoundary.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/84477fee67e543f2c5282d1e0887c847174c42b54cc652c19beb510f8725c4f2/"
+    },
+    "D5/S3/Midline/GoldenSpectralMarker": {
+      "id": "D5/S3/Midline/GoldenSpectralMarker",
+      "repo_path": "D5/S3/Midline/GoldenSpectralMarker.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/9d3ce9c1958c064bd809589d052409c8bf21a92b9bc59d657fff14c8541a4dc9/"
+    },
+    "D5/S3/Midline/HeatLayers/GoldenHeatLayers": {
+      "id": "D5/S3/Midline/HeatLayers/GoldenHeatLayers",
+      "repo_path": "D5/S3/Midline/HeatLayers/GoldenHeatLayers.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/bc8fe22fd8726ef927a2a93005919161be9c8ca8196dc2619ac0857f32e32759/"
+    },
+    "D5/S3/Midline/UniversalHeatTrace": {
+      "id": "D5/S3/Midline/UniversalHeatTrace",
+      "repo_path": "D5/S3/Midline/UniversalHeatTrace.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f02b08da75ab6df59e993532a2dbeeaaf78d5fe77b60ea037fb64235d8b5fc4e/"
+    },
+    "D5/S3/Quantum/CloningMachine": {
+      "id": "D5/S3/Quantum/CloningMachine",
+      "repo_path": "D5/S3/Quantum/CloningMachine.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/abde9f06893662a39c2c168a4b7d699a136f244bf20fe655c68883d3608fb90b/"
+    },
+    "D5/S3/Quantum/EnvironmentRecords": {
+      "id": "D5/S3/Quantum/EnvironmentRecords",
+      "repo_path": "D5/S3/Quantum/EnvironmentRecords.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/be605e5295b28cac7883dc8e25aa11ebb49cb60234f51803b9f401b49ef2eb67/"
+    },
+    "D5/S3/Quantum/ObserverCommutator": {
+      "id": "D5/S3/Quantum/ObserverCommutator",
+      "repo_path": "D5/S3/Quantum/ObserverCommutator.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/218483a0bdc8bad851e46effbd8bc4962aa146293b42c1435b006dc92266213d/"
+    },
+    "D5/S3/Quantum/PointerBasis": {
+      "id": "D5/S3/Quantum/PointerBasis",
+      "repo_path": "D5/S3/Quantum/PointerBasis.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/7b2b8184c901800cfcc340096c1bd9543c7e5e304d8f708e1718df5ea3b0af67/"
+    },
+    "D5/S3/Zeros/ZetaIdentities": {
+      "id": "D5/S3/Zeros/ZetaIdentities",
+      "repo_path": "D5/S3/Zeros/ZetaIdentities.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/f3e292e3a53da00fa8e1b9a8d5aa82924b45965026085a2412839576812c0c85/"
+    },
+    "D5/S3/Zeros/ZetaUpgrade": {
+      "id": "D5/S3/Zeros/ZetaUpgrade",
+      "repo_path": "D5/S3/Zeros/ZetaUpgrade.lean",
+      "release_page": "release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/339f33ca87da9d92dc00072e86458fb2ba742e164556bdcb991f273e2447bb9f/"
+    }
+  },
+  "edges": [
+    {
+      "source": "D5/S0/Carrier/Conj",
+      "target": "D5/S1/Deficit/DeficitInteger"
+    },
+    {
+      "source": "D5/S1/Deficit/AlmostAdditivity",
+      "target": "D5/S1/Deficit/Displacement/PrimeRadicalPositivity"
+    },
+    {
+      "source": "D5/S1/Deficit/AlmostAdditivity",
+      "target": "D5/S1/Deficit/DoubleFaceLength"
+    },
+    {
+      "source": "D5/S1/Deficit/AlmostAdditivity",
+      "target": "D5/S1/Deficit/LambdaMinusAdditive"
+    },
+    {
+      "source": "D5/S1/Deficit/AlmostAdditivity",
+      "target": "D5/S3/Arith/YanevMaxExponentRadicalRecurrence"
+    },
+    {
+      "source": "D5/S1/Deficit/AlmostAdditivity",
+      "target": "D5/S3/Arith/YanevSigmaRadicalIdentity"
+    },
+    {
+      "source": "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+      "target": "D5/S1/Deficit/ChargedCarryPath"
+    },
+    {
+      "source": "D5/S1/Deficit/Beatty/BetaBeattyClosedForms",
+      "target": "D5/S1/Deficit/ModelSet/GoldenModelSetDensity"
+    },
+    {
+      "source": "D5/S1/Deficit/ChargedCarryPath",
+      "target": "D5/S1/Digit/PrimeAxis/ChargedTableNormalization"
+    },
+    {
+      "source": "D5/S1/Deficit/DeficitInteger",
+      "target": "D5/S1/Deficit/Carry/GoldenCarryDeficitBridge"
+    },
+    {
+      "source": "D5/S1/Deficit/DeficitInteger",
+      "target": "D5/S1/Deficit/DeficitThreeValued"
+    },
+    {
+      "source": "D5/S1/Deficit/DeficitInteger",
+      "target": "D5/S1/Deficit/FixedModulusNoncongruence"
+    },
+    {
+      "source": "D5/S1/Deficit/DeficitInteger",
+      "target": "D5/S3/Constants/Irrationality/TwoFacedPrivilege"
+    },
+    {
+      "source": "D5/S1/Deficit/DeficitThreeValued",
+      "target": "D5/S1/Deficit/AlmostAdditivity"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+      "target": "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+      "target": "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound",
+      "target": "D5/S3/Axis/LambdaMinusDirichletSeries"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms",
+      "target": "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength",
+      "target": "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength",
+      "target": "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct",
+      "target": "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct",
+      "target": "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+      "target": "D5/S1/Words/FibonacciMapFirstStart"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit",
+      "target": "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct"
+    },
+    {
+      "source": "D5/S1/Deficit/Displacement/ZeckendorfNormSign",
+      "target": "D5/S3/Axis/MultiplicativeDigitInvariant"
+    },
+    {
+      "source": "D5/S1/Deficit/DoubleFaceLength",
+      "target": "D5/S1/Deficit/Beatty/BetaBeattyClosedForms"
+    },
+    {
+      "source": "D5/S1/Deficit/DoubleFaceLength",
+      "target": "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength"
+    },
+    {
+      "source": "D5/S1/Deficit/DoubleFaceLength",
+      "target": "D5/S1/Deficit/Displacement/ZeckendorfNormSign"
+    },
+    {
+      "source": "D5/S1/Deficit/DoubleFaceLength",
+      "target": "D5/S1/Deficit/FixedModulusNoncongruence"
+    },
+    {
+      "source": "D5/S1/Deficit/DoubleFaceLength",
+      "target": "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar"
+    },
+    {
+      "source": "D5/S1/Deficit/DoubleFaceLength",
+      "target": "D5/S1/Words/Expansions/BasePhiCarryTransducer"
+    },
+    {
+      "source": "D5/S1/Deficit/DoubleFaceLength",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativeBridge"
+    },
+    {
+      "source": "D5/S1/Deficit/FixedModulusNoncongruence",
+      "target": "D5/S1/Deficit/ChargedCarryPath"
+    },
+    {
+      "source": "D5/S1/Deficit/LambdaMinusAdditive",
+      "target": "D5/S3/Axis/LambdaMinusDirichletSeries"
+    },
+    {
+      "source": "D5/S1/Deficit/LambdaMinusAdditive",
+      "target": "D5/S3/Axis/MultiplicativeDigitInvariant"
+    },
+    {
+      "source": "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+      "target": "D5/S1/Deficit/ModelSet/GoldenCutAndProject"
+    },
+    {
+      "source": "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+      "target": "D5/S1/Deficit/ModelSet/GoldenModelSetDensity"
+    },
+    {
+      "source": "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar",
+      "target": "D5/S3/Fourier/GoldenModelSetDelone"
+    },
+    {
+      "source": "D5/S1/Digit/Addition",
+      "target": "D5/S1/Deficit/DeficitInteger"
+    },
+    {
+      "source": "D5/S1/Digit/PrimeAxis/ChargedTableNormalization",
+      "target": "D5/S1/Digit/PrimeAxis/RawTableRewriting"
+    },
+    {
+      "source": "D5/S1/Scale/Embedding",
+      "target": "D5/S1/Deficit/DeficitInteger"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiCanonicalExpansion",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiCanonicalExpansion",
+      "target": "D5/S1/Words/Expansions/BasePhiTailBounds"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+      "target": "D5/S1/Words/Expansions/BasePhiCanonicalExpansion"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiCarryTransducer",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativeBridge",
+      "target": "D5/S1/Deficit/ModelSet/GoldenCutAndProject"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativeBridge",
+      "target": "D5/S1/Words/Expansions/BasePhiCanonicalExpansion"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentDataPhase"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentPhaseObstruction"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixPaddedReading"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport",
+      "target": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiRecursiveStructure",
+      "target": "D5/S1/Words/Expansions/BasePhiTailFiber"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiTailBounds",
+      "target": "D5/S1/Words/Expansions/BasePhiRecursiveStructure"
+    },
+    {
+      "source": "D5/S1/Words/Expansions/BasePhiTailFiber",
+      "target": "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport"
+    },
+    {
+      "source": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore",
+      "target": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation"
+    },
+    {
+      "source": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation",
+      "target": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentClassification"
+    },
+    {
+      "source": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace",
+      "target": "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords"
+    },
+    {
+      "source": "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords",
+      "target": "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore"
+    },
+    {
+      "source": "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne",
+      "target": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection"
+    },
+    {
+      "source": "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne",
+      "target": "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum"
+    },
+    {
+      "source": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity",
+      "target": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection"
+    },
+    {
+      "source": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity",
+      "target": "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness"
+    },
+    {
+      "source": "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness",
+      "target": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesValueSet"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint",
+      "target": "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceBoundary"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity",
+      "target": "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity",
+      "target": "D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure",
+      "target": "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceRegionOpen"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesDifferentiability"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Displacement/GoldenDisplacementSlopeExtremes"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesAntitone"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSecondOrderRegularity"
+    },
+    {
+      "source": "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion",
+      "target": "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSmoothness"
+    },
+    {
+      "source": "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum",
+      "target": "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness"
+    },
+    {
+      "source": "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone",
+      "target": "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne"
+    },
+    {
+      "source": "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound",
+      "target": "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection"
+    },
+    {
+      "source": "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound",
+      "target": "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum"
+    },
+    {
+      "source": "D5/S3/Axis/LambdaMinusDirichletSeries",
+      "target": "D5/S3/Axis/MultiplicativeDigitInvariant"
+    },
+    {
+      "source": "D5/S3/Constants/Irrationality/TwoFacedPrivilege",
+      "target": "D5/S3/Constants/Irrationality/TribonacciTraceLattice"
+    }
+  ],
+  "observations": [
+    {
+      "observation": 1,
+      "source_commit": "745bf90812f7175f83e1235688249f9495f23bfc",
+      "release": "sha256:c0d04258d27972c1cf58485e21d64dbcbe336405346ba95133913c64ba2856aa",
+      "atlas_graph_digest": "sha256:62576bf62fd7961a5635afadd3807a99a08b93446bc71bc5d8c846b4f29d5c5a",
+      "path": "data/architecture/1dbc67a6fa3acf4787d20a6672f864f1f3ce37676887cb2b1f67a02632778e74.json",
+      "digest": "sha256:1dbc67a6fa3acf4787d20a6672f864f1f3ce37676887cb2b1f67a02632778e74",
+      "modules": 2890,
+      "reach": 67
+    },
+    {
+      "observation": 15,
+      "source_commit": "24279623ef5253194f6c64ee3b3b627e62e3df50",
+      "release": "sha256:c209c64ce43578b309d02f4015e28dd47cb74d47ef927287ad5b6847555f7fcd",
+      "atlas_graph_digest": "sha256:df724841f87e26e2bf52cea3b1fb9827d314894a244a0fbf1d9352ee44a1013c",
+      "path": "data/architecture/c48ea86209216bd3d9bfb0b34422b3b4ef2995e155fbb4dbc6a7f46f3f57ecb4.json",
+      "digest": "sha256:c48ea86209216bd3d9bfb0b34422b3b4ef2995e155fbb4dbc6a7f46f3f57ecb4",
+      "modules": 4002,
+      "reach": 69
+    },
+    {
+      "observation": 30,
+      "source_commit": "c33851543ce6ef8cc2e821a1d4fda7a49159b4f5",
+      "release": "sha256:f46afdd5b11395a221f5e097f510f0a1c3ef6e858b18edbdbdaab14c8182a196",
+      "atlas_graph_digest": "sha256:bc895fcd5d4a5caa3f960df6ec7d3f6af34879f4f06664a7c4b7c952619b8f04",
+      "path": "data/architecture/4f59805d2d8224bac91826f1ffd8fe9e92357362b4c02f1be4d74c14ceda6995.json",
+      "digest": "sha256:4f59805d2d8224bac91826f1ffd8fe9e92357362b4c02f1be4d74c14ceda6995",
+      "modules": 4525,
+      "reach": 74
+    },
+    {
+      "observation": 45,
+      "source_commit": "535fe39d52f803f53906baf65680eb502a374c87",
+      "release": "sha256:4150138f8c4dcca3acd0d0ada1575ed6069f9bd96793c1991fbe1d488c35b1f0",
+      "atlas_graph_digest": "sha256:6865fb22923cbaf9205fbdae9abae5492b521806adcfcac2ab113aa6a1e48945",
+      "path": "data/architecture/6888cfa67d448b715a49f1709efc8521b804012a2d340c54cd0a27a2292a623e.json",
+      "digest": "sha256:6888cfa67d448b715a49f1709efc8521b804012a2d340c54cd0a27a2292a623e",
+      "modules": 4811,
+      "reach": 75
+    },
+    {
+      "observation": 59,
+      "source_commit": "a450fbe4eed778b0b5f5b4954ce7f9a500f074c0",
+      "release": "sha256:f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873",
+      "atlas_graph_digest": "sha256:5841574f82ceafbe52a1f3a63dff19822e25168a0c1adaeaa251e3eef460ae69",
+      "path": "data/architecture/1034d829ecf3e9ef767493dc6d93eafb8acb1d0fc45d70c7c9de46d40042c458.json",
+      "digest": "sha256:1034d829ecf3e9ef767493dc6d93eafb8acb1d0fc45d70c7c9de46d40042c458",
+      "modules": 4915,
+      "reach": 75
+    }
+  ],
+  "source_excerpts": {
+    "D5/S1/Deficit/DeficitInteger": {
+      "text": "theorem deficit_integer (v₁ v₂ : ℕ) :\n    deficit v₁ v₂ = deficitContraction v₁ v₂ ∧\n      (∃ z : ℤ, deficit v₁ v₂ = (z : ℝ)) ∧\n      deficit v₁ v₂ = (carrySignedCount (toRaw (Z v₁) + toRaw (Z v₂)) : ℝ)",
+      "line": 291,
+      "sha256": "cb940eeeffa60a0409c89b80b03f9ac2d9a48746d92cb4bf5a8176802309e75f"
+    },
+    "D5/S1/Deficit/DeficitThreeValued": {
+      "text": "theorem deficit_three_valued (v₁ v₂ : ℕ) :\n    deficit v₁ v₂ = -1 ∨ deficit v₁ v₂ = 0 ∨ deficit v₁ v₂ = 1",
+      "line": 264,
+      "sha256": "9be5d485e0d35b04930ebc6c74fa6dea1780b465068b0e8caad8240c744ddd9f"
+    },
+    "D5/S1/Deficit/AlmostAdditivity": {
+      "text": "theorem lambdaMinus_almost_additive {m n : ℕ} (hm : 1 ≤ m) (hn : 1 ≤ n) :\n    |lambdaMinus (m * n) - lambdaMinus m - lambdaMinus n| ≤\n      Real.log (primeRadical (Nat.gcd m n))",
+      "line": 114,
+      "sha256": "f78fa8dc260714376188fe3b2feb2e4564b06e01439d3c6499252749429ca8ba"
+    }
+  },
+  "positions": {
+    "D5/S0/Carrier/Conj": [
+      304.53,
+      306.78
+    ],
+    "D5/S1/Deficit/AlmostAdditivity": [
+      235.56,
+      347.98
+    ],
+    "D5/S1/Deficit/Beatty/BetaBeattyClosedForms": [
+      169.6,
+      379.16
+    ],
+    "D5/S1/Deficit/Carry/GoldenCarryDeficitBridge": [
+      320.24,
+      338.29
+    ],
+    "D5/S1/Deficit/ChargedCarryPath": [
+      193.57,
+      410.5
+    ],
+    "D5/S1/Deficit/DeficitInteger": [
+      285.44,
+      344.87
+    ],
+    "D5/S1/Deficit/DeficitThreeValued": [
+      261.68,
+      330.17
+    ],
+    "D5/S1/Deficit/Displacement/DisplacementSeriesDivergence": [
+      511.03,
+      300.94
+    ],
+    "D5/S1/Deficit/Displacement/GoldenContractionRadicalBound": [
+      416.14,
+      395.25
+    ],
+    "D5/S1/Deficit/Displacement/GoldenDesubstitutionClosedForms": [
+      376.43,
+      424.49
+    ],
+    "D5/S1/Deficit/Displacement/GoldenDesubstitutionConjugateLength": [
+      313.87,
+      426.16
+    ],
+    "D5/S1/Deficit/Displacement/GoldenDesubstitutionLength": [
+      246.67,
+      389
+    ],
+    "D5/S1/Deficit/Displacement/GoldenDisplacementEulerProduct": [
+      526.28,
+      340.29
+    ],
+    "D5/S1/Deficit/Displacement/GoldenSubstStartSharpness": [
+      433.28,
+      342.9
+    ],
+    "D5/S1/Deficit/Displacement/GoldenSubstitutionOrbit": [
+      476.35,
+      377.21
+    ],
+    "D5/S1/Deficit/Displacement/PrimeRadicalPositivity": [
+      225.21,
+      312.48
+    ],
+    "D5/S1/Deficit/Displacement/ZeckendorfNormSign": [
+      231.07,
+      390.86
+    ],
+    "D5/S1/Deficit/DoubleFaceLength": [
+      192.44,
+      345.08
+    ],
+    "D5/S1/Deficit/FixedModulusNoncongruence": [
+      230.16,
+      367.15
+    ],
+    "D5/S1/Deficit/LambdaMinusAdditive": [
+      286.35,
+      385.97
+    ],
+    "D5/S1/Deficit/ModelSet/GoldenCutAndProject": [
+      161.79,
+      291.12
+    ],
+    "D5/S1/Deficit/ModelSet/GoldenModelSetDensity": [
+      151.85,
+      350.67
+    ],
+    "D5/S1/Deficit/ModelSet/GoldenModelSetSelfSimilar": [
+      174.04,
+      318.41
+    ],
+    "D5/S1/Digit/Addition": [
+      287.01,
+      305.83
+    ],
+    "D5/S1/Digit/PrimeAxis/ChargedTableNormalization": [
+      188.24,
+      454.28
+    ],
+    "D5/S1/Digit/PrimeAxis/RawTableRewriting": [
+      194.25,
+      490
+    ],
+    "D5/S1/Scale/Embedding": [
+      315.69,
+      320.33
+    ],
+    "D5/S1/Words/Expansions/BasePhiCanonicalExpansion": [
+      119.35,
+      271.86
+    ],
+    "D5/S1/Words/Expansions/BasePhiCarryTransducer": [
+      149.37,
+      283.51
+    ],
+    "D5/S1/Words/Expansions/BasePhiNegativeBridge": [
+      147.28,
+      314.95
+    ],
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixPaddedReading": [
+      101.72,
+      209.26
+    ],
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentCore": [
+      113.91,
+      183.57
+    ],
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentDataPhase": [
+      79.07,
+      118.59
+    ],
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentEdge": [
+      102.26,
+      141.64
+    ],
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentPhaseObstruction": [
+      108.46,
+      108.39
+    ],
+    "D5/S1/Words/Expansions/BasePhiNegativePrefixTridentSupport": [
+      126.54,
+      230.24
+    ],
+    "D5/S1/Words/Expansions/BasePhiRecursiveStructure": [
+      54.06,
+      256.5
+    ],
+    "D5/S1/Words/Expansions/BasePhiTailBounds": [
+      79.63,
+      277.21
+    ],
+    "D5/S1/Words/Expansions/BasePhiTailFiber": [
+      85.64,
+      236.11
+    ],
+    "D5/S1/Words/FibonacciMapFirstStart": [
+      414.63,
+      318.1
+    ],
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentClassification": [
+      249.25,
+      40
+    ],
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentCore": [
+      203.68,
+      92.03
+    ],
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentPreservation": [
+      225.29,
+      61.7
+    ],
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativePrefixTridentTrace": [
+      153.43,
+      181.55
+    ],
+    "D5/S1/Words/NegativeExpansions/BasePhiNegativeTailWords": [
+      181.12,
+      131.78
+    ],
+    "D5/S3/Analytic/Asymptotics/GoldenDisplacementSeriesTendstoOne": [
+      573.44,
+      265.12
+    ],
+    "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceBoundary": [
+      444.19,
+      79.47
+    ],
+    "D5/S3/Analytic/Boundary/GoldenDisplacementConvergenceRegionOpen": [
+      512.93,
+      120.68
+    ],
+    "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesContinuity": [
+      535.96,
+      190.92
+    ],
+    "D5/S3/Analytic/Boundary/GoldenDisplacementSeriesDifferentiability": [
+      484.63,
+      128.1
+    ],
+    "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesSliceBijection": [
+      555.85,
+      239.77
+    ],
+    "D5/S3/Analytic/Characterizations/GoldenDisplacementSeriesValueSet": [
+      605.94,
+      183.7
+    ],
+    "D5/S3/Analytic/Connectivity/GoldenDisplacementSeriesValueConnectedness": [
+      572.16,
+      193.72
+    ],
+    "D5/S3/Analytic/Convexity/GoldenDisplacementSeriesLogConvexity": [
+      569.01,
+      131.3
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementBindingConstraint": [
+      468.92,
+      115.15
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementComplexEulerProduct": [
+      505.7,
+      381.8
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatAbscissa": [
+      463.8,
+      364.78
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementFaceHeatTrace": [
+      459.97,
+      401.06
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementFiniteRegion": [
+      458.17,
+      242.78
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementRedundantConstraint": [
+      484.1,
+      206.92
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementRegionConvexity": [
+      544.03,
+      160.63
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSlopeExtremes": [
+      525.76,
+      133
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceExactRegion": [
+      456.33,
+      288.49
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceNegativeBoundaryLinePositiveFailure": [
+      489.07,
+      258.86
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementSurfaceRegion": [
+      463.98,
+      323.58
+    ],
+    "D5/S3/Analytic/Displacement/GoldenDisplacementTwoConstraintRegion": [
+      501.37,
+      157.82
+    ],
+    "D5/S3/Analytic/Extrema/GoldenDisplacementSeriesInfimum": [
+      583.3,
+      240.52
+    ],
+    "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesAntitone": [
+      467.45,
+      139.93
+    ],
+    "D5/S3/Analytic/Monotonicity/GoldenDisplacementSeriesStrictAntitone": [
+      531.16,
+      262.92
+    ],
+    "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSecondOrderRegularity": [
+      465.7,
+      158.59
+    ],
+    "D5/S3/Analytic/Regularity/GoldenDisplacementSeriesSmoothness": [
+      497.12,
+      115.27
+    ],
+    "D5/S3/Analytic/SeriesInequalities/GoldenDisplacementSeriesStrictLowerBound": [
+      559.59,
+      287.97
+    ],
+    "D5/S3/Arith/YanevMaxExponentRadicalRecurrence": [
+      207.85,
+      368.67
+    ],
+    "D5/S3/Arith/YanevSigmaRadicalIdentity": [
+      243.8,
+      309.21
+    ],
+    "D5/S3/Axis/LambdaMinusDirichletSeries": [
+      345.64,
+      406.55
+    ],
+    "D5/S3/Axis/MultiplicativeDigitInvariant": [
+      291.18,
+      415.44
+    ],
+    "D5/S3/Constants/Irrationality/TribonacciTraceLattice": [
+      353.68,
+      376.85
+    ],
+    "D5/S3/Constants/Irrationality/TwoFacedPrivilege": [
+      320.42,
+      362.65
+    ],
+    "D5/S3/Fourier/GoldenModelSetDelone": [
+      186.17,
+      278.12
+    ]
+  }
+}
