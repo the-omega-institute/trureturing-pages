@@ -207,7 +207,7 @@ def write_status(output, value):
 
 def refresh_status(output, *, previous_url=None, releases_file=None, ancestry_file=None,
                    for_deployment=False, now=None, stale_after_seconds=STALE_AFTER_SECONDS,
-                   failure=None, repository=reconcile.REPOSITORY):
+                   failure=None, repository=reconcile.REPOSITORY, ancestry_cache=None):
     output, now = Path(output), now or reconcile.utc_now()
     previous = None
     local = output / STATUS_PATH
@@ -231,7 +231,7 @@ def refresh_status(output, *, previous_url=None, releases_file=None, ancestry_fi
         pass  # A corrupt fallback must never become a healthy empty pipeline.
     stage = "published"
     try:
-        client = reconcile.GitHub(repository)
+        client = reconcile.GitHub(repository, ancestry_cache=ancestry_cache) if ancestry_cache else reconcile.GitHub(repository)
         releases = reconcile.read_json(Path(releases_file).read_bytes()) if releases_file else client.releases()
         if ancestry_file:
             ancestry = reconcile.RecordedAncestry(reconcile.read_json(Path(ancestry_file).read_bytes()))
@@ -263,6 +263,7 @@ def main(argv=None):
     parser.add_argument("--repository", default=reconcile.REPOSITORY)
     parser.add_argument("--releases-file", type=Path)
     parser.add_argument("--ancestry-file", type=Path)
+    parser.add_argument("--ancestry-cache", type=Path, help="reuse immutable ancestry facts; refresh mutable GitHub metadata")
     parser.add_argument("--for-deployment", action="store_true")
     parser.add_argument("--stale-after-seconds", type=int, default=STALE_AFTER_SECONDS)
     parser.add_argument("--failure-digest")
@@ -275,7 +276,7 @@ def main(argv=None):
             parser.error("failure digest, stage and reason must be supplied together")
         failure = {"release_digest": args.failure_digest, "stage": args.failure_stage, "reason": args.failure_reason}
     value = refresh_status(args.output, previous_url=args.previous_url, repository=args.repository,
-                           releases_file=args.releases_file, ancestry_file=args.ancestry_file,
+                           releases_file=args.releases_file, ancestry_file=args.ancestry_file, ancestry_cache=args.ancestry_cache,
                            for_deployment=args.for_deployment, stale_after_seconds=args.stale_after_seconds, failure=failure)
     print(json.dumps({"observation": value["observation"], "counts": value["counts"], "head": value["head"]}, indent=2))
     return 0

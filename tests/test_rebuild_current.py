@@ -328,7 +328,7 @@ class RebuildWorkflowTests(unittest.TestCase):
                     self.assertEqual(values["should_build"], "true" if expected else "false")
                     self.assertEqual(values.get("rebuild", "false"), rebuild)
 
-    def test_rebuild_uses_existing_pipeline_and_never_restores_completed_site(self):
+    def test_rebuild_reuses_only_verified_generation_and_keeps_publication_gates(self):
         jobs = self.workflow["jobs"]
         self.assertEqual(set(jobs), {"prepare", "deploy"})
         self.assertIn("steps.selection.outputs.rebuild", jobs["prepare"]["outputs"]["rebuild"])
@@ -336,7 +336,12 @@ class RebuildWorkflowTests(unittest.TestCase):
         steps = jobs["deploy"]["steps"]
         for step in steps:
             if step.get("uses") in ("actions/cache/restore@v4", "actions/cache/save@v4"):
-                self.assertIn("needs.prepare.outputs.rebuild != 'true'", step["if"])
+                self.assertNotIn("needs.prepare.outputs.rebuild", step["if"])
+                self.assertIn("needs.prepare.outputs.build_key", step["with"]["key"])
+                self.assertIn("needs.prepare.outputs.release_digest", step["with"]["key"])
+        checkpoint = next(step for step in steps if step.get("id") == "checkpoint")
+        self.assertIn("lib.pages_incremental restore", checkpoint["run"])
+        self.assertIn("--previous-url", checkpoint["run"])
         scripts = [step.get("run", "") for step in steps]
         for marker in ("lib.reconcile_releases acquire", "lib.reconcile_releases ingest"):
             script = next(script for script in scripts if marker in script)
