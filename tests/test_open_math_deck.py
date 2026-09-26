@@ -14,7 +14,7 @@ VOID_TAGS = {'meta', 'link', 'br', 'img', 'input', 'hr', 'source', 'line', 'circ
 TRANSLATED_ATTRIBUTES = ('aria-label', 'title', 'placeholder')
 # Names, numbers, symbols, pull-request links and paper titles stay in the original.
 UNTRANSLATED = {
-    'trureturing', 'true · return · Turing', '01 / true · return · Turing', 'THE OMEGA INSTITUTE', 'Team Omega',
+    'trureturing', 'TRURETURING', 'true · return · Turing', '01 / true · return · Turing', 'THE OMEGA INSTITUTE', 'Team Omega',
     '→', '←', '↗', '✓', '✕', '↻', '=',
     'Sloane, OEIS A309221', 'Greathouse, OEIS A175406', 'Araújo, Bentz, Cameron, Hendrey, Kinyon · Problem 15.5',
 }

@@ -3,7 +3,7 @@
 <nav aria-label="Primary navigation"><a href="atlas.html">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a><a href="evolution.html">Evolution</a><a href="contribute.html">Contribute</a></nav>
 <span class="header-coordinate">Open Math / Pitch</span></header>
 <main class="deck" id="deck" aria-roledescription="slide deck" aria-label="true · return · Turing">
-<section class="deck-slide slide-dark slide-cover" id="s1" data-no="01 / 13" aria-roledescription="slide" aria-label="1 of 13">
+<section class="deck-slide slide-dark slide-cover" id="s1" data-no="01 / 14" aria-roledescription="slide" aria-label="1 of 14">
 <div class="slide-meta"><span>THE OMEGA INSTITUTE</span><span translate="no">TRURETURING</span></div>
 <div class="cover-layout">
 <div>
@@ -15,11 +15,11 @@
 <li><b translate="no">Turing</b><span>Computation finds its direction through those connections.</span></li>
 </ul>
 </div>
-<figure class="cover-atlas"><div class="atlas-overline"><span class="status-dot"></span><span>THE LIBRARY, GROWING</span></div><img class="cover-graph" src="assets/open-math/atlas-network.svg" alt="79 modules connected by 97 recorded module-import dependencies"><div class="cover-atlas-caption"><div><strong translate="no">75</strong><span>results built on<br>one foundation</span></div><a href="#s8">Explore →</a></div></figure>
+<figure class="cover-atlas"><div class="atlas-overline"><span class="status-dot"></span><span>THE LIBRARY, GROWING</span></div><img class="cover-graph" src="assets/open-math/atlas-network.svg" alt="79 modules connected by 97 recorded module-import dependencies"><div class="cover-atlas-caption"><div><strong translate="no">75</strong><span>results built on<br>one foundation</span></div><a href="#s9">Explore →</a></div></figure>
 </div>
 <aside class="deck-notes">The name is the thesis. Truth already exists as a network of relations; we build the method that lets people and machines discover it, check it, and return it as the next premise.</aside>
 </section>
-<section class="deck-slide slide-evidence" id="s2" data-no="02 / 13" aria-roledescription="slide" aria-label="2 of 13">
+<section class="deck-slide slide-evidence" id="s2" data-no="02 / 14" aria-roledescription="slide" aria-label="2 of 14">
 <div class="slide-meta"><span>SAIR EQUATIONAL THEORIES · STAGE 2</span><span translate="no">TRURETURING</span></div>
 <h2>Not mathematicians.<br><em>#1 on every leaderboard.</em></h2>
 <div class="rank-hero">
@@ -33,7 +33,7 @@
 <p class="takeaway">The method did it.</p>
 <aside class="deck-notes">Lead with the result. We are not professional mathematicians; the solver was frozen five days before the deadline and passed every set released after that on the first attempt. Paper: arXiv:2609.00706; code and run ledgers: github.com/the-omega-institute/sair-eqt2-stage2-solver.</aside>
 </section>
-<section class="deck-slide slide-carriers" id="s3" data-no="03 / 13" aria-roledescription="slide" aria-label="3 of 13">
+<section class="deck-slide slide-carriers" id="s3" data-no="03 / 14" aria-roledescription="slide" aria-label="3 of 14">
 <div class="slide-meta"><span>WHAT WE STUDY</span><span translate="no">TRURETURING</span></div>
 <h2>Logic is the subject.<br><em>Mathematics is one window.</em></h2>
 <div class="window-row">
@@ -48,9 +48,32 @@
 </ol>
 <aside class="deck-notes">The same logic shows up in mathematics, physics, language and ethics. Our work is to make it explicit: define the terms, prove the relations, then find the relations between relations. Theory volumes take the same method into philosophy and religion.</aside>
 </section>
-<section class="deck-slide slide-escape" id="s4" data-no="04 / 13" aria-roledescription="slide" aria-label="4 of 13">
-<div class="slide-meta"><span>THE ENGINE · INFORMATION ESCAPE</span><span translate="no">TRURETURING</span></div>
-<h2>Find what looks the same but isn’t.<br><em>Then define the difference.</em></h2>
+<section class="deck-slide slide-define" id="s4" data-no="04 / 14" aria-roledescription="slide" aria-label="4 of 14">
+<div class="slide-meta"><span>DEFINITION · INFORMATION ESCAPE</span><span translate="no">TRURETURING</span></div>
+<h2>Information escape:<br><em>what our readings cannot tell apart.</em></h2>
+<div class="define-layout">
+<dl class="define-terms">
+<div><dt>Readout <i translate="no">q</i></dt><dd>what we can observe about a state</dd></div>
+<div><dt>Question <i translate="no">T</i></dt><dd>what we want to know about it</dd></div>
+<div><dt>Escape</dt><dd>two states with the same readout but different answers</dd></div>
+</dl>
+<svg class="define-figure" viewBox="0 0 360 300" role="img" aria-label="States grouped by what we can observe. In one group, two states give different answers: that pair escapes.">
+<text class="escape-caption" x="180" y="22" text-anchor="middle">Same readout, grouped</text>
+<ellipse class="escape-group" cx="102" cy="150" rx="66" ry="96"/>
+<ellipse class="escape-group" cx="252" cy="150" rx="66" ry="96"/>
+<circle class="state state-a" cx="102" cy="100" r="13"/><circle class="state state-a" cx="80" cy="170" r="13"/><circle class="state state-a" cx="124" cy="198" r="13"/>
+<circle class="state state-a" cx="252" cy="96" r="13"/><circle class="state state-b" cx="234" cy="170" r="13"/><circle class="state state-a" cx="270" cy="204" r="13"/>
+<ellipse class="escape-ring" cx="252" cy="134" rx="36" ry="58"/>
+<text class="escape-note" x="252" y="268" text-anchor="middle">escape</text>
+<text class="legend-a" x="30" y="296">● same answer</text><text class="legend-b" x="196" y="296">● different answer</text>
+</svg>
+</div>
+<div class="define-formula"><p class="formula" translate="no">E(q, T) = { (x, y) : q(x) = q(y), T(x) ≠ T(y) }</p><p>No escape means the readout already answers the question.</p></div>
+<aside class="deck-notes">Define it before using it. A readout is any way of observing; the question is what we need to know. The escape set is every pair of states the readout merges although the question separates them. It is the exact place where a problem is still open.</aside>
+</section>
+<section class="deck-slide slide-escape" id="s5" data-no="05 / 14" aria-roledescription="slide" aria-label="5 of 14">
+<div class="slide-meta"><span>THE ENGINE</span><span translate="no">TRURETURING</span></div>
+<h2>A definition is worth<br><em>the escape it cuts.</em></h2>
 <svg class="escape-figure" viewBox="0 0 720 300" role="img" aria-label="Before: one reading groups two different states together. After: a new definition separates them.">
 <g class="escape-panel">
 <text class="escape-caption" x="160" y="24" text-anchor="middle">What we can observe</text>
@@ -72,15 +95,13 @@
 <text class="escape-note" x="632" y="270" text-anchor="middle">now told apart</text>
 </g>
 </svg>
-<div class="engine-steps">
-<p><b translate="no">1</b>Find the escape</p>
-<p><b translate="no">2</b>Define what separates it</p>
-<p><b translate="no">3</b>Let the kernel check it</p>
-<p><b translate="no">4</b>What still escapes is the next question</p>
+<div class="engine-band">
+<p class="formula" translate="no">E(q ∨ d, T) = E(q, T) ∩ ker d</p>
+<p>Add a definition <i translate="no">d</i>: only the pairs it also cannot separate still escape. What remains is the next question. If nothing we can define sees it, we change the language.</p>
 </div>
-<aside class="deck-notes">This is the core idea, defined precisely in our theory: the escape set is ker q minus ker T, the pairs the current readout cannot tell apart although the question needs them apart. A new definition d cuts it by intersection. If what remains is invisible to every definition we have, we change the language instead of grinding.</aside>
+<aside class="deck-notes">This identity is the centre of our Definition-Escape Completion Theory: adding a definition intersects the escape set with what that definition cannot distinguish. Research becomes a loop: find the escape, define, let the kernel check, measure what still escapes.</aside>
 </section>
-<section class="deck-slide slide-dark slide-blindspot" id="s5" data-no="05 / 13" aria-roledescription="slide" aria-label="5 of 13">
+<section class="deck-slide slide-dark slide-blindspot" id="s6" data-no="06 / 14" aria-roledescription="slide" aria-label="6 of 14">
 <div class="slide-meta"><span>AN ESCAPE, MEASURED</span><span translate="no">TRURETURING</span></div>
 <h2>Knowing every part<br><em>does not tell you the whole.</em></h2>
 <div class="blindspot-layout">
@@ -93,7 +114,7 @@
 </div>
 <aside class="deck-notes">Two different two-qubit states with identical local marginals. The theorem measures exactly what local observation misses: the correlation sector, (m²−1)(n²−1) directions, 9 of 15 for two qubits. Kernel-checked and frozen.</aside>
 </section>
-<section class="deck-slide slide-bindonly" id="s6" data-no="06 / 13" aria-roledescription="slide" aria-label="6 of 13">
+<section class="deck-slide slide-bindonly" id="s7" data-no="07 / 14" aria-roledescription="slide" aria-label="7 of 14">
 <div class="slide-meta"><span>THE FILTER</span><span translate="no">TRURETURING</span></div>
 <h2>No new distinction,<br><em>no new theorem.</em></h2>
 <div class="triviality">
@@ -102,7 +123,7 @@
 </div>
 <aside class="deck-notes">We call wrappers bind-only and reject them. A new theorem must carry an escape witness: a new fact on its live proof path. The expected new content is registered before the attempt.</aside>
 </section>
-<section class="deck-slide slide-history" id="s7" data-no="07 / 13" aria-roledescription="slide" aria-label="7 of 13">
+<section class="deck-slide slide-history" id="s8" data-no="08 / 14" aria-roledescription="slide" aria-label="8 of 14">
 <div class="slide-meta"><span>LAYER ON LAYER</span><span translate="no">TRURETURING</span></div>
 <h2>Every answer is where<br><em>the next question starts.</em></h2>
 <div class="history-showcase">
@@ -118,7 +139,7 @@
 </div>
 <aside class="deck-notes">Truth only accumulates. The chart follows one foundation across published releases as more results come to rest on it. “The last line of the ledger is always the first line of the next round.”</aside>
 </section>
-<section class="deck-slide slide-dark slide-showcase" id="s8" data-no="08 / 13" aria-roledescription="slide" aria-label="8 of 13">
+<section class="deck-slide slide-dark slide-showcase" id="s9" data-no="09 / 14" aria-roledescription="slide" aria-label="9 of 14">
 <div class="slide-meta"><span>THE SHAPE THAT EMERGES</span><span translate="no">TRURETURING</span></div>
 <div class="showcase-heading"><h2>Nobody designed this graph. <em>It grew.</em></h2></div>
 <div class="atlas-workbench" data-deck-interactive>
@@ -139,7 +160,7 @@
 
 <aside class="deck-notes">Click DeficitThreeValued, then AlmostAdditivity, then switch to the full excerpt: 75 results downstream of one definition. The graph is not the goal; it is what the method leaves behind.</aside>
 </section>
-<section class="deck-slide slide-harness" id="s9" data-no="09 / 13" aria-roledescription="slide" aria-label="9 of 13">
+<section class="deck-slide slide-harness" id="s10" data-no="10 / 14" aria-roledescription="slide" aria-label="10 of 14">
 <div class="slide-meta"><span>THE HARNESS</span><span translate="no">TRURETURING</span></div>
 <h2>The kernel decides.<br><em>Not us.</em></h2>
 <div class="pillar-row">
@@ -149,12 +170,33 @@
 </div>
 <aside class="deck-notes">Correctness is decided by machine, never by authority. Review checks meaning and non-triviality. The rules agents reason by, such as never rewriting an old settlement and not trusting a fit that only copies the past, are themselves frozen theorems in the library.</aside>
 </section>
-<section class="deck-slide slide-output" id="s10" data-no="10 / 13" aria-roledescription="slide" aria-label="10 of 13">
-<div class="slide-meta"><span>THE OUTPUT</span><span translate="no">TRURETURING</span></div>
-<h2>Open problems,<br><em>settled.</em></h2>
+<section class="deck-slide slide-community" id="s11" data-no="11 / 14" aria-roledescription="slide" aria-label="11 of 14">
+<div class="slide-meta"><span>OPEN TO EVERYONE</span><span translate="no">TRURETURING</span></div>
+<h2>Anyone, any agent, any model<br><em>can turn ideas into theorems.</em></h2>
+<div class="lanes">
+<article><span class="small-label">BRING AN IDEA</span>
+<ol class="lane-steps"><li>Your question or intuition</li><li>Your agent formalizes it</li><li>The kernel checks it</li><li>A non-trivial theorem, with your name on it</li></ol>
+<p class="lane-note">You learn the method by using it.</p>
+</article>
+<article><span class="small-label">BRING A THEORY</span>
+<ol class="lane-steps"><li>A theory written in plain mathematics</li><li>Split into precise claims</li><li>Any model formalizes them, reusing what exists</li><li>Checked results join the graph</li></ol>
+<div class="lane-numbers"><div><strong translate="no">74</strong><span>theory documents</span></div><div><strong translate="no">48,223</strong><span>tracked claims</span></div><div><strong translate="no">4,130</strong><span>already closed by checked theorems</span></div></div>
+</article>
+</div>
+<aside class="deck-notes">The harness does not care who or what did the work, only whether it checks and whether it adds something. A person with an agent can turn one idea into a theorem; a model can take a whole theory, split into claims, and formalize it automatically. Watching a model formalize theory at scale is one of the most interesting things we can show.</aside>
+</section>
+<section class="deck-slide slide-output" id="s12" data-no="12 / 14" aria-roledescription="slide" aria-label="12 of 14">
+<div class="slide-meta"><span>REAL MATHEMATICS</span><span translate="no">TRURETURING</span></div>
+<h2>Not a castle in the air.<br><em>We work with the people who asked.</em></h2>
+<div class="authors-layout">
 <div class="output-hero">
-<div><strong translate="no">164</strong><span>settled: 150 proved, 14 refuted</span></div>
-<div><strong translate="no">5,075</strong><span>Lean modules, 4,977 frozen</span></div>
+<div><strong translate="no">164</strong><span>open problems settled: 150 proved, 14 refuted</span></div>
+</div>
+<ol class="author-steps">
+<li><b translate="no">01</b><span>We settle a published open problem</span></li>
+<li><b translate="no">02</b><span>We write to the original authors</span></li>
+<li><b translate="no">03</b><span><strong>3 collaborations</strong> with authors under way; the first joint paper goes to arXiv within days</span></li>
+</ol>
 </div>
 <div class="chip-row">
 <span class="chip chip-refuted">Araújo et al., Problem 15.5</span>
@@ -163,62 +205,33 @@
 <span class="chip chip-proved">Lovas–Andai conjecture</span>
 <span class="chip chip-refuted">Greathouse, OEIS A175406</span>
 </div>
-<aside class="deck-notes">Open problems posed by other people are the external test of our logic. Each one is a conjecture from a paper or from OEIS, settled by a kernel-checked proof or counterexample.</aside>
+<aside class="deck-notes">The results are not an internal exercise. Each settles a question somebody else published, and we contact the original authors. Three collaborations are under way and the first joint paper is about to appear on arXiv. We are helping working mathematicians.</aside>
 </section>
-<section class="deck-slide slide-case" id="s11" data-no="11 / 13" aria-roledescription="slide" aria-label="11 of 13">
-<div class="slide-meta"><span>ONE OF THEM</span><span translate="no">TRURETURING</span></div>
-<h2>A five-element counterexample</h2>
-<div class="case-layout">
-<div>
-<p class="case-reference">Araújo, Bentz, Cameron, Hendrey, Kinyon · Problem 15.5</p>
-<h3>Does an orthodox semigroup with an idempotent ordering always have a complete mapping?</h3>
-<div class="result-mark"><span>REFUTED</span><code>result : ¬ claim</code></div>
+<section class="deck-slide slide-fit" id="s13" data-no="13 / 14" aria-roledescription="slide" aria-label="13 of 14">
+<div class="slide-meta"><span>SAIR OPEN MATH MODEL × TRURETURING</span><span translate="no">TRURETURING</span></div>
+<h2>Open models need real mathematics to work on.<br><em>We have built the place.</em></h2>
+<div class="fit-grid">
+<article class="fit-side"><span class="small-label">SAIR OPEN MATH MODEL</span><ul><li>Open models shaped by the community</li><li>Everyday mathematical work, including formalization</li><li>Verifiable results and reproducible evaluation</li><li>Credit for mathematicians’ ideas</li></ul></article>
+<div class="fit-core"><span class="small-label">TOGETHER</span><p>Open models doing real, checked mathematics, in public, with credit.</p></div>
+<article class="fit-side"><span class="small-label">TRURETURING</span><ul><li>A harness where any model gets a kernel verdict</li><li>A live stream of open problems, with the authors in the loop</li><li>Theory-level formalization at scale</li><li>Information escape: a measure of real progress, not pass rates</li></ul></article>
 </div>
-<figure>
-<table class="multiplication" translate="no"><caption>W = C₂ ∪ C₃</caption>
-<thead>
-<tr><th>×</th><th>w0</th><th>w1</th><th>w2</th><th>w3</th><th>w4</th></tr>
-</thead>
-<tbody>
-<tr><th>w0</th><td class="cell-two">w0</td><td class="cell-two">w1</td><td class="cell-three">w2</td><td class="cell-three">w3</td><td class="cell-three">w4</td></tr>
-<tr><th>w1</th><td class="cell-two">w1</td><td class="cell-two">w0</td><td class="cell-three">w2</td><td class="cell-three">w3</td><td class="cell-three">w4</td></tr>
-<tr><th>w2</th><td class="cell-three">w2</td><td class="cell-three">w2</td><td class="cell-three">w2</td><td class="cell-three">w3</td><td class="cell-three">w4</td></tr>
-<tr><th>w3</th><td class="cell-three">w3</td><td class="cell-three">w3</td><td class="cell-three">w3</td><td class="cell-three">w4</td><td class="cell-three">w2</td></tr>
-<tr><th>w4</th><td class="cell-three">w4</td><td class="cell-three">w4</td><td class="cell-three">w4</td><td class="cell-three">w2</td><td class="cell-three">w3</td></tr>
-</tbody>
-</table>
-</figure>
-</div>
-<div class="case-trace"><span class="trace-step"><small>SOURCE QUESTION</small><strong translate="no">Problem 15.5</strong></span><span aria-hidden="true">→</span><span class="trace-step"><small>REVIEWED CONTRIBUTION</small><strong translate="no">PR #9405</strong></span><span aria-hidden="true">→</span><a class="trace-step trace-result" href="https://the-omega-institute.github.io/trureturing-pages/release/f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873/node/636c2b478d41da47676b2b0ada3dae8a31f7377276ab4e5a97379332417a336f/" target="_blank" rel="noopener"><small>PUBLISHED RESULT</small><strong>Open the result in Pages ↗</strong></a></div>
-<aside class="deck-notes">A question from a 2026 paper, a five-element object, a kernel check, a frozen record and a public page. PR #9405.</aside>
+<ol class="first-project"><li><b translate="no">01</b>Choose a topic with SAIR’s mathematicians</li><li><b translate="no">02</b>An open model and a small community work in the harness for four weeks</li><li><b translate="no">03</b>Publish what the kernel verified, with credit</li></ol>
+<aside class="deck-notes">Why us: SAIR wants open models that serve everyday mathematics with verifiable results. We have an environment where any model is judged by the kernel, a pipeline of real open problems with their authors involved, and a way to measure progress by the distinctions a result adds. Propose the four-week pilot; any training use of contribution data needs explicit consent.</aside>
 </section>
-<section class="deck-slide slide-community" id="s12" data-no="12 / 13" aria-roledescription="slide" aria-label="12 of 13">
-<div class="slide-meta"><span>OPEN TO EVERYONE</span><span translate="no">TRURETURING</span></div>
-<h2>The method carried us.<br><em>It can carry anyone.</em></h2>
-<ol class="flow-row">
-<li><b translate="no">01</b><strong>Bring an idea</strong></li>
-<li><b translate="no">02</b><strong>Your agent formalizes it</strong></li>
-<li><b translate="no">03</b><strong>The kernel checks it</strong></li>
-<li><b translate="no">04</b><strong>Your node stays</strong></li>
-</ol>
-<p class="takeaway">Learn the method by using it. Leave a trace others build on.</p>
-<div class="closing-links"><a class="primary-link" href="contribute.html">Start a contribution ↗</a></div>
-<aside class="deck-notes">Because correctness does not depend on who you are, anyone can turn an idea into a non-trivial formal result. The agent carries the syntax, the harness carries the rigor, and the contribution stays public with its dependencies.</aside>
-</section>
-<section class="deck-slide slide-dark slide-close" id="s13" data-no="13 / 13" aria-roledescription="slide" aria-label="13 of 13">
-<div class="slide-meta"><span>WITH SAIR</span><span translate="no">TRURETURING</span></div>
+<section class="deck-slide slide-dark slide-close" id="s14" data-no="14 / 14" aria-roledescription="slide" aria-label="14 of 14">
+<div class="slide-meta"><span>LET’S BUILD IT</span><span translate="no">TRURETURING</span></div>
+<div class="close-layout">
 <div class="closing-title">
-<h2>Let’s put an open model<br><em>inside the harness.</em></h2>
-</div>
-<ol class="flow-row flow-dark">
-<li><b translate="no">01</b><strong>Pick a topic</strong></li>
-<li><b translate="no">02</b><strong>An open model and a small community work on it</strong></li>
-<li><b translate="no">03</b><strong>Measure what the kernel verifies</strong></li>
-</ol>
+<h2>Let’s build Math 2.0<br><em>on ground that checks itself.</em></h2>
+<p class="deck-lede">Find the logic. Define the difference. Leave a trace others build on.</p>
 <div class="closing-links"><a class="primary-link" href="contribute.html">Start a contribution ↗</a><a href="atlas.html">Explore the library ↗</a><a href="https://github.com/the-omega-institute/trureturing">Open repository ↗</a></div>
-<aside class="deck-notes">Propose a four-week pilot: choose a topic together, run an agreed open model with a small community inside the harness, and measure participation, verified results and cost. Any use of contribution data for training needs explicit consent.</aside>
+</div>
+<img class="close-graph" src="assets/open-math/atlas-network.svg" alt="">
+</div>
+<p class="close-name" translate="no">true · return · Turing</p>
+<aside class="deck-notes">Close by echoing SAIR’s own words, “Let’s work together to build Math 2.0”, and ask for a first working session to choose the topic and the model.</aside>
 </section>
 </main>
 <div class="deck-notes-panel" id="deck-notes-panel" role="note" aria-label="Speaker notes" hidden></div>
-<nav class="deck-controls" aria-label="Slide controls" hidden><button type="button" id="deck-prev" aria-label="Previous slide">←</button><span id="deck-counter" aria-live="polite"></span><button type="button" id="deck-next" aria-label="Next slide">→</button><select id="deck-jump" aria-label="Choose a slide"><option value="0">01 / true · return · Turing</option><option value="1">02 / #1 in EQT2</option><option value="2">03 / Logic, many windows</option><option value="3">04 / Information escape</option><option value="4">05 / An exact escape</option><option value="5">06 / The filter</option><option value="6">07 / Layer on layer</option><option value="7">08 / The graph grows</option><option value="8">09 / The harness</option><option value="9">10 / The output</option><option value="10">11 / One example</option><option value="11">12 / Open to everyone</option><option value="12">13 / With SAIR</option></select><span class="deck-controls-spacer"></span><button type="button" id="deck-notes-toggle" aria-pressed="false">Notes</button><button type="button" id="deck-read-toggle">Reading view</button><button type="button" id="deck-print">Print / PDF</button><button type="button" id="deck-fullscreen">Full screen</button></nav>
+<nav class="deck-controls" aria-label="Slide controls" hidden><button type="button" id="deck-prev" aria-label="Previous slide">←</button><span id="deck-counter" aria-live="polite"></span><button type="button" id="deck-next" aria-label="Next slide">→</button><select id="deck-jump" aria-label="Choose a slide"><option value="0">01 / true · return · Turing</option><option value="1">02 / #1 in EQT2</option><option value="2">03 / Logic, many windows</option><option value="3">04 / Information escape, defined</option><option value="4">05 / The engine</option><option value="5">06 / An exact escape</option><option value="6">07 / The filter</option><option value="7">08 / Layer on layer</option><option value="8">09 / The graph grows</option><option value="9">10 / The harness</option><option value="10">11 / Anyone, any model</option><option value="11">12 / Real mathematics</option><option value="12">13 / Why together</option><option value="13">14 / Math 2.0</option></select><span class="deck-controls-spacer"></span><button type="button" id="deck-notes-toggle" aria-pressed="false">Notes</button><button type="button" id="deck-read-toggle">Reading view</button><button type="button" id="deck-print">Print / PDF</button><button type="button" id="deck-fullscreen">Full screen</button></nav>
 <div class="deck-progress" aria-hidden="true"><span id="deck-progress-bar"></span></div>
