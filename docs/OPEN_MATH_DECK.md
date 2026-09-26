@@ -18,10 +18,12 @@ project's own story and ends with why the two efforts fit:
    is the next question; a blind residual calls for a new language.
 6. **An escape, measured**: `LocalMarginalCorrelationBlindSpot`, 9 of 15
    directions for two qubits.
-7. **The filter**: no new distinction, no new theorem (bind-only).
+7. **The filter**: no new distinction, no new theorem; bind-only work is useful
+   reuse, but new work must cut an escape and leave a visible trace.
 8. **Layer on layer** and 9. **the graph that grows** use the embedded Atlas
    history and dependency showcase described below.
-10. **The kernel decides**, and the reasoning rules are theorems too
+10. **The kernel checks the proof; the harness makes it a practice**: the same
+    path for people and agents, with reasoning rules formalized too
     (CLAUDE.md §2.7).
 11. **Anyone, any agent, any model**: bring an idea, or bring a theory (74
     theory documents, 48,223 tracked claims, 4,130 closed by checked theorems).

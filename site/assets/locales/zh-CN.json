@@ -1193,5 +1193,16 @@
   "11 / Anyone, any model": "11 / 任何人、任何模型",
   "12 / Real mathematics": "12 / 真实的数学",
   "13 / Why together": "13 / 为什么合作",
-  "14 / Math 2.0": "14 / Math 2.0"
+  "14 / Math 2.0": "14 / Math 2.0",
+  "Bind-only": "Bind-only",
+  "New distinction": "新的区分",
+  "Renaming, restating or repackaging what is already proved.": "改名、重述或重新包装已经证明的内容。",
+  "Bind-only work is useful reuse, but we do not count it as a new theorem. New work has to cut an escape: a new fact on its live proof path. That expected contribution is named before the attempt and stays visible in the record.": "Bind-only 工作是有用的复用，但我们不会把它算作新定理。新工作必须切断一次逃逸：在活证明路径上产生新事实。预期贡献会在尝试前命名，并留在记录中。",
+  "The kernel checks the proof.": "kernel 检查证明。",
+  "The harness makes it a practice.": "harness 把它变成可持续的实践。",
+  "Proof terms, axioms, no gaps.": "证明项、公理边界，没有缺口。",
+  "People and agents enter the same pipeline.": "人和 agent 进入同一条流程。",
+  "Rules about reasoning are checked too.": "关于推理的规则也会被核验。",
+  "Lean checks the proof term and its axiom boundary. The harness carries that result forward: it preserves the frozen record, dependencies and next frontier, and applies the same path to people and agents. Even the rules about reasoning are formalized and checked in the library.": "Lean 检查证明项及其公理边界。harness 让结果继续向前：保存冻结记录、依赖关系和下一步前沿，并让人与 agent 走同一条路径。关于推理的规则本身也在库中形式化并核验。",
+  "10 / Kernel + harness": "10 / Kernel + harness"
 }
