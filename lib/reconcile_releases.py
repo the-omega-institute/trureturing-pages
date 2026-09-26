@@ -53,24 +53,29 @@ def read_json(raw):
 class GitHub:
     """Public REST reads; GH_TOKEN is optional and only sent to api.github.com."""
 
-    def __init__(self, repository=REPOSITORY, token=None, publication_repository=None):
+    def __init__(self, repository=REPOSITORY, token=None, publication_repository=None, *, ancestry_cache=None):
         if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
             raise ValueError("invalid GitHub source repository")
         self.repository = repository
         self.publication_repository = publication_repository or os.environ.get("PAGES_PUBLICATION_REPOSITORY")
         self.token = os.environ.get("GH_TOKEN", "") if token is None else token
         self.observation = uuid.uuid4().hex
+        from lib.ancestry_cache import AncestryCache
+        self.ancestry_cache = AncestryCache(ancestry_cache, repository) if ancestry_cache else None
 
     def get_json(self, path):
-        headers = {"User-Agent": "pages-release-reconciler", "Accept": "application/vnd.github+json",
-                   "Cache-Control": "no-cache"}
+        immutable = re.fullmatch(r"compare/[0-9a-f]{40}\.\.\.[0-9a-f]{40}\?per_page=1", path) is not None
+        headers = {"User-Agent": "pages-release-reconciler", "Accept": "application/vnd.github+json"}
+        if not immutable:
+            headers["Cache-Control"] = "no-cache"
         if self.token:
             headers["Authorization"] = "Bearer " + self.token
         # Branches, run lists and release assets can change between observations.
         # An intermediary has served an old commits/dev response while branches/dev
         # was fresh; that incorrectly excluded newer successful CI as non-ancestors.
         separator = "&" if "?" in path else "?"
-        request = Request(f"https://api.github.com/repos/{self.repository}/{path}{separator}pages_observation={self.observation}", headers=headers)
+        suffix = "" if immutable else f"{separator}pages_observation={self.observation}"
+        request = Request(f"https://api.github.com/repos/{self.repository}/{path}{suffix}", headers=headers)
         with urlopen(request, timeout=30) as response:
             raw = response.read(MAX_METADATA_BYTES + 1)
         if len(raw) > MAX_METADATA_BYTES:
@@ -98,7 +103,14 @@ class GitHub:
         return result
 
     def dev_head(self):
-        return require_oid(self.get_json("commits/dev")["sha"])
+        head = require_oid(self.get_json("commits/dev")["sha"])
+        if self.ancestry_cache:
+            previous = self.ancestry_cache.head
+            if previous and previous != head:
+                self.is_ancestor(previous, head)
+            self.ancestry_cache.head = head
+            self.ancestry_cache.save()
+        return head
 
     @lru_cache(maxsize=None)
     def is_ancestor(self, older, newer):
@@ -106,12 +118,19 @@ class GitHub:
         require_oid(newer)
         if older == newer:
             return True
+        if self.ancestry_cache:
+            known = self.ancestry_cache.get(older, newer)
+            if known is not None:
+                return known
         value = self.get_json(f"compare/{older}...{newer}?per_page=1")
         if value.get("status") not in {"ahead", "behind", "identical", "diverged"}:
             raise ValueError("GitHub returned an invalid ancestry comparison")
-        return (value["status"] in {"ahead", "identical"}
-                and value.get("merge_base_commit", {}).get("sha") == older
-                and value.get("behind_by") == 0)
+        result = (value["status"] in {"ahead", "identical"}
+                  and value.get("merge_base_commit", {}).get("sha") == older
+                  and value.get("behind_by") == 0)
+        if self.ancestry_cache:
+            self.ancestry_cache.record(older, newer, result)
+        return result
 
     def download(self, release, target):
         tag = "truth-release-" + require_digest(release["digest"])[7:]
@@ -564,7 +583,7 @@ def check_checkpoint(output, expected_digest, previous_url=None):
     history, receipts = read_state(output)
     validate_receipt_history(history, receipts)
     if previous_url:
-        previous_history, previous_receipts = read_state(output, previous_url)
+        previous_history, previous_receipts = read_deployed_state(previous_url)
         validate_receipt_history(previous_history, previous_receipts)
         previous_entries = history_entries(previous_history)
         if history_entries(history)[:len(previous_entries)] != previous_entries:
@@ -604,6 +623,7 @@ def parser():
     ancestry.add_argument("--source-repo", type=Path)
     ancestry.add_argument("--ancestry-file", type=Path)
     plan.add_argument("--source-ref", default="dev")
+    plan.add_argument("--ancestry-cache", type=Path)
     selection = plan.add_mutually_exclusive_group()
     selection.add_argument("--requested-digest", help="only admit this coordinate if it is the oldest eligible release")
     selection.add_argument("--rebuild-current", action="store_true", help="re-render the served Library current release without new ingestion")
@@ -656,7 +676,7 @@ def main(argv=None):
                 result = plan_rebuild_current(history, receipts)
             else:
                 history, receipts = read_state(args.output, args.previous_url, args.history, args.receipts)
-                client = GitHub(args.repository)
+                client = GitHub(args.repository, ancestry_cache=args.ancestry_cache) if args.ancestry_cache else GitHub(args.repository)
                 releases = read_json(args.releases_file.read_bytes()) if args.releases_file else client.releases()
                 if args.source_repo:
                     ancestry = GitAncestry(args.source_repo, args.source_ref)

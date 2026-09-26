@@ -41,6 +41,7 @@ jobs:
       release_digest: ${{ steps.selection.outputs.release_digest }}
       source_commit: ${{ steps.selection.outputs.source_commit }}
       rebuild: ${{ steps.selection.outputs.rebuild }}
+      build_key: ${{ steps.build-key.outputs.build_key }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,6 +54,17 @@ jobs:
       - name: Install content parsers
         run: python -m pip install -r requirements.txt
 
+      - name: Restore immutable ancestry facts
+        uses: actions/cache@v4
+        with:
+          path: _metadata
+          key: pages-ancestry-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: pages-ancestry-v1-
+
+      - name: Fingerprint generation inputs separately from presentation files
+        id: build-key
+        run: python -m lib.pages_incremental key --github-output "$GITHUB_OUTPUT"
+
       - name: Reconcile metadata before any bundle or topology work
         id: selection
         env:
@@ -63,7 +75,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          requested=(--limit 1)
+          requested=(--limit 1 --ancestry-cache _metadata/ancestry.json)
           if [[ "$REBUILD_CURRENT" == 'true' ]]; then
             requested+=(--rebuild-current)
           elif [[ "$RECONCILE" != 'true' ]]; then
@@ -86,9 +98,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python -m lib.version_status --output "$RUNNER_TEMP/version-observation" \
+          python -m lib.version_status --output "$RUNNER_TEMP/version-observation" --ancestry-cache _metadata/ancestry.json \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
             >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Share ancestry facts with deployment and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: publication-ancestry
+          path: _metadata/ancestry.json
+          if-no-files-found: warn
 
       - name: Retain the reconciliation status observation
         if: always()
@@ -123,20 +143,32 @@ jobs:
       - name: Install content parsers
         run: python -m pip install -r requirements.txt
 
-      - name: Restore a completed ingestion if deployment was interrupted
-        id: checkpoint
-        if: needs.prepare.outputs.release_digest != 'mock' && needs.prepare.outputs.rebuild != 'true'
+      - name: Reuse the preparation ancestry queries
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: publication-ancestry
+          path: _metadata
+
+      - name: Restore generated artifacts for this release and generator
+        id: generated-cache
+        if: needs.prepare.outputs.release_digest != 'mock'
         uses: actions/cache/restore@v4
         with:
-          path: _site
-          key: pages-ingestion-v1-${{ github.sha }}-${{ needs.prepare.outputs.release_digest }}
+          path: |
+            _site
+            _pages_cache
+          key: pages-generated-v1-${{ needs.prepare.outputs.release_digest }}-${{ needs.prepare.outputs.build_key }}-${{ github.sha }}
+          restore-keys: pages-generated-v1-${{ needs.prepare.outputs.release_digest }}-${{ needs.prepare.outputs.build_key }}-
 
-      - name: Verify the recovered site's release and Library bindings
-        if: steps.checkpoint.outputs.cache-hit == 'true'
+      - name: Verify cached content and overlay changed presentation files
+        id: checkpoint
+        if: needs.prepare.outputs.release_digest != 'mock'
         run: >-
-          python -m lib.reconcile_releases check-checkpoint
-          --digest '${{ needs.prepare.outputs.release_digest }}' --output _site
+          python -m lib.pages_incremental restore
+          --digest '${{ needs.prepare.outputs.release_digest }}'
           --previous-url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          --github-output "$GITHUB_OUTPUT"
 
       - name: Acquire the digest-addressed truth-release
         if: steps.checkpoint.outputs.cache-hit != 'true'
@@ -445,21 +477,27 @@ jobs:
             "$pages_tree" \
             --metrics "$RUNNER_TEMP/topology-measurement.json"
 
-      - name: Save the completed site so a deployment retry does not repeat ingestion
-        if: steps.checkpoint.outputs.cache-hit != 'true' && needs.prepare.outputs.release_digest != 'mock' && needs.prepare.outputs.rebuild != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: _site
-          key: pages-ingestion-v1-${{ github.sha }}-${{ needs.prepare.outputs.release_digest }}
-
       - name: Stage version status with the complete Pages publication
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python -m lib.version_status --output _site --for-deployment \
+          python -m lib.version_status --output _site --for-deployment --ancestry-cache _metadata/ancestry.json \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
             >> "$GITHUB_STEP_SUMMARY"
           test -s _site/data/version-status.v1.json
+
+      - name: Seal the verified generated site for incremental refresh and retry
+        if: needs.prepare.outputs.release_digest != 'mock'
+        run: python -m lib.pages_incremental seal
+
+      - name: Save completed generation before attempting publication
+        if: needs.prepare.outputs.release_digest != 'mock' && steps.generated-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            _site
+            _pages_cache
+          key: pages-generated-v1-${{ needs.prepare.outputs.release_digest }}-${{ needs.prepare.outputs.build_key }}-${{ github.sha }}
 
       - name: Refuse stale release or topology deployment
         shell: bash
@@ -533,7 +571,7 @@ jobs:
           if [[ "$RELEASE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && -n "$stage" ]]; then
             failure=(--failure-digest "$RELEASE_DIGEST" --failure-stage "$stage" --failure-reason "$reason")
           fi
-          python -m lib.version_status --output _site \
+          python -m lib.version_status --output _site --ancestry-cache _metadata/ancestry.json \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
             "${failure[@]}" >> "$GITHUB_STEP_SUMMARY"
 

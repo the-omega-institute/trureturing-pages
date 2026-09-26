@@ -308,20 +308,65 @@ so recovery records `ingested_at: null` and the actual recovery time in
 point so that recovery retains their original timestamps. Missing legacy
 receipts are also recovered when the next release is ingested.
 
-The workflow cache key includes the Pages commit and release digest. If
-publication was interrupted after the complete site was saved, the next run
-restores that site and skips bundle acquisition, source checkout, projection,
-topology and Library building. It verifies Library/Atlas bindings and requires
-the cached history and receipts to preserve the current deployed prefixes before
-running the original deployment freshness check again. Corrupt or stale
-checkpoints fail closed.
+The workflow caches completed generation by truth-release digest, generation
+input fingerprint, and Pages commit. The release/fingerprint prefix also permits
+reuse across presentation revisions, including `rebuild_current`. Generation
+inputs include Python/C# producers, build configuration, the publication workflow,
+non-presentation site data, and transitive local JavaScript imports of offline
+tools. New truth releases or changed generation inputs use the normal build path.
+
+`lib.pages_incremental` seals every output file's SHA-256 and the source inventory.
+On restore it verifies the complete inventory, Library/Atlas bindings, and the
+**freshly fetched served** history and receipt prefixes. Changed presentation
+files are copied or deleted; generated artifacts keep their bytes and mtimes.
+If a changed source path was overwritten by a generator, or a new source would
+collide with generated content, restoration declines and the full build runs.
+Corrupt output or stale history fails closed. The deployment manifest is rebound
+to the current Pages commit/tree. Version status and deployment freshness still
+run on every publication.
+
+The completed site is saved **before** upload/deployment, so a publication retry
+can skip bundle acquisition, source checkout, projection, topology, and Library
+generation. GitHub Pages still receives a complete site artifact: this optimizes
+our generation, not GitHub's upload/synchronization API.
+
+Metadata planning and status observations share an immutable ancestry cache,
+persisted between workflow runs and passed from preparation to deployment.
+Only comparisons of two full commit SHAs are reused; dev HEAD, release listings,
+workflow metadata, and served ledgers remain fresh reads. Positive ancestry facts
+can establish transitive ancestry when dev advances. Negative facts apply only
+to the exact compared pair; a force push cannot establish a new positive path.
 
 GitHub caches are evictable. An interrupted build without a complete checkpoint,
-an evicted checkpoint, or an intentional Pages code revision may require
+an evicted checkpoint, or a generation input revision may require
 recomputation. The deployed history and receipts remain the durable source of
 truth for deduplication; the cache is a recovery optimization. HTTP errors never
 reset that state, and state-index reads use a cache-busting query to avoid reusing
 an older CDN response during queued runs.
+
+### September 26 deployment diagnosis
+
+Run [36247258592](https://github.com/the-omega-institute/trureturing-pages/actions/runs/36247258592)
+failed in `actions/deploy-pages` after ten minutes of GitHub reporting
+`syncing_files`, ending with `Timeout reached, aborting!`. The archive was
+294,350,617 bytes. The preceding successful run
+[36174920508](https://github.com/the-omega-institute/trureturing-pages/actions/runs/36174920508)
+uploaded 294,271,266 bytes and completed the final deployment in seven seconds.
+This does not establish archive growth as the cause of the timeout.
+
+Both runs also spent minutes repeatedly recomputing metadata status. The failed
+run spent 5m39s in preparation status and 5m36s staging status, then another
+observation after failure. Generation and Library ingestion added roughly four
+minutes. Immutable ancestry reuse addresses those repeated comparisons; generated
+site reuse addresses presentation refreshes and retries. Earlier 3–5 minute
+samples 35549992189 and 35567622023 skipped the deploy job, so they are not full
+publication baselines. First use after this change requires warming the caches;
+cache eviction and new generation inputs still require cold work.
+
+If publication times out after a complete build, retry the failed deployment job
+of that run while it is still the intended revision. Keep the existing freshness
+checks and inspect the served deployment manifest afterwards. An uploaded artifact
+or a saved cache alone does not mean the site was published.
 
 ## Verification
 
@@ -329,6 +374,7 @@ an older CDN response during queued runs.
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_reconcile_releases.py'
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_repair_history.py'
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_rebuild_current.py'
+/tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_pages_incremental.py'
 /tmp/pagesvenv/bin/python -m unittest discover -s tests -p 'test_*.py'
 ```
 
