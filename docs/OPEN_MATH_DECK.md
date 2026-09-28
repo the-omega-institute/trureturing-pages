@@ -1,47 +1,54 @@
-# Open Math pitch deck
+# Open Math collaboration pitch
 
-`site/open-math.html` is a fourteen-slide pitch, linked from Contribute, for a
-conversation with SAIR's Open Math Model initiative. It leads with the
-project's own evidence and ends with one concrete collaboration ask: a four-week
-pilot with one open model, one topic and one public, kernel-checked result:
+`site/open-math.html` is a ten-slide bilingual pitch for SAIR's Open Math Model
+initiative. It leads with actual human–AI research and a public joint manuscript.
+The machine-side contribution is information escape, strict trivial/nontrivial
+contribution criteria and formal verification. It ends with a concrete proposal:
+one open model, one question selected with a mathematician, four weeks.
 
-1. **true · return · Turing**: a working harness where open models produce
-   mathematics people can check.
-2. **#1 on every leaderboard** of SAIR's Equational Theories Stage 2 (Team
-   Omega): 1889/1889 public problems certified, zero LLM calls
-   ([solver repository](https://github.com/the-omega-institute/sair-eqt2-stage2-solver),
-   arXiv:2609.00706).
-3. **The offer**: give an open model a place to do real mathematics, with
-   definitions, relations and visible dependencies.
-4. **Information escape, defined**: readout `q`, question `T`, and
-   `E(q, T) = { (x, y) : q(x) = q(y), T(x) ≠ T(y) }`.
-5. **The engine**: `E(q ∨ d, T) = E(q, T) ∩ ker d` (DECT). What still escapes
-   is the next question; a blind residual calls for a new language.
-6. **An escape, measured**: `LocalMarginalCorrelationBlindSpot`, 9 of 15
-   directions for two qubits.
-7. **The filter**: no new distinction, no new theorem; bind-only work is useful
-   reuse, but new work must cut an escape and leave a visible trace.
-8. **Layer on layer** and 9. **the graph that grows** use the embedded Atlas
-   history and dependency showcase described below.
-10. **The kernel checks the proof; the harness makes it a practice**: the same
-    path for people and agents, with reasoning rules formalized too
-    (CLAUDE.md §2.7).
-11. **Anyone, any agent, any model**: bring an idea, or bring a theory (74
-    theory documents, 48,223 tracked claims, 4,130 closed by checked theorems).
-12. **Real mathematics**: 164 open problems settled; the original authors are
-    contacted, three collaborations are under way and the first joint paper is
-    headed to arXiv.
-13. **The pilot proposal**: one model, one topic, four weeks; the output is a
-    public, kernel-checked result and its evaluation record.
-14. **The next step**: choose the first problem and run the pilot.
+1. Human insight. Machine rigor. Shared discovery.
+2. Cloitre / A076502: a counterexample, complementary work and a public joint paper.
+3. Public research directions: Sahbi's hypercube/grid work and Nikandish's clique theorem.
+4. A human–AI research feedback loop, distinct from a proof-dependency DAG.
+5. Information escape and strict contribution rules, with a finite interactive illustration.
+6. The actual pinned Atlas excerpt and reusable formal results.
+7. Open participation: questions, examples, arguments, formalization and independent checks.
+8. Team Omega: **#1 on every SAIR EQT2 leaderboard**, **1889/1889** certified;
+   the EQT2 solver used zero LLM calls.
+9. A four-week research pilot with an open model and a participating mathematician.
+10. A working session to choose the question, model, collaborators and success criterion.
 
-Repository counts refer to trureturing `6fec50cf0`. Speaker notes carry the
-supporting detail; the slides stay short.
+## Public case evidence
+
+The Cloitre manuscript and reproducibility archive are public:
+https://github.com/the-omega-institute/a076502-padovan/releases/tag/v1.0.1
+and https://doi.org/10.5281/zenodo.22979217. The displayed paper panel is a
+linked editorial representation, not a screenshot. It preserves the actual title
+and authors. The 69 Lean modules and 18 theorem axiom audits refer to the
+archived September 23, 2026 verification. No new Lean build is required for this deck.
+
+Follow-up directions link to public artifacts. The general grid conjecture and
+Nikandish's next coloring problem are marked as next directions, not solved results.
+The deck includes no private email quotations, addresses or manuscript attachments.
+
+## Information escape illustration
+
+Four states have target values `[0, 1, 0, 1]`. The initial readout groups the first
+pair and the last pair. Four ordered distinct pairs escape out of twelve.
+Relabeling leaves `4/12`; adding a distinction that separates the first pair
+leaves `2/12`. The fixed denominator is the number of ordered distinct state pairs.
+This example illustrates the mechanism; it is not a measured escape rate for a
+collaboration case. Proof nontriviality is a separate criterion on the actual
+proof path relative to existing foundations. Named open-problem resolutions have
+a separate admission basis, described in the speaker notes and linked rules.
+
+`open-math-escape.mjs` controls the illustration. Its default state remains
+readable without JavaScript. Print restores the initial state and then restores
+the live selection afterward.
 
 ## An embedded presentation of the actual Pages evidence
 
-The cover uses a real Atlas subgraph. Slide 9 embeds a dedicated presentation
-view of those same identities and relationships. It is an offline excerpt of
+Slide 6 embeds a dedicated presentation view of actual Atlas identities and relationships. It is an offline excerpt of
 the published product, with direct links into Atlas, the generated result pages,
 source history and Evolution. It does not iframe the full website or call a live
 API during a presentation.
@@ -77,40 +84,28 @@ published manifest. The graph, source statements and release links pin:
 - Source commit: `a450fbe4eed778b0b5f5b4954ce7f9a500f074c0`.
 - Truth release: `f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873`.
 
-Rebuild the cover SVG and deterministic node positions from that excerpt with:
+Rebuild the network SVG and deterministic node positions from that excerpt with:
 
 ```sh
 node tools/render_open_math_graphs.mjs
 ```
 
-## History
-
-Slide 8 samples observations 1, 15, 30, 45 and 59 of the published architecture
-history. Their raw snapshot hashes were checked against the history index.
-Each observation in the bundled excerpt retains its content-addressed path,
-digest, source commit, release, full library size and DeficitInteger reach.
-Selecting an observation changes the library count and snapshot link. The chart
-shows **67, 69, 74, 75, 75** reachable downstream modules. Its horizontal axis is
-observation order, not elapsed time. This is module-import reach, not theorem-use
-counts, author credit or community adoption.
-
-
 ## Preview, interaction and export
 
-Serve `site/` with `python3 -m http.server 8876 --directory site`, then open
-`http://localhost:8876/open-math.html`. No full site generation, Lean build or
+Serve `site/` with `python3 -m http.server 8877 --directory site`, then open
+`http://localhost:8877/open-math.html`. No full site generation, Lean build or
 remote data access is required for the embedded presentation.
 
 - Desktop: 1280×720 presentation stage. Small screens: a responsive document.
 - `?view=read` / `?view=present` select the mode; `?lang=zh-CN` selects Chinese.
-- `#s1` through `#s14` link to a slide. Arrow keys and Home/End navigate;
+- `#s1` through `#s10` link to a slide. Arrow keys and Home/End navigate;
   `N` shows notes and `F` toggles fullscreen. Graph controls keep their own
   keyboard events; tabs support left/right arrows. Mobile graph touches do not
   trigger a slide swipe.
-- Print / PDF produces fourteen landscape pages. The dependency slide prints a
+- Print / PDF produces ten landscape pages. The dependency slide prints a
   consistent local view and explanation, even after other live interactions.
 - With JavaScript disabled or the data request failing, the cover, complete
-  static local diagram, explanation, history chart and public evidence links
+  static local diagram, explanation and public evidence links
   remain usable. Interaction controls stay disabled instead of pretending to
   work. The whole deck remains readable.
 
@@ -122,7 +117,7 @@ python tests/browser/open_math_deck.py --output /tmp/open-math-review
 
 It tests both languages, all slides, containment, mobile and smaller desktop
 viewports, node selection, source excerpts, record links, tab keyboard handling,
-history selection, no-JavaScript and failed-fetch fallbacks. It produces
+escape illustration, no-JavaScript and failed-fetch fallbacks. It produces
 screenshots and both PDFs; exported links use public Pages, not the local test
 server. `tests/test_open_math_deck.py` also checks edge direction against import
 records, complete downstream closure, pinned evidence and translation coverage.
