@@ -38,6 +38,7 @@ def build_catalog(snapshot):
             "source_url": url, "source_commit": source["source_commit"],
             "declaration_gid": resolution["declaration_gid"],
             "kernel_verified": resolution["kernel_verified"],
+            **({"members": resolution["members"]} if "members" in resolution else {}),
         })
     return {
         "schema_version": "pages-research-catalog.v1",

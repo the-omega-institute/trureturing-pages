@@ -135,16 +135,18 @@ def build_catalog(snapshot: dict) -> dict:
         if resolution and (resolution.get("kind") not in ("proved", "refuted")
                            or not resolution.get("kernel_verified")):
             raise ValueError("Resolution lacks the existing published formalization gate.")
-        # A resolving module can be a member even when omitted from motivation anchors.
+        # All resolving modules are members, including cross-module joint claims.
         if resolution:
-            gid = text(resolution.get("declaration_gid"), "resolution declaration")
-            host = text(resolution.get("source_path"), "resolution source")
-            if not host.startswith("Blueprint/") or not host.endswith(".md"):
-                raise ValueError("Resolution source must be a Blueprint Markdown path.")
-            module = host[len("Blueprint/"):-3]
-            members = sorted(set(members) | {i for i, n in nodes.items()
-                             if n.get("kind") == "truth" and
-                             (i == module or n.get("repo_path") == module + ".lean")})
+            from lib.problem_resolutions import resolution_members
+            for member in resolution_members(resolution):
+                gid = text(member.get("declaration_gid"), "resolution declaration")
+                host = text(member.get("source_path"), "resolution source")
+                if not host.startswith("Blueprint/") or not host.endswith(".md"):
+                    raise ValueError("Resolution source must be a Blueprint Markdown path.")
+                module = gid.split(".", 1)[0]
+                members = sorted(set(members) | {i for i, n in nodes.items()
+                                 if n.get("kind") == "truth" and
+                                 (i == module or n.get("repo_path") == module + ".lean")})
         item = {
             "slug": slug, "title": text(problem.get("title"), "problem title"),
             "url": url, "path": "research/" + slug + "/", "member_ids": members,

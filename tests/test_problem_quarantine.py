@@ -213,6 +213,26 @@ class ProblemQuarantineTests(unittest.TestCase):
             self.assertNotIn(BAD_SLUG, (self.output / page).read_text())
         self.assertFalse((self.output / "research" / BAD_SLUG).exists())
 
+    def test_quarantine_does_not_skip_a_joint_claims_second_member_gate(self):
+        self.add_resolution(BAD_SLUG)
+        second_module = "D5/S1/Other"
+        self.sources[BLUEPRINT] += ("\n\n" + marker(
+            BAD_SLUG, declaration_gid=second_module + ".result")).encode()
+        self.sources["Golden/Frozen/state/" + second_module + ".lean.json"] = b'{}'
+        second = copy.deepcopy(self.truth_export["nodes"][0])
+        second.update(repo_path=second_module + ".lean", node_axiom_closure=["sorryAx"])
+        self.truth_export["nodes"].append(second)
+        self.bind_bundle(self.truth_export)
+        with self.assertRaisesRegex(ValueError, "escapes the kernel allowlist"):
+            self.ingest()
+        self.assert_unpublished()
+        second["node_axiom_closure"] = []
+        self.bind_bundle(self.truth_export)
+        self.ingest()
+        _, snapshot = self.archived()
+        self.assertNotIn(BAD_SLUG, {p["slug"] for p in snapshot["problems"]})
+        self.assertEqual(snapshot["quarantined_problems"][0]["slug"], BAD_SLUG)
+
     def test_bundle_digest_failures_remain_hard_failures_before_problem_parsing(self):
         for name in ("truth-graph.v1.json", "truth-export.v1.json", "raw-lean-report.json",
                      "frozen-ledger-head.json", "release-manifest.v1.json", "SHA256SUMS"):

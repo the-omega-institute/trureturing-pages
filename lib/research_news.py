@@ -182,6 +182,7 @@ def _derived_record(problem, resolution, snapshot):
         "scope": resolution.get("scope") or problem.get("sections", {}).get("Problem", ""),
         "statement_id": resolution.get("statement_id") or problem.get("statement_id") or source.get("statement_id"),
         "kernel_verified": resolution["kernel_verified"],
+        **({"members": resolution["members"]} if "members" in resolution else {}),
     }
 
 
@@ -220,6 +221,10 @@ def result_records(snapshot, catalog=None):
         item["resolution_record"] = resolution
         if verified:
             item["kernel_verified"] = resolution["kernel_verified"]
+            if "members" in resolution:
+                item["members"] = resolution["members"]
+            else:
+                item.pop("members", None)
     return results
 
 
@@ -339,7 +344,11 @@ def render_news(output, snapshot, shell, catalog_path=None):
         proof = f'<a href="{REPO}/pull/{item["pr"]}">Development PR #{item["pr"]}</a>' if item.get("pr") else ''
         binding = f'<a href="research/{item["problem_slug"]}/">Release problem dossier</a>' if item.get("resolution_record") else ''
         reading = f'<a href="{item["result_path"]}">Read result <i data-lucide="arrow-up-right"></i></a><a href="{item["result_path"]}#lean">Lean theorem <i data-lucide="code-xml"></i></a>' if item.get("result_path") else f'<a href="{REPO}/blob/{commit}/Blueprint/{module}.md">Proof explanation <i data-lucide="arrow-up-right"></i></a>'
-        body = f'''<article class="news-result" id="{item['id']}"><div class="news-result-meta">{date}<span class="news-status {item['kind']}">{status}</span></div><div><p class="eyebrow">{esc(item['field'])}</p><h3>{esc(item['title'])}</h3>{_result_statement(item)}<div class="news-links">{reading}<a href="{esc(item['source_url'])}">Original question</a>{binding}</div><details><summary>Proof record</summary><p class="news-release-state">{release_state}</p><p><a href="{REPO}/blob/{commit}/{module}.lean">{esc(module + '.' + item['declaration'])}</a></p><div class="news-links">{proof}<a href="{BOOK}Blueprint/{module}.html">Read in mdBook <i data-lucide="arrow-up-right"></i></a></div><p><a href="{evidence}">Frozen module record</a> <code>{esc(item.get('statement_id', 'Source marker; typed-claim and Lean validation are not replayed by Pages.'))}</code></p><small>Evidence snapshot: {commit}. The linked mdBook follows upstream development.</small></details></div></article>'''
+        member_links = "".join(
+            f'<p><a href="{REPO}/blob/{commit}/{esc(member["declaration_gid"].split(".", 1)[0])}.lean">'
+            f'{esc(member["declaration_gid"])}</a></p>'
+            for member in item.get("members", [{"declaration_gid": module + "." + item["declaration"]}]))
+        body = f'''<article class="news-result" id="{item['id']}"><div class="news-result-meta">{date}<span class="news-status {item['kind']}">{status}</span></div><div><p class="eyebrow">{esc(item['field'])}</p><h3>{esc(item['title'])}</h3>{_result_statement(item)}<div class="news-links">{reading}<a href="{esc(item['source_url'])}">Original question</a>{binding}</div><details><summary>Proof record</summary><p class="news-release-state">{release_state}</p>{member_links}<div class="news-links">{proof}<a href="{BOOK}Blueprint/{module}.html">Read in mdBook <i data-lucide="arrow-up-right"></i></a></div><p><a href="{evidence}">Frozen module record</a> <code>{esc(item.get('statement_id', 'Source marker; typed-claim and Lean validation are not replayed by Pages.'))}</code></p><small>Evidence snapshot: {commit}. The linked mdBook follows upstream development.</small></details></div></article>'''
         results.append(body)
     for item in catalog["publications"]:
         preview = f'<a class="paper-preview" href="{esc(item["url"])}"><img src="{item["image"]}" alt="First page of {esc(item["title"])}" width="340" height="480" loading="lazy"></a>' if item.get("image") else '<div class="journal-mark" aria-label="RAIRO journal article"><strong>RAIRO</strong><span>Theoretical Informatics<br>and Applications</span><span>60 / 2026 / 29</span><a href="https://doi.org/10.1051/ita/2026032">10.1051/ita/2026032</a></div>'
