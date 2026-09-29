@@ -23,9 +23,12 @@ harness and open contribution workflow, with mathematicians guiding the question
 
 The Cloitre manuscript and reproducibility archive are public:
 https://github.com/the-omega-institute/a076502-padovan/releases/tag/v1.0.1
-and https://doi.org/10.5281/zenodo.22979217. The displayed paper panel is a
-linked editorial representation, not a screenshot. It preserves the actual title
-and authors. The 69 Lean modules and 18 theorem axiom audits refer to the
+and https://doi.org/10.5281/zenodo.22979217. The displayed manuscript image is rendered directly from page 1 of the public
+`v1.0.1` PDF, cropped to preserve the original title, authors, date and complete
+abstract. It has no tilt, decorative paper layers or reconstructed typesetting.
+It links to that public PDF; an arXiv link can replace it once supplied.
+Image provenance and reproduction instructions are in
+`site/assets/open-math/MANUSCRIPT_IMAGE.md`. The 69 Lean modules and 18 theorem axiom audits refer to the
 archived September 23, 2026 verification. No new Lean build is required for this deck.
 
 Follow-up directions link to public artifacts. The general grid conjecture and

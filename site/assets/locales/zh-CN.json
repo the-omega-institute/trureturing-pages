@@ -1519,5 +1519,8 @@
   "The next step is to connect OMM to the harness, choose a research direction with mathematicians and open the work to contributors. The shared objective is checked mathematical progress that researchers can use and extend.": "下一步是将 OMM 接入 harness，与数学家选择研究方向，并向贡献者开放研究。共同目标是产出研究者能够使用与扩展、经核验的数学进展。",
   "04 / The harness core": "04 / Harness 内核",
   "09 / OMM collaboration": "09 / OMM 合作",
-  "Search literature, our library, pinned mathlib and third-party Lean libraries. Check assumptions; directly cite and apply exact matches.": "查找文献、本仓、钉版 mathlib 与第三方 Lean 库。核对前提，命中则直接引用和应用。"
+  "Search literature, our library, pinned mathlib and third-party Lean libraries. Check assumptions; directly cite and apply exact matches.": "查找文献、本仓、钉版 mathlib 与第三方 Lean 库。核对前提，命中则直接引用和应用。",
+  "First-page excerpt from A Padovan-automatic description of a nested recurrence by Benoit Cloitre, Haobo Ma and Wenlin Zhang: original title, authors and complete abstract.": "Benoit Cloitre、Haobo Ma 和 Wenlin Zhang 共同论文《A Padovan-automatic description of a nested recurrence》的首页截图：原始标题、作者与完整摘要。",
+  "Manuscript · first-page excerpt": "论文原稿 · 首页节选",
+  "Read the public manuscript ↗": "阅读公开论文 ↗"
 }

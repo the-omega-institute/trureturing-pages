@@ -362,89 +362,37 @@
   font-size: 15px;
   max-width: 390px;
 }
-.paper-artifact {
+.manuscript-figure {
   display: flex;
   flex-direction: column;
-  padding: 21px 30px 18px;
-  background: #fffdf6;
+  gap: 12px;
+  align-self: start;
+  min-width: 0;
+}
+.paper-artifact {
+  display: block;
   border: 1px solid #d4d6c9;
-  box-shadow:
-    8px 8px 0 #e2e4d7,
-    0 16px 38px #243c2512;
-  transform: rotate(-1deg);
-  transition: transform 0.2s;
+  background: white;
+  padding: 12px;
 }
-.paper-artifact:hover {
-  transform: rotate(0);
-  text-decoration: none !important;
+.paper-artifact img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 346px;
+  object-fit: contain;
 }
-.paper-top {
+.manuscript-figure figcaption {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  color: var(--muted);
-  font:
-    9px ui-monospace,
-    monospace;
-  letter-spacing: 0.08em;
-}
-.deck-slide .paper-artifact h3 {
-  font:
-    29px/1.12 Georgia,
-    serif;
-  text-align: center;
-  max-width: 355px;
-  margin: 18px auto 10px;
-}
-.deck-slide .paper-authors {
+  gap: 10px;
   font-size: 11px;
-  text-align: center;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.manuscript-figure figcaption a {
   color: var(--ink);
-}
-.paper-rule {
-  height: 1px;
-  background: #a7b497;
-  width: 52px;
-  margin: 14px auto 10px;
-}
-.paper-math {
-  font:
-    32px/1.1 Georgia,
-    serif;
-  text-align: center;
-}
-.paper-artifact > .paper-math + p {
-  font-size: 11px;
-  text-align: center;
-  margin-top: 7px;
-}
-.paper-facts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 14px;
-}
-.paper-facts > div {
-  text-align: center;
-}
-.paper-facts strong {
-  font:
-    28px Georgia,
-    serif;
-  display: block;
-}
-.paper-facts span {
-  font-size: 10px;
-  display: block;
-  margin-top: 4px;
-  color: var(--muted);
-}
-.paper-bottom {
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px solid #ccd3c5;
-  padding-top: 13px;
-  font-size: 11px;
-  margin-top: 16px;
 }
 .frontier-grid {
   display: grid;
@@ -1198,8 +1146,7 @@ html[lang="zh-CN"] .orbit-node strong {
   .deck-slide.is-current {
     animation: none !important;
   }
-  .deck-progress span,
-  .paper-artifact {
+  .deck-progress span {
     transition: none;
   }
 }
@@ -1357,10 +1304,10 @@ html[lang="zh-CN"] .orbit-node strong {
     font-size: 15px;
   }
   .paper-artifact {
-    padding: 24px 20px;
+    padding: 8px;
   }
-  .deck-slide .paper-artifact h3 {
-    font-size: 27px;
+  .paper-artifact img {
+    max-height: none;
   }
   .evidence-strip {
     gap: 13px;
