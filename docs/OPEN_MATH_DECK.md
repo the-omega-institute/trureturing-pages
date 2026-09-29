@@ -2,21 +2,22 @@
 
 `site/open-math.html` is a ten-slide bilingual pitch for SAIR's Open Math Model
 initiative. It leads with actual human–AI research and a public joint manuscript.
-The machine-side contribution is information escape, strict trivial/nontrivial
-contribution criteria and formal verification. It ends with a concrete proposal:
-one open model, one question selected with a mathematician, four weeks.
+The harness combines reference retrieval, formalization, information escape and
+rejection of bind-only output. The proposal is to connect OMM to this research
+harness and open contribution workflow, with mathematicians guiding the questions.
 
 1. Human insight. Machine rigor. Shared discovery.
 2. Cloitre / A076502: a counterexample, complementary work and a public joint paper.
 3. Public research directions: Sahbi's hypercube/grid work and Nikandish's clique theorem.
-4. A human–AI research feedback loop, distinct from a proof-dependency DAG.
+4. The harness core: reference retrieval, information escape, rejection of bind-only,
+   and formal verification. Each requirement explains its effect on output quality.
 5. Information escape and strict contribution rules, with a finite interactive illustration.
 6. The actual pinned Atlas excerpt and reusable formal results.
 7. Open participation: questions, examples, arguments, formalization and independent checks.
 8. Team Omega: **#1 on every SAIR EQT2 leaderboard**, **1889/1889** certified;
    the EQT2 solver used zero LLM calls.
-9. A four-week research pilot with an open model and a participating mathematician.
-10. A working session to choose the question, model, collaborators and success criterion.
+9. Connect OMM to the harness and open a shared contribution loop.
+10. Choose a research direction, connect the model, and open the work to contributors.
 
 ## Public case evidence
 
@@ -30,6 +31,30 @@ archived September 23, 2026 verification. No new Lean build is required for this
 Follow-up directions link to public artifacts. The general grid conjecture and
 Nikandish's next coloring problem are marked as next directions, not solved results.
 The deck includes no private email quotations, addresses or manuscript attachments.
+
+## Harness core
+
+Slide 4 explains the four requirements together:
+
+- **Reference retrieval:** search local declarations, pinned mathlib and admissible
+  third-party Lean libraries before proving. Check assumptions and directly import
+  exact matches. Literature checks establish original statements and solved scope.
+- **Information escape:** define the representation and target, quantify the missing
+  distinctions and let the residual guide the next definition or research step.
+- **Reject bind-only:** inline local aliases and helpers relative to fixed existing
+  premises. Instantiation, projection and normalization wrappers do not qualify as
+  new mathematical content. A substantive witness must be on the live proof path.
+- **Formalization:** state the claim and assumptions in Lean, then check the proof
+  term and axiom dependencies. Accepted contributions return to the reference library.
+
+The source anchors are `CLAUDE.md` §§3.1–3.2 and the linked information-escape
+formalization. The deck describes the research discipline without claiming a
+universal automated novelty judge. A preregistered named external open-problem
+resolution has a separate admission basis; speaker notes preserve that distinction.
+
+Slide 9 proposes integrating OMM into this harness, without an invented schedule
+or fixed number of models or questions. The joint output is checked mathematics,
+sources and dependencies that researchers and community contributors can extend.
 
 ## Information escape illustration
 

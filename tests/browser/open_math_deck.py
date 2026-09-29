@@ -47,7 +47,7 @@ def main():
                     # Screen geometry catches clipped children even if the stage has overflow:clip.
                     overflow = slide.evaluate('''s => {
                       const box=s.getBoundingClientRect();
-                      return [...s.querySelectorAll('h1,h2,h3,p,figure,table,li,.evidence-links,.cover-bottom,.atlas-workbench,.atlas-canvas,.atlas-inspector,.atlas-legend,.atlas-guided-path,.paper-artifact,.escape-lab,.research-orbit,.pilot-output')]
+                      return [...s.querySelectorAll('h1,h2,h3,p,figure,table,li,.evidence-links,.cover-bottom,.atlas-workbench,.atlas-canvas,.atlas-inspector,.atlas-legend,.atlas-guided-path,.paper-artifact,.escape-lab,.research-orbit,.harness-return,.harness-matrix,.collaboration-offer,.offer-ask')]
                         .filter(e=>e.getClientRects().length && !e.closest('.deck-notes'))
                         .filter(e=>{const r=e.getBoundingClientRect();return r.bottom>box.bottom-12 || r.right>box.right+1 || r.left<box.left-1;})
                         .map(e=>e.tagName+': '+e.textContent.slice(0,100));

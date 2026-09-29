@@ -501,94 +501,6 @@
   background: #ede1d5;
   color: #955339;
 }
-.loop-track {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 35px;
-  margin-top: 25px;
-  position: relative;
-}
-.loop-track::before {
-  content: "";
-  position: absolute;
-  top: 65px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #849580;
-}
-.loop-step {
-  position: relative;
-}
-.step-top {
-  height: 45px;
-  display: flex;
-  align-items: start;
-  gap: 16px;
-  color: var(--human);
-  font-size: 11px;
-}
-.step-top > span:first-child {
-  font:
-    25px Georgia,
-    serif;
-}
-.loop-step.machine .step-top {
-  color: #486e3b;
-}
-.step-dot {
-  position: relative;
-  width: 11px;
-  height: 11px;
-  margin: 15px 0 26px;
-  background: #b96944;
-  border: 2px solid var(--paper);
-  outline: 1px solid #b96944;
-  border-radius: 50%;
-}
-.machine .step-dot {
-  background: #739545;
-  outline-color: #739545;
-}
-.loop-step h3 {
-  font:
-    28px/1.2 Georgia,
-    "Songti SC",
-    serif;
-  margin-bottom: 16px;
-}
-.loop-step p {
-  font-size: 16px;
-}
-.return-path {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  border: 1px solid #a9b59e;
-  border-top: 0;
-  padding: 24px 30px;
-  margin: 12px 0 0;
-  border-radius: 0 0 32px 32px;
-}
-.return-path > span {
-  font:
-    37px Georgia,
-    serif;
-  color: var(--human);
-}
-.return-path p {
-  font-size: 19px;
-  color: var(--ink);
-}
-.loop-bottom {
-  display: flex;
-  justify-content: space-between;
-  margin-top: auto;
-  font:
-    12px ui-monospace,
-    monospace;
-  color: var(--muted);
-}
 .slide-mechanism {
   gap: 22px;
 }
@@ -907,78 +819,6 @@
   padding-left: 28px;
   border-left: 1px solid var(--line);
 }
-.pilot-partners {
-  display: grid;
-  grid-template-columns: 1fr 48px 1fr;
-  gap: 25px;
-  align-items: center;
-}
-.pilot-partners article {
-  padding: 10px 0;
-}
-.pilot-partners h3 {
-  font-size: 23px;
-  margin: 12px 0 10px;
-}
-.pilot-partners p {
-  font-size: 16px;
-  max-width: 480px;
-}
-.partner-plus {
-  font:
-    48px Georgia,
-    serif;
-  color: #849b68;
-  text-align: center;
-}
-.pilot-weeks {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  margin-top: 13px;
-  border-top: 2px solid #668849;
-}
-.pilot-weeks > div {
-  padding: 20px 22px 0 0;
-}
-.pilot-weeks > div + div {
-  padding-left: 23px;
-  border-left: 1px solid var(--line);
-}
-.pilot-weeks span {
-  font:
-    10px ui-monospace,
-    monospace;
-  color: #657f4a;
-}
-.pilot-weeks h3 {
-  font:
-    28px Georgia,
-    "Songti SC",
-    serif;
-  margin: 12px 0 10px;
-}
-.pilot-weeks p {
-  font-size: 14px;
-}
-.pilot-output {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  background: #e4ead7;
-  padding: 20px 23px;
-  margin-top: auto;
-}
-.pilot-output > b {
-  font:
-    10px ui-monospace,
-    monospace;
-  min-width: 120px;
-}
-.pilot-output p {
-  font-size: 15px;
-  color: var(--ink);
-}
 .close-layout {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -1151,6 +991,157 @@ html[lang="zh-CN"] .close-layout h2 {
 html[lang="zh-CN"] .orbit-node strong {
   font-size: 26px;
 }
+/* The four harness requirements are read together, from source to reusable proof. */
+.slide-harness {
+  gap: 22px;
+}
+.slide-harness h2 {
+  font-size: 49px;
+}
+.harness-matrix {
+  border-top: 2px solid #678448;
+}
+.harness-columns,
+.harness-row {
+  display: grid;
+  grid-template-columns: 270px 1fr 220px;
+  gap: 28px;
+  align-items: center;
+}
+.harness-columns {
+  padding: 12px 0;
+  font:
+    9px/1.5 ui-monospace,
+    monospace;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.harness-row {
+  border-top: 1px solid var(--line);
+  padding: 13px 0;
+}
+.harness-name {
+  display: flex;
+  gap: 17px;
+  align-items: baseline;
+}
+.harness-name > span {
+  font:
+    11px ui-monospace,
+    monospace;
+  color: var(--human);
+}
+.harness-row h3 {
+  font-size: 21px;
+}
+.harness-row p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.harness-row > strong {
+  font:
+    23px/1.2 Georgia,
+    "Songti SC",
+    serif;
+  color: #476e3e;
+}
+.harness-return {
+  margin-top: auto;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 19px;
+  background: #e3e9d7;
+}
+.harness-return > span {
+  font-size: 30px;
+  color: #668546;
+}
+.harness-return p {
+  font-size: 14px;
+  color: var(--ink);
+}
+.harness-return a {
+  margin-left: auto;
+  flex: 0 0 150px;
+  font-size: 11px;
+}
+.slide-collaboration {
+  gap: 23px;
+}
+.slide-collaboration h2 {
+  font-size: 49px;
+}
+.collaboration-offer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+  flex: 1;
+  min-height: 0;
+}
+.offer-inputs {
+  display: grid;
+  gap: 22px;
+}
+.offer-inputs article + article {
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.offer-inputs h3 {
+  font-size: 23px;
+  margin: 10px 0;
+}
+.offer-inputs p {
+  font-size: 16px;
+}
+.offer-result {
+  background: #e4ead9;
+  padding: 25px 29px;
+  border-top: 3px solid #71934e;
+}
+.offer-result h3 {
+  font:
+    31px/1.2 Georgia,
+    "Songti SC",
+    serif;
+  margin-top: 12px;
+}
+.offer-result ol {
+  margin-top: 23px;
+  padding-left: 19px;
+  display: grid;
+  gap: 17px;
+}
+.offer-result li {
+  padding-left: 7px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.offer-result li::marker {
+  color: #738e4f;
+  font:
+    11px ui-monospace,
+    monospace;
+}
+.offer-ask {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.offer-ask strong {
+  font:
+    11px ui-monospace,
+    monospace;
+  min-width: 105px;
+}
+.offer-ask p {
+  font-size: 17px;
+  color: var(--ink);
+}
+
 @media screen {
   body[data-mode="present"] {
     height: 100vh;
@@ -1213,6 +1204,67 @@ html[lang="zh-CN"] .orbit-node strong {
   }
 }
 @media screen and (max-width: 759px) {
+  .slide-harness h2,
+  .slide-collaboration h2 {
+    font-size: 34px;
+  }
+  .harness-columns {
+    display: none;
+  }
+  .harness-row {
+    grid-template-columns: 1fr;
+    gap: 11px;
+    padding: 22px 0;
+  }
+  .harness-row h3 {
+    font-size: 22px;
+  }
+  .harness-row p {
+    font-size: 15px;
+  }
+  .harness-row > strong {
+    padding-left: 30px;
+    font-size: 22px;
+  }
+  .harness-return {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 17px;
+  }
+  .harness-return p {
+    flex: 1;
+    min-width: 190px;
+    font-size: 14px;
+  }
+  .harness-return a {
+    flex-basis: auto;
+    margin-left: 32px;
+  }
+  .collaboration-offer {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .offer-inputs h3 {
+    font-size: 22px;
+  }
+  .offer-result {
+    padding: 23px;
+  }
+  .offer-result h3 {
+    font-size: 29px;
+  }
+  .offer-result li {
+    font-size: 15px;
+  }
+  .offer-ask {
+    flex-direction: column;
+    align-items: start;
+    gap: 12px;
+  }
+  .offer-ask p {
+    font-size: 16px;
+  }
+
   .deck-page .knowledge-header {
     padding-inline: 16px;
   }
@@ -1328,49 +1380,6 @@ html[lang="zh-CN"] .orbit-node strong {
   }
   .frontier-art {
     height: 110px;
-  }
-  .loop-track {
-    grid-template-columns: 1fr;
-    gap: 28px;
-    margin-top: 0;
-    padding-left: 25px;
-  }
-  .loop-track::before {
-    top: 4px;
-    bottom: 10px;
-    left: 5px;
-    right: auto;
-    width: 1px;
-    height: auto;
-  }
-  .step-top {
-    height: auto;
-    align-items: center;
-  }
-  .step-dot {
-    position: absolute;
-    left: -25px;
-    top: 0;
-    margin: 0;
-  }
-  .loop-step h3 {
-    margin: 10px 0;
-    font-size: 25px;
-  }
-  .loop-step p {
-    font-size: 15px;
-  }
-  .return-path {
-    padding: 17px;
-    gap: 15px;
-  }
-  .return-path p {
-    font-size: 16px;
-  }
-  .loop-bottom {
-    font-size: 10px;
-    gap: 20px;
-    line-height: 1.7;
   }
   .escape-lab {
     padding: 17px 14px;
@@ -1505,37 +1514,6 @@ html[lang="zh-CN"] .orbit-node strong {
   }
   .delivery-row p {
     margin-top: 7px;
-  }
-  .pilot-partners {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .partner-plus {
-    text-align: left;
-    font-size: 30px;
-  }
-  .pilot-partners h3 {
-    font-size: 22px;
-  }
-  .pilot-weeks {
-    grid-template-columns: 1fr 1fr;
-    row-gap: 20px;
-  }
-  .pilot-weeks > div:nth-child(3) {
-    border-left: 0;
-    padding-left: 0;
-  }
-  .pilot-weeks h3 {
-    font-size: 26px;
-  }
-  .pilot-weeks p {
-    font-size: 13px;
-  }
-  .pilot-output {
-    align-items: start;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px;
   }
   .close-layout h2,
   html[lang="zh-CN"] .close-layout h2 {
