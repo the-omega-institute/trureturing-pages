@@ -1,6 +1,6 @@
 # Open Math collaboration pitch
 
-`site/open-math.html` is an eleven-slide bilingual pitch for SAIR's Open Math Model
+`site/open-math.html` is a twelve-slide bilingual pitch for SAIR's Open Math Model
 initiative. It leads with actual human–AI research and a public joint manuscript.
 The harness combines reference retrieval, formalization, information escape and
 rejection of bind-only output. The proposal is to connect OMM to this research
@@ -9,16 +9,18 @@ harness and open contribution workflow, with mathematicians guiding the question
 1. Human insight. Machine rigor. Shared discovery.
 2. Cloitre / A076502: a counterexample, complementary work and a public joint paper.
 3. Public research directions: Sahbi's hypercube/grid work and Nikandish's clique theorem.
-4. Information escape: different states remain identical to every concept in the selected catalog.
-5. Contribution gain: remove a concept and measure which distinctions disappear.
+4. Growth and foundations: 15,113 → 34,526 frozen theorem statements; the
+   research thesis, recursive relations, spacetime and holographic geometry.
+5. Information escape: different states remain identical to every concept in the selected catalog.
+6. Contribution gain: remove a concept and measure which distinctions disappear.
    One two-graph example carries both slides.
-6. The harness: retrieval, information escape, rejection of bind-only, formal proof.
-7. The actual pinned Atlas excerpt and reusable formal results.
-8. Open participation: questions, examples, arguments, formalization and independent checks.
-9. Team Omega: **#1 on every SAIR EQT2 leaderboard**, **1889/1889** certified;
+7. The harness: retrieval, information escape, rejection of bind-only, formal proof.
+8. The actual pinned Atlas excerpt and reusable formal results.
+9. Open participation: questions, examples, arguments, formalization and independent checks.
+10. Team Omega: **#1 on every SAIR EQT2 leaderboard**, **1889/1889** certified;
    the EQT2 solver used zero LLM calls.
-10. Connect OMM to the harness and open a shared contribution loop.
-11. Choose a research direction, connect the model, and open the work to contributors.
+11. Connect OMM to the harness and open a shared contribution loop.
+12. Choose a research direction, connect the model, and open the work to contributors.
 
 ## Public case evidence
 
@@ -36,9 +38,48 @@ Follow-up directions link to public artifacts. The general grid conjecture and
 Nikandish's next coloring problem are marked as next directions, not solved results.
 The deck includes no private email quotations, addresses or manuscript attachments.
 
+## Growth and research foundations
+
+Slide 4 adds a single overview between the public research cases and the harness
+explanation. It shows cumulative frozen theorem statements increasing from
+15,113 to 34,526 over September 2–27, 2026: +19,413, or 2.28×.
+The chart uses actual source timestamps, a linear count axis starting at zero,
+and the first public baseline plus the last available source snapshot per UTC day.
+There is no interpolation beyond straight segments and no extrapolation.
+
+`site/assets/open-math/theorem-growth.json` pins every point to a source commit
+and published Truth release, plus a hash of the sorted statement IDs.
+The count is unique `statement_id` values with `kind=theorem` in schema-v5 Freeze
+records under `Golden/Frozen/accepted`. It includes retained historical frozen
+statements. It excludes definitions, constructors, blueprint nodes and module
+counts; it does not estimate the number of distinct mathematical ideas.
+
+Reproduce every count without running Lean:
+
+```sh
+python tools/verify_open_math_growth.py /path/to/trureturing
+```
+
+Regenerate the standalone SVG using Matplotlib in an isolated rendering environment:
+
+```sh
+python tools/render_open_math_growth.py
+```
+
+Matplotlib is not a site or CI dependency. The chart is a static, locally bundled
+SVG and stays visible offline and in PDF exports.
+
+The philosophy appears as a research thesis with three compact lines: observation
+scales and information escape; relations of relations and recursion; spacetime
+and holographic geometry. The source manifest links the actual theory texts.
+Speaker notes distinguish this research orientation from an unconditional claim
+that every single readout must lose information: an injective readout can be
+complete on its stated domain. The cooperation line joins human direction,
+machine rigor and open contribution to OMM.
+
 ## Harness core
 
-Slide 6 explains the four requirements together:
+Slide 7 explains the four requirements together:
 
 - **Reference retrieval:** search local declarations, pinned mathlib and admissible
   third-party Lean libraries before proving. Check assumptions and directly import
@@ -57,7 +98,7 @@ formalization. The deck describes the research discipline without claiming a
 universal automated novelty judge. A preregistered named external open-problem
 resolution has a separate admission basis; speaker notes preserve that distinction.
 
-Slide 10 proposes integrating OMM into this harness, without an invented schedule
+Slide 11 proposes integrating OMM into this harness, without an invented schedule
 or fixed number of models or questions. The joint output is checked mathematics,
 sources and dependencies that researchers and community contributors can extend.
 
@@ -117,7 +158,7 @@ the live selection afterward.
 
 ## An embedded presentation of the actual Pages evidence
 
-Slide 7 embeds a dedicated presentation view of actual Atlas identities and relationships. It is an offline excerpt of
+Slide 8 embeds a dedicated presentation view of actual Atlas identities and relationships. It is an offline excerpt of
 the published product, with direct links into Atlas, the generated result pages,
 source history and Evolution. It does not iframe the full website or call a live
 API during a presentation.
@@ -167,11 +208,11 @@ remote data access is required for the embedded presentation.
 
 - Desktop: 1280×720 presentation stage. Small screens: a responsive document.
 - `?view=read` / `?view=present` select the mode; `?lang=zh-CN` selects Chinese.
-- `#s1` through `#s11` link to a slide. Arrow keys and Home/End navigate;
+- `#s1` through `#s12` link to a slide. Arrow keys and Home/End navigate;
   `N` shows notes and `F` toggles fullscreen. Graph controls keep their own
   keyboard events; tabs support left/right arrows. Mobile graph touches do not
   trigger a slide swipe.
-- Print / PDF produces eleven landscape pages. The dependency slide prints a
+- Print / PDF produces twelve landscape pages. The dependency slide prints a
   consistent local view and explanation, even after other live interactions.
 - With JavaScript disabled or the data request failing, the cover, complete
   static local diagram, explanation and public evidence links
