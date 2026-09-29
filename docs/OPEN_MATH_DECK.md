@@ -1,6 +1,6 @@
 # Open Math collaboration pitch
 
-`site/open-math.html` is a ten-slide bilingual pitch for SAIR's Open Math Model
+`site/open-math.html` is an eleven-slide bilingual pitch for SAIR's Open Math Model
 initiative. It leads with actual human–AI research and a public joint manuscript.
 The harness combines reference retrieval, formalization, information escape and
 rejection of bind-only output. The proposal is to connect OMM to this research
@@ -9,15 +9,16 @@ harness and open contribution workflow, with mathematicians guiding the question
 1. Human insight. Machine rigor. Shared discovery.
 2. Cloitre / A076502: a counterexample, complementary work and a public joint paper.
 3. Public research directions: Sahbi's hypercube/grid work and Nikandish's clique theorem.
-4. The harness core: reference retrieval, information escape, rejection of bind-only,
-   and formal verification. Each requirement explains its effect on output quality.
-5. Information escape and strict contribution rules, with a finite interactive illustration.
-6. The actual pinned Atlas excerpt and reusable formal results.
-7. Open participation: questions, examples, arguments, formalization and independent checks.
-8. Team Omega: **#1 on every SAIR EQT2 leaderboard**, **1889/1889** certified;
+4. Distinction: a description can merge states that the research question separates.
+5. Information escape: a new definition adds a missing distinction; a blind
+   vocabulary must be extended. One two-graph example carries both slides.
+6. The harness: retrieval, information escape, rejection of bind-only, formal proof.
+7. The actual pinned Atlas excerpt and reusable formal results.
+8. Open participation: questions, examples, arguments, formalization and independent checks.
+9. Team Omega: **#1 on every SAIR EQT2 leaderboard**, **1889/1889** certified;
    the EQT2 solver used zero LLM calls.
-9. Connect OMM to the harness and open a shared contribution loop.
-10. Choose a research direction, connect the model, and open the work to contributors.
+10. Connect OMM to the harness and open a shared contribution loop.
+11. Choose a research direction, connect the model, and open the work to contributors.
 
 ## Public case evidence
 
@@ -37,7 +38,7 @@ The deck includes no private email quotations, addresses or manuscript attachmen
 
 ## Harness core
 
-Slide 4 explains the four requirements together:
+Slide 6 explains the four requirements together:
 
 - **Reference retrieval:** search local declarations, pinned mathlib and admissible
   third-party Lean libraries before proving. Check assumptions and directly import
@@ -55,20 +56,39 @@ formalization. The deck describes the research discipline without claiming a
 universal automated novelty judge. A preregistered named external open-problem
 resolution has a separate admission basis; speaker notes preserve that distinction.
 
-Slide 9 proposes integrating OMM into this harness, without an invented schedule
+Slide 10 proposes integrating OMM into this harness, without an invented schedule
 or fixed number of models or questions. The joint output is checked mathematics,
 sources and dependencies that researchers and community contributors can extend.
 
 ## Information escape illustration
 
-Four states have target values `[0, 1, 0, 1]`. The initial readout groups the first
-pair and the last pair. Four ordered distinct pairs escape out of twelve.
-Relabeling leaves `4/12`; adding a distinction that separates the first pair
-leaves `2/12`. The fixed denominator is the number of ordered distinct state pairs.
-This example illustrates the mechanism; it is not a measured escape rate for a
-collaboration case. Proof nontriviality is a separate criterion on the actual
-proof path relative to existing foundations. Named open-problem resolutions have
-a separate admission basis, described in the speaker notes and linked rules.
+The example fixes an arena of exactly two graphs: a six-cycle and two disjoint
+triangles. The readout `q` is the sorted degree sequence; the target `T` is
+connectedness. Both readouts are `(2,2,2,2,2,2)`, but target answers differ.
+
+`E(q,T) = {(x,y) : q(x)=q(y), T(x)≠T(y)}` therefore has two ordered pairs.
+The escape rate is `2/2`. Relabeling changes no fiber and preserves that rate.
+Adding the triangle-count readout `d` gives `0` and `2`, separates the graphs
+and reduces the rate to `0/2`. Triangle count determines connectedness only on
+this stated two-graph arena, not on arbitrary graphs. The refinement reads the
+original graph relations; it cannot be computed from the degree sequence alone.
+
+The source links explain the general principles:
+
+- `Restoration/TargetRecoveryCriterion.lean`: when the target can be recovered
+  from a readout.
+- `DefinitionEscape/ResidualJoinLaw.lean`: `E((q,d),T) = E(q,T) ∩ ker(d)`.
+- `InformationEscape/StructuralNovelty.lean`: in the nondegenerate finite catalog,
+  positive leave-one-out escape gain is equivalent to strict kernel refinement
+  and nonrecoverability from the rest of the catalog.
+- `DefinitionEscape/BlindKernelObstruction.lean`: a pair invisible to the whole
+  available definition language remains invisible to combinations from it.
+
+These are scoped semantic statements. They do not identify all mathematical
+novelty with one rate. The graph example is an explanation, not a new theorem
+admitted by the harness. The bind-only rule separately reviews proof shape and
+the live substantive witness, with a distinct admission basis for preregistered
+named external open-problem resolutions.
 
 `open-math-escape.mjs` controls the illustration. Its default state remains
 readable without JavaScript. Print restores the initial state and then restores
@@ -76,7 +96,7 @@ the live selection afterward.
 
 ## An embedded presentation of the actual Pages evidence
 
-Slide 6 embeds a dedicated presentation view of actual Atlas identities and relationships. It is an offline excerpt of
+Slide 7 embeds a dedicated presentation view of actual Atlas identities and relationships. It is an offline excerpt of
 the published product, with direct links into Atlas, the generated result pages,
 source history and Evolution. It does not iframe the full website or call a live
 API during a presentation.
@@ -126,11 +146,11 @@ remote data access is required for the embedded presentation.
 
 - Desktop: 1280×720 presentation stage. Small screens: a responsive document.
 - `?view=read` / `?view=present` select the mode; `?lang=zh-CN` selects Chinese.
-- `#s1` through `#s10` link to a slide. Arrow keys and Home/End navigate;
+- `#s1` through `#s11` link to a slide. Arrow keys and Home/End navigate;
   `N` shows notes and `F` toggles fullscreen. Graph controls keep their own
   keyboard events; tabs support left/right arrows. Mobile graph touches do not
   trigger a slide swipe.
-- Print / PDF produces ten landscape pages. The dependency slide prints a
+- Print / PDF produces eleven landscape pages. The dependency slide prints a
   consistent local view and explanation, even after other live interactions.
 - With JavaScript disabled or the data request failing, the cover, complete
   static local diagram, explanation and public evidence links
