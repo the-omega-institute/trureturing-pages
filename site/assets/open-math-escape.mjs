@@ -1,4 +1,4 @@
-/** Target-relative escape on exactly two graphs: C6 and two disjoint triangles. */
+/** Intrinsic catalog escape on exactly two graphs: C6 and two disjoint triangles. */
 import { ready, t } from "./i18n.mjs";
 await ready;
 const lab = document.querySelector(".escape-lab");
@@ -8,7 +8,7 @@ const states = {
     coordinate: "Degree sequence",
     values: ["(2,2,2,2,2,2)", "(2,2,2,2,2,2)"],
     rate: "2 / 2",
-    explanation: "The same readout hides opposite connectedness answers.",
+    explanation: "Two different graphs; identical concept readings. Both ordered pairs escape.",
   },
   rename: {
     coordinate: "Renamed degree sequence",
@@ -21,7 +21,7 @@ const states = {
     values: ["0", "2"],
     rate: "0 / 2",
     explanation:
-      "Triangle count separates the pair; connectedness is recoverable in this arena.",
+      "Now distinguishable. Remove triangle count and the escape returns to 2/2.",
   },
 };
 function show(mode) {

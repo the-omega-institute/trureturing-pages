@@ -9,9 +9,9 @@ harness and open contribution workflow, with mathematicians guiding the question
 1. Human insight. Machine rigor. Shared discovery.
 2. Cloitre / A076502: a counterexample, complementary work and a public joint paper.
 3. Public research directions: Sahbi's hypercube/grid work and Nikandish's clique theorem.
-4. Distinction: a description can merge states that the research question separates.
-5. Information escape: a new definition adds a missing distinction; a blind
-   vocabulary must be extended. One two-graph example carries both slides.
+4. Information escape: different states remain identical to every concept in the selected catalog.
+5. Contribution gain: remove a concept and measure which distinctions disappear.
+   One two-graph example carries both slides.
 6. The harness: retrieval, information escape, rejection of bind-only, formal proof.
 7. The actual pinned Atlas excerpt and reusable formal results.
 8. Open participation: questions, examples, arguments, formalization and independent checks.
@@ -43,8 +43,9 @@ Slide 6 explains the four requirements together:
 - **Reference retrieval:** search local declarations, pinned mathlib and admissible
   third-party Lean libraries before proving. Check assumptions and directly import
   exact matches. Literature checks establish original statements and solved scope.
-- **Information escape:** define the representation and target, quantify the missing
-  distinctions and let the residual guide the next definition or research step.
+- **Information escape:** fix the state space and selected concept catalog. Count
+  different states that every selected concept still merges. Leave-one-out gain
+  measures distinctions a contribution supplies beyond the remaining catalog.
 - **Reject bind-only:** inline local aliases and helpers relative to fixed existing
   premises. Instantiation, projection and normalization wrappers do not qualify as
   new mathematical content. A substantive witness must be on the live proof path.
@@ -62,33 +63,53 @@ sources and dependencies that researchers and community contributors can extend.
 
 ## Information escape illustration
 
-The example fixes an arena of exactly two graphs: a six-cycle and two disjoint
-triangles. The readout `q` is the sorted degree sequence; the target `T` is
-connectedness. Both readouts are `(2,2,2,2,2,2)`, but target answers differ.
+The intrinsic definition is `E_S = {(x,y): x ≠ y and ∀ i ∈ S, c_i(x)=c_i(y)}`.
+Two states differ, but the selected mathematical concepts cannot tell them apart:
+their difference escapes the catalog's discriminating power. No external target
+question is required; this is the identity-target specialization of the general
+residual theory. The catalog readouts derive from registered primitive bundles,
+not arbitrary labels attached to proof terms.
 
-`E(q,T) = {(x,y) : q(x)=q(y), T(x)≠T(y)}` therefore has two ordered pairs.
-The escape rate is `2/2`. Relabeling changes no fiber and preserves that rate.
-Adding the triangle-count readout `d` gives `0` and `2`, separates the graphs
-and reduces the rate to `0/2`. Triangle count determines connectedness only on
-this stated two-graph arena, not on arbitrary graphs. The refinement reads the
-original graph relations; it cannot be computed from the degree sequence alone.
+For a fixed finite state space with at least two states, the escape rate is
+`ε(S) = |E_S| / (|X|(|X|−1))`: the fraction of ordered different pairs still
+indistinguishable under all selected concepts. The rate compares catalogs on the
+same arena; deleting hard states does not count as capturing their differences.
 
-The source links explain the general principles:
+The illustration fixes exactly two graphs: a six-cycle and two disjoint triangles.
+With sorted degree sequence as the only concept, both readings are
+`(2,2,2,2,2,2)` and both ordered different pairs escape, giving `2/2`.
+Connectedness makes their difference visible to the viewer but is not included
+in the selected catalog. Relabeling preserves the rate. Adding triangle count
+gives readings `0` and `2`, separating the states and reducing escape to `0/2`.
+The triangle count inspects original graph relations, not just the degree sequence.
 
-- `Restoration/TargetRecoveryCriterion.lean`: when the target can be recovered
-  from a readout.
-- `DefinitionEscape/ResidualJoinLaw.lean`: `E((q,d),T) = E(q,T) ∩ ker(d)`.
+Contribution gain uses the same current catalog, with and without one member:
+`δ_i = ε(S ∖ {i}) − ε(S)`. Removing triangle count makes the two states
+indistinguishable again, yielding gain `1 − 0 = 1`. Removing degree sequence
+while retaining triangle count has gain `0`. This is a leave-one-out
+counterfactual, not a comparison against historical submissions. Zero gain here
+means redundant in this catalog, not globally useless mathematics.
+
+The public source links establish the definitions and principles:
+
+- `InformationEscape/EscapePairs.lean`: intrinsic escape and unique capture.
+- `InformationEscape/ExactRate.lean`: exact escape fractions and leave-one-out gain.
 - `InformationEscape/StructuralNovelty.lean`: in the nondegenerate finite catalog,
-  positive leave-one-out escape gain is equivalent to strict kernel refinement
-  and nonrecoverability from the rest of the catalog.
+  positive gain is equivalent to strict kernel refinement and nonrecoverability
+  from the remaining catalog.
 - `DefinitionEscape/BlindKernelObstruction.lean`: a pair invisible to the whole
-  available definition language remains invisible to combinations from it.
+  available definition language remains invisible to its combinations.
 
-These are scoped semantic statements. They do not identify all mathematical
-novelty with one rate. The graph example is an explanation, not a new theorem
-admitted by the harness. The bind-only rule separately reviews proof shape and
-the live substantive witness, with a distinct admission basis for preregistered
-named external open-problem resolutions.
+The specification's sections 3.1 and 4.3 give the intrinsic definition and its
+collision-probability interpretation:
+`docs/develop/spec/lean_single_compile_intrinsic_information_escape_theory_and_spec.md`
+in the source repository. The earlier target-relative graph explanation has been
+replaced by this intrinsic definition; both give the same numbers in this example,
+but only the latter directly explains the catalog metric used by the project.
+
+The graph example explains the metric; it is not a novel admitted theorem.
+Bind-only separately checks proof shape and the live substantive witness, with
+a distinct admission basis for preregistered named external open-problem resolutions.
 
 `open-math-escape.mjs` controls the illustration. Its default state remains
 readable without JavaScript. Print restores the initial state and then restores
