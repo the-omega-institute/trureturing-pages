@@ -8,7 +8,8 @@ harness and open contribution workflow, with mathematicians guiding the question
 
 1. Human insight. Machine rigor. Shared discovery.
 2. Cloitre / A076502: a counterexample, complementary work and a public joint paper.
-3. Public research directions: Sahbi's hypercube/grid work and Nikandish's clique theorem.
+3. Research with mathematicians: Sahbi’s joint arXiv paper, Nikandish’s exact coloring
+   and shared manuscript, and Campbell/Cloitre recurrence results.
 4. Growth and foundations: 15,113 → 34,526 frozen theorem statements; the
    research thesis, recursive relations, spacetime and holographic geometry.
 5. Information escape: different states remain identical to every concept in the selected catalog.
@@ -29,14 +30,40 @@ https://github.com/the-omega-institute/a076502-padovan/releases/tag/v1.0.1
 and https://doi.org/10.5281/zenodo.22979217. The displayed manuscript image is rendered directly from page 1 of the public
 `v1.0.1` PDF, cropped to preserve the original title, authors, date and complete
 abstract. It has no tilt, decorative paper layers or reconstructed typesetting.
-It links to that public PDF; an arXiv link can replace it once supplied.
+The image links to that archived PDF; its caption links to the now-public
+arXiv preprint, https://arxiv.org/abs/2609.33421. The screenshot remains
+explicitly labeled as the archived manuscript, not an arXiv rendering.
 Image provenance and reproduction instructions are in
 `site/assets/open-math/MANUSCRIPT_IMAGE.md`. The 69 Lean modules and 18 theorem axiom audits refer to the
 archived September 23, 2026 verification. No new Lean build is required for this deck.
 
-Follow-up directions link to public artifacts. The general grid conjecture and
-Nikandish's next coloring problem are marked as next directions, not solved results.
-The deck includes no private email quotations, addresses or manuscript attachments.
+The October 1 update uses the collaboration tracker to find progress and then
+verifies the claims against public artifacts. The public evidence manifest is
+`site/assets/open-math/research-progress.json`. No private correspondence,
+contact details or author praise is copied into the site.
+
+Slide 3 now shows three concrete research loops:
+
+- **Sahbi:** arXiv:2609.25128v3 publicly lists Ma, Sahbi and Wenlin. The
+  hypercube theorem is Lean formalized; subsequent grid proofs and exact
+  certificates support continued work on the open general grid conjecture.
+- **Nikandish:** the exact dimension-six chromatic number is 15. The independent
+  certificate checks all 2,824 subspaces and 3,986,076 pairs. Public PR #1
+  contains Nikandish’s proof, geometry and code commits, making reciprocal
+  contributions directly inspectable. PR snapshot `d32555c` remains open.
+  Its historical Lean result contains native-evaluation axioms; the slide
+  accurately presents a checked finite certificate, not a pure kernel result.
+  Dimension seven and a structural coloring rule remain open.
+- **Campbell and Cloitre:** their proposed recurrences led to a public explicit
+  solution for Campbell’s example (ratio liminf 2/5, limsup 3/4) and golden/Fibonacci
+  structure for Cloitre’s example. These are written proofs and finite checks,
+  not Lean formalizations. Cloitre’s full ratio convergence remains open;
+  no joint-paper authorship is claimed.
+
+The slide uses three result-led columns with public links and one next question
+per project. The proposal offers active projects and the open contribution
+community alongside the harness. It does not imply that these researchers have
+already agreed to participate in OMM.
 
 ## Growth and research foundations
 

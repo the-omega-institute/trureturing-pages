@@ -20,6 +20,7 @@ The output is 1415 × 2000 pixels. Crop with Pillow using the box
 `(190, 255, 1225, 1135)` to produce the 1035 × 880 pixel PNG. Preserve the
 pixels and original proportions; do not reconstruct the paper in HTML.
 
-The link currently uses the published GitHub manuscript. Replace it with the
-arXiv URL when the author supplies it, and refresh the screenshot if the public
-paper changes.
+The image links to this versioned GitHub manuscript. As of October 1, 2026,
+the caption links to the public arXiv abstract at https://arxiv.org/abs/2609.33421.
+The caption labels the pixels as an archived manuscript excerpt; they have not
+been replaced with an arXiv rendering.

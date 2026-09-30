@@ -394,21 +394,22 @@
 .manuscript-figure figcaption a {
   color: var(--ink);
 }
+.slide-frontiers { gap: 21px; }
 .frontier-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 50px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 26px;
   flex: 1;
 }
 .frontier-card {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 13px;
   padding-top: 6px;
 }
 .frontier-card + article {
   border-left: 1px solid var(--line);
-  padding-left: 50px;
+  padding-left: 26px;
 }
 .frontier-art {
   height: 130px;
@@ -422,8 +423,30 @@
   height: 100%;
 }
 .frontier-card p {
-  font-size: 17px;
+  font-size: 15px;
 }
+.frontier-card .eyebrow { font-size: 10px; letter-spacing: .06em; }
+.frontier-card h3 { font-size: 22px; }
+.research-result {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 17px 0;
+  border-block: 1px solid var(--line);
+  min-height: 138px;
+  background: radial-gradient(#678b6030 .7px, transparent .7px);
+  background-size: 16px 16px;
+}
+.research-result strong { font: 44px/1.2 Georgia, "Times New Roman", serif; color: var(--ink); }
+.research-result sup { font-size: .58em; }
+.research-result > span { font-size: 10px; color: var(--muted); }
+.research-result .result-stage { color: var(--human); letter-spacing: .09em; font-size: 9px; }
+.research-next { margin-top: auto; }
+.research-next > span { font-size: 9px; letter-spacing: .12em; color: var(--human); }
+.research-next p { margin-top: 5px; font-size: 13px; }
+.research-takeaway { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.research-takeaway strong { font-size: 17px; font-weight: 500; }
+.research-takeaway a { flex-shrink: 0; font-size: 11px; }
 .frontier-card > .text-link {
   margin-top: auto;
   padding-top: 12px;
@@ -1542,6 +1565,7 @@ html[lang="zh-CN"] .orbit-node strong {
   .frontier-art {
     height: 110px;
   }
+  .research-takeaway { flex-direction: column; align-items: start; }
   .escape-lab {
     padding: 17px 14px;
   }

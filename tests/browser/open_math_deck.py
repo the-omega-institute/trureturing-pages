@@ -47,7 +47,7 @@ def main():
                     # Screen geometry catches clipped children even if the stage has overflow:clip.
                     overflow = slide.evaluate('''s => {
                       const box=s.getBoundingClientRect();
-                      return [...s.querySelectorAll('h1,h2,h3,p,figure,table,li,.evidence-links,.cover-bottom,.atlas-workbench,.atlas-canvas,.atlas-inspector,.atlas-legend,.atlas-guided-path,.paper-artifact,.escape-lab,.research-orbit,.harness-return,.harness-matrix,.collaboration-offer,.offer-ask,.distinction-definition,.escape-law,.growth-composition,.growth-invitation,.growth-number,.growth-method')]
+                      return [...s.querySelectorAll('h1,h2,h3,p,figure,table,li,.evidence-links,.cover-bottom,.atlas-workbench,.atlas-canvas,.atlas-inspector,.atlas-legend,.atlas-guided-path,.paper-artifact,.escape-lab,.research-orbit,.harness-return,.harness-matrix,.collaboration-offer,.offer-ask,.distinction-definition,.escape-law,.growth-composition,.growth-invitation,.growth-number,.growth-method,.research-result,.research-next,.research-takeaway')]
                         .filter(e=>e.getClientRects().length && !e.closest('.deck-notes'))
                         .filter(e=>{const r=e.getBoundingClientRect();return r.bottom>box.bottom-12 || r.right>box.right+1 || r.left<box.left-1;})
                         .map(e=>e.tagName+': '+e.textContent.slice(0,100));
@@ -140,7 +140,7 @@ def main():
                 mobile.goto(f'{base}?lang={lang}', wait_until='networkidle')
                 assert mobile.locator('body').get_attribute('data-mode') == 'read'
                 assert mobile.evaluate('document.documentElement.scrollWidth <= innerWidth')
-                for i in [0,1,3,4,5,6,7,10]:
+                for i in [0,1,2,3,4,5,6,7,10]:
                     mobile.locator(f'#s{i+1}').screenshot(path=str(args.output / f'{lang}-mobile-{i+1:02}.png'))
                 mobile.locator('#s8').scroll_into_view_if_needed()
                 mobile.locator('[data-focus-node="D5/S1/Deficit/AlmostAdditivity"]').click()
