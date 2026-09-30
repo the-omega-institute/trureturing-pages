@@ -123,7 +123,7 @@ class OpenMathDeckTests(unittest.TestCase):
         for excerpt in data['source_excerpts'].values():
             self.assertTrue(excerpt['text'].startswith('theorem '))
             self.assertRegex(excerpt['sha256'], r'^[a-f0-9]{64}$')
-        self.assertIn('assets/open-math-showcase.mjs', self.html)
+        self.assertIn('assets/open-math/atlas-network.svg', self.html)
         result = subprocess.run(['node', '--check', 'site/assets/open-math-showcase.mjs'], cwd=ROOT,
                                 capture_output=True, text=True, timeout=15, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)

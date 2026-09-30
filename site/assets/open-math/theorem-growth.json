@@ -1,0 +1,187 @@
+{
+  "schema": "open-math-theorem-growth.v1",
+  "metric": "Cumulative frozen theorem statements",
+  "counting_rule": "Unique statement_id values with kind=theorem in schema-v5 Freeze records under Golden/Frozen/accepted at each source commit. Historical accepted statements remain counted; this is not a count of distinct mathematical ideas or current active modules.",
+  "source_repository": "https://github.com/the-omega-institute/trureturing",
+  "history_url": "https://the-omega-institute.github.io/trureturing-pages/data/library-history.v1.json",
+  "history_sha256": "edc5c22c3330db04143d0edd1db3ab3de3867368ca4def6caab0ac1d2c205cd6",
+  "sampling": "First published baseline plus last source snapshot per UTC day; source_time retains original timezone. Chart x coordinates use actual timestamps.",
+  "points": [
+    {
+      "source_commit": "745bf90812f7175f83e1235688249f9495f23bfc",
+      "source_time": "2026-09-02T00:00:17+08:00",
+      "date": "2026-09-02",
+      "truth_release_digest": "sha256:c0d04258d27972c1cf58485e21d64dbcbe336405346ba95133913c64ba2856aa",
+      "theorems": 15113,
+      "freeze_records": 2881,
+      "statement_ids_sha256": "dfe7a34ddfdb0ec9b2f9637d96820eae6fb12ff782fa213fb1ff0655ec5bcaa4"
+    },
+    {
+      "source_commit": "ccecd728ab9a7cce50794a33c11a79a67c4ca4be",
+      "source_time": "2026-09-08T07:24:08+08:00",
+      "date": "2026-09-08",
+      "truth_release_digest": "sha256:a730fcb55f530f752045b0b46d87b0a20c8c3d50290e5638bbf071faa3de5336",
+      "theorems": 22195,
+      "freeze_records": 3667,
+      "statement_ids_sha256": "fc4070c84d6f790c3c6bf9bd057f30ede144e501af1947b87f3b379a30b8cda7"
+    },
+    {
+      "source_commit": "b9994986f3ccd57821b99c2dfc8990333bb0b452",
+      "source_time": "2026-09-09T07:58:16+08:00",
+      "date": "2026-09-09",
+      "truth_release_digest": "sha256:5081ec0234d5a8fbe2fa2a6e3d5f123297a2a1b4f9589eb4ef04e7b58424af24",
+      "theorems": 24272,
+      "freeze_records": 3823,
+      "statement_ids_sha256": "291e6d61125cd3c2161c2d5bb5c359a246066ba89e25b3ab86844d4e6aedd6c1"
+    },
+    {
+      "source_commit": "b5ff43c4e74d7db2fb13f5218a1c19d362942764",
+      "source_time": "2026-09-10T06:26:34+08:00",
+      "date": "2026-09-10",
+      "truth_release_digest": "sha256:41e8786e5402b78701b8efa061740b8c7d57e66c2242bc70ec439c4c768f036c",
+      "theorems": 26212,
+      "freeze_records": 3943,
+      "statement_ids_sha256": "66b7ac1708b6aeeed3f3bcd35ffc9e7812b94c9cd90ad87b634ea4cbd3abb755"
+    },
+    {
+      "source_commit": "3602eceaf837d54ae52c396b69e320abbcb6a969",
+      "source_time": "2026-09-11T06:03:55+08:00",
+      "date": "2026-09-11",
+      "truth_release_digest": "sha256:1be1f4960996be97835fb1927d59060a66ddda149293c0e69d7ce4770b5f7b2b",
+      "theorems": 27625,
+      "freeze_records": 4034,
+      "statement_ids_sha256": "6388f10ec4a4e881bf53f947a1ef5e1e41c4fbfd556defdcf167dd01bf2647b9"
+    },
+    {
+      "source_commit": "199b2336d483479ecff0fa0c6e236ef96d6ef9c3",
+      "source_time": "2026-09-12T00:20:55+08:00",
+      "date": "2026-09-12",
+      "truth_release_digest": "sha256:4e7862db0418d9b41387941779e3455a2a9eafb22c2dee1ca29af44e1256fe60",
+      "theorems": 28379,
+      "freeze_records": 4091,
+      "statement_ids_sha256": "83e36eb3333c363ea8ba0dcdef9412dcbd9757517ad022c3406c58658031d435"
+    },
+    {
+      "source_commit": "e91c71e2082645ad5ddf6ce1bcbe94ec6a0845ba",
+      "source_time": "2026-09-14T06:12:17+08:00",
+      "date": "2026-09-14",
+      "truth_release_digest": "sha256:22c16bea6bbaec8d6d8c6c9c506c74e4dfc060af05ff81332e58627755703e6c",
+      "theorems": 30408,
+      "freeze_records": 4333,
+      "statement_ids_sha256": "575ccb26047e7c92e04600877ae0e4b134442569cdede7ef60f3c4b8a39388ad"
+    },
+    {
+      "source_commit": "1a0d9f2005cda71bef34ca3baea0b325693970b9",
+      "source_time": "2026-09-14T14:18:25+08:00",
+      "date": "2026-09-14",
+      "truth_release_digest": "sha256:7cd6394dae9a35998a958d1acc596577d5c2f897ddd1551168f3aaf0a8ea088d",
+      "theorems": 30451,
+      "freeze_records": 4353,
+      "statement_ids_sha256": "ea2169755560c2d6053e6ab7b4f83a35a8c9e9f8b03efa13386f879445c9bcb1"
+    },
+    {
+      "source_commit": "c33851543ce6ef8cc2e821a1d4fda7a49159b4f5",
+      "source_time": "2026-09-17T04:59:19+08:00",
+      "date": "2026-09-17",
+      "truth_release_digest": "sha256:f46afdd5b11395a221f5e097f510f0a1c3ef6e858b18edbdbdaab14c8182a196",
+      "theorems": 30756,
+      "freeze_records": 4482,
+      "statement_ids_sha256": "da9f3a2aa72e02ae58a0954a7f5bcdf7483a6bede688e2efc3087f2a819dd190"
+    },
+    {
+      "source_commit": "c9176342996772b1e2b5fa61996dc0af8976a608",
+      "source_time": "2026-09-18T07:12:10+08:00",
+      "date": "2026-09-18",
+      "truth_release_digest": "sha256:31dae284803b22d43d9b38fa7e591b47e00a660e45101b6ed65648cd96a60c34",
+      "theorems": 30828,
+      "freeze_records": 4507,
+      "statement_ids_sha256": "901ebadd2334b5440d7de81f331e5cf603c73e608b50222947b6e0e1dd49fb0a"
+    },
+    {
+      "source_commit": "aea3b7fa7cde80e95fa4d6e73b54836db5b850eb",
+      "source_time": "2026-09-18T08:22:50+08:00",
+      "date": "2026-09-18",
+      "truth_release_digest": "sha256:33b06772f2ca7cf6936c09595eedcccf4495212fdee9d144c38516ebfae191e3",
+      "theorems": 30829,
+      "freeze_records": 4508,
+      "statement_ids_sha256": "b3fa41617fbbfc54d2e9fc638bafead0e03862210e396c2e2fb0f135d6e26839"
+    },
+    {
+      "source_commit": "92593f675b7cf653c75f78e24ff098c61087e906",
+      "source_time": "2026-09-22T06:47:44+08:00",
+      "date": "2026-09-22",
+      "truth_release_digest": "sha256:373fabab1df1190926ce727735c4f9bfe3096864fc44770d7391c7fc6211eef3",
+      "theorems": 31919,
+      "freeze_records": 4675,
+      "statement_ids_sha256": "afbdcd5456e75469e7057daead5ab97f0d9a4e5638333ba3871d8616f2a716ec"
+    },
+    {
+      "source_commit": "fdd463058c45e689c635c22062c5b2333ce0a288",
+      "source_time": "2026-09-23T07:42:04+08:00",
+      "date": "2026-09-23",
+      "truth_release_digest": "sha256:0a8af625ce4d0bc6d5580506241014f2fce2c0d22e2b40ad9f9562de35e1f627",
+      "theorems": 32082,
+      "freeze_records": 4728,
+      "statement_ids_sha256": "68d2073f964caf7fdb99eaf47d7ffcacf8e43558154bb6ebf25bb88fcf24e875"
+    },
+    {
+      "source_commit": "8f6b91192bc7ed46a5f6d04aaa73f538b9672716",
+      "source_time": "2026-09-24T07:12:52+08:00",
+      "date": "2026-09-24",
+      "truth_release_digest": "sha256:120f553f6de732ee1c885266d38bbba628fa0fe21da0e97ec95c48184b9d97c4",
+      "theorems": 32174,
+      "freeze_records": 4741,
+      "statement_ids_sha256": "d7f26187a78cb7f3ea57db5117df7d7f487800cd18d2670181906ec8b1b180b8"
+    },
+    {
+      "source_commit": "81a8946a954fe1c4640e18d42aaa50dca075030b",
+      "source_time": "2026-09-25T05:35:44+08:00",
+      "date": "2026-09-25",
+      "truth_release_digest": "sha256:af2b7008f0aa1fff247b4989545d07c0ce87fef39fe3d83cfd9db20e955e3f34",
+      "theorems": 32354,
+      "freeze_records": 4791,
+      "statement_ids_sha256": "4f09e4e8212c42da9446c7ff727f8bc374f786e16f6b9b79dca807b3a246667e"
+    },
+    {
+      "source_commit": "f51660db17809b11cf6b451fa6f8d1c45fdf3dc8",
+      "source_time": "2026-09-26T05:35:06+08:00",
+      "date": "2026-09-26",
+      "truth_release_digest": "sha256:e94bedc9f62e2fe85c86f5fcfadbcdc9859708416883b58f968d4ed47875e45b",
+      "theorems": 32908,
+      "freeze_records": 4893,
+      "statement_ids_sha256": "ebab6d90fda3a69d9f3a9543b1099c61b0beb201afb7163d1c9e6cae93f5f97e"
+    },
+    {
+      "source_commit": "2460237bb4371b4ade0da3b715fdc4b8a89cd897",
+      "source_time": "2026-09-27T05:56:45+08:00",
+      "date": "2026-09-27",
+      "truth_release_digest": "sha256:3e2b69cb3b038e84b7a0e4bedebde1b76443b675e49e155f7f70e52c2a3d70b8",
+      "theorems": 34236,
+      "freeze_records": 4997,
+      "statement_ids_sha256": "90210aa990c2eec0d4d2550017f41c0ffc2048766efc423b326439f4b36e3e0c"
+    },
+    {
+      "source_commit": "c51f9cea494ecc956d90a95a4fa34b610591c77b",
+      "source_time": "2026-09-27T21:26:29+08:00",
+      "date": "2026-09-27",
+      "truth_release_digest": "sha256:dc286289838e6862ce9bc36ffab8cbe9ddb7662680d49b95a61d954598e4a50c",
+      "theorems": 34526,
+      "freeze_records": 5068,
+      "statement_ids_sha256": "5c823a394c2c8b878a03536d17fbbe25c3cff33089ae439f59777143a7a2bdd2"
+    }
+  ],
+  "research_sources": [
+    {
+      "topic": "Recursive relations",
+      "url": "https://github.com/the-omega-institute/trureturing/blob/c51f9cea494ecc956d90a95a4fa34b610591c77b/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION.md"
+    },
+    {
+      "topic": "Spacetime and holographic geometry",
+      "url": "https://github.com/the-omega-institute/trureturing/blob/00e8dc1131518898fd20d826b0f54a0fc31484ef/docs/develop/theory/FIBONACCI_ATOMIC_RELATION_GENERATION.md"
+    },
+    {
+      "topic": "Quantitative diagonalization and observer limits",
+      "url": "https://github.com/the-omega-institute/trureturing/blob/c51f9cea494ecc956d90a95a4fa34b610591c77b/docs/develop/theory/QUANTITATIVE_DIAGONALIZATION_OBSERVER_COMPLETION.md"
+    }
+  ]
+}

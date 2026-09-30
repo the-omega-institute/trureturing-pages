@@ -1,24 +1,33 @@
 # Open Math collaboration pitch
 
-`site/open-math.html` is an eleven-slide bilingual pitch for SAIR's Open Math Model
+`site/open-math.html` is a thirteen-slide bilingual pitch for SAIR's Open Math Model
 initiative. It leads with actual human–AI research and a public joint manuscript.
 The harness combines reference retrieval, formalization, information escape and
 rejection of bind-only output. The proposal is to connect OMM to this research
 harness and open contribution workflow, with mathematicians guiding the questions.
 
-1. Human insight. Machine rigor. Shared discovery.
-2. Cloitre / A076502: a counterexample, complementary work and a public joint paper.
-3. Public research directions: Sahbi's hypercube/grid work and Nikandish's clique theorem.
-4. Information escape: different states remain identical to every concept in the selected catalog.
-5. Contribution gain: remove a concept and measure which distinctions disappear.
-   One two-graph example carries both slides.
-6. The harness: retrieval, information escape, rejection of bind-only, formal proof.
-7. The actual pinned Atlas excerpt and reusable formal results.
-8. Open participation: questions, examples, arguments, formalization and independent checks.
-9. Team Omega: **#1 on every SAIR EQT2 leaderboard**, **1889/1889** certified;
-   the EQT2 solver used zero LLM calls.
-10. Connect OMM to the harness and open a shared contribution loop.
-11. Choose a research direction, connect the model, and open the work to contributors.
+1. Human intelligence, machine rigor, an endless research loop.
+2. Why: intuition, AI exploration and reading, Lean formalization, and feedback
+   from real mathematical problems. A small real dependency graph explains reuse.
+3. Outputs: 439 recorded problem resolutions, two joint arXiv papers with real
+   PDF images, and 20+ researchers in mathematical exchanges.
+4. Research conversations: twelve names on a dedicated slide, in three columns
+   and four rows, with readable affiliations and consistent alignment.
+5. Reciprocal work: Sahbi’s joint paper, Nikandish’s exact coloring and shared
+   writing, Campbell/Cloitre recurrence proofs and next questions.
+6. Growth and research foundations: 15,113 → 34,526 frozen theorem statements,
+   information escape, recursive relations, spacetime and holographic geometry.
+7. Intrinsic information escape: different states indistinguishable to the catalog.
+8. Leave-one-out gain: what distinctions disappear when a contribution is removed.
+9. Harness: retrieval, information escape, rejecting bind-only, formalization.
+10. Start before becoming an expert; learn by making one step precise.
+11. EQT2: Team Omega #1 on every leaderboard, 1889/1889 certified.
+12. Connect OMM to the harness and open contribution loop.
+13. Start with one idea. Make one step precise.
+
+The user’s oral narrative drives the order. The matching English talk track is
+in `docs/OPEN_MATH_TALK_TRACK.md`. The previous full Atlas interface has been
+removed from the pitch; the product remains directly linked from the reuse story.
 
 ## Public case evidence
 
@@ -27,18 +36,83 @@ https://github.com/the-omega-institute/a076502-padovan/releases/tag/v1.0.1
 and https://doi.org/10.5281/zenodo.22979217. The displayed manuscript image is rendered directly from page 1 of the public
 `v1.0.1` PDF, cropped to preserve the original title, authors, date and complete
 abstract. It has no tilt, decorative paper layers or reconstructed typesetting.
-It links to that public PDF; an arXiv link can replace it once supplied.
+The image links to that archived PDF; its caption links to the now-public
+arXiv preprint, https://arxiv.org/abs/2609.33421. The screenshot remains
+explicitly labeled as the archived manuscript, not an arXiv rendering.
 Image provenance and reproduction instructions are in
 `site/assets/open-math/MANUSCRIPT_IMAGE.md`. The 69 Lean modules and 18 theorem axiom audits refer to the
 archived September 23, 2026 verification. No new Lean build is required for this deck.
 
-Follow-up directions link to public artifacts. The general grid conjecture and
-Nikandish's next coloring problem are marked as next directions, not solved results.
-The deck includes no private email quotations, addresses or manuscript attachments.
+The October 1 update uses the collaboration tracker to find progress and then
+verifies the claims against public artifacts. The public evidence manifest is
+`site/assets/open-math/research-progress.json`. No private correspondence,
+contact details or author praise is copied into the site.
+
+Slide 5 shows three concrete research loops:
+
+- **Sahbi:** arXiv:2609.25128v3 publicly lists Ma, Sahbi and Wenlin. The
+  hypercube theorem is Lean formalized; subsequent grid proofs and exact
+  certificates support continued work on the open general grid conjecture.
+- **Nikandish:** the exact dimension-six chromatic number is 15. The independent
+  certificate checks all 2,824 subspaces and 3,986,076 pairs. Public PR #1
+  contains Nikandish’s proof, geometry and code commits, making reciprocal
+  contributions directly inspectable. PR snapshot `d32555c` remains open.
+  Its historical Lean result contains native-evaluation axioms; the slide
+  accurately presents a checked finite certificate, not a pure kernel result.
+  Dimension seven and a structural coloring rule remain open.
+- **Campbell and Cloitre:** their proposed recurrences led to a public explicit
+  solution for Campbell’s example (ratio liminf 2/5, limsup 3/4) and golden/Fibonacci
+  structure for Cloitre’s example. These are written proofs and finite checks,
+  not Lean formalizations. Cloitre’s full ratio convergence remains open;
+  no joint-paper authorship is claimed.
+
+The slide uses three result-led columns with public links and one next question
+per project. The proposal offers active projects and the open contribution
+community alongside the harness. It does not imply that these researchers have
+already agreed to participate in OMM.
+
+## Growth and research foundations
+
+Slide 6 adds a single overview between the public research cases and the harness
+explanation. It shows cumulative frozen theorem statements increasing from
+15,113 to 34,526 over September 2–27, 2026: +19,413, or 2.28×.
+The chart uses actual source timestamps, a linear count axis starting at zero,
+and the first public baseline plus the last available source snapshot per UTC day.
+There is no interpolation beyond straight segments and no extrapolation.
+
+`site/assets/open-math/theorem-growth.json` pins every point to a source commit
+and published Truth release, plus a hash of the sorted statement IDs.
+The count is unique `statement_id` values with `kind=theorem` in schema-v5 Freeze
+records under `Golden/Frozen/accepted`. It includes retained historical frozen
+statements. It excludes definitions, constructors, blueprint nodes and module
+counts; it does not estimate the number of distinct mathematical ideas.
+
+Reproduce every count without running Lean:
+
+```sh
+python tools/verify_open_math_growth.py /path/to/trureturing
+```
+
+Regenerate the standalone SVG using Matplotlib in an isolated rendering environment:
+
+```sh
+python tools/render_open_math_growth.py
+```
+
+Matplotlib is not a site or CI dependency. The chart is a static, locally bundled
+SVG and stays visible offline and in PDF exports.
+
+The philosophy appears as a research thesis with three compact lines: observation
+scales and information escape; relations of relations and recursion; spacetime
+and holographic geometry. The source manifest links the actual theory texts.
+Speaker notes distinguish this research orientation from an unconditional claim
+that every single readout must lose information: an injective readout can be
+complete on its stated domain. The cooperation line joins human direction,
+machine rigor and open contribution to OMM.
 
 ## Harness core
 
-Slide 6 explains the four requirements together:
+Slide 9 explains the four requirements together:
 
 - **Reference retrieval:** search local declarations, pinned mathlib and admissible
   third-party Lean libraries before proving. Check assumptions and directly import
@@ -57,7 +131,7 @@ formalization. The deck describes the research discipline without claiming a
 universal automated novelty judge. A preregistered named external open-problem
 resolution has a separate admission basis; speaker notes preserve that distinction.
 
-Slide 10 proposes integrating OMM into this harness, without an invented schedule
+Slide 12 proposes integrating OMM into this harness, without an invented schedule
 or fixed number of models or questions. The joint output is checked mathematics,
 sources and dependencies that researchers and community contributors can extend.
 
@@ -115,49 +189,33 @@ a distinct admission basis for preregistered named external open-problem resolut
 readable without JavaScript. Print restores the initial state and then restores
 the live selection afterward.
 
-## An embedded presentation of the actual Pages evidence
+## Output counts and research reach
 
-Slide 7 embeds a dedicated presentation view of actual Atlas identities and relationships. It is an offline excerpt of
-the published product, with direct links into Atlas, the generated result pages,
-source history and Evolution. It does not iframe the full website or call a live
-API during a presentation.
+The October 1 registry has 439 unique problem IDs: 336 proofs and 103
+refutations. `problem-resolutions.json` publishes their IDs, titles, original
+sources and kinds without correspondence. This is a recorded-resolution count,
+including counterexamples, and not a claim that every result has new priority.
+The currently deployed catalog has 419 released entries at source `2a9d8fea`;
+the deck labels the larger count as recorded to keep the publication distinction.
 
-- The complete excerpt contains **79 modules and 97 module-import edges**:
-  `DeficitInteger`, its three direct prerequisites, and all 75 reachable downstream
-  modules. Desktop opens with the complete network; mobile opens the local view.
-- Selecting a node updates its explanation, full-graph degree/reach counts and
-  evidence links. The local view shows up to five prerequisites and five direct
-  dependents; it says when that display limit is reached. Boundary nodes outside
-  the bundled exploration metadata open their immutable result pages directly.
-- A guided path focuses `DeficitInteger → DeficitThreeValued → AlmostAdditivity`.
-  Its three Lean statement excerpts are verbatim statement headers from the
-  pinned source. They are excerpts, not the complete proofs.
-- The record tab links to the immutable result page, Git history at the pinned
-  commit, and the current Evolution page for the selected identity. Public Atlas
-  and Evolution may have advanced beyond the deck snapshot.
-- Colors group Deficit, Analytic and other modules. Coordinates are a deterministic
-  force layout for presentation, not mathematical coordinates or proof steps.
+Twenty-plus refers to 28 named researchers across 16 two-way mathematical
+correspondence threads, including copied coauthors. The manifest lists the
+names and explains this scope. It does not mean twenty coauthored papers or
+independent responses from every participant. The two arXiv papers are verified
+separately. Affiliation labels refer to individuals, not institutional partners.
+The user's remembered UK contact is supported by The Open University and Queen
+Mary records; Oxford was not substantiated and is not claimed. Campbell's OpenAI
+affiliation was directly confirmed in correspondence. Other displayed affiliations
+are verified in the linked original papers.
 
-`site/assets/open-math/atlas-excerpt.json` records source identities, the full
-prerequisite/dependent lists for selectable modules, the excerpt edges, layout
-positions, statement excerpts and historical observation receipts. Explanations
-come from published Atlas metadata. Interface text and the three guided-path
-summaries are bilingual; other mathematical descriptions retain their source
-language and are labeled accordingly.
+## Reusable knowledge
 
-The source graph's raw SHA-256 is
-`5841574f82ceafbe52a1f3a63dff19822e25168a0c1adaeaa251e3eef460ae69`.
-It was obtained from `data/pages-atlas-view.v1.json` and checked against the
-published manifest. The graph, source statements and release links pin:
-
-- Source commit: `a450fbe4eed778b0b5f5b4954ce7f9a500f074c0`.
-- Truth release: `f8a59e9e5c1ec71a983cd8844eaf6b9f0b55555ba3a49dc58550db6ab2446873`.
-
-Rebuild the network SVG and deterministic node positions from that excerpt with:
-
-```sh
-node tools/render_open_math_graphs.mjs
-```
+Slide 2 uses `atlas-network.svg`, the existing pinned module-import network,
+as a compact visual of accumulated reusable results. The full Atlas is linked.
+The 79-module / 97-edge excerpt and immutable provenance remain in
+`atlas-excerpt.json`. The deck does not load its former interactive inspector
+or fetch its JSON during a presentation. The dependency graph is a consequence
+of reuse, not the project objective or an authorship map.
 
 ## Preview, interaction and export
 
@@ -167,16 +225,10 @@ remote data access is required for the embedded presentation.
 
 - Desktop: 1280×720 presentation stage. Small screens: a responsive document.
 - `?view=read` / `?view=present` select the mode; `?lang=zh-CN` selects Chinese.
-- `#s1` through `#s11` link to a slide. Arrow keys and Home/End navigate;
-  `N` shows notes and `F` toggles fullscreen. Graph controls keep their own
-  keyboard events; tabs support left/right arrows. Mobile graph touches do not
-  trigger a slide swipe.
-- Print / PDF produces eleven landscape pages. The dependency slide prints a
-  consistent local view and explanation, even after other live interactions.
-- With JavaScript disabled or the data request failing, the cover, complete
-  static local diagram, explanation and public evidence links
-  remain usable. Interaction controls stay disabled instead of pretending to
-  work. The whole deck remains readable.
+- `#s1` through `#s13` link to a slide. Arrow keys and Home/End navigate;
+  `N` shows notes and `F` toggles fullscreen. The information-escape controls retain their own interaction.
+- Print / PDF produces thirteen landscape pages. Bundled images remain visible offline.
+- With JavaScript disabled or the data request failing, the whole deck, source links and static escape illustration remain readable.
 
 For the repository's isolated Playwright/Chrome browser validation:
 
@@ -185,8 +237,15 @@ python tests/browser/open_math_deck.py --output /tmp/open-math-review
 ```
 
 It tests both languages, all slides, containment, mobile and smaller desktop
-viewports, node selection, source excerpts, record links, tab keyboard handling,
-escape illustration, no-JavaScript and failed-fetch fallbacks. It produces
+viewports, paper images, affiliation entries, escape interactions and no-JavaScript
+reading. It produces
 screenshots and both PDFs; exported links use public Pages, not the local test
 server. `tests/test_open_math_deck.py` also checks edge direction against import
 records, complete downstream closure, pinned evidence and translation coverage.
+
+The twelve-person research network has its own slide immediately after the
+output slide. Names have a consistent primary type size, with affiliations below,
+in three columns and four rows. Long institution names have space to wrap within
+a stable row. On phones this becomes one column. The output slide now shows
+only the three headline counts, two larger manuscript images and the source link.
+Topics and detailed relationship scope remain in the evidence manifest.
