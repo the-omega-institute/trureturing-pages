@@ -1,6 +1,6 @@
 # Open Math collaboration pitch
 
-`site/open-math.html` is a twelve-slide bilingual pitch for SAIR's Open Math Model
+`site/open-math.html` is a thirteen-slide bilingual pitch for SAIR's Open Math Model
 initiative. It leads with actual human–AI research and a public joint manuscript.
 The harness combines reference retrieval, formalization, information escape and
 rejection of bind-only output. The proposal is to connect OMM to this research
@@ -10,20 +10,20 @@ harness and open contribution workflow, with mathematicians guiding the question
 2. Why: intuition, AI exploration and reading, Lean formalization, and feedback
    from real mathematical problems. A small real dependency graph explains reuse.
 3. Outputs: 439 recorded problem resolutions, two joint arXiv papers with real
-   PDF images, and 20+ researchers in mathematical exchanges. Twelve selected researchers span OpenAI, NUS, IISc, Queen Mary, Radboud,
-   The Open University, UBC, UCF, NTNU, Jundi-Shapur and OEIS. Their research topics and source links are in the
-   evidence manifest.
-4. Reciprocal work: Sahbi’s joint paper, Nikandish’s exact coloring and shared
+   PDF images, and 20+ researchers in mathematical exchanges.
+4. Research conversations: twelve names on a dedicated slide, in three columns
+   and four rows, with readable affiliations and consistent alignment.
+5. Reciprocal work: Sahbi’s joint paper, Nikandish’s exact coloring and shared
    writing, Campbell/Cloitre recurrence proofs and next questions.
-5. Growth and research foundations: 15,113 → 34,526 frozen theorem statements,
+6. Growth and research foundations: 15,113 → 34,526 frozen theorem statements,
    information escape, recursive relations, spacetime and holographic geometry.
-6. Intrinsic information escape: different states indistinguishable to the catalog.
-7. Leave-one-out gain: what distinctions disappear when a contribution is removed.
-8. Harness: retrieval, information escape, rejecting bind-only, formalization.
-9. Start before becoming an expert; learn by making one step precise.
-10. EQT2: Team Omega #1 on every leaderboard, 1889/1889 certified.
-11. Connect OMM to the harness and open contribution loop.
-12. Start with one idea. Make one step precise.
+7. Intrinsic information escape: different states indistinguishable to the catalog.
+8. Leave-one-out gain: what distinctions disappear when a contribution is removed.
+9. Harness: retrieval, information escape, rejecting bind-only, formalization.
+10. Start before becoming an expert; learn by making one step precise.
+11. EQT2: Team Omega #1 on every leaderboard, 1889/1889 certified.
+12. Connect OMM to the harness and open contribution loop.
+13. Start with one idea. Make one step precise.
 
 The user’s oral narrative drives the order. The matching English talk track is
 in `docs/OPEN_MATH_TALK_TRACK.md`. The previous full Atlas interface has been
@@ -48,7 +48,7 @@ verifies the claims against public artifacts. The public evidence manifest is
 `site/assets/open-math/research-progress.json`. No private correspondence,
 contact details or author praise is copied into the site.
 
-Slide 4 shows three concrete research loops:
+Slide 5 shows three concrete research loops:
 
 - **Sahbi:** arXiv:2609.25128v3 publicly lists Ma, Sahbi and Wenlin. The
   hypercube theorem is Lean formalized; subsequent grid proofs and exact
@@ -73,7 +73,7 @@ already agreed to participate in OMM.
 
 ## Growth and research foundations
 
-Slide 5 adds a single overview between the public research cases and the harness
+Slide 6 adds a single overview between the public research cases and the harness
 explanation. It shows cumulative frozen theorem statements increasing from
 15,113 to 34,526 over September 2–27, 2026: +19,413, or 2.28×.
 The chart uses actual source timestamps, a linear count axis starting at zero,
@@ -112,7 +112,7 @@ machine rigor and open contribution to OMM.
 
 ## Harness core
 
-Slide 8 explains the four requirements together:
+Slide 9 explains the four requirements together:
 
 - **Reference retrieval:** search local declarations, pinned mathlib and admissible
   third-party Lean libraries before proving. Check assumptions and directly import
@@ -131,7 +131,7 @@ formalization. The deck describes the research discipline without claiming a
 universal automated novelty judge. A preregistered named external open-problem
 resolution has a separate admission basis; speaker notes preserve that distinction.
 
-Slide 11 proposes integrating OMM into this harness, without an invented schedule
+Slide 12 proposes integrating OMM into this harness, without an invented schedule
 or fixed number of models or questions. The joint output is checked mathematics,
 sources and dependencies that researchers and community contributors can extend.
 
@@ -225,9 +225,9 @@ remote data access is required for the embedded presentation.
 
 - Desktop: 1280×720 presentation stage. Small screens: a responsive document.
 - `?view=read` / `?view=present` select the mode; `?lang=zh-CN` selects Chinese.
-- `#s1` through `#s12` link to a slide. Arrow keys and Home/End navigate;
+- `#s1` through `#s13` link to a slide. Arrow keys and Home/End navigate;
   `N` shows notes and `F` toggles fullscreen. The information-escape controls retain their own interaction.
-- Print / PDF produces twelve landscape pages. Bundled images remain visible offline.
+- Print / PDF produces thirteen landscape pages. Bundled images remain visible offline.
 - With JavaScript disabled or the data request failing, the whole deck, source links and static escape illustration remain readable.
 
 For the repository's isolated Playwright/Chrome browser validation:
@@ -243,11 +243,9 @@ screenshots and both PDFs; exported links use public Pages, not the local test
 server. `tests/test_open_math_deck.py` also checks edge direction against import
 records, complete downstream closure, pinned evidence and translation coverage.
 
-The research-conversations strip now shows twelve individual researchers in a
-six-column, two-row layout with only affiliation and name visible.
-Research topics and individual source links stay in the manifest and case studies
-to keep the output slide quiet. It prioritizes actual exchanges and active research
-work: the original four plus Venkatesh, Bosma, Israel, Hughes, Eu, Nikandish,
-Cloitre and Hasler. Israel’s contribution is OEIS proof integration. Emeritus
-status is retained in the source manifest for Israel and Hughes; OEIS contributor
-is a community role. No institutional partnership is claimed.
+The twelve-person research network has its own slide immediately after the
+output slide. Names have a consistent primary type size, with affiliations below,
+in three columns and four rows. Long institution names have space to wrap within
+a stable row. On phones this becomes one column. The output slide now shows
+only the three headline counts, two larger manuscript images and the source link.
+Topics and detailed relationship scope remain in the evidence manifest.
