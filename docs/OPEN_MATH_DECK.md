@@ -11,8 +11,8 @@ harness and open contribution workflow, with mathematicians guiding the question
    from real mathematical problems. A small real dependency graph explains reuse.
 3. Outputs: 439 recorded problem resolutions, two joint arXiv papers with real
    PDF images, and 20+ researchers in mathematical exchanges. Twelve selected researchers span OpenAI, NUS, IISc, Queen Mary, Radboud,
-   The Open University, UBC, UCF, NTNU, Jundi-Shapur and OEIS. Each has a
-   specific research-topic link.
+   The Open University, UBC, UCF, NTNU, Jundi-Shapur and OEIS. Their research topics and source links are in the
+   evidence manifest.
 4. Reciprocal work: Sahbi’s joint paper, Nikandish’s exact coloring and shared
    writing, Campbell/Cloitre recurrence proofs and next questions.
 5. Growth and research foundations: 15,113 → 34,526 frozen theorem statements,
@@ -244,7 +244,9 @@ server. `tests/test_open_math_deck.py` also checks edge direction against import
 records, complete downstream closure, pinned evidence and translation coverage.
 
 The research-conversations strip now shows twelve individual researchers in a
-six-column, two-row layout. It prioritizes actual exchanges and active research
+six-column, two-row layout with only affiliation and name visible.
+Research topics and individual source links stay in the manifest and case studies
+to keep the output slide quiet. It prioritizes actual exchanges and active research
 work: the original four plus Venkatesh, Bosma, Israel, Hughes, Eu, Nikandish,
 Cloitre and Hasler. Israel’s contribution is OEIS proof integration. Emeritus
 status is retained in the source manifest for Israel and Hughes; OEIS contributor
