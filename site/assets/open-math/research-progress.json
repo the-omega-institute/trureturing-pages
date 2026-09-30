@@ -6,7 +6,10 @@
       "id": "cloitre-padovan",
       "result": "A Padovan-automatic description of a nested recurrence",
       "status": "Public three-author arXiv preprint and versioned reproducibility archive",
-      "sources": ["https://arxiv.org/abs/2609.33421", "https://doi.org/10.5281/zenodo.22979217"],
+      "sources": [
+        "https://arxiv.org/abs/2609.33421",
+        "https://doi.org/10.5281/zenodo.22979217"
+      ],
       "verification_scope": "Existing Lean proof archive; 69 modules and 18 final theorem audits refer to September 23. No new Lean execution for this presentation.",
       "image_source": "https://github.com/the-omega-institute/a076502-padovan/blob/v1.0.1/manuscript/output/pdf/paper.pdf"
     },
@@ -14,7 +17,10 @@
       "id": "sahbi-subquorum",
       "result": "Hypercube sub-quorum coloring number is 2^(n-1) for every n >= 2",
       "status": "Public arXiv v3 lists Haobo Ma, Rafik Sahbi and Zhang Wenlin",
-      "sources": ["https://arxiv.org/abs/2609.25128v3", "https://github.com/the-omega-institute/subquorum-colorings/blob/d8f15435f8ea2b4b97ac94008f1611204cbd1c0b/docs/GRID_RESULTS.md"],
+      "sources": [
+        "https://arxiv.org/abs/2609.25128v3",
+        "https://github.com/the-omega-institute/subquorum-colorings/blob/d8f15435f8ea2b4b97ac94008f1611204cbd1c0b/docs/GRID_RESULTS.md"
+      ],
       "verification_scope": "Hypercube proof has existing Lean formalization. Subsequent grid work contains written proofs and exact strip certificates. General grid conjecture remains open."
     },
     {
@@ -22,8 +28,18 @@
       "result": "chi(O_6*) = 15, with 2824 nonzero subspaces and 3986076 vertex pairs checked",
       "status": "Joint manuscript and collaborator code in an open PR",
       "source_commit": "d32555cba23277a2162c224ac7cc0cfc0c9a40c7",
-      "sources": ["https://github.com/the-omega-institute/binary-subspace-orthogonality/pull/1", "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/d32555cba23277a2162c224ac7cc0cfc0c9a40c7/README.md", "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/d32555cba23277a2162c224ac7cc0cfc0c9a40c7/notes/formal-verification-audit.md"],
-      "collaborator_commits": ["ae4844d520", "ad269bf5cf", "144ce045ec", "076b518af8", "0a239c8989"],
+      "sources": [
+        "https://github.com/the-omega-institute/binary-subspace-orthogonality/pull/1",
+        "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/d32555cba23277a2162c224ac7cc0cfc0c9a40c7/README.md",
+        "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/d32555cba23277a2162c224ac7cc0cfc0c9a40c7/notes/formal-verification-audit.md"
+      ],
+      "collaborator_commits": [
+        "ae4844d520",
+        "ad269bf5cf",
+        "144ce045ec",
+        "076b518af8",
+        "0a239c8989"
+      ],
       "verification_scope": "Independent finite certificate establishes the exact coloring. Historical Lean build has native-evaluation axioms; do not describe as pure kernel validation. The all-dimensional clique formula has a separate existing Lean proof. Dimension seven and a structural coloring rule remain open."
     },
     {
@@ -31,8 +47,72 @@
       "result": "Explicit Campbell recurrence formula with ratio liminf 2/5 and limsup 3/4; global golden structure and Fibonacci collars for Cloitre's recurrence",
       "status": "Public proofs and reproducible computations responding to the authors' recurrence proposals",
       "source_commit": "a2c72a3da09add0b39004d6b3f2bbd699c3fe04d",
-      "sources": ["https://github.com/the-omega-institute/nested-recurrences/blob/a2c72a3da09add0b39004d6b3f2bbd699c3fe04d/README.md", "https://github.com/the-omega-institute/nested-recurrences/blob/a2c72a3da09add0b39004d6b3f2bbd699c3fe04d/STATUS.md"],
+      "sources": [
+        "https://github.com/the-omega-institute/nested-recurrences/blob/a2c72a3da09add0b39004d6b3f2bbd699c3fe04d/README.md",
+        "https://github.com/the-omega-institute/nested-recurrences/blob/a2c72a3da09add0b39004d6b3f2bbd699c3fe04d/STATUS.md"
+      ],
       "verification_scope": "Written proofs and exact finite checks; no Lean formalization or agreed joint paper authorship. Full convergence of Cloitre's ratio remains open."
+    }
+  ],
+  "headline_metrics": {
+    "recorded_problem_resolutions": 439,
+    "proved": 336,
+    "refuted": 103,
+    "problem_manifest": "problem-resolutions.json",
+    "joint_arxiv_preprints": 2,
+    "researchers_display": "20+",
+    "researcher_count_scope": "27 unique named participants in 15 two-way mathematical correspondence threads, including copied coauthors. Counts research exchanges, not jointly authored papers, institutional partnerships or an independent reply from every person.",
+    "counted_researchers": [
+      "John M. Campbell",
+      "Benoit Cloitre",
+      "Reza Nikandish",
+      "Dan Rust",
+      "Gandhar Joshi",
+      "Gennadiy Averkov",
+      "Katherina von Dichter",
+      "Ivan Soprunov",
+      "Louxin Zhang",
+      "Cedric Chauve",
+      "Maximilian F. Hasler",
+      "Neetu Chanania",
+      "Mohan",
+      "R. Venkatesh",
+      "Chaithra P",
+      "Shushma Rani",
+      "Sanjaye Ramgoolam",
+      "Garreth Kemp",
+      "Sen-Peng Eu",
+      "Thomas Ordowski",
+      "Vaclav Kotesovec",
+      "Robert Israel",
+      "Wieb Bosma",
+      "Jonathan Grube",
+      "Robbert Fokkink",
+      "Thian Tromp",
+      "Rafik Sahbi"
+    ]
+  },
+  "selected_researcher_affiliations": [
+    {
+      "person": "John M. Campbell",
+      "affiliation": "OpenAI",
+      "affiliation_basis": "Directly confirmed by the researcher in current correspondence; no institutional partnership is claimed.",
+      "public_research": "https://github.com/the-omega-institute/nested-recurrences"
+    },
+    {
+      "person": "Dan Rust",
+      "affiliation": "The Open University, UK",
+      "source": "https://arxiv.org/html/2501.05830v2"
+    },
+    {
+      "person": "Sanjaye Ramgoolam",
+      "affiliation": "Queen Mary University of London",
+      "source": "https://arxiv.org/html/2603.05259"
+    },
+    {
+      "person": "Louxin Zhang",
+      "affiliation": "National University of Singapore",
+      "source": "https://arxiv.org/html/2505.13796v2"
     }
   ]
 }

@@ -21,6 +21,17 @@ The output is 1415 × 2000 pixels. Crop with Pillow using the box
 pixels and original proportions; do not reconstruct the paper in HTML.
 
 The image links to this versioned GitHub manuscript. As of October 1, 2026,
-the caption links to the public arXiv abstract at https://arxiv.org/abs/2609.33421.
+the adjacent paper text links to the public arXiv abstract at https://arxiv.org/abs/2609.33421.
 The caption labels the pixels as an archived manuscript excerpt; they have not
 been replaced with an arXiv rendering.
+
+## Sahbi arXiv v3 screenshot
+
+`sahbi-arxiv-page-1.png` is an unretouched first-page crop from
+https://arxiv.org/pdf/2609.25128v3 . It retains the original title, all three
+authors, affiliations and complete abstract. Render page 1 with
+`pdftoppm -f 1 -singlefile -scale-to 1800 -png paper.pdf page-1`, then crop the
+1273 × 1800 PNG at `(140, 225, 1140, 1145)` to produce 1000 × 920 pixels.
+
+Source PDF SHA-256: `0d4f4956f381d9846802d6fb0fd25ddb6ad36626a5807bb3f76674dc142939c2`.
+The image links to the exact v3 PDF; adjacent text links to its abstract page.

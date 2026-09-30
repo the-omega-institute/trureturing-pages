@@ -1,0 +1,2646 @@
+{
+  "as_of": "2026-10-01",
+  "scope": "Recorded resolutions of named external problems, including proofs and refutations. A recorded resolution is not a claim of new mathematical priority.",
+  "count": 439,
+  "proved": 336,
+  "refuted": 103,
+  "published_count_at_check": 419,
+  "published_source_commit": "2a9d8feab7b547c434ae7844ca6383c68045d7c3",
+  "published_catalog": "https://the-omega-institute.github.io/trureturing-pages/assets/research-catalog.json",
+  "entries": [
+    {
+      "id": "archer-bourne-cube-2143-count",
+      "title": "Archer-Bourne cube-avoidance counting equality",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.46298/dmtcs.17199"
+    },
+    {
+      "id": "campbell-currie-rampersad-eq-11",
+      "title": "Equation (11) for the reduced abelian complexity of the Thue-Morse word",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.48550/arXiv.2509.16034"
+    },
+    {
+      "id": "chamberland-dilcher-conjecture-2-1",
+      "title": "Chamberland-Dilcher Conjecture 2.1: consecutive zero blocks",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2510.26291v1#S2.Thmtheorem1"
+    },
+    {
+      "id": "erdos-1979-exactly-one-divisor-unimodality",
+      "title": "Refutation of the one-divisor interval-density unimodality suggestion",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.1007/978-3-642-39286-3_23"
+    },
+    {
+      "id": "erdos-1985-consecutive-product-squarefree-factor-refutation",
+      "title": "Starting value 47 refutes Erdős's proposed unique counterexample",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.1216/RMJ-1985-15-2-353"
+    },
+    {
+      "id": "erdos-1989-mahler-binary-digit-square-refutation",
+      "title": "Refutation of Erdős's report of Mahler's binary-digit square uniqueness",
+      "kind": "refuted",
+      "source_url": "https://users.renyi.hu/~p_erdos/1989-34.pdf"
+    },
+    {
+      "id": "fiebig-mbirika-spilker-even-descent-dichotomy",
+      "title": "The even-parameter descent dichotomy for Lucas sequences",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2408.14632v2"
+    },
+    {
+      "id": "fiebig-mbirika-spilker-even-period-exception",
+      "title": "The single exceptional modulus for equality of even Lucas periods",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2408.14632v2"
+    },
+    {
+      "id": "fiebig-mbirika-spilker-vertical-slice",
+      "title": "Necessary and sufficient conditions for the vertical slice result",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2408.14632v2"
+    },
+    {
+      "id": "greedy-three-sumfree-two-parameter",
+      "title": "Two-parameter greedy three-sumfree membership",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.48550/arXiv.2503.04122"
+    },
+    {
+      "id": "kok-jaco-exponential-domination-refutation",
+      "title": "Refutation of Kok's A000149 domination clause",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.48550/arXiv.2507.16500"
+    },
+    {
+      "id": "kreh-2015-minimal-sets-conjecture-18",
+      "title": "Refutation of the divergence sentence in Kreh's Conjecture 18",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL18/Kreh/kreh2.pdf"
+    },
+    {
+      "id": "oeis-a000040-detlefs-fibonacci-fermat-prime-characterization-refutation",
+      "title": "Refutation of Detlefs's A000040 Fibonacci-Fermat prime characterization",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A000040"
+    },
+    {
+      "id": "oeis-a000364-secant-number-pure-period-refutation",
+      "title": "Refutation of the A000364 pure-periodicity conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A000364"
+    },
+    {
+      "id": "oeis-a001108-krizek-triangular-square-sigma-parity",
+      "title": "The A001108 triangular-square indices have two odd divisor sums",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A001108"
+    },
+    {
+      "id": "oeis-a002487-adamson-stern-farey-inverse",
+      "title": "Stern values invert the next Farey-tree numerator",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A002487"
+    },
+    {
+      "id": "oeis-a003558-marcus-tent-map-suborder",
+      "title": "Marcus's tent-map cycle length and the signed suborder of two",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A003558"
+    },
+    {
+      "id": "oeis-a004123-generalized-weak-orders-totient-period",
+      "title": "A004123 totient-period conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A004123"
+    },
+    {
+      "id": "oeis-a005590-zero-set-fibbinary-characterization",
+      "title": "The A005590 zero set at multiples of three is characterized",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A005590"
+    },
+    {
+      "id": "oeis-a006068-kurkov-gray-inverse-recurrence",
+      "title": "Kurkov's highest-bit recurrence for inverse Gray code",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A006068"
+    },
+    {
+      "id": "oeis-a008365-detlefs-rough-residue-characterization-refutation",
+      "title": "Refutation of Detlefs's A008365 four-residue characterization",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A008365"
+    },
+    {
+      "id": "oeis-a008474-prime-exponent-sum-iteration-reaches-five",
+      "title": "The A008474 prime-exponent sum iteration reaches five",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A008474"
+    },
+    {
+      "id": "oeis-a008590-gcd-sum-parity-characterization",
+      "title": "The A008590 gcd-filtered sums characterize the positive multiples of eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A008590"
+    },
+    {
+      "id": "oeis-a018800-least-prime-prefix-suffix-refutation",
+      "title": "Refutation of the A018800 least-prime prefix suffix-bound conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A018800"
+    },
+    {
+      "id": "oeis-a023887-yanev-sigma-radical-identity",
+      "title": "Yanev's general sigma-radical identity",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A023887"
+    },
+    {
+      "id": "oeis-a038867-cube-gap-five-no-square",
+      "title": "The A038867 no-square conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A038867"
+    },
+    {
+      "id": "oeis-a046528-sigma-tau-rational-power-mersenne-characterization",
+      "title": "Products of distinct Mersenne primes satisfy exactly the sigma-tau rational-power relation",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A046528"
+    },
+    {
+      "id": "oeis-a049473-kimberling-rounded-half-root-two-difference",
+      "title": "The differences of A049473 occupy two shifted Beatty sequences",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A049473"
+    },
+    {
+      "id": "oeis-a049591-prime-gap-divisor-characterization-refutation",
+      "title": "Refutation of the A049591 divisor-count prime-gap characterization",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A049591"
+    },
+    {
+      "id": "oeis-a051903-yanev-max-exponent-radical-recurrence",
+      "title": "Yanev's maximum prime exponent recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A051903"
+    },
+    {
+      "id": "oeis-a054096-stephan-triangle-second-column",
+      "title": "Stephan's A054096 second-column conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A054096"
+    },
+    {
+      "id": "oeis-a059894-stephan-complement-reverse-recurrence",
+      "title": "Stephan's A059894 complement-reversal conjectures",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A059894"
+    },
+    {
+      "id": "oeis-a060693-schroeder-peak-alternating-quadratic-moment",
+      "title": "Schulte's alternating quadratic peak moment for Schröder paths",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A060693"
+    },
+    {
+      "id": "oeis-a064618-stirling-transform-totient-period",
+      "title": "A064618 totient-period conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A064618"
+    },
+    {
+      "id": "oeis-a068012-correction-recurrence",
+      "title": "Corneth's second recurrence for OEIS A068012",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A068012"
+    },
+    {
+      "id": "oeis-a068012-subset-sum-doubling",
+      "title": "The A068012 subset sum doubling conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A068012"
+    },
+    {
+      "id": "oeis-a072872-power-minus-index-prime-bound-refutation",
+      "title": "Refutation of the A072872 prime-index upper-bound conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A072872"
+    },
+    {
+      "id": "oeis-a074724-cloitre-fib-four-three-adic-valuation-sigma",
+      "title": "The Marcus and Bala formulas for the power of three in F(4n)",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A074724"
+    },
+    {
+      "id": "oeis-a076502-nested-recurrence-floor-refutation",
+      "title": "Refutation of the A076502 nested-recurrence floor-offset conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A076502"
+    },
+    {
+      "id": "oeis-a077864-trinomial-odd-diagonal-rational-series",
+      "title": "The trinomial odd diagonal of OEIS A077864",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A077864"
+    },
+    {
+      "id": "oeis-a079063-sqrt-prime-gap-lower-bound-refutation",
+      "title": "Refutation of the A079063 square-root prime-gap lower-bound conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A079063"
+    },
+    {
+      "id": "oeis-a084068-pell-companion-gcd",
+      "title": "The A084068 Pell gcd conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A084068"
+    },
+    {
+      "id": "oeis-a089610-square-interval-prime-count-eventual-increase-refutation",
+      "title": "Refutation of the A089610 eventual strict-increase conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A089610"
+    },
+    {
+      "id": "oeis-a090079-yanev-run-compression-closed-form",
+      "title": "Yanev's closed form for binary run compression",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A090079"
+    },
+    {
+      "id": "oeis-a090825-bernoulli-integrality-refutation",
+      "title": "Refutation of Cloitre's A090825 Bernoulli-integrality conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A090825"
+    },
+    {
+      "id": "oeis-a091259-reduced-numerator-mod-three",
+      "title": "The A091259 congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A091259"
+    },
+    {
+      "id": "oeis-a092028-least-self-divisor-power-minus-one",
+      "title": "The least self-divisor exponent in OEIS A092028",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A092028"
+    },
+    {
+      "id": "oeis-a096127-factorial-square-divisibility-prime-power",
+      "title": "Exact factorial-square divisibility in A096127",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A096127"
+    },
+    {
+      "id": "oeis-a097602-square-counting-recurrence-square-values",
+      "title": "Square values in the A097602 square-counting recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A097602"
+    },
+    {
+      "id": "oeis-a100952-log-bounded-semiprime-partition-refutation",
+      "title": "Refutation of the A100952 log-bounded semiprime-partition conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A100952"
+    },
+    {
+      "id": "oeis-a103585-sloping-binary-period-refutation",
+      "title": "Refutation of the A103585 period-43 comment",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A103585"
+    },
+    {
+      "id": "oeis-a104863-floor-sqrt-recurrence-refutation",
+      "title": "Refutation of the A104863 floor-square-root recurrence conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A104863"
+    },
+    {
+      "id": "oeis-a105595-barry-triangle-row-sums-odd",
+      "title": "Every row sum of the A105594 triangle is odd",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A105595"
+    },
+    {
+      "id": "oeis-a107928-harmonic-mean-numerator-closed-form",
+      "title": "Closed form of the A107928 harmonic-mean-numerator recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A107928"
+    },
+    {
+      "id": "oeis-a110454-distinct-partition-concatenation-zero-indices",
+      "title": "The zero indices of A110454",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A110454"
+    },
+    {
+      "id": "oeis-a112041-dale-triple-scaling-prime-multiples-of-ten",
+      "title": "The A112041 prime scalings force the index to be four or divisible by ten",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A112041"
+    },
+    {
+      "id": "oeis-a116184-generalized-harmonic-thirty-seven-cube-progression",
+      "title": "Cubic divisibility of generalized harmonic numerators along Adamchuk's progression",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A116184"
+    },
+    {
+      "id": "oeis-a119623-divisor-pair-product-prime-preimages",
+      "title": "Prime values of the divisor-pair product sum have exactly two preimages",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A119623"
+    },
+    {
+      "id": "oeis-a119690-layman-odd-power-factorial-residue",
+      "title": "Layman's odd-power factorial residue classification",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A119690"
+    },
+    {
+      "id": "oeis-a122399-stirling-power-factorial-prime-period",
+      "title": "Prime periods of the A122399 Stirling power-factorial sum",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A122399"
+    },
+    {
+      "id": "oeis-a124418-mixed-parity-block-partition-product",
+      "title": "Hanna's mixed-parity block partition product in A124418",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A124418"
+    },
+    {
+      "id": "oeis-a126762-least-witness-exponent-shift-refutation",
+      "title": "Refutation of the A126762 least-witness exponent-shift conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A126762"
+    },
+    {
+      "id": "oeis-a129598-gcd-totient-position-refutation",
+      "title": "Refutation of the A129598 differing-position characterization",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A129598"
+    },
+    {
+      "id": "oeis-a131853-binary-gaussian-evaluation-zero-multiple-of-five",
+      "title": "Zeros of the A131853 binary Gaussian evaluation",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A131853"
+    },
+    {
+      "id": "oeis-a133901-palindrome-square-reversal-infinitude",
+      "title": "Palindrome-square reversal infinitude in A133901",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A133901"
+    },
+    {
+      "id": "oeis-a136162-krizek-next-prime-product-quadruplet",
+      "title": "The A136162 next-prime product has four prime neighbors only at q=3",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A136162"
+    },
+    {
+      "id": "oeis-a140869-sundaram-triangle-complement-prime",
+      "title": "The A140869 Sundaram-type triangle complement",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A140869"
+    },
+    {
+      "id": "oeis-a146557-collinear-triple-divisibility",
+      "title": "The A146557 collinear triple divisibility conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A146557"
+    },
+    {
+      "id": "oeis-a152020-rational-denominator-cube-shift",
+      "title": "The rational-denominator cube shift in A152020",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A152020"
+    },
+    {
+      "id": "oeis-a160627-israel-laguerre-four-parity",
+      "title": "Laguerre(n, 4) has odd numerator and denominator",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A160627"
+    },
+    {
+      "id": "oeis-a163617-gray-code-binary-recurrence-closed-form",
+      "title": "A Gray-code closed form for the A163617 binary recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A163617"
+    },
+    {
+      "id": "oeis-a175406-log-two-floor-refutation",
+      "title": "Refutation of the A175406 floor formula conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A175406"
+    },
+    {
+      "id": "oeis-a177680-twin-prime-average-multiple-of-five",
+      "title": "The A177680 twin-prime averages modulo five",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A177680"
+    },
+    {
+      "id": "oeis-a178294-four-grid-collinear-triples",
+      "title": "Collinear triples in the four-point grid",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A178294"
+    },
+    {
+      "id": "oeis-a192023-comb-wiener-determinant-refutation",
+      "title": "Refutation of the A192023 comb-Wiener determinant-count conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A192023"
+    },
+    {
+      "id": "oeis-a193351-alternating-divisor-sum-prime-square",
+      "title": "Prime alternating divisor sums in OEIS A193351",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A193351"
+    },
+    {
+      "id": "oeis-a204061-companion-pell-exp-base-five-residue",
+      "title": "Hanna's A204061 coefficients modulo five",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A204061"
+    },
+    {
+      "id": "oeis-a208342-joint-polynomial-pair-binomial-coefficients",
+      "title": "The A208342 coefficient formula for a jointly generated polynomial pair",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A208342"
+    },
+    {
+      "id": "oeis-a220181-alternating-weight-stirling-prime-period",
+      "title": "Prime periods of the A220181 alternating-weight Stirling sum",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A220181"
+    },
+    {
+      "id": "oeis-a221077-tanh-power-prime-period",
+      "title": "Refutation of the all-prime A221077 period conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A221077"
+    },
+    {
+      "id": "oeis-a222013-factorial-product-sum-catalan-parity",
+      "title": "Parity of the A222013 factorial product sum coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A222013"
+    },
+    {
+      "id": "oeis-a222014-factorial-square-exponent-sum-parity",
+      "title": "Parity of the A222014 factorial square-exponent sum",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A222014"
+    },
+    {
+      "id": "oeis-a224899-sinh-power-prime-period",
+      "title": "The prime-period conjecture for OEIS A224899",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A224899"
+    },
+    {
+      "id": "oeis-a226857-fibonacci-sum-product-recurrence",
+      "title": "The A226857 Fibonacci sum-product recurrence is proved",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A226857"
+    },
+    {
+      "id": "oeis-a228558-price-seventeen-four-prime-exponent",
+      "title": "Price's A228558 prime-exponent conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A228558"
+    },
+    {
+      "id": "oeis-a231329-price-nineteen-four-prime-exponent",
+      "title": "Price's A231329 prime-exponent conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A231329"
+    },
+    {
+      "id": "oeis-a231548-antisigma-decrease-refutation",
+      "title": "Refutation of the A231548 antisigma gap-three conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A231548"
+    },
+    {
+      "id": "oeis-a239293-ordowski-immediate-successor-weak-pseudoprime",
+      "title": "The immediate successor is the least weak pseudoprime exactly when it is an odd composite",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A239293"
+    },
+    {
+      "id": "oeis-a245786-integrality-gcd-record-refutation",
+      "title": "Refutation of the A245786 integrality-implies-gcd-record conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A245786"
+    },
+    {
+      "id": "oeis-a249621-square-prepend-one-append-twenty-five",
+      "title": "OEIS A249621 terminal digits for square concatenations",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A249621"
+    },
+    {
+      "id": "oeis-a254074-wu-digit-range-square-not-multiple-of-five",
+      "title": "No A254074 term is a multiple of five",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A254074"
+    },
+    {
+      "id": "oeis-a254748-twin-prime-mean-no-superdivisor",
+      "title": "The A254748 twin-prime mean has no superdivisor",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A254748"
+    },
+    {
+      "id": "oeis-a258409-divisor-difference-gcd-heinz",
+      "title": "The divisor-difference gcd and Heinz decoding identity in A258409",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A258409"
+    },
+    {
+      "id": "oeis-a260310-balanced-prime-divisor-pair-mod-six-refutation",
+      "title": "Refutation of the A260310 balanced-pair mod-six conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A260310"
+    },
+    {
+      "id": "oeis-a260407-krizek-all-multiples-of-the-order",
+      "title": "The A260407 condition holds at every positive multiple of the order",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A260407"
+    },
+    {
+      "id": "oeis-a266489-diagonal-index-divisibility",
+      "title": "A266489: clause C1, index divisibility on the frozen object",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A266489"
+    },
+    {
+      "id": "oeis-a266489-negative-power-diagonal-mod-two",
+      "title": "A266489: the mod-two congruence clause",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A266489"
+    },
+    {
+      "id": "oeis-a270236-rgf-antepenultimate-label-count",
+      "title": "The antepenultimate-label count in OEIS A270236",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A270236"
+    },
+    {
+      "id": "oeis-a270236-rgf-penultimate-label-count",
+      "title": "The penultimate-label count in OEIS A270236",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A270236"
+    },
+    {
+      "id": "oeis-a290322-cyclotomic-five-residue-sum",
+      "title": "The A290322 admissible residue sum conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A290322"
+    },
+    {
+      "id": "oeis-a292394-diagonal-index-divisibility",
+      "title": "A292394: square-index divisibility",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A292394"
+    },
+    {
+      "id": "oeis-a300732-diagonal-index-divisibility",
+      "title": "A300732: index divisibility",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A300732"
+    },
+    {
+      "id": "oeis-a300733-diagonal-index-divisibility",
+      "title": "A300733: index divisibility",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A300733"
+    },
+    {
+      "id": "oeis-a300734-diagonal-index-divisibility",
+      "title": "A300734: square-index divisibility",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A300734"
+    },
+    {
+      "id": "oeis-a301976-grid-no-leaf-mod-ten",
+      "title": "Kagey's modulo-ten congruence for no-leaf grid subgraphs",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A301976"
+    },
+    {
+      "id": "oeis-a301976-grid-no-leaf-recurrence",
+      "title": "Barker's recurrence for no-leaf subgraphs of the 3 X n grid",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A301976"
+    },
+    {
+      "id": "oeis-a302975-divisor-count-power-ratio-denominator-square",
+      "title": "OEIS A302975 divisor-count power-ratio denominator square",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A302975"
+    },
+    {
+      "id": "oeis-a305550-distinct-part-egf-totient-period",
+      "title": "Bala's OEIS A305550 totient-period conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A305550"
+    },
+    {
+      "id": "oeis-a305550-integral-egf-substitution-totient-period",
+      "title": "Bala's general integral e.g.f. substitution conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A305550"
+    },
+    {
+      "id": "oeis-a319197-lang-fib-dyadic-index-divisibility",
+      "title": "Dyadic divisibility at Lang's Fibonacci indices",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A319197"
+    },
+    {
+      "id": "oeis-a319927-odd-nonunitary-power-sum-refutation",
+      "title": "Refutation of the A319927 odd non-unitary power-sum conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A319927"
+    },
+    {
+      "id": "oeis-a326244-noncrossing-nonnesting-graph-recurrence",
+      "title": "Barker's recurrence for crossing- and nesting-free labeled graphs",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A326244"
+    },
+    {
+      "id": "oeis-a328959-divisor-count-prime-factor-bound",
+      "title": "The divisor-count prime-factor bound in A328959",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A328959"
+    },
+    {
+      "id": "oeis-a329278-triangular-residue-descent-count",
+      "title": "The triangular-residue descent count in A329278",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A329278"
+    },
+    {
+      "id": "oeis-a329369-printed-row-sum-range",
+      "title": "The printed index range of the sixth A329369 sum",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A329369"
+    },
+    {
+      "id": "oeis-a335901-self-referential-doubling-first-occurrence",
+      "title": "First Occurrences in OEIS A335901",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A335901"
+    },
+    {
+      "id": "oeis-a335925-self-referential-quotient-first-occurrence",
+      "title": "First occurrences in the A335925 self-referential quotient recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A335925"
+    },
+    {
+      "id": "oeis-a338040-weighted-stirling-power-prime-period",
+      "title": "Prime periods of the A338040 weighted Stirling power sum",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A338040"
+    },
+    {
+      "id": "oeis-a338193-egf-coefficients",
+      "title": "The EGF coefficients of A338193 and Kurkov's recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A338193"
+    },
+    {
+      "id": "oeis-a338636-continued-fraction-odd-square-mod-eight",
+      "title": "Divisibility of the A338636 coefficients by eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A338636"
+    },
+    {
+      "id": "oeis-a344598-alternating-gcd-sum-pillai",
+      "title": "Bala's alternating gcd-sum formula for A344598",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A344598"
+    },
+    {
+      "id": "oeis-a355872-bilateral-theta-reversion-mod-sixteen",
+      "title": "Coefficient congruences for the A355872 bilateral theta reversion",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A355872"
+    },
+    {
+      "id": "oeis-a359482-positive-permutation",
+      "title": "The permutation question for A359482",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A359482"
+    },
+    {
+      "id": "oeis-a363104-bilateral-quarter-shift-theta-mod-four",
+      "title": "The A363104 bilateral generating function modulo four",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A363104"
+    },
+    {
+      "id": "oeis-a363184-bilateral-quarter-double-shift-theta-mod-four",
+      "title": "The A363184 bilateral quarter-double-shift theta congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A363184"
+    },
+    {
+      "id": "oeis-a363308-catalan-cubic-composition-parity",
+      "title": "Parity of the cubic Catalan composition A363308",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A363308"
+    },
+    {
+      "id": "oeis-a363560-cubic-ninth-power-substitution-mod-three",
+      "title": "Divisibility of the A363560 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A363560"
+    },
+    {
+      "id": "oeis-a363956-positive-permutation",
+      "title": "The permutation conjecture for A363956",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A363956"
+    },
+    {
+      "id": "oeis-a365095-perturbed-diagonal-square-divisibility",
+      "title": "Square divisibility of the A365095 perturbed diagonal",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A365095"
+    },
+    {
+      "id": "oeis-a369083-reflected-quadratic-quarter-parity",
+      "title": "Binomial parity of the A369083 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A369083"
+    },
+    {
+      "id": "oeis-a372577-double-composition-mod-four",
+      "title": "Modulo-four classification of the A372577 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A372577"
+    },
+    {
+      "id": "oeis-a372991-factorial-quotient-linear-recurrence",
+      "title": "Mathar's linear recurrence for the A372991 factorial-quotient sequence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A372991"
+    },
+    {
+      "id": "oeis-a373308-cubed-binary-product-mod-three",
+      "title": "Divisibility modulo three of the A373308 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A373308"
+    },
+    {
+      "id": "oeis-a373312-unit-reversion-square-parity",
+      "title": "Square parity of the unit-reversion series A373312",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A373312"
+    },
+    {
+      "id": "oeis-a373561-gcd-bucketed-quadruple-sum",
+      "title": "The A373561 divisor-bucketed quadruple sum",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A373561"
+    },
+    {
+      "id": "oeis-a374568-catalan-double-composition-powers-of-four",
+      "title": "Powers-of-four parity of the A374568 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A374568"
+    },
+    {
+      "id": "oeis-a374570-catalan-composition-square-parity",
+      "title": "Parity of the Catalan-composition series A374570",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A374570"
+    },
+    {
+      "id": "oeis-a374571-fibbinary-square-substitution-parity",
+      "title": "Fibbinary parity of the A374571 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A374571"
+    },
+    {
+      "id": "oeis-a375439-cubic-ternary-substitution-parity",
+      "title": "Parity of the A375439 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A375439"
+    },
+    {
+      "id": "oeis-a376527-q-catalan-square-sum-parity",
+      "title": "Parity of q-Catalan row square sums",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A376527"
+    },
+    {
+      "id": "oeis-a378252-running-sum-residue-zero",
+      "title": "The A378252 running-sum residue conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A378252"
+    },
+    {
+      "id": "oeis-a378277-harmonic-triangle-alternating-row-sums",
+      "title": "Alternating row sums of the Fibonacci harmonic triangle",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A378277"
+    },
+    {
+      "id": "oeis-a378575-shifted-iterate-fixed-point-mod-four",
+      "title": "The A378575 shifted-iterate fixed-point congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A378575"
+    },
+    {
+      "id": "oeis-a378576-shifted-iterate-fixed-point-mod-five",
+      "title": "The A378576 shifted-iterate fixed-point congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A378576"
+    },
+    {
+      "id": "oeis-a378578-strip-three-ternary-catalan-parity",
+      "title": "Strip-three ternary Catalan parity for A378578",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A378578"
+    },
+    {
+      "id": "oeis-a378580-quotient-theta-composition-mod-four",
+      "title": "Coefficients of the A378580 quotient theta composition modulo four",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A378580"
+    },
+    {
+      "id": "oeis-a378581-theta-self-composition-mod-four",
+      "title": "The theta self-composition coefficients modulo four",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A378581"
+    },
+    {
+      "id": "oeis-a379204-bilateral-quartic-power-theta-mod-four",
+      "title": "Hanna's A379204 evenness conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A379204"
+    },
+    {
+      "id": "oeis-a380056-fourth-index-divisible-by-five",
+      "title": "The A380056 divisibility conjecture at multiples of four",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A380056"
+    },
+    {
+      "id": "oeis-a380678-quadratic-square-reversion-dyadic-support-parity",
+      "title": "Dyadic support of the odd coefficients of A380678",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A380678"
+    },
+    {
+      "id": "oeis-a380708-absolute-reciprocal-square-fibbinary-parity",
+      "title": "Fibbinary parity of the A380708 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A380708"
+    },
+    {
+      "id": "oeis-a380709-absolute-reciprocal-cube-parity",
+      "title": "Binomial parity of the A380709 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A380709"
+    },
+    {
+      "id": "oeis-a380710-absolute-reciprocal-square-parity",
+      "title": "Absolute reciprocal squares and binary parity in A380710",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A380710"
+    },
+    {
+      "id": "oeis-a381362-bilateral-product-quadratic-mod-four",
+      "title": "The A381362 bilateral product coefficient congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A381362"
+    },
+    {
+      "id": "oeis-a381363-bilateral-product-cubic-mod-four",
+      "title": "The A381363 bilateral product coefficient congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A381363"
+    },
+    {
+      "id": "oeis-a381364-scaled-bilateral-product-linear-mod-nine",
+      "title": "The A381364 scaled bilateral product congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A381364"
+    },
+    {
+      "id": "oeis-a381365-scaled-bilateral-product-quadratic-mod-nine",
+      "title": "The A381365 scaled bilateral product congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A381365"
+    },
+    {
+      "id": "oeis-a381670-compositional-square-dyadic-denominators",
+      "title": "Dyadic denominators of the A381670 compositional-square series",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A381670"
+    },
+    {
+      "id": "oeis-a382427-constant-blocks-distinct-run-sums",
+      "title": "Constant Blocks and Distinct Run Sums",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A382427"
+    },
+    {
+      "id": "oeis-a383165-scaled-log-column-periodicity",
+      "title": "Eventual periodicity of OEIS A383165",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A383165"
+    },
+    {
+      "id": "oeis-a383166-scaled-log-column-periodicity",
+      "title": "Eventual periodicity of OEIS A383166",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A383166"
+    },
+    {
+      "id": "oeis-a383377-absolute-reciprocal-geometric-parity",
+      "title": "Parity of the A383377 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A383377"
+    },
+    {
+      "id": "oeis-a384222-two-dense-divisor-blocks-palindrome",
+      "title": "Palindromic composition of the A384222 rows",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A384222"
+    },
+    {
+      "id": "oeis-a384267-absolute-reciprocal-square-shift-parity",
+      "title": "Parity conjecture C.1 of OEIS A384267",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A384267"
+    },
+    {
+      "id": "oeis-a384270-quartic-cubic-catalan-quotient-parity",
+      "title": "Parity of the A384270 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A384270"
+    },
+    {
+      "id": "oeis-a385590-alternating-binomial",
+      "title": "oeis-a385590-alternating-binomial",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A385590"
+    },
+    {
+      "id": "oeis-a386666-signed-catalan-cubic-substitution-mod-three",
+      "title": "Signed Catalan cubic substitution modulo three",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A386666"
+    },
+    {
+      "id": "oeis-a387319-multiple-of-three-coincidence",
+      "title": "Multiple-of-Three Residue Coincidences",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A387319"
+    },
+    {
+      "id": "oeis-a388711-choosable-initial-intervals",
+      "title": "Choosable Initial Intervals and Reversed Partitions",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A388711"
+    },
+    {
+      "id": "oeis-a388986-euler-form-divisor-sum",
+      "title": "The A388986 Euler-form inclusion question",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A388986"
+    },
+    {
+      "id": "oeis-a389000-digit-sum-square-least-witness",
+      "title": "The least simultaneous digit-sum witness in A389000",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A389000"
+    },
+    {
+      "id": "oeis-a389472-square-cube-substitution-odd-index-parity",
+      "title": "Odd-index parity of the A389472 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A389472"
+    },
+    {
+      "id": "oeis-a389476-quadratic-reversion-dyadic-support-parity",
+      "title": "Dyadic parity support of the A389476 quadratic reversion",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A389476"
+    },
+    {
+      "id": "oeis-a389536-substitution-square-cube-mod-four",
+      "title": "The A389536 square-cube substitution conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A389536"
+    },
+    {
+      "id": "oeis-a389537-alternating-dyadic-reversion-mod-four",
+      "title": "Alternating dyadic reversion modulo four for A389537",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A389537"
+    },
+    {
+      "id": "oeis-a389540-half-scaled-reflection-parity",
+      "title": "G.f. A(x) satisfies A(x)^2 = A(2*x - 2*A(x)) / 2.",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A389540"
+    },
+    {
+      "id": "oeis-a389542-quadratic-square-reversion-mod-four",
+      "title": "Quadratic square reversion modulo four for A389542",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A389542"
+    },
+    {
+      "id": "oeis-a390088-prime-digit-base-existence",
+      "title": "The A390088 exception set",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A390088"
+    },
+    {
+      "id": "oeis-a391620-first-sums-partition-characterization",
+      "title": "First sums of decreasing partitions",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A391620"
+    },
+    {
+      "id": "oeis-a392525-cubic-fifteen-substitution-parity",
+      "title": "Parity of the A392525 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392525"
+    },
+    {
+      "id": "oeis-a392694-zero-prepended-first-sums",
+      "title": "Zero-Prepended First Sums and Odd Parts",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392694"
+    },
+    {
+      "id": "oeis-a392698-trimmed-alternating-partitions",
+      "title": "Trimmed Alternating Sums of Ordinary Partitions",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392698"
+    },
+    {
+      "id": "oeis-a392707-gapfree-odd-combinatorial-bridge",
+      "title": "Strict First Sums and Gapfree Odd Partitions",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392707"
+    },
+    {
+      "id": "oeis-a393172-catalan-shift-square-mod-four",
+      "title": "The mod-four coefficients of the Catalan-shift square series",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A393172"
+    },
+    {
+      "id": "oeis-a393856-scaled-reversion-mod-five",
+      "title": "Coefficients of A393856 are one modulo five",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A393856"
+    },
+    {
+      "id": "oeis-a393857-scaled-reversion-mod-six",
+      "title": "Coefficients of A393857 are one modulo six",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A393857"
+    },
+    {
+      "id": "oeis-a393867-all-terms-odd",
+      "title": "A393867: every logarithmic-derivative coefficient is odd",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A393867"
+    },
+    {
+      "id": "oeis-a393867-prime-power-shift-log-derivative",
+      "title": "Prime divisibility of the A393867 logarithmic-derivative terms",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A393867"
+    },
+    {
+      "id": "oeis-a394757-twin-prime-sigma-gcd",
+      "title": "Divisibility of the A394757 terms",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A394757"
+    },
+    {
+      "id": "oeis-a395833-diagonal-exponent-self-divisibility",
+      "title": "OEIS A395833: diagonal-exponent self-divisibility",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A395833"
+    },
+    {
+      "id": "oeis-a395833-negative-power-diagonal-mod-three",
+      "title": "A395833: the mod-three congruence clause",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A395833"
+    },
+    {
+      "id": "oeis-a396099-iterate-product-two-three-mod-four",
+      "title": "The A396099 period-four coefficient pattern",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396099"
+    },
+    {
+      "id": "oeis-a396102-triple-iterate-shift-mod-three",
+      "title": "G.f. A(x) satisfies A(A(A(x))) = (1+x) * A(A(x))",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396102"
+    },
+    {
+      "id": "oeis-a396793-iterate-product-nine-mod-three",
+      "title": "Divisibility of the A396793 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396793"
+    },
+    {
+      "id": "oeis-a396794-triple-iterate-product-mod-four",
+      "title": "Divisibility of the A396794 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396794"
+    },
+    {
+      "id": "oeis-a396795-iterate-product-twenty-five-mod-five",
+      "title": "Divisibility of the A396795 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396795"
+    },
+    {
+      "id": "oeis-a396797-three-four-iterate-product-mod-six",
+      "title": "Coefficients of the A396797 three-four iterate product series modulo six",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396797"
+    },
+    {
+      "id": "oeis-a396798-eighth-iterate-mod-eight",
+      "title": "The eighth compositional iterate of A396798 modulo eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396798"
+    },
+    {
+      "id": "oeis-a396798-fifth-iterate-mod-eight",
+      "title": "The fifth compositional iterate of A396798 modulo eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396798"
+    },
+    {
+      "id": "oeis-a396798-fourth-iterate-mod-eight",
+      "title": "The fourth compositional iterate of A396798 modulo eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396798"
+    },
+    {
+      "id": "oeis-a396798-seventh-iterate-mod-eight",
+      "title": "The seventh compositional iterate of A396798 modulo eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396798"
+    },
+    {
+      "id": "oeis-a396798-third-iterate-mod-eight",
+      "title": "The third compositional iterate of A396798 modulo eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396798"
+    },
+    {
+      "id": "oeis-a396803-iterate-exponential-mod-three",
+      "title": "A396803 coefficients modulo three",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396803"
+    },
+    {
+      "id": "oeis-a396803-iterate-exponential-parity",
+      "title": "Parity of the A396803 iterated-exponential coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396803"
+    },
+    {
+      "id": "oeis-a396804-quartic-egf-mod-four",
+      "title": "OEIS A396804: the fourth-iterate EGF modulo four",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396804"
+    },
+    {
+      "id": "oeis-a396805-iterate-exponential-mod-three",
+      "title": "A396805 coefficients modulo three from index three",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396805"
+    },
+    {
+      "id": "oeis-a396805-iterate-exponential-parity",
+      "title": "Parity of the A396805 iterated-exponential coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396805"
+    },
+    {
+      "id": "oeis-a396806-iterate-exponential-mod-six",
+      "title": "A396806 coefficients modulo six",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396806"
+    },
+    {
+      "id": "oeis-a396806-iterate-exponential-parity",
+      "title": "Parity of the A396806 iterated-exponential coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396806"
+    },
+    {
+      "id": "oeis-a396807-compositional-iterate-congruence",
+      "title": "Coefficient congruence for OEIS A396807",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396807"
+    },
+    {
+      "id": "oeis-a396843-compositional-square-all-odd-coefficients",
+      "title": "OEIS A396843: all coefficients are odd",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396843"
+    },
+    {
+      "id": "oeis-a396844-scaled-quadratic-reversion-mod-sixteen",
+      "title": "Refutation of the A396844 mod-sixteen conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A396844"
+    },
+    {
+      "id": "oeis-a396846-logarithmic-quarter-normalization-mod-eight",
+      "title": "The A396846 logarithmic coefficients modulo eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A396846"
+    },
+    {
+      "id": "oeis-a397241-diagonal-power-ratio-all-odd",
+      "title": "Oddness of all A397241 terms",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397241"
+    },
+    {
+      "id": "oeis-a397241-mod-four",
+      "title": "OEIS A397241 coefficients modulo 4",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397241"
+    },
+    {
+      "id": "oeis-a397241-mod-three",
+      "title": "OEIS A397241 coefficients modulo 3",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397241"
+    },
+    {
+      "id": "oeis-a397242-exponential-square-weight-catalan-parity",
+      "title": "Parity of the A397242 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397242"
+    },
+    {
+      "id": "oeis-a397242-mod-three-powers",
+      "title": "The residue-one conjecture of OEIS A397242",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397242"
+    },
+    {
+      "id": "oeis-a397242-mod-three-sums",
+      "title": "The residue-two conjecture of OEIS A397242",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397242"
+    },
+    {
+      "id": "oeis-a397244-quadratic-power-diagonal-fibbinary-parity",
+      "title": "Fibbinary parity of the A397244 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397244"
+    },
+    {
+      "id": "oeis-a397345-square-weight-parity",
+      "title": "A397345: square-weight congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397345"
+    },
+    {
+      "id": "oeis-a397346-square-weight-mod-eight",
+      "title": "A397346: square-weight congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397346"
+    },
+    {
+      "id": "oeis-a397348-square-weight-parity",
+      "title": "A397348: square-weight congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397348"
+    },
+    {
+      "id": "oeis-a397349-logarithmic-weight-mod-three",
+      "title": "Alternation modulo three of the A397349 coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397349"
+    },
+    {
+      "id": "oeis-a397349-logarithmic-weight-parity",
+      "title": "Parity of the A397349 logarithmic-weight coefficients",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397349"
+    },
+    {
+      "id": "oeis-a397356-reciprocal-square-exponent-diagonal-parity",
+      "title": "Parity of the A397356 reciprocal square-exponent diagonals",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397356"
+    },
+    {
+      "id": "oeis-a397592-dyadic-parity",
+      "title": "The integer source and dyadic parity of A397592",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A397592"
+    },
+    {
+      "id": "oeis-a399755-pell-class-successor",
+      "title": "A399755: generalized Pell classes and the least square partner",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A399755"
+    },
+    {
+      "id": "ordered-zeckendorf-long-game-strategy",
+      "title": "Optimality of the Ordered Zeckendorf Long Game Strategy",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.48550/arXiv.2508.20222"
+    },
+    {
+      "id": "pochhammer-conjecture-6-5",
+      "title": "Pochhammer Conjecture 6.5: a quadratic counterexample range",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/html/2608.03723v1#S6.count5"
+    },
+    {
+      "id": "thue-morse-reduced-abelian-odd",
+      "title": "Odd-index reduced abelian complexity of the Thue-Morse word",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.48550/arXiv.2509.16034"
+    },
+    {
+      "id": "vatter-largest-derangement-limit-below-one",
+      "title": "Vatter's largest derangement limit below one",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2602.16355"
+    },
+    {
+      "id": "vatter-question-4-3-derangement-ratio",
+      "title": "A negative answer to Vatter's Question 4.3",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2602.16355"
+    },
+    {
+      "id": "oeis-a094802-perry-least-factorial-divisible-by-prefix-lcm",
+      "title": "Perry's A094802 least factorial index conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A094802"
+    },
+    {
+      "id": "oeis-a112302-lerch-somos-limit",
+      "title": "OEIS A112302: Meijer's Lerch recurrence limit",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A112302"
+    },
+    {
+      "id": "oeis-a229140-stephan-least-coordinate-distinctness-refutation",
+      "title": "Refutation of Stephan's A229140 least-coordinate distinctness conjecture",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A229140"
+    },
+    {
+      "id": "oeis-a239907-kurkov-run-alternating-count",
+      "title": "Kurkov's alternating binary run count",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A239907"
+    },
+    {
+      "id": "oeis-a398726-distinct-cycle-size-limit",
+      "title": "OEIS A398726: the distinct cycle size limit",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A398726"
+    },
+    {
+      "id": "oeis-a397315-three-row-blackout",
+      "title": "OEIS A397315: the Three-Row blackout conjecture",
+      "kind": "proved",
+      "source_url": "https://github.com/apemm/Kagey-Problems/blob/b9567e4dc1c7cf1e5034569571a9479b1b83dc57/kagey-problems/problem001/paper/main.tex"
+    },
+    {
+      "id": "adamson-explicit-graph-outside-g2",
+      "title": "An explicit membership graph outside G₂",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2605.27183v1"
+    },
+    {
+      "id": "bartoli-stanica-reduced-critical-point-conjecture",
+      "title": "Bartoli--Stănică reduced critical-point conjecture",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2608.30808"
+    },
+    {
+      "id": "oeis-a002000-bala-cubic-three-adic-congruence",
+      "title": "Bala's cubic recurrence and its growing three-adic congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A002000"
+    },
+    {
+      "id": "oeis-a091915-stephan-even-product-partition-recurrence",
+      "title": "Stephan's A091915 maximum even partition-product conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A091915"
+    },
+    {
+      "id": "oeis-a133907-ordowski-binomial-power-sum-least-prime",
+      "title": "Ordowski's binomial and power-sum least-prime conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A133907"
+    },
+    {
+      "id": "oeis-a144837-bala-lucas-five-adic-congruence",
+      "title": "Bala's Lucas recurrence and its growing five-adic congruence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A144837"
+    },
+    {
+      "id": "oeis-a284005-kurkov-weight-product-binomial",
+      "title": "Kurkov's binomial identity for binary-weight products",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A284005"
+    },
+    {
+      "id": "oeis-a299406-schulte-liouville-cube-mobius",
+      "title": "Schulte's Liouville and cube-Möbius product formula",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A299406"
+    },
+    {
+      "id": "oeis-a396596-divisor-power-union",
+      "title": "A396596 divisor-power union: a counterexample",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/search?q=id:A396596&fmt=text"
+    },
+    {
+      "id": "shin-four-point-sumset-compression",
+      "title": "Shin's four-point sumset compression question",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.48550/arXiv.2609.01690"
+    },
+    {
+      "id": "loopy-degree-sequence-with-loops",
+      "title": "Degree recovery from the ordinary Loopy polynomial with loops",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.07728v1"
+    },
+    {
+      "id": "oeis-a000680-schulte-half-factorial-prime-criterion",
+      "title": "Schulte's A000680 half-factorial primality criterion",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A000680"
+    },
+    {
+      "id": "oeis-a001222-schulte-omega-binomial-convolution",
+      "title": "Schulte's Ω/ω binomial convolution",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A001222"
+    },
+    {
+      "id": "oeis-a006472-schulte-factorial-square-prime-criterion",
+      "title": "Schulte's factorial-square primality criterion",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A006472"
+    },
+    {
+      "id": "oeis-a008287-schulte-quadrinomial-alternating-binomial",
+      "title": "Schulte's A008287 alternating-binomial expansion",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A008287"
+    },
+    {
+      "id": "oeis-a030101-yanev-binary-reversal-position-identity",
+      "title": "Yanev's position identity for binary reversal",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A030101"
+    },
+    {
+      "id": "oeis-a079278-quet-rational-iteration-denominator-recurrence",
+      "title": "Quet's A079278 reduced-denominator recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A079278"
+    },
+    {
+      "id": "oeis-a165719-eighth-quadratic-integrality-and-sole-prime",
+      "title": "A165719 integrality and the sole prime",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A165719"
+    },
+    {
+      "id": "oeis-a249759-krizek-sigma-prime-fermat-mersenne",
+      "title": "Krizek's Fermat-Mersenne classification for A249759",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A249759"
+    },
+    {
+      "id": "oeis-a306270-ordowski-semiprime-carmichael-square-classification",
+      "title": "Ordowski's A306270 semiprime classification",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A306270"
+    },
+    {
+      "id": "oeis-a308090-caceres-gcd-factorial-power-prime-criterion",
+      "title": "Caceres' A308090 gcd-factorial-power primality criterion",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A308090"
+    },
+    {
+      "id": "oeis-a322327-schulte-exponent-product-omega-power-multiplicative",
+      "title": "Schulte's exponent-product multiplicativity conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A322327"
+    },
+    {
+      "id": "oeis-a350900-schulte-gcd-quotient-row-sum-convolution",
+      "title": "Schulte's gcd-quotient row-sum convolution",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A350900"
+    },
+    {
+      "id": "oeis-a126347-kurkov-reversed-qbell-row-polynomial",
+      "title": "Kurkov's reversed q-Bell row polynomial",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A126347"
+    },
+    {
+      "id": "joshi-rust-fibonacci-map-bound",
+      "title": "Fibonacci-word MAP maximum",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2501.05830v2"
+    },
+    {
+      "id": "oeis-a006972-rotondo-lucas-carmichael-sufficient-condition",
+      "title": "Rotondo's A006972 Lucas-Carmichael sufficient condition",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A006972"
+    },
+    {
+      "id": "oeis-a115039-prime-square-perfect-power-representation",
+      "title": "Prime square perfect-power representation",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A115039"
+    },
+    {
+      "id": "oeis-a347293-schulte-shifted-product-gcd-row-sum-convolution",
+      "title": "OEIS A347293 shifted-product gcd row-sum convolution",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A347293"
+    },
+    {
+      "id": "zelinsky-zhang-conjecture-22-refutation",
+      "title": "Refutation of Zelinsky and Zhang's Conjecture 22",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2501.04209v2"
+    },
+    {
+      "id": "crux-problem-2623-refutation",
+      "title": "Refutation of Crux Problem 2623",
+      "kind": "refuted",
+      "source_url": "https://cms.math.ca/wp-content/uploads/crux-pdfs/CRUXv27n2.pdf"
+    },
+    {
+      "id": "joshi-rust-fibonacci-map-first-start",
+      "title": "First longest progressions at Fibonacci differences",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2501.05830v2"
+    },
+    {
+      "id": "oeis-a274010-stechkin-divisor-count",
+      "title": "Oudra's divisor-count formula for the Stechkin function",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A274010"
+    },
+    {
+      "id": "wu-lou-permutation-invariant-niven-digit-sum-bound",
+      "title": "Wu-Lou permutation-invariant Niven digit-sum bound",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2508.01611"
+    },
+    {
+      "id": "cao-chen-miller-egg-drop-conjecture-one",
+      "title": "Cao-Chen-Miller Conjecture 1: the multidimensional egg-drop bound",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2511.18330"
+    },
+    {
+      "id": "lalou-mbarek-skender-togni-conjecture-one-refutation",
+      "title": "Refutation of the panchromatic pairing conjecture",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2512.15486v2"
+    },
+    {
+      "id": "oeis-a181278-barker-binary-gram-recurrence-refutation",
+      "title": "Refutation of Barker's A181278 recurrence",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A181278"
+    },
+    {
+      "id": "oeis-a280258-krizek-phitorial-divisor-sum-parity",
+      "title": "Krizek's phitorial divisor-sum parity characterization",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A280258"
+    },
+    {
+      "id": "oeis-a344083-marcus-pythagorean-nonpolygonal-triple",
+      "title": "Marcus's A344083 nonpolygonal Pythagorean triple conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A344083"
+    },
+    {
+      "id": "bhagat-kulkarni-larsson-murali-conjecture-4-refutation",
+      "title": "Refutation of Bhagat, Kulkarni, Larsson and Murali Conjecture 4",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2510.24280v2"
+    },
+    {
+      "id": "gonzalez-dleon-wachs-conjecture-4-13-2-refutation",
+      "title": "Refutation of Gonzalez D'Leon-Wachs Conjecture 4.13(2)",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/html/2608.08692v1#S4.Thmtheorem13"
+    },
+    {
+      "id": "gottlieb-krnc-mursic-pnim-heavy-interval-refutation",
+      "title": "Refutation of the PNim heavy-interval conjecture",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2506.04991"
+    },
+    {
+      "id": "hypercube-inequality",
+      "title": "The all-dimensional Hypercube Inequality",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2608.14909v1#S4.E16"
+    },
+    {
+      "id": "nathanson-additive-h-bases-problem-12",
+      "title": "Refutation of Nathanson's additive h-basis strict inequality",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2605.26425v3"
+    },
+    {
+      "id": "pudelko-fibonacci-minimum-limit-refutation",
+      "title": "Refutation of Pudelko Conjecture 8 at position zero",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2510.24882v5"
+    },
+    {
+      "id": "bastien-khormali-link-irregular-tournaments",
+      "title": "Bastien–Khormali link-irregular tournament existence",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2512.20494v1"
+    },
+    {
+      "id": "fazekas-abelian-square-equality-refutation",
+      "title": "Refutation of the equality conclusion in Fazekas et al. Conjecture 4",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2604.23188v1"
+    },
+    {
+      "id": "loopy-generalized-degree-polynomial",
+      "title": "The ordinary Loopy polynomial does not determine the generalized degree polynomial",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2609.07728v1"
+    },
+    {
+      "id": "even-hypergraph-inverse-positivity-refutation",
+      "title": "Even-hypergraph inverse-positivity refutation",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/html/2507.20847v1"
+    },
+    {
+      "id": "kok-jaco-dom-path-diameter-refutation",
+      "title": "Refutation of Kok's dom-path diameter conjecture",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.48550/arXiv.2507.16500"
+    },
+    {
+      "id": "misawa-nishimura-harmonic-strength-pair-refutation",
+      "title": "Misawa--Nishimura harmonic-strength pair refutation",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2505.06893v2"
+    },
+    {
+      "id": "pandey-parity-conjecture-refutation",
+      "title": "Pandey's Parity Conjecture 4.1",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2601.03293v1"
+    },
+    {
+      "id": "somer-krizek-uniform-subsequence-conjecture",
+      "title": "Somer-Krizek uniform-subsequence conjecture",
+      "kind": "refuted",
+      "source_url": "https://math.colgate.edu/~integers/z1/z1.pdf"
+    },
+    {
+      "id": "wu-pyramidal-complement-conjecture-one",
+      "title": "Wu's k-gonal-pyramidal complement formula",
+      "kind": "proved",
+      "source_url": "https://math.colgate.edu/~integers/z95/z95.pdf"
+    },
+    {
+      "id": "centered-reduced-residue-progressions",
+      "title": "Centered reduced residue progression maximum",
+      "kind": "proved",
+      "source_url": "https://math.colgate.edu/~integers/aa6/aa6.pdf"
+    },
+    {
+      "id": "agoh-alternating-numerator-characterization",
+      "title": "Agoh's alternating-numerator characterization",
+      "kind": "refuted",
+      "source_url": "https://math.colgate.edu/~integers/aa9/aa9.pdf"
+    },
+    {
+      "id": "gobel-misra-colored-path-determinant-refutation",
+      "title": "Gobel-Misra Colored-Path Determinant Refutation",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2506.23936v1"
+    },
+    {
+      "id": "hughes-iteration-depth-no-gap",
+      "title": "Hughes iteration-depth no-gap conjecture",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2608.27755v1"
+    },
+    {
+      "id": "zhang-character-sum-difference-question-d-refutation",
+      "title": "Refutation of Zhang's character-sum constant restriction",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2506.17235v1"
+    },
+    {
+      "id": "crim-rectair-square-conjecture-two-refutation",
+      "title": "Refutation of the CRIM square-rectair formula at its boundary",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.48550/arXiv.2606.16828"
+    },
+    {
+      "id": "debski-barrycade-omitted-element-refutation",
+      "title": "Refutation of the printed barrycade omitted-element relation",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2609.18476v1"
+    },
+    {
+      "id": "takemura-fixed-point-apd-conjecture-1",
+      "title": "Takemura's fixed-point first appearance degree",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2512.18169v1"
+    },
+    {
+      "id": "takemura-fixed-point-apd-conjecture-2",
+      "title": "Takemura's fixed-point first appearance value",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2512.18169v1"
+    },
+    {
+      "id": "ballantine-regular-symmetric-image-conjecture-refutation",
+      "title": "Refutation of the regular elementary symmetric image table",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2409.11268v3"
+    },
+    {
+      "id": "chauve-zhang-condensed-neighborhood-unary-minimality",
+      "title": "Chauve--Zhang condensed-neighborhood unary minimality",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2505.13796v2"
+    },
+    {
+      "id": "chauve-zhang-super-condensed-neighborhood-unary-minimality",
+      "title": "Chauve--Zhang super-condensed-neighborhood unary minimality",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2505.13796v2"
+    },
+    {
+      "id": "crown-order-polytope-log-concavity",
+      "title": "Crown order-polytope f-vector log-concavity",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2504.05123v3"
+    },
+    {
+      "id": "gil-liang-odetola-weiner-antidiagonal-traffic",
+      "title": "Gil–Liang–Odetola–Weiner antidiagonal traffic",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.01562"
+    },
+    {
+      "id": "mohan-neetu-small-doubling-conjecture-61-refutation",
+      "title": "Mohan-Neetu Conjecture 6.1",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2607.11194v1"
+    },
+    {
+      "id": "mohan-neetu-small-doubling-conjecture-62-refutation",
+      "title": "Mohan-Neetu Conjecture 6.2",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2607.11194v1"
+    },
+    {
+      "id": "mohan-neetu-small-doubling-conjecture-63-refutation",
+      "title": "Mohan-Neetu Conjecture 6.3",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2607.11194v1"
+    },
+    {
+      "id": "oeis-a196226-layman-divisor-power-congruence-refutation",
+      "title": "Refutation of Layman's A196226 divisor-power congruences",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A196226"
+    },
+    {
+      "id": "zhan-bie-cyclic-stack-preimages",
+      "title": "Zhan–Bie consecutive cyclic-stack fibres",
+      "kind": "proved",
+      "source_url": "https://math.colgate.edu/~integers/aa15/aa15.pdf"
+    },
+    {
+      "id": "zhao-vincular-stack-maximum-preimages-refutation",
+      "title": "Refutation of Zhao's maximum preimage conjecture",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.1016/j.disc.2025.114834"
+    },
+    {
+      "id": "zhao-vincular-stack-second-largest-preimages-refutation",
+      "title": "Refutation of Zhao's second-largest preimage conjecture",
+      "kind": "refuted",
+      "source_url": "https://doi.org/10.1016/j.disc.2025.114834"
+    },
+    {
+      "id": "bradshaw-arithmetic-derivative-collatz-squarefree-refutation",
+      "title": "Bradshaw's Conjecture 20",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL28/Bradshaw/bradshaw3.pdf"
+    },
+    {
+      "id": "cohen-consecutive-cube-cousin-prime-threshold-refutation",
+      "title": "Cohen Conjecture 29",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL28/Cohen/cohen41.pdf"
+    },
+    {
+      "id": "cohen-consecutive-cube-twin-prime-threshold-refutation",
+      "title": "Cohen Conjecture 28",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL28/Cohen/cohen41.pdf"
+    },
+    {
+      "id": "elzein-mortada-saturated-packing-conjecture-refutation",
+      "title": "El Zein-Mortada Saturated Packing Refutation",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2603.25113v1"
+    },
+    {
+      "id": "sharma-primitive-polynomial-conjecture-4-2",
+      "title": "Sharma's primitive-polynomial Conjecture 4.2",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2608.07262v2"
+    },
+    {
+      "id": "ayad-bouchenna-base-b-reverse-multiple-divisors",
+      "title": "ayad-bouchenna-base-b-reverse-multiple-divisors",
+      "kind": "proved",
+      "source_url": "https://math.colgate.edu/~integers/z37/z37.pdf"
+    },
+    {
+      "id": "dawsey-russell-urban-partition-polynomial-derivative-question-refutation",
+      "title": "Refutation of the printed partition-polynomial derivative question",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL25/Dawsey/dawsey3.pdf"
+    },
+    {
+      "id": "mbirika-schrader-spilker-associated-pell-gcd-entry-point-refutation",
+      "title": "Mbirika-Schrader-Spilker Associated Pell GCD Entry-Point Refutation",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL26/Mbirika/mbir5.pdf"
+    },
+    {
+      "id": "oeis-a300657-krizek-divisor-sigma-mod-noncomposite",
+      "title": "Krizek's A300657 noncomposite characterization",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A300657"
+    },
+    {
+      "id": "perrier-multidimensional-continued-fraction-generating-functions",
+      "title": "Perrier's period-one generating functions",
+      "kind": "proved",
+      "source_url": "https://ecajournal.haifa.ac.il/Volume2026/ECA2026_S4R33.pdf"
+    },
+    {
+      "id": "shieh-yang-yu-dotted-machine-fixed-point-convergence",
+      "title": "Convergence of the Shieh-Yang-Yu dotted-pattern machine",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2411.11914v2"
+    },
+    {
+      "id": "florez-junes-ramirez-cubic-lattice-xz-plane-path-count-refutation",
+      "title": "Flórez-Junes-Ramírez xz-plane path-count refutation",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL21/Florez/florez4.pdf"
+    },
+    {
+      "id": "florez-junes-ramirez-cubic-lattice-yz-plane-path-count-refutation",
+      "title": "Flórez-Junes-Ramírez yz-plane path-count refutation",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL21/Florez/florez4.pdf"
+    },
+    {
+      "id": "oeis-a000071-bala-strong-divisibility",
+      "title": "Bala's Fibonacci-power strong divisibility conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A000071"
+    },
+    {
+      "id": "oeis-a392095-antidiagonal-source-series",
+      "title": "The A392095 column and A088713 source series",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392095"
+    },
+    {
+      "id": "chaffin-sloane-gijswijt-merge-refutation",
+      "title": "Chaffin-Linderman-Sloane-Wilks Gijswijt Merge Refutation",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/1212.6102v3"
+    },
+    {
+      "id": "merca-2011-lifted-residue-sum-prime-order",
+      "title": "Merca's lifted residue sum at prime order",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL14/Merca/merca3.pdf"
+    },
+    {
+      "id": "merca-2011-residue-sum-even-order-refutation",
+      "title": "Merca's even-order residue-sum conjecture refutation",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL14/Merca/merca3.pdf"
+    },
+    {
+      "id": "barry-2013-riordan-pascal-kernel-determinant",
+      "title": "Barry's Riordan-Pascal kernel determinant",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL16/Barry2/barry231.pdf"
+    },
+    {
+      "id": "stirling-lucky-displacement-spectrum",
+      "title": "Stirling Lucky Displacement Spectrum",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL27/Tenner/tenner12.html"
+    },
+    {
+      "id": "quasi-injective-order-separation",
+      "title": "Quasi-Injective Order Separation",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL24/Pongsriiam/pong23.pdf"
+    },
+    {
+      "id": "witula-slota-2007-quasi-fibonacci-order-eleven-degree",
+      "title": "Degrees of the order-eleven quasi-Fibonacci polynomials",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL10/Slota2/slota99.pdf"
+    },
+    {
+      "id": "erdos-deep-triple-classification-refutation",
+      "title": "Erdos Deep Triple Classification Refutation",
+      "kind": "refuted",
+      "source_url": "https://math.colgate.edu/~integers/x25/x25.pdf"
+    },
+    {
+      "id": "quasi-injective-composition-refutation",
+      "title": "Quasi-Injective Composition Refutation",
+      "kind": "refuted",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL24/Pongsriiam/pong23.pdf"
+    },
+    {
+      "id": "ducci-modular-cycle-factorization",
+      "title": "Ducci Modular Cycle Factorization",
+      "kind": "proved",
+      "source_url": "https://math.colgate.edu/~integers/x86/x86.pdf"
+    },
+    {
+      "id": "chu-2026-schreier-multiset-recurrence-q-two",
+      "title": "The first q = 2 Schreier-multiset recurrence",
+      "kind": "proved",
+      "source_url": "https://math.colgate.edu/~integers/aa53/aa53.pdf"
+    },
+    {
+      "id": "fried-fibonacci-shift-non-fibonacci",
+      "title": "Fried's Fibonacci Shift Conjecture",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL28/Fried/fried15.pdf"
+    },
+    {
+      "id": "greedy-fibonacci-average-closed-form",
+      "title": "Closed Form for the Greedy Fibonacci-Average Sequence",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL28/Fried/fried15.pdf"
+    },
+    {
+      "id": "mi-xu-yang-2025-partially-restricted-stack-maximal-sort-refutation",
+      "title": "Mi-Xu-Yang Conjecture 5.2 refutation",
+      "kind": "refuted",
+      "source_url": "https://ecajournal.haifa.ac.il/Volume2025/ECA2025_S2A22.pdf"
+    },
+    {
+      "id": "araujo-2026-orthodox-idempotent-ordering-complete-mapping-refutation",
+      "title": "Problem 15.5 answered negatively by a five-element Clifford semigroup",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2608.25092"
+    },
+    {
+      "id": "coprime-divisor-tuples",
+      "title": "Pairwise Coprime Ordered Tuples of Divisors",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A062319"
+    },
+    {
+      "id": "fibonacci-pythagorean-perimeter-refutation",
+      "title": "Fibonacci Numbers That Are Pythagorean Perimeters",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A134492"
+    },
+    {
+      "id": "fibonacci-second-bit-run-length",
+      "title": "Runs in the Second Binary Digit of the Fibonacci Numbers",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A272170"
+    },
+    {
+      "id": "glasby-paseman-powered-ratio-maximum",
+      "title": "Generalized Glasby–Paseman Conjecture 1.1(d)",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2604.14639v1"
+    },
+    {
+      "id": "oeis-a398542-fixed-bottom-polynomial",
+      "title": "A398542 fixed-bottom polynomial conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A398542"
+    },
+    {
+      "id": "parisse-stirling-fibonacci-alternating-sum",
+      "title": "The Alternating Stirling Weighted Sum of Even-Index Fibonacci and Lucas Numbers",
+      "kind": "proved",
+      "source_url": "https://math.colgate.edu/~integers/y70/y70.pdf"
+    },
+    {
+      "id": "pisano-order-range-refutation",
+      "title": "The Order of a Pisano Period Is Not Confined to Two",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2407.20048v2"
+    },
+    {
+      "id": "pronko-2025-fredkin-noncyclic-annihilation",
+      "title": "Pronko's non-cyclic Fredkin eigenstate annihilation conjecture",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.1088/1751-8121/ae1644"
+    },
+    {
+      "id": "balanced-composition-paths",
+      "title": "Balanced Compositions and Nonnegative Walks from Height Two",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A026010"
+    },
+    {
+      "id": "nikandish-subspace-orthogonality-clique",
+      "title": "Nikandish Problem 4.2",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.22769v1"
+    },
+    {
+      "id": "oeis-a132393-kurkov-nested-stirling-identity",
+      "title": "A132393: Kurkov's nested Stirling identity",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A132393"
+    },
+    {
+      "id": "knight-dialler-recurrence",
+      "title": "The Knight-Dialler Recurrence",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A327692"
+    },
+    {
+      "id": "fan-2026-circle-capacity-conjecture-5-9",
+      "title": "Fan Conjecture 5.9: moving three-point circle capacity",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.11186v1"
+    },
+    {
+      "id": "oeis-a003319-kurkov-double-array",
+      "title": "Kurkov's A003319 double-array conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A003319"
+    },
+    {
+      "id": "partition-weighted-sum-reversal",
+      "title": "Reversal and the Weighted Sum of a Partition",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A362559"
+    },
+    {
+      "id": "divisor-doubling-multiple-divides-square",
+      "title": "A Multiple with Fewer than Twice as Many Divisors Divides the Square",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A225004"
+    },
+    {
+      "id": "sahbi-hypercube-subquorum",
+      "title": "Sahbi Conjecture 6.4",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2609.25128v1"
+    },
+    {
+      "id": "squarefree-mean-partition",
+      "title": "Squarefree Numbers Have No Partition Whose Parts and Multiplicities Agree in Mean",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A360070"
+    },
+    {
+      "id": "least-squares-zero-slope-binary-words",
+      "title": "Zero Slope Fits a Sample Best Exactly When Its Weighted Index Sum Is Balanced",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A222955"
+    },
+    {
+      "id": "erdos-197-order-gadget-all-residues",
+      "title": "The Order Gadget of the Erdős–Graham Two-Set Problem Is Infeasible at Every Scale",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.02939v1"
+    },
+    {
+      "id": "irvine-least-maximal-digit-sum-base",
+      "title": "The Least Base Maximizing the Digit Sum of n Is ceiling((n+1)/2) for n > 8",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A394431"
+    },
+    {
+      "id": "oeis-a277829-a278770-catalan-square-hankel-limits",
+      "title": "A277829 and A278770: squared-Catalan Hankel limits",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A277829"
+    },
+    {
+      "id": "hanna-nested-square-odd-coefficients",
+      "title": "The Nested-Square Generating Function Has Even Coefficients at Odd Indices",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392210"
+    },
+    {
+      "id": "hanna-shift-square-mod-eight",
+      "title": "Hanna's Series A(x - A(x)) = x^2 + x A(x) Is Rational Modulo Eight",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392203"
+    },
+    {
+      "id": "oeis-a110491-ratajczak-t-transform-determinant",
+      "title": "Ratajczak's A110491 T-transform determinant conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A110491"
+    },
+    {
+      "id": "circular-two-choice-parking-fixed-fiber-bijection",
+      "title": "A canonical fixed-fiber bijection for circular two-choice parking",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2609.23607v1"
+    },
+    {
+      "id": "kemp-ramgoolam-degeneracy-graph-determinant-and-monomial-basis",
+      "title": "Kemp–Ramgoolam arbitrary-depth determinant and monomial-basis conjectures",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2603.05259v2"
+    },
+    {
+      "id": "miro-roig-tran-strict-sign",
+      "title": "The Miró-Roig--Tran Strict-Sign Conjecture",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2001.06143v1"
+    },
+    {
+      "id": "oeis-a331474-hankel-generating-function",
+      "title": "Barry's A331474 Hankel generating-function conjecture",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A331474"
+    },
+    {
+      "id": "psw-bruhat-increasing-bijection",
+      "title": "The Pan–Skandera–Wang Map Is Bruhat-Increasing for Every n",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2606.13162v1"
+    },
+    {
+      "id": "raney-conjecture-7-1-zero-run-record-families",
+      "title": "Raney Conjecture 7.1: zero-run record families",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2609.25742v1"
+    },
+    {
+      "id": "feldman-zigzag-conjecture-nine-three",
+      "title": "Feldman's Conjecture 9.3: balanced zigzag choices",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2609.26114v1"
+    },
+    {
+      "id": "gurses-pekcan-2025-higher-hirota-four-soliton",
+      "title": "Gürses and Pekcan's four-soliton conjecture for higher order Hirota forms",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2511.18466v1"
+    },
+    {
+      "id": "ishikawa-koutschan-2012-motzkin-triangle-pfaffian-refutation",
+      "title": "Ishikawa and Koutschan's Pfaffian conjecture for the Motzkin triangle, part (i)",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/1201.5253v2"
+    },
+    {
+      "id": "mirzavaziri-yaqubi-cyclic-full-symmetry-refutation",
+      "title": "The Cyclic Latin Eulerian Numbers Are Not Fully Symmetric",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2609.28808v1"
+    },
+    {
+      "id": "mirzavaziri-yaqubi-latin-eulerian-multiples",
+      "title": "Every Interior Multiple of n Is a Latin-Square Ascent Total",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.25100v1"
+    },
+    {
+      "id": "nilforoushan-parvaresh-conjecture-8-1",
+      "title": "Nilforoushan-Parvaresh Conjecture 8.1",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2609.23106v1"
+    },
+    {
+      "id": "oh-scrimshaw-2018-two-shifted-q-motzkin-hankel-refutation",
+      "title": "Oh and Scrimshaw's two-shifted q-Motzkin Hankel conjecture",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/1805.00113v1"
+    },
+    {
+      "id": "pronko-2025-fredkin-anti-adjoint-expansion",
+      "title": "Pronko's anti-adjoint expansion conjecture for the periodic Fredkin chain",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.1088/1751-8121/ae1644"
+    },
+    {
+      "id": "pronko-2025-fredkin-xi-hamiltonian-commutation",
+      "title": "Pronko's commutation of the Dyck-class operator Ξ with the periodic Fredkin Hamiltonian",
+      "kind": "proved",
+      "source_url": "https://doi.org/10.1088/1751-8121/ae1644"
+    },
+    {
+      "id": "skalski-stroinski-2025-ising-uniqueness-sets",
+      "title": "Skalski and Stroiński's conjecture on the smallest set of uniqueness for the Ising cone",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2511.20925v1"
+    },
+    {
+      "id": "sun-lowercase-turan-conjecture-52",
+      "title": "Sun Conjecture 5.2: both lowercase strict Turan clauses",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/html/2608.13192v1"
+    },
+    {
+      "id": "zhou-yu-arrow-wilf-equivalence",
+      "title": "The Arrow Patterns (12; 3 → 3) and (23; 1 → 1) Are Arrow-Wilf-Equivalent",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.29392v1"
+    },
+    {
+      "id": "kagey-2020-a331859-colliding-blocks-records",
+      "title": "Colliding blocks: the collision count leaves floor(π√n) only at records",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A331859"
+    },
+    {
+      "id": "lewis-won-crossword-rook-counts",
+      "title": "Every Natural Number Counts the Rook Placements of a Crossword Grid",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.03081v1"
+    },
+    {
+      "id": "lewis-won-permutation-grid-counts-refutation",
+      "title": "A Permutation Grid with 155 Rook Placements",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2609.03081v1"
+    },
+    {
+      "id": "lovas-andai-2016-dobrushin-infimum",
+      "title": "Lovas and Andai's conjecture on the least trace-distance contraction over a classical channel",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/1607.01215"
+    },
+    {
+      "id": "posske-2026-a392387-xx-chain-nullspace-2p",
+      "title": "The nullspace of the periodic XX chain on twice a prime number of sites",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A392387"
+    },
+    {
+      "id": "sabba-2023-a362534-polarization-transfer-refutation",
+      "title": "Refutation of the numerator conjecture of OEIS A362534",
+      "kind": "refuted",
+      "source_url": "https://oeis.org/A362534"
+    },
+    {
+      "id": "sloane-2019-a309221-knight-walk-range-integrality",
+      "title": "The normalized expected range of a knight's random walk is an integer",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A309221"
+    },
+    {
+      "id": "arndt-2017-a293452-torus-column-sandpile",
+      "title": "The toppling count of the n × 1 torus sandpile",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A293452"
+    },
+    {
+      "id": "krishnan-zero-forcing-generalized-petersen-three",
+      "title": "The Zero Forcing Number of P(n,3) Is Eight for Every n At Least Thirteen",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2607.19412v1"
+    },
+    {
+      "id": "song-lin-2026-oriented-circulant-zero-transfer-parity-refutation",
+      "title": "Song and Lin's parity conjecture for zero transfer on oriented circulant graphs",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2608.10643v1"
+    },
+    {
+      "id": "eidesen-2025-nice-error-basis-non-normal-stabilizer",
+      "title": "A nice-error-basis code whose stabilizer group is not normal",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2506.01843v3"
+    },
+    {
+      "id": "reyes-bustos-wakayama-2026-two-photon-rabi-constraint-polynomials",
+      "title": "The constraint polynomials of the two-photon Rabi model at and beyond the critical coupling",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.00750v1"
+    },
+    {
+      "id": "chervov-2026-cayleypy4-three-cycle-grassmannian-diameter",
+      "title": "The diameter of the inverse-closed consecutive 3-cycle Schreier coset graph",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2603.22195v1"
+    },
+    {
+      "id": "maier-2024-boson-ordering-stirling-closed-form",
+      "title": "A closed form for the generalized Stirling numbers of boson ordering",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2308.10332v4"
+    },
+    {
+      "id": "oeis-a400216-a400218-tetrahelix-generating-functions",
+      "title": "Three tetrahelix coordinate generating functions",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A400216"
+    },
+    {
+      "id": "alofi-2024-stochastic-sandpile-bipartite-half",
+      "title": "Question 6 of Alofi and Dukes: do the stochastically recurrent states of K_{m,n} dominate?",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2411.02667v1"
+    },
+    {
+      "id": "bresar-2024-direct-product-cycle-path-percolation",
+      "title": "Problem 5 of Brešar, Hedžet and Herrman: m(C_n × P_m, 2)",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2403.10957v1"
+    },
+    {
+      "id": "chervov-2026-cayleypy4-conjecture-fifteen-refutation",
+      "title": "CayleyPy-4 Conjecture 15 fails at k = 5, L = 4, N = 13",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2603.22195v1"
+    },
+    {
+      "id": "chervov-2026-cayleypy4-conjecture-sixteen-refutation",
+      "title": "CayleyPy-4 Conjecture 16 fails at k = 4, L = 2, N = 5",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2603.22195v1"
+    },
+    {
+      "id": "davis-width-k-descent-difference-coprime-formula",
+      "title": "Davis's coprime width-descent difference formula",
+      "kind": "proved",
+      "source_url": "https://cs.uwaterloo.ca/journals/JIS/VOL20/Davis/davis6.pdf"
+    },
+    {
+      "id": "espinosa-garcia-2026-hiv-wheel-extinction-refutation",
+      "title": "The extinction set of the wheel W_18 contains 4",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2608.00340v1"
+    },
+    {
+      "id": "fuentes-2025-mmi-forbidden-subgraph",
+      "title": "The forbidden-subgraph conjecture for MMI in graph states holds",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2511.19585v1"
+    },
+    {
+      "id": "garcia-fernandez-2026-open-circuit-min-depth-refutation",
+      "title": "The minimum depth of open integrable circuits",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2607.02093v1"
+    },
+    {
+      "id": "kade-2025-box-six-vertex-determinant-refutation",
+      "title": "The box partition function of the six-vertex model",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2509.03416v1"
+    },
+    {
+      "id": "mathar-2012-a026023-recurrence",
+      "title": "Mathar's recurrence for the surviving walks A026023",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A026023"
+    },
+    {
+      "id": "mathar-2012-a068551-recurrence",
+      "title": "Mathar's recurrence for the lattice-path returns A068551",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A068551"
+    },
+    {
+      "id": "mathar-2012-a108958-recurrence",
+      "title": "Mathar's recurrence for the zero-quantum transition pairs A108958",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A108958"
+    },
+    {
+      "id": "meeussen-2004-solid-partition-first-column-tau4",
+      "title": "The first columns of A098052 and A098530",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A098052"
+    },
+    {
+      "id": "oeis-a380558-parity",
+      "title": "Parity of the A380558 square-reversion series",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A380558"
+    },
+    {
+      "id": "oeis-a398690-palindromic",
+      "title": "Palindromic numerators of OEIS A398690",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A398690"
+    },
+    {
+      "id": "pronko-2025-motzkin-raising-lowering",
+      "title": "Pronko's raising and lowering operators of the periodic Motzkin chain",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2504.00835v3"
+    },
+    {
+      "id": "richman-2023-a053871-signed-congruence",
+      "title": "Richman's congruence for the deranged-matching numbers",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A053871"
+    },
+    {
+      "id": "zabolotskii-2025-a385672-near-maximal-area-walks",
+      "title": "Walks of near-maximal algebraic area",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A385672"
+    },
+    {
+      "id": "mathar-2024-nonbonding-domino-pairs",
+      "title": "Mathar's Conjecture 1 on two non-bonding dominoes",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2404.18806v1"
+    },
+    {
+      "id": "lu-sun-zhang-2024-beta-invertible-s3-obstruction",
+      "title": "No β-invertible S₃ symmetry in the ℤ_N × ℤ_N SymTFT when 3 ∣ N",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2406.12151v3"
+    },
+    {
+      "id": "mahmoud-2026-stabilizer-pair-local-unitary-inequivalence",
+      "title": "Local-unitary inequivalence of the Question 5.4 stabilizer pairs",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2607.26214v1"
+    },
+    {
+      "id": "meeussen-2025-a381265-two-layer-solid",
+      "title": "Meeussen's formula for two-layer solid partitions A381265",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A381265"
+    },
+    {
+      "id": "oeis-a267681-rule201-barker-hasler",
+      "title": "Barker's and Hasler's conjectures for the rows of Rule 201",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A267681"
+    },
+    {
+      "id": "oeis-a400429-semi-meander-second-diagonal",
+      "title": "OEIS A400429 second semi-meander diagonal",
+      "kind": "proved",
+      "source_url": "https://oeis.org/A400429"
+    },
+    {
+      "id": "zhou-yu-arrow-32-13-enumeration",
+      "title": "Enumeration of the Arrow Pattern (32; 1 → 3)",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2609.29392v1"
+    },
+    {
+      "id": "archer-cyclic-4123-1324-tetranacci",
+      "title": "Cyclic Permutations Avoiding 4123 with 1324-Avoiding Cycle Forms",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2408.15000v1"
+    },
+    {
+      "id": "archer-cyclic-4132-1324-padovan",
+      "title": "Cyclic Permutations Avoiding 4132 with 1324-Avoiding Cycle Forms",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2408.15000v1"
+    },
+    {
+      "id": "baumer-2024-triangle-inequality-l1",
+      "title": "A local counterexample to the triangle inequality ineq_l1",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2405.08939v1"
+    },
+    {
+      "id": "baumer-2024-triangle-symmetric-local-quarter",
+      "title": "A fully symmetric triangle-local distribution with p(A = B = C) above 1/4",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/2405.08939v1"
+    },
+    {
+      "id": "harkness-2025-maxkcut-qubo-penalty",
+      "title": "Tight penalty coefficients for the QUBO reformulations of max k-cut",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2511.01108v3"
+    },
+    {
+      "id": "marton-2023-double-cglmp-one-bit-bound",
+      "title": "The one-bit bound of the double CGLMP game",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2308.10771v1"
+    },
+    {
+      "id": "abbott-2019-sequential-weak-pointer-bound",
+      "title": "Three weak measurements of projections below minus one eighth",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/abs/1805.09364v3"
+    },
+    {
+      "id": "angelinos-2022-bform-averaged-enumerator",
+      "title": "The averaged enumerator of B-form codes",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2206.14825v1"
+    },
+    {
+      "id": "dalfo-fiol-reyes-three-quarter-conjecture-24",
+      "title": "Dalfó-Fiol-Reyes Conjecture 2.4",
+      "kind": "refuted",
+      "source_url": "https://arxiv.org/html/2609.33718v1"
+    },
+    {
+      "id": "elizalde-luo-nonnesting-1231-1312-2231-3221",
+      "title": "Nonnesting Permutations Avoiding 1231, 1312, 2231 and 3221",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2412.00336v6"
+    },
+    {
+      "id": "emeriau-2020-torpedo-perfect-classical",
+      "title": "A perfect classical strategy for the Torpedo Game",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2007.15643v2"
+    },
+    {
+      "id": "malik-2020-falling-factorial-moment-bound",
+      "title": "A bound on n² times a falling factorial",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2004.07168v1"
+    },
+    {
+      "id": "nishioka-sato-2021-bernoulli-harmonic-zeta-identity",
+      "title": "A Bernoulli–harmonic–zeta identity for the free scalar on hyperbolic space",
+      "kind": "proved",
+      "source_url": "https://arxiv.org/abs/2101.02399v5"
+    }
+  ]
+}
