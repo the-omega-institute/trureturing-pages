@@ -10,8 +10,9 @@ harness and open contribution workflow, with mathematicians guiding the question
 2. Why: intuition, AI exploration and reading, Lean formalization, and feedback
    from real mathematical problems. A small real dependency graph explains reuse.
 3. Outputs: 439 recorded problem resolutions, two joint arXiv papers with real
-   PDF images, and 20+ researchers in mathematical exchanges. Selected affiliations
-   are OpenAI, The Open University, Queen Mary and NUS.
+   PDF images, and 20+ researchers in mathematical exchanges. Twelve selected researchers span OpenAI, NUS, IISc, Queen Mary, Radboud,
+   The Open University, UBC, UCF, NTNU, Jundi-Shapur and OEIS. Each has a
+   specific research-topic link.
 4. Reciprocal work: Sahbi’s joint paper, Nikandish’s exact coloring and shared
    writing, Campbell/Cloitre recurrence proofs and next questions.
 5. Growth and research foundations: 15,113 → 34,526 frozen theorem statements,
@@ -197,7 +198,7 @@ including counterexamples, and not a claim that every result has new priority.
 The currently deployed catalog has 419 released entries at source `2a9d8fea`;
 the deck labels the larger count as recorded to keep the publication distinction.
 
-Twenty-plus refers to 27 named researchers across 15 two-way mathematical
+Twenty-plus refers to 28 named researchers across 16 two-way mathematical
 correspondence threads, including copied coauthors. The manifest lists the
 names and explains this scope. It does not mean twenty coauthored papers or
 independent responses from every participant. The two arXiv papers are verified
@@ -241,3 +242,10 @@ reading. It produces
 screenshots and both PDFs; exported links use public Pages, not the local test
 server. `tests/test_open_math_deck.py` also checks edge direction against import
 records, complete downstream closure, pinned evidence and translation coverage.
+
+The research-conversations strip now shows twelve individual researchers in a
+six-column, two-row layout. It prioritizes actual exchanges and active research
+work: the original four plus Venkatesh, Bosma, Israel, Hughes, Eu, Nikandish,
+Cloitre and Hasler. Israel’s contribution is OEIS proof integration. Emeritus
+status is retained in the source manifest for Israel and Hughes; OEIS contributor
+is a community role. No institutional partnership is claimed.

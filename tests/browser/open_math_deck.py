@@ -56,7 +56,7 @@ def main():
                     page.screenshot(path=str(args.output / f'{lang}-{i+1:02}.png'))
                 # The pitch shows public outcomes and a simple reusable-knowledge story.
                 assert page.locator('.output-papers img').count() == 2
-                assert page.locator('.people-row > div').count() == 4
+                assert page.locator('.people-row > div').count() == 12
                 page.locator('#deck-jump').select_option('6')
                 # Every state must leave real space between the lab and its refinement law.
                 for mode in ['base', 'rename', 'refine']:
