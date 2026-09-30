@@ -1,102 +1,192 @@
-# SAIR pitch: English talk track
+# SAIR pitch: talk track
 
-The paragraph numbers follow the thirteen slides. This keeps the user's spoken
-motivation and flow while using the October 1 evidence and count definitions.
+Each numbered paragraph follows one of the fourteen slides. The evidence
+snapshot is October 1, 2026.
 
-1. **Human intelligence. Machine rigor. An endless loop.** What we are doing is
-   combining human intelligence with the rigor of machine-checked reasoning,
-   and keeping that combination in a continuous research loop. Humans bring
-   intuitions and questions. AI helps us explore. Formal verification gives us
-   something precise to build on. Each result then opens the next question.
+## English
 
-2. **Why we built this.** We have many ideas about the world. Sometimes an idea
-   is just a hint, a pattern or an intuition. We have worked extensively with AI
-   to explore those ideas, find related work and understand the connections.
-   But a convincing chain of thought still needs to become a proof. Lean gives
-   us a place to make the definitions, assumptions and reasoning explicit.
-   We can make one relation precise, check it and leave it for someone else to
-   reuse. And we want that work to be useful, so we take it to real conjectures
-   and real researchers. Their feedback starts another loop. The dependency
-   graph is what naturally accumulates along the way.
+1. **Human intelligence. Machine rigor. An endless loop.** We are combining
+   human intelligence with the rigor of machine-checked reasoning in a continuous
+   research loop. People bring intuitions and questions. AI helps us explore and
+   construct arguments. Checked results and human feedback guide the next round.
+   This loop is already producing real problem resolutions and joint papers.
 
-3. **What this is producing.** Our registry now records 439 resolutions of
-   external mathematical problems, including proofs and counterexamples.
-   We have two joint papers on arXiv, and mathematical exchanges involving more
-   than twenty researchers. Those conversations include John Campbell at OpenAI,
-   Dan Rust at The Open University, Sanjaye Ramgoolam at Queen Mary, and Louxin
-   Zhang at NUS. These are people bringing their own questions and mathematical
-   experience into the conversation. Here are two public papers that have
-   already come out of that process.
+2. **A precise place for intuition.** Many of our ideas begin as a hint, a pattern
+   or an intuition about the world. We work with agents to find related work,
+   read it and sharpen the question. Lean gives us a place to make definitions,
+   assumptions and reasoning explicit. A checked relation then becomes something
+   another person can inspect, reuse and extend. That is how an intuition starts
+   becoming shared knowledge.
 
-4. **The people in the conversation.** Here are some of the researchers we are
-   exchanging mathematics with. Their questions come from different areas,
-   and the contributions take different forms: a new problem, a proof, a
-   computation, feedback or a shared manuscript. That range gives this research
-   loop more directions to explore. Let me show three concrete examples.
+3. **The proof checks out. What have we learned?** Once we can check an argument,
+   we also need to understand its contribution. We can give something a new name
+   while preserving the same blind spot. We can even hide the real work inside
+   an assumption. So we check the proof and its premises, and ask what relations
+   our concepts actually let us see. This is where information escape enters.
 
-5. **How the collaboration works.** With Rafik Sahbi, a formal proof for
-   hypercubes developed into a shared paper and further work on grids. With
-   Reza Nikandish, we constructed and checked an exact coloring while he
-   contributed proofs, geometry and code to the shared manuscript. Campbell
-   and Cloitre brought new recurrence questions, and we developed explicit
-   formulas and structural results. Each side contributes something the other
-   can use, and the work continues with a sharper question.
+4. **What escapes.** Look at these two graphs: one six-cycle and two disjoint
+   triangles. If our concept catalog records only the degree sequence, both give
+   exactly the same reading. They are different objects, but our chosen concepts
+   cannot distinguish them. That uncaptured difference is information escape.
+   The question is always relative to the objects and concepts we have specified.
 
-6. **Why the work keeps growing.** We are interested in the relations beneath
-   different ways of describing the world, and in relations between those
-   relations. Information escape, recursive relations, spacetime and holographic
-   geometry are part of that research program. The working question is what
-   our current descriptions can distinguish, what they leave unresolved, and
-   how to extend them. The chart shows the accumulation of frozen theorem
-   statements as we build that shared body of knowledge.
+5. **Escape rate and contribution.** On a fixed set of objects, the escape rate
+   is the fraction of different pairs our concepts still cannot distinguish.
+   Renaming the degree sequence changes nothing. Adding triangle count separates
+   these graphs: zero versus two. Remove triangle count, and the difference
+   disappears again. That change in escape rate isolates what this concept adds
+   beyond the remaining catalog. It gives us a precise way to study additional
+   distinctions, alongside the other checks a research contribution needs.
 
-7. **What escapes.** Take these two different graphs. If our entire concept
-   catalog only records the degree sequence, both graphs look identical to it.
-   Their difference is real, but it escapes everything that catalog can see.
-   That is the basic idea of information escape: differences between states
-   that remain indistinguishable under all the concepts we currently use.
+6. **The research harness.** We bring these requirements together. Reference
+   retrieval establishes the existing knowledge and assumptions. Formalization
+   checks whether the encoded claim follows. Bind-only review checks whether
+   the proof performs a substantive step, rather than hiding the conclusion in
+   its premises or repackaging available content. Information escape studies
+   which distinctions our concepts capture and what each adds. Checked results
+   return to the library with their sources and dependencies for the next round.
 
-8. **What a contribution adds.** Renaming the same information does not reveal
-   that difference. Adding triangle count does: one graph has zero triangles,
-   the other has two. Now remove triangle count again. The distinction disappears.
-   That is how we isolate its contribution relative to the rest of the catalog.
-   We want to track which ideas let us distinguish something we otherwise miss.
+7. **A record of delivery.** In SAIR EQT2, Team Omega ranked first on every
+   leaderboard and certified all 1,889 public problems. That solver used zero
+   LLM calls. It demonstrates our ability to construct mathematical answers and
+   verify their certificates. Our ongoing research brings that discipline into
+   real conjectures and conversations with mathematicians.
 
-9. **Why the output holds up.** This is built into our research harness.
-   We retrieve and check references, state the actual assumptions, study
-   information escape, reject bind-only repackaging, and check formal proofs.
-   Correctness and substantive contribution both matter. Accepted results return
-   to the library, where the next person or agent can use them.
+8. **What the research loop produces.** Our registry records 439 resolutions of
+   external mathematical problems, including proofs and counterexamples. Two
+   joint papers are on arXiv, and mathematical exchanges involve more than twenty
+   researchers. Here are the actual papers with Benoit Cloitre and Rafik Sahbi.
+   These results also give us a way to ground our abstract ideas in questions
+   that matter to somebody else.
 
-10. **Who can take part.** You can start before you are an expert. Bring a
-   question, an example, an argument, a formalization or an independent check.
-   You learn by making one step precise, and you leave something useful for
-   the next contributor. That is the open-source, open-contribution community
-   we are building.
+9. **How people move the research forward.** With Sahbi, a formal hypercube proof
+   developed into a joint paper and further questions about grids. With Nikandish,
+   we constructed and checked an exact coloring while he contributed proofs,
+   geometry and code. Campbell and Cloitre brought recurrence questions that led
+   to explicit formulas and new structure. Each exchange gives both sides
+   something useful and opens a sharper next question. This is the human–machine
+   research loop in practice.
 
-11. **A record of delivery.** In SAIR EQT2, Team Omega ranked first on every
-    leaderboard and certified all 1,889 public problems. That solver used zero
-    LLM calls. Together with our ongoing research, it shows our ability to
-    construct reliable systems around mathematical reasoning and verification.
+10. **The people in the conversation.** These are some of the researchers taking
+    part, including people at OpenAI, NUS, Queen Mary, The Open University and
+    other institutions, as well as OEIS contributors. They bring different
+    problems and mathematical experience. The previous examples show the kinds
+    of work behind these names: proofs, computations, feedback and shared writing.
 
-12. **What we propose.** We would like to connect OMM to this harness and develop
-    a shared research direction with mathematicians and open contributors.
-    Researchers guide the questions. The model helps explore and construct
-    arguments. The harness checks correctness and substantive contributions.
-    Results and feedback return to the shared knowledge, and the loop continues.
+11. **What accumulates.** Every reusable result gives later work another starting
+    point. This chart shows our cumulative frozen theorem statements growing
+    from 15,113 to 34,526 over 25 days. The dependency graph records how work
+    builds on earlier work. Underneath that growth is our interest in relations,
+    relations between relations, and what current descriptions leave uncaptured.
+    Information escape, recursive relations, spacetime and holographic geometry
+    are connected directions in that research program.
 
-13. **The invitation.** Start with one idea. Make one step precise. With an open
-    model, a rigorous harness and a community willing to share what it learns,
-    more people can take that first step and build on one another's work.
+12. **Who can take part.** You can start before you are an expert. Bring a
+    question, an example, an argument, a formalization or an independent check.
+    The shared harness helps make that contribution precise and inspectable.
+    People learn through the work and leave something the next person can use.
+    That is the open-source, open-contribution community we are building.
+
+13. **What we propose to OMM.** We would like to connect OMM to this working
+    research loop. Mathematicians help choose meaningful questions and evaluate
+    results. Models and contributors explore and construct arguments. Our harness
+    supplies the research discipline and reusable record. Together we can open
+    a shared research track in which results and feedback continually guide
+    the next round.
+
+14. **The invitation.** Start with one idea. Make one step precise. We propose
+    choosing a research question together, connecting the model to the harness
+    and opening the work to contributors. Each checked contribution gives the
+    next person a place to begin, and the research continues.
+
+## 中文口语稿
+
+1. **人的智慧、机器的严谨，组成持续运转的研究循环。** 我们在做的事情，
+   是把人的直觉和机器的推理、验证能力结合起来。人提供问题和方向，AI 帮助探索
+   和构建论证，经过检查的结果再加上人的反馈，进入下一轮。这个循环已经产出了
+   真实问题的解决，以及共同署名的论文。
+
+2. **让直觉有一个精确的落点。** 我们对世界有很多想法，有时只是一个提示、
+   一个模式，或者一段还讲不清楚的直觉。我们和 agent 一起找相关工作、阅读，
+   把问题逐步想清楚。Lean 给了我们一个地方，把定义、假设和推理明确下来。
+   一条关系经过检查，就成为别人能检验、复用和继续推进的东西。
+   直觉由此开始成为可以积累的共同知识。
+
+3. **证明成立之后，我们增加了什么理解？** 能检查推理之后，还要理解贡献。
+   换一个名字，原来的盲点可能依然存在；真正要证明的东西，也可能已经被放进了
+   假设。所以我们既检查证明和前提，也追问：当前这些概念，到底让我们看见了
+   哪些关系？信息逃逸就是在这里进入我们的研究方法的。
+
+4. **什么是逃逸？** 看这两个图：一个六边形，和两个分开的三角形。
+   如果我们的概念只记录每个点的度数，它们给出的读数完全一样。它们明明是
+   不同的对象，当前概念却分不出来。这个没有被捕捉到的差异，就是信息逃逸。
+   这里必须说清楚，我们在什么对象范围内，用哪些概念来观察。
+
+5. **逃逸率如何帮助我们理解贡献？** 固定对象范围之后，逃逸率就是：所有不同
+   对象对里面，还有多少无法被当前概念区分。把度数序列改个名字，情况不变。
+   加入三角形数量，就能分开这两个图：一个是零，一个是二。再拿掉这个概念，
+   区别就重新不可见。比较拿掉它前后的逃逸率，就能看出它相对于其余概念，
+   独立增加了什么区分能力。这是我们研究新增理解的一个精确工具。
+
+6. **这些要求共同组成研究 harness。** 引用查找告诉我们，已有知识在哪里，
+   它依赖哪些条件；形式化检查结论是否从给定前提推出；bind-only 检查要求
+   关键证明路径上有实质工作，防止把结论藏进前提或者只重新包装已有内容；
+   信息逃逸研究当前概念遗漏了哪些区分，以及一个概念增加了什么。
+   通过检查的结果连同来源和依赖回到知识库，供下一轮继续使用。
+
+7. **我们有实际的构造和验证能力。** 在 SAIR EQT2 中，Team Omega 在所有
+   排行榜上都是第一，1889 道公开题全部给出了证书。那个求解器没有调用 LLM。
+   这展示了我们构造数学答案、检查对应证书的能力。现在，我们把这种严谨带入
+   真实猜想和与数学家的持续研究。
+
+8. **研究循环已经产出了什么？** 我们的记录中已有 439 项外部数学问题的解决，
+   包括证明和反例；两篇共同署名的论文已经在 arXiv 上，数学交流涉及二十多位
+   研究者。这里展示的是与 Benoit Cloitre、Rafik Sahbi 的真实论文。
+   解决别人的问题，也让我们有机会检验自己的抽象想法是否真正有用。
+
+9. **人怎样把这个循环往前推？** 与 Sahbi 的合作，从超立方体的形式化证明，
+   发展到共同论文和网格上的后续问题。与 Nikandish 的合作中，我们构造和检查
+   精确着色，他贡献证明、几何理解和代码。Campbell 和 Cloitre 提出递推问题，
+   我们给出显式公式和新的结构。每一轮交流，双方都得到可以使用的东西，
+   也共同得到一个更清楚的下一步问题。这就是正在发生的人机协同。
+
+10. **哪些人在参与交流？** 这里是部分研究者，包括来自 OpenAI、NUS、
+    Queen Mary、英国开放大学等机构的研究者，以及 OEIS 贡献者。
+    他们带来不同领域的问题和判断。前面的案例已经说明，这些名字背后是
+    实际的证明、计算、反馈和共同写作。
+
+11. **这个循环在积累什么？** 每一个可复用的结果，都会给后面的工作提供新的
+    起点。这张图记录了累计冻结的定理陈述，在 25 天内从 15,113 增长到 34,526。
+    依赖图记录了后续工作怎样使用之前的成果。我们更深的兴趣是关系、关系的
+    关系，以及现有描述还没有捕捉到什么。信息逃逸、关系递归、时空和全息几何，
+    都是这个研究计划里的方向。
+
+12. **谁可以参与？** 不需要等到成为专家才开始。一个问题、一个例子、一段论证、
+    一次形式化或者独立检查，都可以成为贡献。共同的 harness 帮助大家把贡献做
+    精确、做成可检查的东西。人在参与中学习，也为下一位参与者留下可以复用的
+    起点。这就是我们要建立的开源、开放贡献的社区。
+
+13. **我们希望与 OMM 合作什么？** 我们希望让 OMM 加入这个已经运转的研究
+    循环。数学家帮助选择有意义的问题，并判断结果；模型和社区参与者探索、
+    构建论证；我们提供研究 harness 和可复用的知识记录。共同开出一个研究方向，
+    让结果与反馈不断进入下一轮。
+
+14. **最后的邀请。** 从一个想法开始，把一步做精确。我们可以一起选择问题，
+    把模型接入 harness，并把研究向贡献者开放。每一份经过检查的贡献，
+    都给下一位参与者一个继续出发的地方。
 
 ## Evidence notes for preparation
 
-- 439 is the recorded problem-resolution count: 336 proved, 103 refuted. The
-  currently published Pages catalog has 419, pending further publication.
-- 20+ is researchers in two-way exchange threads, including copied coauthors.
-  It is not a count of agreed joint papers. The public papers are the two shown.
-- Institutions identify individuals' affiliations, not institutional agreements.
+- 439 is the October 1 recorded problem-resolution count: 336 proved and 103
+  refuted. The released Pages catalog at the evidence snapshot had 419 entries.
+- 20+ counts researchers in two-way exchange threads, including copied coauthors.
+  It is not a count of agreed joint papers or separate replies by every person.
+- Affiliations identify individuals, not institutional agreements.
 - The growth chart counts retained frozen theorem statements, not distinct ideas.
-- The intrinsic escape definition fixes both the state space and concept catalog.
-  A complete injective readout can distinguish its domain; avoid claiming that
-  every possible representation necessarily loses information.
+- Escape rate fixes the state space; contribution gain compares the same catalog
+  with and without one concept. A complete injective readout can distinguish its
+  domain. Escape is not a universal novelty score or a model error rate.
+- The graph example illustrates concept distinctions. Bind-only separately checks
+  proof content. Named external problem resolutions have their own admission basis.
+- The EQT2 result establishes construction and verification capability. That
+  solver's zero-LLM execution does not claim it exercised the full current harness.
