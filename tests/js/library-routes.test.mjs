@@ -40,7 +40,7 @@ test('unknown or conflicting coordinates cannot silently select the current rele
 });
 
 test('one fallback preserves legacy bookmarks without redirecting unrelated missing pages', async () => {
-  const script = readFileSync(new URL('../../site/404.html', import.meta.url), 'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
+  const script = readFileSync(new URL('../../site/404.html', import.meta.url), 'utf8').match(/<script>([\s\S]*?)<\/script>/i)[1];
   const slug = await nodeSlug(node.id);
   for (const suffix of ['', '/', '/index.html']) {
     let target;
