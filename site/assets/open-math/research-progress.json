@@ -100,84 +100,108 @@
       "research_topic": "Nested recurrences",
       "source": "https://github.com/the-omega-institute/nested-recurrences",
       "exchange_scope": "Current affiliation directly confirmed by the researcher; public research repository linked.",
-      "affiliation_basis": "Directly confirmed by the researcher in current correspondence; no institutional partnership is claimed."
+      "affiliation_basis": "Directly confirmed by the researcher in current correspondence; no institutional partnership is claimed.",
+      "current_research_display": "Nested recurrences and explicit formulas",
+      "topic_checked_on": "2026-10-01"
     },
     {
-      "person": "Louxin Zhang",
-      "affiliation_or_community_role": "National University of Singapore",
-      "research_topic": "Word neighborhoods",
-      "source": "https://arxiv.org/html/2505.13796v2",
-      "exchange_scope": "Research discussion invited; follow-up direction under discussion."
-    },
-    {
-      "person": "R. Venkatesh",
-      "affiliation_or_community_role": "Indian Institute of Science",
-      "research_topic": "Hypergraph positivity",
-      "source": "https://arxiv.org/html/2507.20847v1",
-      "exchange_scope": "Written positivity classification and sufficient-condition proofs sent in response to the revised problem."
-    },
-    {
-      "person": "Sanjaye Ramgoolam",
-      "affiliation_or_community_role": "Queen Mary, London",
-      "research_topic": "Determinants and geometry",
-      "source": "https://arxiv.org/html/2603.05259",
-      "exchange_scope": "Comparing approaches and exploring geometric connections; no joint paper agreed."
-    },
-    {
-      "person": "Wieb Bosma",
-      "affiliation_or_community_role": "Radboud University",
-      "research_topic": "Sumfree periodicity",
-      "source": "https://www.math.ru.nl/~bosma/",
-      "exchange_scope": "Explicit interest in further seed families; general certificate argument shared."
-    },
-    {
-      "person": "Dan Rust",
-      "affiliation_or_community_role": "The Open University, UK",
-      "research_topic": "Fibonacci-word bounds",
-      "source": "https://arxiv.org/html/2501.05830v2",
-      "exchange_scope": "Readable proof and sharper bounds sent; reserved orbit-analysis scope respected."
-    },
-    {
-      "person": "Robert Israel",
-      "affiliation_or_community_role": "University of British Columbia",
-      "research_topic": "OEIS proof integration",
-      "source": "https://www.math.ubc.ca/~israel/",
-      "exchange_scope": "Associate Professor Emeritus. Assisting with OEIS proof links and attribution; no joint research plan agreed."
-    },
-    {
-      "person": "Charles E. Hughes",
-      "affiliation_or_community_role": "University of Central Florida",
-      "research_topic": "Insertion languages",
-      "source": "https://www.cs.ucf.edu/~ceh/",
-      "exchange_scope": "Pegasus Professor Emeritus. Reviewed padding proof and proposed further directions."
-    },
-    {
-      "person": "Sen-Peng Eu",
-      "affiliation_or_community_role": "National Taiwan Normal University",
-      "research_topic": "Raney spectra",
-      "source": "https://arxiv.org/html/2609.25742",
-      "exchange_scope": "Interested in exact parameter classification and retrieving existing data."
-    },
-    {
-      "person": "Reza Nikandish",
-      "affiliation_or_community_role": "Jundi-Shapur University of Technology",
-      "research_topic": "Orthogonality graphs",
-      "source": "https://arxiv.org/html/2609.22769v1",
-      "exchange_scope": "Active shared manuscript, proof and code contributions in public PR #1."
+      "person": "Rafik Sahbi",
+      "affiliation_or_community_role": "University of Carthage",
+      "research_topic": "Sub-quorum colorings of hypercubes and grids",
+      "source": "https://arxiv.org/abs/2609.25128v3",
+      "exchange_scope": "Joint public paper and ongoing work on the general grid conjecture. Affiliation is given on the paper first page.",
+      "current_research_display": "Sub-quorum colorings of hypercubes and grids",
+      "topic_checked_on": "2026-10-01"
     },
     {
       "person": "Benoit Cloitre",
       "affiliation_or_community_role": "OEIS contributor",
       "research_topic": "Padovan and nested recurrences",
       "source": "https://arxiv.org/abs/2609.33421",
-      "exchange_scope": "Joint public paper and continuing recurrence research. OEIS contributor is a community role, not an employment affiliation."
+      "exchange_scope": "Joint public paper and continuing recurrence research. OEIS contributor is a community role, not an employment affiliation.",
+      "current_research_display": "Padovan recurrences and Fibonacci structure",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Louxin Zhang",
+      "affiliation_or_community_role": "National University of Singapore",
+      "research_topic": "Word neighborhoods",
+      "source": "https://arxiv.org/html/2505.13796v2",
+      "exchange_scope": "Research discussion invited; follow-up direction under discussion.",
+      "current_research_display": "Minimal word neighborhoods and classification",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Reza Nikandish",
+      "affiliation_or_community_role": "Jundi-Shapur University of Technology",
+      "research_topic": "Orthogonality graphs",
+      "source": "https://arxiv.org/html/2609.22769v1",
+      "exchange_scope": "Active shared manuscript, proof and code contributions in public PR #1.",
+      "current_research_display": "Exact colorings of binary subspace graphs",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "R. Venkatesh",
+      "affiliation_or_community_role": "Indian Institute of Science",
+      "research_topic": "Hypergraph positivity",
+      "source": "https://arxiv.org/html/2507.20847v1",
+      "exchange_scope": "Written positivity classification and sufficient-condition proofs sent in response to the revised problem.",
+      "current_research_display": "Hypergraph positivity and sunflower conditions",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Sanjaye Ramgoolam",
+      "affiliation_or_community_role": "Queen Mary, London",
+      "research_topic": "Determinants and geometry",
+      "source": "https://arxiv.org/html/2603.05259",
+      "exchange_scope": "Comparing approaches and exploring geometric connections; no joint paper agreed.",
+      "current_research_display": "Graph determinants and geometric multiplicities",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Wieb Bosma",
+      "affiliation_or_community_role": "Radboud University",
+      "research_topic": "Sumfree periodicity",
+      "source": "https://www.math.ru.nl/~bosma/",
+      "exchange_scope": "Explicit interest in further seed families; general certificate argument shared.",
+      "current_research_display": "Sumfree periodic families and finite certificates",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Dan Rust",
+      "affiliation_or_community_role": "The Open University, UK",
+      "research_topic": "Fibonacci-word bounds",
+      "source": "https://arxiv.org/html/2501.05830v2",
+      "exchange_scope": "Readable proof and sharper bounds sent; reserved orbit-analysis scope respected.",
+      "current_research_display": "Sharper Fibonacci-word progression bounds",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Charles E. Hughes",
+      "affiliation_or_community_role": "University of Central Florida",
+      "research_topic": "Insertion languages",
+      "source": "https://www.cs.ucf.edu/~ceh/",
+      "exchange_scope": "Pegasus Professor Emeritus. Reviewed padding proof and proposed further directions.",
+      "current_research_display": "Insertion-degree spectra and No-Gap questions",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Sen-Peng Eu",
+      "affiliation_or_community_role": "National Taiwan Normal University",
+      "research_topic": "Raney spectra",
+      "source": "https://arxiv.org/html/2609.25742",
+      "exchange_scope": "Interested in exact parameter classification and retrieving existing data.",
+      "current_research_display": "Raney zero-run spectra and parameter classification",
+      "topic_checked_on": "2026-10-01"
     },
     {
       "person": "Maximilian F. Hasler",
       "affiliation_or_community_role": "OEIS contributor",
       "research_topic": "Digit-substring sequences",
       "source": "https://oeis.org/A359482",
-      "exchange_scope": "Proof review and new predecessor data/questions exchanged. OEIS contributor is a community role, not an employment affiliation."
+      "exchange_scope": "Proof review and new predecessor data/questions exchanged. OEIS contributor is a community role, not an employment affiliation.",
+      "current_research_display": "Digit-substring sequences and predecessor patterns",
+      "topic_checked_on": "2026-10-01"
     }
   ],
   "eqt2": {

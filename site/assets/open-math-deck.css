@@ -464,10 +464,11 @@
 .output-source-links { display: flex; gap: 24px; flex-shrink: 0; }
 .slide-research-network h2 { font-size: 49px; }
 .research-people { display: flex; flex-direction: column; flex: 1; }
-.people-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 40px; }
-.people-row > div { display: flex; flex-direction: column; gap: 8px; min-height: 82px; padding-top: 13px; border-top: 1px solid var(--line); }
+.people-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 40px; }
+.people-row > div { display: flex; flex-direction: column; gap: 5px; min-height: 96px; padding-top: 11px; border-top: 1px solid var(--line); }
 .people-row strong { font-size: 22px; line-height: 1.2; font-weight: 500; }
-.people-row span { font-size: 15px; line-height: 1.35; color: var(--muted); }
+.people-row span { font-size: 13px; line-height: 1.35; color: var(--muted); }
+.people-row .people-topic { font-size: 15px; line-height: 1.35; color: var(--ink); margin-top: 3px; }
 .people-foot { display: flex; justify-content: space-between; margin-top: auto; padding-top: 16px; font-size: 11px; color: var(--muted); }
 .frontier-grid {
   display: grid;

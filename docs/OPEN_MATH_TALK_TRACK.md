@@ -1,6 +1,6 @@
 # SAIR pitch: talk track
 
-Each numbered paragraph follows one of the thirteen slides. The evidence
+Each numbered paragraph follows one of the twelve slides. The evidence
 snapshot is October 1, 2026.
 
 ## English
@@ -54,21 +54,18 @@ snapshot is October 1, 2026.
    200 out of 200. Together these results show the work producing both checked
    answers and continuing research with mathematicians.
 
-8. **How people move the research forward.** With Sahbi, a formal hypercube proof
-   developed into a joint paper and further questions about grids. With Nikandish,
-   we constructed and checked an exact coloring while he contributed proofs,
-   geometry and code. Campbell and Cloitre brought recurrence questions that led
-   to explicit formulas and new structure. Each exchange gives both sides
-   something useful and opens a sharper next question. This is the human–machine
-   research loop in practice.
+8. **The people and the research.** Each name here comes with a concrete
+   question we are working on or exchanging mathematics about. With Sahbi,
+   the hypercube proof has grown into a joint paper and work on grids. With
+   Nikandish, exact coloring certificates and structural questions bring together
+   our computations and his proofs and geometry. Campbell and Cloitre bring
+   nested recurrences and new structure. Other exchanges concern word
+   neighborhoods, positivity, determinants, periodic families and parameter
+   classifications. A result gives both sides something to build on, and their
+   feedback helps choose the next question. These are the people moving the
+   research loop forward.
 
-9. **The people in the conversation.** These are some of the researchers taking
-    part, including people at OpenAI, NUS, Queen Mary, The Open University and
-    other institutions, as well as OEIS contributors. They bring different
-    problems and mathematical experience. The previous examples show the kinds
-    of work behind these names: proofs, computations, feedback and shared writing.
-
-10. **A growing white-box model.** We see knowledge as connected. Mathematics,
+9. **A growing white-box model.** We see knowledge as connected. Mathematics,
     in our view, is logical structure, and we organize the library by the
     relationships themselves, without partitioning them by discipline. The
     same relation can become useful wherever its assumptions hold. Our ambition
@@ -82,13 +79,13 @@ snapshot is October 1, 2026.
     Recursive relations, spacetime and holographic geometry are directions in
     this connected research program.
 
-11. **Who can take part.** You can start before you are an expert. Bring a
+10. **Who can take part.** You can start before you are an expert. Bring a
     question, an example, an argument, a formalization or an independent check.
     The shared harness helps make that contribution precise and inspectable.
     People learn through the work and leave something the next person can use.
     That is the open-source, open-contribution community we are building.
 
-12. **What we propose to OMM.** We would like to connect OMM to this working
+11. **What we propose to OMM.** We would like to connect OMM to this working
     research loop. Mathematicians help choose meaningful questions and evaluate
     results. Models and contributors explore and construct arguments. Our connected library
     supplies explicit, reusable reasoning, and the harness checks contributions
@@ -96,7 +93,7 @@ snapshot is October 1, 2026.
     a shared research track in which results and feedback continually guide
     the next round.
 
-13. **The invitation.** Start with one idea. Make one step precise. We propose
+12. **The invitation.** Start with one idea. Make one step precise. We propose
     choosing a research question together, connecting the model to the harness
     and opening the work to contributors. Each checked contribution gives the
     next person a place to begin, and the research continues.
@@ -142,18 +139,14 @@ snapshot is October 1, 2026.
    中，我们的四项官方参赛都排名第一，成绩都是 200/200。这些成果展示了我们
    如何持续交付可检查的结果，并与数学家一起推进研究。
 
-8. **人怎样把这个循环往前推？** 与 Sahbi 的合作，从超立方体的形式化证明，
-   发展到共同论文和网格上的后续问题。与 Nikandish 的合作中，我们构造和检查
-   精确着色，他贡献证明、几何理解和代码。Campbell 和 Cloitre 提出递推问题，
-   我们给出显式公式和新的结构。每一轮交流，双方都得到可以使用的东西，
-   也共同得到一个更清楚的下一步问题。这就是正在发生的人机协同。
+8. **一起研究的人，与正在推进的问题。** 每个名字下面，都是我们正在共同
+   研究或实质交流的具体问题。与 Sahbi 的超立方体证明已经发展成共同论文，
+   继续推进网格问题；与 Nikandish 的合作结合精确着色证书、证明和几何理解；
+   Campbell 和 Cloitre 带来了嵌套递推与新的结构。其他交流涉及词邻域、正性、
+   行列式、周期族和参数分类。每一轮工作给双方留下可以使用的结果，对方的
+   反馈又帮助确定下一步。这些人和问题，就是持续推动研究循环的力量。
 
-9. **哪些人在参与交流？** 这里是部分研究者，包括来自 OpenAI、NUS、
-    Queen Mary、英国开放大学等机构的研究者，以及 OEIS 贡献者。
-    他们带来不同领域的问题和判断。前面的案例已经说明，这些名字背后是
-    实际的证明、计算、反馈和共同写作。
-
-10. **我们在构建一个生长中的白盒模型。** 我们认为知识是相互连接的，数学本身
+9. **我们在构建一个生长中的白盒模型。** 我们认为知识是相互连接的，数学本身
     就是逻辑结构。因此，我们按关系本身组织这个库，不按学科把知识分隔开。
     一条关系，只要条件成立，就可以在新的地方被使用。我们的愿景，是把非平凡
     的逻辑关系不断积累成一个共同的推理体系。从这个意义上，库本身就在成为
@@ -163,17 +156,17 @@ snapshot is October 1, 2026.
     信息逃逸帮助我们继续追问：当前概念还看不见什么？再用新的关系扩展这个
     模型。关系递归、时空与全息几何，都是这项相互连接的研究中的方向。
 
-11. **谁可以参与？** 不需要等到成为专家才开始。一个问题、一个例子、一段论证、
+10. **谁可以参与？** 不需要等到成为专家才开始。一个问题、一个例子、一段论证、
     一次形式化或者独立检查，都可以成为贡献。共同的 harness 帮助大家把贡献做
     精确、做成可检查的东西。人在参与中学习，也为下一位参与者留下可以复用的
     起点。这就是我们要建立的开源、开放贡献的社区。
 
-12. **我们希望与 OMM 合作什么？** 我们希望让 OMM 加入这个已经运转的研究
+11. **我们希望与 OMM 合作什么？** 我们希望让 OMM 加入这个已经运转的研究
     循环。数学家帮助选择有意义的问题，并判断结果；模型和社区参与者探索、
     构建论证；我们的白盒逻辑库提供明确、可复用的推理，harness 检查新贡献，
     并让它们继续扩展这个库。共同开出一个研究方向，让结果与反馈不断进入下一轮。
 
-13. **最后的邀请。** 从一个想法开始，把一步做精确。我们可以一起选择问题，
+12. **最后的邀请。** 从一个想法开始，把一步做精确。我们可以一起选择问题，
     把模型接入 harness，并把研究向贡献者开放。每一份经过检查的贡献，
     都给下一位参与者一个继续出发的地方。
 
