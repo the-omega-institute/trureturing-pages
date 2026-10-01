@@ -25,13 +25,14 @@
     },
     {
       "id": "nikandish-orthogonality",
-      "result": "chi(O_6*) = 15, with 2824 nonzero subspaces and 3986076 vertex pairs checked",
+      "result": "Exact dimension-six chromatic numbers: chi(Gamma_6) = 12 for lines and chi(O_6*) = 15 for all nonzero subspaces; a separation of three colors",
       "status": "Joint manuscript and collaborator code in an open PR",
-      "source_commit": "d32555cba23277a2162c224ac7cc0cfc0c9a40c7",
+      "source_commit": "6696170d84c5c4cb31be31920e9cb273a9384a02",
       "sources": [
         "https://github.com/the-omega-institute/binary-subspace-orthogonality/pull/1",
-        "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/d32555cba23277a2162c224ac7cc0cfc0c9a40c7/README.md",
-        "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/d32555cba23277a2162c224ac7cc0cfc0c9a40c7/notes/formal-verification-audit.md"
+        "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/6696170d84c5c4cb31be31920e9cb273a9384a02/README.md",
+        "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/6696170d84c5c4cb31be31920e9cb273a9384a02/notes/formal-verification-audit.md",
+        "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/6696170d84c5c4cb31be31920e9cb273a9384a02/notes/line-coloring.md"
       ],
       "collaborator_commits": [
         "ae4844d520",
@@ -40,18 +41,18 @@
         "076b518af8",
         "0a239c8989"
       ],
-      "verification_scope": "Independent finite certificate establishes the exact coloring. Historical Lean build has native-evaluation axioms; do not describe as pure kernel validation. The all-dimensional clique formula has a separate existing Lean proof. Dimension seven and a structural coloring rule remain open."
+      "verification_scope": "Independent finite certificates establish both exact chromatic numbers, with a weighted independent-set lower bound for the line graph. The full-subspace checker tests 2824 vertices and 3986076 pairs. Historical Lean build has native-evaluation axioms; do not describe as pure kernel validation. The all-dimensional clique formula has a separate existing Lean proof. Dimension seven and a structural full-subspace coloring rule remain open."
     },
     {
       "id": "campbell-cloitre-recurrences",
       "result": "Explicit Campbell recurrence formula with ratio liminf 2/5 and limsup 3/4; global golden structure and Fibonacci collars for Cloitre's recurrence",
-      "status": "Public proofs and reproducible computations responding to the authors' recurrence proposals",
-      "source_commit": "a2c72a3da09add0b39004d6b3f2bbd699c3fe04d",
+      "status": "Public PR #3 merged: adjacent-gap parity states and conditional boundary widening, building on the explicit Campbell formula and golden structure for Cloitre’s recurrence",
+      "source_commit": "ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6",
       "sources": [
-        "https://github.com/the-omega-institute/nested-recurrences/blob/a2c72a3da09add0b39004d6b3f2bbd699c3fe04d/README.md",
-        "https://github.com/the-omega-institute/nested-recurrences/blob/a2c72a3da09add0b39004d6b3f2bbd699c3fe04d/STATUS.md"
+        "https://github.com/the-omega-institute/nested-recurrences/blob/ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6/README.md",
+        "https://github.com/the-omega-institute/nested-recurrences/blob/ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6/STATUS.md"
       ],
-      "verification_scope": "Written proofs and exact finite checks; no Lean formalization or agreed joint paper authorship. Full convergence of Cloitre's ratio remains open."
+      "verification_scope": "Written proofs and exact finite checks; no Lean formalization or agreed joint paper authorship. Boundary-state minima assume the specified surrounding context. The entrance condition needed for widening, the full recursive interface and global convergence remain open."
     }
   ],
   "headline_metrics": {
@@ -91,7 +92,10 @@
       "Thian Tromp",
       "Rafik Sahbi",
       "Charles E. Hughes"
-    ]
+    ],
+    "published_problem_resolutions": 427,
+    "frozen_theorem_statements": 35010,
+    "theorem_census_manifest": "theorem-growth.json"
   },
   "selected_researcher_affiliations": [
     {
@@ -101,25 +105,25 @@
       "source": "https://github.com/the-omega-institute/nested-recurrences",
       "exchange_scope": "Current affiliation directly confirmed by the researcher; public research repository linked.",
       "affiliation_basis": "Directly confirmed by the researcher in current correspondence; no institutional partnership is claimed.",
-      "current_research_display": "Nested recurrences and explicit formulas",
+      "current_research_display": "Explicit formulas and recursive boundary states",
       "topic_checked_on": "2026-10-01"
     },
     {
       "person": "Rafik Sahbi",
       "affiliation_or_community_role": "University of Carthage",
       "research_topic": "Sub-quorum colorings of hypercubes and grids",
-      "source": "https://arxiv.org/abs/2609.25128v3",
+      "source": "https://github.com/the-omega-institute/subquorum-colorings/blob/d8f15435f8ea2b4b97ac94008f1611204cbd1c0b/docs/GRID_RESULTS.md",
       "exchange_scope": "Joint public paper and ongoing work on the general grid conjecture. Affiliation is given on the paper first page.",
-      "current_research_display": "Sub-quorum colorings of hypercubes and grids",
+      "current_research_display": "Hypercube proof and uniform grid bounds",
       "topic_checked_on": "2026-10-01"
     },
     {
       "person": "Benoit Cloitre",
       "affiliation_or_community_role": "OEIS contributor",
       "research_topic": "Padovan and nested recurrences",
-      "source": "https://arxiv.org/abs/2609.33421",
+      "source": "https://github.com/the-omega-institute/nested-recurrences/blob/ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6/STATUS.md",
       "exchange_scope": "Joint public paper and continuing recurrence research. OEIS contributor is a community role, not an employment affiliation.",
-      "current_research_display": "Padovan recurrences and Fibonacci structure",
+      "current_research_display": "Padovan recurrences and Conway-type dynamics",
       "topic_checked_on": "2026-10-01"
     },
     {
@@ -135,9 +139,9 @@
       "person": "Reza Nikandish",
       "affiliation_or_community_role": "Jundi-Shapur University of Technology",
       "research_topic": "Orthogonality graphs",
-      "source": "https://arxiv.org/html/2609.22769v1",
-      "exchange_scope": "Active shared manuscript, proof and code contributions in public PR #1.",
-      "current_research_display": "Exact colorings of binary subspace graphs",
+      "source": "https://github.com/the-omega-institute/binary-subspace-orthogonality/blob/6696170d84c5c4cb31be31920e9cb273a9384a02/notes/line-coloring.md",
+      "exchange_scope": "Active shared manuscript and code contributions in public PR #1. Exact dimension-six chromatic numbers now established: 12 for the induced graph on lines and 15 for all nonzero subspaces, using independent finite certificates.",
+      "current_research_display": "Dimension six: 12 line colors, 15 subspace colors",
       "topic_checked_on": "2026-10-01"
     },
     {
@@ -250,5 +254,11 @@
       "https://github.com/the-omega-institute/sair-eqt2-stage2-solver",
       "https://arxiv.org/abs/2609.00706"
     ]
+  },
+  "update_sources": {
+    "checked_on": "2026-10-01",
+    "published_catalog_source_commit": "b6b6592977e7132b4d568b164ec8f20f914dcf7d",
+    "growth_endpoint_source_commit": "b6b6592977e7132b4d568b164ec8f20f914dcf7d",
+    "scope": "Counts retain their original definitions. New collaboration results link to public proofs and finite certificates; correspondence is not included."
   }
 }

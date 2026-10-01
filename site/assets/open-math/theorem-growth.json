@@ -4,7 +4,7 @@
   "counting_rule": "Unique statement_id values with kind=theorem in schema-v5 Freeze records under Golden/Frozen/accepted at each source commit. Historical accepted statements remain counted; this is not a count of distinct mathematical ideas or current active modules.",
   "source_repository": "https://github.com/the-omega-institute/trureturing",
   "history_url": "https://the-omega-institute.github.io/trureturing-pages/data/library-history.v1.json",
-  "history_sha256": "edc5c22c3330db04143d0edd1db3ab3de3867368ca4def6caab0ac1d2c205cd6",
+  "history_sha256": "876ae01ba0c1ba782d3a31da32b4c0c797f66a638dce0da35b5c7caed1d5a8f1",
   "sampling": "First published baseline plus last source snapshot per UTC day; source_time retains original timezone. Chart x coordinates use actual timestamps.",
   "points": [
     {
@@ -168,6 +168,33 @@
       "theorems": 34526,
       "freeze_records": 5068,
       "statement_ids_sha256": "5c823a394c2c8b878a03536d17fbbe25c3cff33089ae439f59777143a7a2bdd2"
+    },
+    {
+      "source_commit": "6bc2cbd2c2bd0e71b37c86f931ee35dcc01eac9e",
+      "source_time": "2026-09-28T05:45:32+08:00",
+      "date": "2026-09-28",
+      "truth_release_digest": "sha256:da82bc664ced24e80f5a5ad03c2418772f926fe822d0aa177612426f737adde5",
+      "theorems": 34558,
+      "freeze_records": 5086,
+      "statement_ids_sha256": "c3779bf94cf0f6306ce313f50a178199a46efba1af8a1c55ccf956d1d85d904c"
+    },
+    {
+      "source_commit": "2a9d8feab7b547c434ae7844ca6383c68045d7c3",
+      "source_time": "2026-09-29T04:53:55+08:00",
+      "date": "2026-09-29",
+      "truth_release_digest": "sha256:49d1dbb75b8c0bda53c2eff9523c378196bde2ba0d0c22224d584a219d40e0d7",
+      "theorems": 34763,
+      "freeze_records": 5144,
+      "statement_ids_sha256": "5c3ff56ca597aa23bac152315a42d22145f9bc453ec6867cc242facfd6ca2bf9"
+    },
+    {
+      "source_commit": "b6b6592977e7132b4d568b164ec8f20f914dcf7d",
+      "source_time": "2026-09-29T22:46:24+08:00",
+      "date": "2026-09-29",
+      "truth_release_digest": "sha256:dc29e73523eac03bd7ab3c34061c78243d2662388a777d2fe030e51fc50ea829",
+      "theorems": 35010,
+      "freeze_records": 5192,
+      "statement_ids_sha256": "81971a069485d02bd2d42984a65d25c3d8fda9f8dbd969658bbcc3ca3738a2e3"
     }
   ],
   "research_sources": [
@@ -183,5 +210,6 @@
       "topic": "Quantitative diagonalization and observer limits",
       "url": "https://github.com/the-omega-institute/trureturing/blob/c51f9cea494ecc956d90a95a4fa34b610591c77b/docs/develop/theory/QUANTITATIVE_DIAGONALIZATION_OBSERVER_COMPLETION.md"
     }
-  ]
+  ],
+  "checked_on": "2026-10-01"
 }
