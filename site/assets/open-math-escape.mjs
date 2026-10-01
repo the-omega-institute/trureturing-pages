@@ -1,27 +1,27 @@
-/** Intrinsic catalog escape on exactly two graphs: C6 and two disjoint triangles. */
+/** Intrinsic catalog escape on two Hankel sequences with the same leading rate and distinct next-order constants. */
 import { ready, t } from "./i18n.mjs";
 await ready;
 const lab = document.querySelector(".escape-lab");
 const buttons = [...lab.querySelectorAll("[data-escape]")];
 const states = {
   base: {
-    coordinate: "Degree sequence",
-    values: ["(2,2,2,2,2,2)", "(2,2,2,2,2,2)"],
-    rate: "2 / 2",
-    explanation: "Two different graphs; identical concept readings. Both ordered pairs escape.",
+    coordinate: "Leading growth",
+    values: ["log 4", "log 4"],
+    rate: "100%",
+    explanation: "Both sequences give the same leading rate.",
   },
   rename: {
-    coordinate: "Renamed degree sequence",
+    coordinate: "Renamed leading rate",
     values: ["A", "A"],
-    rate: "2 / 2",
-    explanation: "The name changes. The two graphs remain indistinguishable.",
+    rate: "100%",
+    explanation: "A new name still gives the same answer.",
   },
   refine: {
-    coordinate: "Added triangle count",
-    values: ["0", "2"],
-    rate: "0 / 2",
+    coordinate: "Next-order constant",
+    values: ["c₁", "4c₁"],
+    rate: "0%",
     explanation:
-      "Now distinguishable. Remove triangle count and the escape returns to 2/2.",
+      "Now distinct. Remove the next-order term and they look the same again.",
   },
 };
 function show(mode) {
