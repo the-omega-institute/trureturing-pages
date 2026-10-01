@@ -414,6 +414,35 @@
 .reuse-foot img { width: 165px; height: 62px; object-fit: cover; }
 .reuse-foot p { font-size: 14px; max-width: 570px; }
 .reuse-foot a { font-size: 11px; margin-left: auto; flex-shrink: 0; }
+.origin-foundation {
+  margin-top: auto;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.origin-foundation p { margin-top: 10px; font-size: 20px; color: var(--ink); }
+/* The transition makes contribution a question before introducing its metric. */
+.slide-contribution { gap: 30px; }
+.contribution-questions { margin-top: 16px; }
+.contribution-questions article {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 45px;
+  align-items: baseline;
+  padding: 30px 0;
+  border-top: 1px solid var(--line);
+}
+.contribution-questions h3 {
+  font: 34px/1.2 Georgia, "Songti SC", serif;
+  color: var(--ink);
+}
+.contribution-questions p { max-width: 710px; margin-top: 13px; font-size: 19px; }
+.contribution-questions article:last-child h3 { color: #517644; }
+.contribution-turn {
+  margin-top: auto;
+  border-top: 2px solid #809f52;
+  padding-top: 21px;
+}
+.contribution-turn p { margin-top: 9px; font-size: 26px; color: var(--ink); }
 .slide-output { gap: 24px; }
 .slide-output h2 { font-size: 47px; }
 .output-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--line); padding: 12px 0; gap: 20px; }
@@ -1284,6 +1313,7 @@ html[lang="zh-CN"] .orbit-node strong {
 .theorem-growth { margin: 0; }
 .theorem-growth img { width: 100%; height: 238px; object-fit: contain; display: block; }
 .theorem-growth figcaption { font-size: 10px; color: var(--muted); padding-left: 42px; }
+.theorem-growth figcaption a { margin-left: 16px; text-decoration: underline; text-underline-offset: 3px; }
 .growth-foundations { border-left: 1px solid var(--line); padding-left: 31px; padding-top: 7px; }
 .growth-foundations h3 { font: 29px/1.3 Georgia, 'Songti SC', serif; color: var(--accent); margin: 14px 0 23px; }
 .growth-foundations > p { font-size: 17px; padding: 12px 0; border-top: 1px solid var(--line); }
@@ -1544,6 +1574,12 @@ html[lang="zh-CN"] .orbit-node strong {
   .slide-cover h1 { font-size: 46px; }
   .slide-output h2 { font-size: 36px; }
   .origin-loop { margin-top: 5px; }
+  .origin-foundation p { font-size: 18px; }
+  .contribution-questions { margin-top: 0; }
+  .contribution-questions article { grid-template-columns: 1fr; gap: 14px; padding: 25px 0; }
+  .contribution-questions h3 { font-size: 28px; }
+  .contribution-questions p { font-size: 17px; }
+  .contribution-turn p { font-size: 24px; }
   .reuse-foot { flex-wrap: wrap; }
   .reuse-foot img { width: 100%; height: 120px; }
   .reuse-foot a { margin-left: 0; }
