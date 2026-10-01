@@ -1,3 +1,4 @@
+import { archivedNodeURL } from './library-routes.mjs';
 import {loadLibrary, nodeSlug} from './library-core.mjs';
 import {compareContent,outcomeSourceURL} from './evolution-reader-core.mjs';
 const $=id=>document.getElementById(id);
@@ -19,7 +20,7 @@ async function renderRows(){
       const article=el('article',undefined,'evolution-record');article.id=`change-${await nodeSlug(n.id)}`;
       article.append(el('h3',n.title),el('small',n.event));
       if(n.human_abstract)article.append(el('p',n.human_abstract));
-      const url=n.target?outcomeSourceURL(n):`release/${n.release.slice(7)}/node/${await nodeSlug(n.id)}/`;
+      const url=n.target?outcomeSourceURL(n):archivedNodeURL(n.release, n.id);
       article.append(link(n.target?'Read the question at this release':'Read this module in its release',url));
       const details=el('details');details.append(el('summary','Source location and recorded state'));
       if(n.domain)details.append(el('p',`Repository group: ${n.domain}. This is a source organization label, not a progress score.`));

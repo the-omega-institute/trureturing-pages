@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Page not found | trureturing</title>
+  <link rel="stylesheet" href="/trureturing-pages/assets/site-theme.css">
+  <script type="module" src="/trureturing-pages/assets/i18n.mjs"></script>
+  <style>body{margin:12vh auto;padding:0 24px;max-width:680px;background:#090c10;color:#dce4ed;font:18px/1.6 system-ui}a{color:#84d4ff}h1{font-size:32px}</style>
+  <script>
+    const archivedRoute = location.pathname.match(/^(.*\/)release\/([a-f0-9]{64})\/node\/([a-f0-9]{64})(?:\/(?:index\.html)?)?$/);
+    if (archivedRoute) {
+      const target = new URL(location.origin);
+      target.pathname = archivedRoute[1] + 'library-version.html';
+      target.search = location.search;
+      target.hash = new URLSearchParams({ release: 'sha256:' + archivedRoute[2], slug: archivedRoute[3] });
+      location.replace(target);
+    }
+  </script>
+</head>
+<body class="site-themed">
+  <h1>This page has moved or does not exist.</h1>
+  <p>Archived research is available in the release library.</p>
+  <p><a href="/trureturing-pages/library-history.html">Browse the release library</a></p>
+</body>
+</html>

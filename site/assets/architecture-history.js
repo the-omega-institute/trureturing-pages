@@ -1,3 +1,4 @@
+import { archivedNodeURL } from './library-routes.mjs';
 import { SUBJECTS } from './mathematical-subjects.mjs';
 import { t } from './i18n.mjs';
 import { growthHistory } from './evolution-growth.mjs';
@@ -22,7 +23,7 @@ import {
   lineageIds,
 } from "./evolution-core.mjs";
 import { mountEvolution } from "./evolution-map.js";
-import { nodeSlug, loadLibrary } from "./library-core.mjs";
+import { loadLibrary } from "./library-core.mjs";
 
 const $ = (s) => document.querySelector(s),
   initial = new URLSearchParams(location.hash.slice(1));
@@ -222,7 +223,7 @@ async function renderDetail() {
   research.href = `conjectures.html#${new URLSearchParams({ node: selected })}`;
   const wiki = el("a", node ? "Release Library" : "Content history");
   wiki.href = node
-    ? `release/${current.truth_release_digest.slice(7)}/node/${await nodeSlug(selected)}/`
+    ? archivedNodeURL(current.truth_release_digest, selected)
     : `library-history.html#node=${encodeURIComponent(selected)}`;
   if (version !== detailVersion) return;
   links.append(atlas, wiki, research);

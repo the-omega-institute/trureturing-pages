@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from lib.living_library import SECTIONS, MARKDOWN, build_library, content_timeline, create_snapshot, digest, parse_problem
+from lib.living_library import SECTIONS, MARKDOWN, archive_json, build_library, content_timeline, create_snapshot, digest, parse_problem
 from lib.knowledge_pages import stable_file_name
 
 
@@ -81,14 +81,18 @@ class LivingLibraryTests(unittest.TestCase):
                     return build_library(graph_path, manifest_path, output, root)
             first = build(graph())
             self.assertEqual(build(graph()), first)
+            first_snapshot = (output / first["entries"][0]["path"]).read_bytes()
             newer = graph("b")
             newer["nodes"][0]["human_abstract"] = "A revised explanation."
             second = build(newer)
             self.assertEqual(len(second["entries"]), 2)
             slug = stable_file_name("A")
             old_page = output / "release" / ("a" * 64) / "node" / slug / "index.html"
-            self.assertTrue(old_page.exists())
-            self.assertNotIn("A revised explanation.", old_page.read_text())
+            self.assertFalse(old_page.exists())
+            self.assertEqual(len(list((output / "release").glob("*/node/*/index.html"))), 1)
+            self.assertEqual((output / first["entries"][0]["path"]).read_bytes(), first_snapshot)
+            archived = archive_json(first["entries"][0], first_snapshot)
+            self.assertNotIn("human_abstract", archived["graph"]["nodes"][0])
             self.assertIn("A revised explanation.", (output / "knowledge/node" / slug / "index.html").read_text())
             index_bytes = (output / "data/library-history.v1.json").read_bytes()
             with self.assertRaisesRegex(ValueError, "older"):

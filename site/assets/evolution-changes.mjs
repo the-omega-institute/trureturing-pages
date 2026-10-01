@@ -1,5 +1,5 @@
+import { archivedNodeURL } from './library-routes.mjs';
 import {compareContent, outcomeSourceURL} from './evolution-reader-core.mjs';
-import {nodeSlug} from './library-core.mjs';
 import {ready, t} from './i18n.mjs';
 
 const el = (tag, text, cls) => {
@@ -76,8 +76,8 @@ export function mountReleaseChanges(root, {loadSnapshot, onSelect, onChange}) {
       const actions=el('div',undefined,'release-change-links');
       if (row.target) actions.append(link('Source',outcomeSourceURL(row)));
       else {
-        actions.append(link('Read',`release/${row.release.slice(7)}/node/${await nodeSlug(row.id)}/`));
-        if (row.previous) actions.append(link('Previous version',`release/${row.previous.release.slice(7)}/node/${await nodeSlug(row.id)}/`));
+        actions.append(link('Read',archivedNodeURL(row.release, row.id)));
+        if (row.previous) actions.append(link('Previous version',archivedNodeURL(row.previous.release, row.id)));
         const locate=el('button',t('Locate on graph'));locate.type='button';locate.onclick=()=>onSelect(row.id);actions.append(locate);
       }
       body.append(actions);card.append(body);return card;
