@@ -65,7 +65,8 @@ jobs:
                 await core.summary.addRaw(`Recovered verified artifact ${artifactId} for ${source}.\n`).write();
                 return;
               }
-              if (['deployment_failed', 'deployment_cancelled', 'failed', 'cancelled'].includes(state.status)) {
+              if (['deployment_failed', 'deployment_cancelled', 'deployment_perms_error',
+                   'deployment_content_failed', 'deployment_lost', 'failed', 'cancelled'].includes(state.status)) {
                 throw new Error(`Pages deployment stopped: ${JSON.stringify(state)}`);
               }
             }
