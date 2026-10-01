@@ -73,13 +73,19 @@ snapshot is October 1, 2026.
     problems and mathematical experience. The previous examples show the kinds
     of work behind these names: proofs, computations, feedback and shared writing.
 
-11. **What accumulates.** Every reusable result gives later work another starting
-    point. This chart shows our cumulative frozen theorem statements growing
-    from 15,113 to 34,526 over 25 days. The dependency graph records how work
-    builds on earlier work. Underneath that growth is our interest in relations,
-    relations between relations, and what current descriptions leave uncaptured.
-    Information escape, recursive relations, spacetime and holographic geometry
-    are connected directions in that research program.
+11. **A growing white-box model.** We see knowledge as connected. Mathematics,
+    in our view, is logical structure, and we organize the library by the
+    relationships themselves, without partitioning them by discipline. The
+    same relation can become useful wherever its assumptions hold. Our ambition
+    is to gather nontrivial logical relationships into a shared body of reasoning.
+    In that sense, the library itself becomes a white-box model: its definitions,
+    premises, proofs and dependencies are explicit, so people and agents can
+    inspect and compose them. The chart shows the growing record of frozen
+    theorem statements, from 15,113 to 34,526 in 25 days. The dependency graph
+    records how results build on one another. Information escape helps us study
+    what the current concepts still miss and continue extending this model.
+    Recursive relations, spacetime and holographic geometry are directions in
+    this connected research program.
 
 12. **Who can take part.** You can start before you are an expert. Bring a
     question, an example, an argument, a formalization or an independent check.
@@ -89,8 +95,9 @@ snapshot is October 1, 2026.
 
 13. **What we propose to OMM.** We would like to connect OMM to this working
     research loop. Mathematicians help choose meaningful questions and evaluate
-    results. Models and contributors explore and construct arguments. Our harness
-    supplies the research discipline and reusable record. Together we can open
+    results. Models and contributors explore and construct arguments. Our connected library
+    supplies explicit, reusable reasoning, and the harness checks contributions
+    that extend it. Together we can open
     a shared research track in which results and feedback continually guide
     the next round.
 
@@ -155,11 +162,15 @@ snapshot is October 1, 2026.
     他们带来不同领域的问题和判断。前面的案例已经说明，这些名字背后是
     实际的证明、计算、反馈和共同写作。
 
-11. **这个循环在积累什么？** 每一个可复用的结果，都会给后面的工作提供新的
-    起点。这张图记录了累计冻结的定理陈述，在 25 天内从 15,113 增长到 34,526。
-    依赖图记录了后续工作怎样使用之前的成果。我们更深的兴趣是关系、关系的
-    关系，以及现有描述还没有捕捉到什么。信息逃逸、关系递归、时空和全息几何，
-    都是这个研究计划里的方向。
+11. **我们在构建一个生长中的白盒模型。** 我们认为知识是相互连接的，数学本身
+    就是逻辑结构。因此，我们按关系本身组织这个库，不按学科把知识分隔开。
+    一条关系，只要条件成立，就可以在新的地方被使用。我们的愿景，是把非平凡
+    的逻辑关系不断积累成一个共同的推理体系。从这个意义上，库本身就在成为
+    一个白盒模型：定义是什么、依赖哪些前提、证明怎样成立，都可以展开检查，
+    人和 agent 都能在上面继续组合和推理。图上记录的定理陈述，在 25 天里从
+    15,113 增长到 34,526，依赖图则记录了这些结果怎样相互建立。
+    信息逃逸帮助我们继续追问：当前概念还看不见什么？再用新的关系扩展这个
+    模型。关系递归、时空与全息几何，都是这项相互连接的研究中的方向。
 
 12. **谁可以参与？** 不需要等到成为专家才开始。一个问题、一个例子、一段论证、
     一次形式化或者独立检查，都可以成为贡献。共同的 harness 帮助大家把贡献做
@@ -168,8 +179,8 @@ snapshot is October 1, 2026.
 
 13. **我们希望与 OMM 合作什么？** 我们希望让 OMM 加入这个已经运转的研究
     循环。数学家帮助选择有意义的问题，并判断结果；模型和社区参与者探索、
-    构建论证；我们提供研究 harness 和可复用的知识记录。共同开出一个研究方向，
-    让结果与反馈不断进入下一轮。
+    构建论证；我们的白盒逻辑库提供明确、可复用的推理，harness 检查新贡献，
+    并让它们继续扩展这个库。共同开出一个研究方向，让结果与反馈不断进入下一轮。
 
 14. **最后的邀请。** 从一个想法开始，把一步做精确。我们可以一起选择问题，
     把模型接入 harness，并把研究向贡献者开放。每一份经过检查的贡献，
@@ -190,3 +201,6 @@ snapshot is October 1, 2026.
   proof content. Named external problem resolutions have their own admission basis.
 - The EQT2 result establishes construction and verification capability. That
   solver's zero-LLM execution does not claim it exercised the full current harness.
+- The white-box model is the explicit body of reusable reasoning and dependencies.
+  Gathering all nontrivial logical relationships is a research ambition. The
+  growth chart does not measure completeness, universal novelty or model accuracy.

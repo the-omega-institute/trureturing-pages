@@ -23,9 +23,10 @@ opening this research loop to OMM and community contributors.
    writing, Campbell/Cloitre recurrence proofs and next questions.
 10. Research conversations: twelve names on a dedicated slide, in three columns
     and four rows, with readable affiliations and consistent alignment.
-11. Accumulation and foundations: 15,113 to 34,526 frozen theorem statements,
-    information escape, recursive relations, spacetime and holographic geometry.
-    A real dependency graph shows the record that reuse leaves behind.
+11. A growing white-box model: knowledge organized through logical relationships
+    across disciplines. The 15,113 to 34,526 frozen-statement chart and real
+    dependency graph show accumulation. Information escape, recursive relations,
+    spacetime and holographic geometry remain the research foundations.
 12. Start before becoming an expert; learn by making one step precise.
 13. Connect OMM to the harness and open contribution loop.
 14. Start with one idea. Make one step precise. Choose the next question together.
@@ -107,9 +108,10 @@ python tools/render_open_math_growth.py
 Matplotlib is not a site or CI dependency. The chart is a static, locally bundled
 SVG and stays visible offline and in PDF exports.
 
-The philosophy appears as a research thesis with three compact lines: observation
-scales and information escape; relations of relations and recursion; spacetime
-and holographic geometry. The source manifest links the actual theory texts.
+The philosophy appears as a research thesis: mathematics is logical structure,
+and knowledge connects through relationships across disciplines. Three compact
+lines retain shared logic and information escape, relations of relations and
+recursion, and spacetime and holographic geometry. The source manifest links the actual theory texts.
 Speaker notes distinguish this research orientation from an unconditional claim
 that every single readout must lose information: an injective readout can be
 complete on its stated domain. The dependency excerpt connects that growth to the reuse of earlier results.
@@ -212,6 +214,18 @@ The user's remembered UK contact is supported by The Open University and Queen
 Mary records; Oxford was not substantiated and is not claimed. Campbell's OpenAI
 affiliation was directly confirmed in correspondence. Other displayed affiliations
 are verified in the linked original papers.
+
+## The library as a white-box model
+
+Slide 2 introduces the organizing principle: connect knowledge through logical
+relationships without partitioning it by discipline. Slide 11 names the resulting
+library a growing white-box model of reasoning. Definitions, premises, proofs and
+dependencies stay explicit and available for composition. The ambition to gather
+all nontrivial logical relationships motivates continued extension; the deck
+makes no claim that the library is complete or that the statement count measures
+coverage. The OMM proposal pairs this shared library with the harness and open
+contribution loop. Human direction, model exploration and checked contributions
+can keep extending the same body of reasoning.
 
 ## Reusable knowledge
 

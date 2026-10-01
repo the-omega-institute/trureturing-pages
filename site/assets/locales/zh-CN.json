@@ -1877,5 +1877,17 @@
   "11 / Growth and foundations": "11 / 增长与研究基础",
   "12 / Open contribution": "12 / 开放贡献",
   "13 / OMM collaboration": "13 / OMM 合作",
-  "14 / Start with one idea": "14 / 从一个想法开始"
+  "14 / Start with one idea": "14 / 从一个想法开始",
+  "We connect knowledge through logical relationships, without partitioning it by discipline.": "我们用逻辑关系连接知识，不按学科把知识分隔开。",
+  "Connected knowledge.": "相互连接的知识。",
+  "A growing white-box model.": "持续生长的白盒模型。",
+  "Mathematics is logical structure.": "数学本身就是逻辑结构。",
+  "Shared logic · information escape": "共同的逻辑 · 信息逃逸",
+  "A shared library of nontrivial reasoning. Definitions, assumptions and proofs stay explicit.": "共同积累非平凡的推理，让定义、前提与证明始终可见。",
+  "Relations compose across disciplines. The dependency graph records how each checked result builds on others.": "关系可以跨学科组合。依赖图记录每项经过检查的结果如何建立在其他结果之上。",
+  "A white-box library and research harness": "白盒逻辑库与研究 harness",
+  "A connected library of explicit reasoning, with a harness to check, extend and reuse it through open contribution.": "以明确的推理连接知识，通过 harness 检查、扩展和复用，让开放贡献持续积累。",
+  "Each checked contribution extends the shared white-box model.": "每项经过检查的贡献，都继续扩展共同的白盒模型。",
+  "11 / A growing white-box model": "11 / 生长中的白盒模型",
+  "The chart counts unique theorem statement_id values in schema-v5 Freeze records under Golden/Frozen/accepted, using published source commits from the Library history. It counts archived frozen statements, including retained historical versions, not modules, solved problems or distinct mathematical ideas. The source period is September 2–27, 2026: 15,113 to 34,526, a 2.28-fold increase. The chart uses real source timestamps, a linear y-axis and a zero baseline; no extrapolation. The research thesis is an orientation: finite descriptions and fixed observation scales motivate studying their residuals and extending representations. A single injective readout can distinguish a specified state space; inevitability of escape needs the relevant capacity, language or diagonalization assumptions. Recursive relations, contextual spacetime and holographic geometry name research programs documented in the linked source manifest, not a claim that all those manuscripts are fully formalized. The method repeatedly turns uncaptured relations into definitions and checked contributions. The proposed collaboration combines mathematician-led direction, OMM and open participation. Our research premise is that knowledge connects through shared logical structures. We organize the library through explicit relationships rather than disciplinary partitions. In this sense the library is a growing white-box model: its definitions, premises, proofs and dependencies can be inspected and composed. Gathering all nontrivial logical relationships is the guiding ambition. The working method keeps finding missing distinctions and extending the library. Model here names this explicit body of reasoning, rather than a claim of complete coverage or an autonomous inference engine.": "曲线依据 Library 历史中的已发布源码提交，统计 Golden/Frozen/accepted 中 schema-v5 Freeze 记录里 kind=theorem 的唯一 statement_id。统计累计归档冻结陈述，包含保留的历史版本，不等同于模块数、已解决问题数或互不重复的数学思想数。区间为 2026 年 9 月 2–27 日，15,113 增至 34,526，约 2.28 倍；使用真实源码时间戳、线性纵轴及零基线，不作外推。研究立场强调有限描述与固定观察尺度的残余推动表示扩展。对指定状态空间，单个单射读数可以完全区分状态；逃逸的必然性需要相应容量、语言或对角化假设。关系递归、情境时空及全息几何是来源清单中的研究纲领，不表示相关文稿全部完成形式化。这套方法不断把未捕获关系转为定义与经核验贡献。合作旨在结合数学家的方向、OMM 和开放参与。 我们的研究出发点是：知识通过共同的逻辑结构相互连接。库以明确的关系组织，不以学科划定知识边界。从这个意义上，它是一个生长中的白盒模型，定义、前提、证明和依赖可以检查和组合。积累所有非平凡的逻辑关系是研究愿景；具体工作则不断发现尚未捕捉的区分并扩展这个库。这里的模型指明确表达的推理体系，不表示已经穷尽知识或实现自主推理引擎。"
 }
