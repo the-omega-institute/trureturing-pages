@@ -1921,3 +1921,6 @@ html[lang="zh-CN"] .orbit-node strong {
     text-decoration: none;
   }
 }
+
+/* Exact Hankel constants shown through the same two-state comparison. */
+.hankel-symbol { display: block; font: 56px/96px Georgia, serif; color: var(--ink); }
