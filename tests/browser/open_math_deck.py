@@ -66,14 +66,14 @@ def main():
                     law = page.locator('.escape-law').bounding_box()
                     assert lab['y'] + lab['height'] + 8 <= law['y'], (lang, mode, lab, law)
                 page.locator('[data-escape="rename"]').click()
-                assert page.locator('#escape-rate').inner_text() == '100%'
+                assert page.locator('#escape-rate').inner_text() == '2 / 2'
                 page.locator('[data-escape="refine"]').click()
-                assert page.locator('#escape-rate').inner_text() == '0%'
-                assert page.locator('#escape-left').inner_text() == 'c₁'
-                assert page.locator('#escape-right').inner_text() == '4c₁'
+                assert page.locator('#escape-rate').inner_text() == '0 / 2'
+                assert page.locator('#escape-left').inner_text() == '0'
+                assert page.locator('#escape-right').inner_text() == '2'
                 page.screenshot(path=str(args.output / f'{lang}-escape-refined.png'))
                 page.locator('[data-escape="base"]').click()
-                assert page.locator('#escape-rate').inner_text() == '100%'
+                assert page.locator('#escape-rate').inner_text() == '2 / 2'
                 page.locator('#deck-jump').select_option('0')
                 page.locator('#deck-jump').blur()
                 page.keyboard.press('ArrowRight')
