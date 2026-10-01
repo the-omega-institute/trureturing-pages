@@ -179,5 +179,52 @@
       "source": "https://oeis.org/A359482",
       "exchange_scope": "Proof review and new predecessor data/questions exchanged. OEIS contributor is a community role, not an employment affiliation."
     }
-  ]
+  ],
+  "eqt2": {
+    "official_results": {
+      "source": "Official My Submission page text supplied by the team owner in the conversation on 2026-10-01",
+      "verification_method": "User-provided official page transcription; not independently fetched",
+      "participations": [
+        {
+          "track": "Solo",
+          "model": "Google: Gemma 4 31B",
+          "official_rank": 1,
+          "score": 200,
+          "maximum_score": 200
+        },
+        {
+          "track": "Solo",
+          "model": "OpenAI: gpt-oss-120b",
+          "official_rank": 1,
+          "score": 200,
+          "maximum_score": 200
+        },
+        {
+          "track": "Marathon",
+          "model": "Google: Gemma 4 31B",
+          "official_rank": 1,
+          "score": 200,
+          "maximum_score": 200
+        },
+        {
+          "track": "Marathon",
+          "model": "OpenAI: gpt-oss-120b",
+          "official_rank": 1,
+          "score": 200,
+          "maximum_score": 200
+        }
+      ]
+    },
+    "internal_testing": {
+      "certified": 1889,
+      "total": 1889,
+      "scope": "Internal test suite, not the official competition score. Scope explicitly clarified by the team owner on 2026-10-01."
+    },
+    "solver_llm_calls": 0,
+    "model_label_scope": "Competition participation settings; these labels do not imply the solver invoked either model.",
+    "public_artifacts": [
+      "https://github.com/the-omega-institute/sair-eqt2-stage2-solver",
+      "https://arxiv.org/abs/2609.00706"
+    ]
+  }
 }
