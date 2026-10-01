@@ -200,7 +200,10 @@ def main():
         changed_id=first_change.get_attribute('data-change-record')
         assert changed_id in new_ids-old_ids
         href=first_change.locator('a').first.get_attribute('href')
-        assert 'release/'+new['truth_release_digest'][7:]+'/node/' in href
+        from urllib.parse import parse_qs, urlparse
+        route = urlparse(href)
+        assert route.path.endswith('library-version.html')
+        assert parse_qs(route.fragment) == {'release': [new['truth_release_digest']], 'node': [changed_id]}
         page.locator('[data-change-search]').fill('no-matching-change-0xdeadbeef')
         page.wait_for_function("document.querySelector('[data-change-record]')===null")
         assert 'No matches' in page.locator('[data-change-records]').inner_text()

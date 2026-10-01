@@ -1,3 +1,4 @@
+import { archivedNodeURL } from './library-routes.mjs';
 import { loadLibrary, verifiedJSON, nodeSlug } from "./library-core.mjs";
 import { t, ready as languageReady } from "./i18n.mjs";
 const base = new URL(document.body.dataset.siteRoot || "./", location.href);
@@ -93,7 +94,7 @@ async function historyRows(host, events, archive, nodeId) {
       row.append(
         link(
           "Read this version",
-          `release/${entry.truth_release_digest.slice(7)}/node/${await nodeSlug(nodeId)}/`,
+          archivedNodeURL(entry.truth_release_digest, nodeId),
         ),
       );
     else
@@ -161,7 +162,7 @@ if ($("#archive-release"))
         matches.slice(0, shown).map(async (node) => {
           const row = link(
             "",
-            `release/${snapshot.truth_release_digest.slice(7)}/node/${await nodeSlug(node.id)}/`,
+            archivedNodeURL(snapshot.truth_release_digest, node.id),
           );
           row.className = "archive-row";
           const title = el("span");

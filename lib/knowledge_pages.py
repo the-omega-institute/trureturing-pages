@@ -338,9 +338,24 @@ def write(path: Path, content: str) -> None:
     tmp.replace(path)
 
 
+def retire_archived_knowledge_routes(graph: dict[str, Any], site_root: str | Path) -> None:
+    """Keep immutable snapshots; historical nodes use the shared version reader.
+
+    Old per-node redirect files grow with every node in every release. Remove
+    only the generated routes for a verified archived release, including files
+    left by an earlier build. Current release pages remain independently served.
+    """
+    digest, key = release_coordinate(graph)
+    if not _DIGEST.fullmatch(digest):
+        raise ValueError("Archived Wiki requires a release digest.")
+    release_root = Path(site_root) / "release" / key
+    if (release_root / "node").exists():
+        shutil.rmtree(release_root / "node")
+    (release_root / "relations.v1.json").unlink(missing_ok=True)
+
+
 def render_knowledge_site(
     graph: dict[str, Any], site_root: str | Path, immutable_only: bool = False,
-    archive_snapshot_digest: str | None = None,
 ) -> dict[str, Any]:
     annotate_graph(graph)
     root = Path(site_root)
@@ -370,14 +385,7 @@ def render_knowledge_site(
         args = (graph, node, parents[node_id], children[node_id], by_id)
         if not immutable_only:
             write(current / slug / "index.html", node_page(*args, immutable=False, relation_digest=relation_digest))
-        if archive_snapshot_digest:
-            if not _DIGEST.fullmatch(archive_snapshot_digest):
-                raise ValueError("Archived Wiki requires a snapshot digest.")
-            target = '../../../../library-version.html#snapshot=' + quote(archive_snapshot_digest, safe='') + '&node=' + quote(node_id, safe='')
-            redirect = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title(node))} | Archived Library</title><link rel="stylesheet" href="../../../../assets/site-theme.css"><script>const target = new URL({json.dumps(target)}, location.href); target.search = location.search; location.replace(target);</script></head><body class="site-themed"><main class="site-main"><h1>{esc(title(node))}</h1><a href="{esc(target)}">Read immutable release version</a><p>{esc(release_coordinate(graph)[0])}</p></main></body></html>'''
-            write(frozen / slug / "index.html", redirect)
-        else:
-            write(frozen / slug / "index.html", node_page(*args, immutable=True, relation_digest=relation_digest))
+        write(frozen / slug / "index.html", node_page(*args, immutable=True, relation_digest=relation_digest))
     if immutable_only:
         return {"release_digest": release_coordinate(graph)[0]}
     write(root / "knowledge/index.html", index_page(graph, nodes))

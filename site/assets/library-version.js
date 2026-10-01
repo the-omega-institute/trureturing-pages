@@ -1,4 +1,5 @@
 import { loadLibrary, nodeSlug } from "./library-core.mjs";
+import { resolveArchivedNode } from "./library-routes.mjs";
 const root = document.querySelector("#archived-concept"),
   base = new URL("./", location.href);
 const el = (tag, text, className) => {
@@ -11,18 +12,12 @@ let controller,
   epoch = 0;
 async function render() {
   const version = ++epoch,
-    params = new URLSearchParams(location.hash.slice(1)),
-    id = params.get("node"),
-    digest = params.get("snapshot");
+    params = new URLSearchParams(location.hash.slice(1));
   controller?.destroy();
   root.replaceChildren(el("p", "Verifying archived content..."));
   const library = await loadLibrary(base),
-    index = library.index.entries.findIndex((e) => e.digest === digest);
-  if (index < 0)
-    throw new Error("Snapshot is not in the verified Library archive.");
-  const snapshot = await library.snapshot(index),
-    node = snapshot.graph.nodes.find((n) => n.id === id);
-  if (!node) throw new Error("Concept is absent from this release.");
+    { snapshot, node, digest } = await resolveArchivedNode(library, params),
+    id = node.id;
   const slug = await nodeSlug(id);
   if (version !== epoch) return;
   const title = node.human_title || node.title || node.id;

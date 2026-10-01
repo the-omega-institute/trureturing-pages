@@ -17,7 +17,7 @@ import yaml
 from markdown_it import MarkdownIt
 from mdit_py_plugins.texmath import texmath_plugin
 
-from lib.knowledge_pages import esc, render_knowledge_site, site_header, stable_file_name, write
+from lib.knowledge_pages import esc, render_knowledge_site, retire_archived_knowledge_routes, site_header, stable_file_name, write
 from lib.literature import problem_source_url, validate_http_url
 
 SCHEMA = "pages-library-history.v1"
@@ -417,7 +417,7 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
             for coordinate, item, content in archived:
                 write_bytes(output / coordinate["path"], content)
                 if item["truth_release_digest"] != release:
-                    render_knowledge_site(item["graph"], output, immutable_only=True, archive_snapshot_digest=coordinate["digest"])
+                    retire_archived_knowledge_routes(item["graph"], output)
             render_knowledge_site(graph, output)
             render_research(archived[-1][1], output, entries[-1])
             if timeline_raw is not None:
@@ -443,7 +443,7 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
     for coordinate, item, content in archived:
         write_bytes(output / coordinate["path"], content)
         if item["truth_release_digest"] != release:
-            render_knowledge_site(item["graph"], output, immutable_only=True, archive_snapshot_digest=coordinate["digest"])
+            retire_archived_knowledge_routes(item["graph"], output)
     render_knowledge_site(graph, output)
     render_research(snapshot, output, entry)
     timeline = write_timeline(archived, output)

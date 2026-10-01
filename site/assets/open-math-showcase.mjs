@@ -1,3 +1,4 @@
+import { archivedNodeURL } from './library-routes.mjs';
 /** A self-contained presentation of pinned Pages evidence, with links into the full product. */
 import { ready, t, locale } from './i18n.mjs';
 await ready;
@@ -61,7 +62,7 @@ async function mount() {
       const summary = node.human_abstract || node.human_title || short(selected);
       if (locale !== 'en' && t(summary) === summary) content.append(element('span', t('PUBLISHED DESCRIPTION · ORIGINAL TEXT'), 'small-label'));
       content.append(element('p', t(summary), 'inspector-summary'));
-      content.append(link('Read the published explanation ↗', siteURL(node.release_page), 'inspector-primary'));
+      content.append(link('Read the published explanation ↗', siteURL(archivedNodeURL(data.release, node.id)), 'inspector-primary'));
       content.append(link('Inspect the formal source ↗', sourceURL(node)));
     } else if (tab === 'source') {
       const excerpt = data.source_excerpts[selected];
@@ -78,7 +79,7 @@ async function mount() {
       content.append(element('span', t('IMMUTABLE RELEASE'), 'small-label'));
       const digest = element('code', data.release.slice(7, 23) + '…', 'record-digest'); digest.setAttribute('translate', 'no'); content.append(digest);
       content.append(element('p', t('The release preserves this result. Git history records changes to the module.'), 'inspector-summary'));
-      content.append(link('Open the release record ↗', siteURL(node.release_page), 'inspector-primary'));
+      content.append(link('Open the release record ↗', siteURL(archivedNodeURL(data.release, node.id)), 'inspector-primary'));
       content.append(link('Module change history ↗', REPO + 'commits/' + data.source_commit + '/' + node.repo_path));
       content.append(link('Explore version history in Pages ↗', siteURL('evolution.html', new URLSearchParams({node: selected, metric:'reach'}))));
     }
@@ -132,7 +133,7 @@ async function mount() {
     for (const id of shown) {
       const node = lookup(id); if (!node) continue;
       const [x,y] = positions[id], active = id === selected;
-      const a = svg('a', {href:siteURL(node.release_page), target:'_blank', rel:'noopener', 'data-node':id,
+      const a = svg('a', {href:siteURL(archivedNodeURL(data.release, node.id)), target:'_blank', rel:'noopener', 'data-node':id,
         class:'atlas-node'+(active?' is-selected':''), 'data-domain':node.domain || '', 'aria-label':short(id), transform:`translate(${x} ${y})`});
       if (nodes.has(id)) a.setAttribute('role', 'button');
       a.append(svg('title')); a.lastChild.textContent = id;
