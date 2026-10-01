@@ -53,6 +53,16 @@
         "https://github.com/the-omega-institute/nested-recurrences/blob/77ad361d14bfb91152ba8862ca61030a0398f359/STATUS.md"
       ],
       "verification_scope": "Written proofs and exact finite checks. New interval and closure results hold on their stated Fibonacci-block domains with supplied context; global convergence and uniform dispersion remain open. No Lean formalization or agreed joint paper authorship."
+    },
+    {
+      "id": "kotesovec-hankel",
+      "result": "Analytic next-order constants for Catalan-square Hankel determinants, with exact c_(r+1) = 4 c_r for fixed integer shifts",
+      "status": "Substantive exchange and OEIS publication interest; joint note proposed",
+      "sources": [
+        "https://oeis.org/A277829",
+        "https://oeis.org/A278770"
+      ],
+      "verification_scope": "Initial logarithmic-limit results have existing Lean formalization. Subsequent analytic constants and shift extensions are written proofs; quoted numerical quadrature is not interval-certified. No joint paper or new Lean formalization claimed."
     }
   ],
   "headline_metrics": {
@@ -84,7 +94,7 @@
       "Garreth Kemp",
       "Sen-Peng Eu",
       "Thomas Ordowski",
-      "Vaclav Kotesovec",
+      "Václav Kotěšovec",
       "Robert Israel",
       "Wieb Bosma",
       "Jonathan Grube",
@@ -257,6 +267,19 @@
       "affiliation_basis": "OEIS profile identifies emeritus Associate Professor of Mathematics at UBC.",
       "exchange_scope": "Found the results interesting and offered to update OEIS with proof links and author attribution.",
       "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Václav Kotěšovec",
+      "affiliation_or_community_role": "OEIS · Asymptotics",
+      "research_topic": "Catalan-square Hankel determinant asymptotics",
+      "current_research_display": "Hankel constants, precision checks and OEIS links",
+      "source": "https://oeis.org/A277829",
+      "affiliation_sources": [
+        "https://oeis.org/wiki/User:Vaclav_Kotesovec"
+      ],
+      "affiliation_basis": "OEIS contributor and asymptotics researcher, verified through his OEIS profile. No executive or editorial title is asserted.",
+      "exchange_scope": "Responded positively to the analytic next-order constants, supplied a high-precision numerical calculation and asked for a publication link to include in OEIS. His follow-up question led to written fixed-shift and growing-shift results. A joint note has been proposed; authorship has not been agreed.",
+      "topic_checked_on": "2026-10-01"
     }
   ],
   "eqt2": {
@@ -363,6 +386,11 @@
       "person": "Zhi-Hong Sun",
       "relationship": "proof_review",
       "scope": "Expressed confidence in the proof and supplied an earlier paper solving the conjectures; the result is an independent proof, not a first resolution."
+    },
+    {
+      "person": "Václav Kotěšovec",
+      "relationship": "research_exchange_and_oeis_publication_interest",
+      "scope": "Recognized the analytic Hankel-constant results, supplied a high-precision calculation and requested a public note link for OEIS. Already included in the 38-person count; no additional contact counted."
     }
   ],
   "displayed_researchers": [
@@ -377,7 +405,7 @@
     "Robert Israel",
     "Wieb Bosma",
     "R. Venkatesh",
-    "Maximilian F. Hasler"
+    "Václav Kotěšovec"
   ],
   "workshop_papers": [
     {
