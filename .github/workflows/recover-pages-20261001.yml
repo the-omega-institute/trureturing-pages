@@ -1,0 +1,75 @@
+name: Recover verified Pages artifact 2026-10-01
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-truth-release
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: https://the-omega-institute.github.io/trureturing-pages/
+    steps:
+      - name: Publish the immutable verified artifact with an incident-specific observation window
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repo = context.repo;
+            const source = 'c7d94e17288d5f85155c7304cd38cb17dbcfb0f6';
+            const artifactId = 11148254644;
+            const expectedDigest = 'sha256:6020518e969902048b7a8c866512a16be7216fd7109f53f130f706c4592ea4f7';
+            const {data: artifact} = await github.rest.actions.getArtifact({...repo, artifact_id: artifactId});
+            if (artifact.expired || artifact.name !== 'github-pages' || artifact.digest !== expectedDigest ||
+                artifact.workflow_run.head_sha !== source || artifact.workflow_run.id !== 36833452859) {
+              throw new Error('Artifact does not match the verified publication incident');
+            }
+            const {data: changes} = await github.rest.repos.compareCommitsWithBasehead({...repo, basehead: `${source}...${context.sha}`});
+            if (changes.files.some(file => file.filename !== '.github/workflows/recover-pages-20261001.yml')) {
+              throw new Error('Presentation or generator changed since this artifact was verified');
+            }
+            const response = await fetch(`https://the-omega-institute.github.io/trureturing-pages/deployment-manifest.v1.json?recovery=${context.runId}`);
+            if (!response.ok) throw new Error(`Cannot check served state: ${response.status}`);
+            const current = await response.json();
+            if (current.release_digest !== 'sha256:dc29e73523eac03bd7ab3c34061c78243d2662388a777d2fe030e51fc50ea829' ||
+                !['b94045d7d093e2f9182520edaf2f598f010f4d90', source].includes(current.pages_commit)) {
+              throw new Error('Served release changed; refusing to overwrite it with the recovery artifact');
+            }
+            const oidcToken = await core.getIDToken();
+            const {data: deployment} = await github.request('POST /repos/{owner}/{repo}/pages/deployments', {
+              ...repo, artifact_id: artifactId, pages_build_version: source, oidc_token: oidcToken
+            });
+            const deploymentId = deployment.id;
+            core.info(`Recovering artifact ${artifactId}; deployment ${deploymentId}`);
+            const deadline = Date.now() + 35 * 60 * 1000;
+            let previousStatus;
+            while (Date.now() < deadline) {
+              await new Promise(resolve => setTimeout(resolve, 15000));
+              const {data: state} = await github.request('GET /repos/{owner}/{repo}/pages/deployments/{deployment_id}', {
+                ...repo, deployment_id: deploymentId
+              });
+              if (state.status !== previousStatus) core.info(`Pages status: ${state.status}`);
+              previousStatus = state.status;
+              if (state.status === 'succeed') {
+                await core.summary.addRaw(`Recovered verified artifact ${artifactId} for ${source}.\n`).write();
+                return;
+              }
+              if (['deployment_failed', 'deployment_cancelled', 'failed', 'cancelled'].includes(state.status)) {
+                throw new Error(`Pages deployment stopped: ${JSON.stringify(state)}`);
+              }
+            }
+            await github.request('POST /repos/{owner}/{repo}/pages/deployments/{deployment_id}/cancel', {
+              ...repo, deployment_id: deploymentId
+            });
+            throw new Error(`Incident observation window elapsed; last status: ${previousStatus}`);
