@@ -46,13 +46,13 @@
     {
       "id": "campbell-cloitre-recurrences",
       "result": "Explicit Campbell recurrence formula with ratio liminf 2/5 and limsup 3/4; global golden structure and Fibonacci collars for Cloitre's recurrence",
-      "status": "Public PR #3 merged: adjacent-gap parity states and conditional boundary widening, building on the explicit Campbell formula and golden structure for Cloitre’s recurrence",
-      "source_commit": "ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6",
+      "status": "Public PR #8 merged: exact cap-defect-two/three sublevels, five-row recursive closure and stronger local dispersion bounds",
+      "source_commit": "77ad361d14bfb91152ba8862ca61030a0398f359",
       "sources": [
-        "https://github.com/the-omega-institute/nested-recurrences/blob/ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6/README.md",
-        "https://github.com/the-omega-institute/nested-recurrences/blob/ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6/STATUS.md"
+        "https://github.com/the-omega-institute/nested-recurrences/blob/77ad361d14bfb91152ba8862ca61030a0398f359/README.md",
+        "https://github.com/the-omega-institute/nested-recurrences/blob/77ad361d14bfb91152ba8862ca61030a0398f359/STATUS.md"
       ],
-      "verification_scope": "Written proofs and exact finite checks; no Lean formalization or agreed joint paper authorship. Boundary-state minima assume the specified surrounding context. The entrance condition needed for widening, the full recursive interface and global convergence remain open."
+      "verification_scope": "Written proofs and exact finite checks. New interval and closure results hold on their stated Fibonacci-block domains with supplied context; global convergence and uniform dispersion remain open. No Lean formalization or agreed joint paper authorship."
     }
   ],
   "headline_metrics": {
@@ -61,8 +61,8 @@
     "refuted": 103,
     "problem_manifest": "problem-resolutions.json",
     "joint_arxiv_preprints": 2,
-    "researchers_display": "20+",
-    "researcher_count_scope": "28 unique named participants in 16 two-way mathematical correspondence threads, including copied coauthors. Counts research exchanges, not jointly authored papers, institutional partnerships or an independent reply from every person.",
+    "researchers_display": "30+",
+    "researcher_count_scope": "38 unique named researchers across research exchanges, proof review, requests for further verification, positive acknowledgement and interest in reviewing the work. Includes copied coauthors already recorded in substantive two-way threads; aliases are deduplicated. This is a research-contact count, not a count of agreed collaborations, papers or institutional endorsements. Automated replies, delivery failures and unanswered outbound messages are excluded.",
     "counted_researchers": [
       "John M. Campbell",
       "Benoit Cloitre",
@@ -91,21 +91,32 @@
       "Robbert Fokkink",
       "Thian Tromp",
       "Rafik Sahbi",
-      "Charles E. Hughes"
+      "Charles E. Hughes",
+      "Max A. Alekseyev",
+      "Peter Cameron",
+      "Peter Kagey",
+      "Yusaku Nishimura",
+      "Pantelimon Stănică",
+      "Aslı Pekcan",
+      "Cristina Ballantine",
+      "Madeline Locus Dawsey",
+      "Chiara Paletta",
+      "Zhi-Hong Sun"
     ],
     "published_problem_resolutions": 427,
     "frozen_theorem_statements": 35010,
-    "theorem_census_manifest": "theorem-growth.json"
+    "theorem_census_manifest": "theorem-growth.json",
+    "researcher_count": 38
   },
   "selected_researcher_affiliations": [
     {
       "person": "John M. Campbell",
       "affiliation_or_community_role": "OpenAI",
       "research_topic": "Nested recurrences",
-      "source": "https://github.com/the-omega-institute/nested-recurrences",
+      "source": "https://github.com/the-omega-institute/nested-recurrences/blob/77ad361d14bfb91152ba8862ca61030a0398f359/STATUS.md",
       "exchange_scope": "Current affiliation directly confirmed by the researcher; public research repository linked.",
       "affiliation_basis": "Directly confirmed by the researcher in current correspondence; no institutional partnership is claimed.",
-      "current_research_display": "Explicit formulas and recursive boundary states",
+      "current_research_display": "Explicit formulas and recursive information",
       "topic_checked_on": "2026-10-01"
     },
     {
@@ -121,7 +132,7 @@
       "person": "Benoit Cloitre",
       "affiliation_or_community_role": "OEIS contributor",
       "research_topic": "Padovan and nested recurrences",
-      "source": "https://github.com/the-omega-institute/nested-recurrences/blob/ff6e5cfc7ed95ca0a7b656f7b48c18572fda20f6/STATUS.md",
+      "source": "https://github.com/the-omega-institute/nested-recurrences/blob/77ad361d14bfb91152ba8862ca61030a0398f359/STATUS.md",
       "exchange_scope": "Joint public paper and continuing recurrence research. OEIS contributor is a community role, not an employment affiliation.",
       "current_research_display": "Padovan recurrences and Conway-type dynamics",
       "topic_checked_on": "2026-10-01"
@@ -206,6 +217,46 @@
       "exchange_scope": "Proof review and new predecessor data/questions exchanged. OEIS contributor is a community role, not an employment affiliation.",
       "current_research_display": "Digit-substring sequences and predecessor patterns",
       "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Max A. Alekseyev",
+      "affiliation_or_community_role": "George Washington University · OEIS",
+      "research_topic": "Translation-action proof and formalization feedback",
+      "current_research_display": "Translation-action proof and formalization feedback",
+      "source": "https://oeis.org/A146557",
+      "affiliation_sources": [
+        "https://blogs.gwu.edu/maxal/cv/",
+        "https://oeis.org/wiki/User:Max_Alekseyev"
+      ],
+      "affiliation_basis": "University and OEIS profile verified; no unverified editorial office is asserted.",
+      "exchange_scope": "Recognized the translation-action argument as an interesting alternative viewpoint and the value of formalization for the project; suggested less immediate test problems.",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Peter Cameron",
+      "affiliation_or_community_role": "University of St Andrews",
+      "research_topic": "Review of the five-element semigroup counterexample",
+      "current_research_display": "Reviewed our semigroup counterexample",
+      "source": "https://arxiv.org/abs/2608.25092",
+      "affiliation_sources": [
+        "https://www.st-andrews.ac.uk/mathematics-statistics/people/pjc20"
+      ],
+      "affiliation_basis": "University profile identifies Emeritus Professor of Mathematics.",
+      "exchange_scope": "Read the five-element semigroup counterexample note and confirmed that the argument looked sound.",
+      "topic_checked_on": "2026-10-01"
+    },
+    {
+      "person": "Robert Israel",
+      "affiliation_or_community_role": "University of British Columbia · OEIS",
+      "research_topic": "Laguerre parity and cyclotomic sequence proofs",
+      "current_research_display": "Proof feedback and OEIS update support",
+      "source": "https://oeis.org/A160627",
+      "affiliation_sources": [
+        "https://oeis.org/wiki/User:Robert_Israel"
+      ],
+      "affiliation_basis": "OEIS profile identifies emeritus Associate Professor of Mathematics at UBC.",
+      "exchange_scope": "Found the results interesting and offered to update OEIS with proof links and author attribution.",
+      "topic_checked_on": "2026-10-01"
     }
   ],
   "eqt2": {
@@ -259,6 +310,88 @@
     "checked_on": "2026-10-01",
     "published_catalog_source_commit": "b6b6592977e7132b4d568b164ec8f20f914dcf7d",
     "growth_endpoint_source_commit": "b6b6592977e7132b4d568b164ec8f20f914dcf7d",
-    "scope": "Counts retain their original definitions. New collaboration results link to public proofs and finite certificates; correspondence is not included."
-  }
+    "scope": "Counts retain their original definitions. New collaboration results link to public proofs and finite certificates; correspondence is not included.",
+    "research_contact_review": "2026-10-01; verified reply records and public profiles, with the user-requested scope extended to recognition and research feedback."
+  },
+  "research_contact_updates": [
+    {
+      "person": "Max A. Alekseyev",
+      "relationship": "proof_feedback",
+      "scope": "Recognized the translation-action argument as an interesting alternative viewpoint and the value of formalization for the project; suggested less immediate test problems."
+    },
+    {
+      "person": "Peter Cameron",
+      "relationship": "proof_review",
+      "scope": "Read the five-element semigroup counterexample note and confirmed that the argument looked sound."
+    },
+    {
+      "person": "Peter Kagey",
+      "relationship": "research_feedback",
+      "scope": "Encouraged wider-grid recurrence research and requested OEIS updates."
+    },
+    {
+      "person": "Yusaku Nishimura",
+      "relationship": "new_problem_invitation",
+      "scope": "Invited investigation of the exact zero set in the seven-point harmonic-strength problem."
+    },
+    {
+      "person": "Pantelimon Stănică",
+      "relationship": "acknowledgement_and_review_interest",
+      "scope": "Acknowledged the results and expressed an intention to examine the research repository."
+    },
+    {
+      "person": "Aslı Pekcan",
+      "relationship": "review_interest",
+      "scope": "Responded with a plan to examine the four-soliton argument and provide feedback."
+    },
+    {
+      "person": "Cristina Ballantine",
+      "relationship": "verification_request",
+      "scope": "Requested a specific n=14 verification while declining ongoing AI collaboration."
+    },
+    {
+      "person": "Madeline Locus Dawsey",
+      "relationship": "recognition_and_research_direction",
+      "scope": "Recognized the counterexample contribution, identified the fixed-size/fixed-length direction and offered future acknowledgement; currently unavailable for collaboration."
+    },
+    {
+      "person": "Chiara Paletta",
+      "relationship": "recognition_and_acknowledgement",
+      "scope": "Confirmed the conjecture issue and offered acknowledgement in the authors’ forthcoming revision."
+    },
+    {
+      "person": "Zhi-Hong Sun",
+      "relationship": "proof_review",
+      "scope": "Expressed confidence in the proof and supplied an earlier paper solving the conjectures; the result is an independent proof, not a first resolution."
+    }
+  ],
+  "displayed_researchers": [
+    "John M. Campbell",
+    "Rafik Sahbi",
+    "Benoit Cloitre",
+    "Louxin Zhang",
+    "Reza Nikandish",
+    "Max A. Alekseyev",
+    "Sanjaye Ramgoolam",
+    "Peter Cameron",
+    "Robert Israel",
+    "Wieb Bosma",
+    "R. Venkatesh",
+    "Maximilian F. Hasler"
+  ],
+  "workshop_papers": [
+    {
+      "title": "Cross-Engine Admission Contracts for Autonomous Formalization",
+      "authors": [
+        "Haobo Ma",
+        "Wenlin Zhang"
+      ],
+      "venue": "NeurIPS 2026, 6th MATH-AI Workshop",
+      "status": "Accepted for poster presentation",
+      "acceptance_basis": "Direct author confirmation in the conversation on 2026-10-01.",
+      "manuscript_sha256": "3c8dd439bf9b6e0078bb5f3b015ba68f4c3969a3f646a44985f1e51c7b1bab5a",
+      "scope": "Earlier harness engineering: distinct checks for kernel validity, allowed dependencies and statement faithfulness, with differential testing of admission-policy adapters. Not a complete account of current Trureturing.",
+      "public_url": null
+    }
+  ]
 }
