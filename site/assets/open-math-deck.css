@@ -1841,6 +1841,36 @@ html[lang="zh-CN"] .orbit-node strong {
     display: none;
   }
 }
+.slide-team { gap: 25px; }
+.team-profiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 52px;
+  margin-top: 8px;
+}
+.team-profile { min-width: 0; }
+.team-profile + .team-profile { border-left: 1px solid var(--line); padding-left: 52px; }
+.team-profile h3 {
+  font: 400 38px/1.2 Georgia, "Times New Roman", serif;
+  letter-spacing: -0.035em;
+  margin: 12px 0 7px;
+}
+.team-alias { font-size: 25px; color: var(--muted); }
+.team-profile .team-role { color: var(--ink); font-size: 16px; }
+.team-profile .team-description { font-size: 19px; line-height: 1.55; margin-top: 22px; max-width: 475px; }
+.team-evidence { margin-top: 25px; }
+.team-products { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 9px; font-size: 16px; }
+.team-profile .team-focus { font-size: 16px; color: var(--ink); margin-top: 9px; }
+.team-purpose { margin-top: auto; border-top: 1px solid var(--line); padding-top: 19px; }
+.team-purpose p { max-width: 960px; font-size: 21px; line-height: 1.5; color: var(--ink); }
+@media screen and (max-width: 759px) {
+  .team-profiles { grid-template-columns: 1fr; gap: 28px; }
+  .team-profile + .team-profile { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 28px; }
+  .team-profile h3 { font-size: 32px; }
+  .team-profile .team-description { font-size: 17px; margin-top: 15px; }
+  .team-purpose p { font-size: 18px; }
+  .team-products { gap: 18px; font-size: 15px; }
+}
 @media print {
   @page {
     size: 1280px 720px;
