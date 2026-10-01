@@ -70,7 +70,7 @@
     "proved": 336,
     "refuted": 103,
     "problem_manifest": "problem-resolutions.json",
-    "joint_arxiv_preprints": 2,
+    "joint_arxiv_preprints": 4,
     "researchers_display": "30+",
     "researcher_count_scope": "38 unique named researchers across research exchanges, proof review, requests for further verification, positive acknowledgement and interest in reviewing the work. Includes copied coauthors already recorded in substantive two-way threads; aliases are deduplicated. This is a research-contact count, not a count of agreed collaborations, papers or institutional endorsements. Automated replies, delivery failures and unanswered outbound messages are excluded.",
     "counted_researchers": [
@@ -421,5 +421,48 @@
       "scope": "Earlier harness engineering: distinct checks for kernel validity, allowed dependencies and statement faithfulness, with differential testing of admission-policy adapters. Not a complete account of current Trureturing.",
       "public_url": null
     }
-  ]
+  ],
+  "joint_arxiv_papers": {
+    "count": 4,
+    "checked_on": "2026-10-01",
+    "scope": "Includes the two earlier community collaborations with Manuel Israel Cázares, as confirmed by the project owner. Title and authorship for both earlier papers verified against public arXiv records. The separate Math-AI workshop poster is not counted here.",
+    "papers": [
+      {
+        "id": "cloitre-padovan",
+        "title": "A Padovan-automatic description of a nested recurrence",
+        "url": "https://arxiv.org/abs/2609.33421",
+        "collaborator": "Benoit Cloitre"
+      },
+      {
+        "id": "sahbi-subquorum",
+        "title": "Sub-quorum colorings of graphs",
+        "url": "https://arxiv.org/abs/2609.25128v3",
+        "collaborator": "Rafik Sahbi"
+      },
+      {
+        "id": "eqt2-cascade",
+        "title": "A Certificate-Producing Cascade for Equational Implication: The SAIR EQT2 Stage 2 Solver",
+        "url": "https://arxiv.org/abs/2609.00706",
+        "authors": [
+          "Haobo Ma",
+          "Wenlin Zhang",
+          "Manuel Israel Cázares"
+        ],
+        "collaborator": "Manuel Israel Cázares",
+        "published": "2026-09-01"
+      },
+      {
+        "id": "mechanism-routing",
+        "title": "Mechanism-level routing failure in LLMs over Lean-verified algebraic structures",
+        "url": "https://arxiv.org/abs/2607.04534",
+        "authors": [
+          "Manuel Israel Cázares",
+          "Wenlin Zhang",
+          "Haobo Ma"
+        ],
+        "collaborator": "Manuel Israel Cázares",
+        "published": "2026-07-05"
+      }
+    ]
+  }
 }
