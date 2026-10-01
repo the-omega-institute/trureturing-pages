@@ -37,7 +37,7 @@ def main():
                 assert page.locator('body').get_attribute('data-mode') == 'present'
                 assert page.locator('.deck-slide:visible').count() == 1
                 count = page.locator('.deck-slide').count()
-                assert count == 12
+                assert count == 13
                 for i in range(count):
                     page.locator('#deck-jump').select_option(str(i))
                     assert page.locator('#deck-counter').inner_text() == f'{i+1} / {count}'
@@ -77,22 +77,22 @@ def main():
                 page.locator('#deck-jump').select_option('0')
                 page.locator('#deck-jump').blur()
                 page.keyboard.press('ArrowRight')
-                assert page.locator('#deck-counter').inner_text() == '2 / 12'
+                assert page.locator('#deck-counter').inner_text() == '2 / 13'
                 page.locator('#deck-notes-toggle').click()
                 assert page.locator('#deck-notes-panel').is_visible()
                 assert page.locator('#deck-notes-panel').inner_text().strip()
                 page.locator('#deck-notes-toggle').click()
                 page.locator('#deck-read-toggle').click()
-                assert page.locator('.deck-slide:visible').count() == 12
+                assert page.locator('.deck-slide:visible').count() == 13
                 page.locator('#deck-next').click()
-                assert page.locator('#deck-counter').inner_text() == '3 / 12'
+                assert page.locator('#deck-counter').inner_text() == '3 / 13'
                 page.locator('#deck-prev').click()
-                assert page.locator('#deck-counter').inner_text() == '2 / 12'
+                assert page.locator('#deck-counter').inner_text() == '2 / 13'
                 page.locator('#deck-jump').select_option('4')
                 assert abs(page.locator('#s5').bounding_box()['y']-78) < 5
                 page.locator('#deck-read-toggle').click()
                 assert page.locator('#s5').is_visible()
-                assert page.locator('#deck-counter').inner_text() == '5 / 12'
+                assert page.locator('#deck-counter').inner_text() == '5 / 13'
                 # Standard presentation size remains readable and completely contained.
                 page.set_viewport_size({'width': 1024, 'height': 768})
                 page.wait_for_function("() => { const r = document.querySelector('#s5').getBoundingClientRect(); return r.x >= 0 && r.y >= 63 && r.bottom <= 707; }")
@@ -100,7 +100,7 @@ def main():
                 assert rect['x'] >= 0 and rect['y'] >= 63 and rect['y']+rect['height'] <= 707
                 # Printing must include every slide even from presentation mode.
                 page.emulate_media(media='print')
-                assert page.locator('.deck-slide:visible').count() == 12
+                assert page.locator('.deck-slide:visible').count() == 13
                 # Shared PDFs must point to the public site, never this ephemeral server.
                 page.evaluate('''() => {
                   const root = 'https://the-omega-institute.github.io/trureturing-pages/';
@@ -120,11 +120,11 @@ def main():
                 for i in range(count):
                     mobile.locator(f'#s{i+1}').screenshot(path=str(args.output / f'{lang}-mobile-{i+1:02}.png'))
                 mobile.close()
-                report.append(f'{lang}: 12 slides, navigation, notes, reading position, 1024px presentation, 390px reading and print')
+                report.append(f'{lang}: 13 slides, navigation, notes, reading position, 1024px presentation, 390px reading and print')
             plain = browser.new_context(java_script_enabled=False, viewport={'width':390,'height':844})
             page = plain.new_page()
             page.goto(base)
-            assert page.locator('.deck-slide:visible').count() == 12
+            assert page.locator('.deck-slide:visible').count() == 13
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
             assert page.locator('#deck-print').is_hidden()
             assert page.locator('.output-papers img').count() == 2
