@@ -1,6 +1,6 @@
 # Open Math collaboration pitch
 
-`site/open-math.html` is a fourteen-slide bilingual pitch for SAIR's Open Math
+`site/open-math.html` is a twelve-slide bilingual pitch for SAIR's Open Math
 Model initiative. The narrative establishes the motivation for formalization,
 then asks what additional understanding a contribution supplies. Information
 escape answers the concept-distinction part of that question. The harness
@@ -15,24 +15,34 @@ opening this research loop to OMM and community contributors.
 4. Intrinsic information escape: different states indistinguishable to the catalog.
 5. Escape rate and leave-one-out gain: what distinctions disappear without a concept.
 6. Harness: reference retrieval, formal verification, rejecting bind-only, escape.
-7. Construction and verification capability: EQT2 #1, 1889/1889 certified, zero
-   LLM calls in that solver.
-8. Outcomes: 439 recorded resolutions, two joint arXiv papers with real PDF
-   images, and 20+ researchers in mathematical exchanges.
-9. Reciprocal work: Sahbi's joint paper, Nikandish's exact coloring and shared
-   writing, Campbell/Cloitre recurrence proofs and next questions.
-10. Research conversations: twelve names on a dedicated slide, in three columns
-    and four rows, with readable affiliations and consistent alignment.
-11. Accumulation and foundations: 15,113 to 34,526 frozen theorem statements,
-    information escape, recursive relations, spacetime and holographic geometry.
-    A real dependency graph shows the record that reuse leaves behind.
-12. Start before becoming an expert; learn by making one step precise.
-13. Connect OMM to the harness and open contribution loop.
-14. Start with one idea. Make one step precise. Choose the next question together.
+7. Outcomes: 439 recorded resolutions, two joint arXiv papers with real PDF
+   images, and 20+ researchers in mathematical exchanges. A secondary footer
+   records four official EQT2 participations, each #1 with a score of 200/200.
+8. People and research: twelve researchers, each with an affiliation and a
+   specific current research question. This merges the research-case and roster
+   slides into one consistent three-column, four-row layout.
+9. A growing white-box model: knowledge organized through logical relationships
+    across disciplines. The 15,113 to 34,526 frozen-statement chart and real
+    dependency graph show accumulation. Information escape, recursive relations,
+    spacetime and holographic geometry remain the research foundations.
+10. Start before becoming an expert; learn by making one step precise.
+11. Connect OMM to the harness and open contribution loop.
+12. Start with one idea. Make one step precise. Choose the next question together.
 
 The matching English and Chinese talk tracks are in
 `docs/OPEN_MATH_TALK_TRACK.md`. Each numbered paragraph follows its slide.
 The full Atlas remains directly linked from the growth and reuse story.
+
+## Competition result scope
+
+The official EQT2 score is 200/200 in each of four participations, all ranked #1:
+Solo and Marathon, each with Google: Gemma 4 31B and OpenAI: gpt-oss-120b settings.
+The team owner supplied the official My Submission page text on October 1 and
+clarified that 1889/1889 refers to internal testing. `research-progress.json`
+records the official results and internal count separately, with the supplied
+provenance and public solver/paper links. Account and contact details are omitted.
+The solver used zero LLM calls; the model labels identify participation settings.
+The competition result occupies a secondary footer on the outcomes slide.
 
 ## Public case evidence
 
@@ -53,7 +63,8 @@ verifies the claims against public artifacts. The public evidence manifest is
 `site/assets/open-math/research-progress.json`. No private correspondence,
 contact details or author praise is copied into the site.
 
-Slide 9 shows three concrete research loops:
+Slide 8 connects each researcher to a current question. The evidence manifest
+preserves the detailed research cases:
 
 - **Sahbi:** arXiv:2609.25128v3 publicly lists Ma, Sahbi and Wenlin. The
   hypercube theorem is Lean formalized; subsequent grid proofs and exact
@@ -78,7 +89,7 @@ already agreed to participate in OMM.
 
 ## Growth and research foundations
 
-Slide 11 places the accumulated knowledge after the public research cases and
+Slide 9 places the accumulated knowledge after the public research cases and
 before the invitation to contribute. It shows cumulative frozen theorem statements increasing from
 15,113 to 34,526 over September 2–27, 2026: +19,413, or 2.28×.
 The chart uses actual source timestamps, a linear count axis starting at zero,
@@ -107,9 +118,10 @@ python tools/render_open_math_growth.py
 Matplotlib is not a site or CI dependency. The chart is a static, locally bundled
 SVG and stays visible offline and in PDF exports.
 
-The philosophy appears as a research thesis with three compact lines: observation
-scales and information escape; relations of relations and recursion; spacetime
-and holographic geometry. The source manifest links the actual theory texts.
+The philosophy appears as a research thesis: mathematics is logical structure,
+and knowledge connects through relationships across disciplines. Three compact
+lines retain shared logic and information escape, relations of relations and
+recursion, and spacetime and holographic geometry. The source manifest links the actual theory texts.
 Speaker notes distinguish this research orientation from an unconditional claim
 that every single readout must lose information: an injective readout can be
 complete on its stated domain. The dependency excerpt connects that growth to the reuse of earlier results.
@@ -136,7 +148,7 @@ formalization. The deck describes the research discipline without claiming a
 universal automated novelty judge. A preregistered named external open-problem
 resolution has a separate admission basis; speaker notes preserve that distinction.
 
-Slide 13 proposes integrating OMM into this harness, without an invented schedule
+Slide 11 proposes integrating OMM into this harness, without an invented schedule
 or fixed number of models or questions. The joint output is checked mathematics,
 sources and dependencies that researchers and community contributors can extend.
 
@@ -213,9 +225,21 @@ Mary records; Oxford was not substantiated and is not claimed. Campbell's OpenAI
 affiliation was directly confirmed in correspondence. Other displayed affiliations
 are verified in the linked original papers.
 
+## The library as a white-box model
+
+Slide 2 introduces the organizing principle: connect knowledge through logical
+relationships without partitioning it by discipline. Slide 9 names the resulting
+library a growing white-box model of reasoning. Definitions, premises, proofs and
+dependencies stay explicit and available for composition. The ambition to gather
+all nontrivial logical relationships motivates continued extension; the deck
+makes no claim that the library is complete or that the statement count measures
+coverage. The OMM proposal pairs this shared library with the harness and open
+contribution loop. Human direction, model exploration and checked contributions
+can keep extending the same body of reasoning.
+
 ## Reusable knowledge
 
-Slide 11 uses `atlas-network.svg`, the existing pinned module-import network,
+Slide 9 uses `atlas-network.svg`, the existing pinned module-import network,
 as a compact visual of accumulated reusable results. The full Atlas is linked.
 The 79-module / 97-edge excerpt and immutable provenance remain in
 `atlas-excerpt.json`. The deck does not load its former interactive inspector
@@ -230,9 +254,9 @@ remote data access is required for the embedded presentation.
 
 - Desktop: 1280×720 presentation stage. Small screens: a responsive document.
 - `?view=read` / `?view=present` select the mode; `?lang=zh-CN` selects Chinese.
-- `#s1` through `#s14` link to a slide. Arrow keys and Home/End navigate;
+- `#s1` through `#s12` link to a slide. Arrow keys and Home/End navigate;
   `N` shows notes and `F` toggles fullscreen. The information-escape controls retain their own interaction.
-- Print / PDF produces fourteen landscape pages. Bundled images remain visible offline.
+- Print / PDF produces twelve landscape pages. Bundled images remain visible offline.
 - With JavaScript disabled or the data request failing, the whole deck, source links and static escape illustration remain readable.
 
 For the repository's isolated Playwright/Chrome browser validation:
@@ -248,9 +272,11 @@ screenshots and both PDFs; exported links use public Pages, not the local test
 server. `tests/test_open_math_deck.py` also checks edge direction against import
 records, complete downstream closure, pinned evidence and translation coverage.
 
-The twelve-person research network has its own slide immediately after the
-reciprocal research cases. Names have a consistent primary type size, with affiliations below,
-in three columns and four rows. Long institution names have space to wrap within
-a stable row. On phones this becomes one column. The output slide now shows
-only the three headline counts, two larger manuscript images and the source link.
-Topics and detailed relationship scope remain in the evidence manifest.
+The twelve-person research page combines names, affiliations and current research
+questions in three columns and four rows. Each topic links to a public paper,
+project or researcher page; the evidence manifest records exchange scope. Sahbi
+joins the roster because his shared paper and ongoing grid work are central to
+the pitch. Israel's OEIS integration remains in the broader count, while this
+page focuses on substantive mathematical research exchanges. On phones the rows
+become a single column. The output slide retains the three headline counts,
+two manuscript images, a compact official EQT2 result and source links.
