@@ -153,7 +153,9 @@ After reconciliation/deployment, the existing Pages workflow reads the served
 Library and deployment receipts again and publishes the small validated
 `publication: observed` JSON to `data/version-status.v1.json` on the diagnostic
 `pages-sync-status` branch. Only this observation job has contents-write
-permission; build/deployment jobs retain their existing permissions. The branch
+permission; build/deployment jobs retain their existing permissions. It reuses
+immutable ancestry facts already saved by deployment preparation while reading
+mutable release, branch and CI metadata afresh. The branch
 is not a truth release, deployment source or ingestion receipt. It never edits
 upstream truth or confirms an unserved candidate. Version status and Evolution
 read its public raw JSON, with the deployed snapshot and embedded last-good

@@ -598,11 +598,17 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
+      - name: Reuse immutable ancestry facts from deployment preparation
+        uses: actions/cache/restore@v4
+        with:
+          path: _metadata
+          key: pages-ancestry-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: pages-ancestry-v1-
       - name: Observe the served site after reconciliation or deployment
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python -m lib.version_status --observe-source --output "$RUNNER_TEMP/live-observation" \
+          python -m lib.version_status --observe-source --ancestry-cache _metadata/ancestry.json --output "$RUNNER_TEMP/live-observation" \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
       - name: Publish a small diagnostic snapshot independently of content deployment
         env:
