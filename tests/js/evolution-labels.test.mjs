@@ -26,7 +26,7 @@ test('single-module points display the module title',()=>{
 });
 test('status cannot claim synchronization for an unavailable, stale or different release',()=>{
  const now=Date.parse('2026-09-13T04:00:00Z');const value={observation:{state:'fresh'},observed_at:'2026-09-13T03:30:00Z',head:{current_truth_release_digest:'a',upstream_latest_digest:'a',behind:0},halt:null};
- assert.equal(statusCaption(value,'a',now),'Publication synchronized');
+ assert.equal(statusCaption(value,'a',now),'Published data deployed; upstream source progress unknown');
  assert.equal(statusCaption(value,'b',now),'Status refers to another release');
  assert.equal(statusCaption({...value,observed_at:'2026-09-12T03:30:00Z'},'a',now),'Last recorded publication status');
  assert.equal(statusCaption({...value,observation:{state:'unavailable'}},'a',now),'Publication status unavailable');

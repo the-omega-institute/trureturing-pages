@@ -118,3 +118,45 @@ ATLAS_ORIGIN=http://127.0.0.1:8766 node tests/browser/living-library.cjs
 The preview expects the sibling `trureturing` checkout to contain the source
 commit. Browser suites need Playwright, Chrome and pngjs. Test-only releases never
 enter published content. CI installs pinned parsers and runs contract tests.
+
+## Upstream CI report delivery
+
+Pages consumes upstream's existing six-hour `lean-cache-publish.yml` releases.
+A `lean-cache-v2-*` snapshot includes the raw Lean report and its material archive.
+The manifest binds the source commit and the scheduled producer's run/attempt.
+Pages checks the GitHub manifest digest, exact asset inventory, per-part hashes,
+full archive hash, and successful scheduled producer before using any report.
+It independently requires a successful canonical `ci-current.yml` dev push and
+its `required` aggregate for that exact protected-dev source. Cache availability
+alone does not confer a successful check verdict.
+
+The downstream scheduled consumer streams the multipart cache and retains only
+the report, SHA-256, input attestation, provenance and statement materials. It
+builds the exact source commit's .NET exporter and consumes the report through
+`truth-release`, whose source checks reject a report from different Lean inputs.
+It does not execute Lean, rebuild the report, change upstream CI or require a new
+upstream artifact. Durable `pages-source-<commit>` bundles keep their verified
+provenance and outlive cache retention. New report availability follows the
+existing upstream six-hour cadence; upstream commit distance is shown separately.
+
+## Independent synchronization observations
+
+The five-stage counters describe immutable published data, not the upstream dev
+commit count. `source_observation` separately records the live source, observed
+dev head, ancestor commit distance, canonical CI and last completed Pages source
+publication. A successful reconciliation with no new release does not establish
+that the publication entry is healthy. Historical pre-tip replay gaps and
+cumulative quarantined problem occurrences remain visible without describing
+them as failures of the current deployed release.
+
+After reconciliation/deployment, the existing Pages workflow reads the served
+Library and deployment receipts again and publishes the small validated
+`publication: observed` JSON to `data/version-status.v1.json` on the diagnostic
+`pages-sync-status` branch. Only this observation job has contents-write
+permission; build/deployment jobs retain their existing permissions. The branch
+is not a truth release, deployment source or ingestion receipt. It never edits
+upstream truth or confirms an unserved candidate. Version status and Evolution
+read its public raw JSON, with the deployed snapshot and embedded last-good
+status as fallbacks. Source and release observations older than two hours are
+visibly stale. This updates diagnostics on no-op runs without downloading or
+redeploying the complete site artifact.

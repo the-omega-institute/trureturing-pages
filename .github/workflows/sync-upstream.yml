@@ -44,7 +44,7 @@ jobs:
             --output "$RUNNER_TEMP/source-selection.json" --github-output "$GITHUB_OUTPUT"
           cat "$RUNNER_TEMP/source-selection.json" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Download the current CI transport with its GitHub digest
+      - name: Consume the existing upstream scheduled report snapshot
         if: steps.source.outputs.should_build == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -77,7 +77,7 @@ jobs:
           python -m lib.upstream_publication project \
             --selection "$RUNNER_TEMP/source-selection.json" \
             --repository "$GITHUB_WORKSPACE/_source" \
-            --archive "$RUNNER_TEMP/upstream-report/ci-current.tar.gz" \
+            --report-directory "$RUNNER_TEMP/upstream-report" \
             --destination "$RUNNER_TEMP/pages-source-bundle"
 
       - name: Verify the projected bundle and bind its CI provenance

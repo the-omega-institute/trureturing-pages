@@ -1964,5 +1964,20 @@
   "What does this add?": "这一步增加了什么？",
   "Renaming an existing theorem gives us a valid proof, but no added understanding.": "给已有定理换个名字，证明可以通过，但新名字本身没有增加理解。",
   "What differences do our current concepts fail to capture?": "当前这些概念，还有哪些差别看不到？",
-  "Lean checks whether the reasoning is correct. Correctness alone does not tell us what a contribution adds: renaming an existing theorem can pass the proof checker without adding understanding. We therefore ask what the contribution adds to existing knowledge. Information escape studies which differences the current concepts fail to capture. The next slide makes this concrete with two graphs. Formal verification checks the encoded proposition under its stated assumptions. Evaluating additional understanding also requires checking the source problem, prior work and substantive proof content. Information escape studies one precise part of that question: the distinctions a concept catalog captures on a fixed state space. It is not a universal score for theorem novelty. Bind-only review separately checks that substantive work occurs on the live proof path. The next two slides show the concept-catalog metric with a concrete example.": "Lean 检查推理是否正确。正确本身不能告诉我们一项贡献增加了什么：给已有定理换个名字，证明可以通过，但没有增加理解。所以我们进一步问，这项贡献相对于现有知识增加了什么。信息逃逸研究当前概念看不到哪些差别；下一页用两个图来说明。形式化验证检查的是给定假设下编码后的命题。判断新增理解，还需要核对原问题、已有工作和证明中的实质内容。信息逃逸研究其中一个精确的问题：概念集合在固定对象范围内捕捉到了哪些区分。它不是衡量所有定理新颖性的通用分数。bind-only 检查则独立确认关键证明路径上确实发生了实质工作。接下来两页用具体例子展示概念集合的度量。"
+  "Lean checks whether the reasoning is correct. Correctness alone does not tell us what a contribution adds: renaming an existing theorem can pass the proof checker without adding understanding. We therefore ask what the contribution adds to existing knowledge. Information escape studies which differences the current concepts fail to capture. The next slide makes this concrete with two graphs. Formal verification checks the encoded proposition under its stated assumptions. Evaluating additional understanding also requires checking the source problem, prior work and substantive proof content. Information escape studies one precise part of that question: the distinctions a concept catalog captures on a fixed state space. It is not a universal score for theorem novelty. Bind-only review separately checks that substantive work occurs on the live proof path. The next two slides show the concept-catalog metric with a concrete example.": "Lean 检查推理是否正确。正确本身不能告诉我们一项贡献增加了什么：给已有定理换个名字，证明可以通过，但没有增加理解。所以我们进一步问，这项贡献相对于现有知识增加了什么。信息逃逸研究当前概念看不到哪些差别；下一页用两个图来说明。形式化验证检查的是给定假设下编码后的命题。判断新增理解，还需要核对原问题、已有工作和证明中的实质内容。信息逃逸研究其中一个精确的问题：概念集合在固定对象范围内捕捉到了哪些区分。它不是衡量所有定理新颖性的通用分数。bind-only 检查则独立确认关键证明路径上确实发生了实质工作。接下来两页用具体例子展示概念集合的度量。",
+  "Latest published data is deployed. {0} historical releases need replay.": "最新发布数据已部署；另有 {0} 个历史版本需要回放。",
+  "Latest published data is deployed. Upstream source progress is reported separately.": "最新发布数据已部署；上游源提交进度另行显示。",
+  "Published-data lag: {0}": "已发布数据落后 {0} 个版本",
+  "Upstream source progress": "上游源提交进度",
+  "Upstream source progress is unknown; published-data lag does not confirm source synchronization.": "上游源提交进度未知；已发布数据的落后数不能确认源码已同步。",
+  "Upstream CI workflow is unavailable. New source publication cannot be confirmed.": "上游 CI 工作流不可用，无法确认新源提交的发布。",
+  "The last completed data publication failed. Serving the verified live version.": "最近完成的数据发布任务失败；当前提供已验证的线上版本。",
+  "Upstream source distance is unknown.": "上游源提交差距未知。",
+  "Upstream dev is {0} commits ahead of the live data source. Commits are not proof-release counts.": "上游 dev 比线上数据源前进了 {0} 个提交；提交数不等于证明发布版本数。",
+  "Live source: {0} · Upstream dev: {1}": "线上数据源：{0} · 上游 dev：{1}",
+  "Upstream CI: {0} · Last completed data publication: {1}": "上游 CI：{0} · 最近完成的数据发布：{1}",
+  "Publication run": "发布任务",
+  "Upstream CI run": "上游 CI 任务",
+  "Historical replay": "历史回放",
+  "Quarantined problem occurrences across releases": "跨版本累计隔离问题记录"
 }

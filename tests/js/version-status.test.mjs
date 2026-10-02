@@ -32,7 +32,7 @@ test('renders five counts, live digest, lag, quarantine and generated halt', () 
   for (const stage of ['published', 'received', 'verified', 'generated', 'deployed']) assert.match(html, new RegExp(`data-stage="${stage}"`));
   assert.match(html, /Published/);
   assert.match(html, /隔离问题.*2/s);
-  assert.match(html, /落后 2/);
+  assert.match(html, /已发布数据落后 2/);
   assert.ok(html.includes(digest('a')));
   assert.match(html, /下游成功未部署/);
   assert.match(html, /data-stage="deployed"[^>]*aria-current="step"/);
@@ -106,4 +106,69 @@ test('an older CDN JSON cannot replace a newer embedded deployed observation', a
   const result = await loadStatus({ fetcher: async () => ({ ok: true, json: async () => old }), fallback: fixture(), now });
   assert.equal(result.observed_at, fixture().observed_at);
   assert.equal(result.observation.state, 'last-good');
+});
+
+const sourceFixture = () => ({
+  state: 'fresh', checked_at: '2026-09-13T03:00:00Z', reason: 'publication-failed',
+  dev_head: 'c'.repeat(40), live_source_commit: 'a'.repeat(40), commits_ahead: 420,
+  ci_workflow: 'ci-current.yml', ci_state: 'active', ci_run_id: 42,
+  ci_source_commit: 'c'.repeat(40), ci_status: 'completed', ci_conclusion: 'success',
+  publication_run_id: 52, publication_status: 'completed', publication_conclusion: 'failure'
+});
+
+test('published-data lag cannot conceal a failing publication entry and newer source', () => {
+  const value = fixture(); value.source_observation = sourceFixture();
+  const html = render(value, { now });
+  assert.match(html, /last completed data publication failed/);
+  assert.match(html, /actions\/runs\/52/);
+  assert.match(html, /Upstream dev/);
+  assert.doesNotMatch(html, /All five stages are aligned/);
+  value.source_observation.reason = null;
+  assert.match(render(value, { now }), /420 commits ahead/);
+});
+
+test('live observation updates without content deployment, with safe offline fallback', async () => {
+  const value = fixture(); value.publication = 'observed'; value.source_observation = sourceFixture();
+  value.observed_at = '2026-09-13T03:20:00Z';
+  const urls = [];
+  const fresh = await loadStatus({ now, fallback: fixture(), liveUrl: 'https://example.test/status.json', fetcher: async url => {
+    urls.push(url); return { ok: true, json: async () => value };
+  }});
+  assert.equal(fresh.observed_at, value.observed_at);
+  assert.equal(urls.length, 1);
+  const offline = await loadStatus({ now, fallback: fixture(), liveUrl: 'https://example.test/status.json', fetcher: async () => { throw Error('offline'); } });
+  assert.equal(offline.observation.state, 'last-good');
+});
+
+test('diagnostic endpoint rejects on-deploy candidates and falls back to served data', async () => {
+  const candidate = fixture(); candidate.publication = 'on-deploy';
+  candidate.observed_at = '2026-09-13T03:20:00Z';
+  let calls = 0;
+  const result = await loadStatus({ now, fallback: fixture(), liveUrl: 'https://example.test/status.json', fetcher: async () => ({ ok: true, json: async () => ++calls === 1 ? candidate : fixture() }) });
+  assert.equal(result.observed_at, fixture().observed_at);
+  assert.equal(calls, 2);
+});
+
+test('an aligned live release with old replay gaps is described as deployed with historical gaps', () => {
+  const value = fixture();
+  value.releases = [value.releases[0], value.releases[2]];
+  value.releases[1].halt.reason = 'pre-tip-replay-required';
+  value.counts = {published: 2, received: 1, verified: 1, generated: 1, deployed: 1, pending: 1, blocked: 1, quarantined: 0};
+  value.head.upstream_latest_digest = value.head.current_truth_release_digest;
+  value.head.behind = 0;
+  value.halt = value.releases[1].halt;
+  const html = render(value, { now });
+  assert.match(html, /Latest published data is deployed. 1 historical releases need replay/);
+  assert.match(html, /source progress is unknown/);
+  assert.doesNotMatch(html, /Stopped at Received/);
+});
+
+
+test('failed or running source CI is visible even with zero source distance', () => {
+  for (const [status, conclusion] of [['completed', 'failure'], ['in_progress', null]]) {
+    const value = fixture(); value.source_observation = sourceFixture();
+    Object.assign(value.source_observation, { reason: null, commits_ahead: 0, ci_status: status, ci_conclusion: conclusion });
+    const html = render(value, { now });
+    assert.match(html, /version-notice needs-attention" aria-label="Upstream source progress"/);
+  }
 });

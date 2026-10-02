@@ -330,7 +330,7 @@ class RebuildWorkflowTests(unittest.TestCase):
 
     def test_rebuild_reuses_only_verified_generation_and_keeps_publication_gates(self):
         jobs = self.workflow["jobs"]
-        self.assertEqual(set(jobs), {"prepare", "deploy"})
+        self.assertEqual(set(jobs), {"prepare", "deploy", "publish-observation"})
         self.assertIn("steps.selection.outputs.rebuild", jobs["prepare"]["outputs"]["rebuild"])
         self.assertIn("should_build == 'true'", jobs["deploy"]["if"])
         steps = jobs["deploy"]["steps"]
@@ -349,7 +349,7 @@ class RebuildWorkflowTests(unittest.TestCase):
         order = [next(i for i, script in enumerate(scripts) if marker in script) for marker in (
             "lib.reconcile_releases acquire", "lib.vertical_smoke verify", "lib.vertical_smoke build-basic",
             "lib.reconcile_releases repair-history", "lib.reconcile_releases ingest",
-            "lib.version_status --output _site", "lib.vertical_smoke freshness",
+            "lib.version_status --observe-source --output _site", "lib.vertical_smoke freshness",
         )]
         self.assertEqual(order, sorted(order))
         upload = next(i for i, step in enumerate(steps) if step.get("uses") == "actions/upload-pages-artifact@v3")

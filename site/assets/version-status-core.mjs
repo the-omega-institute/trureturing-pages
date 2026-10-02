@@ -1,6 +1,7 @@
 import { t } from './i18n.mjs';
 
 export const STAGES = ['published', 'received', 'verified', 'generated', 'deployed'];
+export const LIVE_STATUS_URL = 'https://raw.githubusercontent.com/the-omega-institute/trureturing-pages/pages-sync-status/data/version-status.v1.json';
 const LABELS = { published: 'Published', received: 'Received', verified: 'Verified', generated: 'Generated', deployed: 'Deployed' };
 const REASONS = {
   'bundle-missing': 'Bundle asset missing; suspected upstream assembly failure',
@@ -35,6 +36,16 @@ export function validateStatus(value) {
       !count(value.upstream.stale_after_seconds) || value.upstream.stale_after_seconds === 0 ||
       !(value.upstream.stale === null || typeof value.upstream.stale === 'boolean')) fail();
   const keys = [...STAGES, 'pending', 'blocked', 'quarantined'];
+  if (value.source_observation) {
+    const source = value.source_observation;
+    if (!['fresh', 'unavailable'].includes(source.state) || !date(source.checked_at) ||
+        source.ci_workflow !== 'ci-current.yml' ||
+        ['dev_head', 'live_source_commit', 'ci_source_commit'].some(k => source[k] !== null && !/^[0-9a-f]{40}$/.test(source[k])) ||
+        ['ci_run_id', 'publication_run_id'].some(k => source[k] !== null && (!count(source[k]) || source[k] === 0)) ||
+        !(source.commits_ahead === null || count(source.commits_ahead)) ||
+        ![null, 'ci-workflow-unavailable', 'publication-failed', 'source-observation-failed'].includes(source.reason) ||
+        ['ci_state', 'ci_status', 'ci_conclusion', 'publication_status', 'publication_conclusion'].some(k => source[k] !== null && typeof source[k] !== 'string')) fail();
+  }
   if (value.observation.state === 'unavailable') {
     if (keys.some(k => value.counts[k] !== null) || value.releases.length || value.observed_at !== null ||
         Object.values(value.head).some(v => v !== null)) fail();
@@ -69,7 +80,19 @@ export function unavailable(now = Date.now()) {
   };
 }
 
-export async function loadStatus({ fetcher = fetch, fallback = null, now = Date.now() } = {}) {
+export async function loadStatus({ fetcher = fetch, fallback = null, now = Date.now(), liveUrl = null } = {}) {
+  if (liveUrl) {
+    try {
+      const response = await fetcher(`${liveUrl}?status=${now}`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
+      if (!response.ok) throw Error(`HTTP ${response.status}`);
+      const value = validateStatus(await response.json());
+      if (value.publication !== 'observed') throw Error('Unserved deployment candidate');
+      let previous;
+      try { previous = validateStatus(fallback); } catch { /* no embedded observation */ }
+      if (previous?.observed_at && (!value.observed_at || Date.parse(value.observed_at) < Date.parse(previous.observed_at))) throw Error('Older observation');
+      return value;
+    } catch { /* Keep the deployed snapshot available during diagnostic endpoint outages. */ }
+  }
   try {
     const response = await fetcher(`data/version-status.v1.json?status=${now}`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
     if (!response.ok) throw Error(`HTTP ${response.status}`);
@@ -98,20 +121,35 @@ export function renderStatus(value, { now = Date.now(), translate = t } = {}) {
   const old = value.observed_at && now - Date.parse(value.observed_at) > 2 * 3600000;
   const fallback = value.observation.state === 'last-good' || old;
   const stop = value.halt?.stage || value.observation.halt_stage || (old ? 'published' : null);
+  const historicalOnly = value.head.behind === 0 && value.counts.pending === value.counts.blocked &&
+    value.halt?.reason === 'pre-tip-replay-required';
   const notice = unavailable ? translate('No valid version status is available yet; stopped at Upstream status reading. Site content remains available.') :
     fallback ? [translate('Showing the last valid version.'), translate('Stopped at {0} (last observation).', LABELS[stop]),
       value.observation.state === 'last-good' ? translate('Status refresh failed.') : '',
       old ? translate('Observation is stale; refresh to check. Current progress is unknown.') : ''].filter(Boolean).join(' ') :
+    historicalOnly ? translate('Latest published data is deployed. {0} historical releases need replay.', value.counts.blocked) :
     value.halt ? translate('Stopped at {0}: {1}. Serving live / last-good.', LABELS[stop], translate(reasonText(value.halt.reason))) :
-    value.head.current_truth_release_digest ? translate('All five stages are aligned. The live version is serving normally.') : translate('No live deployment is confirmed by this observation.');
+    value.head.current_truth_release_digest ? translate('Latest published data is deployed. Upstream source progress is reported separately.') : translate('No live deployment is confirmed by this observation.');
+  const source = value.source_observation;
+  const sourceOld = source && now - Date.parse(source.checked_at) > 2 * 3600000;
+  const sourceIssue = !source || source.state !== 'fresh' || sourceOld || source.reason !== null || source.commits_ahead === null || source.commits_ahead > 0 || source.ci_status !== 'completed' || source.ci_conclusion !== 'success';
+  const sourceNotice = !source || source.state !== 'fresh' || sourceOld ? translate('Upstream source progress is unknown; published-data lag does not confirm source synchronization.') :
+    source.reason === 'ci-workflow-unavailable' ? translate('Upstream CI workflow is unavailable. New source publication cannot be confirmed.') :
+    source.reason === 'publication-failed' ? translate('The last completed data publication failed. Serving the verified live version.') :
+    source.commits_ahead === null ? translate('Upstream source distance is unknown.') :
+    translate('Upstream dev is {0} commits ahead of the live data source. Commits are not proof-release counts.', source.commits_ahead);
+  const sourcePanel = `<section class="version-notice ${sourceIssue ? 'needs-attention' : 'is-current'}" aria-label="${text('Upstream source progress')}"><p>${escape(sourceNotice)}</p>${source ?
+    `<p>${text('Live source: {0} · Upstream dev: {1}', source.live_source_commit || translate('Unknown'), source.dev_head || translate('Unknown'))}</p>
+    <p>${text('Upstream CI: {0} · Last completed data publication: {1}', source.ci_conclusion || source.ci_status || translate('Unknown'), source.publication_conclusion || translate('Unknown'))}${source.publication_run_id ? ` · <a href="https://github.com/the-omega-institute/trureturing-pages/actions/runs/${source.publication_run_id}">${text('Publication run')}</a>` : ''}${source.ci_run_id ? ` · <a href="https://github.com/the-omega-institute/trureturing/actions/runs/${source.ci_run_id}">${text('Upstream CI run')}</a>` : ''}</p>` : ''}</section>`;
   const number = n => n === null ? '—' : escape(String(n));
   const digest = (d, empty) => d ? `<code title="${escape(d)}">${escape(d)}</code>` : `<span>${empty}</span>`;
   const upstreamStale = value.upstream.stale || (value.upstream.latest_published_at && now - Date.parse(value.upstream.latest_published_at) > value.upstream.stale_after_seconds * 1000);
   return `<section class="version-notice ${unavailable || fallback || value.halt ? 'needs-attention' : 'is-current'}" role="status"><p>${escape(notice)}</p></section>
     <ol class="version-stages" aria-label="${text('Five release stages')}">${STAGES.map(stage => `<li data-stage="${stage}"${stop === stage ? ' aria-current="step"' : ''}><span>${escape(LABELS[stage])}${stage === 'deployed' ? ' <small>(live)</small>' : ''}</span><strong>${number(value.counts[stage])}</strong></li>`).join('')}</ol>
     <p class="version-evidence">${text('Received, Verified and Generated share one complete ingestion record. These stages finish atomically; no separate intermediate progress is recorded.')}</p>
-    <section class="version-head" aria-label="${text('Release coordinates')}"><div><span>LIVE / LAST-GOOD</span>${digest(value.head.current_truth_release_digest, text('No confirmed live coordinate'))}</div><div><span>LATEST PUBLISHED DATA</span>${digest(value.head.upstream_latest_digest, text('Latest publication coordinate unknown'))}</div><strong class="version-lag">${value.head.behind === null ? text('Lag unknown') : text('Behind by {0}', value.head.behind)}</strong></section>
-    <div class="version-summary"><span>${text('Pending')} <strong>${number(value.counts.pending)}</strong></span><span>${text('Blocked')} <strong>${number(value.counts.blocked)}</strong></span><span>${text('Quarantined problems')} <strong>${number(value.counts.quarantined)}</strong></span></div>
+    <section class="version-head" aria-label="${text('Release coordinates')}"><div><span>LIVE / LAST-GOOD</span>${digest(value.head.current_truth_release_digest, text('No confirmed live coordinate'))}</div><div><span>LATEST PUBLISHED DATA</span>${digest(value.head.upstream_latest_digest, text('Latest publication coordinate unknown'))}</div><strong class="version-lag">${value.head.behind === null ? text('Lag unknown') : text('Published-data lag: {0}', value.head.behind)}</strong></section>
+    ${sourcePanel}
+    <div class="version-summary"><span>${text('Pending')} <strong>${number(value.counts.pending)}</strong></span><span>${text('Historical replay')} <strong>${number(value.counts.blocked)}</strong></span><span>${text('Quarantined problem occurrences across releases')} <strong>${number(value.counts.quarantined)}</strong></span></div>
     <p class="version-times">${text('Last valid observation: {0} · Latest data publication: {1}', value.observed_at || translate('Unknown'), value.upstream.latest_published_at || translate('Unknown'))}</p>
     ${upstreamStale ? `<p class="version-stale">${text('No upstream publication for over {0} days. This may indicate a stall, but alone does not prove assembly failure.', Math.round(value.upstream.stale_after_seconds / 86400))}</p>` : ''}
     <details class="version-releases"><summary>${text('Release details · {0} published', number(value.counts.published))}</summary><div class="version-table-wrap"><table><thead><tr><th>Release</th><th>${text('Furthest stage')}</th><th>${text('Halt reason')}</th><th>${text('Quarantined problems')}</th></tr></thead><tbody>${[...value.releases].reverse().map(row => `<tr><td><code title="${escape(row.digest)}">${escape(row.digest.slice(7, 19))}</code>${row.digest === value.head.current_truth_release_digest ? ' <small>live</small>' : ''}${Number.isSafeInteger(row.upstream_ci_run_id) && row.upstream_ci_run_id > 0 ? ` <a href="https://github.com/the-omega-institute/trureturing/actions/runs/${row.upstream_ci_run_id}">Upstream CI</a>` : ''}</td><td>${escape(LABELS[row.furthest_stage])}</td><td>${row.halt ? text(reasonText(row.halt.reason)) : text('Deployed')}</td><td>${escape(row.quarantined_count)}</td></tr>`).join('')}</tbody></table></div></details>`;

@@ -1,4 +1,4 @@
-import {loadStatus, STAGES} from './version-status-core.mjs';
+import {loadStatus, STAGES, LIVE_STATUS_URL} from './version-status-core.mjs';
 import {statusCaption} from './evolution-labels.mjs';
 const box = document.getElementById('publication-status');
 let value, pending;
@@ -8,7 +8,7 @@ async function refresh() {
   document.getElementById('publication-date').textContent = '';
   list.replaceChildren();
   label.textContent = 'Checking publication status';
-  value = await loadStatus({fallback:value});
+  value = await loadStatus({fallback:value, liveUrl: LIVE_STATUS_URL});
   let release;
   try {
     const r = await fetch('data/pages-atlas-manifest.v1.json', {cache:'no-store'});

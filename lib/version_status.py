@@ -207,7 +207,7 @@ def write_status(output, value):
 
 def refresh_status(output, *, previous_url=None, releases_file=None, ancestry_file=None,
                    for_deployment=False, now=None, stale_after_seconds=STALE_AFTER_SECONDS,
-                   failure=None, repository=reconcile.REPOSITORY, ancestry_cache=None):
+                   failure=None, repository=reconcile.REPOSITORY, ancestry_cache=None, observe_source=False):
     output, now = Path(output), now or reconcile.utc_now()
     previous = None
     local = output / STATUS_PATH
@@ -252,6 +252,13 @@ def refresh_status(output, *, previous_url=None, releases_file=None, ancestry_fi
     except (ValueError, OSError, KeyError, TypeError, ValidationError) as error:
         print(f"version status refresh failed at {stage}: {error}", file=sys.stderr)
         value = fallback_status(previous, now, stage)
+    if observe_source and value["observation"]["state"] == "fresh":
+        from lib import sync_observation
+        current = value["head"]["current_truth_release_digest"]
+        live_source = next((r["source_commit"] for r in value["releases"] if r["digest"] == current), None)
+        pages_repository = client.publication_repository or "the-omega-institute/trureturing-pages"
+        value["source_observation"] = sync_observation.observe(
+            client, reconcile.GitHub(pages_repository), live_source, dev_head, now)
     write_status(output, value)
     return value
 
@@ -265,6 +272,7 @@ def main(argv=None):
     parser.add_argument("--ancestry-file", type=Path)
     parser.add_argument("--ancestry-cache", type=Path, help="reuse immutable ancestry facts; refresh mutable GitHub metadata")
     parser.add_argument("--for-deployment", action="store_true")
+    parser.add_argument("--observe-source", action="store_true", help="also observe upstream CI and the Pages publisher")
     parser.add_argument("--stale-after-seconds", type=int, default=STALE_AFTER_SECONDS)
     parser.add_argument("--failure-digest")
     parser.add_argument("--failure-stage", choices=STAGES)
@@ -277,7 +285,8 @@ def main(argv=None):
         failure = {"release_digest": args.failure_digest, "stage": args.failure_stage, "reason": args.failure_reason}
     value = refresh_status(args.output, previous_url=args.previous_url, repository=args.repository,
                            releases_file=args.releases_file, ancestry_file=args.ancestry_file, ancestry_cache=args.ancestry_cache,
-                           for_deployment=args.for_deployment, stale_after_seconds=args.stale_after_seconds, failure=failure)
+                           for_deployment=args.for_deployment, stale_after_seconds=args.stale_after_seconds, failure=failure,
+                           observe_source=args.observe_source)
     print(json.dumps({"observation": value["observation"], "counts": value["counts"], "head": value["head"]}, indent=2))
     return 0
 
