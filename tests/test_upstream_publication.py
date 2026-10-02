@@ -3,83 +3,86 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
-import zipfile
 
 from lib import upstream_publication as publication
 from lib.reconcile_releases import GitHub, REPOSITORY
 
 A, B, C = 'a' * 40, 'b' * 40, 'c' * 40
 DIGEST = 'sha256:' + 'd' * 64
+TAG = 'lean-cache-v2-' + A + '-linux-arm64-123-1'
 
 
 def run(source=B, **changes):
     return dict(id=42, run_attempt=1, head_sha=source, event='push', head_branch='dev',
-                conclusion='success', status='completed', path='.github/workflows/ci-current.yml', workflow_id=7, html_url='https://example.test/42',
-                repository={'full_name': REPOSITORY}, head_repository={'full_name': REPOSITORY},
-                **changes)
+                conclusion='success', status='completed', path='.github/workflows/ci-current.yml',
+                workflow_id=7, html_url='https://example.test/42',
+                repository={'full_name': REPOSITORY}, head_repository={'full_name': REPOSITORY}, **changes)
 
 
 def release(**changes):
-    return {"tag_name": 'pages-source-' + B, "draft": False, "prerelease": False,
-            "target_commitish": C, "published_at": '2026-09-17T00:00:00Z',
-            "assets": [], "body": json.dumps({'schema': publication.SCHEMA,
+    return {'tag_name': 'pages-source-' + B, 'draft': False, 'prerelease': False,
+            'target_commitish': C, 'published_at': '2026-09-17T00:00:00Z',
+            'assets': [], 'body': json.dumps({'schema': publication.SCHEMA,
                 'source_repository': REPOSITORY, 'source_commit': B, 'release_digest': DIGEST, 'ci_run_id': 42}), **changes}
+
+
+def transport(raw, source=B):
+    manifest = {'schema': 'lean-release-seed-v3', 'partition': A + '/linux-arm64',
+        'producer_commit_sha': source, 'workflow_run_id': '123', 'workflow_run_attempt': '1',
+        'archive_sha256': hashlib.sha256(raw).hexdigest(), 'archive_bytes': len(raw),
+        'parts': [{'name': 'lean-build.tgz', 'sha256': hashlib.sha256(raw).hexdigest(), 'bytes': len(raw)}]}
+    data = json.dumps(manifest).encode()
+    snapshot = {'tag_name': TAG, 'draft': False, 'prerelease': False,
+        'assets': [{'name': name, 'size': len(body), 'state': 'uploaded',
+                    'digest': 'sha256:' + hashlib.sha256(body).hexdigest()}
+                   for name, body in [('manifest.json', data), ('lean-build.tgz', raw)]]}
+    return manifest, snapshot, data
+
+
+def report_archive(extra=None, omit=None):
+    report = b'{"modules":[],"schema":"stratalint-raw-lean-report-v2"}'
+    files = {name: b'checked' for name in publication.REPORT_FILES}
+    files['raw-lean-report.json'] = report
+    files['raw-lean-report.json.sha256'] = hashlib.sha256(report).hexdigest().encode() + b'  raw-lean-report.json\n'
+    output = io.BytesIO()
+    with tarfile.open(fileobj=output, mode='w:gz') as archive:
+        for name, data in files.items():
+            if name == omit: continue
+            member = tarfile.TarInfo('build/stratalint/' + name); member.size = len(data)
+            archive.addfile(member, io.BytesIO(data))
+        if extra: archive.addfile(extra)
+    return output.getvalue(), files
 
 
 class SourcePublicationTests(unittest.TestCase):
     def test_newest_source_wins_over_late_rerun_and_excludes_noncanonical_runs(self):
-        client = GitHub()
-        client.is_ancestor = lambda a, b: a <= b
-        invalid = run(C)
-        invalid['path'] = '.github/workflows/test.yml'
-        fork = run(C)
-        fork['head_repository'] = {'full_name': 'fork/trureturing'}
-        failed = run(C)
-        failed['conclusion'] = 'failure'
+        client = GitHub(); client.is_ancestor = lambda a, b: a <= b
+        invalid = run(C); invalid['path'] = '.github/workflows/test.yml'
+        fork = run(C); fork['head_repository'] = {'full_name': 'fork/trureturing'}
+        failed = run(C); failed['conclusion'] = 'failure'
         self.assertEqual(publication.select_run(client, [run(B), run(A), invalid, fork, failed], C)['head_sha'], B)
         with self.assertRaisesRegex(ValueError, 'no successful'):
             publication.select_run(client, [invalid, fork, failed], C)
 
-    def test_every_required_job_must_succeed_for_exact_source(self):
+    def test_required_aggregate_must_succeed_for_exact_source(self):
         jobs = [{'name': n, 'conclusion': 'success', 'head_sha': B} for n in publication.CHECKS]
         publication.verify_checks(run(), jobs)
         for change in ({'conclusion': 'skipped'}, {'head_sha': A}):
-            broken = copy.deepcopy(jobs)
-            broken[0].update(change)
-            with self.assertRaises(ValueError):
-                publication.verify_checks(run(), broken)
-        with self.assertRaises(ValueError):
-            publication.verify_checks(run(), jobs[1:])
+            with self.assertRaises(ValueError): publication.verify_checks(run(), [{**jobs[0], **change}])
+        with self.assertRaises(ValueError): publication.verify_checks(run(), [])
+        with self.assertRaises(ValueError): publication.verify_checks(run(), jobs * 2)
 
     def test_downstream_target_is_not_mistaken_for_upstream_source(self):
         item = publication.normalize_publication(release())
         self.assertEqual(item['target_commitish'], B)
         self.assertEqual(item['tag_name'], 'truth-release-' + DIGEST[7:])
         self.assertIsNone(publication.normalize_publication(release(draft=True)))
-        with self.assertRaises(ValueError):
-            publication.normalize_publication(release(tag_name='pages-source-' + A))
-
-    def test_existing_bundle_survives_expired_ci_artifacts(self):
-        upstream = GitHub(REPOSITORY)
-        upstream.is_ancestor = lambda a, b: True
-        upstream.dev_head = lambda: B
-        def upstream_get(path):
-            if path == 'actions/workflows/ci-current.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
-            if path == 'branches/dev': return {'protected': True}
-            if path.startswith('contents/'):
-                return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
-            return {'workflow_runs': [run()]}
-        upstream.get_json = upstream_get
-        pages = GitHub('owner/pages')
-        existing = release(assets=[{'name': 'truth-release-' + DIGEST[7:] + '.tar.gz', 'state': 'uploaded', 'size': 42}])
-        pages.get_json = lambda path: existing
-        with patch.object(publication, 'GitHub', side_effect=[upstream, pages]):
-            self.assertFalse(publication.plan('owner/pages')['should_build'])
+        with self.assertRaises(ValueError): publication.normalize_publication(release(tag_name='pages-source-' + A))
 
     def test_list_merges_publications_without_recursive_api_reads(self):
         calls = []
@@ -91,209 +94,136 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertEqual(len(calls), 2)
         self.assertEqual(items[0]['target_commitish'], B)
 
-    def test_download_checks_archive_digest_and_exact_transport_wrapper(self):
-        def wrapper(extra=False):
-            output = io.BytesIO()
-            with zipfile.ZipFile(output, 'w') as archive:
-                archive.writestr(publication.ARCHIVE, b'current transport')
-                if extra: archive.writestr('../untrusted', b'invalid')
-            return output.getvalue()
-        raw = wrapper()
-        selection = {'artifact_id': 123, 'artifact_digest': 'sha256:' + hashlib.sha256(raw).hexdigest()}
-        def download(args, stdout, check): stdout.write(raw)
-        with tempfile.TemporaryDirectory() as temp, patch.object(publication.subprocess, 'run', download), patch.object(publication, 'verify_report'):
-            destination = Path(temp) / 'valid'
-            publication.acquire_report(selection, destination)
-            self.assertEqual((destination / publication.ARCHIVE).read_bytes(), b'current transport')
-            with self.assertRaisesRegex(ValueError, 'digest'):
-                publication.acquire_report({**selection, 'artifact_digest': DIGEST}, Path(temp) / 'invalid')
-            raw = wrapper(extra=True)
-            selection['artifact_digest'] = 'sha256:' + hashlib.sha256(raw).hexdigest()
-            with self.assertRaisesRegex(ValueError, 'unexpected contents'):
-                publication.acquire_report(selection, Path(temp) / 'extra')
+    def test_manifest_binds_tag_parts_sizes_hashes_and_source(self):
+        manifest, snapshot, data = transport(b'cache')
+        with patch.object(publication, 'asset_bytes', return_value=data):
+            self.assertEqual(publication.cache_manifest(snapshot), manifest)
+        mutations = [lambda m: m.update(producer_commit_sha='dev'),
+            lambda m: m.update(workflow_run_attempt='2'), lambda m: m.update(archive_bytes=999),
+            lambda m: m['parts'][0].update(name='../escape'), lambda m: m['parts'][0].update(sha256='x'*64),
+            lambda m: m['parts'][0].update(bytes=True)]
+        for mutate in mutations:
+            broken = copy.deepcopy(manifest); mutate(broken)
+            with patch.object(publication, 'asset_bytes', return_value=json.dumps(broken).encode()):
+                with self.assertRaises(ValueError): publication.cache_manifest(snapshot)
+        for mutate in [lambda r: r['assets'].append(r['assets'][0]),
+                       lambda r: r['assets'][1].update(digest=DIGEST),
+                       lambda r: r['assets'][1].update(size=1)]:
+            broken = copy.deepcopy(snapshot); mutate(broken)
+            with patch.object(publication, 'asset_bytes', return_value=data):
+                with self.assertRaises(ValueError): publication.cache_manifest(broken)
 
-    def test_artifact_must_bind_run_attempt_source_and_digest(self):
-        artifact = {'name': 'pages-lean-report-42-1', 'id': 123, 'expired': False, 'digest': DIGEST,
-                    'workflow_run': {'id': 42, 'head_sha': B}}
-        self.assertEqual(publication.artifact_for(run(), [artifact], 'pages-lean-report'), artifact)
-        for changes in ({'name': 'pages-lean-report-42-2'}, {'expired': True}, {'digest': ''},
-                        {'workflow_run': {'id': 41, 'head_sha': B}}, {'workflow_run': {'id': 42, 'head_sha': A}}):
-            with self.assertRaises(ValueError):
-                publication.artifact_for(run(), [{**artifact, **changes}], 'pages-lean-report')
+    def test_manifest_transport_checks_actual_bytes(self):
+        raw = b'{}'; asset = {'name': 'manifest.json', 'size': 2, 'digest': 'sha256:' + hashlib.sha256(raw).hexdigest()}
+        with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+            self.assertEqual(publication.asset_bytes(TAG, asset, 16), raw)
+        for broken in ({**asset, 'size': 1}, {**asset, 'digest': DIGEST}):
+            with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+                with self.assertRaises(ValueError): publication.asset_bytes(TAG, broken, 16)
 
-    def test_plan_skips_docs_only_push_but_selects_new_math_report(self):
+    def test_cache_run_is_not_a_pr_or_integration_verification(self):
+        manifest, _, _ = transport(b'cache')
+        producer = run(); producer.update(id=123, event='schedule', path='.github/workflows/lean-cache-publish.yml')
+        client = GitHub(); client.get_json = lambda path: producer
+        self.assertEqual(publication.verify_cache_run(client, manifest), producer)
+        for field, invalid in [('event', 'push'), ('head_sha', A), ('conclusion', 'failure'),
+                               ('run_attempt', 2), ('head_branch', 'integration-a')]:
+            with patch.object(client, 'get_json', return_value={**producer, field: invalid}):
+                with self.assertRaises(ValueError): publication.verify_cache_run(client, manifest)
+
+    def planned(self, existing=None):
         upstream, pages = GitHub(), GitHub('owner/pages')
-        upstream.dev_head = lambda: C
-        upstream.is_ancestor = lambda a, b: a <= b
-        newer, older = run(C), run(B)
-        newer['id'] = 43
-        artifact = {'name': 'pages-lean-report-42-1', 'id': 123, 'expired': False, 'digest': DIGEST,
-                    'workflow_run': {'id': 42, 'head_sha': B}}
-        def get(path):
-            if path == 'actions/workflows/ci-current.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
-            if path == 'branches/dev': return {'protected': True}
-            if path.startswith('contents/'):
-                return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
-            if '/runs?' in path: return {'workflow_runs': [newer, older]}
-            if '/jobs?' in path:
-                sha = C if '/43/' in path else B
-                return {'jobs': [{'name': n, 'head_sha': sha, 'conclusion': 'success'} for n in publication.CHECKS]}
-            if '/artifacts?' in path: return {'artifacts': [artifact]}
-            if path == 'commits/' + B: return {'commit': {'tree': {'sha': A}, 'committer': {'date': '2026-09-19T00:00:00Z'}}}
-            raise AssertionError(path)
-        upstream.get_json = get
-        with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
-             patch.object(publication, 'pages_release', return_value=None), \
-             patch.object(publication, 'no_work_run', side_effect=[True, False]):
-            selected = publication.plan('owner/pages')
-        self.assertTrue(selected['should_build'])
-        self.assertEqual(selected['source_commit'], B)
-        self.assertEqual(selected['latest_successful_ci_source'], C)
-        self.assertEqual(selected['skipped_without_report'][0]['source_commit'], C)
-        # The old workflow must not be accepted as an already synchronized source.
-        older['path'] = '.github/workflows/ci.yml'
-        newer['path'] = '.github/workflows/ci.yml'
-        with patch.object(publication, 'GitHub', side_effect=[upstream, pages]):
-            with self.assertRaisesRegex(ValueError, 'refusing to report stale'):
-                publication.plan('owner/pages')
-
-    def test_plan_passes_a_completed_no_work_run_to_reach_a_report(self):
-        upstream, pages = GitHub(), GitHub('owner/pages')
-        upstream.dev_head = lambda: C
-        upstream.is_ancestor = lambda a, b: a <= b
-        newer, older = run(C), run(B)
-        newer['id'] = 43
-        no_work = [{'name': name, 'head_sha': C, 'status': 'completed',
-                    'conclusion': 'skipped' if name == 'current' else 'success'}
-                   for name in ('detect', 'required', 'current')]
-        artifact = {'name': 'pages-lean-report-42-1', 'id': 123, 'expired': False,
-                    'digest': DIGEST, 'workflow_run': {'id': 42, 'head_sha': B}}
+        upstream.dev_head = lambda: C; upstream.is_ancestor = lambda a, b: a <= b
+        manifest, snapshot, data = transport(b'cache')
+        upstream.releases = lambda: [snapshot, {'tag_name': 'lean-cache-verify-v1-irrelevant'}]
+        producer = run(); producer.update(id=123, event='schedule', path='.github/workflows/lean-cache-publish.yml')
         calls = []
         def get(path):
             calls.append(path)
-            if path == 'actions/workflows/ci-current.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
+            if path == 'actions/workflows/ci-current.yml': return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
-            if path.startswith('contents/'):
-                return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
-            if '/runs?' in path: return {'workflow_runs': [newer, older]}
-            if '/43/attempts/1/jobs?' in path: return {'jobs': no_work}
-            if '/42/attempts/1/jobs?' in path:
-                return {'jobs': [{'name': n, 'head_sha': B, 'conclusion': 'success'}
-                                 for n in publication.CHECKS]}
-            if '/42/artifacts?' in path: return {'artifacts': [artifact]}
-            if path == 'commits/' + B:
-                return {'commit': {'tree': {'sha': A}, 'committer': {'date': '2026-09-22T00:00:00Z'}}}
+            if path.startswith('contents/'): return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
+            if path == 'actions/runs/123/attempts/1': return producer
+            if '/runs?' in path: return {'workflow_runs': [run()]}
+            if '/jobs?' in path: return {'jobs': [{'name': 'required', 'head_sha': B, 'conclusion': 'success'}]}
+            if path == 'commits/' + B: return {'commit': {'tree': {'sha': A}, 'committer': {'date': '2026-10-02T00:00:00Z'}}}
             raise AssertionError(path)
         upstream.get_json = get
-        def select():
-            with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
-                 patch.object(publication, 'pages_release', return_value=None), \
-                 patch.object(publication, 'artifact_for', wraps=publication.artifact_for) as reports:
-                value = publication.plan('owner/pages')
-                self.assertEqual(reports.call_count, 1)
-                return value
-        selected = select()
-        self.assertEqual(selected['source_commit'], B)
-        self.assertEqual(selected['latest_successful_ci_source'], C)
-        self.assertEqual(selected['skipped_without_report'], [
-            {'source_commit': C, 'ci_run_id': 43, 'reason': 'current-stage-not-run'}])
-        self.assertFalse(any('/43/artifacts?' in path for path in calls))
-        # Incomplete, stale, failed or inconsistent evidence cannot become a skip.
-        good = copy.deepcopy(no_work)
-        for mutation in (
-            lambda rows: rows.pop(0),
-            lambda rows: rows.append(copy.deepcopy(rows[0])),
-            lambda rows: rows[0].update(conclusion='failure'),
-            lambda rows: rows[1].update(conclusion='failure'),
-            lambda rows: rows[2].update(status='in_progress'),
-            lambda rows: rows[2].update(head_sha=A),
-        ):
-            no_work[:] = copy.deepcopy(good)
-            mutation(no_work)
-            with self.assertRaises(ValueError):
-                select()
+        with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
+             patch.object(publication, 'pages_release', return_value=existing), \
+             patch.object(publication, 'asset_bytes', return_value=data):
+            return publication.plan('owner/pages'), calls
 
-    def test_projection_stops_before_build_when_report_verification_fails(self):
-        selection = self.selection()
-        with tempfile.TemporaryDirectory() as temp, \
-             patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
-             patch.object(publication, 'verify_report', side_effect=ValueError('receipt mismatch')), \
-             patch.object(publication.subprocess, 'run') as execute:
-            with self.assertRaisesRegex(ValueError, 'receipt mismatch'):
-                publication.project(selection, temp, Path(temp) / publication.ARCHIVE, Path(temp) / 'out')
-            execute.assert_not_called()
+    def test_plan_consumes_existing_scheduled_snapshot_and_exact_ci(self):
+        selection, calls = self.planned()
+        self.assertTrue(selection['should_build'])
+        self.assertEqual(selection['source_commit'], B)
+        self.assertEqual(selection['report_run_id'], 123)
+        self.assertEqual(selection['required_checks'], ['required', 'lean-cache-publication'])
+        self.assertTrue(any('head_sha=' + B in call for call in calls))
+        self.assertFalse(any('artifacts' in call or 'ci-push' in call for call in calls))
 
-    @staticmethod
-    def selection():
-        return {'source_commit': B, 'source_tree': A, 'ci_run_id': 42, 'ci_run_attempt': 1,
-                'required_checks': list(publication.CHECKS), 'produced_at': '2026-09-19T00:00:00Z'}
+    def test_existing_bundle_does_not_require_ci_transport_retention(self):
+        existing = publication.normalize_publication(release(assets=[{'name': 'truth-release-' + DIGEST[7:] + '.tar.gz', 'state': 'uploaded', 'size': 42}]))
+        value, calls = self.planned(existing)
+        self.assertFalse(value['should_build'])
+        self.assertFalse(any('/jobs?' in call for call in calls))
+
+    def test_stream_verifies_all_parts_and_extracts_only_report_bundle(self):
+        raw, files = report_archive(tarfile.TarInfo('../ignored'))
+        manifest, _, _ = transport(raw)
+        # Exercise boundaries in the compressed stream with two inventory parts.
+        chunks = [raw[:17], raw[17:]]
+        manifest['parts'] = [{'name': f'lean-build.tgz.part-{i:02d}', 'sha256': hashlib.sha256(part).hexdigest(), 'bytes': len(part)} for i, part in enumerate(chunks)]
+        selection = {'report_release_tag': TAG, 'report_manifest': manifest}
+        with tempfile.TemporaryDirectory() as temp, patch.object(publication, 'urlopen', side_effect=[io.BytesIO(part) for part in chunks]):
+            publication.acquire_report(selection, temp)
+            self.assertEqual({p.name: p.read_bytes() for p in Path(temp).iterdir()}, files)
+
+    def test_stream_rejects_truncation_tampering_missing_or_duplicate_reports(self):
+        duplicate = tarfile.TarInfo('build/stratalint/raw-lean-report.json')
+        for index, raw in enumerate((report_archive()[0], report_archive(duplicate)[0], report_archive(omit='raw-lean-report.json.materials.zip')[0])):
+            manifest, _, _ = transport(raw)
+            if index == 0: manifest['archive_sha256'] = 'f'*64
+            with tempfile.TemporaryDirectory() as temp, patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+                with self.assertRaises(ValueError): publication.acquire_report({'report_release_tag': TAG, 'report_manifest': manifest}, temp)
+                self.assertEqual(list(Path(temp).iterdir()), [])
+        raw, _ = report_archive(); manifest, _, _ = transport(raw)
+        manifest['parts'][0]['sha256'] = 'f'*64
+        with tempfile.TemporaryDirectory() as temp, patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+            with self.assertRaisesRegex(ValueError, 'part size or digest'): publication.acquire_report({'report_release_tag': TAG, 'report_manifest': manifest}, temp)
 
     def test_projection_builds_only_exporter_and_preserves_upstream_identity(self):
-        selection = self.selection()
+        selection = {'source_commit': B, 'source_tree': A, 'required_checks': list(publication.EXPORT_CHECKS), 'produced_at': '2026-10-02T00:00:00Z'}
         with tempfile.TemporaryDirectory() as temp, \
-             patch.dict('os.environ', {'GITHUB_REPOSITORY': 'owner/pages', 'GITHUB_EVENT_NAME': 'push',
-                 'GITHUB_SHA': C, 'GITHUB_RUN_ID': '999', 'CI_PLAN_PATH': '/pages/plan.json',
-                 'CANDIDATE_SHA': C, 'BASE_SHA': A, 'GH_TOKEN': 'pages-only-token', 'DOTNET_ROOT': '/dotnet'}), \
+             patch.dict('os.environ', {'GITHUB_REPOSITORY': 'owner/pages', 'GITHUB_SHA': C, 'CI_PLAN_PATH': '/pages/plan.json', 'GH_TOKEN': 'pages-only-token', 'DOTNET_ROOT': '/dotnet'}), \
              patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
-             patch.object(publication, 'verify_report', return_value=b'{}'), \
              patch.object(publication.subprocess, 'run') as execute:
-            publication.project(selection, temp, Path(temp) / publication.ARCHIVE, Path(temp) / 'out')
-            self.assertEqual((Path(temp) / publication.REPORT).read_bytes(), b'{}')
+            root = Path(temp); reports = root / 'report'; reports.mkdir()
+            for name in publication.REPORT_FILES: (reports / name).write_bytes(b'checked')
+            publication.project(selection, root, reports, root / 'out')
+            self.assertEqual((root / publication.REPORT).read_bytes(), b'checked')
         commands = [call.args[0] for call in execute.call_args_list]
         self.assertEqual([c[1] for c in commands], ['restore', 'build', 'tools/StrataLint.Cli/bin/Release/net10.0/StrataLint.dll'])
-        self.assertIn('required=success', commands[-1])
-        self.assertIn('current=success', commands[-1])
-        self.assertFalse(any(word in {'lake', 'lean', 'lean-report', 'make'} for cmd in commands for word in cmd))
+        self.assertIn('required=success', commands[-1]); self.assertIn('lean-cache-publication=success', commands[-1])
+        self.assertFalse(any(word in {'lake', 'lean', 'make'} for cmd in commands for word in cmd))
         for call in execute.call_args_list:
             env = call.kwargs['env']
             self.assertEqual(env['GITHUB_REPOSITORY'], REPOSITORY)
             self.assertEqual(env['STRATALINT_CACHE_WRITES'], 'false')
-            self.assertEqual(env['DOTNET_ROOT'], '/dotnet')
             self.assertEqual([k for k in env if k.startswith('GITHUB_')], ['GITHUB_REPOSITORY'])
-            self.assertFalse(any(k.startswith('CI_') for k in env))
-            for key in ('CANDIDATE_SHA', 'BASE_SHA', 'GH_TOKEN'):
-                self.assertNotIn(key, env)
-
-    def test_report_receipt_binds_source_tree_run_attempt_and_report_bytes(self):
-        import tarfile
-        selection = self.selection()
-        report = b'{"report": "checked"}'
-        receipt = {'schema': publication.REPORT_SCHEMA, 'source_repository': REPOSITORY,
-                   **{k: selection[k] for k in ('source_commit', 'source_tree', 'ci_run_id', 'ci_run_attempt')},
-                   'report_digest': 'sha256:' + hashlib.sha256(report).hexdigest()}
-        def archive(path, value, extra=None):
-            with tarfile.open(path, 'w:gz') as bundle:
-                for name, raw in [('raw-lean-report.json', report), ('publication.json', json.dumps(value).encode())]:
-                    item = tarfile.TarInfo(name); item.size = len(raw)
-                    bundle.addfile(item, io.BytesIO(raw))
-                if extra: bundle.addfile(extra)
-        with tempfile.TemporaryDirectory() as temp:
-            path = Path(temp) / publication.ARCHIVE
-            archive(path, receipt)
-            self.assertEqual(publication.verify_report(selection, path), report)
-            for field, invalid in [('source_commit', C), ('source_tree', C), ('ci_run_id', 43),
-                                   ('ci_run_attempt', 2), ('source_repository', 'fork/repo'), ('report_digest', DIGEST)]:
-                archive(path, {**receipt, field: invalid})
-                with self.assertRaisesRegex(ValueError, 'receipt differs'):
-                    publication.verify_report(selection, path)
-            item = tarfile.TarInfo('../escape'); item.type = tarfile.SYMTYPE; item.linkname = '/etc/passwd'
-            archive(path, receipt, item)
-            with self.assertRaisesRegex(ValueError, 'archive members'):
-                publication.verify_report(selection, path)
+            self.assertNotIn('GH_TOKEN', env); self.assertNotIn('CI_PLAN_PATH', env)
 
     def test_removed_workflow_cannot_reuse_historical_success_as_freshness(self):
-        upstream, pages = GitHub(), GitHub('owner/pages')
-        upstream.dev_head = lambda: C
+        upstream, pages = GitHub(), GitHub('owner/pages'); upstream.dev_head = lambda: C
         def get(path):
-            if path == 'actions/workflows/ci-current.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
+            if path == 'actions/workflows/ci-current.yml': return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
-            if path.startswith('contents/'):
-                raise HTTPError(path, 404, 'Not Found', {}, None)
-            raise AssertionError('Historical run lookup must not happen after a workflow rename: ' + path)
+            if path.startswith('contents/'): raise HTTPError(path, 404, 'Not Found', {}, None)
+            raise AssertionError(path)
         upstream.get_json = get
         with patch.object(publication, 'GitHub', side_effect=[upstream, pages]):
-            with self.assertRaisesRegex(ValueError, 'removed from dev'):
-                publication.plan('owner/pages')
+            with self.assertRaisesRegex(ValueError, 'removed from dev'): publication.plan('owner/pages')
+
+
+if __name__ == '__main__': unittest.main()

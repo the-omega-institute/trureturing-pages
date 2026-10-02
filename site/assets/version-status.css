@@ -6,7 +6,7 @@
 #refresh-status { flex-shrink: 0; color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 5px; padding: 9px 15px; }
 #refresh-status:disabled { opacity: .5; cursor: wait; }
 .version-notice { border-left: 3px solid var(--closed); padding: 12px 18px; background: var(--surface); font-size: 14px; }
-.version-notice p { margin: 0; }
+.version-notice p { margin: 0; overflow-wrap: anywhere; }
 .version-notice.needs-attention { border-color: var(--open); }
 .version-stages { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 0; margin: 28px 0 14px; }
 .version-stages li { position: relative; padding: 16px; border: 1px solid var(--border); border-radius: 6px; }

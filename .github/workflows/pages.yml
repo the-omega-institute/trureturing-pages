@@ -98,7 +98,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python -m lib.version_status --output "$RUNNER_TEMP/version-observation" --ancestry-cache _metadata/ancestry.json \
+          python -m lib.version_status --observe-source --output "$RUNNER_TEMP/version-observation" --ancestry-cache _metadata/ancestry.json \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
             >> "$GITHUB_STEP_SUMMARY"
 
@@ -481,7 +481,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python -m lib.version_status --output _site --for-deployment --ancestry-cache _metadata/ancestry.json \
+          python -m lib.version_status --observe-source --output _site --for-deployment --ancestry-cache _metadata/ancestry.json \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
             >> "$GITHUB_STEP_SUMMARY"
           test -s _site/data/version-status.v1.json
@@ -571,7 +571,7 @@ jobs:
           if [[ "$RELEASE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && -n "$stage" ]]; then
             failure=(--failure-digest "$RELEASE_DIGEST" --failure-stage "$stage" --failure-reason "$reason")
           fi
-          python -m lib.version_status --output _site --ancestry-cache _metadata/ancestry.json \
+          python -m lib.version_status --observe-source --output _site --ancestry-cache _metadata/ancestry.json \
             --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" \
             "${failure[@]}" >> "$GITHUB_STEP_SUMMARY"
 
@@ -582,3 +582,31 @@ jobs:
           name: version-status-build
           path: _site/data/version-status.v1.json
           if-no-files-found: warn
+
+  publish-observation:
+    needs: [prepare, deploy]
+    if: always() && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Observe the served site after reconciliation or deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m lib.version_status --observe-source --output "$RUNNER_TEMP/live-observation" \
+            --previous-url "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+      - name: Publish a small diagnostic snapshot independently of content deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m lib.sync_observation --repository "$GITHUB_REPOSITORY" \
+            --source "$RUNNER_TEMP/live-observation/data/version-status.v1.json" --revision "$GITHUB_SHA"

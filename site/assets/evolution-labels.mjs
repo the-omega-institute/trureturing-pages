@@ -26,11 +26,20 @@ export function statusCaption(value, displayedRelease, now = Date.now()) {
     return 'Status refers to another release';
   if (value.observation.state === 'last-good' || !value.observed_at || now-Date.parse(value.observed_at)>7200000)
     return 'Last recorded publication status';
-  if (value.halt || value.head.behind > 0 || value.counts?.pending > 0 || value.counts?.blocked > 0) return 'Publication needs attention';
+  const source = value.source_observation;
+  if (source?.state === 'fresh' && source.reason) return 'Upstream publication needs attention';
+  const historicalOnly = value.head.behind === 0 && value.counts?.pending === value.counts?.blocked &&
+    value.halt?.reason === 'pre-tip-replay-required';
+  if (!historicalOnly && (value.halt || value.head.behind > 0 || value.counts?.pending > 0 || value.counts?.blocked > 0)) return 'Publication needs attention';
   if (value.head.behind !== 0 || !value.head.upstream_latest_digest || !value.head.current_truth_release_digest)
     return 'Publication progress unknown';
   if (value.head.upstream_latest_digest !== value.head.current_truth_release_digest) return 'Publication needs attention';
-  return 'Publication synchronized';
+  if (!source || source.state !== 'fresh' || now-Date.parse(source.checked_at)>7200000 || source.commits_ahead === null)
+    return 'Published data deployed; upstream source progress unknown';
+  if (source.commits_ahead > 0) return 'Published data deployed; upstream source ahead';
+  if (source.ci_conclusion !== 'success' || source.ci_source_commit !== source.dev_head)
+    return 'Published data deployed; upstream CI pending or unsuccessful';
+  return historicalOnly ? 'Source aligned; historical replay needed' : 'Source and published data synchronized';
 }
 
 // Direct boundary edges describe reuse; they do not infer a theorem or a field's meaning.
