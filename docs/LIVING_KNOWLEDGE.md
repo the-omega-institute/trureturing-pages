@@ -118,3 +118,19 @@ ATLAS_ORIGIN=http://127.0.0.1:8766 node tests/browser/living-library.cjs
 The preview expects the sibling `trureturing` checkout to contain the source
 commit. Browser suites need Playwright, Chrome and pngjs. Test-only releases never
 enter published content. CI installs pinned parsers and runs contract tests.
+
+## Upstream CI report delivery
+
+Pages selects completed successful push runs of protected upstream `dev` from
+`ci-current.yml`. Both `required` and `current` must have succeeded for that
+exact source. A docs-only run with successful `detect`/`required` and an explicitly
+skipped `current` can be passed over; a missing artifact after successful
+`current` is a publication failure, never evidence that the site is synchronized.
+
+The `pages-lean-report-<run>-<attempt>` artifact contains `pages-lean-report.tar.gz`
+with exactly `raw-lean-report.json` and `publication.json`. The receipt binds the
+upstream repository, commit, tree, run, attempt and report SHA-256. Pages verifies
+the GitHub artifact digest and receipt before building the source commit's .NET
+exporter and consuming the report through `truth-release`. It does not execute
+Lean, rebuild the report, or use the retired CI transport helper. Durable
+`pages-source-<commit>` bundles retain their original verified provenance.

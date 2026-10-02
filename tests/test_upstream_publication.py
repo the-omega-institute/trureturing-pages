@@ -18,7 +18,7 @@ DIGEST = 'sha256:' + 'd' * 64
 
 def run(source=B, **changes):
     return dict(id=42, run_attempt=1, head_sha=source, event='push', head_branch='dev',
-                conclusion='success', status='completed', path='.github/workflows/ci-push.yml', workflow_id=7, html_url='https://example.test/42',
+                conclusion='success', status='completed', path='.github/workflows/ci-current.yml', workflow_id=7, html_url='https://example.test/42',
                 repository={'full_name': REPOSITORY}, head_repository={'full_name': REPOSITORY},
                 **changes)
 
@@ -68,11 +68,11 @@ class SourcePublicationTests(unittest.TestCase):
         upstream.is_ancestor = lambda a, b: True
         upstream.dev_head = lambda: B
         def upstream_get(path):
-            if path == 'actions/workflows/ci-push.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
+            if path == 'actions/workflows/ci-current.yml':
+                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
             if path.startswith('contents/'):
-                return {'type': 'file', 'path': '.github/workflows/ci-push.yml'}
+                return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
             return {'workflow_runs': [run()]}
         upstream.get_json = upstream_get
         pages = GitHub('owner/pages')
@@ -101,7 +101,7 @@ class SourcePublicationTests(unittest.TestCase):
         raw = wrapper()
         selection = {'artifact_id': 123, 'artifact_digest': 'sha256:' + hashlib.sha256(raw).hexdigest()}
         def download(args, stdout, check): stdout.write(raw)
-        with tempfile.TemporaryDirectory() as temp, patch.object(publication.subprocess, 'run', download):
+        with tempfile.TemporaryDirectory() as temp, patch.object(publication.subprocess, 'run', download), patch.object(publication, 'verify_report'):
             destination = Path(temp) / 'valid'
             publication.acquire_report(selection, destination)
             self.assertEqual((destination / publication.ARCHIVE).read_bytes(), b'current transport')
@@ -113,13 +113,13 @@ class SourcePublicationTests(unittest.TestCase):
                 publication.acquire_report(selection, Path(temp) / 'extra')
 
     def test_artifact_must_bind_run_attempt_source_and_digest(self):
-        artifact = {'name': 'ci-current-42-1', 'id': 123, 'expired': False, 'digest': DIGEST,
+        artifact = {'name': 'pages-lean-report-42-1', 'id': 123, 'expired': False, 'digest': DIGEST,
                     'workflow_run': {'id': 42, 'head_sha': B}}
-        self.assertEqual(publication.artifact_for(run(), [artifact], 'ci-current'), artifact)
-        for changes in ({'name': 'ci-current-42-2'}, {'expired': True}, {'digest': ''},
+        self.assertEqual(publication.artifact_for(run(), [artifact], 'pages-lean-report'), artifact)
+        for changes in ({'name': 'pages-lean-report-42-2'}, {'expired': True}, {'digest': ''},
                         {'workflow_run': {'id': 41, 'head_sha': B}}, {'workflow_run': {'id': 42, 'head_sha': A}}):
             with self.assertRaises(ValueError):
-                publication.artifact_for(run(), [{**artifact, **changes}], 'ci-current')
+                publication.artifact_for(run(), [{**artifact, **changes}], 'pages-lean-report')
 
     def test_plan_skips_docs_only_push_but_selects_new_math_report(self):
         upstream, pages = GitHub(), GitHub('owner/pages')
@@ -127,14 +127,14 @@ class SourcePublicationTests(unittest.TestCase):
         upstream.is_ancestor = lambda a, b: a <= b
         newer, older = run(C), run(B)
         newer['id'] = 43
-        artifact = {'name': 'ci-current-42-1', 'id': 123, 'expired': False, 'digest': DIGEST,
+        artifact = {'name': 'pages-lean-report-42-1', 'id': 123, 'expired': False, 'digest': DIGEST,
                     'workflow_run': {'id': 42, 'head_sha': B}}
         def get(path):
-            if path == 'actions/workflows/ci-push.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
+            if path == 'actions/workflows/ci-current.yml':
+                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
             if path.startswith('contents/'):
-                return {'type': 'file', 'path': '.github/workflows/ci-push.yml'}
+                return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
             if '/runs?' in path: return {'workflow_runs': [newer, older]}
             if '/jobs?' in path:
                 sha = C if '/43/' in path else B
@@ -145,7 +145,7 @@ class SourcePublicationTests(unittest.TestCase):
         upstream.get_json = get
         with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
              patch.object(publication, 'pages_release', return_value=None), \
-             patch.object(publication, 'report_required', side_effect=[False, True]):
+             patch.object(publication, 'no_work_run', side_effect=[True, False]):
             selected = publication.plan('owner/pages')
         self.assertTrue(selected['should_build'])
         self.assertEqual(selected['source_commit'], B)
@@ -158,24 +158,6 @@ class SourcePublicationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'refusing to report stale'):
                 publication.plan('owner/pages')
 
-    def test_diagnostics_route_only_exact_source_and_explicit_report_plan(self):
-        receipt = {'stage': 'current', 'status': 'completed', 'git_candidate': {'commit': B},
-                   'scope': {'execution': {'steps': ['filemap']}}}
-        artifact = {'name': 'ci-current-diagnostics-42-1', 'id': 123, 'expired': False,
-                    'digest': DIGEST, 'workflow_run': {'id': 42, 'head_sha': B}}
-        def download(artifact_id, digest, path):
-            with zipfile.ZipFile(path, 'w') as bundle:
-                bundle.writestr('current-result.json', json.dumps(receipt))
-        with patch.object(publication, 'download_artifact', download):
-            self.assertFalse(publication.report_required(run(), [{'name': 'current'}], [artifact]))
-            receipt['scope']['execution']['steps'].append('lean-report')
-            self.assertTrue(publication.report_required(run(), [{'name': 'current'}], [artifact]))
-            receipt['git_candidate']['commit'] = A
-            with self.assertRaisesRegex(ValueError, 'differs from selected source'):
-                publication.report_required(run(), [{'name': 'current'}], [artifact])
-        with self.assertRaisesRegex(ValueError, 'missing or ambiguous'):
-            publication.report_required(run(), [{'name': 'current'}], [])
-
     def test_plan_passes_a_completed_no_work_run_to_reach_a_report(self):
         upstream, pages = GitHub(), GitHub('owner/pages')
         upstream.dev_head = lambda: C
@@ -183,18 +165,18 @@ class SourcePublicationTests(unittest.TestCase):
         newer, older = run(C), run(B)
         newer['id'] = 43
         no_work = [{'name': name, 'head_sha': C, 'status': 'completed',
-                    'conclusion': 'success' if name == 'build' else 'skipped'}
-                   for name in ('build', 'engineering', 'current')]
-        artifact = {'name': 'ci-current-42-1', 'id': 123, 'expired': False,
+                    'conclusion': 'skipped' if name == 'current' else 'success'}
+                   for name in ('detect', 'required', 'current')]
+        artifact = {'name': 'pages-lean-report-42-1', 'id': 123, 'expired': False,
                     'digest': DIGEST, 'workflow_run': {'id': 42, 'head_sha': B}}
         calls = []
         def get(path):
             calls.append(path)
-            if path == 'actions/workflows/ci-push.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
+            if path == 'actions/workflows/ci-current.yml':
+                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
             if path.startswith('contents/'):
-                return {'type': 'file', 'path': '.github/workflows/ci-push.yml'}
+                return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
             if '/runs?' in path: return {'workflow_runs': [newer, older]}
             if '/43/attempts/1/jobs?' in path: return {'jobs': no_work}
             if '/42/attempts/1/jobs?' in path:
@@ -208,7 +190,7 @@ class SourcePublicationTests(unittest.TestCase):
         def select():
             with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
                  patch.object(publication, 'pages_release', return_value=None), \
-                 patch.object(publication, 'report_required', return_value=True) as reports:
+                 patch.object(publication, 'artifact_for', wraps=publication.artifact_for) as reports:
                 value = publication.plan('owner/pages')
                 self.assertEqual(reports.call_count, 1)
                 return value
@@ -233,61 +215,80 @@ class SourcePublicationTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 select()
 
-    def test_projection_stops_when_native_transport_verification_fails(self):
-        selection = {'source_commit': B, 'source_tree': A, 'ci_run_id': 42, 'ci_run_attempt': 1}
-        import subprocess
+    def test_projection_stops_before_build_when_report_verification_fails(self):
+        selection = self.selection()
         with tempfile.TemporaryDirectory() as temp, \
              patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
-             patch.object(publication.subprocess, 'run', side_effect=[None, subprocess.CalledProcessError(2, 'restore')]) as execute:
-            with self.assertRaises(subprocess.CalledProcessError):
-                publication.project(selection, temp, Path(temp) / 'current.tar.gz', Path(temp) / 'out')
-            self.assertEqual(execute.call_count, 2)
-            self.assertFalse((Path(temp) / 'out').exists())
+             patch.object(publication, 'verify_report', side_effect=ValueError('receipt mismatch')), \
+             patch.object(publication.subprocess, 'run') as execute:
+            with self.assertRaisesRegex(ValueError, 'receipt mismatch'):
+                publication.project(selection, temp, Path(temp) / publication.ARCHIVE, Path(temp) / 'out')
+            execute.assert_not_called()
 
-    def test_projection_preserves_upstream_identity_without_rebuilding_report(self):
-        selection = {'source_commit': B, 'source_tree': A, 'ci_run_id': 42, 'ci_run_attempt': 1,
-                     'required_checks': list(publication.CHECKS), 'produced_at': '2026-09-19T00:00:00Z'}
+    @staticmethod
+    def selection():
+        return {'source_commit': B, 'source_tree': A, 'ci_run_id': 42, 'ci_run_attempt': 1,
+                'required_checks': list(publication.CHECKS), 'produced_at': '2026-09-19T00:00:00Z'}
+
+    def test_projection_builds_only_exporter_and_preserves_upstream_identity(self):
+        selection = self.selection()
+        with tempfile.TemporaryDirectory() as temp, \
+             patch.dict('os.environ', {'GITHUB_REPOSITORY': 'owner/pages', 'GITHUB_EVENT_NAME': 'push',
+                 'GITHUB_SHA': C, 'GITHUB_RUN_ID': '999', 'CI_PLAN_PATH': '/pages/plan.json',
+                 'CANDIDATE_SHA': C, 'BASE_SHA': A, 'GH_TOKEN': 'pages-only-token', 'DOTNET_ROOT': '/dotnet'}), \
+             patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
+             patch.object(publication, 'verify_report', return_value=b'{}'), \
+             patch.object(publication.subprocess, 'run') as execute:
+            publication.project(selection, temp, Path(temp) / publication.ARCHIVE, Path(temp) / 'out')
+            self.assertEqual((Path(temp) / publication.REPORT).read_bytes(), b'{}')
+        commands = [call.args[0] for call in execute.call_args_list]
+        self.assertEqual([c[1] for c in commands], ['restore', 'build', 'tools/StrataLint.Cli/bin/Release/net10.0/StrataLint.dll'])
+        self.assertIn('required=success', commands[-1])
+        self.assertIn('current=success', commands[-1])
+        self.assertFalse(any(word in {'lake', 'lean', 'lean-report', 'make'} for cmd in commands for word in cmd))
+        for call in execute.call_args_list:
+            env = call.kwargs['env']
+            self.assertEqual(env['GITHUB_REPOSITORY'], REPOSITORY)
+            self.assertEqual(env['STRATALINT_CACHE_WRITES'], 'false')
+            self.assertEqual(env['DOTNET_ROOT'], '/dotnet')
+            self.assertEqual([k for k in env if k.startswith('GITHUB_')], ['GITHUB_REPOSITORY'])
+            self.assertFalse(any(k.startswith('CI_') for k in env))
+            for key in ('CANDIDATE_SHA', 'BASE_SHA', 'GH_TOKEN'):
+                self.assertNotIn(key, env)
+
+    def test_report_receipt_binds_source_tree_run_attempt_and_report_bytes(self):
+        import tarfile
+        selection = self.selection()
+        report = b'{"report": "checked"}'
+        receipt = {'schema': publication.REPORT_SCHEMA, 'source_repository': REPOSITORY,
+                   **{k: selection[k] for k in ('source_commit', 'source_tree', 'ci_run_id', 'ci_run_attempt')},
+                   'report_digest': 'sha256:' + hashlib.sha256(report).hexdigest()}
+        def archive(path, value, extra=None):
+            with tarfile.open(path, 'w:gz') as bundle:
+                for name, raw in [('raw-lean-report.json', report), ('publication.json', json.dumps(value).encode())]:
+                    item = tarfile.TarInfo(name); item.size = len(raw)
+                    bundle.addfile(item, io.BytesIO(raw))
+                if extra: bundle.addfile(extra)
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            (root / 'build/ci').mkdir(parents=True)
-            (root / 'build/ci/current.json').write_text(json.dumps({'steps': [{'name': 'lean-report'}]}))
-            (root / publication.REPORT).parent.mkdir(parents=True)
-            (root / publication.REPORT).write_text('{}')
-            with patch.dict('os.environ', {
-                     'GITHUB_REPOSITORY': 'owner/pages', 'GITHUB_EVENT_NAME': 'push',
-                     'GITHUB_EVENT_PATH': '/pages/push-event.json', 'GITHUB_SHA': C,
-                     'GITHUB_RUN_ID': '999', 'GITHUB_OUTPUT': '/pages/outputs',
-                     'CI_WORKFLOW_INPUTS': json.dumps({'candidate_sha': C}),
-                     'CI_PLAN_PATH': '/pages/plan.json', 'CANDIDATE_SHA': C,
-                     'BASE_SHA': A, 'GH_TOKEN': 'pages-only-token',
-                     'DOTNET_ROOT': '/dotnet',
-                 }), \
-                 patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
-                 patch.object(publication.subprocess, 'run') as execute:
-                publication.project(selection, root, root / 'current.tar.gz', root / 'out')
-            self.assertEqual(execute.call_count, 3)
-            for call in execute.call_args_list:
-                self.assertEqual(call.kwargs['env']['GITHUB_REPOSITORY'], REPOSITORY)
-                self.assertEqual(call.kwargs['env']['STRATALINT_CACHE_WRITES'], 'false')
-                self.assertEqual(call.kwargs['env']['DOTNET_ROOT'], '/dotnet')
-                self.assertEqual([key for key in call.kwargs['env'] if key.startswith('GITHUB_')],
-                                 ['GITHUB_REPOSITORY'])
-                self.assertFalse(any(key.startswith('CI_') for key in call.kwargs['env']))
-                for key in ('CANDIDATE_SHA', 'BASE_SHA', 'GH_TOKEN'):
-                    self.assertNotIn(key, call.kwargs['env'])
-            commands = [call.args[0] for call in execute.call_args_list]
-            self.assertIn('restore', commands[1])
-            self.assertIn('truth-release', commands[2])
-            self.assertIn('engineering=success', commands[2])
-            self.assertIn('current=success', commands[2])
-            self.assertFalse(any(word in {'lake', 'lean', 'build', 'transport-pack'} for cmd in commands for word in cmd))
+            path = Path(temp) / publication.ARCHIVE
+            archive(path, receipt)
+            self.assertEqual(publication.verify_report(selection, path), report)
+            for field, invalid in [('source_commit', C), ('source_tree', C), ('ci_run_id', 43),
+                                   ('ci_run_attempt', 2), ('source_repository', 'fork/repo'), ('report_digest', DIGEST)]:
+                archive(path, {**receipt, field: invalid})
+                with self.assertRaisesRegex(ValueError, 'receipt differs'):
+                    publication.verify_report(selection, path)
+            item = tarfile.TarInfo('../escape'); item.type = tarfile.SYMTYPE; item.linkname = '/etc/passwd'
+            archive(path, receipt, item)
+            with self.assertRaisesRegex(ValueError, 'archive members'):
+                publication.verify_report(selection, path)
 
     def test_removed_workflow_cannot_reuse_historical_success_as_freshness(self):
         upstream, pages = GitHub(), GitHub('owner/pages')
         upstream.dev_head = lambda: C
         def get(path):
-            if path == 'actions/workflows/ci-push.yml':
-                return {'id': 7, 'path': '.github/workflows/ci-push.yml', 'state': 'active'}
+            if path == 'actions/workflows/ci-current.yml':
+                return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
             if path.startswith('contents/'):
                 raise HTTPError(path, 404, 'Not Found', {}, None)
