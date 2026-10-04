@@ -530,7 +530,9 @@
               "enum": [
                 "ci-workflow-unavailable",
                 "publication-failed",
-                "source-observation-failed"
+                "source-observation-failed",
+                "awaiting-scribe-publication",
+                "publication-content-rejected"
               ]
             },
             {
@@ -590,6 +592,14 @@
               "type": "null"
             }
           ]
+        },
+        "publication_source_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "rejection_run_id": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     }

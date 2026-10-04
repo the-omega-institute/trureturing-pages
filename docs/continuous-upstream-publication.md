@@ -5,44 +5,66 @@ install a Lean toolchain, require a self-hosted runner, or independently review
 whether a formal theorem settles an informal mathematical question. Those are
 upstream responsibilities.
 
-`sync-upstream.yml` polls hourly (minute 7) on GitHub-hosted Ubuntu ARM. It queries
-upstream's active `ci-push.yml`, considers successful dev pushes in original run
-creation order (a rerun does not become a newer push), and verifies that each
-selected source still belongs to protected dev. The upstream publication checks
-are `engineering` and `current`, for the exact run attempt and source commit.
+`sync-upstream.yml` polls hourly (minute 7) on GitHub-hosted Ubuntu ARM.
+It selects the newest protected-dev source by ancestry from upstream's existing
+scheduled `lean-cache-v2-*` publications. For that exact source, both the
+scheduled `lean-cache-publish.yml` producer and the canonical `ci-current.yml`
+push run's `required` aggregate must have succeeded. Removed workflow files
+cannot borrow a historical green workflow record.
 
-A successful push may only check documentation or engineering inputs. The
-run-bound `ci-current-diagnostics-<run>-<attempt>` receipt identifies whether its
-execution plan requires `lean-report`. Sources without that step are recorded and
-skipped. Missing receipts, expired report artifacts, and incompatible contracts
-fail visibly; they never count as a successful synchronization of old data.
-The selection summary records the observed dev head, newest successful CI source,
-selected report source, and skipped sources. An already published report is
-reported explicitly as `latest-report-already-published`.
+The consumer verifies the cache manifest, asset inventory, per-part and whole
+archive SHA-256, then extracts only the checked report and its four sidecars.
+It checks out the exact source/tree and builds that source's .NET exporter with
+locked dependencies. It never runs Lean or reconstructs formal evidence.
 
-The selected `ci-current-<run>-<attempt>` artifact is downloaded by ID and GitHub
-SHA-256 digest. Its exact `ci-current.tar.gz` wrapper is restored with the selected
-upstream commit's existing transport helper. The native verifier checks the
-source, run attempt, retained plan and material hashes. Only after verification
-and confirmation of a complete `.lake/build/stratalint/raw-lean-report.json` does
-the bundled CLI convert that report into the seven-file website contract. No
-exporter rebuild is needed. The exporter performs its existing source, Frozen
-ledger and Scribe consistency checks; it does not regenerate the Lean report.
+New exporters require a published `scribe-resources-*` pack. Pages checks the
+exporter contract at the selected immutable source before downloading the cache.
+A usable pack must declare that source as its release target and its Git tag must
+resolve to the same commit. The archive SHA-256 is transport evidence; the tag's
+64-hex suffix is the distinct logical resource digest supplied as
+`--scribe-pack-digest`. The source's native `resources verify` checks every entry
+before `truth-release` consumes it via `--scribe-pack`.
 
-The bundle is published in **the Pages repository**, under `pages-source-<source
-commit>`. Structured release notes retain the upstream CI run, attempt, artifact
-ID/digest, source commit/tree and exported bundle digest. This is a downstream
-data publication, not an assertion that upstream published a GitHub truth release.
-A draft is made public only after its bundle is uploaded. A retry can finish a
-draft; a public source publication is never overwritten.
+When no source-matched resource publication exists, selection reports
+`awaiting-scribe-publication` and skips downloading and building. This is a
+successful polling attempt with a **blocked publication**, not a synchronized
+source. Pages records the report source and reason on its diagnostic branch;
+the version-status page displays the wait even when the workflow is green.
+An older resource pack is not substituted for changed Blueprint content.
 
-Pages consumes these publications alongside historical upstream truth releases.
-The existing digest, source binding, ancestry, Library history and atomic
-publication checks remain. Bundles are durable GitHub release assets, so a
-presentation rebuild does not depend on seven-day CI artifact retention. The
-hourly reconciliation also retries already-published bundles after a failed deploy.
-If the latest successful report has expired before a bundle was made, publication
-fails visibly and the current site stays live; there is no Lean rebuild fallback.
+The native exporter retains its source, Frozen ledger, Scribe and residual
+frontier checks. An exit-2 diagnostic beginning
+`TRUTH_RELEASE_INVALID residual frontier evaluation failed:` records
+`content-validation-rejected`. No bundle is published. The next poll suppresses
+only a rejection with the same source/tree, report archive, Scribe resource
+identity and Pages adapter commit. Changing any of those inputs retries the
+export. Network, restore, build, process termination and unknown export errors
+remain retryable failures. The diagnostic page links the original rejection run.
+
+Successful bundles are published in **the Pages repository**, under
+`pages-source-<source commit>`. Structured release notes retain exact source/tree,
+CI and report-producer run attempts, report manifest, Scribe asset and logical
+identity, and bundle digest. A draft becomes public only after upload; a public
+source publication is never overwritten. These durable bundles are consumed
+alongside historical upstream truth releases through the existing source,
+ancestry, Library history and atomic ingestion checks.
+
+For a stalled publication, inspect the Pages selection summary first:
+
+- `awaiting-scribe-publication`: report and resources do not have matching source
+  provenance. Upstream already has `scribe-release-publish.yml` with a `ref`
+  input; the upstream publication owner can publish the displayed report commit
+  using that existing operation. This downstream task does not dispatch it or
+  change upstream CI. Once matching inputs exist, the next Pages poll retries.
+- `content-validation-rejected`: read the linked native diagnostic. Upstream must
+  publish corrected content through its normal process. Do not relabel ledger
+  states downstream, reuse an incompatible pack, or bypass native checks.
+- `publication-failed`: inspect the failing acquisition/build/validation/upload
+  step and retry the downstream workflow after resolving that measured failure.
+
+Reconciliation continues to serve the last verified bundle while inputs wait or
+are rejected. Published-data lag and upstream source distance are shown
+separately; zero published-data lag does not confirm that latest source is live.
 
 `research-news.json` and `research-catalog.json` are generated in the deployed site
 from the same current Library snapshot. New upstream-verified resolutions appear
@@ -70,7 +92,6 @@ new successful CI sources as non-ancestors. Immutable artifact digests and sourc
 identity checks remain the admission evidence.
 
 The projection subprocess does not inherit the Pages workflow's GitHub event,
-SHA, run ID, output files, or CI planning variables. The upstream verifier reads
-its retained transport plan and explicit upstream commit/run arguments. This is
-necessary for post-merge `push` runs: the Pages event's `after` commit belongs to
-a different repository. The source repository identity remains explicit.
+SHA, run ID, output files, API token, or CI planning variables. The checked
+upstream source, report and explicit export arguments supply provenance. The
+source repository identity remains explicit.

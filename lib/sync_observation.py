@@ -60,6 +60,21 @@ def observe(client, pages, live_source, dev_head, now):
                          publication_conclusion=run["conclusion"])
             if run["conclusion"] != "success":
                 value["reason"] = value["reason"] or "publication-failed"
+            from lib.upstream_publication import read_outcome
+            outcome = read_outcome(pages) if run["conclusion"] == "success" else None
+            if (outcome and outcome["run_id"] == run["id"]
+                    and outcome["adapter_commit"] == run.get("head_sha")
+                    and run["conclusion"] == "success"):
+                if outcome["status"] == "awaiting-scribe-publication":
+                    value["reason"] = value["reason"] or "awaiting-scribe-publication"
+                elif outcome["status"] == "content-validation-rejected":
+                    value["reason"] = value["reason"] or "publication-content-rejected"
+                elif outcome["status"] == "publication-failed":
+                    value["reason"] = value["reason"] or "publication-failed"
+                if outcome["status"] in {"awaiting-scribe-publication", "content-validation-rejected"}:
+                    value["publication_source_commit"] = outcome["source_commit"]
+                if outcome.get("rejection_run_id"):
+                    value["rejection_run_id"] = outcome["rejection_run_id"]
         value["state"] = "fresh"
     except (ValueError, OSError, KeyError, TypeError):
         value["reason"] = "source-observation-failed"
