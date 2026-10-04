@@ -41,7 +41,8 @@ jobs:
         run: |
           python -m lib.upstream_publication plan \
             --pages-repository "$GITHUB_REPOSITORY" \
-            --output "$RUNNER_TEMP/source-selection.json" --github-output "$GITHUB_OUTPUT"
+            --output "$RUNNER_TEMP/source-selection.json" --github-output "$GITHUB_OUTPUT" \
+            --adapter-commit "$GITHUB_SHA"
           cat "$RUNNER_TEMP/source-selection.json" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Consume the existing upstream scheduled report snapshot
@@ -68,6 +69,7 @@ jobs:
           global-json-file: _source/global.json
 
       - name: Project the upstream report into the existing website data contract
+        id: projection
         if: steps.source.outputs.should_build == 'true'
         env:
           DOTNET_GCHeapHardLimitPercent: '0x46'
@@ -78,17 +80,18 @@ jobs:
             --selection "$RUNNER_TEMP/source-selection.json" \
             --repository "$GITHUB_WORKSPACE/_source" \
             --report-directory "$RUNNER_TEMP/upstream-report" \
-            --destination "$RUNNER_TEMP/pages-source-bundle"
+            --destination "$RUNNER_TEMP/pages-source-bundle" --github-output "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/source-selection.json" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify the projected bundle and bind its CI provenance
-        if: steps.source.outputs.should_build == 'true'
+        if: steps.projection.outputs.should_publish == 'true'
         run: |
           python -m lib.upstream_publication metadata \
             --selection "$RUNNER_TEMP/source-selection.json" --bundle "$RUNNER_TEMP/pages-source-bundle" \
             --output "$RUNNER_TEMP/publication.json"
 
       - name: Publish a durable Pages bundle with explicit upstream CI provenance
-        if: steps.source.outputs.should_build == 'true' && github.ref == 'refs/heads/dev'
+        if: steps.projection.outputs.should_publish == 'true' && github.ref == 'refs/heads/dev'
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_COMMIT: ${{ steps.source.outputs.source_commit }}
@@ -108,6 +111,18 @@ jobs:
           gh release upload "$tag" "$asset" --repo "$GITHUB_REPOSITORY" --clobber
           gh release edit "$tag" --repo "$GITHUB_REPOSITORY" \
             --notes-file "$RUNNER_TEMP/publication.json" --draft=false --latest=false
+
+      - name: Record the publication outcome, including a healthy wait or content rejection
+        if: always() && steps.source.outcome == 'success' && github.ref == 'refs/heads/dev'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          options=()
+          if [ "$JOB_STATUS" != success ]; then options+=(--failed); fi
+          python -m lib.upstream_publication outcome \
+            --selection "$RUNNER_TEMP/source-selection.json" --pages-repository "$GITHUB_REPOSITORY" \
+            --adapter-commit "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" "${options[@]}"
 
       - name: Reconcile Pages (also retries a previously interrupted deployment)
         if: github.ref == 'refs/heads/dev'

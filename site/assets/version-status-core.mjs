@@ -38,12 +38,14 @@ export function validateStatus(value) {
   const keys = [...STAGES, 'pending', 'blocked', 'quarantined'];
   if (value.source_observation) {
     const source = value.source_observation;
+    if ((source.publication_source_commit !== undefined && !/^[0-9a-f]{40}$/.test(source.publication_source_commit)) ||
+        (source.rejection_run_id !== undefined && (!Number.isSafeInteger(source.rejection_run_id) || source.rejection_run_id < 1))) fail();
     if (!['fresh', 'unavailable'].includes(source.state) || !date(source.checked_at) ||
         source.ci_workflow !== 'ci-current.yml' ||
         ['dev_head', 'live_source_commit', 'ci_source_commit'].some(k => source[k] !== null && !/^[0-9a-f]{40}$/.test(source[k])) ||
         ['ci_run_id', 'publication_run_id'].some(k => source[k] !== null && (!count(source[k]) || source[k] === 0)) ||
         !(source.commits_ahead === null || count(source.commits_ahead)) ||
-        ![null, 'ci-workflow-unavailable', 'publication-failed', 'source-observation-failed'].includes(source.reason) ||
+        ![null, 'ci-workflow-unavailable', 'publication-failed', 'source-observation-failed', 'awaiting-scribe-publication', 'publication-content-rejected'].includes(source.reason) ||
         ['ci_state', 'ci_status', 'ci_conclusion', 'publication_status', 'publication_conclusion'].some(k => source[k] !== null && typeof source[k] !== 'string')) fail();
   }
   if (value.observation.state === 'unavailable') {
@@ -135,12 +137,14 @@ export function renderStatus(value, { now = Date.now(), translate = t } = {}) {
   const sourceIssue = !source || source.state !== 'fresh' || sourceOld || source.reason !== null || source.commits_ahead === null || source.commits_ahead > 0 || source.ci_status !== 'completed' || source.ci_conclusion !== 'success';
   const sourceNotice = !source || source.state !== 'fresh' || sourceOld ? translate('Upstream source progress is unknown; published-data lag does not confirm source synchronization.') :
     source.reason === 'ci-workflow-unavailable' ? translate('Upstream CI workflow is unavailable. New source publication cannot be confirmed.') :
+    source.reason === 'awaiting-scribe-publication' ? translate('Waiting for upstream Scribe resources published for the report source. Serving the verified live version.') :
+    source.reason === 'publication-content-rejected' ? translate('Upstream content failed native export validation. Waiting for corrected publication; serving the verified live version.') :
     source.reason === 'publication-failed' ? translate('The last completed data publication failed. Serving the verified live version.') :
     source.commits_ahead === null ? translate('Upstream source distance is unknown.') :
     translate('Upstream dev is {0} commits ahead of the live data source. Commits are not proof-release counts.', source.commits_ahead);
   const sourcePanel = `<section class="version-notice ${sourceIssue ? 'needs-attention' : 'is-current'}" aria-label="${text('Upstream source progress')}"><p>${escape(sourceNotice)}</p>${source ?
-    `<p>${text('Live source: {0} · Upstream dev: {1}', source.live_source_commit || translate('Unknown'), source.dev_head || translate('Unknown'))}</p>
-    <p>${text('Upstream CI: {0} · Last completed data publication: {1}', source.ci_conclusion || source.ci_status || translate('Unknown'), source.publication_conclusion || translate('Unknown'))}${source.publication_run_id ? ` · <a href="https://github.com/the-omega-institute/trureturing-pages/actions/runs/${source.publication_run_id}">${text('Publication run')}</a>` : ''}${source.ci_run_id ? ` · <a href="https://github.com/the-omega-institute/trureturing/actions/runs/${source.ci_run_id}">${text('Upstream CI run')}</a>` : ''}</p>` : ''}</section>`;
+    `${source.publication_source_commit ? `<p>${text('Report source awaiting publication: {0}', source.publication_source_commit)}</p>` : ''}<p>${text('Live source: {0} · Upstream dev: {1}', source.live_source_commit || translate('Unknown'), source.dev_head || translate('Unknown'))}</p>
+    <p>${text('Upstream CI: {0} · Last completed data publication: {1}', source.ci_conclusion || source.ci_status || translate('Unknown'), source.publication_conclusion || translate('Unknown'))}${source.publication_run_id ? ` · <a href="https://github.com/the-omega-institute/trureturing-pages/actions/runs/${source.publication_run_id}">${text('Publication run')}</a>` : ''}${source.rejection_run_id ? ` · <a href="https://github.com/the-omega-institute/trureturing-pages/actions/runs/${source.rejection_run_id}">${text('Validation failure run')}</a>` : ''}${source.ci_run_id ? ` · <a href="https://github.com/the-omega-institute/trureturing/actions/runs/${source.ci_run_id}">${text('Upstream CI run')}</a>` : ''}</p>` : ''}</section>`;
   const number = n => n === null ? '—' : escape(String(n));
   const digest = (d, empty) => d ? `<code title="${escape(d)}">${escape(d)}</code>` : `<span>${empty}</span>`;
   const upstreamStale = value.upstream.stale || (value.upstream.latest_published_at && now - Date.parse(value.upstream.latest_published_at) > value.upstream.stale_after_seconds * 1000);

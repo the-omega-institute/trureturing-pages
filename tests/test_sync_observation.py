@@ -107,5 +107,29 @@ class SourceObservationTests(unittest.TestCase):
                 execute.assert_not_called()
 
 
+    def test_successful_wait_and_rejection_remain_blocked_semantically(self):
+        from lib.upstream_publication import OUTCOME_SCHEMA
+        for status, reason in [('awaiting-scribe-publication','awaiting-scribe-publication'),
+                               ('content-validation-rejected','publication-content-rejected')]:
+            pages=Client(); original=pages.get_json
+            outcome={'schema':OUTCOME_SCHEMA,'source_repository':REPOSITORY,'source_commit':B,
+                     'adapter_commit':A,'input_digest':'sha256:'+'d'*64,'run_id':52,
+                     'status':status,'rejection_run_id':51}
+            def get(path):
+                if path.startswith('contents/'): return {'content':base64.b64encode(json.dumps(outcome).encode()).decode()}
+                result=original(path)
+                if path.startswith('actions/workflows/sync-upstream'):
+                    result['workflow_runs'][0].update(conclusion='success',head_sha=A)
+                return result
+            pages.get_json=get
+            result=sync.observe(Client(),pages,A,B,NOW)
+            self.assertEqual(result['reason'],reason)
+            self.assertEqual(result['publication_conclusion'],'success')
+            self.assertEqual(result['publication_source_commit'],B)
+            outcome['run_id']=53
+            self.assertIsNone(sync.observe(Client(),pages,A,B,NOW)['reason'])
+            outcome['run_id']=52; outcome['adapter_commit']=B
+            self.assertIsNone(sync.observe(Client(),pages,A,B,NOW)['reason'])
+
 if __name__ == '__main__':
     unittest.main()

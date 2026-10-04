@@ -1,4 +1,7 @@
 import copy
+import base64
+import subprocess
+import zipfile
 import hashlib
 import io
 import json
@@ -131,28 +134,31 @@ class SourcePublicationTests(unittest.TestCase):
             with patch.object(client, 'get_json', return_value={**producer, field: invalid}):
                 with self.assertRaises(ValueError): publication.verify_cache_run(client, manifest)
 
-    def planned(self, existing=None):
+    def planned(self, existing=None, scribe_required=False, resources=None, previous=None, adapter=None):
         upstream, pages = GitHub(), GitHub('owner/pages')
         upstream.dev_head = lambda: C; upstream.is_ancestor = lambda a, b: a <= b
         manifest, snapshot, data = transport(b'cache')
-        upstream.releases = lambda: [snapshot, {'tag_name': 'lean-cache-verify-v1-irrelevant'}]
+        upstream.releases = lambda: [snapshot, {'tag_name': 'lean-cache-verify-v1-irrelevant'}, *(resources or [])]
         producer = run(); producer.update(id=123, event='schedule', path='.github/workflows/lean-cache-publish.yml')
         calls = []
         def get(path):
             calls.append(path)
             if path == 'actions/workflows/ci-current.yml': return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
+            if path.startswith('contents/tools/'): return {'content': base64.b64encode(b'--scribe-pack' if scribe_required else b'legacy native exporter').decode()}
             if path.startswith('contents/'): return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
             if path == 'actions/runs/123/attempts/1': return producer
             if '/runs?' in path: return {'workflow_runs': [run()]}
             if '/jobs?' in path: return {'jobs': [{'name': 'required', 'head_sha': B, 'conclusion': 'success'}]}
+            if path.startswith('commits/scribe-resources-'): return {'sha': B}
             if path == 'commits/' + B: return {'commit': {'tree': {'sha': A}, 'committer': {'date': '2026-10-02T00:00:00Z'}}}
             raise AssertionError(path)
         upstream.get_json = get
         with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
              patch.object(publication, 'pages_release', return_value=existing), \
-             patch.object(publication, 'asset_bytes', return_value=data):
-            return publication.plan('owner/pages'), calls
+             patch.object(publication, 'asset_bytes', return_value=data), \
+             patch.object(publication, 'read_outcome', return_value=previous):
+            return publication.plan('owner/pages', adapter), calls
 
     def test_plan_consumes_existing_scheduled_snapshot_and_exact_ci(self):
         selection, calls = self.planned()
@@ -198,7 +204,7 @@ class SourcePublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, \
              patch.dict('os.environ', {'GITHUB_REPOSITORY': 'owner/pages', 'GITHUB_SHA': C, 'CI_PLAN_PATH': '/pages/plan.json', 'GH_TOKEN': 'pages-only-token', 'DOTNET_ROOT': '/dotnet'}), \
              patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
-             patch.object(publication.subprocess, 'run') as execute:
+             patch.object(publication.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout='')) as execute:
             root = Path(temp); reports = root / 'report'; reports.mkdir()
             for name in publication.REPORT_FILES: (reports / name).write_bytes(b'checked')
             publication.project(selection, root, reports, root / 'out')
@@ -225,5 +231,125 @@ class SourcePublicationTests(unittest.TestCase):
         with patch.object(publication, 'GitHub', side_effect=[upstream, pages]):
             with self.assertRaisesRegex(ValueError, 'removed from dev'): publication.plan('owner/pages')
 
+
+    def scribe_release(self, source=B, **changes):
+        return {'tag_name': 'scribe-resources-' + 'e'*64, 'target_commitish': source,
+                'assets': [{'name': 'scribe-resources.zip', 'size': 123, 'state': 'uploaded', 'digest': DIGEST}], **changes}
+
+    def test_new_contract_waits_without_building_or_mixing_older_resource_source(self):
+        for resources in ([], [self.scribe_release(source=A)], [self.scribe_release(draft=True)]):
+            selected, _ = self.planned(scribe_required=True, resources=resources)
+            self.assertFalse(selected['should_build'])
+            self.assertEqual(selected['status'], 'awaiting-scribe-publication')
+        selected, _ = self.planned(scribe_required=True, resources=[self.scribe_release()])
+        self.assertTrue(selected['should_build'])
+        self.assertEqual(selected['scribe']['pack_digest'], 'e'*64)
+        self.assertNotEqual('sha256:' + selected['scribe']['pack_digest'], selected['scribe']['asset']['digest'])
+
+    def test_scribe_tag_identity_and_asset_inventory_must_match(self):
+        client = GitHub(); client.get_json = lambda _: {'sha': A}
+        with self.assertRaisesRegex(ValueError, 'tag differs'):
+            publication.scribe_selection(client, [self.scribe_release()], B)
+        client.get_json = lambda _: {'sha': B}
+        for assets in ([], [self.scribe_release()['assets'][0]]*2,
+                       [{**self.scribe_release()['assets'][0], 'size': True}],
+                       [{**self.scribe_release()['assets'][0], 'digest': 'bad'}]):
+            with self.assertRaises(ValueError):
+                publication.scribe_selection(client, [self.scribe_release(assets=assets)], B)
+
+    def test_resource_acquisition_checks_transport_and_logical_identity(self):
+        def pack(digest):
+            data = io.BytesIO()
+            with zipfile.ZipFile(data, 'w') as z:
+                z.writestr('manifest.json', json.dumps({'schema': 'trureturing.scribe.resource-pack', 'totalSha256': digest}))
+            return data.getvalue()
+        scribe = publication.scribe_selection(type('Client', (), {'get_json': lambda _, path: {'sha': B}})(), [self.scribe_release()], B)
+        for digest in ('e'*64, 'f'*64):
+            raw = pack(digest)
+            scribe['asset'].update(size=len(raw), digest='sha256:'+hashlib.sha256(raw).hexdigest())
+            with tempfile.TemporaryDirectory() as temp, patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+                if digest == 'e'*64:
+                    publication.acquire_scribe({'source_commit': B, 'scribe': scribe}, temp)
+                    self.assertEqual((Path(temp)/'scribe-resources.zip').read_bytes(), raw)
+                else:
+                    with self.assertRaisesRegex(ValueError, 'identity differs'):
+                        publication.acquire_scribe({'source_commit': B, 'scribe': scribe}, temp)
+                    self.assertFalse((Path(temp)/'scribe-resources.zip').exists())
+        with self.assertRaisesRegex(ValueError, 'differ from report'):
+            publication.acquire_scribe({'source_commit': A, 'scribe': scribe}, '/unused')
+
+    def projection(self, export_result, scribe=False):
+        selection = {'source_commit': B, 'source_tree': A, 'required_checks': list(publication.EXPORT_CHECKS), 'produced_at': '2026-10-02T00:00:00Z'}
+        if scribe:
+            selection['scribe'] = {'source_commit': B, 'pack_digest': 'e'*64}
+        with tempfile.TemporaryDirectory() as temp, \
+             patch.object(publication.subprocess, 'check_output', return_value=B+'\n'+A+'\n'), \
+             patch.object(publication.subprocess, 'run', side_effect=lambda cmd, **kw: export_result if 'truth-release' in cmd else subprocess.CompletedProcess(cmd, 0)) as execute:
+            root=Path(temp); reports=root/'reports'; reports.mkdir()
+            for name in publication.REPORT_FILES: (reports/name).write_bytes(b'checked')
+            if scribe: (reports/'scribe-resources.zip').write_bytes(b'pack')
+            result = publication.project(selection, root, reports, root/'output')
+            return result, selection, [c.args[0] for c in execute.call_args_list]
+
+    def test_source_pinned_native_pack_verification_precedes_export_with_logical_digest(self):
+        ok, _, commands = self.projection(subprocess.CompletedProcess([], 0, stdout=''), scribe=True)
+        self.assertTrue(ok)
+        self.assertEqual(commands[-2][-4:-1], ['resources', 'verify', '--pack'])
+        self.assertIn('--scribe-pack', commands[-1])
+        self.assertEqual(commands[-1][commands[-1].index('--scribe-pack-digest')+1], 'e'*64)
+        self.assertFalse(any(x in {'lean', 'lake', 'make'} for c in commands for x in c))
+
+    def test_only_explicit_native_content_failure_becomes_rejection(self):
+        reason = 'TRUTH_RELEASE_INVALID residual frontier evaluation failed: entry x handwritten status partial-closed differs from derived absorbed-closed'
+        ok, selection, _ = self.projection(subprocess.CompletedProcess([], 2, stdout=reason+'\n'))
+        self.assertFalse(ok)
+        self.assertEqual(selection['status'], 'content-validation-rejected')
+        self.assertEqual(selection['rejection_reason'], reason)
+        for output, code in [('network failed', 2), ('TRUTH_RELEASE_INVALID required Scribe resource pack', 2), (reason, 137)]:
+            with self.assertRaises(subprocess.CalledProcessError):
+                self.projection(subprocess.CompletedProcess([], code, stdout=output))
+
+    def test_rejection_suppresses_only_identical_inputs_and_adapter(self):
+        selected, _ = self.planned(adapter=C)
+        previous={'status':'content-validation-rejected', 'input_digest':selected['input_digest'],
+                  'run_id':123, 'rejection_run_id':122, 'reason':'invalid source contents'}
+        retry, _ = self.planned(adapter=C, previous=previous)
+        self.assertFalse(retry['should_build'])
+        self.assertEqual(retry['rejection_run_id'], 122)
+        newer, _ = self.planned(adapter=A, previous=previous)
+        self.assertTrue(newer['should_build'])
+        previous['status']='publication-failed'
+        self.assertTrue(self.planned(adapter=C, previous=previous)[0]['should_build'])
+        changed=copy.deepcopy(selected); changed['report_manifest']['archive_sha256']='f'*64
+        self.assertNotEqual(publication.input_digest(changed,C), selected['input_digest'])
+        changed=copy.deepcopy(selected); changed['scribe']={'pack_digest':'e'*64}
+        self.assertNotEqual(publication.input_digest(changed,C), selected['input_digest'])
+
+    def test_outcome_uses_downstream_branch_and_failure_cannot_claim_published(self):
+        selection, _ = self.planned(adapter=C)
+        for failed, status in [(False,'published'), (True,'publication-failed')]:
+            client=GitHub('owner/pages')
+            def get(path):
+                if path.startswith('git/'): return {'ref':'existing'}
+                raise HTTPError(path,404,'missing',{},None)
+            client.get_json=get
+            with patch.object(publication,'GitHub',return_value=client), patch.object(publication.subprocess,'run') as execute:
+                publication.publish_outcome('owner/pages',selection,C,44,failed)
+                call=execute.call_args
+                self.assertIn('repos/owner/pages/contents/'+publication.OUTCOME_PATH,call.args[0])
+                payload=json.loads(call.kwargs['input'])
+                self.assertEqual(payload['branch'],'pages-sync-status')
+                value=json.loads(base64.b64decode(payload['content']))
+                self.assertEqual(value['status'],status)
+                self.assertEqual(value['input_digest'],selection['input_digest'])
+
+    def test_outcome_reader_accepts_github_base64_linebreaks_and_rejects_bad_identity(self):
+        value={'schema':publication.OUTCOME_SCHEMA,'source_repository':REPOSITORY,'source_commit':B,
+               'adapter_commit':C,'input_digest':DIGEST,'run_id':42,'status':'awaiting-scribe-publication'}
+        client=GitHub()
+        client.get_json=lambda _: {'content':base64.encodebytes(json.dumps(value).encode()).decode()}
+        self.assertEqual(publication.read_outcome(client),value)
+        value['source_repository']='fork/repo'
+        with self.assertRaises(ValueError): publication.read_outcome(client)
 
 if __name__ == '__main__': unittest.main()

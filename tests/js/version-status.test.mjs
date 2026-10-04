@@ -172,3 +172,21 @@ test('failed or running source CI is visible even with zero source distance', ()
     assert.match(html, /version-notice needs-attention" aria-label="Upstream source progress"/);
   }
 });
+
+
+test('successful scheduling still displays missing resources and rejected contents as blocked', () => {
+  const value=fixture(); value.source_observation=sourceFixture();
+  Object.assign(value.source_observation, {publication_conclusion:'success',publication_source_commit:'b'.repeat(40)});
+  value.source_observation.reason='awaiting-scribe-publication';
+  let html=render(value,{now});
+  assert.match(html,/Waiting for upstream Scribe resources/);
+  assert.match(html,/Report source awaiting publication/);
+  assert.match(html,/needs-attention/);
+  value.source_observation.reason='publication-content-rejected';
+  value.source_observation.rejection_run_id=51;
+  html=render(value,{now});
+  assert.match(html,/failed native export validation/);
+  assert.match(html,/actions\/runs\/51/);
+  value.source_observation.rejection_run_id='51';
+  assert.throws(()=>render(value,{now}),/Invalid version status/);
+});
