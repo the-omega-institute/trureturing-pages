@@ -1,4 +1,4 @@
-import { loadStatus, renderStatus, LIVE_STATUS_URL, unavailable, validateStatus } from './version-status-core.mjs';
+import { loadStatus, renderStatus, LIVE_STATUS_URL, LIVE_STATUS_API_URL, unavailable, validateStatus } from './version-status-core.mjs';
 import { ready } from './i18n.mjs';
 
 await ready;
@@ -16,7 +16,7 @@ async function refresh() {
   button.disabled = true;
   root.setAttribute('aria-busy', 'true');
   try {
-    lastGood = await loadStatus({ fallback: lastGood, liveUrl: LIVE_STATUS_URL });
+    lastGood = await loadStatus({ fallback: lastGood, liveApiUrl: LIVE_STATUS_API_URL, liveUrl: LIVE_STATUS_URL });
     root.innerHTML = renderStatus(lastGood);
   } finally {
     root.setAttribute('aria-busy', 'false');

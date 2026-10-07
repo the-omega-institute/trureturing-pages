@@ -116,14 +116,20 @@ the deployed JSON succeeds. The seven-day publication inactivity signal is also
 recomputed from the browser clock. Both thresholds describe observation age or
 publication inactivity; they do not fabricate progress or failure evidence.
 
-**A static last-good site cannot see a failure that happened after its last
-deployment until a new status observation is published.** Refresh reads the
-served snapshot, not GitHub APIs or private workflow logs. A failed/no-op run's
-new observation is available in its workflow summary and status artifact; it
-does not silently update the existing live page. The page explicitly shows its
-observation time and stale/unknown-current-progress notice. This change does not
-introduce a second deployment path that could bypass the existing freshness or
-fail-closed gates.
+The downstream `pages-sync-status` branch publishes observations independently
+of content deployment. Refresh first reads its public JSON through GitHub's
+Contents API, with the raw JSON media type and a unique observation query. No
+token is sent. A moving Raw CDN URL can return the old branch contents even when
+the caller requests no cache and changes the query; the API avoids that measured
+delay. If the public API is limited or unavailable, the browser tries Raw, then
+the deployed JSON, then the embedded last-good snapshot. All diagnostic responses
+must pass the existing contract, be `observed` rather than unserved `on-deploy`
+candidates, and not precede the last valid observation.
+
+The page explicitly shows observation time and stale/unknown-current-progress
+notices. An observation still confirms deployment only through the served Library
+and receipt ledger. This diagnostic path reads no private workflow logs and does
+not create a content deployment path or bypass freshness and admission gates.
 
 ## Workflow and offline use
 
