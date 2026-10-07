@@ -2,6 +2,7 @@ import { t } from './i18n.mjs';
 
 export const STAGES = ['published', 'received', 'verified', 'generated', 'deployed'];
 export const LIVE_STATUS_URL = 'https://raw.githubusercontent.com/the-omega-institute/trureturing-pages/pages-sync-status/data/version-status.v1.json';
+export const LIVE_STATUS_API_URL = 'https://api.github.com/repos/the-omega-institute/trureturing-pages/contents/data/version-status.v1.json?ref=pages-sync-status';
 const LABELS = { published: 'Published', received: 'Received', verified: 'Verified', generated: 'Generated', deployed: 'Deployed' };
 const REASONS = {
   'bundle-missing': 'Bundle asset missing; suspected upstream assembly failure',
@@ -82,10 +83,17 @@ export function unavailable(now = Date.now()) {
   };
 }
 
-export async function loadStatus({ fetcher = fetch, fallback = null, now = Date.now(), liveUrl = null } = {}) {
-  if (liveUrl) {
+export async function loadStatus({ fetcher = fetch, fallback = null, now = Date.now(), liveUrl = null, liveApiUrl = null } = {}) {
+  // Raw's branch CDN can keep serving an older observation even with a unique
+  // query. Revalidate the Contents API first; its public raw response needs no
+  // token. Keep Raw available if the anonymous API is limited or unavailable.
+  for (const url of [liveApiUrl, liveUrl].filter(Boolean)) {
     try {
-      const response = await fetcher(`${liveUrl}?status=${now}`, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
+      const separator = url.includes('?') ? '&' : '?';
+      const response = await fetcher(`${url}${separator}status=${now}`, {
+        cache: 'no-store', signal: AbortSignal.timeout(10000),
+        ...(url === liveApiUrl ? { headers: { Accept: 'application/vnd.github.raw+json' } } : {}),
+      });
       if (!response.ok) throw Error(`HTTP ${response.status}`);
       const value = validateStatus(await response.json());
       if (value.publication !== 'observed') throw Error('Unserved deployment candidate');

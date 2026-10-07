@@ -158,7 +158,7 @@ immutable ancestry facts already saved by deployment preparation while reading
 mutable release, branch and CI metadata afresh. The branch
 is not a truth release, deployment source or ingestion receipt. It never edits
 upstream truth or confirms an unserved candidate. Version status and Evolution
-read its public raw JSON, with the deployed snapshot and embedded last-good
-status as fallbacks. Source and release observations older than two hours are
-visibly stale. This updates diagnostics on no-op runs without downloading or
+read its public JSON through the Contents API, with Raw, the deployed snapshot
+and embedded last-good status as fallbacks. Source and release observations
+older than two hours are visibly stale. This updates diagnostics on no-op runs without downloading or
 redeploying the complete site artifact.

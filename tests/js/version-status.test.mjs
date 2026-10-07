@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadStatus, renderStatus as render, validateStatus } from '../../site/assets/version-status-core.mjs';
+import { loadStatus, renderStatus as render, validateStatus, LIVE_STATUS_API_URL, LIVE_STATUS_URL } from '../../site/assets/version-status-core.mjs';
 const dictionary = JSON.parse(readFileSync(new URL('../../site/assets/locales/zh-CN.json', import.meta.url)));
 const zh = (key, ...args) => (dictionary[key] || key).replace(/\{(\d+)\}/g, (match, index) => args[index] ?? match);
 const renderStatus = (value, options) => render(value, { ...options, translate: zh });
@@ -147,6 +147,63 @@ test('diagnostic endpoint rejects on-deploy candidates and falls back to served 
   const result = await loadStatus({ now, fallback: fixture(), liveUrl: 'https://example.test/status.json', fetcher: async () => ({ ok: true, json: async () => ++calls === 1 ? candidate : fixture() }) });
   assert.equal(result.observed_at, fixture().observed_at);
   assert.equal(calls, 2);
+});
+
+test('refresh reads the current API observation before a delayed raw branch response', async () => {
+  const current = fixture(); current.observed_at = '2026-09-13T03:20:00Z';
+  current.observation.checked_at = current.observed_at;
+  current.source_observation = sourceFixture();
+  current.source_observation.publication_run_id = 53;
+  const calls = [];
+  const result = await loadStatus({ now, fallback: fixture(), liveApiUrl: LIVE_STATUS_API_URL, liveUrl: LIVE_STATUS_URL,
+    fetcher: async (url, options) => {
+      calls.push({ url, options });
+      return { ok: true, json: async () => url.startsWith(LIVE_STATUS_API_URL) ? current : fixture() };
+    } });
+  assert.equal(result.observed_at, current.observed_at);
+  assert.equal(result.source_observation.publication_run_id, 53);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, `${LIVE_STATUS_API_URL}&status=${now}`);
+  assert.equal(calls[0].options.headers.Accept, 'application/vnd.github.raw+json');
+  assert.equal(calls[0].options.cache, 'no-store');
+});
+
+test('an unavailable or limited public API preserves raw and served fallback paths', async () => {
+  for (const status of [403, 429, 503]) {
+    const calls = [];
+    const result = await loadStatus({ now, fallback: fixture(), liveApiUrl: LIVE_STATUS_API_URL, liveUrl: LIVE_STATUS_URL,
+      fetcher: async url => {
+        calls.push(url);
+        return url.startsWith(LIVE_STATUS_API_URL) ? { ok: false, status } : { ok: true, json: async () => fixture() };
+      } });
+    assert.equal(result.observation.state, 'fresh');
+    assert.deepEqual(calls, [`${LIVE_STATUS_API_URL}&status=${now}`, `${LIVE_STATUS_URL}?status=${now}`]);
+  }
+  const calls = [];
+  const result = await loadStatus({ now, fallback: fixture(), liveApiUrl: LIVE_STATUS_API_URL, liveUrl: LIVE_STATUS_URL,
+    fetcher: async url => {
+      calls.push(url);
+      if (url.startsWith('https://')) throw Error('offline');
+      return { ok: true, json: async () => fixture() };
+    } });
+  assert.equal(result.observation.state, 'fresh');
+  assert.equal(calls.at(-1), `data/version-status.v1.json?status=${now}`);
+});
+
+test('invalid, unserved or older API observations cannot replace a validated snapshot', async () => {
+  const older = fixture(); older.observed_at = '2026-09-12T03:00:00Z';
+  const candidate = fixture(); candidate.publication = 'on-deploy';
+  for (const rejected of [{}, older, candidate]) {
+    const calls = [];
+    const result = await loadStatus({ now, fallback: fixture(), liveApiUrl: LIVE_STATUS_API_URL, liveUrl: LIVE_STATUS_URL,
+      fetcher: async url => {
+        calls.push(url);
+        return { ok: true, json: async () => url.startsWith(LIVE_STATUS_API_URL) ? rejected : fixture() };
+      } });
+    assert.equal(result.observed_at, fixture().observed_at);
+    assert.equal(result.publication, 'observed');
+    assert.equal(calls.length, 2);
+  }
 });
 
 test('an aligned live release with old replay gaps is described as deployed with historical gaps', () => {
