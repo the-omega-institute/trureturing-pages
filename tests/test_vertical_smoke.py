@@ -31,10 +31,104 @@ RELEASE_DIGEST = "sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b
 
 
 class VerticalSmokeTests(unittest.TestCase):
+    @staticmethod
+    def rebind_bundle(bundle):
+        """Recompute transport hashes after an intentional fixture mutation."""
+        manifest_path = bundle / "release-manifest.v1.json"
+        manifest = json.loads(manifest_path.read_text())
+        for artifact in manifest["artifacts"].values():
+            artifact["sha256"] = "sha256:" + hashlib.sha256((bundle / artifact["file"]).read_bytes()).hexdigest()
+        sums = "".join(f'{artifact["sha256"][7:]}  {artifact["file"]}\n'
+                       for artifact in sorted(manifest["artifacts"].values(), key=lambda artifact: artifact["file"]))
+        (bundle / "SHA256SUMS").write_text(sums)
+        release_digest = "sha256:" + hashlib.sha256(sums.encode()).hexdigest()
+        manifest["sha256sums_digest"] = release_digest
+        manifest_path.write_text(json.dumps(manifest))
+        publication_path = bundle / "truth-release-publication.v1.json"
+        publication = json.loads(publication_path.read_text())
+        publication.update(release_digest=release_digest, bundle_ref=release_digest)
+        publication_path.write_text(json.dumps(publication))
+        return release_digest
+
+    @classmethod
+    def v2_bundle(cls, directory):
+        # The existing upstream v2 writer removes the residual artifact and its
+        # snapshot hash, while retaining the v1 transport filenames.
+        bundle = Path(directory) / "bundle"
+        shutil.copytree(FIXTURE, bundle)
+        (bundle / "echo-residual-summary.md").unlink()
+        snapshot_path = bundle / "source-snapshot.v1.json"
+        snapshot = json.loads(snapshot_path.read_text())
+        snapshot["schema"] = "source-snapshot.v2"
+        del snapshot["residual_frontier_sha256"]
+        snapshot_path.write_text(json.dumps(snapshot))
+        manifest_path = bundle / "release-manifest.v1.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["schema"] = "truth-release.v2"
+        del manifest["artifacts"]["residual_frontier"]
+        manifest_path.write_text(json.dumps(manifest))
+        return bundle, cls.rebind_bundle(bundle)
+
     def test_mock_bundle_is_exactly_bound_and_bounded(self):
         verified = verify_bundle(FIXTURE, RELEASE_DIGEST)
         self.assertEqual(verified["release_digest"], RELEASE_DIGEST)
         self.assertEqual(verified["truth_graph"], "truth-graph.v1.json")
+
+    def test_v2_bundle_reaches_publication_metadata_and_basic_site(self):
+        from lib.upstream_publication import publication_metadata
+        with tempfile.TemporaryDirectory() as directory:
+            bundle, digest = self.v2_bundle(directory)
+            verified = verify_bundle(bundle, digest)
+            selection = {"source_commit": verified["source_commit"], "source_tree": verified["source_tree"],
+                         "ci_run_id": 42, "should_build": True}
+            self.assertEqual(publication_metadata(selection, bundle)["release_digest"], digest)
+            with self.assertRaisesRegex(ValueError, "differs from selected"):
+                publication_metadata({**selection, "source_commit": "a" * 40}, bundle)
+            site = Path(directory) / "site"
+            build_basic_site(bundle, site)
+            self.assertEqual(json.loads((site / "data/verified-truth-release.v1.json").read_text())["release_digest"], digest)
+            self.assertEqual(json.loads((site / "data/basic-truth-graph.v1.json").read_text())["counts"]["truth_nodes"], 4)
+
+    def test_v2_rejects_missing_extra_and_changed_artifacts(self):
+        for mutation in ("missing", "extra", "changed"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                bundle, _ = self.v2_bundle(directory)
+                if mutation == "missing":
+                    (bundle / "raw-lean-report.json").unlink()
+                elif mutation == "extra":
+                    (bundle / "echo-residual-summary.md").write_text("old residual")
+                else:
+                    (bundle / "raw-lean-report.json").write_text("changed bytes")
+                with self.assertRaises(ReleaseContractError):
+                    verify_bundle(bundle)
+
+    def test_v2_rejects_unknown_mixed_and_swapped_role_contracts(self):
+        for mutation in ("unknown", "v1", "roles", "swapped"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                bundle, _ = self.v2_bundle(directory)
+                path = bundle / "release-manifest.v1.json"
+                manifest = json.loads(path.read_text())
+                if mutation in ("unknown", "v1"):
+                    manifest["schema"] = "truth-release.v3" if mutation == "unknown" else "truth-release.v1"
+                elif mutation == "roles":
+                    manifest["artifacts"]["residual_frontier"] = manifest["artifacts"].pop("raw_lean_report")
+                else:
+                    artifacts = manifest["artifacts"]
+                    artifacts["truth_graph"], artifacts["raw_lean_report"] = artifacts["raw_lean_report"], artifacts["truth_graph"]
+                path.write_text(json.dumps(manifest))
+                with self.assertRaises(ReleaseContractError):
+                    verify_bundle(bundle)
+
+    def test_v2_rejects_cryptographically_rebound_snapshot_of_another_version(self):
+        with tempfile.TemporaryDirectory() as directory:
+            bundle, _ = self.v2_bundle(directory)
+            path = bundle / "source-snapshot.v1.json"
+            snapshot = json.loads(path.read_text())
+            snapshot["schema"] = "source-snapshot.v1"
+            path.write_text(json.dumps(snapshot))
+            self.rebind_bundle(bundle)
+            with self.assertRaisesRegex(ReleaseContractError, "snapshot schema"):
+                verify_bundle(bundle)
 
     def test_wrong_requested_digest_and_changed_artifact_fail_closed(self):
         with self.assertRaises(ReleaseContractError):

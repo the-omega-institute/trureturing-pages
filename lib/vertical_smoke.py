@@ -16,23 +16,24 @@ ROOT = Path(__file__).resolve().parents[1]
 TOPOLOGY_VERSION = "0.2.0-alpha.1"
 TOPOLOGY_PRODUCER_COMMIT = "dbd407d52806b4a87bb3c129f810a10d438a2b53"
 ALGORITHM_PROFILE = ROOT / "config" / "algorithm-profile.v1.json"
-ARTIFACT_KEYS = (
-    "source_snapshot",
-    "truth_graph",
-    "raw_lean_report",
-    "truth_export",
-    "blueprint_index",
-    "frozen_ledger_head",
-    "residual_frontier",
-)
-EXPECTED_ARTIFACT_NAMES = {
-    "source-snapshot.v1.json",
-    "truth-graph.v1.json",
-    "raw-lean-report.json",
-    "truth-export.v1.json",
-    "blueprint-index.v1.json",
-    "frozen-ledger-head.json",
-    "echo-residual-summary.md",
+ARTIFACT_PROFILES = {
+    "truth-release.v1": {
+        "source_snapshot": "source-snapshot.v1.json",
+        "truth_graph": "truth-graph.v1.json",
+        "raw_lean_report": "raw-lean-report.json",
+        "truth_export": "truth-export.v1.json",
+        "blueprint_index": "blueprint-index.v1.json",
+        "frozen_ledger_head": "frozen-ledger-head.json",
+        "residual_frontier": "echo-residual-summary.md",
+    },
+    "truth-release.v2": {
+        "source_snapshot": "source-snapshot.v1.json",
+        "truth_graph": "truth-graph.v1.json",
+        "raw_lean_report": "raw-lean-report.json",
+        "truth_export": "truth-export.v1.json",
+        "blueprint_index": "blueprint-index.v1.json",
+        "frozen_ledger_head": "frozen-ledger-head.json",
+    },
 }
 ADMIN_NAMES = {
     "SHA256SUMS",
@@ -252,8 +253,19 @@ def _bounded_graph(graph: dict[str, Any]) -> None:
 def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = None) -> dict[str, Any]:
     bundle = Path(bundle_directory)
     _verify_root_files(bundle)
-    if {entry.name for entry in bundle.iterdir()} != EXPECTED_ARTIFACT_NAMES | ADMIN_NAMES:
-        raise ReleaseContractError("bundle does not contain the exact seven-artifact release file set")
+    manifest = _read_json(bundle / "release-manifest.v1.json")
+    _require_keys(
+        manifest,
+        {"schema", "source", "trust", "producer", "artifacts", "sha256sums_digest", "produced_at"},
+        "manifest",
+    )
+    schema = manifest["schema"]
+    if not isinstance(schema, str) or schema not in ARTIFACT_PROFILES:
+        raise ReleaseContractError("manifest has an unsupported truth-release schema")
+    artifact_profile = ARTIFACT_PROFILES[schema]
+    artifact_names = set(artifact_profile.values())
+    if {entry.name for entry in bundle.iterdir()} != artifact_names | ADMIN_NAMES:
+        raise ReleaseContractError(f"bundle does not contain the exact {schema} release file set")
 
     publication = _read_json(bundle / "truth-release-publication.v1.json")
     _require_keys(
@@ -276,19 +288,13 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
 
     sums_path = bundle / "SHA256SUMS"
     sums = _read_sums(sums_path)
-    if set(sums) != EXPECTED_ARTIFACT_NAMES:
-        raise ReleaseContractError("SHA256SUMS does not bind exactly the seven release artifacts")
+    if set(sums) != artifact_names:
+        raise ReleaseContractError(f"SHA256SUMS does not bind exactly the {schema} release artifacts")
     actual_release_digest = _sha256(sums_path)
     if actual_release_digest != release_digest:
         raise ReleaseContractError("SHA256SUMS bytes do not hash to publication.release_digest")
 
-    manifest = _read_json(bundle / "release-manifest.v1.json")
-    _require_keys(
-        manifest,
-        {"schema", "source", "trust", "producer", "artifacts", "sha256sums_digest", "produced_at"},
-        "manifest",
-    )
-    if manifest["schema"] != "truth-release.v1" or manifest["sha256sums_digest"] != release_digest:
+    if manifest["sha256sums_digest"] != release_digest:
         raise ReleaseContractError("manifest is not bound to the computed release digest")
     source = manifest["source"]
     producer = manifest["producer"]
@@ -299,23 +305,25 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
         raise ReleaseContractError("publication source identity disagrees with the manifest")
     if producer.get("package_commit") != producer_commit or producer.get("read_only") is not True:
         raise ReleaseContractError("publication producer identity disagrees with the manifest")
-    if set(artifacts) != set(ARTIFACT_KEYS):
-        raise ReleaseContractError("manifest does not name exactly seven artifact roles")
+    if set(artifacts) != set(artifact_profile):
+        raise ReleaseContractError(f"manifest does not name exactly the {schema} artifact roles")
 
     named: set[str] = set()
-    for role in ARTIFACT_KEYS:
+    for role, expected_name in artifact_profile.items():
         artifact = artifacts[role]
         if not isinstance(artifact, dict) or set(artifact) != {"file", "sha256"}:
             raise ReleaseContractError(f"manifest artifact {role} has the wrong shape")
         name = _require_safe_name(artifact["file"], f"manifest.artifacts.{role}.file")
         expected_hash = _require_digest(artifact["sha256"], f"manifest.artifacts.{role}.sha256")
-        if name in named or name not in EXPECTED_ARTIFACT_NAMES or sums.get(name) != expected_hash:
+        if name in named or name != expected_name or sums.get(name) != expected_hash:
             raise ReleaseContractError(f"manifest artifact binding is invalid for {role}")
         if _sha256(bundle / name) != expected_hash:
             raise ReleaseContractError(f"artifact bytes do not match their digest: {name}")
         named.add(name)
 
     snapshot = _read_json(bundle / artifacts["source_snapshot"]["file"])
+    if snapshot.get("schema") != schema.replace("truth-release.", "source-snapshot."):
+        raise ReleaseContractError("source snapshot schema disagrees with the release manifest")
     if snapshot.get("source_commit") != source_commit or snapshot.get("source_tree") != source_tree:
         raise ReleaseContractError("source snapshot disagrees with publication source identity")
     graph_path = bundle / artifacts["truth_graph"]["file"]
