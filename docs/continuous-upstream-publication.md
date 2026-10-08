@@ -7,9 +7,15 @@ upstream responsibilities.
 
 `sync-upstream.yml` polls hourly (minute 7) on GitHub-hosted Ubuntu ARM.
 It selects the newest **CI-admitted** protected-dev source by ancestry from
-upstream's existing scheduled `lean-cache-v2-*` publications. For that exact source, both the
-scheduled `lean-cache-publish.yml` producer and the canonical `ci-current.yml`
-push run's `required` aggregate must have succeeded. Removed workflow files
+upstream's existing `lean-cache-v2-*` and `lean-cache-verify-v1-*` publications.
+Both carry the same checked-report `lean-release-seed-v3` contract. The former
+requires a successful scheduled `lean-cache-publish.yml` producer on `dev`; the
+latter requires a successful `ci-publication-verify.yml` push producer on `dev`
+or an `integration-*` branch, with the manifest source ref matching that branch.
+In either case the exact report commit must be a protected-dev ancestor and its
+canonical `ci-current.yml` dev push run's `required` aggregate must have
+succeeded. A verification seed supplies transport, not a replacement CI verdict.
+Removed workflow files
 cannot borrow a historical green workflow record.
 
 A newer report whose exact CI is pending, absent, or failed does not starve an
@@ -55,13 +61,16 @@ Changed script content is never substituted by a published older definition.
 
 The native exporter retains its source, Frozen ledger, Scribe and residual
 frontier checks. An exit-2 diagnostic beginning
-`TRUTH_RELEASE_INVALID residual frontier evaluation failed:`, or the exact
-`TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG`, records
+`TRUTH_RELEASE_INVALID residual frontier evaluation failed:`, the exact
+`TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG`, or
+`TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=`, records
 `content-validation-rejected`. No bundle is published. The next poll suppresses
 only a rejection with the same source/tree, report archive, Scribe resource
 identity and Pages adapter commit. Rejection history survives successful polls;
 known rejected inputs do not starve the next older eligible report. Changing
-any of those inputs retries the export. Network, restore, build, process termination and unknown export errors
+any of those inputs retries the export. Explicit Scribe content findings retain
+their `describe red code=` detail lines; host errors are not content rejections.
+Network, restore, build, process termination and unknown export errors
 remain retryable failures. The diagnostic page links the original rejection run.
 
 Successful bundles are published in **the Pages repository**, under

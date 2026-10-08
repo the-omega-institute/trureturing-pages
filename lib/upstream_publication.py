@@ -1,6 +1,6 @@
 """Project an upstream CI report into a durable Pages source publication.
 
-Consume existing scheduled cache snapshots without running Lean, gated by
+Consume existing published cache snapshots without running Lean, gated by
 canonical ci-current.yml push checks for their exact protected-dev source.
 Published bundles live in Pages so rebuilds outlive upstream cache retention.
 """
@@ -30,6 +30,7 @@ WORKFLOW = "ci-current.yml"
 CHECKS = ("required",)
 EXPORT_CHECKS = (*CHECKS, "lean-cache-publication")
 CACHE_WORKFLOW = "lean-cache-publish.yml"
+CACHE_TAG = re.compile(r"lean-cache-(?:v2|verify-v1)-[0-9a-f]{40}-linux-arm64-[1-9][0-9]*-[1-9][0-9]*\Z")
 REPORT = ".lake/build/stratalint/raw-lean-report.json"
 REPORT_FILES = tuple("raw-lean-report.json" + suffix for suffix in
                      ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip"))
@@ -42,7 +43,8 @@ OUTCOME_SCHEMA = "pages-upstream-publication-outcome.v1"
 BLOCKED_STATUSES = {"awaiting-scribe-publication", "content-validation-rejected",
                     "awaiting-upstream-ci", "upstream-ci-failed"}
 CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed:",
-                      "TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG")
+                      "TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG",
+                      "TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=")
 
 
 def read_outcome(client):
@@ -286,10 +288,11 @@ def cache_manifest(release):
     source = require_oid(manifest["producer_commit_sha"])
     run, attempt = manifest["workflow_run_id"], manifest["workflow_run_attempt"]
     partition = manifest["partition"]
+    prefix = "lean-cache-verify-v1-" if release["tag_name"].startswith("lean-cache-verify-v1-") else "lean-cache-v2-"
     if (manifest.get("schema") != "lean-release-seed-v3"
             or not re.fullmatch(r"[0-9a-f]{40}/linux-arm64", partition)
             or not all(isinstance(v, str) and re.fullmatch(r"[1-9][0-9]*", v) for v in (run, attempt))
-            or release["tag_name"] != "lean-cache-v2-" + partition.replace("/", "-") + "-" + run + "-" + attempt):
+            or release["tag_name"] != prefix + partition.replace("/", "-") + "-" + run + "-" + attempt):
         raise ValueError("cache manifest source attribution mismatch")
     require_digest("sha256:" + manifest["archive_sha256"])
     parts = manifest["parts"]
@@ -313,17 +316,24 @@ def cache_manifest(release):
     return manifest
 
 
-def verify_cache_run(source, manifest):
+def verify_cache_run(source, manifest, release_tag=None):
     run = source.get_json(f"actions/runs/{manifest['workflow_run_id']}/attempts/{manifest['workflow_run_attempt']}")
+    verification = release_tag is not None and release_tag.startswith("lean-cache-verify-v1-")
+    branch = run.get("head_branch", "")
+    producer_scope = (branch == "dev" or branch.startswith("integration-")) if verification else branch == "dev"
+    if verification and manifest.get("source_ref") is not None:
+        producer_scope = producer_scope and manifest["source_ref"] == "refs/heads/" + branch
+    workflow = "ci-publication-verify.yml" if verification else CACHE_WORKFLOW
+    event = "push" if verification else "schedule"
     if (run.get("id") != int(manifest["workflow_run_id"])
             or run.get("run_attempt") != int(manifest["workflow_run_attempt"])
             or run.get("head_sha") != manifest["producer_commit_sha"]
-            or run.get("head_branch") != "dev" or run.get("event") != "schedule"
-            or run.get("path") != ".github/workflows/" + CACHE_WORKFLOW
+            or not producer_scope or run.get("event") != event
+            or run.get("path") != ".github/workflows/" + workflow
             or run.get("status") != "completed" or run.get("conclusion") != "success"
             or run.get("repository", {}).get("full_name") != REPOSITORY
             or run.get("head_repository", {}).get("full_name") != REPOSITORY):
-        raise ValueError("cache report has no matching successful scheduled dev producer")
+        raise ValueError("cache report has no matching successful published producer")
     return run
 
 
@@ -390,12 +400,12 @@ def plan(pages_repository, adapter_commit=None):
     if current_workflow.get("type") != "file" or current_workflow.get("path") != workflow_path:
         raise ValueError("canonical CI workflow is not a file on current dev")
     snapshots = []
-    # The existing scheduled cache producer carries the checked report. Its
+    # Existing scheduled and verification cache producers carry checked reports. Their
     # manifest selects an exact source; a cache is never itself a CI verdict.
     releases = source.releases()
     for release in releases:
         if (release.get("draft") or release.get("prerelease")
-                or not re.fullmatch(r"lean-cache-v2-[0-9a-f]{40}-linux-arm64-[1-9][0-9]*-[1-9][0-9]*", release.get("tag_name", ""))):
+                or not CACHE_TAG.fullmatch(release.get("tag_name", ""))):
             continue
         manifest = cache_manifest(release)
         commit = manifest["producer_commit_sha"]
@@ -416,7 +426,7 @@ def plan(pages_repository, adapter_commit=None):
                            "run_id": previous.get("rejection_run_id") or previous["run_id"]})
     for release, manifest in ordered:
         commit = manifest["producer_commit_sha"]
-        producer = verify_cache_run(source, manifest)
+        producer = verify_cache_run(source, manifest, release["tag_name"])
         existing = pages_release(pages, commit)
         freshness = {"upstream_dev_head": head, "report_source_commit": commit,
                      "report_release_tag": release["tag_name"],
@@ -605,8 +615,10 @@ def project(selection, repository, report_directory, destination):
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print(result.stdout or "", end="")
     if result.returncode:
-        reasons = [line for line in (result.stdout or "").splitlines()
-                   if line.startswith(CONTENT_REJECTIONS)]
+        lines = (result.stdout or "").splitlines()
+        reasons = [line for line in lines if line.startswith(CONTENT_REJECTIONS)]
+        if any(line.startswith(CONTENT_REJECTIONS[-1]) for line in lines):
+            reasons.extend(line for line in lines if line.startswith("describe red code="))
         if reasons and result.returncode == 2:
             selection.update(status="content-validation-rejected", rejection_reason="\n".join(reasons))
             return False

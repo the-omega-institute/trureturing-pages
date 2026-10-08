@@ -134,6 +134,23 @@ class SourcePublicationTests(unittest.TestCase):
             with patch.object(client, 'get_json', return_value={**producer, field: invalid}):
                 with self.assertRaises(ValueError): publication.verify_cache_run(client, manifest)
 
+    def test_existing_verification_seed_is_transport_for_an_exact_dev_checked_source(self):
+        manifest,snapshot,_=transport(b'cache')
+        manifest['source_ref']='refs/heads/integration-cache-tests'
+        snapshot['tag_name']=TAG.replace('lean-cache-v2-','lean-cache-verify-v1-')
+        with patch.object(publication,'asset_bytes',return_value=json.dumps(manifest).encode()):
+            self.assertEqual(publication.cache_manifest(snapshot),manifest)
+        producer=dict(run(),id=123,event='push',head_branch='integration-cache-tests',path='.github/workflows/ci-publication-verify.yml')
+        client=GitHub();client.get_json=lambda _:producer
+        self.assertEqual(publication.verify_cache_run(client,manifest,snapshot['tag_name']),producer)
+        for changes in [{'event':'pull_request'},{'head_sha':A},{'conclusion':'failure'},
+                        {'head_branch':'integration-other'},{'head_branch':'feature'},{'run_attempt':2}]:
+            with patch.object(client,'get_json',return_value={**producer,**changes}):
+                with self.assertRaises(ValueError):publication.verify_cache_run(client,manifest,snapshot['tag_name'])
+        # Acceptance of the transport does not waive the canonical dev CI gate.
+        client.get_json=lambda _: {'workflow_runs':[]}
+        self.assertEqual(publication.report_ci(client,{'id':7},B,C)[1]['status'],'awaiting-upstream-ci')
+
     def planned(self, existing=None, scribe_required=False, resources=None, previous=None, adapter=None,
                 ci=None, newer=False, newer_ci=None):
         upstream, pages = GitHub(), GitHub('owner/pages')
@@ -410,6 +427,15 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(selected['status'],'content-validation-rejected')
         self.assertEqual(selected['rejection_reason'],reason)
+
+    def test_native_scribe_source_findings_are_content_rejections_but_host_errors_retry(self):
+        reason='TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=problem-source-mismatch path=Problems/x.md message=source mismatch'
+        detail='describe red code=dangling-library-gid path=Library/x.md message=target missing'
+        ok,selected,_=self.projection(subprocess.CompletedProcess([],2,stdout=reason+'\n'+detail+'\n'))
+        self.assertFalse(ok)
+        self.assertEqual(selected['rejection_reason'],reason+'\n'+detail)
+        for output in [detail,'TRUTH_RELEASE_INVALID Scribe emission verification failed: HostConfiguration unavailable']:
+            with self.assertRaises(subprocess.CalledProcessError):self.projection(subprocess.CompletedProcess([],2,stdout=output))
 
     def test_outcome_uses_downstream_branch_and_failure_cannot_claim_published(self):
         selection, _ = self.planned(adapter=C)
