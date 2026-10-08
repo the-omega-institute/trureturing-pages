@@ -1,6 +1,6 @@
 """Project an upstream CI report into a durable Pages source publication.
 
-Consume existing scheduled cache snapshots without running Lean, gated by
+Consume existing published cache snapshots without running Lean, gated by
 canonical ci-current.yml push checks for their exact protected-dev source.
 Published bundles live in Pages so rebuilds outlive upstream cache retention.
 """
@@ -30,6 +30,7 @@ WORKFLOW = "ci-current.yml"
 CHECKS = ("required",)
 EXPORT_CHECKS = (*CHECKS, "lean-cache-publication")
 CACHE_WORKFLOW = "lean-cache-publish.yml"
+CACHE_TAG = re.compile(r"lean-cache-(?:v2|verify-v1)-[0-9a-f]{40}-linux-arm64-[1-9][0-9]*-[1-9][0-9]*\Z")
 REPORT = ".lake/build/stratalint/raw-lean-report.json"
 REPORT_FILES = tuple("raw-lean-report.json" + suffix for suffix in
                      ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip"))
@@ -39,7 +40,11 @@ SCRIBE_LIMIT = 256 * 1024 ** 2
 OUTCOME_PATH = "data/upstream-publication-outcome.v1.json"
 OUTCOME_BRANCH = "pages-sync-status"
 OUTCOME_SCHEMA = "pages-upstream-publication-outcome.v1"
-BLOCKED_STATUSES = {"awaiting-scribe-publication", "content-validation-rejected"}
+BLOCKED_STATUSES = {"awaiting-scribe-publication", "content-validation-rejected",
+                    "awaiting-upstream-ci", "upstream-ci-failed"}
+CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed:",
+                      "TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG",
+                      "TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=")
 
 
 def read_outcome(client):
@@ -62,6 +67,24 @@ def read_outcome(client):
             or value.get("rejection_run_id") is not None
             and (type(value["rejection_run_id"]) is not int or value["rejection_run_id"] < 1)):
         raise ValueError("invalid downstream rejection diagnostic")
+    report_ci = value.get("report_ci")
+    if report_ci is not None:
+        require_oid(report_ci["source_commit"])
+        if (report_ci.get("status") not in {"awaiting-upstream-ci", "upstream-ci-failed"}
+                or report_ci.get("ci_run_id") is not None
+                and (type(report_ci["ci_run_id"]) is not int or report_ci["ci_run_id"] < 1)
+                or any(report_ci.get(k) is not None and not isinstance(report_ci[k], str)
+                       for k in ("ci_status", "ci_conclusion"))):
+            raise ValueError("invalid report CI diagnostic")
+    rejections = value.get("rejections", [])
+    if not isinstance(rejections, list) or len(rejections) > 100:
+        raise ValueError("invalid publication rejection history")
+    for rejection in rejections:
+        require_oid(rejection["source_commit"])
+        require_digest(rejection["input_digest"])
+        if (type(rejection.get("run_id")) is not int or rejection["run_id"] < 1
+                or not isinstance(rejection.get("reason"), str)):
+            raise ValueError("invalid publication rejection history")
     return value
 
 
@@ -74,17 +97,25 @@ def input_digest(selection, adapter_commit):
     return "sha256:" + hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def scribe_selection(client, releases, commit):
-    """Consume published resources only when the release tag pins this source."""
-    for release in releases:
+def scribe_selection(client, releases, commit, dev_head=None):
+    """Keep resource provenance separate from the checked report's identity.
+
+    A pack is content addressed, not bound to the report revision by its native
+    contract. For another revision, projection retains only resources whose
+    source scripts have identical Git blobs, then runs all native export checks.
+    """
+    candidates = sorted(releases, key=lambda r: r.get("target_commitish") != commit)
+    for release in candidates:
         tag = release.get("tag_name", "")
         if (release.get("draft") or release.get("prerelease")
-                or not re.fullmatch(r"scribe-resources-[0-9a-f]{64}", tag)
-                or release.get("target_commitish") != commit):
+                or not re.fullmatch(r"scribe-resources-[0-9a-f]{64}", tag)):
+            continue
+        resource_source = require_oid(release["target_commitish"])
+        if resource_source != commit and (dev_head is None or not client.is_ancestor(resource_source, dev_head)):
             continue
         # The tag is authoritative; release target_commitish is editable metadata.
         tagged = client.get_json("commits/" + tag)
-        if tagged.get("sha") != commit:
+        if tagged.get("sha") != resource_source:
             raise ValueError("Scribe release tag differs from its declared source")
         assets = release.get("assets", [])
         matching = [a for a in assets if a.get("name") == "scribe-resources.zip"]
@@ -95,7 +126,7 @@ def scribe_selection(client, releases, commit):
                 or not 0 < asset["size"] <= SCRIBE_LIMIT):
             raise ValueError("invalid Scribe resource asset")
         require_digest(asset["digest"])
-        return {"source_commit": commit, "release_tag": tag,
+        return {"source_commit": resource_source, "report_source_commit": commit, "release_tag": tag,
                 "pack_digest": tag.removeprefix("scribe-resources-"),
                 "asset": {k: asset[k] for k in ("name", "size", "digest")}}
     return None
@@ -105,7 +136,7 @@ def acquire_scribe(selection, destination):
     scribe = selection.get("scribe")
     if scribe is None:
         return
-    if scribe["source_commit"] != selection["source_commit"]:
+    if scribe.get("report_source_commit", scribe["source_commit"]) != selection["source_commit"]:
         raise ValueError("Scribe resources differ from report source")
     raw = asset_bytes(scribe["release_tag"], scribe["asset"], SCRIBE_LIMIT)
     # Transport identity and logical resource identity are distinct. The native
@@ -121,6 +152,97 @@ def acquire_scribe(selection, destination):
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
     (destination / "scribe-resources.zip").write_bytes(raw)
+
+
+def adapt_scribe(scribe, repository, pack):
+    """Reuse unchanged published definition bytes; never execute Scribe scripts.
+
+    The original pack must pass the source-pinned native verifier first. Its
+    release source remains explicit; a subset receives its own logical digest.
+    The native truth-release verifier then checks that subset against the report.
+    """
+    report_source = scribe.get("report_source_commit", scribe["source_commit"])
+    if scribe["source_commit"] == report_source:
+        return pack, scribe["pack_digest"]
+    def scripts(commit):
+        rows = subprocess.check_output(["git", "ls-tree", "-r", "-z", require_oid(commit),
+                                        "--", "Blueprint"], cwd=repository).split(b"\0")
+        result = {}
+        for row in rows:
+            if not row: continue
+            metadata, path = row.split(b"\t", 1)
+            mode, kind, oid = metadata.split()
+            if path.endswith(b".scribe.cs") and kind == b"blob" and mode in {b"100644", b"100755"}:
+                result[path.decode()] = oid
+        return result
+    original, selected = scripts(scribe["source_commit"]), scripts(report_source)
+    with zipfile.ZipFile(pack) as archive:
+        manifest = json.loads(archive.read("manifest.json"), object_pairs_hook=vertical_smoke._reject_duplicate)
+        entries, excluded = [], []
+        for entry in manifest["entries"]:
+            path = "Blueprint/" + entry["gid"] + ".scribe.cs"
+            if path in selected and original.get(path) == selected[path]:
+                entries.append(entry)
+            else:
+                excluded.append(entry["gid"])
+        # A subset must retain its document references as well as script identity.
+        # If an unchanged document references an excluded definition, exclude the
+        # whole document, recursively. Published bytes are never rewritten.
+        references = {entry["gid"]: document_targets(json.loads(archive.read(entry["path"]),
+                      object_pairs_hook=vertical_smoke._reject_duplicate)) for entry in entries}
+        retained = {entry["gid"] for entry in entries}
+        unavailable = {}
+        while True:
+            missing = {gid: sorted(references[gid] - retained) for gid in retained
+                       if references[gid] - retained}
+            if not missing:
+                break
+            unavailable.update(missing)
+            retained.difference_update(missing)
+        entries = [entry for entry in entries if entry["gid"] in retained]
+        excluded.extend(sorted(unavailable))
+        if not entries:
+            raise ValueError("published Scribe pack has no unchanged resource inputs for report source")
+        digest = hashlib.sha256(json.dumps(entries, separators=(",", ":"), ensure_ascii=True).encode()).hexdigest()
+        manifest.update(entries=entries, entryCount=len(entries), totalSha256=digest)
+        adapted = pack.with_name("scribe-resources-consumed.zip")
+        with zipfile.ZipFile(adapted, "w", compression=zipfile.ZIP_DEFLATED) as output:
+            for entry in entries:
+                output.writestr(entry["path"], archive.read(entry["path"]))
+            output.writestr("manifest.json", json.dumps(manifest, separators=(",", ":")).encode())
+    reused = {"Blueprint/" + entry["gid"] + ".scribe.cs" for entry in entries}
+    scribe.update(consumed_pack_digest=digest,
+                  adaptation={"policy": "unchanged-script-blobs.v2", "reused_entries": len(entries),
+                              "excluded_gids": excluded,
+                              "unavailable_document_targets": unavailable,
+                              "unpublished_gids": sorted(path.removeprefix("Blueprint/").removesuffix(".scribe.cs")
+                                                         for path in selected.keys() - reused)})
+    return adapted, digest
+
+
+def document_targets(value):
+    """Read module references from the existing serialized document AST.
+
+    Explicit plane references (Library, Evidence, Blueprint, etc.) and formal
+    declarations remain governed by the native verifier, not subset closure.
+    """
+    result = set()
+    if isinstance(value, list):
+        for child in value:
+            result.update(document_targets(child))
+    elif isinstance(value, dict):
+        kind = value.get("type")
+        if kind == "GidReference":
+            gid = value["value"]
+            if not gid.startswith(("D5/B/", "D5/E/", "D5/C/", "D5/L/", "D5/P/")) and "." not in gid.rsplit("/", 1)[-1]:
+                result.add(gid)
+        elif kind == "Dependency":
+            result.add(value["target"])
+        elif kind == "NarrativeReference" and value["target"].get("type") == "Document":
+            result.add(value["target"]["documentGid"])
+        for child in value.values():
+            result.update(document_targets(child))
+    return result
 
 
 
@@ -208,10 +330,11 @@ def cache_manifest(release):
     source = require_oid(manifest["producer_commit_sha"])
     run, attempt = manifest["workflow_run_id"], manifest["workflow_run_attempt"]
     partition = manifest["partition"]
+    prefix = "lean-cache-verify-v1-" if release["tag_name"].startswith("lean-cache-verify-v1-") else "lean-cache-v2-"
     if (manifest.get("schema") != "lean-release-seed-v3"
             or not re.fullmatch(r"[0-9a-f]{40}/linux-arm64", partition)
             or not all(isinstance(v, str) and re.fullmatch(r"[1-9][0-9]*", v) for v in (run, attempt))
-            or release["tag_name"] != "lean-cache-v2-" + partition.replace("/", "-") + "-" + run + "-" + attempt):
+            or release["tag_name"] != prefix + partition.replace("/", "-") + "-" + run + "-" + attempt):
         raise ValueError("cache manifest source attribution mismatch")
     require_digest("sha256:" + manifest["archive_sha256"])
     parts = manifest["parts"]
@@ -235,18 +358,67 @@ def cache_manifest(release):
     return manifest
 
 
-def verify_cache_run(source, manifest):
+def verify_cache_run(source, manifest, release_tag=None):
     run = source.get_json(f"actions/runs/{manifest['workflow_run_id']}/attempts/{manifest['workflow_run_attempt']}")
+    verification = release_tag is not None and release_tag.startswith("lean-cache-verify-v1-")
+    branch = run.get("head_branch", "")
+    producer_scope = (branch == "dev" or branch.startswith("integration-")) if verification else branch == "dev"
+    if verification and manifest.get("source_ref") is not None:
+        producer_scope = producer_scope and manifest["source_ref"] == "refs/heads/" + branch
+    workflow = "ci-publication-verify.yml" if verification else CACHE_WORKFLOW
+    event = "push" if verification else "schedule"
     if (run.get("id") != int(manifest["workflow_run_id"])
             or run.get("run_attempt") != int(manifest["workflow_run_attempt"])
             or run.get("head_sha") != manifest["producer_commit_sha"]
-            or run.get("head_branch") != "dev" or run.get("event") != "schedule"
-            or run.get("path") != ".github/workflows/" + CACHE_WORKFLOW
+            or not producer_scope or run.get("event") != event
+            or run.get("path") != ".github/workflows/" + workflow
             or run.get("status") != "completed" or run.get("conclusion") != "success"
             or run.get("repository", {}).get("full_name") != REPOSITORY
             or run.get("head_repository", {}).get("full_name") != REPOSITORY):
-        raise ValueError("cache report has no matching successful scheduled dev producer")
+        raise ValueError("cache report has no matching successful published producer")
     return run
+
+
+def order_snapshots(source, snapshots):
+    """Newest source first; retain only the newest producer attempt per source."""
+    from functools import cmp_to_key
+    by_source = {}
+    for snapshot in snapshots:
+        manifest = snapshot[1]
+        commit = manifest["producer_commit_sha"]
+        previous = by_source.get(commit)
+        attempt = lambda m: (int(m["workflow_run_id"]), int(m["workflow_run_attempt"]))
+        if previous is None or attempt(manifest) > attempt(previous[1]):
+            by_source[commit] = snapshot
+    def compare(left, right):
+        a, b = left[1]["producer_commit_sha"], right[1]["producer_commit_sha"]
+        if source.is_ancestor(a, b): return 1
+        if source.is_ancestor(b, a): return -1
+        raise ValueError("published report sources are not on one protected-dev history")
+    return sorted(by_source.values(), key=cmp_to_key(compare))
+
+
+def report_ci(source, workflow, commit, head):
+    runs = source.get_json(f"actions/workflows/{WORKFLOW}/runs?branch=dev&event=push&head_sha={commit}&per_page=100")["workflow_runs"]
+    exact = [r for r in runs if r.get("head_sha") == commit and r.get("workflow_id") == workflow["id"]
+             and r.get("event") == "push" and r.get("head_branch") == "dev"
+             and r.get("path") == ".github/workflows/" + WORKFLOW
+             and r.get("repository", {}).get("full_name") == REPOSITORY
+             and r.get("head_repository", {}).get("full_name") == REPOSITORY]
+    if any(r.get("head_sha") == commit and r not in exact for r in runs):
+        raise ValueError("report CI identity mismatch")
+    successful = [r for r in exact if r.get("status") == "completed" and r.get("conclusion") == "success"]
+    if successful:
+        run = select_run(source, successful, head)
+        jobs = source.get_json(f"actions/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")["jobs"]
+        verify_checks(run, jobs)
+        return run, None
+    latest = max(exact, key=lambda r: (r["id"], r["run_attempt"]), default=None)
+    failed = latest and latest.get("status") == "completed"
+    return None, {"status": "upstream-ci-failed" if failed else "awaiting-upstream-ci",
+                  "source_commit": commit, "ci_run_id": latest["id"] if latest else None,
+                  "ci_status": latest.get("status") if latest else None,
+                  "ci_conclusion": latest.get("conclusion") if latest else None}
 
 
 def plan(pages_repository, adapter_commit=None):
@@ -270,69 +442,76 @@ def plan(pages_repository, adapter_commit=None):
     if current_workflow.get("type") != "file" or current_workflow.get("path") != workflow_path:
         raise ValueError("canonical CI workflow is not a file on current dev")
     snapshots = []
-    # The existing scheduled cache producer carries the checked report. Its
+    # Existing scheduled and verification cache producers carry checked reports. Their
     # manifest selects an exact source; a cache is never itself a CI verdict.
     releases = source.releases()
     for release in releases:
         if (release.get("draft") or release.get("prerelease")
-                or not re.fullmatch(r"lean-cache-v2-[0-9a-f]{40}-linux-arm64-[1-9][0-9]*-[1-9][0-9]*", release.get("tag_name", ""))):
+                or not CACHE_TAG.fullmatch(release.get("tag_name", ""))):
             continue
         manifest = cache_manifest(release)
         commit = manifest["producer_commit_sha"]
         if source.is_ancestor(commit, head):
             snapshots.append((release, manifest))
-    selected = None
-    for snapshot in snapshots:
-        if selected is None:
-            selected = snapshot
-        elif selected[1]["producer_commit_sha"] == snapshot[1]["producer_commit_sha"]:
-            def attempt(item):
-                return int(item[1]["workflow_run_id"]), int(item[1]["workflow_run_attempt"])
-            if attempt(snapshot) > attempt(selected):
-                selected = snapshot
-        elif source.is_ancestor(selected[1]["producer_commit_sha"], snapshot[1]["producer_commit_sha"]):
-            selected = snapshot
-    if selected is None:
+    ordered = order_snapshots(source, snapshots)
+    if not ordered:
         raise ValueError("no published upstream report snapshot on protected dev")
-    release, manifest = selected
-    commit = manifest["producer_commit_sha"]
-    producer = verify_cache_run(source, manifest)
-    existing = pages_release(pages, commit)
-    freshness = {"upstream_dev_head": head, "report_source_commit": commit,
-                 "report_release_tag": release["tag_name"]}
-    if existing:
-        expected = existing["tag_name"] + ".tar.gz"
-        if not any(a.get("name") == expected and a.get("state") == "uploaded" and a.get("size", 0) > 0
-                   for a in existing.get("assets", [])):
-            raise ValueError("existing Pages source publication is missing its bundle")
-        return {"should_build": False, "status": "latest-report-already-published",
-                "source_commit": commit, **freshness}
-    runs = source.get_json(f"actions/workflows/{WORKFLOW}/runs?branch=dev&event=push&head_sha={commit}&status=success&per_page=100")["workflow_runs"]
-    exact = [r for r in runs if r.get("head_sha") == commit and r.get("workflow_id") == workflow["id"]]
-    run = select_run(source, exact, head)
-    jobs = source.get_json(f"actions/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")["jobs"]
-    verify_checks(run, jobs)
-    identity = source.get_json("commits/" + commit)
-    selection = {"should_build": True, "status": "existing-upstream-report-awaiting-verification", **freshness,
-            "source_commit": commit, "source_tree": identity["commit"]["tree"]["sha"],
-            "produced_at": identity["commit"]["committer"]["date"],
-            "ci_run_id": run["id"], "ci_run_attempt": run["run_attempt"], "ci_url": run["html_url"],
-            "report_run_id": producer["id"], "report_run_attempt": producer["run_attempt"],
-            "report_manifest": manifest, "required_checks": list(EXPORT_CHECKS)}
-    contract = source.get_json(f"contents/tools/StrataLint.Cli/Commands/TruthReleaseCommand.cs?ref={commit}")
-    code = base64.b64decode(contract["content"]).decode()
-    if "--scribe-pack" in code:
-        selection["scribe"] = scribe_selection(source, releases, commit)
-        if selection["scribe"] is None:
-            selection.update(should_build=False, status="awaiting-scribe-publication")
-    if adapter_commit:
-        selection["input_digest"] = input_digest(selection, adapter_commit)
-        previous = read_outcome(pages)
-        if (previous and previous["status"] == "content-validation-rejected"
-                and previous["input_digest"] == selection["input_digest"]):
+    newest_release, newest_manifest = ordered[0]
+    waiting = None
+    rejected = None
+    previous = read_outcome(pages) if adapter_commit else None
+    rejections = list(previous.get("rejections", [])) if previous else []
+    if previous and previous["status"] == "content-validation-rejected" and not any(
+            r["input_digest"] == previous["input_digest"] for r in rejections):
+        rejections.append({"source_commit": previous["source_commit"], "input_digest": previous["input_digest"],
+                           "reason": previous.get("reason") or "native content validation rejected",
+                           "run_id": previous.get("rejection_run_id") or previous["run_id"]})
+    for release, manifest in ordered:
+        commit = manifest["producer_commit_sha"]
+        producer = verify_cache_run(source, manifest, release["tag_name"])
+        existing = pages_release(pages, commit)
+        freshness = {"upstream_dev_head": head, "report_source_commit": commit,
+                     "report_release_tag": release["tag_name"],
+                     "latest_report_source_commit": newest_manifest["producer_commit_sha"],
+                     "latest_report_release_tag": newest_release["tag_name"]}
+        if waiting: freshness["newer_report"] = waiting
+        if existing:
+            expected = existing["tag_name"] + ".tar.gz"
+            if not any(a.get("name") == expected and a.get("state") == "uploaded" and a.get("size", 0) > 0
+                       for a in existing.get("assets", [])):
+                raise ValueError("existing Pages source publication is missing its bundle")
+            return {"should_build": False, "status": "latest-report-already-published",
+                    "source_commit": commit, "rejections": rejections, **freshness}
+        run, blocked = report_ci(source, workflow, commit, head)
+        if not run:
+            if waiting is None:
+                waiting = {**blocked, "report_release_tag": release["tag_name"]}
+            continue
+        identity = source.get_json("commits/" + commit)
+        selection = {"should_build": True, "status": "existing-upstream-report-awaiting-verification", **freshness,
+                "source_commit": commit, "source_tree": identity["commit"]["tree"]["sha"],
+                "produced_at": identity["commit"]["committer"]["date"],
+                "ci_run_id": run["id"], "ci_run_attempt": run["run_attempt"], "ci_url": run["html_url"],
+                "report_run_id": producer["id"], "report_run_attempt": producer["run_attempt"],
+                "report_manifest": manifest, "required_checks": list(EXPORT_CHECKS), "rejections": rejections}
+        contract = source.get_json(f"contents/tools/StrataLint.Cli/Commands/TruthReleaseCommand.cs?ref={commit}")
+        code = base64.b64decode(contract["content"]).decode()
+        if "--scribe-pack" in code:
+            selection["scribe"] = scribe_selection(source, releases, commit, head)
+            if selection["scribe"] is None:
+                selection.update(should_build=False, status="awaiting-scribe-publication")
+        if adapter_commit:
+            selection["input_digest"] = input_digest(selection, adapter_commit)
+            rejection = next((r for r in rejections if r["input_digest"] == selection["input_digest"]), None)
+        else:
+            rejection = None
+        if rejection:
             selection.update(should_build=False, status="content-validation-rejected",
-                             rejection_reason=previous.get("reason"), rejection_run_id=previous.get("rejection_run_id") or previous["run_id"])
-    return selection
+                             rejection_reason=rejection["reason"], rejection_run_id=rejection["run_id"])
+            rejected = rejected or selection
+            continue
+        return selection
+    return rejected or {"should_build": False, **waiting, "upstream_dev_head": head, "rejections": rejections}
 
 
 class CacheReader:
@@ -454,15 +633,22 @@ def project(selection, repository, report_directory, destination):
                "--commit-on-protected-dev", "true"]
     scribe = selection.get("scribe")
     if scribe:
-        if scribe["source_commit"] != commit:
+        if scribe.get("report_source_commit", scribe["source_commit"]) != commit:
             raise ValueError("Scribe resources differ from selected source")
         pack = report_directory.resolve() / "scribe-resources.zip"
         if not pack.is_file() or pack.is_symlink():
             raise ValueError("verified Scribe resource pack is missing")
-        subprocess.run(["dotnet", "tools/StrataLint.Scribe.Documents/bin/Release/net10.0/StrataLint.Scribe.Documents.dll",
+        scribe_tool = ("tools/StrataLint.Scribe/bin/Release/net10.0/StrataLint.Scribe.dll"
+                       if (repository / "tools/StrataLint.Scribe/StrataLint.Scribe.csproj").is_file()
+                       else "tools/StrataLint.Scribe.Documents/bin/Release/net10.0/StrataLint.Scribe.Documents.dll")
+        subprocess.run(["dotnet", scribe_tool,
                         "resources", "verify", "--pack", str(pack)],
                        cwd=repository, check=True, env=environment)
-        command.extend(["--scribe-pack", str(pack), "--scribe-pack-digest", scribe["pack_digest"]])
+        pack, digest = adapt_scribe(scribe, repository, pack)
+        if pack.name != "scribe-resources.zip":
+            subprocess.run(["dotnet", scribe_tool, "resources", "verify", "--pack", str(pack)],
+                           cwd=repository, check=True, env=environment)
+        command.extend(["--scribe-pack", str(pack), "--scribe-pack-digest", digest])
     for check in selection["required_checks"]:
         command.extend(["--required-check", check + "=success"])
     # Capture the export diagnostic only. Restore/build/network failures remain
@@ -471,8 +657,10 @@ def project(selection, repository, report_directory, destination):
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print(result.stdout or "", end="")
     if result.returncode:
-        reasons = [line for line in (result.stdout or "").splitlines()
-                   if line.startswith("TRUTH_RELEASE_INVALID residual frontier evaluation failed:")]
+        lines = (result.stdout or "").splitlines()
+        reasons = [line for line in lines if line.startswith(CONTENT_REJECTIONS)]
+        if any(line.startswith(CONTENT_REJECTIONS[-1]) for line in lines):
+            reasons.extend(line for line in lines if line.startswith("describe red code="))
         if reasons and result.returncode == 2:
             selection.update(status="content-validation-rejected", rejection_reason="\n".join(reasons))
             return False
@@ -506,6 +694,17 @@ def publish_outcome(repository, selection, adapter_commit, run_id, failed=False)
              "status": status, "input_digest": require_digest(digest),
              "reason": selection.get("rejection_reason"),
              "rejection_run_id": selection.get("rejection_run_id")}
+    report_ci = selection.get("newer_report")
+    if status in {"awaiting-upstream-ci", "upstream-ci-failed"}:
+        report_ci = {k: selection.get(k) for k in
+                     ("status", "source_commit", "ci_run_id", "ci_status", "ci_conclusion")}
+    if report_ci:
+        value["report_ci"] = report_ci
+    rejections = list(selection.get("rejections", []))
+    if status == "content-validation-rejected" and not any(r["input_digest"] == digest for r in rejections):
+        rejections.append({"source_commit": value["source_commit"], "input_digest": digest,
+                           "reason": value["reason"], "run_id": value["rejection_run_id"] or value["run_id"]})
+    value["rejections"] = rejections[-100:]
     client = GitHub(repository)
     def write(endpoint, payload, method="PUT"):
         subprocess.run(["gh", "api", "--method", method, f"repos/{repository}/{endpoint}", "--input", "-"],

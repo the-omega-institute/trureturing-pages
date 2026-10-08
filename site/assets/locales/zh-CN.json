@@ -1980,7 +1980,11 @@
   "Upstream CI run": "上游 CI 任务",
   "Historical replay": "历史回放",
   "Quarantined problem occurrences across releases": "跨版本累计隔离问题记录",
-  "Waiting for upstream Scribe resources published for the report source. Serving the verified live version.": "等待上游发布与报告源码版本一致的 Scribe 资源包；当前提供已验证的线上版本。",
+  "Waiting for upstream Scribe resources published for the report source. Serving the verified live version.": "等待可用于报告源码的上游 Scribe 资源；当前提供已验证的线上版本。",
+  "The latest report source is waiting for successful upstream CI. Serving the newest admitted verified version.": "最新报告源码等待上游 CI 验证成功；当前提供最新已接收并验证的版本。",
+  "The latest report source failed upstream CI. Serving the newest admitted verified version.": "最新报告源码的上游 CI 失败；当前提供最新已接收并验证的版本。",
+  "Report CI: {0}": "报告对应的 CI：{0}",
+  "Report CI run": "报告对应的 CI 任务",
   "Upstream content failed native export validation. Waiting for corrected publication; serving the verified live version.": "上游内容未通过原生导出校验；等待更新后的发布产物，当前提供已验证的线上版本。",
   "Validation failure run": "内容校验失败记录",
   "Report source awaiting publication: {0}": "待发布的报告源码版本：{0}"

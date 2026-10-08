@@ -131,5 +131,30 @@ class SourceObservationTests(unittest.TestCase):
             outcome['run_id']=52; outcome['adapter_commit']=B
             self.assertIsNone(sync.observe(Client(),pages,A,B,NOW)['reason'])
 
+    def test_updated_verified_publication_still_exposes_newer_report_ci_failure(self):
+        from lib.upstream_publication import OUTCOME_SCHEMA
+        outcome={'schema':OUTCOME_SCHEMA,'source_repository':REPOSITORY,'source_commit':A,
+                 'adapter_commit':A,'input_digest':'sha256:'+'d'*64,'run_id':52,'status':'published',
+                 'report_ci':{'status':'upstream-ci-failed','source_commit':B,'ci_run_id':41,
+                              'ci_status':'completed','ci_conclusion':'failure'}}
+        pages=Client();original=pages.get_json
+        def get(path):
+            if path.startswith('contents/'):return {'content':base64.b64encode(json.dumps(outcome).encode()).decode()}
+            value=original(path)
+            if path.startswith('actions/workflows/sync-upstream'):value['workflow_runs'][0].update(conclusion='success',head_sha=A)
+            return value
+        pages.get_json=get
+        value=sync.observe(Client(),pages,A,B,NOW)
+        self.assertEqual(value['reason'],'upstream-ci-failed')
+        self.assertEqual(value['publication_source_commit'],B)
+        self.assertEqual(value['report_ci_run_id'],41)
+        self.assertEqual(value['ci_status'],'in_progress')
+        self.assertEqual(value['report_ci_conclusion'],'failure')
+        from tests.test_version_status import VersionStatusTests
+        from lib.version_status import validate_status
+        case=VersionStatusTests();case.setUp();status=case.build()
+        status['source_observation']=value
+        validate_status(status)
+
 if __name__ == '__main__':
     unittest.main()

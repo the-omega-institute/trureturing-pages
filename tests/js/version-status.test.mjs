@@ -247,3 +247,20 @@ test('successful scheduling still displays missing resources and rejected conten
   value.source_observation.rejection_run_id='51';
   assert.throws(()=>render(value,{now}),/Invalid version status/);
 });
+
+test('a newer report failure links its exact CI separately from the moving dev CI', () => {
+  const value=fixture();value.source_observation=sourceFixture();
+  Object.assign(value.source_observation,{reason:'upstream-ci-failed',publication_conclusion:'success',
+    publication_source_commit:'c'.repeat(40),report_ci_run_id:41,
+    report_ci_status:'completed',report_ci_conclusion:'failure'});
+  const html=render(validateStatus(value),{now:Date.parse(value.observed_at),translate:k=>k.replace(/\{(\d+)\}/g,(_,i)=>i==='0'?'failure':'')});
+  assert.match(html,/latest report source failed upstream CI/);
+  assert.match(html,/newest admitted verified version/);
+  assert.match(html,/trureturing\/actions\/runs\/41/);
+  assert.match(html,/Report CI: failure/);
+  value.source_observation.reason='awaiting-upstream-ci';
+  value.source_observation.report_ci_run_id=null;
+  assert.match(render(validateStatus(value),{now:Date.parse(value.observed_at),translate:k=>k}),/waiting for successful upstream CI/);
+  value.source_observation.report_ci_run_id='41';
+  assert.throws(()=>validateStatus(value));
+});

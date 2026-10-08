@@ -532,7 +532,9 @@
                 "publication-failed",
                 "source-observation-failed",
                 "awaiting-scribe-publication",
-                "publication-content-rejected"
+                "publication-content-rejected",
+                "awaiting-upstream-ci",
+                "upstream-ci-failed"
               ]
             },
             {
@@ -600,6 +602,15 @@
         "rejection_run_id": {
           "type": "integer",
           "minimum": 1
+        },
+        "report_ci_run_id": {
+          "anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]
+        },
+        "report_ci_status": {
+          "anyOf": [{"type": "string"}, {"type": "null"}]
+        },
+        "report_ci_conclusion": {
+          "anyOf": [{"type": "string"}, {"type": "null"}]
         }
       }
     }

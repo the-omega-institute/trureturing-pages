@@ -131,6 +131,12 @@ notices. An observation still confirms deployment only through the served Librar
 and receipt ledger. This diagnostic path reads no private workflow logs and does
 not create a content deployment path or bypass freshness and admission gates.
 
+`awaiting-upstream-ci` and `upstream-ci-failed` describe the latest published
+report's exact source. Its CI run/status/conclusion are shown separately from
+the moving `dev` CI. An older admitted report may update live content while that
+newer report remains unresolved; a successful downstream polling run does not
+erase this distinction.
+
 ## Workflow and offline use
 
 `pages.yml` observes status after preflight even if no release is eligible, and

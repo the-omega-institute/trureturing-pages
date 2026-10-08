@@ -73,6 +73,13 @@ def observe(client, pages, live_source, dev_head, now):
                     value["reason"] = value["reason"] or "publication-failed"
                 if outcome["status"] in {"awaiting-scribe-publication", "content-validation-rejected"}:
                     value["publication_source_commit"] = outcome["source_commit"]
+                report_ci = outcome.get("report_ci")
+                if report_ci:
+                    value["reason"] = value["reason"] or report_ci["status"]
+                    value["publication_source_commit"] = report_ci["source_commit"]
+                    value["report_ci_run_id"] = report_ci.get("ci_run_id")
+                    value["report_ci_status"] = report_ci.get("ci_status")
+                    value["report_ci_conclusion"] = report_ci.get("ci_conclusion")
                 if outcome.get("rejection_run_id"):
                     value["rejection_run_id"] = outcome["rejection_run_id"]
         value["state"] = "fresh"
