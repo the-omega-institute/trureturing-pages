@@ -18,6 +18,7 @@ import subprocess
 import shutil
 import tarfile
 import re
+import xml.etree.ElementTree as ET
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
@@ -638,9 +639,7 @@ def project(selection, repository, report_directory, destination):
         pack = report_directory.resolve() / "scribe-resources.zip"
         if not pack.is_file() or pack.is_symlink():
             raise ValueError("verified Scribe resource pack is missing")
-        scribe_tool = ("tools/StrataLint.Scribe/bin/Release/net10.0/StrataLint.Scribe.dll"
-                       if (repository / "tools/StrataLint.Scribe/StrataLint.Scribe.csproj").is_file()
-                       else "tools/StrataLint.Scribe.Documents/bin/Release/net10.0/StrataLint.Scribe.Documents.dll")
+        scribe_tool = scribe_executable(repository)
         subprocess.run(["dotnet", scribe_tool,
                         "resources", "verify", "--pack", str(pack)],
                        cwd=repository, check=True, env=environment)
@@ -666,6 +665,16 @@ def project(selection, repository, report_directory, destination):
             return False
         result.check_returncode()
     return True
+
+
+def scribe_executable(repository):
+    # Historical sources have Scribe as a library and Documents as the CLI;
+    # the project file's existence alone does not establish executability.
+    for name in ("StrataLint.Scribe", "StrataLint.Scribe.Documents"):
+        project = Path(repository) / "tools" / name / (name + ".csproj")
+        if project.is_file() and ET.parse(project).findtext(".//OutputType") == "Exe":
+            return f"tools/{name}/bin/Release/net10.0/{name}.dll"
+    raise ValueError("selected source has no supported Scribe resource executable")
 
 
 def publication_metadata(selection, bundle):

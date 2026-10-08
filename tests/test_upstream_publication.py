@@ -347,6 +347,10 @@ class SourcePublicationTests(unittest.TestCase):
             root=Path(temp); reports=root/'reports'; reports.mkdir()
             for name in publication.REPORT_FILES: (reports/name).write_bytes(b'checked')
             if scribe: (reports/'scribe-resources.zip').write_bytes(b'pack')
+            if scribe:
+                project=root/'tools/StrataLint.Scribe.Documents/StrataLint.Scribe.Documents.csproj'
+                project.parent.mkdir(parents=True)
+                project.write_text('<Project><PropertyGroup><OutputType>Exe</OutputType></PropertyGroup></Project>')
             result = publication.project(selection, root, reports, root/'output')
             return result, selection, [c.args[0] for c in execute.call_args_list]
 
@@ -357,6 +361,18 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertIn('--scribe-pack', commands[-1])
         self.assertEqual(commands[-1][commands[-1].index('--scribe-pack-digest')+1], 'e'*64)
         self.assertFalse(any(x in {'lean', 'lake', 'make'} for c in commands for x in c))
+
+    def test_historical_scribe_library_is_not_selected_as_the_resource_executable(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            for name,kind in [('StrataLint.Scribe','Library'),('StrataLint.Scribe.Documents','Exe')]:
+                project=root/'tools'/name/(name+'.csproj');project.parent.mkdir(parents=True)
+                project.write_text('<Project><PropertyGroup><OutputType>'+kind+'</OutputType></PropertyGroup></Project>')
+            self.assertIn('StrataLint.Scribe.Documents.dll',publication.scribe_executable(root))
+            (root/'tools/StrataLint.Scribe/StrataLint.Scribe.csproj').write_text('<Project><PropertyGroup><OutputType>Exe</OutputType></PropertyGroup></Project>')
+            self.assertIn('StrataLint.Scribe.dll',publication.scribe_executable(root))
+            for path in root.glob('tools/*/*.csproj'):path.unlink()
+            with self.assertRaisesRegex(ValueError,'no supported'):publication.scribe_executable(root)
 
     def test_resource_adaptation_copies_only_identical_published_script_inputs(self):
         def listing(items):return b'\0'.join(b'100644 blob '+oid.encode()+b'\tBlueprint/'+gid.encode()+b'.scribe.cs' for gid,oid in items)+b'\0'
