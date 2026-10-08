@@ -44,8 +44,11 @@ it does not require the pack publication and checked report to share a commit.
 Pages prefers an exact-source pack. Otherwise, it verifies the original pack
 natively, compares each published definition's `.scribe.cs` Git blob between
 the resource source and report source, and copies only unchanged definitions
-into a content-addressed subset. Changed and absent scripts are excluded. No
-Scribe scripts or Lean tools run. The subset passes native `resources verify`
+into a content-addressed subset. Changed and absent scripts are excluded. A
+document is excluded if it references another excluded document; exclusions
+propagate until the subset's document references are closed. Entire original
+definition bytes are copied or omitted, never edited. No Scribe scripts or Lean
+tools run. The subset passes native `resources verify`
 and the unchanged `truth-release` Scribe, Frozen ledger, report and frontier
 checks. Those native interfaces support absent document definitions; Pages does
 not invent descriptions for unpublished scripts. Metadata retains the original

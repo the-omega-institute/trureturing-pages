@@ -185,6 +185,22 @@ def adapt_scribe(scribe, repository, pack):
                 entries.append(entry)
             else:
                 excluded.append(entry["gid"])
+        # A subset must retain its document references as well as script identity.
+        # If an unchanged document references an excluded definition, exclude the
+        # whole document, recursively. Published bytes are never rewritten.
+        references = {entry["gid"]: document_targets(json.loads(archive.read(entry["path"]),
+                      object_pairs_hook=vertical_smoke._reject_duplicate)) for entry in entries}
+        retained = {entry["gid"] for entry in entries}
+        unavailable = {}
+        while True:
+            missing = {gid: sorted(references[gid] - retained) for gid in retained
+                       if references[gid] - retained}
+            if not missing:
+                break
+            unavailable.update(missing)
+            retained.difference_update(missing)
+        entries = [entry for entry in entries if entry["gid"] in retained]
+        excluded.extend(sorted(unavailable))
         if not entries:
             raise ValueError("published Scribe pack has no unchanged resource inputs for report source")
         digest = hashlib.sha256(json.dumps(entries, separators=(",", ":"), ensure_ascii=True).encode()).hexdigest()
@@ -196,11 +212,37 @@ def adapt_scribe(scribe, repository, pack):
             output.writestr("manifest.json", json.dumps(manifest, separators=(",", ":")).encode())
     reused = {"Blueprint/" + entry["gid"] + ".scribe.cs" for entry in entries}
     scribe.update(consumed_pack_digest=digest,
-                  adaptation={"policy": "unchanged-script-blobs.v1", "reused_entries": len(entries),
+                  adaptation={"policy": "unchanged-script-blobs.v2", "reused_entries": len(entries),
                               "excluded_gids": excluded,
+                              "unavailable_document_targets": unavailable,
                               "unpublished_gids": sorted(path.removeprefix("Blueprint/").removesuffix(".scribe.cs")
                                                          for path in selected.keys() - reused)})
     return adapted, digest
+
+
+def document_targets(value):
+    """Read module references from the existing serialized document AST.
+
+    Explicit plane references (Library, Evidence, Blueprint, etc.) and formal
+    declarations remain governed by the native verifier, not subset closure.
+    """
+    result = set()
+    if isinstance(value, list):
+        for child in value:
+            result.update(document_targets(child))
+    elif isinstance(value, dict):
+        kind = value.get("type")
+        if kind == "GidReference":
+            gid = value["value"]
+            if not gid.startswith(("D5/B/", "D5/E/", "D5/C/", "D5/L/", "D5/P/")) and "." not in gid.rsplit("/", 1)[-1]:
+                result.add(gid)
+        elif kind == "Dependency":
+            result.add(value["target"])
+        elif kind == "NarrativeReference" and value["target"].get("type") == "Document":
+            result.add(value["target"]["documentGid"])
+        for child in value.values():
+            result.update(document_targets(child))
+    return result
 
 
 

@@ -360,11 +360,12 @@ class SourcePublicationTests(unittest.TestCase):
 
     def test_resource_adaptation_copies_only_identical_published_script_inputs(self):
         def listing(items):return b'\0'.join(b'100644 blob '+oid.encode()+b'\tBlueprint/'+gid.encode()+b'.scribe.cs' for gid,oid in items)+b'\0'
-        entries=[{'path':gid+'.scribe.json','gid':gid,'sha256':hashlib.sha256(gid.encode()).hexdigest()} for gid in ['D5/S3/Changed','D5/S3/Kept','D5/S3/New']]
+        definitions={gid:json.dumps({'document':{'header':{'gid':gid},'content':[],'edges':[]}}).encode() for gid in ['D5/S3/Changed','D5/S3/Kept','D5/S3/New']}
+        entries=[{'path':gid+'.scribe.json','gid':gid,'sha256':hashlib.sha256(raw).hexdigest()} for gid,raw in definitions.items()]
         with tempfile.TemporaryDirectory() as temp:
             pack=Path(temp)/'scribe-resources.zip'
             with zipfile.ZipFile(pack,'w') as archive:
-                for entry in entries:archive.writestr(entry['path'],entry['gid'].encode())
+                for entry in entries:archive.writestr(entry['path'],definitions[entry['gid']])
                 archive.writestr('manifest.json',json.dumps({'schema':'trureturing.scribe.resource-pack','version':3,'entries':entries,'entryCount':3,'totalSha256':'e'*64}))
             scribe={'source_commit':C,'report_source_commit':B,'pack_digest':'e'*64}
             trees=[listing([('D5/S3/Changed',A),('D5/S3/Kept',A),('D5/S3/New',A)]),listing([('D5/S3/Changed',B),('D5/S3/Kept',A),('D5/S3/Unpublished',A)])]
@@ -372,7 +373,7 @@ class SourcePublicationTests(unittest.TestCase):
                 derived,digest=publication.adapt_scribe(scribe,Path(temp),pack)
             with zipfile.ZipFile(derived) as archive:
                 self.assertEqual(set(archive.namelist()),{'manifest.json','D5/S3/Kept.scribe.json'})
-                self.assertEqual(archive.read('D5/S3/Kept.scribe.json'),b'D5/S3/Kept')
+                self.assertEqual(archive.read('D5/S3/Kept.scribe.json'),definitions['D5/S3/Kept'])
                 manifest=json.loads(archive.read('manifest.json'))
                 self.assertEqual(manifest['entryCount'],1)
                 self.assertEqual(digest,hashlib.sha256(json.dumps([entries[1]],separators=(',',':')).encode()).hexdigest())
@@ -382,6 +383,30 @@ class SourcePublicationTests(unittest.TestCase):
             self.assertEqual(scribe['adaptation']['unpublished_gids'],['D5/S3/Changed','D5/S3/Unpublished'])
             with patch.object(publication.subprocess,'check_output',side_effect=[listing([]),trees[1]]):
                 with self.assertRaisesRegex(ValueError,'no unchanged'):publication.adapt_scribe(scribe,Path(temp),pack)
+
+    def test_resource_subset_closes_document_references_recursively_without_rewriting(self):
+        references=[{'type':'GidReference','value':'D5/S3/Missing'},
+                    {'type':'Dependency','target':'D5/S3/First'},
+                    {'type':'NarrativeReference','target':{'type':'Document','documentGid':'D5/S3/Second'}},
+                    {'type':'GidReference','value':'D5/L/source'},
+                    {'type':'GidReference','value':'D5/S3/First.theorem'}]
+        names=['First','Second','Third','Kept','Formal']
+        raw={name:json.dumps({'content':[ref]}).encode() for name,ref in zip(names,references)}
+        entries=[{'path':name+'.json','gid':'D5/S3/'+name,'sha256':hashlib.sha256(raw[name]).hexdigest()} for name in names]
+        def listing(oid):return b'\0'.join(b'100644 blob '+oid.encode()+b'\tBlueprint/D5/S3/'+name.encode()+b'.scribe.cs' for name in names)+b'\0'
+        with tempfile.TemporaryDirectory() as temp:
+            pack=Path(temp)/'scribe-resources.zip'
+            with zipfile.ZipFile(pack,'w') as archive:
+                for entry,name in zip(entries,names):archive.writestr(entry['path'],raw[name])
+                archive.writestr('manifest.json',json.dumps({'entries':entries}))
+            scribe={'source_commit':C,'report_source_commit':B,'pack_digest':'e'*64}
+            with patch.object(publication.subprocess,'check_output',side_effect=[listing(A),listing(A)]):
+                derived,_=publication.adapt_scribe(scribe,Path(temp),pack)
+            with zipfile.ZipFile(derived) as archive:
+                self.assertEqual(set(archive.namelist()),{'manifest.json','Kept.json','Formal.json'})
+                for name in ['Kept','Formal']:self.assertEqual(archive.read(name+'.json'),raw[name])
+            self.assertEqual(scribe['adaptation']['unavailable_document_targets'],{
+                'D5/S3/First':['D5/S3/Missing'],'D5/S3/Second':['D5/S3/First'],'D5/S3/Third':['D5/S3/Second']})
 
     def test_only_explicit_native_content_failure_becomes_rejection(self):
         reason = 'TRUTH_RELEASE_INVALID residual frontier evaluation failed: entry x handwritten status partial-closed differs from derived absorbed-closed'
