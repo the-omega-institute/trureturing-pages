@@ -75,22 +75,25 @@ def observe(client, pages, live_source, dev_head, now):
                     value["reason"] = value["reason"] or "publication-failed"
                 if outcome["status"] in {"awaiting-scribe-publication", "content-validation-rejected", "upstream-release-unavailable"}:
                     value["publication_source_commit"] = outcome["source_commit"]
+                if outcome.get("rejection_run_id"):
+                    value["rejection_run_id"] = outcome["rejection_run_id"]
                 newer = outcome.get("newer_rejection")
                 if newer:
-                    value["reason"] = value["reason"] or (
-                        "upstream-release-unavailable" if newer["status"] == "upstream-release-unavailable"
-                        else "publication-content-rejected")
-                    value["publication_source_commit"] = newer["source_commit"]
-                    value["rejection_run_id"] = newer["run_id"]
+                    if value["reason"] in {None, "awaiting-scribe-publication", "publication-content-rejected",
+                                           "upstream-release-unavailable"}:
+                        value["reason"] = (
+                            "upstream-release-unavailable" if newer["status"] == "upstream-release-unavailable"
+                            else "publication-content-rejected")
+                        value["publication_source_commit"] = newer["source_commit"]
+                        value["rejection_run_id"] = newer["run_id"]
                 report_ci = outcome.get("report_ci")
                 if report_ci:
-                    value["reason"] = value["reason"] or report_ci["status"]
-                    value["publication_source_commit"] = report_ci["source_commit"]
+                    if value["reason"] is None:
+                        value["reason"] = report_ci["status"]
+                        value["publication_source_commit"] = report_ci["source_commit"]
                     value["report_ci_run_id"] = report_ci.get("ci_run_id")
                     value["report_ci_status"] = report_ci.get("ci_status")
                     value["report_ci_conclusion"] = report_ci.get("ci_conclusion")
-                if outcome.get("rejection_run_id"):
-                    value["rejection_run_id"] = outcome["rejection_run_id"]
         value["state"] = "fresh"
     except (ValueError, OSError, KeyError, TypeError):
         value["reason"] = "source-observation-failed"

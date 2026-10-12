@@ -51,6 +51,7 @@ RELEASE_UNAVAILABLE = "TRUTH_RELEASE_EVENT_FIELDS_UNAVAILABLE "
 CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed:",
                       "TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG",
                       "TRUTH_RELEASE_INVALID trusted frozen ledger contains duplicate descriptor_selector",
+                      "TRUTH_RELEASE_REJECTED frozen state does not match current report: ",
                       "TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=")
 
 

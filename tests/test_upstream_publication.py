@@ -547,6 +547,16 @@ class SourcePublicationTests(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             self.projection(subprocess.CompletedProcess([],137,stdout=reason+'\n'))
 
+    def test_state_table_report_mismatch_is_a_native_content_rejection(self):
+        reason='TRUTH_RELEASE_REJECTED frozen state does not match current report: D5/S3/X.lean'
+        ok,selected,_=self.projection(subprocess.CompletedProcess([],2,stdout=reason+'\n'))
+        self.assertFalse(ok)
+        self.assertEqual(selected['status'],'content-validation-rejected')
+        self.assertEqual(selected['rejection_reason'],reason)
+        for output,code in [(reason,137),('TRUTH_RELEASE_REJECTED unknown host failure',2)]:
+            with self.assertRaises(subprocess.CalledProcessError):
+                self.projection(subprocess.CompletedProcess([],code,stdout=output+'\n'))
+
     def test_verified_fallback_retains_the_newer_native_rejection(self):
         newest,_=self.planned(newer=True,newer_ci=[dict(run(C),id=43)],adapter=C)
         for reason,status in [('TRUTH_RELEASE_INVALID trusted frozen ledger contains duplicate descriptor_selector',

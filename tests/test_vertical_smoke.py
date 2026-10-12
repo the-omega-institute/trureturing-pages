@@ -69,6 +69,91 @@ class VerticalSmokeTests(unittest.TestCase):
         manifest_path.write_text(json.dumps(manifest))
         return bundle, cls.rebind_bundle(bundle)
 
+    @classmethod
+    def state_table_bundle(cls, directory):
+        bundle, _ = cls.v2_bundle(directory)
+        (bundle / "frozen-ledger-head.json").unlink()
+        snapshot_path = bundle / "source-snapshot.v1.json"
+        snapshot = json.loads(snapshot_path.read_text())
+        snapshot["schema"] = "source-snapshot"
+        del snapshot["frozen_ledger_head_hash"]
+        del snapshot["frozen_ledger_sequence"]
+        snapshot_path.write_text(json.dumps(snapshot))
+        manifest_path = bundle / "release-manifest.v1.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["schema"] = "truth-release"
+        del manifest["artifacts"]["frozen_ledger_head"]
+        manifest_path.write_text(json.dumps(manifest))
+        return bundle, cls.rebind_bundle(bundle)
+
+    def test_state_table_bundle_reaches_metadata_archive_and_basic_site(self):
+        from lib.upstream_publication import publication_metadata
+        with tempfile.TemporaryDirectory() as directory:
+            bundle, digest = self.state_table_bundle(directory)
+            archive = Path(directory) / "bundle.tar.gz"
+            with tarfile.open(archive, "w:gz") as output:
+                for path in bundle.iterdir():
+                    output.add(path, arcname=path.name)
+            acquired = Path(directory) / "acquired"
+            extract_archive(archive, acquired)
+            verified = verify_bundle(acquired, digest)
+            selection = {"source_commit": verified["source_commit"], "source_tree": verified["source_tree"],
+                         "ci_run_id": 42, "should_build": True}
+            self.assertEqual(publication_metadata(selection, acquired)["release_digest"], digest)
+            site = Path(directory) / "site"
+            build_basic_site(acquired, site)
+            basic = json.loads((site / "data/basic-truth-graph.v1.json").read_text())
+            self.assertEqual(basic["counts"]["truth_nodes"], 4)
+            self.assertEqual(basic["source_snapshot"]["truth_release_digest"], digest)
+
+    def test_state_table_rejects_missing_extra_changed_and_swapped_artifacts(self):
+        for mutation in ("missing", "extra", "changed", "swapped"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                bundle, _ = self.state_table_bundle(directory)
+                if mutation == "missing":
+                    (bundle / "raw-lean-report.json").unlink()
+                elif mutation == "extra":
+                    (bundle / "frozen-ledger-head.json").write_text("old ledger")
+                elif mutation == "changed":
+                    (bundle / "raw-lean-report.json").write_text("changed bytes")
+                else:
+                    path = bundle / "release-manifest.v1.json"
+                    manifest = json.loads(path.read_text())
+                    artifacts = manifest["artifacts"]
+                    artifacts["truth_graph"], artifacts["raw_lean_report"] = artifacts["raw_lean_report"], artifacts["truth_graph"]
+                    path.write_text(json.dumps(manifest))
+                with self.assertRaises(ReleaseContractError):
+                    verify_bundle(bundle)
+
+    def test_state_table_rejects_rebound_old_snapshot_and_ledger_fields(self):
+        for field, value in (("schema", "source-snapshot.v2"), ("frozen_ledger_sequence", 0),
+                             ("frozen_ledger_head_hash", "sha256:" + "0" * 64)):
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as directory:
+                bundle, _ = self.state_table_bundle(directory)
+                path = bundle / "source-snapshot.v1.json"
+                snapshot = json.loads(path.read_text())
+                snapshot[field] = value
+                path.write_text(json.dumps(snapshot))
+                self.rebind_bundle(bundle)
+                with self.assertRaisesRegex(ReleaseContractError, "snapshot"):
+                    verify_bundle(bundle)
+
+    def test_state_table_rejects_rehashed_snapshot_with_conflicting_identity_or_hash(self):
+        for field, value in (("source_repo", "other/repository"), ("source_commit", "a" * 40),
+                             ("source_tree", "a" * 40), ("producer_package_commit", "a" * 40),
+                             ("truth_graph_sha256", "sha256:" + "0" * 64),
+                             ("raw_lean_report_sha256", "sha256:" + "0" * 64),
+                             ("declarations_sha256", "sha256:" + "0" * 64)):
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as directory:
+                bundle, _ = self.state_table_bundle(directory)
+                path = bundle / "source-snapshot.v1.json"
+                snapshot = json.loads(path.read_text())
+                snapshot[field] = value
+                path.write_text(json.dumps(snapshot))
+                self.rebind_bundle(bundle)
+                with self.assertRaisesRegex(ReleaseContractError, "source snapshot"):
+                    verify_bundle(bundle)
+
     def test_mock_bundle_is_exactly_bound_and_bounded(self):
         verified = verify_bundle(FIXTURE, RELEASE_DIGEST)
         self.assertEqual(verified["release_digest"], RELEASE_DIGEST)
