@@ -34,13 +34,19 @@ def release(**changes):
                 'source_repository': REPOSITORY, 'source_commit': B, 'release_digest': DIGEST, 'ci_run_id': 42}), **changes}
 
 
-def transport(raw, source=B):
+def transport(raw, source=B, version=3):
     manifest = {'schema': 'lean-release-seed-v3', 'partition': A + '/linux-arm64',
         'producer_commit_sha': source, 'workflow_run_id': '123', 'workflow_run_attempt': '1',
         'archive_sha256': hashlib.sha256(raw).hexdigest(), 'archive_bytes': len(raw),
         'parts': [{'name': 'lean-build.tgz', 'sha256': hashlib.sha256(raw).hexdigest(), 'bytes': len(raw)}]}
+    tag = TAG
+    if version == 4:
+        manifest.update(schema='lean-release-seed-v4', publication_id='ci-123-1',
+                        cache_key={'report_format': 'stratalint-raw-lean-report-v3',
+                                   'execution_sha256': 'e' * 64})
+        tag = TAG.replace('-123-1', '-report-stratalint-raw-lean-report-v3-env-' + 'e' * 12 + '-ci-123-1')
     data = json.dumps(manifest).encode()
-    snapshot = {'tag_name': TAG, 'draft': False, 'prerelease': False,
+    snapshot = {'tag_name': tag, 'draft': False, 'prerelease': False,
         'assets': [{'name': name, 'size': len(body), 'state': 'uploaded',
                     'digest': 'sha256:' + hashlib.sha256(body).hexdigest()}
                    for name, body in [('manifest.json', data), ('lean-build.tgz', raw)]]}
@@ -124,6 +130,49 @@ class SourcePublicationTests(unittest.TestCase):
             with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
                 with self.assertRaises(ValueError): publication.asset_bytes(TAG, broken, 16)
 
+    def test_v4_manifest_binds_report_execution_and_ci_publication_namespace(self):
+        manifest, snapshot, data = transport(b'cache', version=4)
+        for prefix in ('lean-cache-v2-', 'lean-cache-verify-v1-'):
+            with self.subTest(prefix=prefix):
+                item = {**snapshot, 'tag_name': snapshot['tag_name'].replace('lean-cache-v2-', prefix)}
+                self.assertIsNotNone(publication.CACHE_TAG.fullmatch(item['tag_name']))
+                with patch.object(publication, 'asset_bytes', return_value=data):
+                    self.assertEqual(publication.cache_manifest(item), manifest)
+        mutations = [
+            lambda m: m.update(schema='lean-release-seed-v3'),
+            lambda m: m.update(schema='lean-release-seed-v5'),
+            lambda m: m.update(publication_id='ci-124-1'),
+            lambda m: m.update(publication_id='local-' + B[:12] + '-20261012T000000000000Z'),
+            lambda m: m.update(workflow_run_id='124'),
+            lambda m: m.update(workflow_run_attempt='2'),
+            lambda m: m.pop('cache_key'),
+            lambda m: m.update(cache_key=None),
+            lambda m: m['cache_key'].update(report_format='stratalint-raw-lean-report-v2'),
+            lambda m: m['cache_key'].update(report_format='../escape'),
+            lambda m: m['cache_key'].update(execution_sha256='f' * 64),
+            lambda m: m['cache_key'].update(execution_sha256='e' * 12),
+            lambda m: m['cache_key'].update(execution_sha256='E' * 64),
+            lambda m: m['cache_key'].update(unbound='value'),
+        ]
+        for mutate in mutations:
+            broken = copy.deepcopy(manifest)
+            mutate(broken)
+            with self.subTest(manifest=broken), patch.object(publication, 'asset_bytes', return_value=json.dumps(broken).encode()):
+                with self.assertRaises(ValueError):
+                    publication.cache_manifest(snapshot)
+        with patch.object(publication, 'asset_bytes', return_value=data):
+            with self.assertRaises(ValueError):
+                publication.cache_manifest({**snapshot, 'tag_name': TAG})
+
+    def test_v4_discovery_does_not_accept_local_or_malformed_publications(self):
+        _, snapshot, _ = transport(b'cache', version=4)
+        for tag in (snapshot['tag_name'].replace('-ci-123-1', '-local-' + B[:12] + '-20261012T000000000000Z'),
+                    snapshot['tag_name'].replace('-ci-123-1', '-ci-0-1'),
+                    snapshot['tag_name'].replace('-env-' + 'e' * 12, '-env-' + 'e' * 11),
+                    snapshot['tag_name'] + '-extra'):
+            with self.subTest(tag=tag):
+                self.assertIsNone(publication.CACHE_TAG.fullmatch(tag))
+
     def test_cache_run_is_not_a_pr_or_integration_verification(self):
         manifest, _, _ = transport(b'cache')
         producer = run(); producer.update(id=123, event='schedule', path='.github/workflows/lean-cache-publish.yml')
@@ -152,10 +201,10 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertEqual(publication.report_ci(client,{'id':7},B,C)[1]['status'],'awaiting-upstream-ci')
 
     def planned(self, existing=None, scribe_required=False, resources=None, previous=None, adapter=None,
-                ci=None, newer=False, newer_ci=None):
+                ci=None, newer=False, newer_ci=None, version=3):
         upstream, pages = GitHub(), GitHub('owner/pages')
         upstream.dev_head = lambda: C; upstream.is_ancestor = lambda a, b: a <= b
-        manifest, snapshot, data = transport(b'cache')
+        manifest, snapshot, data = transport(b'cache', version=version)
         newer_manifest = {**manifest, 'producer_commit_sha': C, 'workflow_run_id': '124'}
         newer_snapshot = {**snapshot, 'tag_name': TAG.replace('-123-', '-124-')}
         upstream.releases = lambda: [*([newer_snapshot] if newer else []), snapshot,
@@ -191,6 +240,17 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertEqual(selection['required_checks'], ['required', 'lean-cache-publication'])
         self.assertTrue(any('head_sha=' + B in call for call in calls))
         self.assertFalse(any('artifacts' in call or 'ci-push' in call for call in calls))
+
+    def test_plan_discovers_namespaced_v4_report_and_keeps_exact_dev_ci_gate(self):
+        selected, calls = self.planned(version=4)
+        self.assertTrue(selected['should_build'])
+        self.assertEqual(selected['source_commit'], B)
+        self.assertEqual(selected['report_manifest']['schema'], 'lean-release-seed-v4')
+        self.assertIn('-env-' + 'e' * 12 + '-ci-123-1', selected['report_release_tag'])
+        self.assertTrue(any('head_sha=' + B in call for call in calls))
+        waiting, _ = self.planned(version=4, ci=[])
+        self.assertFalse(waiting['should_build'])
+        self.assertEqual(waiting['status'], 'awaiting-upstream-ci')
 
     def test_newer_failed_report_does_not_starve_verified_predecessor(self):
         selected, _ = self.planned(newer=True)

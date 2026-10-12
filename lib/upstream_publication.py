@@ -31,7 +31,11 @@ WORKFLOW = "ci-current.yml"
 CHECKS = ("required",)
 EXPORT_CHECKS = (*CHECKS, "lean-cache-publication")
 CACHE_WORKFLOW = "lean-cache-publish.yml"
-CACHE_TAG = re.compile(r"lean-cache-(?:v2|verify-v1)-[0-9a-f]{40}-linux-arm64-[1-9][0-9]*-[1-9][0-9]*\Z")
+CACHE_TAG = re.compile(
+    r"lean-cache-(?:v2|verify-v1)-[0-9a-f]{40}-linux-arm64-"
+    r"(?:report-[a-z0-9][a-z0-9-]{0,127}-env-[0-9a-f]{12}-ci-)?"
+    r"[1-9][0-9]*-[1-9][0-9]*\Z"
+)
 REPORT = ".lake/build/stratalint/raw-lean-report.json"
 REPORT_FILES = tuple("raw-lean-report.json" + suffix for suffix in
                      ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip"))
@@ -332,10 +336,31 @@ def cache_manifest(release):
     run, attempt = manifest["workflow_run_id"], manifest["workflow_run_attempt"]
     partition = manifest["partition"]
     prefix = "lean-cache-verify-v1-" if release["tag_name"].startswith("lean-cache-verify-v1-") else "lean-cache-v2-"
-    if (manifest.get("schema") != "lean-release-seed-v3"
-            or not re.fullmatch(r"[0-9a-f]{40}/linux-arm64", partition)
-            or not all(isinstance(v, str) and re.fullmatch(r"[1-9][0-9]*", v) for v in (run, attempt))
-            or release["tag_name"] != prefix + partition.replace("/", "-") + "-" + run + "-" + attempt):
+    if (not isinstance(partition, str) or not re.fullmatch(r"[0-9a-f]{40}/linux-arm64", partition)
+            or not all(isinstance(v, str) and re.fullmatch(r"[1-9][0-9]*", v) for v in (run, attempt))):
+        raise ValueError("cache manifest source attribution mismatch")
+    tag_prefix = prefix + partition.replace("/", "-") + "-"
+    schema = manifest.get("schema")
+    if schema == "lean-release-seed-v3":
+        expected_tag = tag_prefix + run + "-" + attempt
+    elif schema == "lean-release-seed-v4":
+        # The published v4 contract adds the report format and execution identity
+        # to the release namespace. Bind every component back to its manifest;
+        # the successful producer and exact-source dev CI are checked separately.
+        key = manifest.get("cache_key")
+        if (not isinstance(key, dict) or set(key) != {"report_format", "execution_sha256"}
+                or not isinstance(key["report_format"], str)
+                or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,127}", key["report_format"])
+                or not isinstance(key["execution_sha256"], str)
+                or not re.fullmatch(r"[0-9a-f]{64}", key["execution_sha256"])
+                or manifest.get("publication_id") != "ci-" + run + "-" + attempt):
+            raise ValueError("cache manifest execution or publication identity mismatch")
+        expected_tag = (tag_prefix + "report-" + key["report_format"]
+                        + "-env-" + key["execution_sha256"][:12]
+                        + "-" + manifest["publication_id"])
+    else:
+        raise ValueError("unsupported cache manifest schema")
+    if release["tag_name"] != expected_tag:
         raise ValueError("cache manifest source attribution mismatch")
     require_digest("sha256:" + manifest["archive_sha256"])
     parts = manifest["parts"]
