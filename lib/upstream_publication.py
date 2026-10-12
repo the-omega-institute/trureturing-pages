@@ -27,6 +27,7 @@ from lib.reconcile_releases import GitHub, REPOSITORY, require_digest, require_o
 from lib import vertical_smoke
 
 SCHEMA = "pages-upstream-ci-publication.v1"
+PROJECTION_CONTRACT = "pages-report-projection.v1"
 WORKFLOW = "ci-current.yml"
 CHECKS = ("required",)
 EXPORT_CHECKS = (*CHECKS, "lean-cache-publication")
@@ -108,6 +109,7 @@ def input_digest(selection, adapter_commit):
     value = {"adapter_commit": require_oid(adapter_commit),
              "source_commit": selection["source_commit"], "source_tree": selection["source_tree"],
              "report_archive_sha256": selection["report_manifest"]["archive_sha256"],
+             "projection_contract": selection.get("projection_contract"),
              "scribe": selection.get("scribe")}
     return "sha256:" + hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
@@ -541,6 +543,20 @@ def plan(pages_repository, adapter_commit=None):
             selection["scribe"] = scribe_selection(source, releases, commit, head)
             if selection["scribe"] is None:
                 selection.update(should_build=False, status="awaiting-scribe-publication")
+        # State-table sources already expose a report consumer independently of
+        # full truth-release issuance. Use that interface, without asking the
+        # producer to republish or inventing event-ledger fields.
+        try:
+            export = source.get_json(f"contents/tools/StrataLint.Cli/Commands/TruthExportCommand.cs?ref={commit}")
+        except HTTPError as error:
+            if error.code != 404:
+                raise
+        else:
+            export_code = base64.b64decode(export["content"]).decode()
+            if (adapter_commit and "FrozenStateCatalog.Load" in export_code
+                    and "--candidate-lean-report" in export_code):
+                selection.update(projection_contract=PROJECTION_CONTRACT,
+                                 adapter_commit=require_oid(adapter_commit), pages_repository=pages_repository)
         if adapter_commit:
             selection["input_digest"] = input_digest(selection, adapter_commit)
             rejection = next((r for r in rejections if r["input_digest"] == selection["input_digest"]), None)
@@ -675,6 +691,7 @@ def project(selection, repository, report_directory, destination):
                "--producer-package-commit", commit, "--produced-at", selection["produced_at"],
                "--commit-on-protected-dev", "true"]
     scribe = selection.get("scribe")
+    pack_arguments = []
     if scribe:
         if scribe.get("report_source_commit", scribe["source_commit"]) != commit:
             raise ValueError("Scribe resources differ from selected source")
@@ -689,7 +706,29 @@ def project(selection, repository, report_directory, destination):
         if pack.name != "scribe-resources.zip":
             subprocess.run(["dotnet", scribe_tool, "resources", "verify", "--pack", str(pack)],
                            cwd=repository, check=True, env=environment)
-        command.extend(["--scribe-pack", str(pack), "--scribe-pack-digest", digest])
+        pack_arguments = ["--scribe-pack", str(pack), "--scribe-pack-digest", digest]
+        command.extend(pack_arguments)
+    if selection.get("projection_contract") == PROJECTION_CONTRACT:
+        if not pack_arguments:
+            raise ValueError("report projection requires published Scribe resources")
+        destination = Path(destination).resolve()
+        if destination.exists():
+            raise ValueError("report projection destination already exists")
+        cli = command[:2]
+        export = cli + ["truth-export", "--out", str(destination), "--candidate-lean-report", str(target)]
+        result = subprocess.run(export, cwd=repository, env=environment, text=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        print(result.stdout or "", end="")
+        if result.returncode:
+            reasons = [line for line in (result.stdout or "").splitlines()
+                       if line.startswith("TRUTH_EXPORT_REJECTED frozen state does not match current report: ")]
+            if result.returncode == 2 and reasons:
+                selection.update(status="content-validation-rejected", rejection_reason="\n".join(reasons))
+                return False
+            result.check_returncode()
+        subprocess.run(cli + ["dag-render", *pack_arguments], cwd=repository, env=environment, check=True)
+        write_report_projection(selection, repository, report_directory, destination)
+        return True
     for check in selection["required_checks"]:
         command.extend(["--required-check", check + "=success"])
     # Capture the export diagnostic only. Restore/build/network failures remain
@@ -709,6 +748,55 @@ def project(selection, repository, report_directory, destination):
             return False
         result.check_returncode()
     return True
+
+
+def write_report_projection(selection, repository, report_directory, destination):
+    """Bind native consumer outputs to the original publication, owned by Pages.
+
+    Native truth-export checks every Frozen record against the verified report;
+    dag-render checks graph closure and source-bound published document inputs.
+    Neither requires issuing another upstream release or running Lean.
+    """
+    profile = vertical_smoke.ARTIFACT_PROFILES[PROJECTION_CONTRACT]
+    destination = Path(destination)
+    shutil.copyfile(Path(repository) / "Generated/truth-graph.v1.json", destination / profile["truth_graph"])
+    shutil.copyfile(Path(report_directory) / "raw-lean-report.json", destination / profile["raw_lean_report"])
+    def write(name, value):
+        (destination / name).write_text(json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
+    source = {"source_repo": REPOSITORY, "source_commit": selection["source_commit"],
+              "source_tree": selection["source_tree"]}
+    producer = {"package_repo": selection["pages_repository"],
+                "package_commit": require_oid(selection["adapter_commit"]), "read_only": True}
+    provenance = {"schema": "pages-report-provenance.v1", **source, "producer": producer,
+                  "report_release_tag": selection["report_release_tag"],
+                  "report_manifest": selection["report_manifest"],
+                  "ci_run_id": selection["ci_run_id"], "ci_run_attempt": selection["ci_run_attempt"],
+                  "report_run_id": selection["report_run_id"], "report_run_attempt": selection["report_run_attempt"],
+                  "required_checks": selection["required_checks"], "scribe": selection["scribe"],
+                  "report_files": {name: vertical_smoke._sha256(Path(report_directory) / name) for name in REPORT_FILES},
+                  "exporter_commit": selection["source_commit"],
+                  "commands": ["truth-export", "dag-render"]}
+    write(profile["report_provenance"], provenance)
+    snapshot = {"schema": "pages-source-snapshot.v1", **source,
+                "producer_package_commit": producer["package_commit"],
+                **{role + "_sha256": vertical_smoke._sha256(destination / profile[role])
+                   for role in ("truth_graph", "truth_export", "raw_lean_report", "report_provenance")}}
+    write(profile["source_snapshot"], snapshot)
+    artifacts = {role: {"file": name, "sha256": vertical_smoke._sha256(destination / name)}
+                 for role, name in profile.items()}
+    sums = "".join(f'{artifacts[role]["sha256"][7:]}  {name}\n'
+                   for role, name in sorted(profile.items(), key=lambda entry: entry[1]))
+    (destination / "SHA256SUMS").write_text(sums)
+    digest = vertical_smoke._sha256(destination / "SHA256SUMS")
+    write("release-manifest.v1.json", {"schema": PROJECTION_CONTRACT, "source": source,
+          "producer": producer, "artifacts": artifacts, "sha256sums_digest": digest,
+          "produced_at": selection["produced_at"],
+          "trust": {"commit_on_protected_dev": True, "required_checks":
+                    [{"name": check, "conclusion": "success"} for check in selection["required_checks"]]}})
+    write("truth-release-publication.v1.json", {"schema": "pages-source-publication.v1",
+          "release_digest": digest, "bundle_ref": digest, "source_commit": source["source_commit"],
+          "source_tree": source["source_tree"], "producer_commit": producer["package_commit"]})
+    vertical_smoke.verify_bundle(destination)
 
 
 def scribe_executable(repository):

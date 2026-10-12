@@ -201,7 +201,7 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertEqual(publication.report_ci(client,{'id':7},B,C)[1]['status'],'awaiting-upstream-ci')
 
     def planned(self, existing=None, scribe_required=False, resources=None, previous=None, adapter=None,
-                ci=None, newer=False, newer_ci=None, version=3):
+                ci=None, newer=False, newer_ci=None, version=3, report_projection=False):
         upstream, pages = GitHub(), GitHub('owner/pages')
         upstream.dev_head = lambda: C; upstream.is_ancestor = lambda a, b: a <= b
         manifest, snapshot, data = transport(b'cache', version=version)
@@ -215,7 +215,11 @@ class SourcePublicationTests(unittest.TestCase):
             calls.append(path)
             if path == 'actions/workflows/ci-current.yml': return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
-            if path.startswith('contents/tools/'): return {'content': base64.b64encode(b'--scribe-pack' if scribe_required else b'legacy native exporter').decode()}
+            if path.startswith('contents/tools/'):
+                code = (b'FrozenStateCatalog.Load --candidate-lean-report'
+                        if report_projection and 'TruthExportCommand.cs' in path
+                        else b'--scribe-pack' if scribe_required else b'legacy native exporter')
+                return {'content': base64.b64encode(code).decode()}
             if path.startswith('contents/'): return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
             if path == 'actions/runs/123/attempts/1': return producer
             if path == 'actions/runs/124/attempts/1': return {**producer, 'id':124, 'head_sha':C}
