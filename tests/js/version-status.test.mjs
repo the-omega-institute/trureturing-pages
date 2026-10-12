@@ -244,6 +244,12 @@ test('successful scheduling still displays missing resources and rejected conten
   html=render(value,{now});
   assert.match(html,/failed native export validation/);
   assert.match(html,/actions\/runs\/51/);
+  value.source_observation.reason='upstream-release-unavailable';
+  html=render(value,{now});
+  assert.match(html,/cannot issue a compatible proof release/);
+  assert.match(html,/needs-attention/);
+  assert.match(html,/actions\/runs\/51/);
+  assert.match(renderStatus(value,{now}),/上游暂时无法生成兼容的证明发布产物/);
   value.source_observation.rejection_run_id='51';
   assert.throws(()=>render(value,{now}),/Invalid version status/);
 });
