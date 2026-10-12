@@ -110,7 +110,8 @@ class SourceObservationTests(unittest.TestCase):
     def test_successful_wait_and_rejection_remain_blocked_semantically(self):
         from lib.upstream_publication import OUTCOME_SCHEMA
         for status, reason in [('awaiting-scribe-publication','awaiting-scribe-publication'),
-                               ('content-validation-rejected','publication-content-rejected')]:
+                               ('content-validation-rejected','publication-content-rejected'),
+                               ('upstream-release-unavailable','upstream-release-unavailable')]:
             pages=Client(); original=pages.get_json
             outcome={'schema':OUTCOME_SCHEMA,'source_repository':REPOSITORY,'source_commit':B,
                      'adapter_commit':A,'input_digest':'sha256:'+'d'*64,'run_id':52,
@@ -128,6 +129,30 @@ class SourceObservationTests(unittest.TestCase):
             self.assertEqual(result['publication_source_commit'],B)
             outcome['run_id']=53
             self.assertIsNone(sync.observe(Client(),pages,A,B,NOW)['reason'])
+
+    def test_fallback_publication_does_not_hide_a_newer_native_rejection(self):
+        from lib.upstream_publication import OUTCOME_SCHEMA
+        from tests.test_version_status import VersionStatusTests
+        from lib.version_status import validate_status
+        for reason,status in [('publication-content-rejected','content-validation-rejected'),
+                              ('upstream-release-unavailable','upstream-release-unavailable')]:
+            outcome={'schema':OUTCOME_SCHEMA,'source_repository':REPOSITORY,'source_commit':A,
+                     'adapter_commit':A,'input_digest':'sha256:'+'d'*64,'run_id':52,'status':'published',
+                     'newer_rejection':{'source_commit':B,'status':status,'run_id':51,'reason':'native refusal'}}
+            pages=Client();original=pages.get_json
+            def get(path):
+                if path.startswith('contents/'):return {'content':base64.b64encode(json.dumps(outcome).encode()).decode()}
+                result=original(path)
+                if path.startswith('actions/workflows/sync-upstream'):result['workflow_runs'][0].update(conclusion='success',head_sha=A)
+                return result
+            pages.get_json=get
+            observed=sync.observe(Client(),pages,A,B,NOW)
+            self.assertEqual(observed['reason'],reason)
+            self.assertEqual(observed['publication_source_commit'],B)
+            self.assertEqual(observed['rejection_run_id'],51)
+            case=VersionStatusTests();case.setUp();value=case.build()
+            value['source_observation']=observed
+            validate_status(value)
             outcome['run_id']=52; outcome['adapter_commit']=B
             self.assertIsNone(sync.observe(Client(),pages,A,B,NOW)['reason'])
 

@@ -69,10 +69,19 @@ def observe(client, pages, live_source, dev_head, now):
                     value["reason"] = value["reason"] or "awaiting-scribe-publication"
                 elif outcome["status"] == "content-validation-rejected":
                     value["reason"] = value["reason"] or "publication-content-rejected"
+                elif outcome["status"] == "upstream-release-unavailable":
+                    value["reason"] = value["reason"] or "upstream-release-unavailable"
                 elif outcome["status"] == "publication-failed":
                     value["reason"] = value["reason"] or "publication-failed"
-                if outcome["status"] in {"awaiting-scribe-publication", "content-validation-rejected"}:
+                if outcome["status"] in {"awaiting-scribe-publication", "content-validation-rejected", "upstream-release-unavailable"}:
                     value["publication_source_commit"] = outcome["source_commit"]
+                newer = outcome.get("newer_rejection")
+                if newer:
+                    value["reason"] = value["reason"] or (
+                        "upstream-release-unavailable" if newer["status"] == "upstream-release-unavailable"
+                        else "publication-content-rejected")
+                    value["publication_source_commit"] = newer["source_commit"]
+                    value["rejection_run_id"] = newer["run_id"]
                 report_ci = outcome.get("report_ci")
                 if report_ci:
                     value["reason"] = value["reason"] or report_ci["status"]

@@ -529,6 +529,57 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertEqual(selected['status'],'content-validation-rejected')
         self.assertEqual(selected['rejection_reason'],reason)
 
+    def test_duplicate_selector_is_a_content_rejection_without_waiving_validation(self):
+        reason='TRUTH_RELEASE_INVALID trusted frozen ledger contains duplicate descriptor_selector'
+        ok,selected,_=self.projection(subprocess.CompletedProcess([],2,stdout=reason+'\n'))
+        self.assertFalse(ok)
+        self.assertEqual(selected['status'],'content-validation-rejected')
+        self.assertEqual(selected['rejection_reason'],reason)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.projection(subprocess.CompletedProcess([],137,stdout=reason+'\n'))
+
+    def test_absent_native_issuance_is_recorded_as_a_capability_gap(self):
+        reason=publication.RELEASE_UNAVAILABLE+'frozen-ledger-head has no state-table source; issuance is unavailable'
+        ok,selected,_=self.projection(subprocess.CompletedProcess([],2,stdout=reason+'\n'))
+        self.assertFalse(ok)
+        self.assertEqual(selected['status'],'upstream-release-unavailable')
+        self.assertEqual(selected['rejection_reason'],reason)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.projection(subprocess.CompletedProcess([],137,stdout=reason+'\n'))
+
+    def test_verified_fallback_retains_the_newer_native_rejection(self):
+        newest,_=self.planned(newer=True,newer_ci=[dict(run(C),id=43)],adapter=C)
+        for reason,status in [('TRUTH_RELEASE_INVALID trusted frozen ledger contains duplicate descriptor_selector',
+                              'content-validation-rejected'),
+                             (publication.RELEASE_UNAVAILABLE+'issuance is unavailable','upstream-release-unavailable')]:
+            rejection={'source_commit':C,'input_digest':newest['input_digest'],'run_id':43,'reason':reason}
+            selected,_=self.planned(newer=True,newer_ci=[dict(run(C),id=43)],adapter=C,
+                                    previous={'status':'published','rejections':[rejection]})
+            self.assertTrue(selected['should_build'])
+            self.assertEqual(selected['source_commit'],B)
+            self.assertEqual(selected['newer_rejection'],{'source_commit':C,'status':status,'run_id':43,'reason':reason})
+
+    def test_outcome_persists_unavailable_issuance_and_newer_rejection(self):
+        selected,_=self.planned(adapter=C)
+        reason=publication.RELEASE_UNAVAILABLE+'issuance is unavailable'
+        selected.update(should_build=False,status='upstream-release-unavailable',rejection_reason=reason,
+                        newer_rejection={'source_commit':C,'status':'content-validation-rejected',
+                                         'run_id':40,'reason':'duplicate selector'})
+        client=GitHub()
+        def get(path):
+            if path.startswith('git/'):return {'ref':'existing'}
+            raise HTTPError(path,404,'missing',{},None)
+        client.get_json=get
+        with patch.object(publication,'GitHub',return_value=client), patch.object(publication.subprocess,'run') as execute:
+            publication.publish_outcome('owner/pages',selected,C,44)
+        payload=json.loads(execute.call_args.kwargs['input'])
+        outcome=json.loads(base64.b64decode(payload['content']))
+        self.assertEqual(outcome['status'],'upstream-release-unavailable')
+        self.assertEqual(outcome['newer_rejection'],selected['newer_rejection'])
+        self.assertEqual(outcome['rejections'][-1]['reason'],reason)
+        client.get_json=lambda _: {'content':base64.b64encode(json.dumps(outcome).encode()).decode()}
+        self.assertEqual(publication.read_outcome(client),outcome)
+
     def test_native_scribe_source_findings_are_content_rejections_but_host_errors_retry(self):
         reason='TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=problem-source-mismatch path=Problems/x.md message=source mismatch'
         detail='describe red code=dangling-library-gid path=Library/x.md message=target missing'

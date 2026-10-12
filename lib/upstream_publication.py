@@ -46,9 +46,11 @@ OUTCOME_PATH = "data/upstream-publication-outcome.v1.json"
 OUTCOME_BRANCH = "pages-sync-status"
 OUTCOME_SCHEMA = "pages-upstream-publication-outcome.v1"
 BLOCKED_STATUSES = {"awaiting-scribe-publication", "content-validation-rejected",
-                    "awaiting-upstream-ci", "upstream-ci-failed"}
+                    "awaiting-upstream-ci", "upstream-ci-failed", "upstream-release-unavailable"}
+RELEASE_UNAVAILABLE = "TRUTH_RELEASE_EVENT_FIELDS_UNAVAILABLE "
 CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed:",
                       "TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG",
+                      "TRUTH_RELEASE_INVALID trusted frozen ledger contains duplicate descriptor_selector",
                       "TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=")
 
 
@@ -90,6 +92,13 @@ def read_outcome(client):
         if (type(rejection.get("run_id")) is not int or rejection["run_id"] < 1
                 or not isinstance(rejection.get("reason"), str)):
             raise ValueError("invalid publication rejection history")
+    newer = value.get("newer_rejection")
+    if newer is not None:
+        require_oid(newer["source_commit"])
+        if (newer.get("status") not in {"content-validation-rejected", "upstream-release-unavailable"}
+                or not isinstance(newer.get("reason"), str)
+                or type(newer.get("run_id")) is not int or newer["run_id"] < 1):
+            raise ValueError("invalid newer report rejection")
     return value
 
 
@@ -487,7 +496,7 @@ def plan(pages_repository, adapter_commit=None):
     rejected = None
     previous = read_outcome(pages) if adapter_commit else None
     rejections = list(previous.get("rejections", [])) if previous else []
-    if previous and previous["status"] == "content-validation-rejected" and not any(
+    if previous and previous["status"] in {"content-validation-rejected", "upstream-release-unavailable"} and not any(
             r["input_digest"] == previous["input_digest"] for r in rejections):
         rejections.append({"source_commit": previous["source_commit"], "input_digest": previous["input_digest"],
                            "reason": previous.get("reason") or "native content validation rejected",
@@ -501,6 +510,11 @@ def plan(pages_repository, adapter_commit=None):
                      "latest_report_source_commit": newest_manifest["producer_commit_sha"],
                      "latest_report_release_tag": newest_release["tag_name"]}
         if waiting: freshness["newer_report"] = waiting
+        if rejected:
+            freshness["newer_rejection"] = {
+                "status": rejected["status"], "source_commit": rejected["source_commit"],
+                "reason": rejected["rejection_reason"], "run_id": rejected["rejection_run_id"],
+            }
         if existing:
             expected = existing["tag_name"] + ".tar.gz"
             if not any(a.get("name") == expected and a.get("state") == "uploaded" and a.get("size", 0) > 0
@@ -532,7 +546,9 @@ def plan(pages_repository, adapter_commit=None):
         else:
             rejection = None
         if rejection:
-            selection.update(should_build=False, status="content-validation-rejected",
+            status = ("upstream-release-unavailable" if rejection["reason"].startswith(RELEASE_UNAVAILABLE)
+                      else "content-validation-rejected")
+            selection.update(should_build=False, status=status,
                              rejection_reason=rejection["reason"], rejection_run_id=rejection["run_id"])
             rejected = rejected or selection
             continue
@@ -682,11 +698,13 @@ def project(selection, repository, report_directory, destination):
     print(result.stdout or "", end="")
     if result.returncode:
         lines = (result.stdout or "").splitlines()
-        reasons = [line for line in lines if line.startswith(CONTENT_REJECTIONS)]
+        reasons = [line for line in lines if line.startswith((*CONTENT_REJECTIONS, RELEASE_UNAVAILABLE))]
         if any(line.startswith(CONTENT_REJECTIONS[-1]) for line in lines):
             reasons.extend(line for line in lines if line.startswith("describe red code="))
         if reasons and result.returncode == 2:
-            selection.update(status="content-validation-rejected", rejection_reason="\n".join(reasons))
+            status = ("upstream-release-unavailable" if reasons[0].startswith(RELEASE_UNAVAILABLE)
+                      else "content-validation-rejected")
+            selection.update(status=status, rejection_reason="\n".join(reasons))
             return False
         result.check_returncode()
     return True
@@ -734,8 +752,10 @@ def publish_outcome(repository, selection, adapter_commit, run_id, failed=False)
                      ("status", "source_commit", "ci_run_id", "ci_status", "ci_conclusion")}
     if report_ci:
         value["report_ci"] = report_ci
+    if selection.get("newer_rejection"):
+        value["newer_rejection"] = selection["newer_rejection"]
     rejections = list(selection.get("rejections", []))
-    if status == "content-validation-rejected" and not any(r["input_digest"] == digest for r in rejections):
+    if status in {"content-validation-rejected", "upstream-release-unavailable"} and not any(r["input_digest"] == digest for r in rejections):
         rejections.append({"source_commit": value["source_commit"], "input_digest": digest,
                            "reason": value["reason"], "run_id": value["rejection_run_id"] or value["run_id"]})
     value["rejections"] = rejections[-100:]
