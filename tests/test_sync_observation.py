@@ -181,5 +181,29 @@ class SourceObservationTests(unittest.TestCase):
         status['source_observation']=value
         validate_status(status)
 
+    def test_newer_rejection_reason_source_and_run_remain_one_receipt(self):
+        from lib.upstream_publication import OUTCOME_SCHEMA
+        for old_status,new_status,reason in [
+            ('content-validation-rejected','upstream-release-unavailable','upstream-release-unavailable'),
+            ('upstream-release-unavailable','content-validation-rejected','publication-content-rejected')]:
+            outcome={'schema':OUTCOME_SCHEMA,'source_repository':REPOSITORY,'source_commit':A,
+                     'adapter_commit':A,'input_digest':'sha256:'+'d'*64,'run_id':52,'status':old_status,
+                     'rejection_run_id':49,
+                     'newer_rejection':{'source_commit':B,'status':new_status,'run_id':51,'reason':'native refusal'},
+                     'report_ci':{'status':'upstream-ci-failed','source_commit':'c'*40,'ci_run_id':41,
+                                  'ci_status':'completed','ci_conclusion':'failure'}}
+            pages=Client();original=pages.get_json
+            def get(path):
+                if path.startswith('contents/'):return {'content':base64.b64encode(json.dumps(outcome).encode()).decode()}
+                result=original(path)
+                if path.startswith('actions/workflows/sync-upstream'):result['workflow_runs'][0].update(conclusion='success',head_sha=A)
+                return result
+            pages.get_json=get
+            observed=sync.observe(Client(),pages,A,B,NOW)
+            self.assertEqual(observed['reason'],reason)
+            self.assertEqual(observed['publication_source_commit'],B)
+            self.assertEqual(observed['rejection_run_id'],51)
+            self.assertEqual(observed['report_ci_run_id'],41)
+
 if __name__ == '__main__':
     unittest.main()

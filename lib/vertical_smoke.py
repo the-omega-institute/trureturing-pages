@@ -17,6 +17,13 @@ TOPOLOGY_VERSION = "0.2.0-alpha.1"
 TOPOLOGY_PRODUCER_COMMIT = "dbd407d52806b4a87bb3c129f810a10d438a2b53"
 ALGORITHM_PROFILE = ROOT / "config" / "algorithm-profile.v1.json"
 ARTIFACT_PROFILES = {
+    "truth-release": {
+        "source_snapshot": "source-snapshot.v1.json",
+        "truth_graph": "truth-graph.v1.json",
+        "raw_lean_report": "raw-lean-report.json",
+        "truth_export": "truth-export.v1.json",
+        "blueprint_index": "blueprint-index.v1.json",
+    },
     "truth-release.v1": {
         "source_snapshot": "source-snapshot.v1.json",
         "truth_graph": "truth-graph.v1.json",
@@ -34,6 +41,11 @@ ARTIFACT_PROFILES = {
         "blueprint_index": "blueprint-index.v1.json",
         "frozen_ledger_head": "frozen-ledger-head.json",
     },
+}
+SNAPSHOT_SCHEMAS = {
+    "truth-release": "source-snapshot",
+    "truth-release.v1": "source-snapshot.v1",
+    "truth-release.v2": "source-snapshot.v2",
 }
 ADMIN_NAMES = {
     "SHA256SUMS",
@@ -322,8 +334,26 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
         named.add(name)
 
     snapshot = _read_json(bundle / artifacts["source_snapshot"]["file"])
-    if snapshot.get("schema") != schema.replace("truth-release.", "source-snapshot."):
+    if snapshot.get("schema") != SNAPSHOT_SCHEMAS[schema]:
         raise ReleaseContractError("source snapshot schema disagrees with the release manifest")
+    if schema == "truth-release":
+        # The state-table dialect removes event-ledger fields, while keeping
+        # transport filenames and the remaining source/hash bindings stable.
+        _require_keys(snapshot, {
+            "schema", "source_repo", "source_commit", "source_tree", "lean_toolchain",
+            "mathlib_rev", "producer_package_commit", "truth_graph_sha256",
+            "raw_lean_report_sha256", "dag_md_sha256", "declarations_sha256",
+        }, "source snapshot")
+        if snapshot["source_repo"] != source.get("source_repo"):
+            raise ReleaseContractError("source snapshot disagrees with manifest source repository")
+        if snapshot["producer_package_commit"] != producer_commit:
+            raise ReleaseContractError("source snapshot disagrees with publication producer identity")
+        _require_oid(snapshot["mathlib_rev"], "snapshot.mathlib_rev")
+        _require_digest(snapshot["dag_md_sha256"], "snapshot.dag_md_sha256")
+        for field, role in (("raw_lean_report_sha256", "raw_lean_report"),
+                            ("declarations_sha256", "truth_export")):
+            if snapshot[field] != artifacts[role]["sha256"]:
+                raise ReleaseContractError(f"source snapshot is not bound to the {role} bytes")
     if snapshot.get("source_commit") != source_commit or snapshot.get("source_tree") != source_tree:
         raise ReleaseContractError("source snapshot disagrees with publication source identity")
     graph_path = bundle / artifacts["truth_graph"]["file"]
