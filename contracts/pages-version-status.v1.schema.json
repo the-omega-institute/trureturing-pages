@@ -534,7 +534,8 @@
                 "awaiting-scribe-publication",
                 "publication-content-rejected",
                 "awaiting-upstream-ci",
-                "upstream-ci-failed"
+                "upstream-ci-failed",
+                "upstream-release-unavailable"
               ]
             },
             {

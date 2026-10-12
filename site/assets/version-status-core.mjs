@@ -48,7 +48,7 @@ export function validateStatus(value) {
         ['dev_head', 'live_source_commit', 'ci_source_commit'].some(k => source[k] !== null && !/^[0-9a-f]{40}$/.test(source[k])) ||
         ['ci_run_id', 'publication_run_id'].some(k => source[k] !== null && (!count(source[k]) || source[k] === 0)) ||
         !(source.commits_ahead === null || count(source.commits_ahead)) ||
-        ![null, 'ci-workflow-unavailable', 'publication-failed', 'source-observation-failed', 'awaiting-scribe-publication', 'publication-content-rejected', 'awaiting-upstream-ci', 'upstream-ci-failed'].includes(source.reason) ||
+        ![null, 'ci-workflow-unavailable', 'publication-failed', 'source-observation-failed', 'awaiting-scribe-publication', 'publication-content-rejected', 'awaiting-upstream-ci', 'upstream-ci-failed', 'upstream-release-unavailable'].includes(source.reason) ||
         ['ci_state', 'ci_status', 'ci_conclusion', 'publication_status', 'publication_conclusion'].some(k => source[k] !== null && typeof source[k] !== 'string')) fail();
   }
   if (value.observation.state === 'unavailable') {
@@ -149,6 +149,7 @@ export function renderStatus(value, { now = Date.now(), translate = t } = {}) {
     source.reason === 'ci-workflow-unavailable' ? translate('Upstream CI workflow is unavailable. New source publication cannot be confirmed.') :
     source.reason === 'awaiting-scribe-publication' ? translate('Waiting for upstream Scribe resources published for the report source. Serving the verified live version.') :
     source.reason === 'publication-content-rejected' ? translate('Upstream content failed native export validation. Waiting for corrected publication; serving the verified live version.') :
+    source.reason === 'upstream-release-unavailable' ? translate('Upstream cannot issue a compatible proof release yet. Serving the newest admitted verified version.') :
     source.reason === 'awaiting-upstream-ci' ? translate('The latest report source is waiting for successful upstream CI. Serving the newest admitted verified version.') :
     source.reason === 'upstream-ci-failed' ? translate('The latest report source failed upstream CI. Serving the newest admitted verified version.') :
     source.reason === 'publication-failed' ? translate('The last completed data publication failed. Serving the verified live version.') :
