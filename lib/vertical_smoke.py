@@ -17,6 +17,13 @@ TOPOLOGY_VERSION = "0.2.0-alpha.1"
 TOPOLOGY_PRODUCER_COMMIT = "dbd407d52806b4a87bb3c129f810a10d438a2b53"
 ALGORITHM_PROFILE = ROOT / "config" / "algorithm-profile.v1.json"
 ARTIFACT_PROFILES = {
+    "pages-report-projection.v1": {
+        "source_snapshot": "source-snapshot.v1.json",
+        "truth_graph": "truth-graph.v1.json",
+        "raw_lean_report": "raw-lean-report.json",
+        "truth_export": "truth-export.v1.json",
+        "report_provenance": "report-provenance.v1.json",
+    },
     "truth-release": {
         "source_snapshot": "source-snapshot.v1.json",
         "truth_graph": "truth-graph.v1.json",
@@ -43,6 +50,7 @@ ARTIFACT_PROFILES = {
     },
 }
 SNAPSHOT_SCHEMAS = {
+    "pages-report-projection.v1": "pages-source-snapshot.v1",
     "truth-release": "source-snapshot",
     "truth-release.v1": "source-snapshot.v1",
     "truth-release.v2": "source-snapshot.v2",
@@ -285,8 +293,10 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
         {"schema", "release_digest", "bundle_ref", "source_commit", "source_tree", "producer_commit"},
         "publication",
     )
-    if publication["schema"] != "truth-release-publication.v1":
-        raise ReleaseContractError("publication schema is not truth-release-publication.v1")
+    publication_schema = ("pages-source-publication.v1" if schema == "pages-report-projection.v1"
+                          else "truth-release-publication.v1")
+    if publication["schema"] != publication_schema:
+        raise ReleaseContractError("publication schema disagrees with the release manifest")
     release_digest = _require_digest(publication["release_digest"], "publication.release_digest")
     if publication["bundle_ref"] != release_digest:
         raise ReleaseContractError("publication bundle_ref is not bound to release_digest")
@@ -336,6 +346,8 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
     snapshot = _read_json(bundle / artifacts["source_snapshot"]["file"])
     if snapshot.get("schema") != SNAPSHOT_SCHEMAS[schema]:
         raise ReleaseContractError("source snapshot schema disagrees with the release manifest")
+    if schema == "pages-report-projection.v1":
+        _verify_report_projection(bundle, snapshot, manifest, source_commit, source_tree, producer_commit)
     if schema == "truth-release":
         # The state-table dialect removes event-ledger fields, while keeping
         # transport filenames and the remaining source/hash bindings stable.
@@ -371,6 +383,60 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
         "truth_graph": artifacts["truth_graph"]["file"],
         "source_snapshot": artifacts["source_snapshot"]["file"],
     }
+
+
+def _verify_report_projection(bundle, snapshot, manifest, commit, tree, producer_commit):
+    """Verify the downstream coordinate without pretending it is native issuance."""
+    roles = ("truth_graph", "truth_export", "raw_lean_report", "report_provenance")
+    _require_keys(snapshot, {"schema", "source_repo", "source_commit", "source_tree",
+                            "producer_package_commit", *(role + "_sha256" for role in roles)}, "source snapshot")
+    if (snapshot["source_repo"] != "the-omega-institute/trureturing"
+            or snapshot["source_repo"] != manifest["source"].get("source_repo")
+            or snapshot["producer_package_commit"] != producer_commit):
+        raise ReleaseContractError("source snapshot disagrees with Pages projection identity")
+    for role in roles:
+        if snapshot[role + "_sha256"] != manifest["artifacts"][role]["sha256"]:
+            raise ReleaseContractError(f"source snapshot is not bound to the {role} bytes")
+    export = _read_json(bundle / manifest["artifacts"]["truth_export"]["file"])
+    if (export.get("schema_version") != 2 or export.get("dialect") != "stratalint.truth-export.v2"
+            or export.get("source_commit") != commit or export.get("source_tree") != tree):
+        raise ReleaseContractError("truth export disagrees with the verified report source")
+    provenance = _read_json(bundle / manifest["artifacts"]["report_provenance"]["file"])
+    _require_keys(provenance, {"schema", "source_repo", "source_commit", "source_tree", "producer",
+                              "report_release_tag", "report_manifest", "ci_run_id", "ci_run_attempt",
+                              "report_run_id", "report_run_attempt", "required_checks", "scribe",
+                              "report_files", "exporter_commit", "commands"}, "report provenance")
+    if (provenance["schema"] != "pages-report-provenance.v1"
+            or provenance["source_repo"] != snapshot["source_repo"]
+            or provenance["source_commit"] != commit or provenance["source_tree"] != tree
+            or provenance["exporter_commit"] != commit
+            or provenance["producer"] != manifest["producer"]
+            or manifest["producer"].get("package_repo") != "the-omega-institute/trureturing-pages"
+            or provenance["commands"] != ["truth-export", "dag-render"]):
+        raise ReleaseContractError("report provenance disagrees with Pages projection identity")
+    for field in ("ci_run_id", "ci_run_attempt", "report_run_id", "report_run_attempt"):
+        if type(provenance[field]) is not int or provenance[field] < 1:
+            raise ReleaseContractError("report provenance has invalid verification run identity")
+    report_manifest = provenance["report_manifest"]
+    if (report_manifest.get("producer_commit_sha") != commit
+            or str(report_manifest.get("workflow_run_id")) != str(provenance["report_run_id"])
+            or str(report_manifest.get("workflow_run_attempt")) != str(provenance["report_run_attempt"])):
+        raise ReleaseContractError("report provenance has conflicting publication identity")
+    if (provenance["required_checks"] != ["required", "lean-cache-publication"]
+            or manifest["trust"] != {"commit_on_protected_dev": True, "required_checks":
+                                    [{"name": name, "conclusion": "success"}
+                                     for name in provenance["required_checks"]]}):
+        raise ReleaseContractError("report provenance has invalid verification gates")
+    report_files = provenance["report_files"]
+    _require_keys(report_files, {"raw-lean-report.json" + suffix for suffix in
+                                ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip")},
+                  "report provenance files")
+    for name, digest in report_files.items():
+        _require_digest(digest, "report provenance " + name)
+    if report_files["raw-lean-report.json"] != snapshot["raw_lean_report_sha256"]:
+        raise ReleaseContractError("report provenance is not bound to original report bytes")
+    if provenance["scribe"].get("report_source_commit", provenance["scribe"].get("source_commit")) != commit:
+        raise ReleaseContractError("report provenance has conflicting Scribe consumer identity")
 
 
 def _node_id(node: dict[str, Any]) -> str:

@@ -8,7 +8,7 @@ upstream responsibilities.
 `sync-upstream.yml` polls hourly (minute 7) on GitHub-hosted Ubuntu ARM.
 It selects the newest **CI-admitted** protected-dev source by ancestry from
 upstream's existing `lean-cache-v2-*` and `lean-cache-verify-v1-*` publications.
-Both carry the same checked-report `lean-release-seed-v3` contract. The former
+Both carry a checked-report `lean-release-seed-v3` or `lean-release-seed-v4` contract. The former
 requires a successful scheduled `lean-cache-publish.yml` producer on `dev`; the
 latter requires a successful `ci-publication-verify.yml` push producer on `dev`
 or an `integration-*` branch, with the manifest source ref matching that branch.
@@ -36,7 +36,7 @@ target and its Git tag must resolve to that source. The archive SHA-256 is
 transport evidence; the tag's
 64-hex suffix is the distinct logical resource digest supplied as
 `--scribe-pack-digest`. The source's native `resources verify` checks every entry
-before `truth-release` consumes it via `--scribe-pack`. The current executable is
+before the report consumer uses it via `--scribe-pack`. The current executable is
 `StrataLint.Scribe`; older sources retain the `StrataLint.Scribe.Documents` path.
 
 The existing resource contract identifies definition bytes by logical digest;
@@ -49,8 +49,8 @@ document is excluded if it references another excluded document; exclusions
 propagate until the subset's document references are closed. Entire original
 definition bytes are copied or omitted, never edited. No Scribe scripts or Lean
 tools run. The subset passes native `resources verify`
-and the unchanged `truth-release` Scribe, Frozen ledger, report and frontier
-checks. Those native interfaces support absent document definitions; Pages does
+and the selected native report-consumer checks. Those interfaces support absent
+document definitions; Pages does
 not invent descriptions for unpublished scripts. Metadata retains the original
 release/source/digest, consumed digest, copied count and excluded/unpublished
 GIDs. A zero-resource adaptation is rejected.
@@ -62,19 +62,34 @@ source. Pages records the report source and reason on its diagnostic branch;
 the version-status page displays the wait even when the workflow is green.
 Changed script content is never substituted by a published older definition.
 
-The native exporter retains its source, Frozen ledger, Scribe and residual
-frontier checks. An exit-2 diagnostic beginning
-`TRUTH_RELEASE_INVALID residual frontier evaluation failed:`, the exact
-`TRUTH_RELEASE_INVALID frozen ledger does not form a closed dependency DAG`, or
-`TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=`, records
-`content-validation-rejected`. No bundle is published. The next poll suppresses
-only a rejection with the same source/tree, report archive, Scribe resource
-identity and Pages adapter commit. Rejection history survives successful polls;
-known rejected inputs do not starve the next older eligible report. Changing
-any of those inputs retries the export. Explicit Scribe content findings retain
-their `describe red code=` detail lines; host errors are not content rejections.
-Network, restore, build, process termination and unknown export errors
-remain retryable failures. The diagnostic page links the original rejection run.
+For state-table sources with the existing `truth-export` interface, Pages runs
+`truth-export --candidate-lean-report` and `dag-render --scribe-pack` from the
+exact report revision. `truth-export` validates report materials, Lean closure,
+all Frozen records, statement identities and declaration projections.
+`dag-render` validates the dependency graph and published document definitions
+against that report. Both consume precomputed evidence without running Lean.
+Pages does not require a second full upstream `truth-release` issuance, event
+ledger artifacts, or a whole-tree Scribe publication check to display an
+already published report.
+
+The resulting bundle explicitly uses the **Pages-owned**
+`pages-report-projection.v1` manifest, `pages-source-snapshot.v1` snapshot and
+`pages-source-publication.v1` coordinate. Stable transport filenames allow
+existing reconciliation and topology readers to consume the native graph.
+`report-provenance.v1.json` binds the original report bytes and sidecar hashes,
+transport manifest, exact CI and producer attempts, source commit/tree, source
+exporter revision, consumed Scribe identity and Pages adapter revision. The
+bundle verifier checks these identities and all artifact hashes. The Living
+Library still verifies every resolution, including quarantined dossier
+candidates, against the native V2 truth export.
+
+Historical exporters retain their native `truth-release` path and its ledger,
+Scribe and frontier checks. An explicit Frozen/report mismatch on either path
+records `content-validation-rejected`; no bundle is published. Legacy semantic
+issuance refusals retain their diagnostic classifications. The next poll
+suppresses only a rejection with the same source/tree, report archive, Scribe
+identity, projection contract and adapter revision. Network, restore, build,
+process termination and unknown export errors remain retryable failures.
 
 Successful bundles are published in **the Pages repository**, under
 `pages-source-<source commit>`. Structured release notes retain exact source/tree,
