@@ -1,18 +1,46 @@
 """Generate a PR-only preview from verified public release data. Never deploy."""
 import argparse
+import gzip
 from hashlib import sha256
+import io
 import json
 from pathlib import Path
 import shutil
 import sys
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 from urllib.parse import urljoin
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from lib.living_library import validate_index, archive_json, render_research
 from lib.knowledge_pages import render_knowledge_site
+from lib.vertical_smoke import MAX_FILE_BYTES
 BASE='https://the-omega-institute.github.io/trureturing-pages/'
+MAX_TRANSFER_BYTES=64*1024*1024
+
+
+def download(path):
+    """Decode HTTP gzip while hashing/storing the original artifact bytes.
+
+    Keep the existing 64 MiB transfer budget and the production consumer's
+    expanded-file bound. A .gz artifact can itself have HTTP gzip encoding;
+    decoding the transport must preserve that artifact's own compression.
+    """
+    request=Request(urljoin(BASE,path),headers={'Accept-Encoding':'gzip'})
+    with urlopen(request,timeout=60) as response:
+        raw=response.read(MAX_TRANSFER_BYTES+1)
+        encoding=response.headers.get('Content-Encoding','identity').strip().lower()
+    transferred=len(raw)
+    if transferred>MAX_TRANSFER_BYTES:
+        raise ValueError('Preview input budget exceeded: '+path)
+    if encoding=='gzip':
+        with gzip.GzipFile(fileobj=io.BytesIO(raw)) as stream:
+            raw=stream.read(MAX_FILE_BYTES+1)
+        if len(raw)>MAX_FILE_BYTES:
+            raise ValueError('Preview expanded artifact budget exceeded: '+path)
+    elif encoding!='identity':
+        raise ValueError('Unsupported preview HTTP content encoding: '+encoding)
+    return raw,transferred
 
 def build(output):
     if output.exists():raise ValueError('Preview directory already exists')
@@ -22,10 +50,9 @@ def build(output):
         nonlocal total
         if path.startswith('/') or '..' in path.split('/') or ':' in path:
             raise ValueError('Unsafe preview artifact path')
-        with urlopen(urljoin(BASE,path),timeout=60) as response:
-            raw=response.read(64*1024*1024+1)
-        total+=len(raw)
-        if len(raw)>64*1024*1024 or total>384*1024*1024:raise ValueError('Preview input budget exceeded')
+        raw,transferred=download(path)
+        total+=transferred
+        if total>384*1024*1024:raise ValueError('Preview input budget exceeded: '+path)
         if expected and 'sha256:'+sha256(raw).hexdigest()!=expected:raise ValueError('Artifact digest mismatch: '+path)
         destination=output/path;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(raw)
         return raw
