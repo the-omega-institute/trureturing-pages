@@ -230,7 +230,7 @@ class SourcePublicationTests(unittest.TestCase):
             if path in {'commits/'+B,'commits/'+C}: return {'commit': {'tree': {'sha': A}, 'committer': {'date': '2026-10-02T00:00:00Z'}}}
             raise AssertionError(path)
         upstream.get_json = get
-        with patch.object(publication, 'GitHub', side_effect=[upstream, pages]), \
+        with patch.object(publication, 'PublicationGitHub', side_effect=[upstream, pages]), \
              patch.object(publication, 'pages_release', return_value=existing), \
              patch.object(publication, 'cache_manifest', side_effect=lambda r: newer_manifest if r['tag_name']==newer_snapshot['tag_name'] else manifest), \
              patch.object(publication, 'read_outcome', return_value=previous):
@@ -348,7 +348,7 @@ class SourcePublicationTests(unittest.TestCase):
             if path.startswith('contents/'): raise HTTPError(path, 404, 'Not Found', {}, None)
             raise AssertionError(path)
         upstream.get_json = get
-        with patch.object(publication, 'GitHub', side_effect=[upstream, pages]):
+        with patch.object(publication, 'PublicationGitHub', side_effect=[upstream, pages]):
             with self.assertRaisesRegex(ValueError, 'removed from dev'): publication.plan('owner/pages')
 
 
@@ -584,7 +584,7 @@ class SourcePublicationTests(unittest.TestCase):
             if path.startswith('git/'):return {'ref':'existing'}
             raise HTTPError(path,404,'missing',{},None)
         client.get_json=get
-        with patch.object(publication,'GitHub',return_value=client), patch.object(publication.subprocess,'run') as execute:
+        with patch.object(publication,'PublicationGitHub',return_value=client), patch.object(publication.subprocess,'run') as execute:
             publication.publish_outcome('owner/pages',selected,C,44)
         payload=json.loads(execute.call_args.kwargs['input'])
         outcome=json.loads(base64.b64decode(payload['content']))
@@ -611,7 +611,7 @@ class SourcePublicationTests(unittest.TestCase):
                 if path.startswith('git/'): return {'ref':'existing'}
                 raise HTTPError(path,404,'missing',{},None)
             client.get_json=get
-            with patch.object(publication,'GitHub',return_value=client), patch.object(publication.subprocess,'run') as execute:
+            with patch.object(publication,'PublicationGitHub',return_value=client), patch.object(publication.subprocess,'run') as execute:
                 publication.publish_outcome('owner/pages',selection,C,44,failed)
                 call=execute.call_args
                 self.assertIn('repos/owner/pages/contents/'+publication.OUTCOME_PATH,call.args[0])

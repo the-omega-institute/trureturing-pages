@@ -94,7 +94,12 @@ process termination and unknown export errors remain retryable failures.
 Successful bundles are published in **the Pages repository**, under
 `pages-source-<source commit>`. Structured release notes retain exact source/tree,
 CI and report-producer run attempts, report manifest, Scribe asset and logical
-identity, and bundle digest. A draft becomes public only after upload; a public
+identity, and bundle digest. Notes have a 16,384-character budget and contain
+only publication coordinates. Full resource inventories remain inside the
+checksum-bound `report-provenance.v1.json`, referenced by file and SHA-256 in
+the notes; historical rejections remain on the diagnostic branch. Neither is
+duplicated into GitHub's length-limited release body. A draft becomes public
+only after upload; a public
 source publication is never overwritten. These durable bundles are consumed
 alongside historical upstream truth releases through the existing source,
 ancestry, Library history and atomic ingestion checks.
@@ -143,6 +148,12 @@ revalidation. Moving dev references and run/release lists must not reuse a stale
 intermediary response across polling runs: an old dev head would otherwise reject
 new successful CI sources as non-ancestors. Immutable artifact digests and source
 identity checks remain the admission evidence.
+
+The report consumer retries transient metadata-read disconnects, timeouts and
+GitHub 500/502/503/504 responses up to three total attempts, with one- and
+two-second delays. Authorization, missing-input, validation and malformed
+identity errors fail immediately. These retries apply only to read requests;
+release and outcome writes retain their existing behavior.
 
 The projection subprocess does not inherit the Pages workflow's GitHub event,
 SHA, run ID, output files, API token, or CI planning variables. The checked
