@@ -11,6 +11,7 @@ import base64
 import io
 import zipfile
 import hashlib
+from http.client import RemoteDisconnected
 import json
 import os
 from pathlib import Path
@@ -18,16 +19,18 @@ import subprocess
 import shutil
 import tarfile
 import re
+import time
 import xml.etree.ElementTree as ET
 from urllib.parse import quote
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 from lib.reconcile_releases import GitHub, REPOSITORY, require_digest, require_oid
 from lib import vertical_smoke
 
 SCHEMA = "pages-upstream-ci-publication.v1"
 PROJECTION_CONTRACT = "pages-report-projection.v1"
+NOTES_LIMIT = 16 * 1024
 WORKFLOW = "ci-current.yml"
 CHECKS = ("required",)
 EXPORT_CHECKS = (*CHECKS, "lean-cache-publication")
@@ -54,6 +57,22 @@ CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed
                       "TRUTH_RELEASE_INVALID trusted frozen ledger contains duplicate descriptor_selector",
                       "TRUTH_RELEASE_REJECTED frozen state does not match current report: ",
                       "TRUTH_RELEASE_INVALID Scribe emission verification failed: describe red code=")
+
+
+class PublicationGitHub(GitHub):
+    """Retry transient metadata reads locally to this report consumer."""
+    def get_json(self, path):
+        for attempt in range(3):
+            try:
+                return super().get_json(path)
+            except HTTPError as error:
+                if error.code not in {500, 502, 503, 504} or attempt == 2:
+                    raise
+                error.close()
+            except (RemoteDisconnected, URLError, TimeoutError, ConnectionError):
+                if attempt == 2:
+                    raise
+            time.sleep(attempt + 1)
 
 
 def read_outcome(client):
@@ -460,8 +479,8 @@ def report_ci(source, workflow, commit, head):
 
 
 def plan(pages_repository, adapter_commit=None):
-    source = GitHub(REPOSITORY)
-    pages = GitHub(pages_repository)
+    source = PublicationGitHub(REPOSITORY)
+    pages = PublicationGitHub(pages_repository)
     workflow = source.get_json("actions/workflows/" + WORKFLOW)
     if workflow.get("path") != ".github/workflows/" + WORKFLOW or workflow.get("state") != "active":
         raise ValueError("canonical upstream workflow is missing or inactive")
@@ -814,9 +833,27 @@ def publication_metadata(selection, bundle):
     if (verified["source_commit"] != selection["source_commit"]
             or verified["source_tree"] != selection["source_tree"]):
         raise ValueError("exported bundle differs from selected upstream CI source")
-    return {"schema": SCHEMA, "source_repository": REPOSITORY,
-            **{k: v for k, v in selection.items() if k != "should_build"},
-            "release_digest": verified["release_digest"]}
+    # Release notes are a discovery coordinate, not an ever-growing copy of
+    # diagnostics and resource inventories. Full resource provenance is already
+    # checksum-bound inside the bundle; rejection history lives on the status
+    # branch. Copy only bounded publication identities to GitHub's notes field.
+    fields = ("source_commit", "source_tree", "produced_at", "adapter_commit", "pages_repository",
+              "projection_contract", "ci_run_id", "ci_run_attempt", "ci_url",
+              "report_run_id", "report_run_attempt", "report_release_tag", "input_digest",
+              "required_checks", "report_manifest")
+    metadata = {"schema": SCHEMA, "source_repository": REPOSITORY,
+                **{key: selection[key] for key in fields if key in selection},
+                "release_digest": verified["release_digest"]}
+    if selection.get("scribe"):
+        metadata["scribe"] = {key: selection["scribe"][key] for key in
+                              ("source_commit", "report_source_commit", "release_tag", "pack_digest",
+                               "consumed_pack_digest", "asset") if key in selection["scribe"]}
+    manifest = vertical_smoke._read_json(Path(bundle) / "release-manifest.v1.json")
+    if "report_provenance" in manifest["artifacts"]:
+        metadata["bundle_provenance"] = manifest["artifacts"]["report_provenance"]
+    if len(json.dumps(metadata, indent=2)) + 1 > NOTES_LIMIT:
+        raise ValueError("publication identity exceeds the bounded release-notes contract")
+    return metadata
 
 
 def publish_outcome(repository, selection, adapter_commit, run_id, failed=False):
@@ -848,7 +885,7 @@ def publish_outcome(repository, selection, adapter_commit, run_id, failed=False)
         rejections.append({"source_commit": value["source_commit"], "input_digest": digest,
                            "reason": value["reason"], "run_id": value["rejection_run_id"] or value["run_id"]})
     value["rejections"] = rejections[-100:]
-    client = GitHub(repository)
+    client = PublicationGitHub(repository)
     def write(endpoint, payload, method="PUT"):
         subprocess.run(["gh", "api", "--method", method, f"repos/{repository}/{endpoint}", "--input", "-"],
                        input=json.dumps(payload), text=True, capture_output=True, check=True)
