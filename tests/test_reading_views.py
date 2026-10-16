@@ -74,6 +74,24 @@ class ReadingViewsTests(unittest.TestCase):
         populated=render_research_groups(source,{},records)
         self.assertTrue(Fragments(populated).select(id='results-erdos'))
 
+    def test_activity_news_survives_projection_with_its_source_and_navigation(self):
+        records, source = results()
+        section = ('<section id="activities" class="news-section"><h2>Research news</h2>'
+                   '<article class="news-activity"><h3>Research conversation</h3>'
+                   '<p>Continuing the conversation.</p><details><summary>Source</summary>'
+                   '<a href="https://example.org/pinned-announcement">Institute announcement</a>'
+                   '</details></article></section>')
+        source = source.replace('</main>', section + '</main>')
+        out = render_research_groups(source, {}, records)
+        self.assertIn(section, out)
+        self.assertIn('href="#activities"><span>03</span> Research news', out)
+        self.assertIn('href="#frontier"><span>04</span>', out)
+        self.assertLess(out.index('id="publications"'), out.index('id="activities"'))
+        self.assertLess(out.index('id="activities"'), out.index('id="frontier"'))
+        without_news = render_research_groups(results()[1], {}, records)
+        self.assertNotIn('href="#activities"', without_news)
+        self.assertIn('href="#frontier"><span>03</span>', without_news)
+
     def test_missing_result_fails_instead_of_silently_omitting_it(self):
         records,source=results();records[0]['id']='absent'
         with self.assertRaisesRegex(ValueError,'absent'):render_research_groups(source,{},records)

@@ -387,6 +387,29 @@ class ResearchNewsTests(unittest.TestCase):
                 if item.get("image"):
                     self.assertTrue((CATALOG.parent.parent / item["image"]).is_file())
 
+    def test_poster_and_activity_are_rendered_with_their_actual_sources(self):
+        from lib.reading_views import Fragments
+        snapshot = {"graph": graph(), "problems": [], "truth_release_digest": "sha256:" + "a" * 64}
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
+            news = (output / "research.html").read_text()
+        parsed = Fragments(news)
+        poster = parsed.raw(parsed.select(id='cross-engine-admission')[0])
+        self.assertIn('MATH-AI', poster)
+        self.assertIn('Accepted poster / workshop', poster)
+        self.assertIn('datetime="2026-09"', poster)
+        self.assertIn('12 December 2026', poster)
+        self.assertIn('https://mathai-2026.github.io/papers', poster)
+        self.assertNotIn('RAIRO', poster)
+        activity = parsed.raw(parsed.select(id='sair-open-math-model')[0])
+        self.assertIn('https://sair.foundation/', activity)
+        self.assertIn('/f98733b9eb0f4423d668128a651ac0389bf3d485/', activity)
+        self.assertNotIn('news-result', activity)
+        for item in json.loads(CATALOG.read_text())["publications"]:
+            for link in item.get("links", []):
+                self.assertIn('href="' + link["url"] + '"', news)
+
     def test_information_architecture_gives_each_page_one_primary_job(self):
         snapshot = {"graph": graph(), "problems": [parse_problem(problem_source(), "test-question.md")], "truth_release_digest": "sha256:" + "a" * 64}
         with tempfile.TemporaryDirectory() as temp:

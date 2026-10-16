@@ -50,6 +50,21 @@ def main():
         events.append('Research exposes results immediately with source labels, summaries and outcome badges')
         order=page.locator('main').evaluate("e=>['results','publications','frontier'].map(id=>[...e.children].indexOf(document.getElementById(id)))")
         assert order==sorted(order) and order[0]>=0
+        catalog=json.loads((args.site/'assets/research-news.json').read_text())
+        for paper in catalog['publications']:
+            card=page.locator('[id="'+paper['id']+'"]')
+            assert card.locator('h3').inner_text()==paper['title']
+            assert card.locator('h3 a').get_attribute('href')==paper['url']
+        for activity in catalog.get('activities',[]):
+            card=page.locator('#activities [id="'+activity['id']+'"]')
+            assert card.locator('h3').inner_text()==activity['title']
+            assert card.locator('details a').get_attribute('href')==activity['source_url']
+        if catalog.get('activities'):
+            page.locator('#activities').scroll_into_view_if_needed()
+            page.screenshot(path=str(args.output/'research-news-desktop.png'))
+        page.locator('#publications').scroll_into_view_if_needed()
+        page.screenshot(path=str(args.output/'research-publications-desktop.png'))
+        page.evaluate('scrollTo(0,0)')
         page.screenshot(path=str(args.output/'research-restored-desktop.png'),full_page=True)
         if total>8:
             page.locator('[data-result-more]').click()
