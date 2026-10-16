@@ -6,6 +6,29 @@ authors' arXiv PDFs, retrieved on 2026-09-07:
 - https://arxiv.org/pdf/2609.00706
 - https://arxiv.org/pdf/2607.04534
 
+`klein-four-ca.jpg` and `eof-coincidence.jpg` are the same kind of render,
+retrieved on 2026-10-16:
+
+- https://arxiv.org/pdf/2610.20329 (v1)
+- https://arxiv.org/pdf/2610.18816 (v2, posted 2026-10-15)
+
+`subquorum.jpg` and `padovan.jpg` were retrieved and rendered on 2026-10-16:
+
+- https://arxiv.org/pdf/2609.25128v4 (updated 2026-10-10)
+- https://arxiv.org/pdf/2609.33421v1 (submitted 2026-09-27)
+
+The MATH-AI poster uses a typographic workshop label. Its title and acceptance
+are listed at https://mathai-2026.github.io/papers; the event page confirms
+12 December 2026 in Atlanta. The institute's announcement records the authors,
+poster format and announcement month. OpenReview denied automated API/PDF reads
+during this review, so no OpenReview abstract or preview was inferred.
+
+The research-news catch-up was compared with the organization profile at
+[`the-omega-institute/.github@f98733b9`](https://github.com/the-omega-institute/.github/blob/f98733b9eb0f4423d668128a651ac0389bf3d485/profile/README.md#research-news).
+Its nine news entries are represented by eight publication/poster records and
+one activity record. Publication scope and dates follow the primary records;
+the profile's October 3 project statistics are not publication metadata.
+
 Generated using Poppler `pdftoppm -f 1 -singlefile -scale-to 680 -jpeg`.
 The previews link to the original articles and are attributed beside each image.
 The journal record uses a typographic label; its published title and DOI are

@@ -138,6 +138,9 @@ def render_research_groups(document, snapshot, records):
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
     papers = parsed.select(id='publications')
+    activities = parsed.select(id='activities')
+    activity_navigation = '<a href="#activities"><span>03</span> Research news</a>' if activities else ''
+    frontier_number = '04' if activities else '03'
     collections = [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')]
     counts = defaultdict(int)
     rows = []
@@ -179,7 +182,8 @@ def render_research_groups(document, snapshot, records):
         f'<dd>{len(records)}</dd></div><div><dt>Proved</dt><dd>{proved}</dd></div>'
         f'<div><dt>Refuted</dt><dd>{refuted}</dd></div></dl></header>'
         '<nav class="news-index" aria-label="Research sections"><a href="#results"><span>01</span> Results</a>'
-        '<a href="#publications"><span>02</span> Publications</a><a href="#frontier"><span>03</span> Next questions</a></nav>'
+        '<a href="#publications"><span>02</span> Publications</a>' + activity_navigation
+        + f'<a href="#frontier"><span>{frontier_number}</span> Next questions</a></nav>'
         '<section id="results" class="news-section" data-research-index><div class="news-section-heading"><div>'
         '<p class="eyebrow">THE COLLECTION</p><h2>Explore the results</h2></div>'
         '<p>Original questions. Precise scope. Inspectable proofs.</p></div>'
@@ -198,6 +202,7 @@ def render_research_groups(document, snapshot, records):
         '<p>Try a different title, sequence number or collection.</p></div>'
         '<div class="research-pagination"><button type="button" data-result-more hidden>Show more results</button></div></section>'
         + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
+        + (parsed.raw(activities[0]) if activities else '')
         + '<section id="frontier" class="news-onward"><div><p class="eyebrow">CONTINUE THE INQUIRY</p>'
         '<h2>Every result opens a new question.</h2><p>Explore what comes next, or build on a proof already in the Library.</p></div>'
         '<div class="research-next-links"><a href="conjectures.html#open-problems">Open conjectures <span aria-hidden="true">↗</span></a>'

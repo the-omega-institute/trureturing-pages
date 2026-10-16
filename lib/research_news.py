@@ -329,7 +329,7 @@ def render_news(output, snapshot, shell, catalog_path=None):
     if "schema_version" in snapshot:
         render_spaces(output, snapshot)
     catalog = json.loads(Path(catalog_path or CATALOG).read_text())
-    publications, results = [], []
+    publications, results, activities = [], [], []
     nodes = snapshot["graph"]["nodes"]
     records = [item for item in result_records(snapshot, catalog_path)
                if not item.get("resolution_record") or _kernel_verified(item["resolution_record"])]
@@ -351,13 +351,24 @@ def render_news(output, snapshot, shell, catalog_path=None):
         body = f'''<article class="news-result" id="{item['id']}"><div class="news-result-meta">{date}<span class="news-status {item['kind']}">{status}</span></div><div><p class="eyebrow">{esc(item['field'])}</p><h3>{esc(item['title'])}</h3>{_result_statement(item)}<div class="news-links">{reading}<a href="{esc(item['source_url'])}">Original question</a>{binding}</div><details><summary>Proof record</summary><p class="news-release-state">{release_state}</p>{member_links}<div class="news-links">{proof}<a href="{BOOK}Blueprint/{module}.html">Read in mdBook <i data-lucide="arrow-up-right"></i></a></div><p><a href="{evidence}">Frozen module record</a> <code>{esc(item.get('statement_id', 'Source marker; typed-claim and Lean validation are not replayed by Pages.'))}</code></p><small>Evidence snapshot: {commit}. The linked mdBook follows upstream development.</small></details></div></article>'''
         results.append(body)
     for item in catalog["publications"]:
-        preview = f'<a class="paper-preview" href="{esc(item["url"])}"><img src="{item["image"]}" alt="First page of {esc(item["title"])}" width="340" height="480" loading="lazy"></a>' if item.get("image") else '<div class="journal-mark" aria-label="RAIRO journal article"><strong>RAIRO</strong><span>Theoretical Informatics<br>and Applications</span><span>60 / 2026 / 29</span><a href="https://doi.org/10.1051/ita/2026032">10.1051/ita/2026032</a></div>'
+        if item.get("image"):
+            preview = f'<a class="paper-preview" href="{esc(item["url"])}"><img src="{esc(item["image"])}" alt="First page of {esc(item["title"])}" width="340" height="480" loading="lazy"></a>'
+        elif item.get("doi") == "10.1051/ita/2026032":
+            preview = '<div class="journal-mark" aria-label="RAIRO journal article"><strong>RAIRO</strong><span>Theoretical Informatics<br>and Applications</span><span>60 / 2026 / 29</span><a href="https://doi.org/10.1051/ita/2026032">10.1051/ita/2026032</a></div>'
+        else:
+            preview = f'<a class="journal-mark publication-mark" href="{esc(item["url"])}"><strong>{esc(item.get("mark", item["venue"]))}</strong><span>{esc(item["status"])}</span></a>'
         qualification = f'<p class="news-qualification">{esc(item["qualification"])}</p>' if item.get("qualification") else ''
-        publications.append(f'''<article class="news-paper" id="{item['id']}">{preview}<div><p class="eyebrow"><time datetime="{item['date']}">{item['date']}</time> / {esc(item['status'])}</p><h3><a href="{esc(item['url'])}">{esc(item['title'])}</a></h3><p class="paper-authors">{esc(item['authors'])}</p><p class="paper-venue">{esc(item['venue'])}</p><p>{esc(item['summary'])}</p><p class="paper-highlight">{esc(item['highlight'])}</p>{qualification}<div class="news-links"><a href="{esc(item['url'])}">Read article <i data-lucide="arrow-up-right"></i></a></div><details><summary>Source &amp; evidence</summary><p>{esc(item['evidence'])}</p></details></div></article>''')
+        links = ''.join(f'<a href="{esc(link["url"])}">{esc(link["label"])}</a>' for link in item.get("links", []))
+        publications.append(f'''<article class="news-paper" id="{item['id']}">{preview}<div><p class="eyebrow"><time datetime="{item['date']}">{item['date']}</time> / {esc(item['status'])}</p><h3><a href="{esc(item['url'])}">{esc(item['title'])}</a></h3><p class="paper-authors">{esc(item['authors'])}</p><p class="paper-venue">{esc(item['venue'])}</p><p>{esc(item['summary'])}</p><p class="paper-highlight">{esc(item['highlight'])}</p>{qualification}<div class="news-links"><a href="{esc(item['url'])}">{esc(item.get('link_label', 'Read article'))} <i data-lucide="arrow-up-right"></i></a>{links}</div><details><summary>Source &amp; evidence</summary><p>{esc(item['evidence'])}</p></details></div></article>''')
+    for item in catalog.get("activities", []):
+        links = ''.join(f'<a href="{esc(link["url"])}">{esc(link["label"])}</a>' for link in item["links"])
+        activities.append(f'<article class="news-activity" id="{esc(item["id"])}"><p class="eyebrow"><time datetime="{esc(item["date"])}">{esc(item["date"])}</time></p><h3>{esc(item["title"])}</h3><p>{esc(item["summary"])}</p><div class="news-links">{links}</div><details><summary>Source</summary><a href="{esc(item["source_url"])}">Institute announcement</a></details></article>')
+    activity_section = ('<section id="activities" class="news-section"><h2>Research news</h2>'
+                        + ''.join(activities) + '</section>') if activities else ''
     # Evidence cards are built once. The reading projection groups these same cards.
     body = ('<main class="site-main research-news">' + ''.join(results)
             + '<section id="publications" class="news-section"><h2>Publications</h2>'
-            + ''.join(publications) + '</section></main>')
+            + ''.join(publications) + '</section>' + activity_section + '</main>')
     document = shell("Research", "", body, appearance="editorial").replace('</head>',
         '<link rel="stylesheet" href="assets/research-news.css"><link rel="stylesheet" href="assets/research-editorial.css">'
         '<script type="module" src="assets/research-news.mjs"></script></head>')
