@@ -90,6 +90,8 @@ class PublicationReadRetryTests(unittest.TestCase):
                 self.assertTrue(client.is_ancestor(older, newer))
                 self.assertFalse(client.is_ancestor(newer, older))
                 self.assertFalse(client.is_ancestor(divergent, newer))
+                self.assertEqual(sum('fetch' in call.args[0] for call in commands.call_args_list), 1)
+                self.assertTrue(client.is_ancestor(older, divergent))
                 self.assertTrue(client.is_ancestor(newer, newer))
             read.assert_called_once()
             fetches = [call.args[0] for call in commands.call_args_list if 'fetch' in call.args[0]]

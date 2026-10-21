@@ -110,12 +110,22 @@ class PublicationGitHub(GitHub):
             self._git_ancestry = GitAncestry(repository, ref='FETCH_HEAD')
             if self._git_ancestry.head != newer:
                 raise ValueError('fetched ancestry graph differs from the requested source')
-        for commit in (older, newer):
-            present = subprocess.run(['git', '-C', str(repository), 'cat-file', '-e', commit + '^{commit}'],
-                                     env={**os.environ, 'GIT_NO_LAZY_FETCH': '1'}, capture_output=True)
-            if present.returncode:
-                self._fetch_commit_graph(repository, commit)
+        if not self._has_git_commit(repository, newer):
+            self._fetch_commit_graph(repository, newer)
+        # A full, non-shallow fetch includes every ancestor commit. An absent
+        # older source cannot be an ancestor; deleted side-branch reports need
+        # no separate fetch (GitHub may no longer serve those objects over Git).
+        if not self._has_git_commit(repository, older):
+            return False
         return self._git_ancestry.is_ancestor(older, newer)
+
+    def _has_git_commit(self, repository, commit):
+        value = subprocess.run(['git', '-C', str(repository), 'cat-file', '--batch-check=%(objecttype)'],
+                               input=commit + '\n', env={**os.environ, 'GIT_NO_LAZY_FETCH': '1'},
+                               check=True, capture_output=True, text=True).stdout.strip()
+        if value not in {'commit', commit + ' missing'}:
+            raise ValueError('invalid object in the source ancestry graph')
+        return value == 'commit'
 
     def _fetch_commit_graph(self, repository, commit):
         # Public, immutable commit metadata only: no checkout, trees, blobs,
@@ -125,6 +135,10 @@ class PublicationGitHub(GitHub):
                         '--no-recurse-submodules', f'https://github.com/{self.repository}.git', require_oid(commit)],
                        env={**os.environ, 'GIT_TERMINAL_PROMPT': '0'},
                        check=True, capture_output=True, text=True, timeout=180)
+        fetched = subprocess.check_output(['git', '-C', str(repository), 'rev-parse', 'FETCH_HEAD'], text=True).strip()
+        shallow = subprocess.check_output(['git', '-C', str(repository), 'rev-parse', '--is-shallow-repository'], text=True).strip()
+        if fetched != commit or shallow != 'false':
+            raise ValueError('ancestry fetch must contain the full history of the requested commit')
 
 
 def read_outcome(client):
