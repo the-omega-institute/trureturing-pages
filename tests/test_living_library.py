@@ -1,10 +1,14 @@
 import copy
+from http.client import IncompleteRead
+from io import BytesIO
 import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+from urllib.error import HTTPError, URLError
 
+from lib import living_library
 from lib.living_library import SECTIONS, MARKDOWN, archive_json, build_library, content_timeline, create_snapshot, digest, parse_problem
 from lib.knowledge_pages import stable_file_name
 
@@ -15,6 +19,51 @@ def problem_source():
 
 def graph(letter="a"):
     return {"source_snapshot": {"truth_release_digest": "sha256:" + letter * 64, "source_commit": letter * 40}, "nodes": [{"id": "A", "title": "Foundation", "kind": "truth", "domain": "Digit", "repo_path": "A.lean", "status": "Closed", "state": "closed"}], "edges": []}
+
+
+class RemoteHistoryReadTests(unittest.TestCase):
+    def test_transient_server_failure_and_timeout_recover_the_same_history(self):
+        unavailable = HTTPError('https://example.test/', 503, 'Unavailable', {}, None)
+        history = b'{"entries":[{"digest":"preserved"}]}'
+        with patch.object(living_library, 'urlopen', side_effect=[unavailable, TimeoutError(), BytesIO(history)]) as read, \
+             patch.object(living_library.time, 'sleep') as sleep:
+            self.assertEqual(living_library.read_remote('https://example.test/pages/', 'data/history.json?reconcile=abc', True), history)
+        self.assertEqual(read.call_count, 3)
+        self.assertTrue(all(call == read.call_args_list[0] for call in read.call_args_list))
+        self.assertEqual(read.call_args.args[0], 'https://example.test/pages/data/history.json?reconcile=abc')
+        self.assertEqual([call.args[0] for call in sleep.call_args_list], [1, 2])
+
+    def test_interrupted_body_is_discarded_before_retry(self):
+        partial = MagicMock()
+        partial.__enter__.return_value.read.side_effect = IncompleteRead(b'partial', 10)
+        with patch.object(living_library, 'urlopen', side_effect=[partial, BytesIO(b'complete')]), \
+             patch.object(living_library.time, 'sleep'):
+            self.assertEqual(living_library.read_remote('https://example.test/', 'snapshot.json.gz'), b'complete')
+        partial.__exit__.assert_called_once()
+
+    def test_persistent_transport_failure_is_never_empty_history(self):
+        for error in (HTTPError('https://example.test/', 503, 'Unavailable', {}, None),
+                      URLError(TimeoutError()), ConnectionResetError()):
+            with self.subTest(error=type(error).__name__), \
+                 patch.object(living_library, 'urlopen', side_effect=error) as read, \
+                 patch.object(living_library.time, 'sleep') as sleep:
+                with self.assertRaises(type(error)):
+                    living_library.read_remote('https://example.test/', 'history.json', True)
+                self.assertEqual(read.call_count, 3)
+                self.assertEqual(sleep.call_count, 2)
+
+    def test_missing_optional_history_and_permanent_errors_are_not_retried(self):
+        for code, optional in ((401, True), (403, True), (404, True), (404, False), (422, True)):
+            error = HTTPError('https://example.test/', code, 'Permanent', {}, None)
+            with self.subTest(code=code, optional=optional), patch.object(living_library, 'urlopen', side_effect=error) as read, \
+                 patch.object(living_library.time, 'sleep') as sleep:
+                if code == 404 and optional:
+                    self.assertIsNone(living_library.read_remote('https://example.test/', 'history.json', optional))
+                else:
+                    with self.assertRaises(HTTPError):
+                        living_library.read_remote('https://example.test/', 'history.json', optional)
+                self.assertEqual(read.call_count, 1)
+                sleep.assert_not_called()
 
 
 class LivingLibraryTests(unittest.TestCase):

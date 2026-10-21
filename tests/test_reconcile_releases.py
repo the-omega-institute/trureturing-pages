@@ -132,7 +132,8 @@ class ReconciliationPlanTests(unittest.TestCase):
 
     def test_http_failure_is_not_an_empty_history(self):
         from urllib.error import HTTPError
-        with patch.object(living_library, "urlopen", side_effect=HTTPError("https://example.test/", 503, "Unavailable", {}, None)):
+        with patch.object(living_library, "urlopen", side_effect=HTTPError("https://example.test/", 503, "Unavailable", {}, None)), \
+             patch.object(living_library.time, "sleep"):
             with self.assertRaises(HTTPError):
                 reconcile.read_state(Path("unused"), "https://example.test/")
 

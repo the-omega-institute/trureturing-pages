@@ -4,12 +4,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import gzip
+from http.client import IncompleteRead
 import io
 import json
 import re
 import subprocess
+import time
 from pathlib import Path
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urljoin, urlsplit
 from urllib.request import urlopen
 
@@ -219,13 +221,24 @@ def read_remote(base: str, path: str, optional=False) -> bytes | None:
     parsed = urlsplit(base)
     if parsed.scheme != "https" and not (parsed.scheme == "http" and parsed.hostname in ("localhost", "127.0.0.1")):
         raise ValueError("Previous Library deployment must use HTTPS.")
-    try:
-        with urlopen(urljoin(base.rstrip("/") + "/", path), timeout=30) as response:
-            return response.read()
-    except HTTPError as error:
-        if optional and error.code == 404:
-            return None
-        raise
+    url = urljoin(base.rstrip("/") + "/", path)
+    for attempt in range(3):
+        try:
+            with urlopen(url, timeout=30) as response:
+                return response.read()
+        except HTTPError as error:
+            if optional and error.code == 404:
+                error.close()
+                return None
+            if error.code not in {500, 502, 503, 504} or attempt == 2:
+                raise
+            error.close()
+        except (URLError, TimeoutError, ConnectionError, IncompleteRead):
+            if attempt == 2:
+                raise
+        # Recover a transient Pages read without treating unavailable history as
+        # empty. Each attempt starts a fresh response, including after a partial read.
+        time.sleep(attempt + 1)
 
 
 def page_shell(title: str, root: str, body: str, active="Research", appearance=None) -> str:
