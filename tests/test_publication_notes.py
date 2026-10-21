@@ -2,6 +2,7 @@ from http.client import RemoteDisconnected
 import io
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -61,6 +62,56 @@ class PublicationNotesTests(unittest.TestCase):
 
 
 class PublicationReadRetryTests(unittest.TestCase):
+    def test_diff_timeout_uses_real_commit_ancestry_including_divergence(self):
+        detail = {'errors': [{'resource': 'Comparison', 'field': 'diff', 'code': 'not_available'}]}
+        error = HTTPError('https://api.github.com', 422, 'diff timeout', {}, io.BytesIO(json.dumps(detail).encode()))
+        with tempfile.TemporaryDirectory() as temp:
+            upstream = Path(temp) / 'upstream'
+            def git(*args):
+                return subprocess.check_output(['git', '-C', str(upstream), *args], text=True).strip()
+            subprocess.run(['git', 'init', '--initial-branch=dev', str(upstream)], check=True, capture_output=True)
+            def commit(message):
+                git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.test',
+                    '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null',
+                    'commit', '--allow-empty', '-m', message)
+                return git('rev-parse', 'HEAD')
+            older = commit('base')
+            newer = commit('dev')
+            git('checkout', '-b', 'other', older)
+            divergent = commit('other')
+            execute = subprocess.run
+            url = 'https://github.com/' + publication.REPOSITORY + '.git'
+            def transport(args, **kwargs):
+                return execute([str(upstream) if arg == url else arg for arg in args], **kwargs)
+            client = publication.PublicationGitHub()
+            client._ancestry_directory = str(Path(temp) / 'graph')
+            with patch.object(GitHub, 'get_json', side_effect=error) as read, \
+                 patch.object(publication.subprocess, 'run', side_effect=transport) as commands:
+                self.assertTrue(client.is_ancestor(older, newer))
+                self.assertFalse(client.is_ancestor(newer, older))
+                self.assertFalse(client.is_ancestor(divergent, newer))
+                self.assertEqual(sum('fetch' in call.args[0] for call in commands.call_args_list), 1)
+                self.assertTrue(client.is_ancestor(older, divergent))
+                self.assertTrue(client.is_ancestor(newer, newer))
+            read.assert_called_once()
+            fetches = [call.args[0] for call in commands.call_args_list if 'fetch' in call.args[0]]
+            self.assertEqual([args[-1] for args in fetches], [newer, divergent])
+            self.assertTrue(all('--filter=tree:0' in args and '--no-tags' in args for args in fetches))
+            self.assertFalse((Path(client._ancestry_directory) / 'source.git' / 'index').exists())
+
+    def test_other_422_responses_do_not_start_a_git_fallback(self):
+        for detail in ({'errors': [{'resource': 'Comparison', 'field': 'base', 'code': 'invalid'}]},
+                       {'errors': None}, [], 'invalid JSON'):
+            raw = detail.encode() if isinstance(detail, str) else json.dumps(detail).encode()
+            error = HTTPError('https://api.github.com', 422, 'permanent', {}, io.BytesIO(raw))
+            client = publication.PublicationGitHub()
+            client._ancestry_directory = 'unused'
+            with self.subTest(detail=detail), patch.object(GitHub, 'get_json', side_effect=error), \
+                 patch.object(client, '_git_is_ancestor') as fallback:
+                with self.assertRaises(HTTPError):
+                    client.is_ancestor('a' * 40, 'b' * 40)
+                fallback.assert_not_called()
+
     def test_disconnect_and_server_error_retry_the_same_read(self):
         for error in [RemoteDisconnected('connection closed'),
                       HTTPError('https://api.github.com', 500, 'Internal Server Error', {}, io.BytesIO())]:
