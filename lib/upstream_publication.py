@@ -60,8 +60,14 @@ CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed
 
 
 class PublicationGitHub(GitHub):
-    """Retry transient metadata reads locally to this report consumer."""
+    """Keep report metadata reads small and retry transient read failures."""
     def get_json(self, path):
+        if re.fullmatch(r"compare/[0-9a-f]{40}\.\.\.[0-9a-f]{40}\?per_page=1", path):
+            # GitHub includes file diffs on the first comparison page even with
+            # per_page=1. Large historical diffs can fail with HTTP 422. Later
+            # pages retain status/merge-base metadata without including those
+            # files; the inherited ancestry checks still validate that metadata.
+            path += "&page=2"
         for attempt in range(3):
             try:
                 return super().get_json(path)

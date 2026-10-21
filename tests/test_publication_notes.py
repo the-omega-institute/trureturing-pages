@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
+from urllib.parse import parse_qs, urlsplit
 
 from lib import upstream_publication as publication
 from lib.reconcile_releases import GitHub
@@ -61,6 +62,31 @@ class PublicationNotesTests(unittest.TestCase):
 
 
 class PublicationReadRetryTests(unittest.TestCase):
+    def test_large_comparison_avoids_file_diff_and_preserves_ancestry_checks(self):
+        older, newer = 'a' * 40, 'b' * 40
+        metadata = {'status': 'ahead', 'merge_base_commit': {'sha': older}, 'behind_by': 0}
+        requests = []
+        def response(request, timeout):
+            query = parse_qs(urlsplit(request.full_url).query)
+            requests.append(query)
+            if query.get('page', ['1']) == ['1']:
+                raise HTTPError(request.full_url, 422, 'large comparison', {}, io.BytesIO())
+            return io.BytesIO(json.dumps(metadata).encode())
+        with patch('lib.reconcile_releases.urlopen', side_effect=response):
+            with self.assertRaises(HTTPError):
+                GitHub().is_ancestor(older, newer)
+            self.assertTrue(publication.PublicationGitHub().is_ancestor(older, newer))
+            for changed in ({'status': 'diverged'}, {'merge_base_commit': {'sha': newer}},
+                            {'behind_by': 1}):
+                original = dict(metadata)
+                metadata.update(changed)
+                self.assertFalse(publication.PublicationGitHub().is_ancestor(older, newer))
+                metadata.clear()
+                metadata.update(original)
+        for query in requests[1:]:
+            self.assertEqual(query['per_page'], ['1'])
+            self.assertEqual(query['page'], ['2'])
+
     def test_disconnect_and_server_error_retry_the_same_read(self):
         for error in [RemoteDisconnected('connection closed'),
                       HTTPError('https://api.github.com', 500, 'Internal Server Error', {}, io.BytesIO())]:
