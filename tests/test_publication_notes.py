@@ -2,11 +2,11 @@ from http.client import RemoteDisconnected
 import io
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
-from urllib.parse import parse_qs, urlsplit
 
 from lib import upstream_publication as publication
 from lib.reconcile_releases import GitHub
@@ -62,30 +62,53 @@ class PublicationNotesTests(unittest.TestCase):
 
 
 class PublicationReadRetryTests(unittest.TestCase):
-    def test_large_comparison_avoids_file_diff_and_preserves_ancestry_checks(self):
-        older, newer = 'a' * 40, 'b' * 40
-        metadata = {'status': 'ahead', 'merge_base_commit': {'sha': older}, 'behind_by': 0}
-        requests = []
-        def response(request, timeout):
-            query = parse_qs(urlsplit(request.full_url).query)
-            requests.append(query)
-            if query.get('page', ['1']) == ['1']:
-                raise HTTPError(request.full_url, 422, 'large comparison', {}, io.BytesIO())
-            return io.BytesIO(json.dumps(metadata).encode())
-        with patch('lib.reconcile_releases.urlopen', side_effect=response):
-            with self.assertRaises(HTTPError):
-                GitHub().is_ancestor(older, newer)
-            self.assertTrue(publication.PublicationGitHub().is_ancestor(older, newer))
-            for changed in ({'status': 'diverged'}, {'merge_base_commit': {'sha': newer}},
-                            {'behind_by': 1}):
-                original = dict(metadata)
-                metadata.update(changed)
-                self.assertFalse(publication.PublicationGitHub().is_ancestor(older, newer))
-                metadata.clear()
-                metadata.update(original)
-        for query in requests[1:]:
-            self.assertEqual(query['per_page'], ['1'])
-            self.assertEqual(query['page'], ['2'])
+    def test_diff_timeout_uses_real_commit_ancestry_including_divergence(self):
+        detail = {'errors': [{'resource': 'Comparison', 'field': 'diff', 'code': 'not_available'}]}
+        error = HTTPError('https://api.github.com', 422, 'diff timeout', {}, io.BytesIO(json.dumps(detail).encode()))
+        with tempfile.TemporaryDirectory() as temp:
+            upstream = Path(temp) / 'upstream'
+            def git(*args):
+                return subprocess.check_output(['git', '-C', str(upstream), *args], text=True).strip()
+            subprocess.run(['git', 'init', '--initial-branch=dev', str(upstream)], check=True, capture_output=True)
+            def commit(message):
+                git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.test',
+                    '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null',
+                    'commit', '--allow-empty', '-m', message)
+                return git('rev-parse', 'HEAD')
+            older = commit('base')
+            newer = commit('dev')
+            git('checkout', '-b', 'other', older)
+            divergent = commit('other')
+            execute = subprocess.run
+            url = 'https://github.com/' + publication.REPOSITORY + '.git'
+            def transport(args, **kwargs):
+                return execute([str(upstream) if arg == url else arg for arg in args], **kwargs)
+            client = publication.PublicationGitHub()
+            client._ancestry_directory = str(Path(temp) / 'graph')
+            with patch.object(GitHub, 'get_json', side_effect=error) as read, \
+                 patch.object(publication.subprocess, 'run', side_effect=transport) as commands:
+                self.assertTrue(client.is_ancestor(older, newer))
+                self.assertFalse(client.is_ancestor(newer, older))
+                self.assertFalse(client.is_ancestor(divergent, newer))
+                self.assertTrue(client.is_ancestor(newer, newer))
+            read.assert_called_once()
+            fetches = [call.args[0] for call in commands.call_args_list if 'fetch' in call.args[0]]
+            self.assertEqual([args[-1] for args in fetches], [newer, divergent])
+            self.assertTrue(all('--filter=tree:0' in args and '--no-tags' in args for args in fetches))
+            self.assertFalse((Path(client._ancestry_directory) / 'source.git' / 'index').exists())
+
+    def test_other_422_responses_do_not_start_a_git_fallback(self):
+        for detail in ({'errors': [{'resource': 'Comparison', 'field': 'base', 'code': 'invalid'}]},
+                       {'errors': None}, [], 'invalid JSON'):
+            raw = detail.encode() if isinstance(detail, str) else json.dumps(detail).encode()
+            error = HTTPError('https://api.github.com', 422, 'permanent', {}, io.BytesIO(raw))
+            client = publication.PublicationGitHub()
+            client._ancestry_directory = 'unused'
+            with self.subTest(detail=detail), patch.object(GitHub, 'get_json', side_effect=error), \
+                 patch.object(client, '_git_is_ancestor') as fallback:
+                with self.assertRaises(HTTPError):
+                    client.is_ancestor('a' * 40, 'b' * 40)
+                fallback.assert_not_called()
 
     def test_disconnect_and_server_error_retry_the_same_read(self):
         for error in [RemoteDisconnected('connection closed'),

@@ -18,6 +18,7 @@ from pathlib import Path
 import subprocess
 import shutil
 import tarfile
+import tempfile
 import re
 import time
 import xml.etree.ElementTree as ET
@@ -25,7 +26,7 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
-from lib.reconcile_releases import GitHub, REPOSITORY, require_digest, require_oid
+from lib.reconcile_releases import GitAncestry, GitHub, REPOSITORY, require_digest, require_oid
 from lib import vertical_smoke
 
 SCHEMA = "pages-upstream-ci-publication.v1"
@@ -60,14 +61,8 @@ CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed
 
 
 class PublicationGitHub(GitHub):
-    """Keep report metadata reads small and retry transient read failures."""
+    """Retry report reads and verify ancestry independently of GitHub file diffs."""
     def get_json(self, path):
-        if re.fullmatch(r"compare/[0-9a-f]{40}\.\.\.[0-9a-f]{40}\?per_page=1", path):
-            # GitHub includes file diffs on the first comparison page even with
-            # per_page=1. Large historical diffs can fail with HTTP 422. Later
-            # pages retain status/merge-base metadata without including those
-            # files; the inherited ancestry checks still validate that metadata.
-            path += "&page=2"
         for attempt in range(3):
             try:
                 return super().get_json(path)
@@ -79,6 +74,57 @@ class PublicationGitHub(GitHub):
                 if attempt == 2:
                     raise
             time.sleep(attempt + 1)
+
+    def is_ancestor(self, older, newer):
+        require_oid(older)
+        require_oid(newer)
+        if getattr(self, '_git_ancestry', None) is not None:
+            return self._git_is_ancestor(older, newer)
+        try:
+            return super().is_ancestor(older, newer)
+        except HTTPError as error:
+            if error.code != 422 or not getattr(self, '_ancestry_directory', None):
+                raise
+            # GitHub computes file diffs even on later comparison pages. Only
+            # its explicit diff-generation failure may use the Git transport;
+            # authorization, malformed requests and other 422s still fail closed.
+            try:
+                detail = json.loads(error.read(16384))
+            except (ValueError, UnicodeError):
+                raise error
+            errors = detail.get('errors') if isinstance(detail, dict) else None
+            if not isinstance(errors, list) or not any(
+                    isinstance(item, dict) and item.get('resource') == 'Comparison'
+                    and item.get('field') == 'diff' and item.get('code') == 'not_available'
+                    for item in errors):
+                raise
+            error.close()
+        return self._git_is_ancestor(older, newer)
+
+    def _git_is_ancestor(self, older, newer):
+        repository = Path(self._ancestry_directory) / 'source.git'
+        if getattr(self, '_git_ancestry', None) is None:
+            subprocess.run(['git', 'init', '--bare', str(repository)],
+                           check=True, capture_output=True, text=True)
+            self._fetch_commit_graph(repository, newer)
+            self._git_ancestry = GitAncestry(repository, ref='FETCH_HEAD')
+            if self._git_ancestry.head != newer:
+                raise ValueError('fetched ancestry graph differs from the requested source')
+        for commit in (older, newer):
+            present = subprocess.run(['git', '-C', str(repository), 'cat-file', '-e', commit + '^{commit}'],
+                                     env={**os.environ, 'GIT_NO_LAZY_FETCH': '1'}, capture_output=True)
+            if present.returncode:
+                self._fetch_commit_graph(repository, commit)
+        return self._git_ancestry.is_ancestor(older, newer)
+
+    def _fetch_commit_graph(self, repository, commit):
+        # Public, immutable commit metadata only: no checkout, trees, blobs,
+        # producer execution, credentials or upstream publication changes.
+        subprocess.run(['git', '-C', str(repository), '-c', 'credential.helper=',
+                        '-c', 'protocol.version=2', 'fetch', '--filter=tree:0', '--no-tags',
+                        '--no-recurse-submodules', f'https://github.com/{self.repository}.git', require_oid(commit)],
+                       env={**os.environ, 'GIT_TERMINAL_PROMPT': '0'},
+                       check=True, capture_output=True, text=True, timeout=180)
 
 
 def read_outcome(client):
@@ -485,7 +531,13 @@ def report_ci(source, workflow, commit, head):
 
 
 def plan(pages_repository, adapter_commit=None):
-    source = PublicationGitHub(REPOSITORY)
+    with tempfile.TemporaryDirectory(prefix='pages-report-ancestry-') as directory:
+        source = PublicationGitHub(REPOSITORY)
+        source._ancestry_directory = directory
+        return _plan(source, pages_repository, adapter_commit)
+
+
+def _plan(source, pages_repository, adapter_commit):
     pages = PublicationGitHub(pages_repository)
     workflow = source.get_json("actions/workflows/" + WORKFLOW)
     if workflow.get("path") != ".github/workflows/" + WORKFLOW or workflow.get("state") != "active":
