@@ -228,9 +228,11 @@ def read_remote(base: str, path: str, optional=False) -> bytes | None:
                 return response.read()
         except HTTPError as error:
             if optional and error.code == 404:
+                error.close()
                 return None
             if error.code not in {500, 502, 503, 504} or attempt == 2:
                 raise
+            error.close()
         except (URLError, TimeoutError, ConnectionError, IncompleteRead):
             if attempt == 2:
                 raise
