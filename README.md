@@ -2,7 +2,7 @@
 
 `trureturing-pages` presents a living, release-bound mathematical knowledge system:
 
-- Explore: the spatial Atlas and concept-family structure.
+- Explore: shared mathematical foundations, exact dependency paths, and the full spatial Atlas.
 - Library: concept Wiki, authored content, and immutable release versions.
 - Evolution: dependency lineage and changes across verified releases.
 - Research: source-backed questions, missing bridges, proposed routes, and development activity.
@@ -11,8 +11,11 @@ The site is plain HTML, CSS, and client-side JavaScript. It has no frontend buil
 
 ## Public Atlas preview
 
-`site/atlas.html` is the public concept-family view with a 3D graph and concept
-Wiki. `site/dag.html` retains the advanced analysis console. To preview against a
+`site/atlas.html` opens a lightweight map of shared mathematical foundations.
+It ranks recorded reuse across fields and exposes exact module dependency paths.
+`site/atlas-explorer.html` retains the full 3D graph and concept Wiki; old Atlas
+selection links continue to work. See [Shared foundations](docs/FOUNDATIONS.md)
+for scope and measured startup performance. `site/dag.html` retains the advanced analysis console. To preview against a
 verified copy of the current published release, run:
 
 ```bash

@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const assert = require("node:assert/strict");
 const path = require("node:path");
 const output = path.resolve("artifacts/atlas-preview/screenshots");
-const url = process.env.ATLAS_URL || "http://127.0.0.1:8765/atlas.html";
+const url = process.env.ATLAS_URL || "http://127.0.0.1:8765/atlas-explorer.html";
 fs.mkdirSync(output, { recursive: true });
 
 (async () => {

@@ -15,7 +15,9 @@ fs.mkdirSync(output, { recursive: true });
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   try {
-    await page.goto(`${root}/atlas.html`);
+    await page.goto(`${root}/atlas-explorer.html`);
+    await page.waitForFunction(() => window.atlasDiagnostics);
+    await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(
       () =>
         window.atlasDiagnostics?.().visuals.bundles > 0 &&
@@ -180,7 +182,7 @@ fs.mkdirSync(output, { recursive: true });
       await page.locator(".research-marker-label:visible").count(),
       1,
     );
-    await page.locator("#wiki-content .concept-row").first().click();
+    await page.locator("#wiki-content .concept-row").filter({hasText:"Research foundation"}).first().click();
     await page.waitForTimeout(800);
     assert.equal(
       await page

@@ -65,7 +65,7 @@ const route = path => root + path;
     await english();
     for(const [path, selector] of [
       ['conjectures.html#next-questions','.mm-entry-cards'], ['research.html','.news-results-grid'],
-      ['discover.html','.discovery'], ['atlas.html','.atlas-app'],
+      ['discover.html','.discovery'], ['atlas.html','.foundations-main'], ['atlas-explorer.html','.atlas-app'],
       ['knowledge/','main'], ['evolution.html','main'], ['library-history.html','main'],
       ['library-version.html','main'], ['conclusions.html','main'], ['dag.html','main'],
       ['research/base-phi-negative-prefix-trident/','main'],
