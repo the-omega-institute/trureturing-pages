@@ -45,7 +45,7 @@ const state = {
   renderer: null,
   family: null,
   selected: null,
-  mode: "structure",
+  mode: "dependency",
   tab: "overview",
   neighbors: new Set(),
   hover: null,
@@ -193,7 +193,7 @@ function syncUrl() {
   const params = new URLSearchParams();
   if (state.family) params.set("family", state.family);
   if (state.selected) params.set("node", state.selected);
-  if (state.mode !== "structure") params.set("mode", state.mode);
+  if (state.mode !== "dependency") params.set("mode", state.mode);
   if (state.bundle) params.set("bundle", state.bundle);
   if (state.mode === "frontier" && state.problem)
     params.set("problem", state.problem);
@@ -1513,7 +1513,7 @@ async function load() {
   const initial = new URLSearchParams(location.hash.slice(1));
   if (FAMILIES.some((f) => f.id === initial.get("family")))
     state.family = initial.get("family");
-  if (["dependency", "frontier"].includes(initial.get("mode")))
+  if (["structure", "dependency", "frontier"].includes(initial.get("mode")))
     state.mode = initial.get("mode");
   if (
     state.mode === "structure" &&

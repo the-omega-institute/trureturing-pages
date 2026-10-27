@@ -28,7 +28,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
       await researchGate;
       await route.continue();
     });
-    await page.goto(`${root}/atlas-explorer.html`);
+    await page.goto(`${root}/atlas.html`);
     await page.waitForFunction(() => window.atlasDiagnostics);
     const initial = await page.evaluate(() => ({
       ...window.atlasDiagnostics(),
@@ -37,6 +37,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
     assert.equal(initial.startup.source, "precomputed");
     assert.equal(initial.workers, 0);
     assert.equal(initial.nodes, 2890);
+    assert.equal(initial.mode, "dependency", "The homepage opens on the released DAG dependency view");
     assert.equal(
       initial.researchQuestions,
       0,
@@ -63,7 +64,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
 
     const cached = await browser.newPage();
     for (const visit of ["cold", "repeat"]) {
-      await cached.goto(`${root}/atlas-explorer.html`);
+      await cached.goto(`${root}/atlas.html`);
       await cached.waitForFunction(() => window.atlasDiagnostics);
       const resources = await cached.evaluate(() =>
         performance
@@ -78,7 +79,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
           "Repeat visits reuse both immutable startup artifacts",
         );
     }
-    await cached.goto(`${root}/atlas-explorer.html#mode=dependency&node=D5%2FS0%2FTower%2FGoldenGapZeckendorf`);
+    await cached.goto(`${root}/atlas.html#mode=dependency&node=D5%2FS0%2FTower%2FGoldenGapZeckendorf`);
     await cached.reload();
     await cached.waitForFunction(() => window.atlasDiagnostics?.().selected);
     await cached.getByRole("tab", {name:"Architecture",exact:true}).click();
@@ -100,7 +101,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
         contentType: "application/octet-stream",
       }),
     );
-    await invalid.goto(`${root}/atlas-explorer.html`);
+    await invalid.goto(`${root}/atlas.html`);
     await invalid
       .getByText("Atlas startup artifact digest mismatch.", { exact: true })
       .waitFor();

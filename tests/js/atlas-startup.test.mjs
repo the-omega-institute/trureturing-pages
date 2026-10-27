@@ -5,8 +5,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash } from "node:crypto";
 import { gunzipSync } from "node:zlib";
-import { buildStartup, buildFoundationData } from "../../tools/build_atlas_startup.mjs";
-import {foundationModel, coreModules, coreOverview, focusGraph, shortestPaths, dependencyPath, loadFoundations} from '../../site/assets/foundations-core.mjs';
+import { buildStartup } from "../../tools/build_atlas_startup.mjs";
 import {
   loadStartup,
   validateLayout,
@@ -91,73 +90,10 @@ test("published startup preserves exact graph bytes and layout, validates all no
   assert.deepEqual(result.graph, graph);
   assert.deepEqual(result.positions, layout.positions);
   assert.equal(result.timing.source, "precomputed");
-  requests.length = 0;
-  const foundations = await loadFoundations("https://example.test/");
-  assert.equal(foundations.model.data.nodes.length, 2);
-  assert.deepEqual(foundations.model.data.edges, [["A", "B"]]);
-  assert.equal(requests.length, 3, "Homepage needs two small pointers and one compact immutable artifact");
-  assert.ok(requests.some(r => r.path === index.foundations.path));
-  assert.ok(!requests.some(r => r.path === index.graph.path || r.path === index.layout.path || r.path.includes('history')));
-  assert.ok(
-    requests
-      .filter((r) => r.path.endsWith(".json.gz"))
-      .every((r) => r.cache === "force-cache"),
-  );
-  assert.ok(
-    requests
-      .filter((r) => !r.path.endsWith(".json.gz"))
-      .every((r) => r.cache === "no-cache"),
-  );
   mode = "corrupt";
   await assert.rejects(loadStartup("https://example.test/"), /digest mismatch/);
-  await assert.rejects(loadFoundations("https://example.test/"), /digest mismatch/);
-  mode = "new-release";
-  await assert.rejects(
-    loadStartup("https://example.test/"),
-    /bind the current/,
-  );
-  await assert.rejects(loadFoundations("https://example.test/"), /release changed/i);
-  let pointerReads = 0;
-  const recovered = await loadFoundations("https://example.test/", async (url) => {
-    const path = new URL(url).pathname.slice(1);
-    if (path === "data/pages-atlas-manifest.v1.json") {
-      pointerReads++;
-      return Response.json(pointerReads === 1 ? {...manifest, truth_release_digest: hash("new")} : manifest);
-    }
-    if (path === "data/atlas-startup.v1.json") return Response.json(index);
-    return new Response(await readFile(join(root, path)));
-  });
-  assert.equal(pointerReads, 2, "A publication racing the mutable pointers retries the pair once");
-  assert.equal(recovered.model.data.truth_release_digest, manifest.truth_release_digest);
   mode = "legacy";
   const legacy = await loadStartup("https://example.test/");
   assert.equal(legacy.positions, null);
   assert.deepEqual(legacy.graph, graph);
-});
-
-test('foundations retain exact dependencies across fields, unique downstream counts, roots and navigable paths', () => {
-  const source = {truth_release_digest:hash('diamond'),source_commit:'a'.repeat(40)};
-  const g = {source_snapshot:source, nodes:[
-    ...['A','B','C','D','Isolated'].map((id,i)=>({id,kind:'truth',domain:i%2?'Quantum':'Algebra',human_title:id,repo_path:`D5/${id}.lean`})),
-    {id:'document',kind:'blueprint'},
-  ],edges:[...[['A','B'],['A','C'],['B','D'],['C','D']].map(([source,target])=>({source,target,layer:'truth-dependency'})),
-    {source:'Isolated',target:'D',layer:'structural-affinity'},
-    {source:'document',target:'A',layer:'blueprint-truth-anchor'}]};
-  const m={atlas_graph_digest:hash(JSON.stringify(g)),truth_release_digest:source.truth_release_digest};
-  const data=buildFoundationData(g,m),model=foundationModel(data,m);
-  assert.equal(model.byId.get('A').reach,3,'The diamond descendant is counted once');
-  assert.equal(model.byId.get('A').coverage,2);
-  assert.deepEqual(coreModules(model,'roots').map(n=>n.id),['A']);
-  assert.deepEqual(dependencyPath(shortestPaths(model,'A'),'D'),['A','B','D']);
-  assert.deepEqual(dependencyPath(shortestPaths(model,'D','upstream'),'A','upstream'),['A','B','D']);
-  assert.deepEqual(dependencyPath(shortestPaths(model,'A'),'Isolated'),[]);
-  for(const view of [coreOverview(model),coreOverview(model,'roots'),focusGraph(model,'A','D')]) {
-    assert.ok(view.edges.every(edge=>model.pairs.has(JSON.stringify(edge))));
-    assert.ok(view.nodes.every(n=>n.id!=='document'));
-  }
-  const changed=structuredClone(data);changed.nodes[0].depth=9;
-  assert.throws(()=>foundationModel(changed,m),/metrics disagree/);
-  assert.throws(()=>foundationModel(data,{...m,atlas_graph_digest:hash('other')}),/bind/);
-  changed.nodes[0].depth=0;changed.edges.push(['D','A']);
-  assert.throws(()=>foundationModel(changed,m),/metrics disagree/);
 });

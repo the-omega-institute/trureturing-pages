@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const assert = require("node:assert/strict");
 const path = require("node:path");
 const output = path.resolve("artifacts/atlas-preview/screenshots");
-const url = process.env.ATLAS_URL || "http://127.0.0.1:8765/atlas-explorer.html";
+const url = process.env.ATLAS_URL || "http://127.0.0.1:8765/atlas.html";
 fs.mkdirSync(output, { recursive: true });
 
 (async () => {
@@ -16,7 +16,7 @@ fs.mkdirSync(output, { recursive: true });
     });
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.stack || error.message));
-    await page.goto(url);
+    await page.goto(`${url}#mode=structure`);
     await page.waitForFunction(
       () => typeof window.atlasDiagnostics === "function",
       { timeout: 60000 },
@@ -164,7 +164,7 @@ fs.mkdirSync(output, { recursive: true });
     );
     await page.screenshot({ path: path.join(output, "desktop-frontier.png") });
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(url);
+    await page.goto(`${url}#mode=structure`);
     await page.waitForFunction(
       () => typeof window.atlasDiagnostics === "function",
       { timeout: 60000 },

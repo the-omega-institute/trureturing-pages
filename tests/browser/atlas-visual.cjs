@@ -15,7 +15,7 @@ fs.mkdirSync(output, { recursive: true });
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   try {
-    await page.goto(`${root}/atlas-explorer.html`);
+    await page.goto(`${root}/atlas.html#mode=structure`);
     await page.waitForFunction(() => window.atlasDiagnostics);
     await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(
