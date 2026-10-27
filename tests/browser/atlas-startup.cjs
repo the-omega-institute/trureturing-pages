@@ -79,6 +79,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
         );
     }
     await cached.goto(`${root}/atlas-explorer.html#mode=dependency&node=D5%2FS0%2FTower%2FGoldenGapZeckendorf`);
+    await cached.reload();
     await cached.waitForFunction(() => window.atlasDiagnostics?.().selected);
     await cached.getByRole("tab", {name:"Architecture",exact:true}).click();
     await cached.route("**/data/architecture-history.v1.json", route => route.fulfill({status:503,body:"temporarily unavailable"}));
