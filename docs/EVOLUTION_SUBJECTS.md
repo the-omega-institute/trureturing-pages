@@ -22,6 +22,14 @@ available through the Tools & unclassified toggle and excluded from the default
 mathematical overview. New folders never silently fall back to mathematical
 foundations. The homepage's existing taxonomy is unchanged.
 
+The reviewed source defaults include Combinatorics under combinatorics;
+FiniteGroups, VertexAlgebra, HomologicalAlgebra and QuadraticForms under algebra;
+and Geometry and Topology under geometry/topology. These seven folders contained
+2,394 modules in the verified 2026-10-27 observation at source `0d3bacd31884`.
+They participate in the default overview, including their archived birth cohorts
+and import connections. Unrecognized future folders still require review before
+entering a mathematical subject.
+
 Birth positions and subject assignments are retained from the first archived
 appearance within each compatible analysis segment. Cohorts merge by subject and
 birth observation for the overview; selecting a subject expands its source topics.

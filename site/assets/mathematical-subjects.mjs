@@ -3,10 +3,10 @@
 // sources stay unclassified; tool names are matched explicitly, never by substring.
 export const SUBJECTS = [
   {id:'number-theory',name:'Number theory',color:'#edc66d',domains:['Arith','ArithSums','ArithUnits','Digit','Factorization','PrimeForms','PrimeGaps','PrimeObserver','Scale','Depth','Tower','Weil','GoldenWindowZeroObstruction']},
-  {id:'algebra',name:'Algebra',color:'#d99aca',domains:['Carrier','CayleyGrowth','Eigenstructure','Observation','Descent']},
-  {id:'geometry',name:'Geometry & topology',color:'#6ad7c8',domains:['FiniteGeometry','Solenoid','SpectralTopology']},
+  {id:'algebra',name:'Algebra',color:'#d99aca',domains:['Carrier','CayleyGrowth','Eigenstructure','Observation','Descent','FiniteGroups','VertexAlgebra','HomologicalAlgebra','QuadraticForms']},
+  {id:'geometry',name:'Geometry & topology',color:'#6ad7c8',domains:['FiniteGeometry','Solenoid','SpectralTopology','Geometry','Topology']},
   {id:'analysis',name:'Analysis & dynamics',color:'#ef9285',domains:['Analytic','AnalyticClosure','Asymptotics','Axis','CompletionDynamics','Constants','Dynamics','FixedPoints','Fourier','Midline','Phase','Zeros','ContinuousObservables']},
-  {id:'combinatorics',name:'Combinatorics & discrete math',color:'#eba7cb',domains:['Recurrence','Words']},
+  {id:'combinatorics',name:'Combinatorics & discrete math',color:'#eba7cb',domains:['Recurrence','Words','Combinatorics']},
   {id:'probability',name:'Probability, statistics & information',color:'#c4dc85',domains:['Deficit','Divergence','DivergenceSupport','Entropy','Estimation','RenyiDivergence','TotalVariation','ResourceOrder']},
   {id:'logic',name:'Logic & computation',color:'#a3b7fa',domains:['Automata','Computability','ConceptDynamics','Conventions','Diagonal','History','Ledger','Naming','Observer','ObserverMemory','Rewriting','CertificateHistory','Certificates']},
   {id:'physics',name:'Mathematical physics',color:'#7fbcea',domains:['FluidDynamics','Quantum','QuantumBounds','QuantumChannels','QuantumContext','QuantumStates','Resource','StatisticalMechanics','Quad']},
