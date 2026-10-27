@@ -1,6 +1,11 @@
 # Public Mathematical Atlas
 
-`site/atlas.html` is the public exploration surface. `site/dag.html` remains the
+`site/atlas.html` is the default shared-foundations surface: a lightweight map
+of cross-field module reuse and exact dependency paths. See
+[Shared foundations](FOUNDATIONS.md) for its data, navigation, and performance
+boundaries. `site/atlas-explorer.html` retains the full 3D exploration surface
+described below. Existing `atlas.html#node=…` and mode links redirect there while
+preserving their state. `site/dag.html` remains the
 research workspace, including the original Topology Atlas, comparison, and CMA
 integrations. The overview page now links to the public Atlas.
 
@@ -26,7 +31,7 @@ or stretching the coordinate axes cannot resolve that information problem.
 
 ## Presentation decisions
 
-The public view groups mathematical nodes into eight editorial concept families.
+The full 3D explorer groups mathematical nodes into eight editorial concept families.
 The mapping uses the existing `domain` field. Within a family, repository
 subtopics provide anchors and real dependency edges pull connected concepts
 together using vendored `d3-force-3d`. The deterministic simulation runs in a Web
@@ -132,8 +137,12 @@ artifact hashes, the original graph hash, release binding, layout profile and
 complete finite node coordinates are checked before rendering. No graph nodes,
 relationship categories or Wiki content are removed for this optimization.
 
-Research and history load after the graph becomes interactive. Research has an
-explicit pending state; slow or failed research cannot delay the main Atlas.
+Research loads when Open questions is requested. Module history loads from an
+explicit history button; release-change highlights request only the last two
+architecture snapshots. Neither archive is downloaded automatically after
+startup. Loading and failure states allow retries without blocking the graph.
+The homepage additionally uses a compact verified foundations artifact and
+does not load the 3D graph or layout.
 An older deployment without the startup index retains the verified graph and
 worker-layout path. Invalid artifacts do not silently use unverified positions.
 Changes to public layout semantics must increment `LAYOUT_PROFILE` in
@@ -145,11 +154,10 @@ Release-change highlights compare verified architecture snapshots and, when
 available, release-bound Library history. New concepts are green, content updates
 amber, and new proof edges carry directional emphasis. The changes panel also
 records removals. A single real release is explicitly a baseline: its change
-toggle is disabled, and no growth is invented. Incompatible analysis profiles
+toggle is disabled after loading, and no growth is invented. Incompatible analysis profiles
 cannot produce comparable architecture changes; absent edge history is unknown,
 not a zero count. Daily source activity remains distinct from Truth releases.
-The optional short emphasis runs once per release per browser session and respects
-reduced-motion preferences.
+Highlights activate only through the explicit release-change control.
 
 Run `node tools/benchmark_atlas.cjs` with Playwright available through `NODE_PATH`.
 `ATLAS_URL` selects a local or public Atlas. The benchmark reports cold/repeat
@@ -225,6 +233,7 @@ definition and evaluation of semantic distance.
 The Wiki currently uses the authored Blueprint. Much of that prose assumes a
 mathematical reader. Truly introductory explanations, examples, and prerequisites
 need a reviewed exposition layer; a rendering change alone cannot supply them.
-The current display emphasizes topic groups and readable navigation. More
+The full 3D explorer emphasizes topic groups and readable navigation; the
+default homepage emphasizes shared mathematical support. More
 protein-like folds should be evaluated against whether users can locate a topic
 and correctly identify its dependencies, rather than against visual novelty.

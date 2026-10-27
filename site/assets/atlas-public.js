@@ -74,12 +74,10 @@ const state = {
   bundlesVisible: false,
   dragging: false,
   historyLoaded: false,
-  changesStarted: false,
   changes: null,
   changeError: null,
   showChanges: false,
   changesPanel: false,
-  changePulseUntil: 0,
   lod: "overview",
 };
 const icon = (name) => {
@@ -218,6 +216,7 @@ function setMode(mode) {
     state.problem = null;
   }
   state.mode = mode;
+  if (mode === "frontier") ensureResearch();
   state.bundle = null;
   state.changesPanel = false;
   state.positions =
@@ -1574,14 +1573,6 @@ async function load() {
       positionLabels();
       lastLabelUpdate = time;
     }
-    if (state.changePulseUntil > time)
-      state.layers?.pulseChanges((1 + Math.sin(time * 0.003)) / 2);
-    else if (state.changePulseUntil) {
-      state.changePulseUntil = 0;
-      state.showChanges = false;
-      $("#toggle-changes").setAttribute("aria-pressed", "false");
-      renderGraph();
-    }
     requestAnimationFrame(animateLabels);
   };
   requestAnimationFrame(animateLabels);
@@ -1657,100 +1648,70 @@ async function load() {
     .catch((error) => {
       state.layerError = error.message;
     });
-  // Research and history enrich an already interactive map.
-  setTimeout(() => {
-    loadResearch(
-      new URL("./", location.href),
-      state.model,
-      state.graphDigest,
-      state.graph.source_snapshot,
-    )
-      .then((research) => {
-        state.research = research;
-        updateReleaseChanges();
-        if (state.problem && !research.problems.has(state.problem))
-          state.problem = null;
-      })
-      .catch((error) => {
-        state.researchError = error.message;
-        $("#release-change-note").textContent = "Change history unavailable";
-      })
-      .finally(() => {
-        if (state.mode === "frontier") {
-          renderGraph();
-          renderWiki();
-          if (!state.selected) frameNodes(currentNodes);
-        } else {
-          state.renderer.nodeColor(color).nodeVal(nodeSize);
-        }
-      });
-  }, 0);
-  loadHistory(
-    new URL("./", location.href),
-    state.graph.source_snapshot.truth_release_digest,
-    state.graphDigest,
-  )
-    .then((snapshots) => {
-      if (snapshots.length) state.history = snapshots;
-      state.historyLoaded = true;
-      updateReleaseChanges();
-      if (state.tab === "architecture" || state.mode === "dependency")
-        renderWiki();
-    })
-    .catch((error) => {
-      state.historyError = `History verification failed: ${error.message}`;
-      $("#release-change-note").textContent = "Change history unavailable";
-      if (state.tab === "architecture" || state.mode === "dependency")
-        renderWiki();
-    });
+  // The full explorer also defers archive work until a requested feature needs it.
+  if (state.mode === "frontier") ensureResearch();
+  $("#toggle-changes").disabled = false;
+  $("#toggle-changes").title = "Load latest release changes";
+  $("#release-change-note").textContent = "Release history";
 }
 
-function updateReleaseChanges() {
-  if (!state.historyLoaded || !state.research?.library || state.changesStarted)
-    return;
-  state.changesStarted = true;
-  loadReleaseHighlights(state.history, state.research.library)
-    .then((changes) => {
-      state.changes = changes;
-      const button = $("#toggle-changes"),
-        note = $("#release-change-note");
-      button.disabled = changes.kind !== "comparable";
-      const label =
-        changes.kind === "baseline"
-          ? "Baseline release"
-          : changes.kind === "analysis-changed"
-            ? "Analysis profile changed"
-            : `+${changes.added.size} nodes / ${changes.changed.size} updated / ${changes.edgesKnown ? `+${changes.edgesAdded.size}` : "Unrecorded"} dependencies`;
-      button.title = label;
-      note.textContent =
-        changes.kind === "comparable"
-          ? `+${changes.added.size} / ${changes.changed.size} updated`
-          : label;
-      note.title = label;
-      renderReleaseDiscover();
-      const key = `atlas-seen-release:${changes.release}`;
-      let seen = true;
-      try {
-        seen = sessionStorage.getItem(key) === "1";
-        sessionStorage.setItem(key, "1");
-      } catch {}
-      if (
-        !seen &&
-        !reducedMotion &&
-        changes.kind === "comparable" &&
-        (changes.added.size || changes.changed.size || changes.edgesAdded.size)
-      ) {
-        state.showChanges = true;
-        state.changePulseUntil = performance.now() + 9000;
-        button.setAttribute("aria-pressed", "true");
-        renderGraph();
-      }
+let researchPromise = null, changesPromise = null, historyPromise = null;
+function ensureResearch() {
+  if (state.research) return Promise.resolve(state.research);
+  if (researchPromise) return researchPromise;
+  state.researchError = null;
+  researchPromise = loadResearch(new URL("./", location.href), state.model,
+    state.graphDigest, state.graph.source_snapshot)
+    .then(research => {
+      state.research = research;
+      if (state.problem && !research.problems.has(state.problem)) state.problem = null;
+      return research;
     })
-    .catch((error) => {
-      state.changeError = error.message;
-      $("#release-change-note").textContent = "Change history unavailable";
+    .catch(error => { state.researchError = error.message; throw error; })
+    .finally(() => {
+      researchPromise = null;
+      if (state.mode === "frontier") {
+        renderGraph(); renderWiki();
+        if (!state.selected) frameNodes(currentNodes);
+      }
     });
+  // Callers can report failure while rendering; no unhandled rejection on mode changes.
+  researchPromise.catch(() => {});
+  return researchPromise;
 }
+function ensureHistory() {
+  if (state.historyLoaded) return Promise.resolve(state.history);
+  if (historyPromise) return historyPromise;
+  historyPromise = loadHistory(new URL("./", location.href),
+    state.graph.source_snapshot.truth_release_digest, state.graphDigest)
+    .then(snapshots => { if (snapshots.length) state.history = snapshots; state.historyLoaded = true; state.historyError = null; return state.history; })
+    .catch(error => { state.historyError = `History verification failed: ${error.message}`; throw error; })
+    .finally(() => { historyPromise = null; if (state.tab === "architecture") renderWiki(); });
+  historyPromise.catch(() => {});
+  if (state.tab === "architecture") renderWiki();
+  return historyPromise;
+}
+function ensureChanges() {
+  if (state.changes) return Promise.resolve(state.changes);
+  if (changesPromise) return changesPromise;
+  const control = $("#toggle-changes"); control.disabled = true;
+  $("#release-change-note").textContent = "Loading latest changes…";
+  changesPromise = Promise.all([
+    loadHistory(new URL("./", location.href), state.graph.source_snapshot.truth_release_digest, state.graphDigest, {limit: 2}),
+    ensureResearch(),
+  ]).then(([snapshots,research]) => loadReleaseHighlights(snapshots, research.library))
+    .then(changes => {
+      state.changes = changes; state.changeError = null;
+      $("#release-change-note").textContent = changes.kind === "comparable"
+        ? `+${format(changes.added.size)} modules · ${format(changes.changed.size)} updated`
+        : "No comparable previous release";
+      renderReleaseDiscover(); return changes;
+    })
+    .catch(error => { state.changeError = error.message; $("#release-change-note").textContent = "Change history unavailable · retry"; throw error; })
+    .finally(() => { changesPromise = null; control.disabled = Boolean(state.changes && state.changes.kind !== "comparable"); });
+  return changesPromise;
+}
+
 function renderReleaseDiscover() {
   const changes = state.changes;
   const panel = $("#release-discover");
@@ -1832,7 +1793,7 @@ function renderArchitectureOverview(root) {
   const history = el(
     "a",
     "research-link",
-    `Evolution / ${state.history.length} recorded observations`,
+    state.historyLoaded ? `Evolution / ${state.history.length} recorded observations` : "Evolution / browse release observations",
   );
   history.href = "evolution.html";
   root.append(history);
@@ -1920,10 +1881,15 @@ function renderArchitectureNode(root, node) {
     }
   });
   root.append(pathHost);
-  evolutionPanel(root, state.history, node.id, {
-    metric: state.metric,
-    error: state.historyError,
+  if (state.historyLoaded) evolutionPanel(root, state.history, node.id, {
+    metric: state.metric, error: state.historyError,
   });
+  else {
+    if (state.historyError) root.append(el("p", "architecture-provenance", state.historyError));
+    const load = action(historyPromise ? "Loading release history…" : state.historyError ? "Retry release history" : "Load this module’s release history", "research-link", () => { ensureHistory(); });
+    load.disabled = Boolean(historyPromise);
+    root.append(load);
+  }
   const history = el("a", "research-link", "Open evolution workspace");
   history.href = `evolution.html#node=${encodeURIComponent(node.id)}&metric=${state.metric}`;
   const wiki = el("a", "research-link", "Open concept Wiki");
@@ -1953,7 +1919,6 @@ $("#toggle-bundles").addEventListener("click", () => {
 });
 function showChangesPanel() {
   rememberView();
-  state.changePulseUntil = 0;
   state.showChanges = true;
   state.changesPanel = true;
   state.selected = null;
@@ -1962,8 +1927,15 @@ function showChangesPanel() {
   renderGraph();
   renderWiki();
 }
-$("#toggle-changes").addEventListener("click", () => {
-  if (state.changes?.kind !== "comparable") return;
+$("#toggle-changes").addEventListener("click", async () => {
+  if (!state.changes) {
+    try { await ensureChanges(); }
+    catch { return; }
+  }
+  if (state.changes?.kind !== "comparable") {
+    $("#release-change-note").textContent = "No comparable previous release";
+    return;
+  }
   if (!state.showChanges || !state.changesPanel) {
     showChangesPanel();
     return;

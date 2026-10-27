@@ -11,6 +11,7 @@ import {
   validateHistory,
   trajectory,
   sha256,
+  loadHistory,
 } from "../../site/assets/architecture-core.mjs";
 import { buildHistory } from "../../tools/build_architecture_history.mjs";
 import {
@@ -282,4 +283,25 @@ test("remote archive errors cannot silently reset evolution history", async () =
     globalThis.fetch = originalFetch;
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test('a requested history window reads only its snapshots and still verifies digests and release bindings', async t => {
+  const entries=[],files=new Map();
+  for (const release of ['a','b','c','d']) {
+    const value=graph(release),snapshot=snapshotFromGraph(value,await sha256(JSON.stringify(value)));
+    const text=JSON.stringify(snapshot),key=await sha256(text),path=`data/architecture/${key.slice(7)}.json`;
+    entries.push({path,digest:key,truth_release_digest:snapshot.truth_release_digest,atlas_graph_digest:snapshot.atlas_graph_digest});files.set('/'+path,text);
+  }
+  const index={schema_version:'pages-architecture-history.v1',current_truth_release_digest:entries.at(-1).truth_release_digest,entries};
+  const requested=[];let corrupt=false;
+  t.mock.method(globalThis,'fetch',async url=>{
+    requested.push(url.pathname);
+    return url.pathname.endsWith('architecture-history.v1.json')?Response.json(index):new Response(corrupt?'{}':files.get(url.pathname));
+  });
+  const snapshots=await loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest,{limit:2});
+  assert.deepEqual(snapshots.map(s=>s.truth_release_digest),entries.slice(-2).map(e=>e.truth_release_digest));
+  assert.equal(requested.length,3);
+  assert.ok(!requested.includes('/'+entries[0].path));
+  corrupt=true;
+  await assert.rejects(loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest,{limit:2}),/digest mismatch/);
 });

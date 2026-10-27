@@ -326,7 +326,9 @@ export async function sha256(text) {
   );
 }
 
-export async function loadHistory(base, currentRelease, currentGraphDigest) {
+export async function loadHistory(base, currentRelease, currentGraphDigest, { limit = null } = {}) {
+  if (limit !== null && (!Number.isSafeInteger(limit) || limit < 1))
+    throw new Error("Invalid history window.");
   const response = await fetch(
     new URL("data/architecture-history.v1.json", base),
     { cache: "no-store" },
@@ -341,7 +343,7 @@ export async function loadHistory(base, currentRelease, currentGraphDigest) {
   )
     throw new Error("Architecture history uses a different Atlas graph.");
   const snapshots = [];
-  for (const entry of index.entries) {
+  for (const entry of limit === null ? index.entries : index.entries.slice(-limit)) {
     const file = await fetch(new URL(entry.path, base));
     if (!file.ok) throw new Error(`Architecture snapshot HTTP ${file.status}`);
     const text = await file.text();

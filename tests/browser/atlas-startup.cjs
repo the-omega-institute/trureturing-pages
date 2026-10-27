@@ -28,7 +28,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
       await researchGate;
       await route.continue();
     });
-    await page.goto(`${root}/atlas.html`);
+    await page.goto(`${root}/atlas-explorer.html`);
     await page.waitForFunction(() => window.atlasDiagnostics);
     const initial = await page.evaluate(() => ({
       ...window.atlasDiagnostics(),
@@ -63,7 +63,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
 
     const cached = await browser.newPage();
     for (const visit of ["cold", "repeat"]) {
-      await cached.goto(`${root}/atlas.html`);
+      await cached.goto(`${root}/atlas-explorer.html`);
       await cached.waitForFunction(() => window.atlasDiagnostics);
       const resources = await cached.evaluate(() =>
         performance
@@ -78,6 +78,17 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
           "Repeat visits reuse both immutable startup artifacts",
         );
     }
+    await cached.goto(`${root}/atlas-explorer.html#mode=dependency&node=D5%2FS0%2FTower%2FGoldenGapZeckendorf`);
+    await cached.waitForFunction(() => window.atlasDiagnostics?.().selected);
+    await cached.getByRole("tab", {name:"Architecture",exact:true}).click();
+    await cached.route("**/data/architecture-history.v1.json", route => route.fulfill({status:503,body:"temporarily unavailable"}));
+    await cached.getByRole("button", {name:"Load this module’s release history",exact:true}).click();
+    await cached.getByRole("button", {name:"Retry release history",exact:true}).waitFor();
+    assert.match(await cached.locator("#wiki-content").innerText(), /History verification failed/);
+    await cached.unroute("**/data/architecture-history.v1.json");
+    await cached.getByRole("button", {name:"Retry release history",exact:true}).click();
+    await cached.locator(".architecture-baseline").waitFor();
+    assert.equal(await cached.getByRole("button", {name:"Retry release history",exact:true}).count(), 0);
     const index = await (
       await cached.request.get(`${root}/data/atlas-startup.v1.json`)
     ).json();
@@ -88,7 +99,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
         contentType: "application/octet-stream",
       }),
     );
-    await invalid.goto(`${root}/atlas.html`);
+    await invalid.goto(`${root}/atlas-explorer.html`);
     await invalid
       .getByText("Atlas startup artifact digest mismatch.", { exact: true })
       .waitFor();

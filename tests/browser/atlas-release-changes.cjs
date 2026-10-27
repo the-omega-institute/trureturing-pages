@@ -115,7 +115,10 @@ const sha = (text) =>
         body: JSON.stringify(library),
       }),
     );
-    await page.goto(`${root}/atlas.html`);
+    await page.goto(`${root}/atlas-explorer.html`);
+    await page.waitForFunction(() => window.atlasDiagnostics);
+    assert.equal(await page.evaluate(() => window.atlasDiagnostics().changes), null);
+    await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(
       () =>
         window.atlasDiagnostics?.().changes?.kind === "comparable" &&
@@ -135,12 +138,9 @@ const sha = (text) =>
     assert.equal(await page.locator("#release-discover-topics .release-node").count(), 1);
     assert.equal(
       diagnostics.changes.active,
-      false,
-      "Reduced-motion preference suppresses automatic pulses",
+      true,
+      "The explicit load request activates release highlights",
     );
-    await page
-      .getByRole("button", { name: "Show release changes", exact: true })
-      .click();
     diagnostics = await page.evaluate(() => window.atlasDiagnostics());
     assert.equal(diagnostics.visuals.changeHalos, 2);
     assert.equal(diagnostics.changes.active, true);
@@ -166,11 +166,17 @@ const sha = (text) =>
     assert.equal(await page.evaluate(() => window.atlasDiagnostics().selected), added);
     const output = path.resolve("artifacts/atlas-preview/screenshots");
     fs.mkdirSync(output, { recursive: true });
-    await page.goto(`${root}/atlas.html`);
+    await page.goto(`${root}/atlas-explorer.html`);
+    await page.waitForFunction(() => window.atlasDiagnostics);
+    assert.equal(await page.evaluate(() => window.atlasDiagnostics().changes), null);
+    await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(() => window.atlasDiagnostics?.().changes?.kind === "comparable");
     await page.screenshot({ path: path.join(output, "visual-release-changes-desktop.png") });
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${root}/atlas.html`);
+    await page.goto(`${root}/atlas-explorer.html`);
+    await page.waitForFunction(() => window.atlasDiagnostics);
+    assert.equal(await page.evaluate(() => window.atlasDiagnostics().changes), null);
+    await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(() => window.atlasDiagnostics?.().changes?.kind === "comparable");
     assert.equal(await page.locator("#release-discover").isVisible(), true);
     assert.equal(await page.locator("#release-discover-toggle").getAttribute("aria-expanded"), "false");
@@ -200,7 +206,7 @@ const sha = (text) =>
       path: path.join(output, "visual-release-changes-fixture.png"),
     });
     console.log(
-      "PASS: a browser-only second-release fixture activates exact new-node, changed-content and new-dependency highlights; manual controls work and reduced motion suppresses automatic pulses.",
+      "PASS: a browser-only second-release fixture activates exact new-node, changed-content and new-dependency highlights; history loads only on request and manual controls work with reduced motion.",
     );
   } finally {
     await browser.close();

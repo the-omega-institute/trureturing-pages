@@ -1,260 +1,85 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#090c10" />
-    <title>trureturing | Mathematical Atlas</title>
-    <link rel="stylesheet" href="assets/atlas-public.css" />
-    <link rel="stylesheet" href="assets/relation-map.css" />
-    <link rel="stylesheet" href="assets/architecture.css" />
-    <link rel="stylesheet" href="assets/site-theme.css" />
-    <script defer src="assets/vendor/3d-force-graph.min.js"></script>
-    <script defer src="assets/vendor/lucide.min.js"></script>
-    <script defer src="assets/concept-lens-core.js"></script>
-    <script defer src="assets/vendor/d3.min.js"></script>
-    <script defer src="assets/relation-map.js"></script>
-    <script type="module" src="assets/atlas-public.js"></script>
-    <script type="module" src="assets/i18n.mjs"></script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101917">
+  <title>trureturing | Shared Mathematical Foundations</title>
+  <script>
+    // Preserve existing Atlas bookmarks, including exact module and view state.
+    const atlasRoute = new URLSearchParams(location.hash.slice(1));
+    if (['node','mode','family','bundle','problem','metric','depth','types','context'].some(key => atlasRoute.has(key)))
+      location.replace(new URL('atlas-explorer.html' + location.search + location.hash, location.href));
+  </script>
+  <link rel="stylesheet" href="assets/site-theme.css">
+  <link rel="stylesheet" href="assets/foundations.css">
+  <script defer src="assets/vendor/dagre.min.js"></script>
+  <script type="module" src="assets/foundations.mjs"></script>
+  <script type="module" src="assets/i18n.mjs"></script>
 </head>
-  <body class="site-themed">
-    <header class="atlas-header">
-      <a class="brand" href="index.html"
-        ><span class="brand-mark" aria-hidden="true">t.</span>trureturing<span
-          class="brand-divider"
-        ></span
-        ><span class="product-name">ATLAS</span></a
-      >
-      <nav aria-label="Primary navigation">
-        <a href="atlas.html" aria-current="page">Explore</a
-        ><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a
-        ><a href="evolution.html">Evolution</a>
-      <a href="contribute.html">Contribute</a></nav>
-      <span class="release-state" id="release-state">Connecting</span>
-    </header>
-    <main class="atlas-app">
-      <section class="universe" aria-label="Mathematical concept atlas">
-        <div
-          id="graph"
-          aria-label="Interactive three-dimensional concept graph"
-        ></div>
-        <div class="atlas-heading">
-          <p class="eyebrow">THE OMEGA INSTITUTE</p>
-          <h1>Mathematical Atlas<span>.</span></h1>
-          <p class="atlas-counts" id="atlas-counts">
-            Loading published mathematics
-          </p>
-          <a href="discover.html">Research topics &amp; OEIS</a>
-        </div>
-        <form class="search" id="concept-search" role="search">
-          <i data-lucide="search"></i
-          ><input
-            id="concept-query"
-            type="search"
-            placeholder="Find a concept"
-            aria-label="Find a concept"
-            autocomplete="off"
-            aria-controls="search-results"
-            aria-expanded="false"
-          />
-          <button
-            type="submit"
-            class="icon-button"
-            title="Search concepts"
-            aria-label="Search concepts"
-          >
-            <i data-lucide="arrow-right"></i>
-          </button>
-          <div id="search-results" class="search-results" hidden></div>
-        </form>
-        <div class="view-controls" role="group" aria-label="Graph view">
-          <div class="segmented">
-            <button data-mode="structure" aria-pressed="true">Structure</button
-            ><button data-mode="dependency" aria-pressed="false">
-              Dependencies</button
-            ><button data-mode="frontier" aria-pressed="false">
-              Open questions
-            </button>
-          </div>
-          <div id="architecture-controls" class="architecture-controls" hidden>
-            <label for="architecture-metric">Node weight</label>
-            <select id="architecture-metric" aria-label="Architecture metric">
-              <option value="reach">Downstream support</option>
-              <option value="direct">Direct reuse</option>
-              <option value="coverage">Domain coverage</option>
-            </select>
-          </div>
-        </div>
-        <section id="release-discover" class="release-discover" aria-label="Latest release additions" hidden>
-          <button id="release-discover-toggle" class="release-discover-toggle" type="button" aria-expanded="false" aria-controls="release-discover-body">
-            <span><small>Latest release</small><strong id="release-discover-count"></strong></span>
-            <i data-lucide="chevron-down"></i>
-          </button>
-          <div id="release-discover-body" class="release-discover-body" hidden>
-            <p id="release-discover-links" class="release-discover-links"></p>
-            <div id="release-discover-topics"></div>
-            <button id="release-discover-all" class="release-discover-all" type="button">All changes <i data-lucide="arrow-right"></i></button>
-          </div>
-        </section>
-        <div
-          id="family-labels"
-          class="family-labels"
-          aria-label="Concept families"
-        ></div>
-        <div
-          id="node-labels"
-          class="node-labels"
-          aria-label="Highlighted concepts"
-        ></div>
-        <div class="graph-tools" role="toolbar" aria-label="Camera controls">
-          <button
-            class="icon-button"
-            id="previous-view"
-            title="Previous view"
-            aria-label="Previous view"
-            disabled
-          >
-            <i data-lucide="undo-2"></i>
-          </button>
-          <button
-            class="icon-button"
-            id="toggle-bundles"
-            title="Bundle cross-family dependencies"
-            aria-label="Bundle cross-family dependencies"
-            aria-pressed="true"
-            disabled
-          >
-            <i data-lucide="git-merge"></i>
-          </button>
-          <button
-            class="icon-button"
-            id="toggle-changes"
-            title="Loading release history"
-            aria-label="Show release changes"
-            aria-pressed="false"
-            disabled
-          >
-            <i data-lucide="git-compare"></i>
-          </button>
-          <button
-            class="icon-button"
-            id="zoom-in"
-            title="Zoom in"
-            aria-label="Zoom in"
-          >
-            <i data-lucide="plus"></i>
-          </button>
-          <button
-            class="icon-button"
-            id="zoom-out"
-            title="Zoom out"
-            aria-label="Zoom out"
-          >
-            <i data-lucide="minus"></i>
-          </button>
-          <span></span
-          ><button
-            class="icon-button"
-            id="reset-camera"
-            title="Return to all concepts"
-            aria-label="Return to all concepts"
-          >
-            <i data-lucide="scan"></i>
-          </button>
-          <button
-            class="icon-button"
-            id="rotate-camera"
-            title="Rotate structure"
-            aria-label="Rotate structure"
-            aria-pressed="false"
-          >
-            <i data-lucide="orbit"></i>
-          </button>
-        </div>
-        <button id="back-to-all" class="back-to-all" hidden>
-          <i data-lucide="arrow-left"></i>All concepts
-        </button>
-        <div id="selection-summary" class="selection-summary" hidden></div>
-        <div
-          id="scene-labels"
-          class="scene-labels"
-          aria-label="Structural overlays"
-        ></div>
-        <div
-          id="scene-tooltip"
-          class="scene-tooltip"
-          role="tooltip"
-          hidden
-        ></div>
-        <div class="atlas-bottom">
-          <span id="view-caption">Concept families</span>
-          <a
-            id="release-change-note"
-            class="release-change-note"
-            href="evolution.html"
-            title="Release observations"
-          ></a>
-          <div class="edge-key">
-            <span class="key-line"></span>Proof dependency
-            <span data-edge-key="affinity" hidden
-              ><i class="key-line" style="background: #d7a0ca"></i
-              >Affinity</span
-            >
-            <span data-edge-key="document" hidden
-              ><i class="key-line" style="background: #82b5e0"></i
-              >Documents</span
-            >
-            <span class="key-open"></span>Research anchor
-            <span id="research-edge-key" class="research-edge-key" hidden
-              ><i></i>Research association</span
-            >
-          </div>
-          <button
-            id="about-atlas"
-            class="icon-button"
-            title="About this map"
-            aria-label="About this map"
-          >
-            <i data-lucide="info"></i>
-          </button>
-        </div>
-        <div id="loading" class="loading" role="status">
-          <span class="loading-symbol"></span
-          ><strong id="loading-message">Verifying the published graph</strong
-          ><span id="loading-detail">Mathematical Atlas</span>
-        </div>
-        <div id="map-note" class="map-note" hidden>
-          <strong>About this map</strong>
-          <p>
-            Colors group concepts into editorial topic families. Position
-            reflects topic grouping and proof connections, not a mathematical
-            measure of similarity. Proof dependencies, structural affinity and
-            document links retain their distinct authority and colors.
-          </p>
-          <p id="release-note"></p>
-          <button id="close-note">Close</button>
-        </div>
-      </section>
-      <aside class="wiki" id="wiki" aria-label="Concept wiki">
-        <div class="wiki-bar">
-          <span><i data-lucide="book-open"></i>CONCEPT WIKI</span
-          ><button
-            class="icon-button"
-            id="close-wiki"
-            title="Close concept"
-            aria-label="Close concept"
-            hidden
-          >
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <div id="wiki-content" class="wiki-content" aria-live="polite">
-          <p class="eyebrow">THE COLLECTION</p>
-          <h2>A connected body<br />of mathematics.</h2>
-          <div class="wiki-divider"></div>
-          <p class="muted">Loading concept families...</p>
-        </div>
+<body class="site-themed foundations-page">
+  <header class="site-header">
+    <a class="brand" href="index.html">trureturing<span class="foundation-brand"> / ATLAS</span></a>
+    <nav aria-label="Primary navigation">
+      <a href="atlas.html" aria-current="page">Explore</a><a href="research.html">Research</a>
+      <a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a>
+      <a href="evolution.html">Evolution</a><a href="contribute.html">Contribute</a>
+    </nav>
+  </header>
+  <main class="foundations-main">
+    <section class="foundation-intro">
+      <div><p class="foundation-eyebrow">A CONNECTED BODY OF MATHEMATICS</p>
+        <h1>What everything<br><em>builds on.</em></h1>
+        <p class="foundation-lede">Follow the shared structures beneath different fields. Start with a foundation, then see the mathematics it supports.</p>
+      </div>
+      <div class="foundation-intro-aside">
+        <dl class="foundation-totals" id="foundation-totals" aria-label="Published mathematics">
+          <div><dt>Released modules</dt><dd>—</dd></div><div><dt>Dependency connections</dt><dd>—</dd></div>
+        </dl>
+        <a class="foundation-full-link" href="atlas-explorer.html#mode=structure">Explore the full 3D Atlas <span aria-hidden="true">↗</span></a>
+        <p class="foundation-release" id="foundation-release">Loading the verified release…</p>
+      </div>
+    </section>
+    <div class="foundation-toolbar">
+      <div class="foundation-modes" role="group" aria-label="Choose a structural perspective">
+        <button type="button" data-core-mode="shared" aria-pressed="true">Shared foundations</button>
+        <button type="button" data-core-mode="roots" aria-pressed="false">Starting points</button>
+        <button type="button" data-core-mode="direct" aria-pressed="false">Direct reuse</button>
+      </div>
+      <form id="foundation-search" role="search">
+        <label class="sr-only" for="foundation-query">Search all modules</label>
+        <input id="foundation-query" type="search" placeholder="Find a structure or theorem…" aria-controls="foundation-search-results" autocomplete="off">
+        <button type="submit" aria-label="Search all modules">↗</button>
+        <div id="foundation-search-results" class="foundation-search-results" hidden></div>
+      </form>
+    </div>
+    <section class="foundation-workspace" aria-label="Foundations and their dependencies">
+      <div class="foundation-map-panel">
+        <div class="foundation-map-heading"><div><p class="foundation-eyebrow" id="foundation-map-kicker">THE SHARED CORE</p>
+          <h2 id="foundation-map-title">Foundations, connected.</h2></div>
+          <button id="foundation-overview" type="button" hidden>Back to the shared core</button></div>
+        <p class="foundation-map-caption" id="foundation-map-caption">Arrows follow actual dependencies, from a supporting module to a module that uses it.</p>
+        <div id="foundation-status" class="foundation-status" role="status">Loading the mathematical structure…</div>
+        <div id="foundation-map" class="foundation-map" tabindex="0" aria-label="Dependency map. Scroll to explore; select a module to inspect its foundations."></div>
+        <div class="foundation-map-footer"><span><i class="foundation-dot"></i>Shared foundation <span class="foundation-arrow">→</span> Dependent module</span>
+          <div><button id="foundation-zoom-out" type="button" aria-label="Zoom out">−</button><button id="foundation-fit" type="button">Fit</button><button id="foundation-zoom-in" type="button" aria-label="Zoom in">+</button></div></div>
+      </div>
+      <aside id="foundation-inspector" class="foundation-inspector" aria-label="Structural insights" aria-live="polite">
+        <p class="foundation-eyebrow">LOOK BELOW THE CATEGORIES</p><h2>One foundation.<br>Many directions.</h2>
+        <p>The map opens with the most widely reused modules in the released library.</p>
       </aside>
-    </main>
-  </body>
+    </section>
+    <section class="foundation-context">
+      <div><span>01</span><h2>Shared foundations</h2><p>Find structures with many downstream dependents, even when those dependents belong to different fields.</p></div>
+      <div><span>02</span><h2>Trace a real path</h2><p>Select a foundation and a downstream module to reveal every step in a shortest dependency path.</p></div>
+      <div><span>03</span><h2>Follow the evolution</h2><p>See when modules appear and how their reuse changes across published releases.</p><a href="evolution.html">Explore evolution ↗</a></div>
+    </section>
+    <details class="foundation-scope"><summary>What this map measures</summary>
+      <p>This view shows the released library's module dependencies. A starting point has no prerequisites inside this published graph; it may still use Mathlib or other external foundations. Downstream counts measure module reuse, not the number of theorem applications or a universal measure of mathematical importance.</p>
+      <p>Every arrow shown is an actual module dependency. The overview selects highly reused modules and connecting paths; search includes every released module. Field labels describe where modules are reused and do not determine the graph layout.</p>
+      <a id="foundation-provenance" href="library-history.html">Release archive ↗</a>
+    </details>
+    <noscript><p>The interactive foundation map needs JavaScript. <a href="knowledge/">Browse the complete static Library.</a></p></noscript>
+  </main>
+</body>
 </html>
