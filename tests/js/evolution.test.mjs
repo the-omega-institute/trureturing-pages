@@ -201,3 +201,17 @@ test('subject grouping retains first-appearance timing, presence gaps, and disti
   assert.equal(node.born,0);assert.deepEqual([...node.presence.keys()],[0,2]);
   assert.equal(subjectFrame(history,1).nodes.find(n=>n.subject.id==='probability').active,0);
 });
+
+test('released mathematics remains visible in the default growth overview as source domains expand',()=>{
+  const domains=['Combinatorics','FiniteGroups','VertexAlgebra','Geometry','HomologicalAlgebra','Topology','QuadraticForms'];
+  const math=domains.map(domain=>growNode(`${domain}/Result`,domain));
+  const tool=growNode('ToolchainUpgrade','ToolchainUpgrade');
+  const unknown=growNode('Unknown/Result','Unknown');
+  const pairs=math.slice(1).map(node=>[math[0].id,node.id]);
+  const history=growthHistory([growSnapshot([math[0]]),growSnapshot([...math,tool,unknown],pairs)]);
+  const frame=subjectFrame(history,1);
+  assert.deepEqual(new Set(frame.nodes.flatMap(n=>n.nodes.map(m=>m.id))),new Set(math.map(n=>n.id)));
+  assert.deepEqual(new Set(frame.lanes.map(l=>l.domain)),new Set(['algebra','geometry','combinatorics']));
+  assert.deepEqual(new Set(frame.edges.flatMap(e=>e.pairs).map(JSON.stringify)),new Set(pairs.map(JSON.stringify)));
+  assert.equal(subjectFrame(history,1,{auxiliary:true}).nodes.flatMap(n=>n.nodes).length,math.length+2);
+});
