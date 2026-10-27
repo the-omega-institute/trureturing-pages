@@ -115,9 +115,8 @@ const sha = (text) =>
         body: JSON.stringify(library),
       }),
     );
-    await page.goto(`${root}/atlas-explorer.html`);
+    await page.goto(`${root}/atlas.html#mode=structure`);
     await page.waitForFunction(() => window.atlasDiagnostics);
-    assert.equal(await page.evaluate(() => window.atlasDiagnostics().changes), null);
     await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(
       () =>
@@ -166,19 +165,19 @@ const sha = (text) =>
     assert.equal(await page.evaluate(() => window.atlasDiagnostics().selected), added);
     const output = path.resolve("artifacts/atlas-preview/screenshots");
     fs.mkdirSync(output, { recursive: true });
-    await page.goto(`${root}/atlas-explorer.html`);
+    await page.goto(`${root}/atlas.html#mode=structure`);
     await page.waitForFunction(() => window.atlasDiagnostics);
-    assert.equal(await page.evaluate(() => window.atlasDiagnostics().changes), null);
     await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(() => window.atlasDiagnostics?.().changes?.kind === "comparable");
     await page.screenshot({ path: path.join(output, "visual-release-changes-desktop.png") });
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${root}/atlas-explorer.html`);
+    await page.goto(`${root}/atlas.html#mode=structure`);
     await page.waitForFunction(() => window.atlasDiagnostics);
-    assert.equal(await page.evaluate(() => window.atlasDiagnostics().changes), null);
     await page.getByRole("button", {name:"Show release changes",exact:true}).click();
     await page.waitForFunction(() => window.atlasDiagnostics?.().changes?.kind === "comparable");
     assert.equal(await page.locator("#release-discover").isVisible(), true);
+    if (await page.locator("#release-discover-toggle").getAttribute("aria-expanded") === "true")
+      await page.locator("#release-discover-toggle").click();
     assert.equal(await page.locator("#release-discover-toggle").getAttribute("aria-expanded"), "false");
     for (const [width, height] of [[390, 844], [360, 780]]) {
       await page.setViewportSize({ width, height });

@@ -294,7 +294,7 @@ def main():
         isolated.close()
         events.append('Corrupt content fails visibly without blocking the graph; retry recovers after the artifact is available')
         page.goto(base+'spaces.html?lang=en',wait_until='domcontentloaded')
-        page.wait_for_url('**/atlas-explorer.html?lang=en#*',timeout=30000)
+        page.wait_for_url('**/atlas.html?lang=en#*',timeout=30000)
         assert page.locator('#spaces-compare').count()==0
         events.append('Legacy Spaces opens the existing Atlas rather than comparing web sources with internal knowledge')
         for name in ['research','conjectures','evolution']:

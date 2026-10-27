@@ -23,7 +23,7 @@ const { chromium } = require("playwright");
     });
     for (const visit of ["cold", "repeat"]) {
       await page.goto(
-        process.env.ATLAS_URL || "http://127.0.0.1:8766/atlas-explorer.html",
+        process.env.ATLAS_URL || "http://127.0.0.1:8766/atlas.html",
         { waitUntil: "domcontentloaded" },
       );
       await page.waitForFunction(
