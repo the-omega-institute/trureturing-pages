@@ -210,6 +210,11 @@ withdrawn feed-only papers. Existing editorial publications remain the bootstrap
 archive; withdrawing one of those also requires updating that original record.
 Canonical arXiv/version/DOI aliases deduplicate; existing paper anchors, images and
 scope qualifications are retained. No heuristic credit matching is performed.
+When a short note gains a new Zenodo version or a later journal paper, keep the
+same feed `id` and update its citation fields. Matching that stable ID also
+replaces an editorial bootstrap citation even when the DOI changes. Use the
+existing editorial ID when first connecting a bootstrap paper to the feed;
+new feed-only entries receive the page anchor `paper-<id>`.
 The effective paper list is written to `assets/publication-index.json`.
 
 ## Transport and refresh
