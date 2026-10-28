@@ -40,6 +40,9 @@ def main():
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
         assert page.locator('[data-result-row]').count()==0
+        assert page.locator('.research-highlights').count()==1
+        assert page.locator('.highlight-card').count()>=1
+        assert page.locator('.research-news-intro').count()==1
         assert page.locator('#activities').count()==0
         catalog=json.loads((args.site/'assets/research-news.json').read_text())
         for paper in catalog['publications']:
@@ -56,7 +59,11 @@ def main():
         assert page.locator('#results [data-result-row]:visible').count()==min(8,total)
         assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
         assert page.locator('[data-rank-dimension],[data-result-collection],[data-curated-source]').count()==0
-        assert rows.first.locator(':scope > summary').bounding_box()['y'] < 360
+        assert page.locator('#conjecture-overview').count()==1
+        assert page.locator('#conjecture-overview .overview-map').count()==1
+        assert page.locator('#conjecture-overview-title').is_visible()
+        assert page.locator('#resolved-results-title').is_visible()
+        assert page.locator('#conjecture-overview').bounding_box()['y'] < 360
         ranked=json.loads((args.site/'assets/contribution-index.json').read_text())['results']
         assert len(ranked)==total and all(isinstance(r['score'],(int,float)) for r in ranked)
         assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked]
@@ -288,7 +295,7 @@ def main():
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name
             page.screenshot(path=str(args.output/(name+'-restored-mobile.png')),full_page=True)
             if name=='conjectures':
-                assert page.locator('[data-result-row]').first.locator('summary').first.bounding_box()['y'] < 540
+                assert page.locator('#conjecture-overview-title').bounding_box()['y'] < 540
                 page.locator('#more-questions > summary').click()
                 assert page.locator('[data-curated-question]:visible').count()==6
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1')

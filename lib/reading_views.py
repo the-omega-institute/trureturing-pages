@@ -132,6 +132,121 @@ def common_shell(document: str, root=''):
     return add_spaces_navigation(document, root)
 
 
+# These are deliberately broad reading categories. They are derived from the
+# released module path so a new upstream result appears in the map without an
+# editorial handoff or a second taxonomy to maintain.
+DISCIPLINE_RULES = (
+    ('Quantum & information', ('Quantum', 'Entropy', 'Divergence', 'Estimation', 'Resource')),
+    ('Discrete mathematics', ('Combinatorics', 'Words', 'Recurrence', 'Certificates', 'PatternAvoidance')),
+    ('Number theory', ('Arith', 'Digit', 'Factorization', 'Prime', 'Constants')),
+    ('Analysis & dynamics', ('Analytic', 'FluidDynamics', 'StatisticalMechanics', 'ConceptDynamics', 'Scale')),
+    ('Geometry & algebra', ('Geometry', 'QuadraticForms', 'FiniteGroups', 'HomologicalAlgebra', 'Topology', 'Algebra')),
+)
+
+
+def discipline_for(module):
+    module = str(module or '')
+    for label, needles in DISCIPLINE_RULES:
+        if any(needle.casefold() in module.casefold() for needle in needles):
+            return label
+    return 'Other foundations'
+
+
+def overview_data(records):
+    from collections import Counter
+    fields = Counter(discipline_for(record.get('module')) for record in records)
+    ordered = [(label, fields.get(label, 0)) for label, _ in DISCIPLINE_RULES]
+    ordered.append(('Other foundations', fields.get('Other foundations', 0)))
+    proved = sum(1 for record in records if str(record.get('kind', '')).casefold() == 'proved')
+    refuted = sum(1 for record in records if str(record.get('kind', '')).casefold() == 'refuted')
+    return {'total': len(records), 'proved': proved, 'refuted': refuted,
+            'disciplines': [(label, count) for label, count in ordered if count]}
+
+
+def render_conjecture_overview(records):
+    """Show the release as a small, accessible map before the ranked catalogue."""
+    data = overview_data(records)
+    total, proved, refuted = data['total'], data['proved'], data['refuted']
+    disciplines = data['disciplines']
+    # The SVG is an orientation device, not a second data source. The list
+    # below it remains the text fallback for screen readers and narrow screens.
+    row_height = 44
+    svg_height = max(246, 92 + row_height * len(disciplines))
+    middle = []
+    edges = []
+    labels = []
+    for index, (label, count) in enumerate(disciplines):
+        y = 38 + index * row_height
+        safe_label = esc(label)
+        middle.append(f'<g class="overview-field"><rect x="302" y="{y}" width="238" height="32" rx="4"/> '
+                      f'<text x="318" y="{y + 14}">{safe_label}</text><text class="overview-count" x="524" y="{y + 14}" text-anchor="end">{count}</text></g>')
+        edges.append(f'<path class="overview-edge" d="M 218 143 C 260 143, 260 {y + 16}, 302 {y + 16}"/>')
+        outcome_y = 101 if index % 2 == 0 else 171
+        edges.append(f'<path class="overview-edge" d="M 540 {y + 16} C 604 {y + 16}, 628 {outcome_y + 16}, 676 {outcome_y + 16}"/>')
+        labels.append(f'<li><span class="overview-dot"></span><span>{safe_label}</span><strong>{count}</strong></li>')
+    svg = (f'<svg class="overview-map" viewBox="0 0 900 {svg_height}" role="img" aria-labelledby="overview-map-title overview-map-desc">'
+           f'<title id="overview-map-title">Resolved conjectures by mathematical area</title>'
+           f'<desc id="overview-map-desc">{total} resolved results flow through {len(disciplines)} mathematical areas into proved and refuted outcomes.</desc>'
+           '<defs><linearGradient id="overview-line" x1="0" x2="1"><stop offset="0" stop-color="#6e9d88"/><stop offset="1" stop-color="#b58a66"/></linearGradient></defs>'
+           + ''.join(edges)
+           + '<g class="overview-root"><rect x="30" y="111" width="188" height="64" rx="7"/><text x="48" y="137">Resolved release</text><text class="overview-root-number" x="48" y="160">' + str(total) + '</text></g>'
+           + ''.join(middle)
+           + '<g class="overview-outcome overview-proved"><rect x="676" y="78" width="180" height="48" rx="7"/><text x="696" y="98">Proved</text><text class="overview-outcome-number" x="836" y="108" text-anchor="end">' + str(proved) + '</text></g>'
+           + '<g class="overview-outcome overview-refuted"><rect x="676" y="148" width="180" height="48" rx="7"/><text x="696" y="168">Refuted</text><text class="overview-outcome-number" x="836" y="178" text-anchor="end">' + str(refuted) + '</text></g>'
+           + '</svg>')
+    return ('<section id="conjecture-overview" class="conjecture-overview" aria-labelledby="conjecture-overview-title">'
+            '<div class="overview-copy"><p class="eyebrow">THE OMEGA INSTITUTE / TRUTH RELEASE</p>'
+            '<h2 id="conjecture-overview-title">What we have resolved</h2>'
+            '<p class="overview-lede">One release, multiple areas of mathematics, two kinds of answer.</p>'
+            '<p>Each entry below records the exact question, the contribution that settles its released scope, and the next boundary it leaves open.</p>'
+            f'<div class="overview-metrics"><div><strong>{total:,}</strong><span>resolved results</span></div><div><strong>{proved:,}</strong><span>proved</span></div><div><strong>{refuted:,}</strong><span>refuted</span></div></div></div>'
+            f'<div class="overview-visual">{svg}<ul class="overview-legend">{"".join(labels)}</ul></div></section>')
+
+
+def _trim_text(value, limit=280):
+    value = ' '.join(str(value or '').split())
+    return value if len(value) <= limit else value[:limit - 1].rstrip() + '…'
+
+
+def research_highlights(snapshot, records, ranking, limit=3):
+    """Build short story cards from released assessments and current stories."""
+    stories_path = ROOT / 'site/assets/result-stories.json'
+    stories = json.loads(stories_path.read_text()) if stories_path.exists() else {}
+    by_id = {record['id']: record for record in records}
+    selected = []
+    # A story with a current release record is the richest explanation. Fill
+    # the remaining slots with the automatic reading order so the page keeps
+    # changing as upstream releases add results.
+    for item in ranking.get('results', []):
+        if item['id'] in stories and item['id'] in by_id:
+            selected.append(item)
+    selected.extend(item for item in ranking.get('results', []) if item not in selected)
+    cards = []
+    for index, item in enumerate(selected[:limit], 1):
+        record = by_id.get(item['id'], {})
+        assessment = item.get('assessment', {})
+        dimensions = assessment.get('dimensions', {})
+        method = dimensions.get('methods', {}).get('excerpt') if isinstance(dimensions.get('methods'), dict) else ''
+        story = stories.get(item['id'], {})
+        question = story.get('question') or assessment.get('question_context') or record.get('summary') or record.get('scope')
+        idea = (story.get('steps') or [{}])[0].get('body') if story.get('steps') else ''
+        idea = idea or method or assessment.get('contribution') or record.get('summary')
+        finding = story.get('finding') or ('The released statement is proved.' if record.get('kind') == 'proved' else 'The released statement is refuted.')
+        boundary = story.get('boundary') or assessment.get('next_question') or 'The next boundary is recorded in the result dossier.'
+        outcome = str(record.get('kind') or 'result').capitalize()
+        cards.append(
+            '<article class="highlight-card">'
+            f'<div class="highlight-card-top"><span class="highlight-index">{index:02}</span><span class="highlight-outcome {esc(record.get("kind", ""))}">{esc(outcome)}</span></div>'
+            f'<h3><a href="conjectures.html#resolved-{esc(item["id"])}">{esc(item.get("title") or record.get("title"))}</a></h3>'
+            '<div class="highlight-story">'
+            f'<p><span>The question</span>{esc(_trim_text(question))}</p>'
+            f'<p><span>The idea</span>{esc(_trim_text(idea))}</p>'
+            f'<p><span>The result</span>{esc(_trim_text(finding))}</p>'
+            f'<p><span>What it opens</span>{esc(_trim_text(boundary))}</p>'
+            '</div><a class="highlight-link" href="conjectures.html#resolved-' + esc(item['id']) + '">Read the result ↗</a></article>')
+    return ''.join(cards)
+
+
 def render_result_index(document, snapshot, records, ranking=None, feed=None):
     """Server-ranked contributions, with one small search field and no score controls."""
     from lib.contributions import build_index
@@ -213,15 +328,23 @@ def research_followups(slug, feed):
 
 
 def render_research_groups(document, snapshot, records):
-    """Research is a publication shelf. Conjectures owns the result catalogue."""
+    """Research leads with readable result stories, then keeps the paper shelf."""
+    from lib.contributions import build_index
     parsed = Fragments(document)
     papers = parsed.select(id='publications')
-    body = ('<main class="site-main research-news research-publications"><header class="news-heading">'
+    ranking = build_index(snapshot, records)
+    data = overview_data(records)
+    publication_count = len(parsed.select(cls='news-paper'))
+    body = ('<main class="site-main research-news research-story-page"><header class="news-heading">'
             '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p>'
-            '<h1>Research</h1><p class="news-lede">Papers that take the work further.</p>'
-            '<p class="research-intro-note">Publications and preprints from our research and collaborations.</p>'
+            '<h1>Research highlights</h1><p class="news-lede">We turn named questions into proofs, counterexamples, and reusable ideas.</p>'
+            '<p class="research-intro-note">Follow the idea first. Then open the paper, proof record, or collaboration that carries it further.</p>'
             '<nav class="news-links" aria-label="Research destinations">'
-            '<a href="conjectures.html#results">Explore problems &amp; contributions ↗</a></nav></div></header>'
+            '<a href="conjectures.html#results">See all conjectures ↗</a></nav></div>'
+            f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><strong>{publication_count}</strong><span>publications &amp; preprints</span></div></header>'
+            '<section id="highlights" class="research-highlights" aria-labelledby="research-highlights-title"><div class="research-section-heading"><div><p class="eyebrow">THE IDEAS BEHIND THE RESULTS</p><h2 id="research-highlights-title">Research highlights</h2></div><a href="conjectures.html#results">Browse the full result order ↗</a></div>'
+            '<div class="highlight-grid">' + research_highlights(snapshot, records, ranking) + '</div></section>'
+            '<section class="research-news-intro" aria-labelledby="research-news-title"><p class="eyebrow">RESEARCH NEWS</p><h2 id="research-news-title">Papers, preprints, and collaborations</h2><p>These public records show where a resolved question turns into a longer research program.</p></section>'
             + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
             + '</main>')
     result = common_shell(replace_main(document, body))
@@ -249,10 +372,13 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
     records = records or []
     from lib.contributions import build_index
     ranking = build_index(snapshot, records, output / 'assets/contribution-index.json')
+    overview = render_conjecture_overview(records)
     body = ('<main class="site-main research-home research-news contribution-home" data-curated-home>'
-        '<header class="contribution-heading"><div><h1>Conjectures</h1>'
-        '<p>Problems solved. Ideas developed. Further research.</p></div>'
-        '<a href="research.html">Papers &amp; preprints ↗</a></header>'
+        '<header class="contribution-heading"><div><p class="eyebrow">THE OMEGA INSTITUTE / CONTRIBUTIONS</p><h1>Conjectures</h1>'
+        '<p>What the release settles, why it matters, and what it opens next.</p></div>'
+        '<a href="research.html">Research highlights ↗</a></header>'
+        + overview
+        + '<section class="resolved-results-heading" aria-labelledby="resolved-results-title"><p class="eyebrow">RANKED RELEASE RESULTS</p><h2 id="resolved-results-title">Resolved conjectures</h2><p>Automatically ordered from the released question, proof route, mathematical scope, and documented context.</p></section>'
         + render_result_index(result_document or document, snapshot, records, ranking, feed)
         + '<details id="more-questions" class="more-questions"><summary>Open questions &amp; future pursuits</summary>'
         + render_collection(catalog, snapshot, sources['questions'], show_source_filters=False)

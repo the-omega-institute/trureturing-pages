@@ -57,6 +57,9 @@ class ReadingViewsTests(unittest.TestCase):
         records,source=results();out=render_research_groups(source,{},records)
         self.assertIn('class="news-heading"',out)
         self.assertIn('class="news-lede"',out)
+        self.assertIn('class="research-highlights"',out)
+        self.assertIn('class="highlight-card"',out)
+        self.assertLess(out.index('id="highlights"'), out.index('id="publications"'))
         self.assertNotIn('data-result-row',out)
         self.assertNotIn('class="reading-heading"',out)
         p=Fragments(source);self.assertIn(p.raw(p.select(id='publications')[0]),out)
@@ -131,6 +134,20 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertTrue(all(isinstance(item['score'], (int,float)) for item in index['results']))
         self.assertIn('Scope sequence', out)
         self.assertNotIn('Awaiting assessments', out)
+
+    def test_conjectures_open_with_release_overview_and_accessible_map(self):
+        records, result_document = results()
+        snapshot, source = conjectures()
+        with tempfile.TemporaryDirectory() as temp:
+            out = render_conjecture_groups(source, snapshot, Path(temp), result_document, records)
+        self.assertIn('id="conjecture-overview"', out)
+        self.assertIn('id="conjecture-overview-title"', out)
+        self.assertIn('class="overview-map"', out)
+        self.assertIn('aria-labelledby="overview-map-title overview-map-desc"', out)
+        self.assertIn('>3</strong><span>resolved results</span>', out)
+        self.assertIn('>2</strong><span>proved</span>', out)
+        self.assertIn('>1</strong><span>refuted</span>', out)
+        self.assertLess(out.index('id="conjecture-overview"'), out.index('id="results"'))
 
     def test_primary_navigation_is_restored_without_changing_evidence_links(self):
         raw=document('<main><a href="../../version-status.html">Diagnostic evidence</a></main>').replace('href="spaces.html"','href="../../spaces.html"')
