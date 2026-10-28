@@ -7,6 +7,348 @@
   "review_scope": "Editorial source notes and proposed follow-up questions. This file does not certify resolutions; the generated research-catalog.json is bound to the truth-release machine verification gate.",
   "families": [
     {
+      "id": "weil-ground-mode-xi-limit",
+      "title": "Connes–Consani–Moscovici's route to RH: do genuine lowest Weil modes converge to Ξ?",
+      "area": "Weil spectra",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2511.22755",
+      "anchors": [
+        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
+      ],
+      "question": "Do suitably normalized Fourier transforms of genuine lowest Weil modes converge locally uniformly to the Riemann Xi function as the physical support grows?",
+      "foothold": "FixedScaleWeilQuadraticForm exposes the actual finite prime-power and Archimedean multiplier. Its zero-sum formula has explicit convergence and ZeroData premises; it supplies no ground-mode limit.",
+      "gap": "An explicit prolate model and a finite-window certificate leave actual-mode identification, full-space coercivity and a growing-window comparison to establish.",
+      "next_step": "Reuse the existing Weil research lanes. Match operator domains, physical window, normalization and Fourier convention before comparing any two certificates.",
+      "success": "A quantitative estimate for the same genuine family tending to zero on every compact set, combined with the correctly normalized model limit. A fixed-window residual is one input.",
+      "keywords": [
+        "Weil",
+        "黎曼",
+        "最低模态",
+        "Xi",
+        "prolate",
+        "spectral gap"
+      ],
+      "targets": [
+        {
+          "id": "weil-same-family-residual",
+          "title": "Compare one genuine mode and its actual candidate",
+          "kind": "certificate",
+          "question": "Can a full-space residual and complement-coercivity certificate bound the Fourier error for the same physical Weil operator and prolate trial?",
+          "gap": "A retained matrix residual leaves an exterior term. Domain error and candidate normalization must be paid separately.",
+          "next_step": "Check the existing numerical and proof-script outputs before creating another certificate; assemble prime, pole, Gamma and tail terms with one set of parameters.",
+          "success": "An independently replayable fixed-window bound with every premise identified. It should not be relabelled as a uniform all-window theorem.",
+          "related": [
+            "weil-moving-window-rate"
+          ]
+        },
+        {
+          "id": "weil-moving-window-rate",
+          "title": "A physical-window rate for the true mode error",
+          "kind": "research-question",
+          "question": "Can arithmetic cancellation and complement coercivity control the actual-mode Fourier error along an unbounded sequence of support windows?",
+          "gap": "Increasing numerical precision or an exterior cutoff does not reduce the physical error by itself; gaps may deteriorate with the window.",
+          "next_step": "Separate the physical window, finite matrix dimension and numerical tail cutoff. Seek bounds uniform over each target compact set with an explicit vanishing budget.",
+          "success": "A rate for the genuine family with all growth terms retained, or an obstruction to the particular proposed estimate.",
+          "related": [
+            "suzuki-unconditional-shift"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2511.22755",
+        "version": "v1",
+        "title": "Zeta Spectral Triples",
+        "submitted": "2025-11-27",
+        "revised": "2025-11-27",
+        "checked": "2026-09-07",
+        "locator": "Sections 7 and 8; the explicit-model limit and the actual lowest-mode approximation",
+        "status": "open-in-source",
+        "note": "This is a 2025 source rechecked alongside the June 2026 Suzuki paper. The explicit model limit and convergence of genuine lowest modes are separate. Finite spectral agreement is not an all-scale proof."
+      },
+      "updates": [
+        {
+          "arxiv_id": "2606.09096",
+          "version": "v1",
+          "title": "Weil's quadratic form via the screw function",
+          "submitted": "2026-06-08",
+          "revised": "2026-06-08",
+          "checked": "2026-09-07",
+          "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
+          "status": "conditional-route",
+          "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
+        }
+      ],
+      "display": {
+        "connection": "Finite-scale Weil forms provide a concrete spectral starting point.",
+        "gap": "Relate genuine lowest modes to the Xi limit; the explicit model alone is insufficient."
+      }
+    },
+    {
+      "id": "suzuki-boundary-characteristic-limit",
+      "title": "Does Suzuki's boundary characteristic satisfy the zeta limit?",
+      "area": "Weil spectra",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2606.09096",
+      "anchors": [
+        "D5/S3/Weil/FiniteResolventClarkIdentity",
+        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
+      ],
+      "question": "Can theta(a) and a nonvanishing normalization make W(a,theta;z) approach z² xi(1/2-iz)/xi'(1/2-iz) in the sense intended by equation (1.12)?",
+      "foothold": "FiniteResolventClarkIdentity transports an explicitly supplied paired atomic spectrum. The fixed-scale Weil multiplier is another input. Neither identifies the actual boundary characteristic or its limiting measure.",
+      "gap": "The spectral shift lambda < lambda_a, the physical characteristic function and the treatment of poles in compact-uniform convergence need explicit control.",
+      "next_step": "First resolve the analytic meaning of the meromorphic quotient and normalization. Then identify the paper's W with a repository operator construction without supplying zeta zeros as spectral input.",
+      "success": "A precise faithful limit statement and proof without RH premises. The conditional implication in Corollary 1.6 is already a source result.",
+      "keywords": [
+        "Suzuki",
+        "screw function",
+        "Clark",
+        "Fredholm",
+        "boundary characteristic",
+        "螺旋函数",
+        "Weil"
+      ],
+      "targets": [
+        {
+          "id": "suzuki-boundary-identification",
+          "title": "Identify the actual finite-window characteristic",
+          "kind": "bridge",
+          "question": "Can the paper's deficiency-space boundary characteristic be identified with a resolvent or Fredholm construction using the genuine screw kernel?",
+          "gap": "A finite atomic measure chosen to look like a Clark measure does not establish this identification.",
+          "next_step": "Fix the domain, boundary convention and inner product; derive the relevant boundary function and measure rather than assume their desired expansion.",
+          "success": "An operator-to-characteristic identity on a specified analytic domain with normalization constants retained.",
+          "related": [
+            "weil-same-family-residual"
+          ]
+        },
+        {
+          "id": "suzuki-unconditional-shift",
+          "title": "Control the spectral shift without assuming RH",
+          "kind": "research-question",
+          "question": "Can the shift needed to define the window Hilbert spaces be controlled as a grows, without assuming positivity of every Weil window?",
+          "gap": "The source's global Hilbert-space heuristic assumes RH. Finiteness of prime terms at each fixed a gives no uniform estimate.",
+          "next_step": "Use explicit lower bounds and compare shifted constructions on common test-function cores; track any effect on characteristic zeros and normalization.",
+          "success": "A shift-control lemma with unconditional hypotheses useful for the proposed limit, or a precise failure of a proposed normalization.",
+          "related": [
+            "weil-moving-window-rate"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2606.09096",
+        "version": "v1",
+        "title": "Weil's quadratic form via the screw function",
+        "submitted": "2026-06-08",
+        "revised": "2026-06-08",
+        "checked": "2026-09-07",
+        "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
+        "status": "conditional-route",
+        "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
+      },
+      "updates": [],
+      "display": {
+        "connection": "Our finite resolvent identities supply nearby operator and spectral constructions.",
+        "gap": "Identify the actual boundary operator and prove the stated limiting relation."
+      }
+    },
+    {
+      "id": "sic-povm-all-dimensions",
+      "title": "Zauner's conjecture: do SIC-POVMs exist in every dimension?",
+      "area": "Quantum geometry",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2603.29571",
+      "anchors": [
+        "D5/S3/Quantum/Algebra/WeylDisplacementTrace",
+        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
+      ],
+      "question": "Does every positive dimension d admit d² unit vectors forming an equiangular tight frame, equivalently a SIC-POVM?",
+      "foothold": "WeylDisplacementTrace supplies displacement trace orthogonality; the rank-one projector predicate supplies individual projectors. A displacement basis alone does not construct a SIC fiducial.",
+      "gap": "For d>1 the target requires squared overlaps 1/(d+1) and sum of rank-one projectors dI. This is distinct from the MUB version of Zauner's conjecture.",
+      "next_step": "Connect the existing displacement operators to a precisely normalized fiducial system, keeping every extra symmetry and number-theoretic premise explicit.",
+      "success": "An unconditional construction in every dimension. Exact isolated dimensions or a construction under Stark-type assumptions retain their narrower scope.",
+      "keywords": [
+        "SIC",
+        "POVM",
+        "Zauner",
+        "Weyl",
+        "Heisenberg",
+        "量子设计",
+        "Stark"
+      ],
+      "targets": [
+        {
+          "id": "sic-fiducial-orbit",
+          "title": "From a verified fiducial to a SIC orbit",
+          "kind": "bridge",
+          "question": "Can exact displacement-overlap equations for a unit fiducial imply the d²-vector equiangular tight-frame and POVM identities?",
+          "gap": "Trace orthogonality is available but the orbit normalization, distinctness and identity resolution must be derived.",
+          "next_step": "Use the existing displacement composition and trace owners; derive twirling and the orbit Gram entries rather than introducing another Weyl convention.",
+          "success": "A conditional fiducial-to-SIC theorem with d and phase conventions explicit, plus exact low-dimensional checks.",
+          "related": [
+            "mub-basis-context"
+          ]
+        },
+        {
+          "id": "sic-exact-fiducial-certificate",
+          "title": "An exact certificate behind a numerical SIC candidate",
+          "kind": "certificate",
+          "question": "Can a proposed algebraic fiducial be certified against all required overlap and normalization equations?",
+          "gap": "A small floating residual does not establish equality or existence. An imposed order-three symmetry narrows the search class.",
+          "next_step": "Use explicit number-field embeddings and exact polynomial reductions; list which equations and embedding choices are certified.",
+          "success": "A verified instance with its dimension and assumptions, never presented as the universal existence theorem.",
+          "related": [
+            "mub-joint-compatibility"
+          ]
+        }
+      ],
+      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
+      "source": {
+        "arxiv_id": "2603.29571",
+        "version": "v1",
+        "title": "Randomstrasse101: Open Problems of 2025",
+        "submitted": "2026-03-31",
+        "revised": "2026-03-31",
+        "checked": "2026-09-07",
+        "locator": "Entry 11, Definition 11.2 and Conjecture 24",
+        "status": "open-in-source",
+        "note": "The survey records the SIC existence conjecture and conditional number-theoretic progress. Neither those assumptions nor the MUB conjecture are identified with an unconditional all-dimension SIC proof."
+      },
+      "updates": [],
+      "display": {
+        "connection": "Weyl displacement identities provide algebraic inputs for symmetric measurements.",
+        "gap": "Construct a valid SIC in every dimension, beyond the available conditional identities."
+      }
+    },
+    {
+      "id": "mub-six-fourth-basis",
+      "title": "Can four mutually unbiased bases exist in dimension six?",
+      "area": "Quantum geometry",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2410.23997",
+      "anchors": [
+        "D5/S3/Quantum/Tomography/RankOneContextCommutator",
+        "D5/S3/Quantum/Tomography/CompleteContextTomography",
+        "D5/S3/Quantum/Tomography/ComplementaryContextProbabilityPythagoras"
+      ],
+      "question": "Does a family of four orthonormal bases of complex dimension six exist with every cross-basis squared inner product equal to 1/6?",
+      "foothold": "Rank-one contexts, overlaps and complementary-context identities express nearby exact geometry.",
+      "gap": "Conditional tomography identities assume the family. A complete seven-basis design identity does not automatically constrain a four-basis family.",
+      "next_step": "Establish the exact basis/context correspondence, then express all cross-basis compatibility equations in one coordinate system.",
+      "success": "An exact four-basis construction or a nonexistence proof covering the whole feasible set, with no unverified classification assumed.",
+      "keywords": [
+        "六维",
+        "互无偏基",
+        "MUB",
+        "Hadamard",
+        "projector"
+      ],
+      "targets": [
+        {
+          "id": "mub-basis-context",
+          "title": "An exact basis-to-projector bridge",
+          "kind": "bridge",
+          "question": "Can orthonormal bases modulo individual phases be represented faithfully as labelled complete rank-one projector contexts, preserving the MUB overlap condition?",
+          "gap": "Rank-one, completeness, orthogonality, labelling and phase equivalence all need explicit hypotheses.",
+          "next_step": "Formalize both directions and prove trace(P_i Q_j) = |inner(v_i,w_j)|^2, using the repository context definitions.",
+          "success": "A proved correspondence at dimension six that translates the four-basis feasible set without adding a two-design assumption.",
+          "related": []
+        },
+        {
+          "id": "mub-joint-compatibility",
+          "title": "A certificate for joint Hadamard compatibility",
+          "kind": "certificate",
+          "question": "Can an independently verified order-six Hadamard parameterization support a complete exact exclusion or construction for three Hadamards relative to the identity basis?",
+          "gap": "A classification claim alone leaves pairwise and joint compatibility to prove. Numerical near-solutions do not satisfy exact equations.",
+          "next_step": "First check parameterization coverage and exceptional branches, then express every required cross-Gram modulus equation and seek exact certificates.",
+          "success": "An exact solution or branch-covering exclusion with proved coverage. Treat the dossier-mentioned classification preprint as unverified input until checked.",
+          "related": []
+        },
+        {
+          "id": "mub-projector-sos-scope",
+          "title": "Which projector-coordinate constraint could exclude four bases?",
+          "kind": "route-test",
+          "question": "After checking the vector-coordinate obstruction, can a faithful projector formulation impose a dimension-six constraint stronger than m <= d+1?",
+          "gap": "The existing elementary projector bound permits four, five, six and seven bases at d=6. No stronger exclusion is supplied by that bound.",
+          "next_step": "Track polynomial degree before and after P=vv*. First reproduce the stated separation, then test exact certificates for a genuinely stronger constraint.",
+          "success": "A scope-correct formalization of the reported obstruction or a new certificate for the four-basis feasible set. Failure of one encoding is not nonexistence.",
+          "related": [
+            "mub-basis-context",
+            "sic-fiducial-orbit"
+          ]
+        }
+      ],
+      "updates": [
+        {
+          "arxiv_id": "2606.13903",
+          "version": "v1",
+          "title": "Degree-Four Vector-Coordinate SoS Cannot Detect the MUB Upper Bound",
+          "submitted": "2026-06-11",
+          "revised": "2026-06-11",
+          "checked": "2026-09-07",
+          "locator": "Sections 8 to 10; consequences for Randomstrasse101 Open Problem 23",
+          "status": "route-obstruction",
+          "note": "The preprint reports a degree-four obstruction for the two specified vector-coordinate encodings. Centered projectors recover m <= d+1, which still allows four bases in dimension six. Neither result decides the fourth-basis question; no independent proof replay is claimed."
+        }
+      ],
+      "display": {
+        "connection": "Our rank-one contexts and overlap identities describe the relevant basis geometry.",
+        "gap": "Four bases in dimension six must satisfy all pairwise compatibility equations at once."
+      }
+    },
+    {
+      "id": "wall-sun-sun-golden-unit-lift",
+      "title": "Wall–Sun–Sun primes: can a prime have equal Fibonacci periods modulo p and p²?",
+      "area": "Arithmetic",
+      "scope": "wall",
+      "doi": "10.48550/arXiv.2603.25343",
+      "anchors": [
+        "D5/S0/Carrier/Units",
+        "D5/S1/Scale/Fibonacci",
+        "D5/S3/Arith/FibonacciRank",
+        "D5/S3/Arith/GoldenApparition",
+        "D5/S3/Arith/GoldenPrimeSplitting"
+      ],
+      "question": "Does a prime p exist with pi(p) = pi(p²), where pi is the Pisano period? The infinitely-many assertion is a separate stronger question.",
+      "foothold": "Golden-unit powers, Fibonacci coordinates, apparition ranks and split/inert arithmetic connect the mod-p side.",
+      "gap": "The exceptional lift from p to p² is missing. A finite search with no examples does not refute existence.",
+      "next_step": "Identify recurrence period, matrix order and golden-unit order before studying the first lift defect.",
+      "success": "A verified prime witness or a universal nonexistence proof. Keep local bridge theorems separate from the global existence question.",
+      "keywords": [
+        "素数",
+        "Pisano",
+        "Wall-Sun-Sun",
+        "WSS",
+        "p-adic"
+      ],
+      "targets": [
+        {
+          "id": "pisano-matrix-order",
+          "title": "Pisano period as matrix and golden-unit order",
+          "kind": "bridge",
+          "question": "For m >= 2, can the pair-recurrence period be proved equal to the multiplicative order of A = [[0,1],[1,1]] over Z/mZ and of its golden-unit representation?",
+          "gap": "Matrix order concerns the whole matrix, so equality with the orbit period needs proof; invertibility and indexing must be explicit.",
+          "next_step": "Prove the Fibonacci formula for A^n and compare the return condition (F_n,F_(n+1)) = (0,1) modulo m.",
+          "success": "A reusable equivalence for all m >= 2, with small-modulus conventions stated and checked.",
+          "related": []
+        },
+        {
+          "id": "pisano-first-lift-defect",
+          "title": "The first-lift defect criterion modulo p²",
+          "kind": "bridge",
+          "question": "With r = pi(p) and A^r = I + pB modulo p², is pi(p²) equal to r exactly when B vanishes modulo p, and otherwise equal to pr?",
+          "gap": "The argument requires the reduction-order relation and a justified calculation of the order of I+pB, including small primes.",
+          "next_step": "Define B as a residue class, prove the kernel-order dichotomy, and cross-check recurrence and matrix computations independently.",
+          "success": "A proved local lift dichotomy with every prime case covered. This does not settle whether a vanishing defect ever occurs.",
+          "related": []
+        }
+      ],
+      "display": {
+        "connection": "Golden-unit orders and their lifts connect Fibonacci periods to local arithmetic.",
+        "gap": "Determine whether a prime can retain the same period when lifted to its square."
+      }
+    },
+    {
       "id": "thue-morse-reduced-abelian-even",
       "title": "What determines the signed even recurrence of Thue–Morse complexity?",
       "area": "Sequence complexity",
@@ -264,82 +606,6 @@
       }
     },
     {
-      "id": "mub-six-fourth-basis",
-      "title": "Can four mutually unbiased bases exist in dimension six?",
-      "area": "Quantum geometry",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2410.23997",
-      "anchors": [
-        "D5/S3/Quantum/Tomography/RankOneContextCommutator",
-        "D5/S3/Quantum/Tomography/CompleteContextTomography",
-        "D5/S3/Quantum/Tomography/ComplementaryContextProbabilityPythagoras"
-      ],
-      "question": "Does a family of four orthonormal bases of complex dimension six exist with every cross-basis squared inner product equal to 1/6?",
-      "foothold": "Rank-one contexts, overlaps and complementary-context identities express nearby exact geometry.",
-      "gap": "Conditional tomography identities assume the family. A complete seven-basis design identity does not automatically constrain a four-basis family.",
-      "next_step": "Establish the exact basis/context correspondence, then express all cross-basis compatibility equations in one coordinate system.",
-      "success": "An exact four-basis construction or a nonexistence proof covering the whole feasible set, with no unverified classification assumed.",
-      "keywords": [
-        "六维",
-        "互无偏基",
-        "MUB",
-        "Hadamard",
-        "projector"
-      ],
-      "targets": [
-        {
-          "id": "mub-basis-context",
-          "title": "An exact basis-to-projector bridge",
-          "kind": "bridge",
-          "question": "Can orthonormal bases modulo individual phases be represented faithfully as labelled complete rank-one projector contexts, preserving the MUB overlap condition?",
-          "gap": "Rank-one, completeness, orthogonality, labelling and phase equivalence all need explicit hypotheses.",
-          "next_step": "Formalize both directions and prove trace(P_i Q_j) = |inner(v_i,w_j)|^2, using the repository context definitions.",
-          "success": "A proved correspondence at dimension six that translates the four-basis feasible set without adding a two-design assumption.",
-          "related": []
-        },
-        {
-          "id": "mub-joint-compatibility",
-          "title": "A certificate for joint Hadamard compatibility",
-          "kind": "certificate",
-          "question": "Can an independently verified order-six Hadamard parameterization support a complete exact exclusion or construction for three Hadamards relative to the identity basis?",
-          "gap": "A classification claim alone leaves pairwise and joint compatibility to prove. Numerical near-solutions do not satisfy exact equations.",
-          "next_step": "First check parameterization coverage and exceptional branches, then express every required cross-Gram modulus equation and seek exact certificates.",
-          "success": "An exact solution or branch-covering exclusion with proved coverage. Treat the dossier-mentioned classification preprint as unverified input until checked.",
-          "related": []
-        },
-        {
-          "id": "mub-projector-sos-scope",
-          "title": "Which projector-coordinate constraint could exclude four bases?",
-          "kind": "route-test",
-          "question": "After checking the vector-coordinate obstruction, can a faithful projector formulation impose a dimension-six constraint stronger than m <= d+1?",
-          "gap": "The existing elementary projector bound permits four, five, six and seven bases at d=6. No stronger exclusion is supplied by that bound.",
-          "next_step": "Track polynomial degree before and after P=vv*. First reproduce the stated separation, then test exact certificates for a genuinely stronger constraint.",
-          "success": "A scope-correct formalization of the reported obstruction or a new certificate for the four-basis feasible set. Failure of one encoding is not nonexistence.",
-          "related": [
-            "mub-basis-context",
-            "sic-fiducial-orbit"
-          ]
-        }
-      ],
-      "updates": [
-        {
-          "arxiv_id": "2606.13903",
-          "version": "v1",
-          "title": "Degree-Four Vector-Coordinate SoS Cannot Detect the MUB Upper Bound",
-          "submitted": "2026-06-11",
-          "revised": "2026-06-11",
-          "checked": "2026-09-07",
-          "locator": "Sections 8 to 10; consequences for Randomstrasse101 Open Problem 23",
-          "status": "route-obstruction",
-          "note": "The preprint reports a degree-four obstruction for the two specified vector-coordinate encodings. Centered projectors recover m <= d+1, which still allows four bases in dimension six. Neither result decides the fourth-basis question; no independent proof replay is claimed."
-        }
-      ],
-      "display": {
-        "connection": "Our rank-one contexts and overlap identities describe the relevant basis geometry.",
-        "gap": "Four bases in dimension six must satisfy all pairwise compatibility equations at once."
-      }
-    },
-    {
       "id": "base-phi-negative-prefix-trident",
       "title": "Do negative base-phi prefixes obey the trident classification?",
       "area": "Golden numeration",
@@ -526,58 +792,6 @@
       }
     },
     {
-      "id": "wall-sun-sun-golden-unit-lift",
-      "title": "Can a prime have equal Fibonacci periods modulo p and p²?",
-      "area": "Arithmetic",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2603.25343",
-      "anchors": [
-        "D5/S0/Carrier/Units",
-        "D5/S1/Scale/Fibonacci",
-        "D5/S3/Arith/FibonacciRank",
-        "D5/S3/Arith/GoldenApparition",
-        "D5/S3/Arith/GoldenPrimeSplitting"
-      ],
-      "question": "Does a prime p exist with pi(p) = pi(p²), where pi is the Pisano period? The infinitely-many assertion is a separate stronger question.",
-      "foothold": "Golden-unit powers, Fibonacci coordinates, apparition ranks and split/inert arithmetic connect the mod-p side.",
-      "gap": "The exceptional lift from p to p² is missing. A finite search with no examples does not refute existence.",
-      "next_step": "Identify recurrence period, matrix order and golden-unit order before studying the first lift defect.",
-      "success": "A verified prime witness or a universal nonexistence proof. Keep local bridge theorems separate from the global existence question.",
-      "keywords": [
-        "素数",
-        "Pisano",
-        "Wall-Sun-Sun",
-        "WSS",
-        "p-adic"
-      ],
-      "targets": [
-        {
-          "id": "pisano-matrix-order",
-          "title": "Pisano period as matrix and golden-unit order",
-          "kind": "bridge",
-          "question": "For m >= 2, can the pair-recurrence period be proved equal to the multiplicative order of A = [[0,1],[1,1]] over Z/mZ and of its golden-unit representation?",
-          "gap": "Matrix order concerns the whole matrix, so equality with the orbit period needs proof; invertibility and indexing must be explicit.",
-          "next_step": "Prove the Fibonacci formula for A^n and compare the return condition (F_n,F_(n+1)) = (0,1) modulo m.",
-          "success": "A reusable equivalence for all m >= 2, with small-modulus conventions stated and checked.",
-          "related": []
-        },
-        {
-          "id": "pisano-first-lift-defect",
-          "title": "The first-lift defect criterion modulo p²",
-          "kind": "bridge",
-          "question": "With r = pi(p) and A^r = I + pB modulo p², is pi(p²) equal to r exactly when B vanishes modulo p, and otherwise equal to pr?",
-          "gap": "The argument requires the reduction-order relation and a justified calculation of the order of I+pB, including small primes.",
-          "next_step": "Define B as a residue class, prove the kernel-order dichotomy, and cross-check recurrence and matrix computations independently.",
-          "success": "A proved local lift dichotomy with every prime case covered. This does not settle whether a vanishing defect ever occurs.",
-          "related": []
-        }
-      ],
-      "display": {
-        "connection": "Golden-unit orders and their lifts connect Fibonacci periods to local arithmetic.",
-        "gap": "Determine whether a prime can retain the same period when lifted to its square."
-      }
-    },
-    {
       "id": "zeckendorf-polynomial-maximum-order-complexity",
       "title": "How large is maximum order complexity along polynomial inputs?",
       "area": "Sequence complexity",
@@ -631,152 +845,6 @@
       "display": {
         "connection": "Zeckendorf order and carry structure offer exact tools for polynomial subsequences.",
         "gap": "Control successor behavior well enough to bound maximum order complexity."
-      }
-    },
-    {
-      "id": "weil-ground-mode-xi-limit",
-      "title": "Do genuine lowest Weil modes converge to Xi?",
-      "area": "Weil spectra",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2511.22755",
-      "anchors": [
-        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
-      ],
-      "question": "Do suitably normalized Fourier transforms of genuine lowest Weil modes converge locally uniformly to the Riemann Xi function as the physical support grows?",
-      "foothold": "FixedScaleWeilQuadraticForm exposes the actual finite prime-power and Archimedean multiplier. Its zero-sum formula has explicit convergence and ZeroData premises; it supplies no ground-mode limit.",
-      "gap": "An explicit prolate model and a finite-window certificate leave actual-mode identification, full-space coercivity and a growing-window comparison to establish.",
-      "next_step": "Reuse the existing Weil research lanes. Match operator domains, physical window, normalization and Fourier convention before comparing any two certificates.",
-      "success": "A quantitative estimate for the same genuine family tending to zero on every compact set, combined with the correctly normalized model limit. A fixed-window residual is one input.",
-      "keywords": [
-        "Weil",
-        "黎曼",
-        "最低模态",
-        "Xi",
-        "prolate",
-        "spectral gap"
-      ],
-      "targets": [
-        {
-          "id": "weil-same-family-residual",
-          "title": "Compare one genuine mode and its actual candidate",
-          "kind": "certificate",
-          "question": "Can a full-space residual and complement-coercivity certificate bound the Fourier error for the same physical Weil operator and prolate trial?",
-          "gap": "A retained matrix residual leaves an exterior term. Domain error and candidate normalization must be paid separately.",
-          "next_step": "Check the existing numerical and proof-script outputs before creating another certificate; assemble prime, pole, Gamma and tail terms with one set of parameters.",
-          "success": "An independently replayable fixed-window bound with every premise identified. It should not be relabelled as a uniform all-window theorem.",
-          "related": [
-            "weil-moving-window-rate"
-          ]
-        },
-        {
-          "id": "weil-moving-window-rate",
-          "title": "A physical-window rate for the true mode error",
-          "kind": "research-question",
-          "question": "Can arithmetic cancellation and complement coercivity control the actual-mode Fourier error along an unbounded sequence of support windows?",
-          "gap": "Increasing numerical precision or an exterior cutoff does not reduce the physical error by itself; gaps may deteriorate with the window.",
-          "next_step": "Separate the physical window, finite matrix dimension and numerical tail cutoff. Seek bounds uniform over each target compact set with an explicit vanishing budget.",
-          "success": "A rate for the genuine family with all growth terms retained, or an obstruction to the particular proposed estimate.",
-          "related": [
-            "suzuki-unconditional-shift"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2511.22755",
-        "version": "v1",
-        "title": "Zeta Spectral Triples",
-        "submitted": "2025-11-27",
-        "revised": "2025-11-27",
-        "checked": "2026-09-07",
-        "locator": "Sections 7 and 8; the explicit-model limit and the actual lowest-mode approximation",
-        "status": "open-in-source",
-        "note": "This is a 2025 source rechecked alongside the June 2026 Suzuki paper. The explicit model limit and convergence of genuine lowest modes are separate. Finite spectral agreement is not an all-scale proof."
-      },
-      "updates": [
-        {
-          "arxiv_id": "2606.09096",
-          "version": "v1",
-          "title": "Weil's quadratic form via the screw function",
-          "submitted": "2026-06-08",
-          "revised": "2026-06-08",
-          "checked": "2026-09-07",
-          "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
-          "status": "conditional-route",
-          "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
-        }
-      ],
-      "display": {
-        "connection": "Finite-scale Weil forms provide a concrete spectral starting point.",
-        "gap": "Relate genuine lowest modes to the Xi limit; the explicit model alone is insufficient."
-      }
-    },
-    {
-      "id": "suzuki-boundary-characteristic-limit",
-      "title": "Does Suzuki's boundary characteristic satisfy the zeta limit?",
-      "area": "Weil spectra",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2606.09096",
-      "anchors": [
-        "D5/S3/Weil/FiniteResolventClarkIdentity",
-        "D5/S3/Weil/ZetaBridge/FixedScaleWeilQuadraticForm"
-      ],
-      "question": "Can theta(a) and a nonvanishing normalization make W(a,theta;z) approach z² xi(1/2-iz)/xi'(1/2-iz) in the sense intended by equation (1.12)?",
-      "foothold": "FiniteResolventClarkIdentity transports an explicitly supplied paired atomic spectrum. The fixed-scale Weil multiplier is another input. Neither identifies the actual boundary characteristic or its limiting measure.",
-      "gap": "The spectral shift lambda < lambda_a, the physical characteristic function and the treatment of poles in compact-uniform convergence need explicit control.",
-      "next_step": "First resolve the analytic meaning of the meromorphic quotient and normalization. Then identify the paper's W with a repository operator construction without supplying zeta zeros as spectral input.",
-      "success": "A precise faithful limit statement and proof without RH premises. The conditional implication in Corollary 1.6 is already a source result.",
-      "keywords": [
-        "Suzuki",
-        "screw function",
-        "Clark",
-        "Fredholm",
-        "boundary characteristic",
-        "螺旋函数",
-        "Weil"
-      ],
-      "targets": [
-        {
-          "id": "suzuki-boundary-identification",
-          "title": "Identify the actual finite-window characteristic",
-          "kind": "bridge",
-          "question": "Can the paper's deficiency-space boundary characteristic be identified with a resolvent or Fredholm construction using the genuine screw kernel?",
-          "gap": "A finite atomic measure chosen to look like a Clark measure does not establish this identification.",
-          "next_step": "Fix the domain, boundary convention and inner product; derive the relevant boundary function and measure rather than assume their desired expansion.",
-          "success": "An operator-to-characteristic identity on a specified analytic domain with normalization constants retained.",
-          "related": [
-            "weil-same-family-residual"
-          ]
-        },
-        {
-          "id": "suzuki-unconditional-shift",
-          "title": "Control the spectral shift without assuming RH",
-          "kind": "research-question",
-          "question": "Can the shift needed to define the window Hilbert spaces be controlled as a grows, without assuming positivity of every Weil window?",
-          "gap": "The source's global Hilbert-space heuristic assumes RH. Finiteness of prime terms at each fixed a gives no uniform estimate.",
-          "next_step": "Use explicit lower bounds and compare shifted constructions on common test-function cores; track any effect on characteristic zeros and normalization.",
-          "success": "A shift-control lemma with unconditional hypotheses useful for the proposed limit, or a precise failure of a proposed normalization.",
-          "related": [
-            "weil-moving-window-rate"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2606.09096",
-        "version": "v1",
-        "title": "Weil's quadratic form via the screw function",
-        "submitted": "2026-06-08",
-        "revised": "2026-06-08",
-        "checked": "2026-09-07",
-        "locator": "Corollary 1.6, equation (1.12); discussion following it; Section 7",
-        "status": "conditional-route",
-        "note": "The limit is conjectural; Corollary 1.6 proves an implication from it. Section 7 assumes RH for its heuristic. That assumption cannot be imported into an unconditional proof of the limit."
-      },
-      "updates": [],
-      "display": {
-        "connection": "Our finite resolvent identities supply nearby operator and spectral constructions.",
-        "gap": "Identify the actual boundary operator and prove the stated limiting relation."
       }
     },
     {
@@ -922,74 +990,6 @@
       "display": {
         "connection": "Complex measurement geometry offers a shared language for injectivity.",
         "gap": "Understand the probability of injectivity at the 4M−5 measurement threshold."
-      }
-    },
-    {
-      "id": "sic-povm-all-dimensions",
-      "title": "Do SIC-POVMs exist in every positive dimension?",
-      "area": "Quantum geometry",
-      "scope": "wall",
-      "doi": "10.48550/arXiv.2603.29571",
-      "anchors": [
-        "D5/S3/Quantum/Algebra/WeylDisplacementTrace",
-        "D5/S3/Quantum/Tomography/RankOneContextCommutator"
-      ],
-      "question": "Does every positive dimension d admit d² unit vectors forming an equiangular tight frame, equivalently a SIC-POVM?",
-      "foothold": "WeylDisplacementTrace supplies displacement trace orthogonality; the rank-one projector predicate supplies individual projectors. A displacement basis alone does not construct a SIC fiducial.",
-      "gap": "For d>1 the target requires squared overlaps 1/(d+1) and sum of rank-one projectors dI. This is distinct from the MUB version of Zauner's conjecture.",
-      "next_step": "Connect the existing displacement operators to a precisely normalized fiducial system, keeping every extra symmetry and number-theoretic premise explicit.",
-      "success": "An unconditional construction in every dimension. Exact isolated dimensions or a construction under Stark-type assumptions retain their narrower scope.",
-      "keywords": [
-        "SIC",
-        "POVM",
-        "Zauner",
-        "Weyl",
-        "Heisenberg",
-        "量子设计",
-        "Stark"
-      ],
-      "targets": [
-        {
-          "id": "sic-fiducial-orbit",
-          "title": "From a verified fiducial to a SIC orbit",
-          "kind": "bridge",
-          "question": "Can exact displacement-overlap equations for a unit fiducial imply the d²-vector equiangular tight-frame and POVM identities?",
-          "gap": "Trace orthogonality is available but the orbit normalization, distinctness and identity resolution must be derived.",
-          "next_step": "Use the existing displacement composition and trace owners; derive twirling and the orbit Gram entries rather than introducing another Weyl convention.",
-          "success": "A conditional fiducial-to-SIC theorem with d and phase conventions explicit, plus exact low-dimensional checks.",
-          "related": [
-            "mub-basis-context"
-          ]
-        },
-        {
-          "id": "sic-exact-fiducial-certificate",
-          "title": "An exact certificate behind a numerical SIC candidate",
-          "kind": "certificate",
-          "question": "Can a proposed algebraic fiducial be certified against all required overlap and normalization equations?",
-          "gap": "A small floating residual does not establish equality or existence. An imposed order-three symmetry narrows the search class.",
-          "next_step": "Use explicit number-field embeddings and exact polynomial reductions; list which equations and embedding choices are certified.",
-          "success": "A verified instance with its dimension and assumptions, never presented as the universal existence theorem.",
-          "related": [
-            "mub-joint-compatibility"
-          ]
-        }
-      ],
-      "source_commit": "05c05729c5cb073dbeb215d8148813db4470952d",
-      "source": {
-        "arxiv_id": "2603.29571",
-        "version": "v1",
-        "title": "Randomstrasse101: Open Problems of 2025",
-        "submitted": "2026-03-31",
-        "revised": "2026-03-31",
-        "checked": "2026-09-07",
-        "locator": "Entry 11, Definition 11.2 and Conjecture 24",
-        "status": "open-in-source",
-        "note": "The survey records the SIC existence conjecture and conditional number-theoretic progress. Neither those assumptions nor the MUB conjecture are identified with an unconditional all-dimension SIC proof."
-      },
-      "updates": [],
-      "display": {
-        "connection": "Weyl displacement identities provide algebraic inputs for symmetric measurements.",
-        "gap": "Construct a valid SIC in every dimension, beyond the available conditional identities."
       }
     },
     {

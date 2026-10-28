@@ -10,6 +10,8 @@ if(root) {
     const matches=cards.filter(c=>(!field||c.dataset.field===field)&&(!source||c.dataset.collection===source)&&words.every(word=>`${c.dataset.search} ${c.textContent}`.toLocaleLowerCase().includes(word)));
     const visible=new Set(matches.slice(0,limit));
     for(const card of cards)card.hidden=!visible.has(card);
+    for(const heading of root.querySelectorAll('[data-question-group]'))
+      heading.hidden=!cards.some(card=>visible.has(card)&&card.dataset.group===heading.dataset.questionGroup);
     for(const b of root.querySelectorAll('[data-curated-field]'))b.setAttribute('aria-pressed',String(b.dataset.curatedField===field));
     for(const b of root.querySelectorAll('[data-curated-source]'))b.setAttribute('aria-pressed',String(b.dataset.curatedSource===source));
     root.querySelector('#curated-count').textContent=t('{0} of {1} questions',Math.min(limit,matches.length),matches.length);

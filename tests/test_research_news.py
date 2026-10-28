@@ -363,7 +363,7 @@ class ResearchNewsTests(unittest.TestCase):
             self.assertIn('id="resolved-bosma-conjecture-17"', bank)
             self.assertNotIn('data-problem-slug=', bank)
             self.assertNotIn("release binding not recorded", bank)
-            self.assertEqual(bank.count('class="curated-question"'), 20)
+            self.assertEqual(bank.count('class="curated-question"'), 19)
             self.assertIn('id="question-thue-morse-even-difference"', bank)
             self.assertIn('class="site-themed living-page research-editorial"', news)
             self.assertIn('class="site-themed living-page research-editorial"', bank)

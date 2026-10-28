@@ -44,10 +44,14 @@ def main():
         milestones=json.loads((args.site/'assets/research-milestones.json').read_text())
         assert page.locator('.highlight-card').count()==len(milestones['results'])
         assert page.locator('[data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results']]
-        assert all(item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
+        assert all(item.get('pin') or item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
+        featured_pins=[item['pin'] for item in milestones['results'][:milestones['policy']['featured_count']] if item.get('pin')]
+        assert page.locator('.featured-discoveries .editorial-card').count()==len(featured_pins)
+        assert page.locator('.featured-discoveries .discovery-answer strong').all_text_contents()==[pin['answer'] for pin in featured_pins]
+        assert page.locator('.question-authors,.selection-note,.research-news-intro').count()==0
         assert 'Fin 16' not in page.locator('#highlights').inner_text()
         assert 'The released statement is proved.' not in page.locator('#highlights').inner_text()
-        assert page.locator('.research-news-intro').count()==1
+        assert page.locator('#highlights + #publications').count()==1
         assert page.locator('#activities').count()==0
         catalog=json.loads((args.site/'assets/research-news.json').read_text())
         for paper in catalog['publications']:
@@ -92,6 +96,8 @@ def main():
         page.locator('#results-query').fill(title)
         assert rows.first.is_visible()
         rows.first.locator(':scope > summary').click()
+        assert not rows.first.locator('.news-result').is_visible()
+        rows.first.locator('.verification-details > summary').click()
         assert rows.first.locator('.news-result').is_visible()
         assert rows.first.locator('.result-statement').is_visible()
         assert rows.first.locator('.result-statement').inner_text().strip()
@@ -100,6 +106,7 @@ def main():
         page.goto(base+'research.html?lang=en#'+identity,wait_until='networkidle')
         assert page.locator('[id="'+identity+'"]').is_visible()
         page.goto(base+'research.html?lang=en#resolved-'+identity,wait_until='networkidle')
+        page.locator('#resolved-'+identity+' .verification-details > summary').click()
         assert page.locator('[id="'+identity+'"] .result-statement').is_visible()
         page.goto(base+'research.html?lang=en#results-oeis',wait_until='networkidle')
         assert page.locator('#results').is_visible()
@@ -110,16 +117,18 @@ def main():
         quotations=[r for r in records if r.get('summary','').endswith(':') and '\n\n>' in r.get('scope','')]
         for record in quotations[:2]:
             page.goto(base+'research.html?lang=en#resolved-'+record['id'],wait_until='networkidle')
+            page.locator('#resolved-'+record['id']+' .verification-details > summary').click()
             card=page.locator('[id="'+record['id']+'"]')
             assert card.locator('.result-statement blockquote').first.is_visible()
             assert not card.locator('details').evaluate('e=>e.open')
-        events.append('Full source quotations are visible on first expansion; duplicate archive is absent')
+        events.append('Full source quotations remain intact inside Verification details; duplicate archive is absent')
         events.append('Search preserves ranking; reset, pagination, keyboard focus and old result/source permalinks work')
         plain=browser.new_context(java_script_enabled=False)
         plain_page=plain.new_page()
         plain_page.goto(base+'conjectures.html?lang=en')
         assert plain_page.locator('[data-result-row]:visible').count()==total
         plain_page.locator('[data-result-row] > summary').last.click()
+        plain_page.locator('.verification-details > summary').last.click()
         assert plain_page.locator('.news-result').last.is_visible()
         plain.close()
         events.append('All source results and their evidence remain accessible without JavaScript')
@@ -130,7 +139,7 @@ def main():
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert page.evaluate('window.__shifts.reduce((a,b)=>a+b,0)')<0.1
         curated=page.locator('[data-curated-question]')
-        assert curated.count()==20
+        assert curated.count()==19
         assert page.locator('[data-curated-question]:visible').count()==0
         page.locator('#more-questions > summary').click()
         assert page.locator('[data-curated-question]:visible').count()==6
@@ -156,19 +165,15 @@ def main():
         assert page.locator('#research-workbench').count()==0
         page.locator('#question-thue-morse-nonautomaticity').screenshot(path=str(args.output/'conjectures-subquestion.png'))
         events.append('Secondary open questions retain field/search, pagination, reset and legacy subquestion links without source grouping')
-        page.goto(base+'conjectures.html?lang=en#millennium-entry',wait_until='networkidle')
-        assert page.locator('.horizon-card').count()==7
-        assert 'Grigori Perelman' in page.locator('[data-horizon="poincare"]').inner_text()
-        assert page.locator('[data-horizon="poincare"]').get_attribute('data-scientific-state')=='solved'
-        assert page.locator('[data-horizon="navier-stokes"]').get_attribute('data-scientific-state')=='open'
-        page.locator('.horizon-grid').screenshot(path=str(args.output/'conjectures-future-pursuits.png'))
+        assert page.locator('.horizon-card').count()==0
+        assert page.locator('[data-question-group]').count()==3
         plain=browser.new_context(java_script_enabled=False)
         plain_page=plain.new_page();plain_page.goto(base+'conjectures.html?lang=en')
         plain_page.locator('#more-questions > summary').click()
-        assert plain_page.locator('[data-curated-question]:visible').count()==20
+        assert plain_page.locator('[data-curated-question]:visible').count()==19
         assert plain_page.locator('.curated-target').count()==34
         plain.close()
-        events.append('All 20 curated questions, 34 subquestions and seven future pursuits remain available without JavaScript')
+        events.append('All 19 curated questions and 34 subquestions remain available without JavaScript; unrelated future pursuits are removed')
         page.goto(base+'evolution.html?lang=en',wait_until='networkidle')
         page.wait_for_function('typeof window.architectureHistoryDiagnostics === "function"',timeout=60000)
         before=page.evaluate('window.architectureHistoryDiagnostics()')
@@ -313,7 +318,7 @@ def main():
                 page.locator('#more-questions > summary').click()
                 assert page.locator('[data-curated-question]:visible').count()==6
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1')
-                page.locator('#millennium-entry').screenshot(path=str(args.output/'conjectures-future-mobile.png'))
+                page.locator('.curated-collection').screenshot(path=str(args.output/'conjectures-directions-mobile.png'))
         events.append('Restored pages fit a 390px viewport')
         browser.close()
     server.shutdown()

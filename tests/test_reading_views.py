@@ -100,8 +100,8 @@ class ReadingViewsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             out=render_conjecture_groups(source,snapshot,Path(temp))
         p=Fragments(out)
-        self.assertEqual(len(p.select(cls='curated-question')),20)
-        for identity in ['source-questions','curated-search','millennium-entry','question-thue-morse-nonautomaticity']:
+        self.assertEqual(len(p.select(cls='curated-question')),19)
+        for identity in ['source-questions','curated-search','question-thue-morse-nonautomaticity']:
             self.assertTrue(p.select(id=identity),identity)
         for identity in ['completed-dossiers','research-directions','research-workbench-slot','research-search']:
             self.assertFalse(p.select(id=identity),identity)
@@ -112,19 +112,17 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertIn('https://www.erdosproblems.com/3',out)
         self.assertLess(out.index('assets/conjecture-collection.css'),out.index('<body'))
 
-    def test_future_pursuits_include_attributed_external_solution_without_claiming_ns_solved(self):
-        snapshot,source=conjectures()
+    def test_open_questions_are_grouped_without_unrelated_future_pursuits(self):
+        snapshot, source = conjectures()
         with tempfile.TemporaryDirectory() as temp:
-            out=render_conjecture_groups(source,snapshot,Path(temp))
-        p=Fragments(out)
-        self.assertEqual(len(p.select(cls='horizon-card')),7)
-        self.assertIn('Grigori Perelman',out)
-        self.assertIn('https://www.claymath.org/millennium/poincare-conjecture/',out)
-        states={e.attrs['data-horizon']:e.attrs['data-scientific-state'] for e in p.select(cls='horizon-card')}
-        self.assertEqual(states['poincare'],'solved')
-        self.assertEqual(states['navier-stokes'],'open')
-        self.assertNotIn('OpenAI',out)
-        self.assertLess(out.index('id="source-questions"'),out.index('id="millennium-entry"'))
+            out = render_conjecture_groups(source, snapshot, Path(temp))
+        parsed = Fragments(out)
+        self.assertFalse(parsed.select(cls='horizon-card'))
+        self.assertEqual(len(parsed.select(cls='curated-group-heading')), 3)
+        self.assertNotIn('Future pursuits', out)
+        self.assertNotIn('direction-erdos-2-covering-systems', out)
+        self.assertIn('Connes', out)
+        self.assertIn('Zauner', out)
 
     def test_contributions_precede_open_questions_and_keep_evidence(self):
         records, result_document = results()

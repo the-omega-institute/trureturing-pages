@@ -49,10 +49,19 @@ def render_collection(catalog, snapshot, source_questions=(), *, show_source_fil
     collections = '<button type="button" data-curated-source="" aria-pressed="true">All sources</button>'
     collections += ''.join(f'<button type="button" data-curated-source="{key}" aria-pressed="false">{title}</button>' for key, title in COLLECTIONS.items())
     cards = []
+    previous_group = None
+    named = {'weil-ground-mode-xi-limit', 'suzuki-boundary-characteristic-limit', 'sic-povm-all-dimensions', 'mub-six-fourth-basis', 'wall-sun-sun-golden-unit-lift'}
+    external = {f['id'] for f in source_questions}
     for f in families:
+        group = 'named' if f['id'] in named else 'external' if f['id'] in external else 'next'
+        group_title = {'named': 'Named questions & related foundations', 'next': 'Next questions from our results', 'external': 'External classical questions'}[group]
+        if group != previous_group:
+            cards.append(f'<h3 class="curated-group-heading" data-question-group="{group}">{group_title}</h3>')
+            previous_group = group
         field, field_title = field_for(f['area'])
         collection = f.get('collection', 'papers')
         source = f.get('source')
+        foothold_label = 'Why it matters' if group == 'external' else 'Our foothold'
         source_url = family_source_url(f)
         source_label = f.get('source_label', 'Paper')
         copy = f.get('display', {})
@@ -91,11 +100,11 @@ def render_collection(catalog, snapshot, source_questions=(), *, show_source_fil
             targets.append(f'<details class="curated-target" id="question-{esc(target["id"])}"><summary>{esc(target["title"])}</summary><div>{paragraphs}</div></details>')
         search = ' '.join([f['title'], f['area'], field_title, collection, source_label, f['question'], f.get('foothold', ''), f['gap'], f.get('doi', ''), source_url, *f['keywords'], *f.get('anchors', [])]).lower()
         next_step = f'<h4>A possible next step</h4><p>{esc(f["next_step"])}</p>' if f.get('next_step') else ''
-        success = f'<h4>What would count as progress</h4><p>{esc(f["success"])}</p>' if f.get('success') else ''
+        success = f'<h4>What would count as progress</h4><p>{esc(f["success"])}</p>' if f.get('success') and not targets else ''
         anchor_links = '<h4>Related mathematics in the Library</h4><div class="curated-anchors">' + ''.join(anchors) + '</div>' if anchors else ''
-        cards.append(f'''<article class="curated-question" id="direction-{esc(f['id'])}" data-curated-question="{esc(f['id'])}" data-field="{field}" data-collection="{collection}" data-search="{esc(search)}">
-<div class="curated-card-meta"><p class="curated-topic">{esc(f['area'])}</p><a href="{esc(source_url)}">{esc(source_label)}</a></div><h3>{esc(f['title'])}</h3>
-<div class="curated-context"><div><h4>Why it connects</h4><p>{esc(copy.get('connection', f.get('connection', f.get('foothold', ''))))}</p></div>
+        cards.append(f'''<article class="curated-question" id="direction-{esc(f['id'])}" data-curated-question="{esc(f['id'])}" data-group="{group}" data-field="{field}" data-collection="{collection}" data-search="{esc(search)}">
+<div class="curated-card-meta"><p class="curated-topic">{esc(f['area'])}</p><a href="{esc(source_url)}">{esc(source_label)}</a></div><h3>{esc(f['title'])}</h3><p class="curated-status">Open question</p>
+<div class="curated-context"><div><h4>{foothold_label}</h4><p>{esc(copy.get('connection', f.get('connection', f.get('foothold', ''))))}</p></div>
 <div><h4>What remains</h4><p>{esc(copy.get('gap', f['gap']))}</p></div></div>
 {''.join(progress)}
 <details class="curated-detail"><summary>Question &amp; possible approaches</summary><div class="curated-detail-body">
