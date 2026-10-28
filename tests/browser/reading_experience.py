@@ -41,7 +41,12 @@ def main():
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
         assert page.locator('[data-result-row]').count()==0
         assert page.locator('.research-highlights').count()==1
-        assert page.locator('.highlight-card').count()>=1
+        milestones=json.loads((args.site/'assets/research-milestones.json').read_text())
+        assert page.locator('.highlight-card').count()==len(milestones['results'])
+        assert page.locator('[data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results']]
+        assert all(item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
+        assert 'Fin 16' not in page.locator('#highlights').inner_text()
+        assert 'The released statement is proved.' not in page.locator('#highlights').inner_text()
         assert page.locator('.research-news-intro').count()==1
         assert page.locator('#activities').count()==0
         catalog=json.loads((args.site/'assets/research-news.json').read_text())
@@ -70,6 +75,7 @@ def main():
         assert page.locator('#conjecture-overview').bounding_box()['y'] < 360
         ranked=json.loads((args.site/'assets/contribution-index.json').read_text())['results']
         assert len(ranked)==total and all(isinstance(r['score'],(int,float)) for r in ranked)
+        assert [item['id'] for item in milestones['results']]==[item['id'] for item in ranked if item['research_news']['eligible']]
         assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked]
         page.screenshot(path=str(args.output/'conjecture-contributions-desktop.png'),full_page=True)
         events.append('The first viewport shows contributions already ranked from existing upstream content; no dimension or source choices')

@@ -1,0 +1,19 @@
+{
+  "schema_version": "contribution-policy.v3",
+  "reference_year": 2026,
+  "weights": {
+    "significance": 30,
+    "concepts": 20,
+    "methods": 15,
+    "advance": 15,
+    "standing": 5,
+    "history": 10,
+    "attention": 5
+  },
+  "research_news": {
+    "minimum_score": 50,
+    "minimum_significance": 2,
+    "minimum_contribution_points": 22.5,
+    "featured_count": 3
+  }
+}

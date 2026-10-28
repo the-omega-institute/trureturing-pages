@@ -1,0 +1,277 @@
+{
+  "schema_version": "contribution-stories.v1",
+  "stories": {
+    "bourin-lee-2021-essentially-hermitian-block-norm": {
+      "binding": "f036811e23f0e19942b243fe90bd67d1c24dbb2aefd32f67fa16fe20b5eca139",
+      "en": {
+        "headline": "A universal matrix bound reveals a hidden geometry",
+        "question": "When does a bound on every positive block matrix force its off-diagonal block to have a special structure?",
+        "context": "Bourin and Lee posed this question in 2021. It connects a norm inequality to the geometry of a matrix, and includes an earlier normality question of Hayashi.",
+        "finding": "Every complex matrix satisfying the proposed bound for all positive block completions is essentially Hermitian: it is an affine complex transform of a Hermitian matrix.",
+        "idea": "Finite rank-one perturbations expose the extreme eigenvalues. Their symmetry forces normality; a second identity reconstructs the affine Hermitian structure in every dimension.",
+        "boundary": "The result gives a structural implication for the operator norm. An algorithm producing violating completions and extensions to other norms remain open.",
+        "diagram": "matrix-geometry"
+      },
+      "zh-CN": {
+        "headline": "一个普遍的矩阵界，揭示隐藏的几何结构",
+        "question": "如果所有正半定分块矩阵都满足同一个范数界，非对角块会被迫具有什么结构？",
+        "context": "Bourin 与 Lee 在 2021 年提出这一问题。它把范数不等式与矩阵的几何结构联系起来，也涵盖 Hayashi 更早提出的正规性问题。",
+        "finding": "我们证明：满足该普遍界的复矩阵必定本质上是厄米矩阵，即某个厄米矩阵经过复数仿射变换得到的矩阵。",
+        "idea": "用有限的秩一扰动探测极端特征值。谱的对称性先迫使矩阵正规，再由第二个恒等式重建仿射厄米结构，论证适用于任意维度。",
+        "boundary": "当前结论针对算子范数。自动构造违反该界的正半定补全，以及其他范数的推广，仍是后续问题。",
+        "diagram": "matrix-geometry"
+      }
+    },
+    "hiai-ruskai-2015-cq-contraction-coefficients": {
+      "binding": "f107c950f7c281c3f8e29535ae6d6ca778dfb441307b0115b7cadf43223ae7a0",
+      "en": {
+        "headline": "How much distinguishability survives a noisy quantum channel?",
+        "question": "A quantum channel makes states harder to distinguish. What is its exact contraction under different information-geometric metrics?",
+        "context": "Hiai and Ruskai proposed three optimal bounds in their 2015 preprint. The question asks whether each bound is attained when all admissible states and tangent directions are considered.",
+        "finding": "We establish all three exact contraction coefficients for the stated family of qubit channels: dual Wigner–Yanase, geometric and Bogoliubov–Kubo–Mori.",
+        "idea": "A common input estimate and positive kernel representations control all three metrics. The maximally mixed state and a Pauli direction attain the bounds.",
+        "boundary": "This resolves the three metrics in Conjecture 6.3. A formula for every kernel in the broader metric class remains outside this result.",
+        "diagram": "channel-contraction"
+      },
+      "zh-CN": {
+        "headline": "量子噪声之后，还能保留多少可区分性？",
+        "question": "量子信道会让状态变得更难区分。在不同的信息几何度量下，这种收缩究竟有多强？",
+        "context": "Hiai 与 Ruskai 在 2015 年预印本中提出三个最优界。问题是：考虑所有允许的状态与切向方向时，这些界是否都能达到？",
+        "finding": "我们确定了指定量子比特信道族在三种度量下的精确收缩系数：对偶 Wigner–Yanase、几何与 Bogoliubov–Kubo–Mori 度量。",
+        "idea": "共同的输入估计与正核表示同时控制三种度量；最大混合态和一个 Pauli 方向恰好达到这些界。",
+        "boundary": "这解决了猜想 6.3 中的三种度量。更广泛度量类中所有核的统一公式仍在当前结论之外。",
+        "diagram": "channel-contraction"
+      }
+    },
+    "higuchi-sudbery-2000-four-qubit-average-entropy-maximum": {
+      "binding": "ac15e5da03e5d89391294d71d6fd44606a24073a6fa94327fb8ce4d3b97fd20c",
+      "en": {
+        "headline": "How much entanglement can four qubits share?",
+        "question": "Four qubits cannot be maximally entangled across every two-versus-two split. What is the largest possible average?",
+        "context": "Higuchi and Sudbery asked this extremal question in 2000. It concerns the limits of distributing entanglement across a four-qubit pure state.",
+        "finding": "We prove the exact maximum average two-qubit marginal entropy, 1 + ½ log₂ 3 bits, and show that the Higuchi–Sudbery state attains it.",
+        "idea": "An entropy majorant reduces the optimization to a coupled polynomial inequality. An exact sum-of-squares identity proves the bound for all normalized four-qubit pure states.",
+        "boundary": "The result concerns the average entropy of the three complementary two-qubit cuts of a pure four-qubit state.",
+        "diagram": "qubit-cuts"
+      },
+      "zh-CN": {
+        "headline": "四个量子比特，究竟能共享多少纠缠？",
+        "question": "四个量子比特无法在每一种二对二划分下都达到最大纠缠。那么，平均值的极限在哪里？",
+        "context": "Higuchi 与 Sudbery 在 2000 年提出这个极值问题，研究四量子比特纯态中纠缠分配的极限。",
+        "finding": "我们证明了两比特约化态平均熵的精确最大值：1 + ½ log₂ 3 比特，并证明 Higuchi–Sudbery 态达到这一极限。",
+        "idea": "用熵的上界函数把优化问题化为耦合的多项式不等式，再用精确的平方和恒等式完成证明，覆盖所有归一化四量子比特纯态。",
+        "boundary": "结论针对四量子比特纯态的三个互补二对二划分，以及对应两比特约化态的平均熵。",
+        "diagram": "qubit-cuts"
+      }
+    },
+    "posske-2026-a392387-xx-chain-nullspace-2p": {
+      "binding": "de73e41af2a02222485bf3ff6c1b761f16d789131c6b1c9b3f865a967b4eb876",
+      "en": {
+        "headline": "Counting the zero-energy states of a quantum spin chain",
+        "question": "How many distinct states of a periodic XX spin chain have exactly zero energy?",
+        "context": "The source turns this physics question into a counting problem about vanishing sums of roots of unity.",
+        "finding": "For a chain of twice an odd prime number of sites, we prove an exact formula for the dimension of the zero-energy subspace.",
+        "idea": "An explicit bijection classifies the zero-sum choices and counts them uniformly for every odd prime.",
+        "boundary": "The theorem covers chain lengths of the form 2p with p an odd prime."
+      },
+      "zh-CN": {
+        "headline": "精确数出量子自旋链的零能量态",
+        "question": "一条周期 XX 自旋链中，究竟有多少个相互独立的零能量态？",
+        "context": "原始研究把这个物理问题转化为单位根之和为零的组合计数问题。",
+        "finding": "对于格点数为奇素数两倍的自旋链，我们证明了零能量子空间维数的精确公式。",
+        "idea": "通过显式双射对所有零和选择进行分类与计数，统一覆盖每一个奇素数。",
+        "boundary": "定理覆盖长度为 2p、其中 p 为奇素数的周期自旋链。"
+      }
+    },
+    "dumitru-franco-merino-2026-alternative-mean-linearization": {
+      "binding": "96e8a8e64608ebd2828064daa5c3f0220e794d9a11779a5eae6bdc6bc282b1c4",
+      "en": {
+        "headline": "When can a matrix mean reveal commutation?",
+        "question": "Which alternative matrix means detect whether two positive matrices commute through their linearizability?",
+        "context": "The question links scalar functions to matrix commutation and spectral structure.",
+        "finding": "We give necessary and sufficient scalar conditions for the stated characterization over complex matrices, uniformly in matrix size.",
+        "idea": "Injectivity and strict convexity or concavity turn the matrix question into conditions on scalar functions.",
+        "boundary": "The formal result is over complex matrices. Extensions to other scalar fields are discussed separately."
+      },
+      "zh-CN": {
+        "headline": "什么时候，一个矩阵均值能识别可交换性？",
+        "question": "哪些另类矩阵均值，能通过可线性化性判断两个正定矩阵是否可交换？",
+        "context": "这个问题把标量函数的性质与矩阵的可交换性、谱结构联系起来。",
+        "finding": "我们给出复矩阵情形下的充要标量条件，统一适用于所有矩阵大小。",
+        "idea": "通过单射性、严格凸性或凹性，将矩阵问题转化为标量函数条件。",
+        "boundary": "形式化结论针对复矩阵；其他标量域的推广单独讨论。"
+      }
+    },
+    "kua-serafini-genoni-2025-general-dyne-optimality": {
+      "binding": "8161dd72ffd2abb6149eb911006151b91773b2cb954f30678842b2db392cbe53",
+      "en": {
+        "headline": "Finding the best steady-state measurement in a quantum oscillator",
+        "question": "Which general-dyne measurement minimizes the stationary covariance determinant in the source’s oscillator model?",
+        "context": "The covariance optimum controls the proposed steady-state ergotropy optimum within the stated physical model.",
+        "finding": "We prove that the aligned pure measurement attains the global minimum among all physical general-dyne measurements and stationary solutions in the model.",
+        "idea": "Algebraic bounds exclude the competing stationary branch; an explicit aligned solution attains the remaining lower bound.",
+        "boundary": "The result uses the stable thermal optical parametric oscillator model and does not classify every equality case."
+      },
+      "zh-CN": {
+        "headline": "为量子振荡器找到最优稳态测量",
+        "question": "在原文的振荡器模型中，哪种 general-dyne 测量能使稳态协方差行列式最小？",
+        "context": "在这一物理模型内，协方差的最优值决定了所猜测的稳态可提取功最优值。",
+        "finding": "我们证明：对齐的纯测量在所有允许的 general-dyne 测量与稳态解中达到全局最小值。",
+        "idea": "代数界排除另一条稳态分支，再由显式的对齐解达到剩余的下界。",
+        "boundary": "结论针对稳定的热光学参量振荡器模型，并未分类所有等号情形。"
+      }
+    },
+    "champagne-johnston-macdonald-pipes-2022-symmetric-witness-spectrum": {
+      "binding": "d4007e028174ea3bfad191750fc7f73ae8e5e7363848e6dda5a5d28b6e71fd4d",
+      "en": {
+        "headline": "Which spectra can detect symmetric two-qubit entanglement?",
+        "question": "What eigenvalues can a symmetric two-qubit entanglement witness have?",
+        "context": "The source knew the spectral region for decomposable witnesses. The full symmetric case left a gap.",
+        "finding": "Two sharp inequalities characterize the three ordered eigenvalues of symmetric two-qubit entanglement witnesses.",
+        "idea": "Spectral transport and determinant bounds establish necessity; explicit witnesses establish sufficiency.",
+        "boundary": "The characterization concerns symmetric two-qubit entanglement witnesses."
+      },
+      "zh-CN": {
+        "headline": "哪些谱能够见证对称双量子比特纠缠？",
+        "question": "一个对称双量子比特纠缠见证，能够具有怎样的特征值？",
+        "context": "原文已经知道可分解见证的谱区域，但完整的对称情形仍留有缺口。",
+        "finding": "两个最优不等式完整刻画了对称双量子比特纠缠见证的三个有序特征值。",
+        "idea": "通过谱变换与行列式界证明必要性，再构造显式见证证明充分性。",
+        "boundary": "这一刻画针对对称双量子比特纠缠见证。"
+      }
+    },
+    "lillo-rosas-2026-priority-lattice-principal-filters": {
+      "binding": "a901226341d158251414c1bd70e52548e6c7d9fddcefc11797f369ac1a46ac33",
+      "en": {
+        "headline": "Finding the self-similar pieces of a priority lattice",
+        "question": "Which principal filters in a priority lattice reproduce a smaller priority lattice, and how many are there?",
+        "context": "The problem relates the structure of priority forests to the intervals of their lattice.",
+        "finding": "We characterize the qualifying forests and prove that their number is the sum of factorials from 0! to n!.",
+        "idea": "Contracting the last increasing tree produces the order isomorphism; counting the trees gives the formula.",
+        "boundary": "The stated count applies for n ≥ 1."
+      },
+      "zh-CN": {
+        "headline": "找出优先格中的自相似结构",
+        "question": "优先格的哪些主滤子与一个更小的优先格同构？这样的结构有多少个？",
+        "context": "这个问题将优先森林的结构与格中的区间联系起来。",
+        "finding": "我们刻画了所有符合条件的森林，并证明其数量为从 0! 到 n! 的阶乘之和。",
+        "idea": "收缩最后一棵递增树得到序同构，再通过树的计数导出公式。",
+        "boundary": "所述计数结论适用于 n ≥ 1。"
+      }
+    },
+    "greaves-iverson-jasper-mixon-2021-gerzon-equality-identity": {
+      "binding": "6fefc54a471da20f89f74c68e7d9962a737053b9306ba8bb26a8de989e27e70f",
+      "en": {
+        "headline": "An extremal geometry forces an exact parameter identity",
+        "question": "What relation must equiangular parameters satisfy when the Gerzon bound is attained?",
+        "context": "The known identity omitted two characteristic classes of dimensions. The result includes them and allows isotropic vectors.",
+        "finding": "At Gerzon equality, the parameters satisfy a² = (d + 2)b in every dimension at least two over fields of characteristic different from two.",
+        "idea": "Trace identities and fourth moments establish the same parameter relation in both scalar-frame branches.",
+        "boundary": "The theorem gives a necessary identity at equality; it does not construct extremal configurations in every dimension."
+      },
+      "zh-CN": {
+        "headline": "极值几何迫使参数满足一个精确恒等式",
+        "question": "达到 Gerzon 界时，等角参数必须满足怎样的关系？",
+        "context": "已有恒等式排除了两类维数特征情形；当前结论覆盖这些情形，也允许各向同性向量。",
+        "finding": "在特征不为二的域上，对每个至少二维的 Gerzon 等号情形，都有 a² = (d + 2)b。",
+        "idea": "用迹恒等式与四阶矩，在两条标量框架分支中证明同一个参数关系。",
+        "boundary": "定理给出达到等号时的必要恒等式，并未在所有维度构造极值配置。"
+      }
+    },
+    "datta-dorlas-jozsa-benatti-2014-conditional-subentropy-guessing": {
+      "binding": "c946fe240637aa8b44e92fbd9aa8878bbb6314361e49459046ad0755bd3c1d68",
+      "en": {
+        "headline": "Linking quantum uncertainty to the best possible guess",
+        "question": "How is conditional subentropy limited by the optimal probability of guessing a classical label from a quantum state?",
+        "context": "Conjecture 2 in the source proposes a logarithmic upper bound for arbitrary finite ensembles.",
+        "finding": "We prove a stronger linear bound, Q(X|B) ≤ 1 − pguess, which implies the proposed logarithmic bound and includes mixed and singular conditional states.",
+        "idea": "A convex pinching gap and Gram representations connect conditional subentropy to every allowed measurement, before taking the optimal guessing probability.",
+        "boundary": "This does not supply strong subadditivity or a general multipartite conditional chain rule."
+      },
+      "zh-CN": {
+        "headline": "把量子不确定性与最优猜测概率联系起来",
+        "question": "从量子态猜测一个经典标签时，最优成功概率如何限制条件次熵？",
+        "context": "原文猜想 2 对任意有限系综提出一个对数形式的上界。",
+        "finding": "我们证明了更强的线性界 Q(X|B) ≤ 1 − pguess，从而推出所猜测的对数界，并覆盖混合与奇异条件态。",
+        "idea": "通过凸的 pinching 间隙与 Gram 表示，将条件次熵联系到每一种允许的测量，再取最优猜测概率。",
+        "boundary": "这并未给出强次可加性，也未建立一般多体条件链式法则。"
+      }
+    },
+    "gabric-shallit-2023-block-palindrome-expected-width": {
+      "binding": "f144fca5940c44d9a1955a4f0ea291a746208d5e185ad19c13f5a26ad31acafd",
+      "en": {
+        "headline": "Finding the hidden mirror structure in a random word",
+        "question": "How many matching outer blocks can a word contain, on average, when the word becomes very long?",
+        "context": "Gabrić and Shallit conjectured a limiting series after identifying its coefficients experimentally. A proof must explain both the limit and the sequence behind it.",
+        "finding": "We prove the limiting expected largest block-palindrome width for every alphabet with at least two letters, including its exact coefficient series.",
+        "idea": "Peeling off the shortest matching borders gives a counting recursion. A geometric tail bound controls the limit, while a composition recurrence identifies the coefficients.",
+        "boundary": "The theorem concerns the limiting average of the largest factorization width, with the source’s block-palindrome conventions."
+      },
+      "zh-CN": {
+        "headline": "随机单词中，藏着多少镜像结构？",
+        "question": "一个越来越长的单词，平均最多能拆出多少层首尾匹配的块？",
+        "context": "Gabrić 与 Shallit 通过实验识别出系数后，猜测了一个极限级数。证明需要同时解释极限为何存在，以及系数从何而来。",
+        "finding": "我们对每个至少含两个字母的字母表，证明了最大分块回文宽度的期望极限及其精确系数级数。",
+        "idea": "逐层剥离最短的匹配边界，建立计数递推；用几何尾界控制极限，再用整数合成的递推识别系数。",
+        "boundary": "定理针对最大分解宽度的极限平均值，沿用原文的分块回文定义。"
+      }
+    },
+    "circular-two-choice-parking-fixed-fiber-bijection": {
+      "binding": "1d71e385dcb717ebdcaff5c0304bdcfab5ffc72dda42315688992a7533320306",
+      "en": {
+        "headline": "Why do two parking rules lead to the same count?",
+        "question": "Can circular parking with two choices per car be matched explicitly to classical parking functions, while keeping the prescribed vacancy?",
+        "context": "The source already knew the counts agreed. Its open problem asks for a reversible construction explaining that agreement.",
+        "finding": "We give an explicit bijection for every number of cars, every allowed increment choice and every prescribed vacancy.",
+        "idea": "Rotate the circular preferences to align their vacancy, then cut the circle there. The inverse restores each car’s ordered pair of choices.",
+        "boundary": "The result uses the stated two-choice rule and its scan convention, including checking the second choice itself."
+      },
+      "zh-CN": {
+        "headline": "两套停车规则，为什么会得到同一个计数？",
+        "question": "每辆车有两个选择的环形停车过程，能否在保留指定空位的同时，与经典停车函数一一对应？",
+        "context": "原文已经知道两者数量相同。开放问题要求一个可逆的具体构造，解释这种相同从何而来。",
+        "finding": "我们构造了显式双射，覆盖每个车辆数、每组允许的选择间隔，以及每个指定空位。",
+        "idea": "先旋转环形偏好，使空位对齐，再从空位切开圆环；逆映射恢复每辆车原本有序的两个选择。",
+        "boundary": "结论使用原文的双选择规则与扫描约定，包括先检查第二选择位置本身。"
+      }
+    },
+    "testart-2026-question-one-type-c-tree-bijection": {
+      "binding": "65735ee699f45527b5fda4719c4ac5120f2a0a292b1a988a460c58421f5a9a92",
+      "en": {
+        "headline": "Turning increasing trees into permutations—and back",
+        "question": "Can Testart’s increasing trees be matched explicitly to another family counted by type-C poly-Bernoulli numbers?",
+        "context": "The source asks for a bijective explanation. The target permutation family has a prescribed set of strict excedance positions.",
+        "finding": "We construct the forward and inverse maps for the entire stated tree family and prove both inverse identities for every positive parameter pair.",
+        "idea": "Read each tree component into a directed cycle. In reverse, recover every parent from the rightmost preceding smaller label.",
+        "boundary": "The result answers the tree-side question. The published count of the permutation family remains an attributed literature result."
+      },
+      "zh-CN": {
+        "headline": "把递增树变成排列，再完整变回来",
+        "question": "Testart 的递增树，能否与另一类由 C 型多重伯努利数计数的对象建立显式对应？",
+        "context": "原文要求一个双射解释。目标排列族具有指定的严格超越位置集合。",
+        "finding": "我们为所述完整树族构造正反向映射，并对每组正参数证明两条互逆恒等式。",
+        "idea": "将树的各分支读成有向循环；逆向时，用每个标签前面最近的较小标签恢复其父节点。",
+        "boundary": "结论回答树一侧的问题。排列族的已有计数归属于原始文献。"
+      }
+    },
+    "oeis-a167138-logarithmic-power-closure": {
+      "binding": "02d20aefa0e6b2bee0fd3f2bbcfba3153ee44d4e9128b07fb6e2979477904cf5",
+      "en": {
+        "headline": "Why integer coefficients survive every positive power",
+        "question": "If a sequence gives an integer series after a logarithmic change of coordinates, does raising its terms to a positive power preserve that property?",
+        "context": "Three sequence entries record the same general question. Its scope is every admissible sequence and every positive power, beyond the individual examples.",
+        "finding": "We prove closure under every positive pointwise power over every characteristic-zero field, at every degree including zero.",
+        "idea": "Reconstruct the sequence in an integer basis, prove that products stay integral degree by degree, and use induction for all positive powers.",
+        "boundary": "The result concerns formal series. It requires no analytic convergence or finite-support assumption."
+      },
+      "zh-CN": {
+        "headline": "为什么取任意正整数次幂后，系数仍然是整数？",
+        "question": "一个序列经过对数坐标变换得到整数系数级数后，把序列逐项取正整数次幂，是否仍保留这一性质？",
+        "context": "三个序列条目记录了同一个普遍问题，范围覆盖每个允许的序列和每个正整数次幂，超出了单个例子。",
+        "finding": "我们在每个特征为零的域上证明了对任意正整数次幂的封闭性，覆盖包括零次项在内的全部次数。",
+        "idea": "用整数基重建序列，逐次证明乘积保持整数性，再通过归纳覆盖所有正整数次幂。",
+        "boundary": "结论针对形式级数，无需解析收敛或有限支撑假设。"
+      }
+    }
+  }
+}

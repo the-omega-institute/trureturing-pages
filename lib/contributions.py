@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 from urllib.parse import urlsplit
@@ -16,17 +17,47 @@ from urllib.parse import urlsplit
 from lib.literature import problem_source_url
 
 ROOT = Path(__file__).resolve().parents[1]
-POLICY = 'contribution-ranking.v2'
-REFERENCE_YEAR = 2026  # Fixed policy baseline; rebuilds do not silently age results.
+POLICY = 'contribution-ranking.v3'
+POLICY_PATH = ROOT / 'config/contribution-policy.v3.json'
+
+
+def validate_policy(value):
+    dimensions = {'significance', 'concepts', 'methods', 'advance', 'standing', 'history', 'attention'}
+    if (set(value) != {'schema_version', 'reference_year', 'weights', 'research_news'}
+            or value['schema_version'] != 'contribution-policy.v3'
+            or type(value['reference_year']) is not int or not 1900 <= value['reference_year'] <= 2100
+            or set(value['weights']) != dimensions):
+        raise ValueError('Invalid contribution policy')
+    def number(x, low, high):
+        return type(x) in (int, float) and math.isfinite(x) and low <= x <= high
+    weights = value['weights']
+    if any(not number(x, 0, 100) for x in weights.values()) or sum(weights.values()) != 100:
+        raise ValueError('Contribution weights must sum to 100')
+    maximum = sum(weights[k] for k in ('concepts', 'methods', 'advance'))
+    news = value['research_news']
+    if (maximum <= 0 or set(news) != {'minimum_score', 'minimum_significance', 'minimum_contribution_points', 'featured_count'}
+            or not number(news['minimum_score'], 0, 100)
+            or not number(news['minimum_significance'], 0, 4)
+            or not number(news['minimum_contribution_points'], 0, maximum)
+            or type(news['featured_count']) is not int or not 1 <= news['featured_count'] <= 12):
+        raise ValueError('Invalid Research News selection policy')
+    return value
+
+
+SETTINGS = validate_policy(json.loads(POLICY_PATH.read_text()))
+REFERENCE_YEAR = SETTINGS['reference_year']  # Fixed; rebuilds never silently age results.
 DIMENSIONS = {
-    'significance': ('Problem significance', 20),
+    'significance': ('Problem significance', 30),
     'concepts': ('Conceptual contribution', 20),
     'methods': ('Proof methods', 15),
-    'advance': ('Mathematical advance', 10),
-    'standing': ('Scholarly context', 15),
+    'advance': ('Mathematical advance', 15),
+    'standing': ('Scholarly context', 5),
     'history': ('Historical context', 10),
-    'attention': ('Prior research', 10),
+    'attention': ('Prior research', 5),
 }
+DIMENSIONS = {key: (label, SETTINGS['weights'][key]) for key, (label, _) in DIMENSIONS.items()}
+if sum(weight for _, weight in DIMENSIONS.values()) != 100:
+    raise ValueError('Contribution weights must sum to 100')
 REPO = 'https://github.com/the-omega-institute/trureturing'
 MONTH = r'(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)'
 NEGATION = re.compile(r'\b(?:not|no|neither|without|unproved|unverified|proposed|would|could|might|planned|try|seek|remains? open|not formalized|outside|out of scope)\b', re.I)
@@ -74,12 +105,24 @@ def documented_year(problem):
     # Do not substitute an OEIS entry's creation/author date for its conjecture.
     if urlsplit(problem.get('url', '')).hostname in ('oeis.org', 'www.oeis.org'):
         return None, None
-    arxiv = str(problem.get('arxiv_id') or problem.get('doi') or problem.get('url') or '')
-    match = re.search(r'(?:arxiv[.:/]|/(?:abs|html|pdf)/)(\d{2})\d{2}\.\d{4,5}', arxiv, re.I)
-    if match:
-        year = 2000 + int(match[1])
+    header = question.split('\n\n', 1)[0]
+    years = set(re.findall(r'\(((?:18|19|20)\d{2})\)', header))
+    if len(years) == 1 and re.search(r'\b(?:printed page|journal|paper|section)\b', header, re.I):
+        year = int(next(iter(years)))
         if year <= REFERENCE_YEAR:
-            return year, 'Date of the cited source (not a claim of time spent open)'
+            return year, 'Year in the primary source attribution'
+    for key in ('url', 'doi', 'arxiv_id'):
+        value = problem.get(key)
+        value = str(value or '')
+        if key == 'arxiv_id' and not value.lower().startswith(('http', 'arxiv:')):
+            value = 'arxiv:' + value
+        # Only explicit arXiv identities, never a lookalike host or URL path.
+        match = re.fullmatch(r'(?:https?://(?:www\.)?arxiv\.org/(?:abs|html|pdf)/|(?:https?://doi\.org/)?10\.48550/arxiv\.|arxiv:)(?:(?:[a-z-]+/)?)(\d{2})(\d{2})(?:\.\d{4,5}|\d{3})(?:v\d+|\.pdf)?', value, re.I)
+        if match:
+            yy, month = int(match[1]), int(match[2])
+            year = (1900 if yy >= 91 else 2000) + yy
+            if 1 <= month <= 12 and year <= REFERENCE_YEAR:
+                return year, 'First preprint year'
     # The bibliographic key is existing upstream metadata, not a search timestamp.
     match = re.search(r'((?:18|19|20)\d{2})', str(problem.get('bibkey', '')))
     if match and int(match[1]) <= REFERENCE_YEAR:
@@ -87,6 +130,43 @@ def documented_year(problem):
     header = question.split('\n\n', 1)[0]
     match = re.search(r'\b((?:18|19|20)\d{2})\b(?=.{0,35}\b(?:paper|conjecture|question|reminiscence|note))', header, re.I)
     return (int(match[1]), 'Year in the source attribution') if match and int(match[1]) <= REFERENCE_YEAR else (None, None)
+
+
+def delivered_prose(text):
+    """Only the delivered portions of a dossier may earn contribution credit.
+
+    A proposed extension, prose-only equality classification or supporting
+    literature result must not be promoted to a released contribution.
+    """
+    output, excluded = [], False
+    for block in re.split(r'\n\s*\n|\n(?=\s*(?:[-*]\s+|\d+\.\s))', str(text or '')):
+        heading = re.sub(r'^[\s#*\d.\-]+', '', block).split('\n', 1)[0]
+        if re.search(r'^(?:Argued|Reasoning|Open|Unproved|Unverified|Computed|Paper proof|Proved in prose|Literature ingredient)\b|\b(?:proved in prose|in the cited source|literature ingredient|not a Lean statement|not formalized)\b', heading, re.I):
+            excluded = True
+        elif re.search(r'^(?:Proved\b|Kernel.checked|Mechanism.{0,20}proved)', heading, re.I):
+            excluded = False
+        if excluded:
+            continue
+        # Markdown table rows carry their own status.
+        lines = [re.split(r'\*\*Open\b', line, maxsplit=1, flags=re.I)[0] for line in block.splitlines() if not re.search(
+            r'\b(?:not formalized|proved in prose|refuted in prose|reasoning only|literature ingredient|in the cited source|unverified|computed by|no uniform Lean|private native evidence)\b', line, re.I)]
+        output.append('\n'.join(lines))
+    return '\n\n'.join(output)
+
+
+def safe_excerpt(text, pattern):
+    """Recognize assertions; absence of an assumption is not a negated result."""
+    for sentence in sentences(text):
+        if len(sentence) > 1800 or not re.search(pattern, sentence, re.I):
+            continue
+        if re.search(r'\b(?:would|could|might|try|seek|planned|proposed route|remains? open|not formalized|out of scope)\b', sentence, re.I):
+            continue
+        if re.search(r'https?://|\b(?:computed|experiment|python|SymPy|script|unproved)\b', sentence, re.I):
+            continue
+        if re.search(r'\b(?:no|not|without) (?:a |an )?(?:new |structural )?(?:definition|notion|invariant|framework|characterization|bijection|proof|method)\b', sentence, re.I):
+            continue
+        return sentence
+    return None
 
 
 def context(snapshot, records):
@@ -115,8 +195,8 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
     route = sections.get('Route', '')
     triage = sections.get('Triage', '')
     # A later "argued/not formalized/open" subsection cannot score as delivered work.
-    delivered = re.split(r'\*\*Argued|\*\*Open|\n### (?:Open|Unproved|Unverified)|\n- \*\*Open', triage, maxsplit=1, flags=re.I)[0]
-    proof_text = route + '\n\n' + delivered
+    delivered = delivered_prose(triage)
+    proof_text = delivered_prose(route) + '\n\n' + delivered
     commit = snapshot.get('graph', {}).get('source_snapshot', {}).get('source_commit') or record.get('source_commit', '')
     slug = problem.get('slug', record['id'])
     dossier = f'{REPO}/blob/{commit}/Problems/{slug}.md' if commit else record.get('source_url', '')
@@ -129,25 +209,31 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
             facts[key]['excerpt'] = excerpt[:1800]
 
     put('significance', 1, 'A released resolution of an explicitly recorded external question.', urls=[source, dossier])
-    tier = re.search(r'\bTier\s*([123])\b', triage, re.I)
+    named = next((s for s in sentences(question) if len(s) <= 1800 and re.search(
+        r'\b(?:conjecture\s+\d|(?:open )?(?:problem|question)\s+\d|open (?:question|problem)|we (?:now )?ask)\b', s, re.I)), None)
+    if named:
+        put('significance', 2, 'An explicitly identified research question in the original source.', named, [source, dossier])
+    tier = re.search(r'\bTier[ -]*([123])\b', triage + '\n' + motivation + '\n' + question, re.I)
     if tier:
-        put('significance', int(tier[1]), 'Uses the existing dossier tier: recent specific question, computational frontier, or core problem.', plain(triage.split('\n\n')[0]))
-    relation = positive_excerpt(motivation, r'\b(?:equivalent to|necessary for|implies|foundation for|central to|reduces? .{1,100} to)\b')
+        put('significance', max(facts['significance']['level'], min(2, int(tier[1]))), 'The dossier identifies an established research line; its workflow tier alone cannot establish foundational importance.', plain(triage.split('\n\n')[0]))
+    relation = safe_excerpt(motivation, r'\b(?:necessary for|foundation for|central to|applies? .{0,100} to|determines? .{0,100} (?:limit|bound)|reduces? .{1,100} to)\b')
     if relation:
         put('significance', max(2, facts['significance']['level']), 'The dossier explains a connection to a broader mathematical question.', relation)
     if consumers.get(record['id']):
-        put('significance', min(4, facts['significance']['level'] + 1),
-            'Another released result consumes this result as a proof dependency. Distinct consumers are counted once.')
+        put('significance', min(3, facts['significance']['level'] + 1),
+            'A distinct released result depends on this result’s module in the recorded proof graph. This supports reuse, not field-wide foundational status.')
         facts['significance']['consumers'] = sorted(consumers[record['id']])
 
     put('concepts', 0, 'No additional conceptual contribution identified by the automatic reading rules.')
     formulation = positive_excerpt(proof_text, r'\b(?:equivalence|representation|encoding|reformulation)\b')
     if formulation:
         put('concepts', 1, 'The argument includes a structural formulation; this alone does not establish a new concept.', formulation)
-    characterization = positive_excerpt(proof_text, r'\b(?:characteri[sz](?:ation|es?|ing)|normal form)\b')
+    characterization = positive_excerpt(proof_text, r'\b(?:characteri[sz](?:ation|es?|ing)|normal form|reconstruct\w*)\b')
+    if characterization and re.search(r'\b(?:computed|experiment|python|SymPy|script)\b|https?://', characterization, re.I):
+        characterization = None
     if characterization:
         put('concepts', 2, 'The delivered argument gives a structural characterization or normal form.', characterization)
-    new_concept = positive_excerpt(proof_text, r'\b(?:we introduce|introduc(?:es?|ing) (?:a|an) new|new (?:definition|notion|invariant|framework))\b')
+    new_concept = safe_excerpt(proof_text, r'\b(?:we introduce|introduc(?:es?|ing) (?:a|an) new|new (?:definition|notion|invariant|framework))\b')
     if new_concept:
         put('concepts', 3, 'The proof account explicitly describes a new concept. This is source evidence, not an independent novelty certification.', new_concept)
 
@@ -158,18 +244,38 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
     if re.search(r'(?:not|neither|no)\s+(?:a\s+)?(?:bounded enumeration|checker|numeric reduction|certified instance)', triage, re.I):
         instance = False
     put('methods', 2 if content else 1, 'Existing proof account records a substantive content argument.' if content else 'A verified proof or refutation is available; additional method evidence is scored only when documented.')
-    mechanism = positive_excerpt(proof_text, r'\b(?:injection|injective|bijection|induction|spectral|energy estimate|isoperimetr|interpolat|duality|recurren(?:ce|t)|separat(?:ing|ion)|convex|rank bound|factorization|valuation|divisib|descent|generating function|determinant|isomorphism|monotonic|extremal)\w*\b')
-    if mechanism:
-        put('methods', 3 if content else 2, 'The proof route identifies a mathematical mechanism beyond the final certificate.', mechanism)
+    mechanisms = []
+    for pattern in (r'\b(?:injection|injective|bijection|isomorphism)\b',
+                    r'\b(?:induction|recurren\w*|descent)\b',
+                    r'\b(?:spectral|eigen\w*|resolvent|determinant|rank bound)\b',
+                    r'\b(?:convex\w*|duality|separat\w*|interpolat\w*|pinching|majorant)\b',
+                    r'\b(?:factorization|valuation|divisib\w*|generating function)\b',
+                    r'\b(?:energy estimate|isoperimetr\w*|sum.of.squares|curvature)\b'):
+        mechanism = safe_excerpt(proof_text, pattern)
+        if mechanism and mechanism not in mechanisms:
+            mechanisms.append(mechanism)
+    if mechanisms:
+        put('methods', 3 if content or len(mechanisms) >= 2 else 2,
+            'The delivered argument combines documented mathematical mechanisms.' if len(mechanisms) >= 2 else 'The delivered argument documents a mathematical mechanism.',
+            mechanisms[0])
+        facts['methods']['supporting_excerpts'] = mechanisms
 
     put('advance', 2 if record['kind'] == 'proved' else 1,
         'The exact recorded statement is proved.' if record['kind'] == 'proved' else 'The exact recorded statement is refuted; a single witness does not by itself imply a broader advance.')
     universal = positive_excerpt(question, r'\b(?:for (?:every|all)|every (?:positive|integer|dimension)|arbitrary (?:depth|dimension|size)|all (?:positive|integer|dimensions))\b')
-    family = positive_excerpt(proof_text, r'\b(?:infinite family|for (?:every|all)|uniform(?:ly)? in|arbitrary (?:depth|dimension)|all dimensions)\b')
+    family = safe_excerpt(proof_text, r'\b(?:infinite family|for (?:every|all)|uniform(?:ly)? in|arbitrary (?:depth|dimension)|all dimensions)\b')
     if record['kind'] == 'proved' and (universal or family):
         put('advance', 3, 'The proved statement applies to the stated general family, not just a checked finite range.', universal or family)
     elif record['kind'] == 'refuted' and family and not instance:
         put('advance', 2, 'The refutation is supported by a documented parameterized argument or family.', family)
+    obstruction = safe_excerpt(question + '\n' + motivation + '\n' + proof_text,
+                               r'\b(?:no (?:single |finite |such )?(?:polynomial|characterization|criterion)|impossibility|no.go|cannot (?:be |exist|characterize)|rules? out (?:every|any|all))\b')
+    if record['kind'] == 'refuted' and obstruction and not instance:
+        put('advance', 3, 'The argument establishes an obstruction to a proposed characterization or class of methods.', obstruction)
+    conclusion = nodes.get(record.get('module', ''), {}).get('human_abstract') or record.get('summary', '')
+    sharp = safe_excerpt(conclusion, r'\b(?:sharp (?:upper |lower )?bound|global (?:minimum|maximum|optimum)|exact optimum)\b')
+    if record['kind'] == 'proved' and sharp and re.search(r'\battain\w*\b', str(conclusion), re.I):
+        put('advance', 4, 'The released conclusion establishes an optimal bound and an attaining case, giving an exact extremal answer.', sharp)
     boundary = next((s for s in sentences(question + '\n\n' + triage)
                      if re.search(r'only .{0,60}(?:case|difference|recurrence)|does not (?:settle|resolve)|remains? (?:open|untouched)|out of scope|outside (?:that|this|the) result|no claim about', s, re.I)), '')
     if boundary:
@@ -192,12 +298,17 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
                 facts['standing']['person'] = profile['name']
 
     put('attention', 0, 'No documented prior mathematical attempt identified; searches and search failures earn no points.')
-    prior = positive_excerpt(motivation, r'\b(?:source|paper|authors?|earlier work|previous work)\b.{0,130}\b(?:proves?|proved|settles?|settled|shows?|showed|partial|upper bound|lower bound|finite cases)\b')
+    prior = safe_excerpt(motivation, r'\b(?:source|paper|authors?|earlier work|previous work|later work)\b.{0,130}\b(?:proves?|proved|settles?|settled|shows?|showed|obtained|uses|partial|upper bound|lower bound|finite cases)\b')
     if prior:
         put('attention', 1, 'The motivation identifies an earlier mathematical result or partial case.', prior)
     repeated = positive_excerpt(motivation, r'\b(?:several|multiple|independent) (?:papers|authors|groups|attempts)|\b(?:remained|stayed) open (?:across|since)\b')
     if repeated:
         put('attention', 2, 'The dossier records attention extending beyond a single statement.', repeated)
+
+    # Missing evidence remains explicit. Reputation is a small optional bonus,
+    # never a renormalized denominator or a fabricated estimate for other people.
+    for key, fact in facts.items():
+        fact['evidence_status'] = 'documented' if fact['level'] else 'not_documented'
 
     node = nodes.get(record.get('module', ''), {})
     contribution = str(node.get('human_abstract') or '').strip()
@@ -205,6 +316,7 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
         contribution = str(record.get('summary', '')).strip() or first_readable(route)
     return {'dimensions': facts, 'question_context': first_readable(motivation),
             'contribution': contribution, 'next_question': boundary,
+            'scope': 'partial' if boundary else 'recorded_statement',
             'basis': 'Existing source dossier, released proof explanation and recorded dependencies'}
 
 
@@ -214,12 +326,13 @@ def score(dimensions):
     importance = sum(points[key] for key in ('significance', 'standing', 'history', 'attention'))
     # Couple importance to the actual advance: an old, famous question is not
     # automatically a major contribution when only a small witness is delivered.
-    return round(contribution + importance * (0.35 + 0.65 * contribution / 45), 2)
+    maximum = sum(DIMENSIONS[key][1] for key in ('concepts', 'methods', 'advance'))
+    return round(contribution + importance * (0.4 + 0.6 * contribution / maximum), 2)
 
 
 def ranking_key(item):
     return (-item['score'], -item['assessment']['dimensions']['concepts']['level'],
-            -item['assessment']['dimensions']['methods']['level'], item['title'].casefold(), item['id'])
+            -item['assessment']['dimensions']['methods']['level'], item['id'])
 
 
 def build_index(snapshot, records, destination=None):
@@ -238,6 +351,8 @@ def build_index(snapshot, records, destination=None):
                 title = re.sub(r'(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', ' ', title.replace('_', ' '))
         item = {'id': record['id'], 'title': title, 'assessment': assessed,
                 'score': score(assessed['dimensions']), 'status': 'assessed'}
+        item['contribution_points'] = round(sum(DIMENSIONS[k][1] * assessed['dimensions'][k]['level'] / 4
+                                               for k in ('concepts', 'methods', 'advance')), 2)
         item['input_digest'] = hashlib.sha256(json.dumps({
             'problem': {k: v for k, v in problem.items() if k != 'contribution_assessment'},
             'record': record, 'assessment': assessed}, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -245,7 +360,18 @@ def build_index(snapshot, records, destination=None):
     payload = {'schema_version': POLICY, 'owner': 'trureturing-pages', 'reference_year': REFERENCE_YEAR,
                'source_commit': snapshot.get('graph', {}).get('source_snapshot', {}).get('source_commit'),
                'dimensions': {k: {'label': label, 'weight': weight} for k, (label, weight) in DIMENSIONS.items()},
+               'research_news_policy': SETTINGS['research_news'],
                'results': sorted(items, key=ranking_key)}
+    for item in payload['results']:
+        policy = SETTINGS['research_news']
+        reasons = []
+        if item['score'] < policy['minimum_score']:
+            reasons.append('below_score_threshold')
+        if item['assessment']['dimensions']['significance']['level'] < policy['minimum_significance']:
+            reasons.append('insufficient_problem_context')
+        if item['contribution_points'] < policy['minimum_contribution_points']:
+            reasons.append('insufficient_contribution')
+        item['research_news'] = {'eligible': not reasons, 'reasons': reasons}
     if destination:
         destination = Path(destination)
         destination.parent.mkdir(parents=True, exist_ok=True)

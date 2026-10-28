@@ -223,43 +223,71 @@ def _trim_text(value, limit=280):
     return value if len(value) <= limit else value[:limit - 1].rstrip() + '…'
 
 
-def research_highlights(snapshot, records, ranking, limit=3):
-    """Build short story cards from released assessments and current stories."""
-    stories_path = ROOT / 'site/assets/result-stories.json'
-    stories = json.loads(stories_path.read_text()) if stories_path.exists() else {}
+def discovery_diagram(kind):
+    """Small explanatory schematics; never a claim graph or measured data."""
+    if kind == 'qubit-cuts':
+        content = ''.join(f'<rect x="{x}" y="38" width="94" height="48" rx="5"/>'
+                          f'<text x="{x+47}" y="67" text-anchor="middle">{label}</text>'
+                          for x, label in [(12, 'AB | CD'), (123, 'AC | BD'), (234, 'AD | BC')])
+        content += '<path d="M59 92 L170 130 M170 92 V130 M281 92 L170 130"/><text x="170" y="160" text-anchor="middle">Average ≤ 1 + ½ log₂ 3 bits</text>'
+        caption = 'Three ways to split four qubits. One exact bound on their average entropy.'
+    elif kind == 'channel-contraction':
+        content = '<circle cx="46" cy="67" r="29"/><text x="46" y="72" text-anchor="middle">ρ</text><path d="M80 67 H121 M222 67 H263"/><rect x="124" y="42" width="94" height="50" rx="5"/><text x="171" y="72" text-anchor="middle">Φ</text><circle cx="298" cy="67" r="29"/><text x="298" y="72" text-anchor="middle">Φ(ρ)</text><text x="170" y="145" text-anchor="middle">Three metrics · exact contraction</text>'
+        caption = 'The same quantum channel, measured through three information geometries.'
+    elif kind == 'matrix-geometry':
+        content = '<rect x="18" y="28" width="108" height="86" rx="4"/><path d="M72 28 V114 M18 71 H126 M143 71 H192 M213 114 L319 31"/><text x="45" y="58" text-anchor="middle">A</text><text x="99" y="58" text-anchor="middle">X</text><text x="45" y="98" text-anchor="middle">X*</text><text x="99" y="98" text-anchor="middle">B</text><circle cx="231" cy="100" r="5"/><circle cx="265" cy="73" r="5"/><circle cx="302" cy="44" r="5"/><text x="170" y="159" text-anchor="middle">A norm bound forces spectral structure</text>'
+        caption = 'A bound on every positive completion forces an affine Hermitian structure.'
+    else:
+        return ''
+    return ('<figure class="discovery-diagram"><svg viewBox="0 0 340 184" role="img" aria-label="' + esc(caption) + '">' + content + '</svg><figcaption>' + esc(caption) + '</figcaption></figure>')
+
+
+def story_paragraphs(story, *, compact=False):
+    fields = [('question', 'The question'), ('context', 'Why it matters'),
+              ('idea', 'The idea'), ('finding', 'Our contribution'), ('boundary', 'Scope & next question')]
+    if compact:
+        fields = [('context', 'Why it matters'), ('idea', 'The idea'), ('boundary', 'Scope & next question')]
+    return ''.join(f'<p><span>{esc(label)}</span>{esc(story[key])}</p>'
+                   for key, label in fields if story.get(key))
+
+
+def research_highlights(snapshot, records, ranking, limit=None, feed=None, milestones=None):
+    """Every threshold-qualified result appears; no top-N padding below threshold."""
+    from lib.contribution_stories import build_milestones
+    from lib.result_highlights import result_highlight
+    from lib.research_updates import EMPTY
+    milestones = milestones or build_milestones(snapshot, records, ranking)
+    feed = feed or EMPTY
     by_id = {record['id']: record for record in records}
-    selected = []
-    # A story with a current release record is the richest explanation. Fill
-    # the remaining slots with the automatic reading order so the page keeps
-    # changing as upstream releases add results.
-    for item in ranking.get('results', []):
-        if item['id'] in stories and item['id'] in by_id:
-            selected.append(item)
-    selected.extend(item for item in ranking.get('results', []) if item not in selected)
+    assessments = {item['id']: item for item in ranking['results']}
+    problems = {p['slug']: p for p in snapshot.get('problems', [])}
     cards = []
-    for index, item in enumerate(selected[:limit], 1):
-        record = by_id.get(item['id'], {})
-        assessment = item.get('assessment', {})
-        dimensions = assessment.get('dimensions', {})
-        method = dimensions.get('methods', {}).get('excerpt') if isinstance(dimensions.get('methods'), dict) else ''
-        story = stories.get(item['id'], {})
-        question = story.get('question') or assessment.get('question_context') or record.get('summary') or record.get('scope')
-        idea = (story.get('steps') or [{}])[0].get('body') if story.get('steps') else ''
-        idea = idea or method or assessment.get('contribution') or record.get('summary')
-        finding = story.get('finding') or ('The released statement is proved.' if record.get('kind') == 'proved' else 'The released statement is refuted.')
-        boundary = story.get('boundary') or assessment.get('next_question') or 'The next boundary is recorded in the result dossier.'
-        outcome = str(record.get('kind') or 'result').capitalize()
-        cards.append(
-            '<article class="highlight-card">'
-            f'<div class="highlight-card-top"><span class="highlight-index">{index:02}</span><span class="highlight-outcome {esc(record.get("kind", ""))}">{esc(outcome)}</span></div>'
-            f'<h3><a href="conjectures.html#resolved-{esc(item["id"])}">{esc(item.get("title") or record.get("title"))}</a></h3>'
-            '<div class="highlight-story">'
-            f'<p><span>The question</span>{esc(_trim_text(question))}</p>'
-            f'<p><span>The idea</span>{esc(_trim_text(idea))}</p>'
-            f'<p><span>The result</span>{esc(_trim_text(finding))}</p>'
-            f'<p><span>What it opens</span>{esc(_trim_text(boundary))}</p>'
-            '</div><a class="highlight-link" href="conjectures.html#resolved-' + esc(item['id']) + '">Read the result ↗</a></article>')
-    return ''.join(cards)
+    for index, news in enumerate(milestones['results'], 1):
+        record = by_id[news['id']]
+        highlight = result_highlight(record, assessments[news['id']], problems.get(news['problem_id']))
+        story = news['story']
+        history = highlight['history']
+        date = (f'<p class="discovery-history"><span>{esc(history["label"])}</span><strong>{esc(history["value"])}</strong></p>') if history else ''
+        person = f'<p class="discovery-person">{esc(highlight["person"])}</p>' if highlight['person'] else ''
+        source = record.get('source_url', '')
+        cards.append(f'<article class="highlight-card" id="news-{esc(news["id"])}" data-milestone-id="{esc(news["id"])}">'
+            '<aside class="discovery-context">'
+            f'<p class="eyebrow">{esc(discipline_for(record.get("module")))}</p>'
+            f'<strong class="discovery-contribution">{esc(highlight["headline"])}</strong>{date}{person}'
+            f'<span class="highlight-outcome {esc(record["kind"])}">{esc(record["kind"].capitalize())}</span>'
+            + discovery_diagram(story.get('diagram')) + '</aside><div class="discovery-story">'
+            f'<h3><a href="{esc(news["url"])}">{esc(story["headline"])}</a></h3>'
+            f'<p class="discovery-question">{esc(story.get("question") or news["title"])}</p>'
+            + (f'<p class="discovery-finding">{esc(story["finding"])}</p>' if story.get('finding') else '')
+            + '<div class="highlight-story">' + story_paragraphs(story, compact=True) + '</div>'
+            + research_followups(news['problem_id'], feed)
+            + f'<div class="news-links"><a href="{esc(news["url"])}">Explore the result ↗</a>'
+            + (f'<a href="{esc(source)}">Original question ↗</a>' if source else '')
+            + '</div></div></article>')
+    if not cards:
+        return '<p class="discovery-empty">Research milestones will appear here as results meet the selection criteria. Explore all resolved questions below.</p>'
+    featured = ranking['research_news_policy']['featured_count']
+    return ''.join(cards[:featured]) + ('<details class="more-milestones"><summary>More research highlights</summary>' + ''.join(cards[featured:]) + '</details>' if len(cards) > featured else '')
 
 
 def render_result_index(document, snapshot, records, ranking=None, feed=None):
@@ -267,6 +295,7 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
     from lib.contributions import build_index
     from lib.research_updates import EMPTY
     from lib.result_highlights import result_highlight
+    from lib.contribution_stories import load_stories, result_story
     ranking = ranking or build_index(snapshot, records)
     feed = feed or EMPTY
     assessments = {r['id']: r for r in ranking['results']}
@@ -274,15 +303,21 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
     problems = {p['slug']: p for p in snapshot.get('problems', [])}
+    stories = load_stories()
     rows = []
     for r in sorted(records, key=lambda r: order[r['id']]):
         if r['id'] not in articles:
             raise ValueError('Result card is absent: ' + r['id'])
         assessed = assessments[r['id']]
-        highlight = result_highlight(r, assessed, problems.get(r.get('problem_slug') or r['id']))
+        problem = problems.get(r.get('problem_slug') or r['id'], {})
+        highlight = result_highlight(r, assessed, problem)
+        story = result_story(problem, r, assessed, stories)
         search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
         search += ' ' + assessed['title'] + ' ' + highlight['headline'] + ' ' + discipline_for(r.get('module'))
-        excerpt = str(assessed['assessment'].get('contribution') or r.get('summary') or '').strip()
+        search += ' ' + ' '.join(str(v) for v in story.values())
+        if story['origin'] == 'source-bound-editorial':
+            search += ' ' + ' '.join(stories[r['id']].get('zh-CN', {}).values())
+        excerpt = story.get('finding', '')
         if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
             excerpt = ''
         preview = f'<span class="result-excerpt">{esc(excerpt)}</span>' if excerpt else ''
@@ -291,18 +326,20 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
                 f'<span class="result-impact-year">{esc(history["value"])}</span></span>') if history else ''
         person = f'<span class="result-impact-person">{esc(highlight["person"])}</span>' if highlight['person'] else ''
         impacts = (f'<span class="result-impact-list"><span class="result-impact-field">{esc(discipline_for(r.get("module")))}</span>'
-                   f'<span class="result-impact-tag">{esc(highlight["headline"])}</span>{year}{person}</span>')
+                   f'<span class="result-impact-tag">{esc(highlight["headline"])}</span>{year}{person}'
+                   + ('<span class="result-news-label">Research highlight</span>' if assessed.get('research_news', {}).get('eligible') else '') + '</span>')
         evidence = ''.join(f'<li><span>{esc(fact["label"])}</span><p>{esc(fact["text"])}</p>'
                            + (f'<a href="{esc(fact["url"])}">Read source ↗</a>' if fact['url'] else '') + '</li>'
                            for fact in highlight['evidence'])
         context = ('<details class="highlight-evidence"><summary>About this highlight</summary>'
                    f'<ul>{evidence}</ul></details>') if evidence else ''
+        formal = (f'<span class="result-formal-title">{esc(assessed["title"])}</span>') if story['headline'] != assessed['title'] else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
-            f'<summary>{impacts}<span class="result-summary"><strong>{esc(assessed["title"])}</strong>{preview}</span>'
+            f'<summary>{impacts}<span class="result-summary"><strong>{esc(story["headline"])}</strong>{preview}{formal}</span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
-            f'<div class="reading-item-body">{assessment_story(assessed)}'
+            f'<div class="reading-item-body"><div class="result-story-expanded">{story_paragraphs(story)}</div>'
             f'{research_followups(r.get("problem_slug") or r["id"], feed)}'
             f'{articles[r["id"]]}{context}{assessment_details(assessed)}</div></details>')
     return ('<section id="results" class="contribution-results" data-research-index aria-label="Contributions">'
@@ -356,25 +393,35 @@ def research_followups(slug, feed):
     return '<div class="research-followups">' + ''.join(sentences) + '</div>' if sentences else ''
 
 
-def render_research_groups(document, snapshot, records):
+def render_research_groups(document, snapshot, records, feed=None, ranking=None, milestones=None):
     """Research leads with readable result stories, then keeps the paper shelf."""
     from lib.contributions import build_index
     parsed = Fragments(document)
     papers = parsed.select(id='publications')
-    ranking = build_index(snapshot, records)
+    ranking = ranking or build_index(snapshot, records)
     data = overview_data(records)
     publication_count = len(parsed.select(cls='news-paper'))
+    from lib.research_updates import EMPTY
+    feed = feed or EMPTY
+    projects = ''.join('<article class="collaboration-news"><p class="eyebrow">Research in progress</p>'
+                      f'<h3>{esc(project["topic"])}</h3>'
+                      '<p>In collaboration with ' + '; '.join(f'{esc(person["name"])} from {esc(person["institution"])}' for person in project['people'])
+                      + f' to further investigate {esc(project["topic"])}.</p>'
+                      f'<a href="{esc(project["evidence_url"])}">Follow the collaboration ↗</a></article>'
+                      for project in feed['collaborations'])
     body = ('<main class="site-main research-news research-story-page"><header class="news-heading">'
             '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p>'
-            '<h1>Research highlights</h1><p class="news-lede">We turn named questions into proofs, counterexamples, and reusable ideas.</p>'
-            '<p class="research-intro-note">Follow the idea first. Then open the paper, proof record, or collaboration that carries it further.</p>'
+            '<h1>Research highlights</h1><p class="news-lede">The questions we resolve. The ideas they make possible.</p>'
+            '<p class="research-intro-note">Exact limits, structural explanations, and the mathematics that connects them. Follow our discoveries into papers and ongoing collaborations.</p>'
             '<nav class="news-links" aria-label="Research destinations">'
             '<a href="conjectures.html#results">See all conjectures ↗</a></nav></div>'
             f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><strong>{publication_count}</strong><span>publications &amp; preprints</span></div></header>'
-            '<section id="highlights" class="research-highlights" aria-labelledby="research-highlights-title"><div class="research-section-heading"><div><p class="eyebrow">THE IDEAS BEHIND THE RESULTS</p><h2 id="research-highlights-title">Research highlights</h2></div><a href="conjectures.html#results">Browse the full result order ↗</a></div>'
-            '<div class="highlight-grid">' + research_highlights(snapshot, records, ranking) + '</div></section>'
+            '<section id="highlights" class="research-highlights" aria-labelledby="research-highlights-title"><div class="research-section-heading"><div><p class="eyebrow">DISCOVERIES &amp; IDEAS</p><h2 id="research-highlights-title">Research news</h2></div><a href="conjectures.html#results">Browse the full result order ↗</a></div>'
+            '<div class="highlight-grid">' + research_highlights(snapshot, records, ranking, feed=feed, milestones=milestones) + '</div>'
+            '<p class="selection-note"><a href="ranking.html#research-news-selection">How research highlights are selected ↗</a></p></section>'
             '<section class="research-news-intro" aria-labelledby="research-news-title"><p class="eyebrow">RESEARCH NEWS</p><h2 id="research-news-title">Papers, preprints, and collaborations</h2><p>These public records show where a resolved question turns into a longer research program.</p></section>'
             + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
+            + ('<section class="collaboration-news-list"><h2>Ongoing collaborations</h2>' + projects + '</section>' if projects else '')
             + '</main>')
     result = common_shell(replace_main(document, body))
     # Bare historical result anchors are known from this exact catalogue. Other
@@ -394,13 +441,13 @@ def millennium_entry(output):
     return render_horizons(json.loads(path.read_text()))
 
 
-def render_conjecture_groups(document, snapshot, output, result_document=None, records=None, feed=None):
+def render_conjecture_groups(document, snapshot, output, result_document=None, records=None, feed=None, ranking=None):
     from lib.conjecture_collection import render_collection
     catalog = json.loads((ROOT / 'site/assets/research-directions.json').read_text())
     sources = json.loads((ROOT / 'site/assets/conjecture-sources.json').read_text())
     records = records or []
     from lib.contributions import build_index
-    ranking = build_index(snapshot, records, output / 'assets/contribution-index.json')
+    ranking = ranking or build_index(snapshot, records, output / 'assets/contribution-index.json')
     overview = render_conjecture_overview(records)
     body = ('<main class="site-main research-home research-news contribution-home" data-curated-home>'
         '<header class="contribution-heading"><div><p class="eyebrow">THE OMEGA INSTITUTE / CONTRIBUTIONS</p><h1>Conjectures</h1>'
@@ -422,12 +469,23 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
 def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
     output = Path(output)
     from lib.living_library import page_shell
+    from lib.contributions import build_index
+    from lib.contribution_stories import build_milestones, load_stories
+    ranking = build_index(snapshot, records, output / 'assets/contribution-index.json')
+    milestones = build_milestones(snapshot, records, ranking, output / 'assets/research-milestones.json')
+    locale_path = output / 'assets/locales/zh-CN.json'
+    if locale_path.exists():
+        translations = json.loads(locale_path.read_text())
+        for story in load_stories().values():
+            translations.update({text: story['zh-CN'][key] for key, text in story['en'].items()
+                                 if key != 'diagram' and key in story.get('zh-CN', {})})
+        locale_path.write_text(json.dumps(translations, ensure_ascii=False, indent=2) + '\n')
     source = (output / 'research.html').read_text() if (output / 'research.html').exists() else ''
     if source and not (output / 'conjectures.html').exists():
         (output / 'conjectures.html').write_text(page_shell('Conjectures', '', '<main></main>', active='Conjectures', appearance='editorial').replace(
             '</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>'))
-    for name, render in [('research.html', lambda d: render_research_groups(d, snapshot, records)),
-                         ('conjectures.html', lambda d: render_conjecture_groups(d, snapshot, output, source, records, feed))]:
+    for name, render in [('research.html', lambda d: render_research_groups(d, snapshot, records, feed, ranking, milestones)),
+                         ('conjectures.html', lambda d: render_conjecture_groups(d, snapshot, output, source, records, feed, ranking))]:
         path = output / name
         if path.exists():
             path.write_text(render(path.read_text()), encoding='utf-8')
@@ -444,8 +502,16 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
             'A source date does not establish years of unsuccessful work, and an unmatched author '
             'does not acquire an invented affiliation or reputation. Reasons and sources are available '
             'inside each result. Mathematical claims retain their original verified scope.</p>'
-            '<p>New releases recalculate this order automatically. '
-            'Publications and collaboration updates add follow-up information independently.</p>'
+            '<p>New releases recalculate this order automatically. Equal scores indicate the same priority band; a stable result identity breaks remaining ties.</p>'
+            '<p>Missing background is recorded as not documented. Scholarly reputation contributes at most five points before the contribution adjustment; it is never estimated from a name or institution.</p>'
+            '<section id="research-news-selection"><h2>Research news selection</h2>'
+            f'<p>Results enter Research News at {ranking["research_news_policy"]["minimum_score"]} points or above, '
+            f'with at least {ranking["research_news_policy"]["minimum_significance"]}/4 in documented problem context '
+            f'and {ranking["research_news_policy"]["minimum_contribution_points"]} contribution points. '
+            'This is an editorial selection threshold, not a citation metric or a claim of consensus.</p>'
+            '<p>Every qualifying result is included. Rebuilds update the same result rather than posting duplicate announcements. '
+            'Papers and confirmed collaborations appear independently of this threshold.</p>'
+            '<p>Unproved extensions, numerical experiments and results credited to prior literature cannot earn contribution points for the released result.</p></section>'
             '<a href="conjectures.html#results">Back to contributions</a></main>')
     (output / 'ranking.html').write_text(common_shell(page_shell('About this order', '', body, appearance='editorial')))
     for pattern in ('research/*/index.html', 'results/*/index.html', 'oeis/*/index.html'):

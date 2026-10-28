@@ -13,7 +13,7 @@ or visible point totals. OEIS and paper-derived results share one list. Original
 source links and exact mathematical statements remain in the expanded evidence.
 Existing open questions and future pursuits are available in a secondary disclosure.
 
-Research lists public papers and preprints by date. Outreach supplies either a
+Research opens with threshold-selected result stories and explanatory schematics, then lists public papers and preprints by date. Outreach supplies either a
 public paper or mutually confirmed active joint research. The follow-up copy is:
 
 - “Further research on {topic} — see more details here: [arXiv / Paper].”
@@ -30,37 +30,37 @@ bound proof's human-readable abstract and dependencies between released results.
 Every result gets a numeric score on every build, including new arrivals. No
 assessment form or new `contribution_assessment` field is requested upstream.
 
-`contribution-ranking.v2` uses these dimensions and maximum weights:
+`contribution-ranking.v3` uses these dimensions and maximum weights:
 
 | Dimension | Weight | Existing evidence used |
 | --- | ---: | --- |
-| Problem significance | 20 | The dossier's existing Tier 1/2/3 classification, a documented connection to a broader question, or use by another released result. |
+| Problem significance | 30 | An explicitly identified source question, a documented broader connection, or dependency by another released result. A workflow tier alone is capped at level 2; module reuse alone cannot establish field-wide foundational status. |
 | Conceptual contribution | 20 | A structural formulation/correspondence in the delivered argument; stronger credit for an explicitly introduced concept. A source definition alone is insufficient. |
 | Proof methods | 15 | Existing `proof_shape: content` records and a described mathematical mechanism, such as an injection, induction, spectral estimate or isoperimetric argument. |
-| Mathematical advance | 10 | The actual proved/refuted scope. A general proof or parameterized obstruction gains more credit than one certificate; an explicitly unresolved stronger claim limits the credit. |
-| Scholarly context | 15 | Documented proposer background in Pages' cited reference file, matched only to the primary attribution. Incidental names in proof routes and secondary literature cannot transfer reputation. |
+| Mathematical advance | 15 | The actual proved/refuted scope. A general proof or parameterized obstruction gains more credit than one certificate; an explicitly unresolved stronger claim limits the credit. |
+| Scholarly context | 5 | Documented proposer background in Pages' cited reference file, matched only to the primary attribution. Incidental names in proof routes and secondary literature cannot transfer reputation. |
 | Historical context | 10 | A dated conjecture line, otherwise the source bibliography/arXiv date. An OEIS AUTHOR date is never substituted for a later conjecture date. |
-| Prior research | 10 | Earlier mathematical results or partial cases described in the motivation. Literature-search volume, failed searches and unverified coverage do not earn credit. |
+| Prior research | 5 | Earlier mathematical results or partial cases described in the motivation. Literature-search volume, failed searches and unverified coverage do not earn credit. |
 
 Each dimension has a capped level from 0 to 4. Signals are conservative reading
 rules, not an independent semantic review or novelty certification. Repeating
 text, adding helper declarations or using a particular source collection cannot
 inflate a dimension. Proposed, negated and explicitly unformalized statements
-are excluded from contribution signals. Missing evidence adds no bonus; it does
+are excluded from contribution signals. Prior literature, computed experiments, and prose-only extensions are excluded separately, including in mixed Markdown tables and lists. Missing evidence is explicitly `not_documented` and adds no bonus; it does
 not block scoring or remove the result from the list.
 
 Let C be the weighted contribution points (`concepts + methods + advance`, maximum
-45), and I the weighted context points (the remaining dimensions, maximum 55).
+50), and I the weighted context points (the remaining dimensions, maximum 50).
 The overall score is:
 
 ```
-C + I × (0.35 + 0.65 × C / 45)
+C + I × (0.4 + 0.6 × C / 50)
 ```
 
 This couples the importance of a question to the actual contribution. An old
 source or famous proposer cannot, by itself, make a small witness outrank a
 substantial conceptual/methodological advance. Ties use conceptual contribution,
-then methods, then title and stable ID. The website displays this reading order;
+then methods, then stable ID. Equal scores are equal priority bands; their exact positions are not an additional judgement of importance. The website displays this reading order;
 points are stored for audit rather than presented as a measure of mathematical worth.
 
 Historical levels use 0–1 / 2–4 / 5–14 / 15–39 / 40+ years relative to the fixed
@@ -80,6 +80,44 @@ The current release's 1,419 results are evaluated directly from their existing
 content. The existing `truth-release-published` notification triggers the normal
 Pages build, which recomputes and stores the order. Outreach updates do not add
 ranking points. No extra trureturing issue, schema, export or release is required.
+
+## Automatic Research News selection
+
+The editable Pages policy is `config/contribution-policy.v3.json`. By default a
+result qualifies at **50 points or above**, with documented problem significance
+at least **2/4** and at least **22.5 contribution points**. These are evidence-based
+editorial thresholds, not citation counts, percentile cutoffs or peer consensus.
+There is no quota: a release with no qualifying results produces an empty
+selection rather than promoting low-scoring entries to fill the layout.
+
+Every release build writes `assets/research-milestones.json`, bound to the same
+source commit and release as the full ranking. Each milestone uses the result's
+stable ID. The file is a complete current projection: repeated builds cannot
+create duplicates, withdrawn results disappear, and a policy change reevaluates
+eligibility. There is no invented publication date or “new today” label. All
+qualifying results appear; the first three are expanded and the rest are in a
+“More research highlights” disclosure. Search and pagination never change the
+Conjectures ranking.
+
+`lib/contribution_stories.py` supplies question / context / idea / finding /
+boundary prose. Existing release explanations are the automatic fallback for new
+results; implementation details and formula-heavy excerpts remain in the proof
+record. Fourteen bilingual explanations in `site/assets/contribution-stories.json`
+are bound by SHA-256 to their problem sections, result kind, scope and statement
+identity. A changed input invalidates the authored story and uses the fallback.
+An authored story never affects the score or qualification. Small diagrams
+explain mathematical relationships and are labelled as explanations, not data.
+
+Publications and confirmed collaborations remain independent of this threshold.
+The same explicit problem IDs join follow-up links into a result story. A contact,
+expression of interest, draft or submission alone does not become research news.
+
+Validation covers the inclusive threshold, contribution gate, deterministic
+regeneration, withdrawal, changed theorem/story bindings, more-than-three
+qualifiers, absent authored stories, unknown backgrounds, legacy arXiv dates,
+prior-literature/prose/computation exclusions, markup escaping and independent
+publication/collaboration eligibility. The native browser check compares the
+rendered news IDs with the qualifying IDs in the complete ranking.
 
 ## outreach: one small public feed
 

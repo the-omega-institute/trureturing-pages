@@ -59,7 +59,9 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertIn('class="news-heading"',out)
         self.assertIn('class="news-lede"',out)
         self.assertIn('class="research-highlights"',out)
-        self.assertIn('class="highlight-card"',out)
+        # Low-evidence fixtures must not be padded into the news selection.
+        self.assertNotIn('class="highlight-card"',out)
+        self.assertIn('class="discovery-empty"',out)
         self.assertLess(out.index('id="highlights"'), out.index('id="publications"'))
         self.assertNotIn('data-result-row',out)
         self.assertNotIn('class="reading-heading"',out)
