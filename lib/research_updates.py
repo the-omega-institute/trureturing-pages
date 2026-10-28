@@ -90,7 +90,12 @@ def merge_publications(existing, feed):
     by_identity = {literature_identity(p['url'])[0]: dict(p) for p in existing}
     for paper in feed['publications']:
         identity = literature_identity(paper['url'])[0]
-        previous = by_identity.get(identity, {})
+        previous = by_identity.pop(identity, {})
+        # A revised note or journal paper can replace the citation while the
+        # result keeps its existing anchor, illustration and qualifications.
+        for old_identity, candidate in list(by_identity.items()):
+            if candidate['id'] in (paper['id'], 'paper-' + paper['id']):
+                previous = {**previous, **by_identity.pop(old_identity)}
         by_identity[identity] = {**previous, **paper,
             'id': previous.get('id', 'paper-' + paper['id']),
             'status': 'Preprint' if paper['status'] == 'preprint' else 'Published',

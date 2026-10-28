@@ -179,6 +179,33 @@ class ContributionAutomationTests(unittest.TestCase):
         self.assertEqual(merge_publications(baseline, EMPTY), [])
         self.assertEqual(research_followups('alpha', EMPTY), '')
 
+    def test_stable_result_id_replaces_bootstrap_citation_and_preserves_editorial_content(self):
+        baseline = dict(paper(), id='padovan', image='padovan.jpg', highlight='An authored qualification.')
+        later = dict(paper(), id='padovan', title='The journal paper',
+                     url='https://doi.org/10.1234/example', venue='Example Journal', status='published')
+        merged = merge_publications([baseline], dict(EMPTY, publications=[later]))
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0]['id'], 'padovan')
+        self.assertEqual(merged[0]['url'], later['url'])
+        self.assertEqual(merged[0]['status'], 'Published')
+        self.assertEqual(merged[0]['image'], 'padovan.jpg')
+        self.assertEqual(merged[0]['highlight'], baseline['highlight'])
+        self.assertEqual(merged[0]['evidence'], later['evidence_url'])
+
+    def test_feed_only_note_keeps_its_anchor_across_doi_replacement(self):
+        first = merge_publications([], dict(EMPTY, publications=[paper()]))
+        later = dict(paper(), url='https://doi.org/10.1234/extended', status='published')
+        merged = merge_publications(first, dict(EMPTY, publications=[later]))
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0]['id'], first[0]['id'])
+        self.assertEqual(merged[0]['url'], later['url'])
+
+    def test_same_topic_or_problem_does_not_replace_another_paper(self):
+        baseline = paper()
+        another = dict(paper(), id='independent-paper', url='https://doi.org/10.1234/independent')
+        merged = merge_publications([baseline], dict(EMPTY, publications=[another]))
+        self.assertEqual(len(merged), 2)
+
     def test_markup_is_escaped_and_unsafe_links_rejected(self):
         p = dict(paper(), topic='<img src=x onerror=bad()>')
         html = research_followups('alpha', validate_feed(dict(EMPTY, publications=[p])))
