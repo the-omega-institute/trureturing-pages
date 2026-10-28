@@ -43,6 +43,7 @@ class ReadingViewsTests(unittest.TestCase):
     def test_unified_list_preserves_each_result_and_its_evidence(self):
         records,source=results();out=render_result_index(source,{},records);p=Fragments(out)
         self.assertEqual(len(p.select(cls='result-item')), len(records))
+        self.assertEqual(len(p.select(cls='result-impact-tag')), len(records))
         self.assertNotIn('data-result-collection', out)
         self.assertNotIn('data-rank-dimension', out)
         self.assertNotIn('Assessment pending', out)

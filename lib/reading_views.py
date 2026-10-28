@@ -136,30 +136,38 @@ def common_shell(document: str, root=''):
 # released module path so a new upstream result appears in the map without an
 # editorial handoff or a second taxonomy to maintain.
 DISCIPLINE_RULES = (
-    ('Quantum & information', ('Quantum', 'Entropy', 'Divergence', 'Estimation', 'Resource')),
-    ('Discrete mathematics', ('Combinatorics', 'Words', 'Recurrence', 'Certificates', 'PatternAvoidance')),
-    ('Number theory', ('Arith', 'Digit', 'Factorization', 'Prime', 'Constants')),
-    ('Analysis & dynamics', ('Analytic', 'FluidDynamics', 'StatisticalMechanics', 'ConceptDynamics', 'Scale')),
-    ('Geometry & algebra', ('Geometry', 'QuadraticForms', 'FiniteGroups', 'HomologicalAlgebra', 'Topology', 'Algebra')),
+    ('Quantum information', 'Quantum Information, Channels & Operator Theory',
+     'channels · bounds · entanglement', ('Quantum', 'Entropy', 'Divergence', 'Estimation', 'Resource')),
+    ('Discrete structures', 'Combinatorics, Sequences & Discrete Structures',
+     'words · recurrences · extremal patterns', ('Combinatorics', 'Words', 'Recurrence', 'Certificates', 'PatternAvoidance')),
+    ('Number theory', 'Arithmetic, Number Theory & Integer Sequences',
+     'arithmetic · primes · factorization', ('Arith', 'Digit', 'Factorization', 'Prime', 'Constants')),
+    ('Analysis & dynamics', 'Analysis, Dynamics & Statistical Mechanics',
+     'asymptotics · flows · many-body structure', ('Analytic', 'FluidDynamics', 'StatisticalMechanics', 'ConceptDynamics', 'Scale')),
+    ('Geometry & algebra', 'Geometry, Algebra & Topology',
+     'spaces · symmetries · invariants', ('Geometry', 'QuadraticForms', 'FiniteGroups', 'HomologicalAlgebra', 'Topology', 'Algebra')),
 )
+DISCIPLINE_FALLBACK = ('Further frontiers', 'Further Mathematical Frontiers',
+                        'zero distributions · automata · asymptotics')
 
 
 def discipline_for(module):
     module = str(module or '')
-    for label, needles in DISCIPLINE_RULES:
+    for label, _, _, needles in DISCIPLINE_RULES:
         if any(needle.casefold() in module.casefold() for needle in needles):
             return label
-    return 'Other foundations'
+    return DISCIPLINE_FALLBACK[0]
 
 
 def overview_data(records):
     from collections import Counter
     fields = Counter(discipline_for(record.get('module')) for record in records)
-    ordered = [(label, fields.get(label, 0)) for label, _ in DISCIPLINE_RULES]
-    ordered.append(('Other foundations', fields.get('Other foundations', 0)))
+    ordered = [(label, fields.get(label, 0)) for label, _, _, _ in DISCIPLINE_RULES]
+    ordered.append((DISCIPLINE_FALLBACK[0], fields.get(DISCIPLINE_FALLBACK[0], 0)))
     proved = sum(1 for record in records if str(record.get('kind', '')).casefold() == 'proved')
     refuted = sum(1 for record in records if str(record.get('kind', '')).casefold() == 'refuted')
     return {'total': len(records), 'proved': proved, 'refuted': refuted,
+            'outcomes': Counter((discipline_for(r.get('module')), r.get('kind')) for r in records),
             'disciplines': [(label, count) for label, count in ordered if count]}
 
 
@@ -175,15 +183,22 @@ def render_conjecture_overview(records):
     middle = []
     edges = []
     labels = []
+    display = {label: (name, scope) for label, name, scope, _ in DISCIPLINE_RULES}
+    display[DISCIPLINE_FALLBACK[0]] = (DISCIPLINE_FALLBACK[1], DISCIPLINE_FALLBACK[2])
     for index, (label, count) in enumerate(disciplines):
         y = 38 + index * row_height
         safe_label = esc(label)
         middle.append(f'<g class="overview-field"><rect x="302" y="{y}" width="238" height="32" rx="4"/> '
                       f'<text x="318" y="{y + 14}">{safe_label}</text><text class="overview-count" x="524" y="{y + 14}" text-anchor="end">{count}</text></g>')
         edges.append(f'<path class="overview-edge" d="M 218 143 C 260 143, 260 {y + 16}, 302 {y + 16}"/>')
-        outcome_y = 101 if index % 2 == 0 else 171
-        edges.append(f'<path class="overview-edge" d="M 540 {y + 16} C 604 {y + 16}, 628 {outcome_y + 16}, 676 {outcome_y + 16}"/>')
-        labels.append(f'<li><span class="overview-dot"></span><span>{safe_label}</span><strong>{count}</strong></li>')
+        for kind, outcome_y in [('proved', 102), ('refuted', 172)]:
+            amount = data['outcomes'][label, kind]
+            if amount:
+                edges.append(f'<path class="overview-edge {kind}" data-field="{safe_label}" data-outcome="{kind}" data-count="{amount}" '
+                             f'd="M 540 {y + 16} C 604 {y + 16}, 628 {outcome_y}, 676 {outcome_y}">'
+                             f'<title>{safe_label}: {amount} {kind}</title></path>')
+        name, scope = display[label]
+        labels.append(f'<li><span class="overview-dot"></span><span class="overview-legend-copy"><strong class="overview-legend-name">{esc(name)}</strong><small>{esc(scope)}</small></span><strong class="overview-legend-count">{count}</strong></li>')
     svg = (f'<svg class="overview-map" viewBox="0 0 900 {svg_height}" role="img" aria-labelledby="overview-map-title overview-map-desc">'
            f'<title id="overview-map-title">Resolved conjectures by mathematical area</title>'
            f'<desc id="overview-map-desc">{total} resolved results flow through {len(disciplines)} mathematical areas into proved and refuted outcomes.</desc>'
@@ -200,7 +215,7 @@ def render_conjecture_overview(records):
             '<p class="overview-lede">One release, multiple areas of mathematics, two kinds of answer.</p>'
             '<p>Each entry below records the exact question, the contribution that settles its released scope, and the next boundary it leaves open.</p>'
             f'<div class="overview-metrics"><div><strong>{total:,}</strong><span>resolved results</span></div><div><strong>{proved:,}</strong><span>proved</span></div><div><strong>{refuted:,}</strong><span>refuted</span></div></div></div>'
-            f'<div class="overview-visual">{svg}<ul class="overview-legend">{"".join(labels)}</ul></div></section>')
+            f'<div class="overview-visual">{svg}</div><ul class="overview-legend">{"".join(labels)}</ul></section>')
 
 
 def _trim_text(value, limit=280):
@@ -251,31 +266,45 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
     """Server-ranked contributions, with one small search field and no score controls."""
     from lib.contributions import build_index
     from lib.research_updates import EMPTY
+    from lib.result_highlights import result_highlight
     ranking = ranking or build_index(snapshot, records)
     feed = feed or EMPTY
     assessments = {r['id']: r for r in ranking['results']}
     order = {r['id']: i for i, r in enumerate(ranking['results'])}
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
+    problems = {p['slug']: p for p in snapshot.get('problems', [])}
     rows = []
     for r in sorted(records, key=lambda r: order[r['id']]):
         if r['id'] not in articles:
             raise ValueError('Result card is absent: ' + r['id'])
         assessed = assessments[r['id']]
+        highlight = result_highlight(r, assessed, problems.get(r.get('problem_slug') or r['id']))
         search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
-        search += ' ' + assessed['title']
+        search += ' ' + assessed['title'] + ' ' + highlight['headline'] + ' ' + discipline_for(r.get('module'))
         excerpt = str(assessed['assessment'].get('contribution') or r.get('summary') or '').strip()
         if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
             excerpt = ''
         preview = f'<span class="result-excerpt">{esc(excerpt)}</span>' if excerpt else ''
+        history = highlight['history']
+        year = (f'<span class="result-impact-history"><span>{esc(history["label"])}</span> '
+                f'<span class="result-impact-year">{esc(history["value"])}</span></span>') if history else ''
+        person = f'<span class="result-impact-person">{esc(highlight["person"])}</span>' if highlight['person'] else ''
+        impacts = (f'<span class="result-impact-list"><span class="result-impact-field">{esc(discipline_for(r.get("module")))}</span>'
+                   f'<span class="result-impact-tag">{esc(highlight["headline"])}</span>{year}{person}</span>')
+        evidence = ''.join(f'<li><span>{esc(fact["label"])}</span><p>{esc(fact["text"])}</p>'
+                           + (f'<a href="{esc(fact["url"])}">Read source ↗</a>' if fact['url'] else '') + '</li>'
+                           for fact in highlight['evidence'])
+        context = ('<details class="highlight-evidence"><summary>About this highlight</summary>'
+                   f'<ul>{evidence}</ul></details>') if evidence else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
-            f'<summary><span class="result-summary"><strong>{esc(assessed["title"])}</strong>{preview}</span>'
+            f'<summary>{impacts}<span class="result-summary"><strong>{esc(assessed["title"])}</strong>{preview}</span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
             f'<div class="reading-item-body">{assessment_story(assessed)}'
             f'{research_followups(r.get("problem_slug") or r["id"], feed)}'
-            f'{articles[r["id"]]}{assessment_details(assessed)}</div></details>')
+            f'{articles[r["id"]]}{context}{assessment_details(assessed)}</div></details>')
     return ('<section id="results" class="contribution-results" data-research-index aria-label="Contributions">'
         '<div class="contribution-toolbar" data-index-controls hidden><label for="results-query">'
         '<span class="visually-hidden">Search results</span>'
@@ -378,7 +407,7 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
         '<p>What the release settles, why it matters, and what it opens next.</p></div>'
         '<a href="research.html">Research highlights ↗</a></header>'
         + overview
-        + '<section class="resolved-results-heading" aria-labelledby="resolved-results-title"><p class="eyebrow">RANKED RELEASE RESULTS</p><h2 id="resolved-results-title">Resolved conjectures</h2><p>Automatically ordered from the released question, proof route, mathematical scope, and documented context.</p></section>'
+        + '<section class="resolved-results-heading" aria-labelledby="resolved-results-title"><div><p class="eyebrow">PROBLEMS &amp; CONTRIBUTIONS</p><h2 id="resolved-results-title">Resolved conjectures</h2></div><p>The question, its history, and the idea that resolves it.</p></section>'
         + render_result_index(result_document or document, snapshot, records, ranking, feed)
         + '<details id="more-questions" class="more-questions"><summary>Open questions &amp; future pursuits</summary>'
         + render_collection(catalog, snapshot, sources['questions'], show_source_filters=False)

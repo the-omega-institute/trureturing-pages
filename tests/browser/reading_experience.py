@@ -63,6 +63,10 @@ def main():
         assert page.locator('#conjecture-overview .overview-map').count()==1
         assert page.locator('#conjecture-overview-title').is_visible()
         assert page.locator('#resolved-results-title').is_visible()
+        assert page.locator('.result-impact-tag').count()>=total
+        rail = rows.first.locator('.result-impact-list').bounding_box()
+        description = rows.first.locator('.result-summary').bounding_box()
+        assert rail['x'] + rail['width'] < description['x']
         assert page.locator('#conjecture-overview').bounding_box()['y'] < 360
         ranked=json.loads((args.site/'assets/contribution-index.json').read_text())['results']
         assert len(ranked)==total and all(isinstance(r['score'],(int,float)) for r in ranked)
@@ -296,6 +300,10 @@ def main():
             page.screenshot(path=str(args.output/(name+'-restored-mobile.png')),full_page=True)
             if name=='conjectures':
                 assert page.locator('#conjecture-overview-title').bounding_box()['y'] < 540
+                first_result = page.locator('[data-result-row]').first
+                rail = first_result.locator('.result-impact-list').bounding_box()
+                description = first_result.locator('.result-summary').bounding_box()
+                assert rail['y'] + rail['height'] <= description['y']
                 page.locator('#more-questions > summary').click()
                 assert page.locator('[data-curated-question]:visible').count()==6
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1')
