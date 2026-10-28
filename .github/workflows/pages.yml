@@ -54,6 +54,18 @@ jobs:
       - name: Install content parsers
         run: python -m pip install -r requirements.txt
 
+      - name: Read the public outreach projection before fingerprinting build inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m lib.research_updates --refresh site/assets/research-updates.json
+
+      - name: Pin the same public research input for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-research-input
+          path: site/assets/research-updates.json
+          if-no-files-found: error
+
       - name: Restore immutable ancestry facts
         uses: actions/cache@v4
         with:
@@ -142,6 +154,12 @@ jobs:
 
       - name: Install content parsers
         run: python -m pip install -r requirements.txt
+
+      - name: Restore the public research input selected during preparation
+        uses: actions/download-artifact@v4
+        with:
+          name: public-research-input
+          path: site/assets
 
       - name: Reuse the preparation ancestry queries
         uses: actions/download-artifact@v4

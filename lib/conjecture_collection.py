@@ -32,7 +32,7 @@ def family_source_url(family):
     return f'https://arxiv.org/abs/{source["arxiv_id"]}{source["version"]}' if source else 'https://doi.org/' + family['doi']
 
 
-def render_collection(catalog, snapshot, source_questions=()):
+def render_collection(catalog, snapshot, source_questions=(), *, show_source_filters=True):
     problems = {p['slug']: p for p in snapshot['problems']}
     resolved = {slug for slug, p in problems.items() if is_kernel_verified(p.get('resolution'))}
     # Curation does not disappear when a release gains an outcome. Show the
@@ -104,11 +104,13 @@ def render_collection(catalog, snapshot, source_questions=()):
 {f'<p class="curated-source-note">{esc(source["note"])}</p>' if source else ''}
 </div></details>
 <footer><a href="{esc(source_url)}">Original source ↗</a>{''.join(connections)}</footer></article>''')
+    source_navigation = '<nav aria-label="Source collections"><a href="https://oeis.org/">OEIS ↗</a><a href="https://www.erdosproblems.com/">Erdős Problems ↗</a></nav>' if show_source_filters else ''
+    source_controls = f'<div class="curated-filter-row"><span>Source</span><div class="curated-sources" role="group" aria-label="Source">{collections}</div></div>' if show_source_filters else ''
     return f'''<section id="source-questions" class="curated-collection" aria-labelledby="curated-heading">
 <span id="next-questions"></span><span id="open-problems"></span>
-<div class="curated-section-heading"><h2 id="curated-heading">Curated problem collections</h2><nav aria-label="Source collections"><a href="https://oeis.org/">OEIS ↗</a><a href="https://www.erdosproblems.com/">Erdős Problems ↗</a></nav></div>
+<div class="curated-section-heading"><h2 id="curated-heading">Curated problem collections</h2>{source_navigation}</div>
 <div class="curated-tools" hidden><label class="curated-search-label" for="curated-search">Find a question<input id="curated-search" type="search" placeholder="Question, topic, or source"></label>
-<div class="curated-filter-row"><span>Source</span><div class="curated-sources" role="group" aria-label="Source">{collections}</div></div>
+{source_controls}
 <div class="curated-filter-row"><span>Mathematical field</span><div class="curated-fields" role="group" aria-label="Mathematical field">{fields}</div></div></div>
 <div class="curated-count-row"><p class="curated-count" id="curated-count" role="status" aria-live="polite">{len(families)} selected questions</p><button type="button" id="curated-reset" hidden>Reset filters</button></div>
 <div class="curated-grid">{''.join(cards)}</div><p id="curated-empty" hidden>No questions match.</p>

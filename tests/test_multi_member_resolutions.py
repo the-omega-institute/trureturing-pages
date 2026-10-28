@@ -122,7 +122,7 @@ class JointResolutionTests(unittest.TestCase):
             output = Path(temp)
             render_research(snapshot, output, {"path": "data/snapshot.json", "digest": RELEASE})
             dossier = (output / "research" / SLUG / "index.html").read_text()
-            news = (output / "research.html").read_text()
+            news = (output / "conjectures.html").read_text()
             card = news.split('id="' + SLUG + '"', 1)[1].split('</article>', 1)[0]
             for gid in GIDS:
                 self.assertIn(gid, dossier)

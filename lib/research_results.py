@@ -28,7 +28,7 @@ def render_followups(snapshot):
             continue
         targets = ''.join(f'<a href="#rp={target["id"]}">{esc(target["title"])} <i data-lucide="arrow-up-right"></i></a>' for target in family['targets'])
         rows.append(f'''<article class="result-followup"><p class="eyebrow">{esc(family['area'])}</p><h3><a href="#rp={family['id']}">{esc(family['title'])}</a></h3><p>{esc(family['next_step'])}</p><div class="followup-targets">{targets}</div><a class="followup-origin" href="results/{family['builds_on']}/">Completed result <i data-lucide="arrow-up-right"></i></a></article>''')
-    return f'''<section class="result-followups" id="next-questions" aria-labelledby="next-questions-title"><div class="news-section-heading"><div><p class="eyebrow">FROM RESULTS TO NEW QUESTIONS</p><h2 id="next-questions-title">The next questions</h2></div><a href="research.html#results">Completed results <i data-lucide="arrow-down"></i></a></div><div class="followup-grid">{''.join(rows) or '<p>No remaining follow-up families in this source snapshot.</p>'}</div></section>'''
+    return f'''<section class="result-followups" id="next-questions" aria-labelledby="next-questions-title"><div class="news-section-heading"><div><p class="eyebrow">FROM RESULTS TO NEW QUESTIONS</p><h2 id="next-questions-title">The next questions</h2></div><a href="conjectures.html#results">Completed results <i data-lucide="arrow-down"></i></a></div><div class="followup-grid">{''.join(rows) or '<p>No remaining follow-up families in this source snapshot.</p>'}</div></section>'''
 
 
 def proof_source(item, story):
@@ -80,7 +80,7 @@ def render_result_pages(output, items, shell):
         next_questions = ''.join(f'<a href="{root}conjectures.html#rp={family["id"]}">{esc(family["title"])} <i data-lucide="arrow-up-right"></i></a>' for family in followups if family['builds_on'] == item['id'])
         next_section = f'<section class="result-more" id="next-questions"><p class="eyebrow">CONTINUING THIS WORK</p><h2>What comes next</h2>{next_questions}</section>' if next_questions else ''
         body = f'''<main class="site-main result-page">
-<nav class="result-breadcrumb" aria-label="Breadcrumb"><a href="{root}research.html#results"><i data-lucide="arrow-left"></i> Research</a><span>{esc(item['field'])}</span></nav>
+<nav class="result-breadcrumb" aria-label="Breadcrumb"><a href="{root}conjectures.html#results"><i data-lucide="arrow-left"></i> Conjectures</a><span>{esc(item['field'])}</span></nav>
 <header class="result-heading"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH RESULT</p><h1>{esc(item['title'])}</h1><div class="result-meta"><span class="news-status {item['kind']}">{item['kind'].capitalize()} in Lean</span><time datetime="{item['date']}">{item['date']}</time><a href="{esc(item['source_url'])}">Original paper <i data-lucide="arrow-up-right"></i></a></div><p class="result-lede">{esc(story['finding'])}</p><div class="result-equations prose">{math_blocks(story['formulas'])}</div></header>
 <div class="result-layout"><aside class="result-toc"><nav aria-label="Result sections"><a href="#question">The question</a><a href="#example">A concrete example</a><a href="#proof">Proof idea</a><a href="#scope">Exact scope</a><a href="#lean">Lean theorem</a><a href="#sources">Sources</a></nav></aside><article class="result-content">
 <section id="question"><p class="eyebrow">01 / THE QUESTION</p><h2>From the original paper</h2><p>{esc(story['question'])}</p><a class="result-citation" href="{esc(item['source_url'])}">{esc(story['source_label'])}</a></section>

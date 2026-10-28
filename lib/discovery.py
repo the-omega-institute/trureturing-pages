@@ -61,7 +61,7 @@ def build_index(snapshot, assets=None):
         if story:
             evidence.update(lean_url=BASE + f'assets/proofs/{item["id"]}.lean', source_sha256=story["source_sha256"])
         record(id, "result", item["title"], item["summary"],
-               f'results/{item["id"]}/' if story else f'research.html#resolved-{item["id"]}',
+               f'results/{item["id"]}/' if story else f'conjectures.html#resolved-{item["id"]}',
                status=item["kind"], scope=item["scope"], aliases=[item["module"], item["declaration"], item["field"]],
                evidence=evidence)
     for item in news["publications"]:

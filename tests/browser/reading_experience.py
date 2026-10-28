@@ -39,47 +39,54 @@ def main():
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
-        rows=page.locator('#results [data-result-row]')
-        assert page.locator('#resolved-questions-archive, #resolved-questions').count()==0
-        total=rows.count()
-        assert total>0
-        assert rows.locator(':scope > summary').count()==total
-        assert page.locator('#results [data-result-row]:visible').count()==min(8,total)
-        assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
-        assert page.locator('nav[aria-label="Primary navigation"] a[href*="version-status.html"]:visible').count()==0
-        events.append('Research exposes results immediately with source labels, summaries and outcome badges')
-        order=page.locator('main').evaluate("e=>['results','publications','frontier'].map(id=>[...e.children].indexOf(document.getElementById(id)))")
-        assert order==sorted(order) and order[0]>=0
+        assert page.locator('[data-result-row]').count()==0
+        assert page.locator('.research-highlights').count()==1
+        milestones=json.loads((args.site/'assets/research-milestones.json').read_text())
+        assert page.locator('.highlight-card').count()==len(milestones['results'])
+        assert page.locator('[data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results']]
+        assert all(item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
+        assert 'Fin 16' not in page.locator('#highlights').inner_text()
+        assert 'The released statement is proved.' not in page.locator('#highlights').inner_text()
+        assert page.locator('.research-news-intro').count()==1
+        assert page.locator('#activities').count()==0
         catalog=json.loads((args.site/'assets/research-news.json').read_text())
         for paper in catalog['publications']:
             card=page.locator('[id="'+paper['id']+'"]')
             assert card.locator('h3').inner_text()==paper['title']
             assert card.locator('h3 a').get_attribute('href')==paper['url']
-        for activity in catalog.get('activities',[]):
-            card=page.locator('#activities [id="'+activity['id']+'"]')
-            assert card.locator('h3').inner_text()==activity['title']
-            assert card.locator('details a').get_attribute('href')==activity['source_url']
-        if catalog.get('activities'):
-            page.locator('#activities').scroll_into_view_if_needed()
-            page.screenshot(path=str(args.output/'research-news-desktop.png'))
-        page.locator('#publications').scroll_into_view_if_needed()
-        page.screenshot(path=str(args.output/'research-publications-desktop.png'))
-        page.evaluate('scrollTo(0,0)')
-        page.screenshot(path=str(args.output/'research-restored-desktop.png'),full_page=True)
+        page.screenshot(path=str(args.output/'research-publications-desktop.png'),full_page=True)
+        events.append('Research presents papers and preprints without the duplicate result archive')
+        page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
+        rows=page.locator('#results [data-result-row]')
+        total=rows.count()
+        assert total>0
+        assert rows.evaluate_all("rows => rows.every(row => row.firstElementChild.tagName === 'SUMMARY')")
+        assert page.locator('#results [data-result-row]:visible').count()==min(8,total)
+        assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
+        assert page.locator('[data-rank-dimension],[data-result-collection],[data-curated-source]').count()==0
+        assert page.locator('#conjecture-overview').count()==1
+        assert page.locator('#conjecture-overview .overview-map').count()==1
+        assert page.locator('#conjecture-overview-title').is_visible()
+        assert page.locator('#resolved-results-title').is_visible()
+        assert page.locator('.result-impact-tag').count()>=total
+        rail = rows.first.locator('.result-impact-list').bounding_box()
+        description = rows.first.locator('.result-summary').bounding_box()
+        assert rail['x'] + rail['width'] < description['x']
+        assert page.locator('#conjecture-overview').bounding_box()['y'] < 360
+        ranked=json.loads((args.site/'assets/contribution-index.json').read_text())['results']
+        assert len(ranked)==total and all(isinstance(r['score'],(int,float)) for r in ranked)
+        assert [item['id'] for item in milestones['results']]==[item['id'] for item in ranked if item['research_news']['eligible']]
+        assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked]
+        page.screenshot(path=str(args.output/'conjecture-contributions-desktop.png'),full_page=True)
+        events.append('The first viewport shows contributions already ranked from existing upstream content; no dimension or source choices')
         if total>8:
             page.locator('[data-result-more]').click()
             assert page.locator('[data-result-row]:visible').count()==min(16,total)
             assert page.locator('[data-result-row] > summary').nth(8).evaluate('e=>e===document.activeElement')
-        page.locator('#results-oeis').click()
-        assert page.locator('#results-oeis').get_attribute('aria-pressed')=='true'
-        assert all(row.get_attribute('data-collection')=='oeis' for row in page.locator('[data-result-row]:visible').all())
-        page.locator('#results-outcome').select_option('refuted')
-        assert all(row.get_attribute('data-kind')=='refuted' for row in page.locator('[data-result-row]:visible').all())
         page.locator('#results-query').fill('no-matching-result-0xdeadbeef')
         assert page.locator('[data-result-empty]').is_visible()
         assert page.locator('[data-result-row]:visible').count()==0
         page.locator('[data-clear-search]').click()
-        assert page.locator('[data-result-collection="all"]').get_attribute('aria-pressed')=='true'
         assert page.locator('[data-result-row]:visible').count()==min(8,total)
         title=rows.first.locator('summary strong').text_content()
         page.locator('#results-query').fill(title)
@@ -95,7 +102,8 @@ def main():
         page.goto(base+'research.html?lang=en#resolved-'+identity,wait_until='networkidle')
         assert page.locator('[id="'+identity+'"] .result-statement').is_visible()
         page.goto(base+'research.html?lang=en#results-oeis',wait_until='networkidle')
-        assert page.locator('#results-oeis').get_attribute('aria-pressed')=='true'
+        assert page.locator('#results').is_visible()
+        assert page.locator('[data-result-row]:visible').count()==min(8,total)
         # Source intros such as "The OEIS entry states, verbatim:" must include
         # the following quote on the first expansion, not behind another toggle.
         records=json.loads((args.site/'assets/research-news.json').read_text())['results']
@@ -106,10 +114,10 @@ def main():
             assert card.locator('.result-statement blockquote').first.is_visible()
             assert not card.locator('details').evaluate('e=>e.open')
         events.append('Full source quotations are visible on first expansion; duplicate archive is absent')
-        events.append('Collection/outcome/search filters compose; reset, pagination, keyboard focus and old permalinks work')
+        events.append('Search preserves ranking; reset, pagination, keyboard focus and old result/source permalinks work')
         plain=browser.new_context(java_script_enabled=False)
         plain_page=plain.new_page()
-        plain_page.goto(base+'research.html?lang=en')
+        plain_page.goto(base+'conjectures.html?lang=en')
         assert plain_page.locator('[data-result-row]:visible').count()==total
         plain_page.locator('[data-result-row] > summary').last.click()
         assert plain_page.locator('.news-result').last.is_visible()
@@ -117,29 +125,21 @@ def main():
         events.append('All source results and their evidence remain accessible without JavaScript')
         requests.clear();page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
         assert not any('research-catalog.json' in u or 'research-workbench.mjs' in u for u in requests)
-        assert page.locator('.page-heading').count()==1
+        assert page.locator('.contribution-heading').count()==1
         assert page.locator('.research-browser,.research-stats,#research-workbench,#completed-dossiers').count()==0
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert page.evaluate('window.__shifts.reduce((a,b)=>a+b,0)')<0.1
         curated=page.locator('[data-curated-question]')
         assert curated.count()==20
+        assert page.locator('[data-curated-question]:visible').count()==0
+        page.locator('#more-questions > summary').click()
         assert page.locator('[data-curated-question]:visible').count()==6
         page.screenshot(path=str(args.output/'conjectures-library-desktop.png'),full_page=True)
-        page.locator('[data-curated-source="oeis"]').click()
-        assert page.locator('[data-curated-question]:visible').count()==2
-        page.locator('[data-curated-field="numbers"]').click()
-        assert page.locator('[data-curated-question]:visible').count()==2
         page.locator('#curated-search').fill('A006577')
         assert page.locator('[data-curated-question]:visible').count()==1
         assert 'Collatz' in page.locator('[data-curated-question]:visible').inner_text()
         page.locator('#curated-search').fill('no-question-matches')
         assert page.locator('#curated-empty').is_visible()
-        page.locator('#curated-reset').click()
-        page.locator('[data-curated-source="erdos"]').click()
-        assert page.locator('[data-curated-question]:visible').count()==2
-        page.locator('[data-curated-field="discrete"]').click()
-        assert page.locator('[data-curated-question]:visible').count()==1
-        assert 'Three-term case proved' in page.locator('[data-curated-question]:visible').inner_text()
         page.locator('#curated-reset').click()
         page.locator('[data-curated-field="computation"]').click()
         assert page.locator('[data-curated-question]:visible').count()==1
@@ -155,7 +155,7 @@ def main():
         assert page.locator('#question-thue-morse-nonautomaticity').is_visible()
         assert page.locator('#research-workbench').count()==0
         page.locator('#question-thue-morse-nonautomaticity').screenshot(path=str(args.output/'conjectures-subquestion.png'))
-        events.append('Source, mathematical field and search intersect; pagination, empty results, reset and legacy subquestion links work')
+        events.append('Secondary open questions retain field/search, pagination, reset and legacy subquestion links without source grouping')
         page.goto(base+'conjectures.html?lang=en#millennium-entry',wait_until='networkidle')
         assert page.locator('.horizon-card').count()==7
         assert 'Grigori Perelman' in page.locator('[data-horizon="poincare"]').inner_text()
@@ -164,6 +164,7 @@ def main():
         page.locator('.horizon-grid').screenshot(path=str(args.output/'conjectures-future-pursuits.png'))
         plain=browser.new_context(java_script_enabled=False)
         plain_page=plain.new_page();plain_page.goto(base+'conjectures.html?lang=en')
+        plain_page.locator('#more-questions > summary').click()
         assert plain_page.locator('[data-curated-question]:visible').count()==20
         assert plain_page.locator('.curated-target').count()==34
         plain.close()
@@ -201,6 +202,7 @@ def main():
         for target in range(len(architecture)-1,0,-1):
             pair=[archived.get((e['truth_release_digest'],e['atlas_graph_digest'])) for e in architecture[target-1:target+1]]
             if not all(pair):continue
+            if not all((args.site / entry['path']).exists() for entry in pair):continue
             old,new=map(read_content,pair)
             old_ids={n['id'] for n in old['graph']['nodes'] if n['kind']=='truth'}
             new_ids={n['id'] for n in new['graph']['nodes'] if n['kind']=='truth'}
@@ -303,8 +305,13 @@ def main():
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name
             page.screenshot(path=str(args.output/(name+'-restored-mobile.png')),full_page=True)
             if name=='conjectures':
-                page.locator('[data-curated-source="erdos"]').click()
-                assert page.locator('[data-curated-question]:visible').count()==2
+                assert page.locator('#conjecture-overview-title').bounding_box()['y'] < 540
+                first_result = page.locator('[data-result-row]').first
+                rail = first_result.locator('.result-impact-list').bounding_box()
+                description = first_result.locator('.result-summary').bounding_box()
+                assert rail['y'] + rail['height'] <= description['y']
+                page.locator('#more-questions > summary').click()
+                assert page.locator('[data-curated-question]:visible').count()==6
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1')
                 page.locator('#millennium-entry').screenshot(path=str(args.output/'conjectures-future-mobile.png'))
         events.append('Restored pages fit a 390px viewport')

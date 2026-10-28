@@ -172,7 +172,7 @@ class KnowledgeSpacesTests(unittest.TestCase):
         # Exercise the actual news integration with unrelated theme/result-file emitters doubled.
         knowledge = types.ModuleType('lib.knowledge_pages')
         knowledge.esc = lambda value: html.escape(str(value), quote=True)
-        knowledge.write = lambda path, value: path.write_text(value)
+        knowledge.write = lambda path, value: (path.parent.mkdir(parents=True, exist_ok=True), path.write_text(value))
         results = types.ModuleType('lib.research_results')
         results.STORIES = root/'stories.json';results.STORIES.write_text('{}')
         results.render_result_pages = lambda *args: None
@@ -192,9 +192,9 @@ class KnowledgeSpacesTests(unittest.TestCase):
             root=Path(tmp);module=self._news_module(root);s=fixture()
             s['problems'][0]['sections']={'Gap':'A missing bridge'}
             module.render_news(root,s,lambda title,relative,body,**kwargs:body)
-            body=(root/'research.html').read_text()
+            body=(root/'conjectures.html').read_text()
             self.assertTrue((root/'data/knowledge-spaces.v1.json').exists())
-            self.assertIn('id="knowledge-spaces"',body)
+            self.assertIn('id="results"',body)
             self.assertIn('id="result-archive"',body)
             self.assertNotIn('id="resolved-questions-archive"',body)
             self.assertEqual(9,body.count('class="news-result"'))
