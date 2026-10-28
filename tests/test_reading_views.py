@@ -40,22 +40,18 @@ class ReadingViewsTests(unittest.TestCase):
         text='<main><details id="x"><summary>Proof</summary><details><summary>Input</summary><code>&lt;x&gt;</code></details></details></main>'
         p=Fragments(text);self.assertEqual(p.raw(p.select(id='x')[0]),text[6:-7])
 
-    def test_research_index_preserves_each_result_and_collection_filter(self):
+    def test_unified_list_preserves_each_result_and_its_evidence(self):
         records,source=results();out=render_result_index(source,{},records);p=Fragments(out)
-        for name in ('oeis','erdos','other'):
-            button=p.select(id='results-'+name)[0]
-            self.assertEqual('button',button.tag)
-            self.assertEqual(name,button.attrs['data-result-collection'])
-            rows=[row for row in p.select(cls='result-item') if row.attrs['data-collection']==name]
-            self.assertEqual(1,len(rows))
-            self.assertEqual(1,len(Fragments(p.raw(rows[0])).select(cls='news-result')))
+        self.assertEqual(len(p.select(cls='result-item')), len(records))
+        self.assertNotIn('data-result-collection', out)
+        self.assertNotIn('data-rank-dimension', out)
+        self.assertNotIn('Assessment pending', out)
         for r in records:
             self.assertEqual(1,out.count(f'id="{r["id"]}"'))
             self.assertIn(f'Scope {r["id"]}',out)
             self.assertIn('https://example.org/proof/'+r['id'],out)
         self.assertIn('data-result-row',p.select(id='resolved-sequence')[0].attrs)
         self.assertNotIn('id="resolved-questions"',out)
-        self.assertNotIn('Question dossiers &amp; evidence archive',out)
 
     def test_original_research_heading_and_papers_are_retained(self):
         records,source=results();out=render_research_groups(source,{},records)
@@ -66,13 +62,13 @@ class ReadingViewsTests(unittest.TestCase):
         p=Fragments(source);self.assertIn(p.raw(p.select(id='publications')[0]),out)
         self.assertNotIn('href="spaces.html"',out)
 
-    def test_research_only_displays_collections_with_results(self):
-        records,source=results();out=render_result_index(source,{},records[:1])
-        self.assertTrue(Fragments(out).select(id='results-oeis'))
-        self.assertFalse(Fragments(out).select(id='results-erdos'))
-        self.assertFalse(Fragments(out).select(id='results-other'))
-        populated=render_result_index(source,{},records)
-        self.assertTrue(Fragments(populated).select(id='results-erdos'))
+    def test_reader_does_not_have_to_choose_a_source_or_ranking(self):
+        records, source = results()
+        out = render_result_index(source, {}, records)
+        self.assertEqual(len(Fragments(out).select(tag='input')), 1)
+        self.assertFalse(Fragments(out).select(tag='select'))
+        self.assertNotIn('What matters to you?', out)
+        self.assertNotIn('data-result-score', out)
 
     def test_research_is_publication_focused(self):
         records, source = results()
@@ -105,8 +101,8 @@ class ReadingViewsTests(unittest.TestCase):
             self.assertFalse(p.select(id=identity),identity)
         self.assertFalse(p.select(cls='research-stats'))
         self.assertFalse(p.select(cls='problem-row'))
-        self.assertIn('data-curated-source="oeis"',out)
-        self.assertIn('data-curated-source="erdos"',out)
+        self.assertNotIn('data-curated-source=',out)
+        self.assertTrue(p.select(id='more-questions'))
         self.assertIn('https://www.erdosproblems.com/3',out)
         self.assertLess(out.index('assets/conjecture-collection.css'),out.index('<body'))
 
@@ -132,9 +128,9 @@ class ReadingViewsTests(unittest.TestCase):
             index = json.loads((Path(temp) / 'assets/contribution-index.json').read_text())
         self.assertLess(out.index('id="results"'), out.index('id="source-questions"'))
         self.assertEqual(len(index['results']), len(records))
-        self.assertTrue(all(item['score'] is None for item in index['results']))
+        self.assertTrue(all(isinstance(item['score'], (int,float)) for item in index['results']))
         self.assertIn('Scope sequence', out)
-        self.assertIn('Awaiting assessments', out)
+        self.assertNotIn('Awaiting assessments', out)
 
     def test_primary_navigation_is_restored_without_changing_evidence_links(self):
         raw=document('<main><a href="../../version-status.html">Diagnostic evidence</a></main>').replace('href="spaces.html"','href="../../spaces.html"')

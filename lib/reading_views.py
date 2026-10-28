@@ -5,7 +5,6 @@ it does not replace the site's visual language or classify mathematical claims.
 """
 from __future__ import annotations
 
-from collections import defaultdict
 from dataclasses import dataclass
 from html import escape
 from html.parser import HTMLParser
@@ -134,7 +133,7 @@ def common_shell(document: str, root=''):
 
 
 def render_result_index(document, snapshot, records, ranking=None, feed=None):
-    """A browsable result index; exact statements and evidence stay in each card."""
+    """Server-ranked contributions, with one small search field and no score controls."""
     from lib.contributions import build_index
     from lib.research_updates import EMPTY
     ranking = ranking or build_index(snapshot, records)
@@ -143,79 +142,36 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
     order = {r['id']: i for i, r in enumerate(ranking['results'])}
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
-    collections = [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')]
-    counts = defaultdict(int)
     rows = []
     for r in sorted(records, key=lambda r: order[r['id']]):
         if r['id'] not in articles:
             raise ValueError('Result card is absent: ' + r['id'])
-        key, label, _ = series(r['source_url'])
-        counts[key] += 1
-        path = urlsplit(r['source_url']).path.strip('/')
-        reference = path.split('/')[0] if key in ('oeis', 'erdos') else ''
-        source_label = label + (' / ' + reference if reference else '')
+        assessed = assessments[r['id']]
         search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
-        assessment = assessments[r['id']]
-        excerpt = str(assessment['assessment'].get('contribution') or r.get('summary') or '').strip()
-        # Provenance introductions belong in the expanded source record, not the
-        # index's one-line preview. Do not invent a mathematical paraphrase.
+        search += ' ' + assessed['title']
+        excerpt = str(assessed['assessment'].get('contribution') or r.get('summary') or '').strip()
         if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
             excerpt = ''
         preview = f'<span class="result-excerpt">{esc(excerpt)}</span>' if excerpt else ''
-        rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row data-collection="{key}" '
-            f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}" '
-            f'data-assessment="{esc(json.dumps(assessment["assessment"]["dimensions"]))}" '
-            f'data-title="{esc(r["title"].casefold())}">'
-            f'<summary><span class="result-summary"><span class="result-source">{esc(source_label)}</span>'
-            f'<strong>{esc(r["title"])}</strong>{preview}'
-            f'<span class="result-score" data-result-score>{score_label(assessment)}</span></span>'
+        rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
+            f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
+            f'<summary><span class="result-summary"><strong>{esc(assessed["title"])}</strong>{preview}</span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
-            f'<div class="reading-item-body">{assessment_story(assessment)}'
+            f'<div class="reading-item-body">{assessment_story(assessed)}'
             f'{research_followups(r.get("problem_slug") or r["id"], feed)}'
-            f'{articles[r["id"]]}{assessment_details(assessment)}</div></details>')
-    filters = (f'<button type="button" data-result-collection="all" aria-pressed="true">All results <span>{len(records)}</span></button>'
-        + ''.join(f'<button type="button" id="results-{key}" data-result-collection="{key}" aria-pressed="false">'
-                  f'{esc(title)} <span>{counts[key]}</span></button>' for key, title, _ in collections if counts[key]))
-    body = (
-        '<section id="results" class="news-section" data-research-index><div class="news-section-heading"><div>'
-        '<p class="eyebrow">THE COLLECTION</p><h2>Problems &amp; contributions</h2></div>'
-        '<p>Original questions. Precise scope. Inspectable proofs.</p></div>'
-        '<div class="research-index-controls" data-index-controls hidden>'
-        '<div class="research-collections" role="group" aria-label="Result collection">' + filters + '</div>'
-        '<div class="research-toolbar"><label class="research-search" for="results-query">'
-        '<span>Search results</span><input id="results-query" type="search" placeholder="Search by title, sequence or theorem" autocomplete="off"></label>'
-        '<label class="research-outcome-filter" for="results-outcome"><span>Outcome</span>'
-        '<select id="results-outcome"><option value="all">All outcomes</option><option value="proved">Proved</option>'
-        '<option value="refuted">Refuted</option></select></label>'
-        '<button type="button" class="research-reset" data-clear-search>Reset filters</button></div></div>'
-        + ranking_controls() + '<div class="research-index-meta"><p role="status" aria-live="polite" data-result-count>'
-        f'{len(records)} results</p><span data-ranking-order>'
-        + ('Ranked by contribution · unassessed results follow' if any(r['status'] != 'pending' for r in ranking['results'])
-           else 'Awaiting assessments · ordered by title') + '</span></div>'
+            f'{articles[r["id"]]}{assessment_details(assessed)}</div></details>')
+    return ('<section id="results" class="contribution-results" data-research-index aria-label="Contributions">'
+        '<div class="contribution-toolbar" data-index-controls hidden><label for="results-query">'
+        '<span class="visually-hidden">Search results</span>'
+        '<input id="results-query" type="search" placeholder="Search results" autocomplete="off"></label>'
+        f'<p role="status" aria-live="polite" data-result-count>{len(records)} results</p>'
+        '<button type="button" data-clear-search hidden>Clear search</button></div>'
         '<div id="result-archive">' + ''.join(rows) + '</div>'
         '<div class="research-no-results" data-result-empty hidden><h3>No matching results</h3>'
-        '<p>Try a different title, sequence number or collection.</p></div>'
-        '<div class="research-pagination"><button type="button" data-result-more hidden>Show more results</button></div></section>'
-    )
-    return body
-
-
-def score_label(item):
-    if item['status'] == 'complete':
-        return f'{item["score"]:g} / 100'
-    return 'Partial assessment' if item['status'] == 'partial' else 'Assessment pending'
-
-
-def ranking_controls():
-    from lib.contributions import DIMENSIONS
-    options = ''.join(f'<label><input type="checkbox" data-rank-dimension="{key}" data-weight="{weight}" checked>'
-                      f'<span>{esc(label)}</span></label>' for key, (label, weight) in DIMENSIONS.items())
-    return ('<details class="ranking-controls"><summary>What matters to you?</summary>'
-            '<fieldset data-rank-picker hidden><legend>Rank by one or more dimensions</legend>' + options + '</fieldset>'
-            '<p>Complete assessments appear first. Missing evidence stays unscored. '
-            'Problem age measures time since the question was posed, not years of unsuccessful research.</p>'
-            '<a href="ranking.html">How the ranking works</a></details>')
+        '<p>Try another title or mathematical topic.</p></div>'
+        '<div class="research-pagination"><button type="button" data-result-more hidden>Show more results</button></div>'
+        '<p class="ranking-note"><a href="ranking.html">About this order</a></p></section>')
 
 
 def assessment_story(item):
@@ -232,11 +188,13 @@ def assessment_details(item):
         return ''
     rows = []
     for key, fact in data.items():
+        if not fact['level']:
+            continue
         label, weight = DIMENSIONS[key]
         links = ' · '.join(f'<a href="{esc(url)}">Source {i + 1}</a>' for i, url in enumerate(fact['evidence']))
         rows.append(f'<li><strong>{esc(label)}</strong> · {fact["level"]}/4 · {weight}% weight'
                     f'<p>{esc(fact["rationale"])}</p>{links}</li>')
-    return '<details class="assessment-evidence"><summary>Ranking evidence</summary><ul>' + ''.join(rows) + '</ul></details>'
+    return '<details class="assessment-evidence"><summary>Why this order</summary><ul>' + ''.join(rows) + '</ul></details>'
 
 
 def research_followups(slug, feed):
@@ -291,14 +249,14 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
     records = records or []
     from lib.contributions import build_index
     ranking = build_index(snapshot, records, output / 'assets/contribution-index.json')
-    body = ('<main class="site-main research-home research-news" data-curated-home>'
-        '<header class="page-heading curated-heading"><div><p class="eyebrow">PROBLEMS &amp; CONTRIBUTIONS</p>'
-        '<h1>Conjectures</h1><p class="lede">The questions we resolve. The ideas we contribute. What comes next.</p>'
-        '</div><a class="console-link" href="research.html">Papers &amp; preprints ↗</a></header>'
-        '<nav class="news-index" aria-label="Conjecture sections"><a href="#results">Contributions</a>'
-        '<a href="#source-questions">Open questions</a><a href="#millennium-entry">Future pursuits</a></nav>'
+    body = ('<main class="site-main research-home research-news contribution-home" data-curated-home>'
+        '<header class="contribution-heading"><div><h1>Conjectures</h1>'
+        '<p>Problems solved. Ideas developed. Further research.</p></div>'
+        '<a href="research.html">Papers &amp; preprints ↗</a></header>'
         + render_result_index(result_document or document, snapshot, records, ranking, feed)
-        + render_collection(catalog, snapshot, sources['questions']) + millennium_entry(output) + '</main>')
+        + '<details id="more-questions" class="more-questions"><summary>Open questions &amp; future pursuits</summary>'
+        + render_collection(catalog, snapshot, sources['questions'], show_source_filters=False)
+        + millennium_entry(output) + '</details></main>')
     result = common_shell(replace_main(document, body))
     return result.replace('</head>', '<link rel="stylesheet" href="assets/conjecture-collection.css">'
         '<link rel="stylesheet" href="assets/research-index.css">'
@@ -318,27 +276,23 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
         path = output / name
         if path.exists():
             path.write_text(render(path.read_text()), encoding='utf-8')
-    from lib.contributions import DIMENSIONS
-    weights = ''.join(f'<li>{esc(label)}: {weight}%</li>' for label, weight in DIMENSIONS.values())
     body = ('<main class="site-main research-news ranking-method"><header class="page-heading">'
-            '<h1>How the ranking works</h1></header>'
-            '<p>We rank the significance of a question together with the contribution of its resolution. '
-            'Useful new definitions and reusable methods carry more weight than an isolated theorem or counterexample.</p>'
-            '<ul>' + weights + '</ul>'
-            '<p>Each dimension has a level from 0 to 4, a written reason and linked evidence. '
-            'Scholarly context considers the proposer’s documented work, standing and relevance to the field, '
-            'including verified affiliations. An institution name alone does not establish mathematical importance.</p>'
-            '<p>Problem age is measured from the documented year the question was posed to the year of resolution. '
-            'The levels are 0–1, 2–4, 5–14, 15–39 and 40+ years. '
-            'The age of a source is not evidence of sustained unsuccessful attempts.</p>'
-            '<p>The score is the weighted sum of the selected levels, scaled to 100. '
-            'Complete assessments come first, followed by partial assessments and then unassessed results. '
-            'Within partial assessments we order by evidenced points without filling in missing dimensions. '
-            'Ties use title and stable ID. Selecting several dimensions changes the ranking locally.</p>'
-            '<p>Assessments come from the source release; scores are calculated automatically on each build. '
-            'Missing evidence stays unscored. Publication and collaboration updates do not add ranking points.</p>'
+            '<h1>About this order</h1></header>'
+            '<p>Pages automatically orders results using the released problem dossiers and proof explanations. '
+            'The order combines the importance of the question with the contribution of its resolution: '
+            'conceptual structure, proof methods, mathematical scope, historical context, '
+            'documented scholarly background and earlier research.</p>'
+            '<p>Problem importance is weighted by the strength of the contribution. A famous proposer '
+            'or an old source alone cannot put a small counterexample above a substantial new method. '
+            'Source labels such as OEIS do not add or subtract points.</p>'
+            '<p>This is an automatic reading priority based on available evidence. '
+            'A source date does not establish years of unsuccessful work, and an unmatched author '
+            'does not acquire an invented affiliation or reputation. Reasons and sources are available '
+            'inside each result. Mathematical claims retain their original verified scope.</p>'
+            '<p>New releases recalculate this order automatically. '
+            'Publications and collaboration updates add follow-up information independently.</p>'
             '<a href="conjectures.html#results">Back to contributions</a></main>')
-    (output / 'ranking.html').write_text(common_shell(page_shell('How the ranking works', '', body, appearance='editorial')))
+    (output / 'ranking.html').write_text(common_shell(page_shell('About this order', '', body, appearance='editorial')))
     for pattern in ('research/*/index.html', 'results/*/index.html', 'oeis/*/index.html'):
         for path in output.glob(pattern):
             path.write_text(common_shell(path.read_text(), '../../'), encoding='utf-8')

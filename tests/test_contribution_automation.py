@@ -1,6 +1,5 @@
 """Behavioral checks for ranking and the independent public research feed."""
 import copy
-import itertools
 import json
 from pathlib import Path
 import subprocess
@@ -8,7 +7,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from lib.contributions import DIMENSIONS, VERSION, assessment, build_index, score
+from lib.contributions import DIMENSIONS, build_index, documented_year, score
 from lib.research_updates import EMPTY, load_feed, merge_publications, refresh_from_release, validate_feed
 from lib.reading_views import research_followups
 from lib.living_library import parse_problem
@@ -34,66 +33,112 @@ def collaboration():
 
 
 class ContributionAutomationTests(unittest.TestCase):
-    def test_scores_are_evidenced_not_counts_or_outcomes(self):
-        raw = {'schema_version': VERSION, 'dimensions': {k: evidence(4) for k in DIMENSIONS if k != 'history'}}
-        raw['dimensions']['history'] = {'proposed_year': '1989', 'resolved_year': '2026',
-                                       'rationale': 'Question posed in the cited source.', 'evidence': ['https://example.org/1989']}
-        facts = assessment(raw)['dimensions']
-        self.assertEqual(facts['history']['level'], 3)
-        self.assertEqual(score(facts)['score'], 97.5)
-        self.assertEqual(score(facts, ['history'])['score'], 75)
-        self.assertEqual(score(facts, ['methods', 'concepts'])['score'], 100)
+    def result(self, slug='alpha', kind='proved'):
+        return {'id': slug, 'title': slug.title(), 'kind': kind, 'module': 'D5/' + slug,
+                'source_url': 'https://example.org/question', 'summary': 'The exact stated question is resolved.'}
 
-    def test_unknown_is_not_zero_and_partial_is_not_renormalized(self):
-        self.assertIsNone(score({})['score'])
-        partial = score({'concepts': evidence(4)})
-        self.assertEqual(partial, {'score': None, 'evidenced_score': 20, 'coverage': 20, 'status': 'partial'})
-        zero = score({'concepts': evidence(0)}, ['concepts'])
-        self.assertEqual(zero['score'], 0)
-        self.assertEqual(zero['status'], 'complete')
-        self.assertRaises(ValueError, score, {}, [])
+    def dossier(self, slug='alpha', **sections):
+        return {'slug': slug, 'title': slug.title(), 'url': 'https://example.org/question',
+                'sections': {'Problem': 'For every positive integer n, establish the identity.',
+                             'Motivation': 'The source proves the first few cases of the proposed identity.',
+                             'Route': 'A bijection gives a structural representation. Strong induction proves the identity.',
+                             'Triage': 'Tier 1. The result has proof_shape: content.', **sections}}
 
-    def test_metadata_survives_parse_and_bad_assessment_does_not_erase_proof(self):
-        source = problem_source().replace('---\n', '---\ncontribution_assessment:\n  schema_version: unsupported\n', 1)
-        problem = parse_problem(source, 'test-question.md')
-        snapshot = {'problems': [problem], 'graph': {'source_snapshot': {'source_commit': 'a' * 40}}}
+    def ranked(self, problems, records=None, nodes=None, edges=None):
+        records = records or [self.result(p['slug']) for p in problems]
+        snapshot = {'problems': problems, 'graph': {'source_snapshot': {'source_commit': 'a' * 40},
+                    'nodes': nodes or [], 'edges': edges or []}}
+        return build_index(snapshot, records)
+
+    def test_every_existing_dossier_gets_a_stable_score_without_new_fields(self):
+        problems = [self.dossier('zeta'), self.dossier('alpha')]
+        first = self.ranked(problems)
+        self.assertEqual(first, self.ranked(list(reversed(problems))))
+        self.assertTrue(all(isinstance(r['score'], (int, float)) and r['status'] == 'assessed' for r in first['results']))
+        self.assertEqual(first['owner'], 'trureturing-pages')
+        self.assertEqual(first['source_commit'], 'a' * 40)
+        self.assertEqual([r['id'] for r in first['results']], ['alpha', 'zeta'])
+
+    def test_actual_contribution_limits_age_and_reputation_bonus(self):
+        strong = {k: {'level': 0} for k in DIMENSIONS}
+        strong.update(concepts={'level': 3}, methods={'level': 3}, advance={'level': 3}, significance={'level': 2})
+        witness = {k: {'level': 0} for k in DIMENSIONS}
+        witness.update(significance={'level': 1}, methods={'level': 1}, advance={'level': 1},
+                       history={'level': 4}, standing={'level': 4})
+        self.assertGreater(score(strong), score(witness))
+        self.assertEqual(score({k: {'level': 4} for k in DIMENSIONS}), 100)
+
+    def test_new_concept_and_general_argument_rank_above_a_single_witness(self):
+        concept = self.dossier('concept', Route='We introduce a new invariant. A bijection proves the structural characterization.')
+        witness = self.dossier('witness', Problem='A conjectured inequality.', Motivation='',
+                               Route='The finite certificate evaluates the witness at n = 7.', Triage='Tier 1; certified-instance; proof_shape: bind-only.')
+        result = self.ranked([witness, concept], [self.result('witness', 'refuted'), self.result('concept')])
+        self.assertEqual(result['results'][0]['id'], 'concept')
+        facts = result['results'][0]['assessment']['dimensions']
+        self.assertEqual(facts['concepts']['level'], 3)
+        self.assertTrue(facts['concepts']['evidence'])
+        self.assertIn('new invariant', facts['concepts']['excerpt'])
+
+    def test_unproved_and_negated_ideas_do_not_receive_concept_credit(self):
+        for route in ['No new definition is introduced.', 'We could introduce a new invariant.',
+                      'A new framework remains open.', 'Try a new definition and seek a bijection.']:
+            result = self.ranked([self.dossier(Route=route, Triage='Tier 1')])['results'][0]
+            self.assertEqual(result['assessment']['dimensions']['concepts']['level'], 0, route)
+        result = self.ranked([self.dossier(Route='', Triage='Tier 1.\n\n**Argued, not formalized.**\nWe introduce a new invariant.')])['results'][0]
+        self.assertEqual(result['assessment']['dimensions']['concepts']['level'], 0)
+
+    def test_source_category_and_repeated_words_do_not_add_points(self):
+        p = self.dossier()
+        q = copy.deepcopy(p); q['url'] = 'https://oeis.org/A000001'; q['sections']['Route'] *= 12
+        self.assertEqual(self.ranked([p])['results'][0]['score'], self.ranked([q])['results'][0]['score'])
+
+    def test_history_uses_the_conjecture_date_not_the_oeis_author_date(self):
+        p = self.dossier(Problem='FORMULA:\n\n> Conjecture: a(n) = n*n. - _A. Author_, May 17 2022\n\nAUTHOR:\n> _B. Author_, Sep 04 2002')
+        p['url'] = 'https://oeis.org/A000001'
+        self.assertEqual(documented_year(p)[0], 2022)
+        p['sections']['Problem'] = 'A formula.\n\nAUTHOR:\n> _B. Author_, Sep 04 2002'
+        self.assertIsNone(documented_year(p)[0])
+        p['url'] = 'https://arxiv.org/abs/1509.12345v2'
+        self.assertEqual(documented_year(p)[0], 2015)
+
+    def test_background_belongs_to_the_primary_attribution_not_incidental_names(self):
+        p = self.dossier(Problem="Erdős's 1989 reminiscence records the uniqueness question.", Route='The finite certificate gives a counterexample.')
+        first = self.ranked([p])['results'][0]['assessment']['dimensions']['standing']
+        self.assertEqual(first['person'], 'Paul Erdős')
+        p['sections']['Problem'] = 'A. Student, a new question about graphs.'
+        p['sections']['Route'] = "We use Erdős's lemma and a bijection."
+        second = self.ranked([p])['results'][0]['assessment']['dimensions']['standing']
+        self.assertEqual(second['level'], 0)
+
+    def test_proof_reuse_counts_distinct_result_consumers_only(self):
+        ps = [self.dossier('alpha'), self.dossier('beta')]
+        edge = {'source': 'D5/alpha', 'target': 'D5/beta', 'layer': 'truth-dependency'}
+        one = self.ranked(ps, edges=[edge])
+        many = self.ranked(ps, edges=[edge, edge, dict(edge, layer='structural-affinity')])
+        self.assertEqual(one, many)
+        alpha = next(r for r in one['results'] if r['id'] == 'alpha')
+        self.assertEqual(alpha['assessment']['dimensions']['significance']['consumers'], ['beta'])
+
+    def test_scope_boundary_is_preserved_and_limits_the_advance(self):
+        p = self.dossier(Triage='Tier 1. This does not settle the full recursion. The sign remains open.')
+        item = self.ranked([p])['results'][0]
+        self.assertLessEqual(item['assessment']['dimensions']['advance']['level'], 2)
+        self.assertIn('does not settle', item['assessment']['next_question'])
+
+    def test_obsolete_upstream_assessments_are_not_a_dependency(self):
+        p = self.dossier(); baseline = self.ranked([p])
+        p['contribution_assessment'] = {'schema_version': 'unsupported', 'score': 100}
+        self.assertEqual(baseline, self.ranked([p]))
+        parsed = parse_problem(problem_source().replace('---\n', '---\ncontribution_assessment: ignored\n', 1), 'test-question.md')
+        self.assertNotIn('contribution_assessment', parsed)
+
+    def test_scores_and_reasons_are_persisted_with_the_source_commit(self):
+        snapshot = {'problems': [self.dossier()], 'graph': {'source_snapshot': {'source_commit': 'a' * 40}}}
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / 'scores.json'
-            result = build_index(snapshot, [{'id': problem['slug'], 'title': 'Question'}], path)
-            self.assertEqual(json.loads(path.read_text()), result)
-        self.assertEqual(result['results'][0]['status'], 'pending')
-        self.assertIn('assessment_error', result['results'][0])
-        self.assertEqual(result['source_commit'], 'a' * 40)
-
-    def test_bad_evidence_levels_and_future_history_fail(self):
-        for bad in [dict(evidence(4), evidence=[]), dict(evidence(4), evidence=['javascript:alert(1)']),
-                    evidence(True), evidence(5), evidence(-1), dict(evidence(2), rationale='')]:
-            with self.subTest(bad=bad), self.assertRaises(ValueError):
-                assessment({'schema_version': VERSION, 'dimensions': {'concepts': bad}})
-        with self.assertRaises(ValueError):
-            assessment({'schema_version': VERSION, 'dimensions': {'history': dict(evidence(), proposed_year=2026, resolved_year=1989)}})
-
-    def test_ranking_is_stable_and_outreach_has_no_scoring_input(self):
-        records = [{'id': 'z', 'title': 'Zeta'}, {'id': 'a', 'title': 'Alpha'}]
-        first = build_index({}, records)
-        self.assertEqual(first, build_index({}, list(reversed(records))))
-        self.assertEqual([r['id'] for r in first['results']], ['a', 'z'])
-
-    def test_client_and_build_agree_for_every_nonempty_dimension_selection(self):
-        facts = {k: evidence(i % 5) for i, k in enumerate(DIMENSIONS)}
-        cases = []
-        for size in range(1, len(DIMENSIONS) + 1):
-            for selected in itertools.combinations(DIMENSIONS, size):
-                weights = {key: DIMENSIONS[key][1] for key in selected}
-                cases.extend([{'dimensions': facts, 'weights': weights, 'expected': score(facts, selected)},
-                              {'dimensions': {'concepts': evidence(1)}, 'weights': weights,
-                               'expected': score({'concepts': evidence(1)}, selected)}])
-        script = """import fs from 'node:fs';
-import {assessmentScore} from './site/assets/contribution-ranking.mjs';
-import assert from 'node:assert/strict';
-for (const c of JSON.parse(fs.readFileSync(0,'utf8'))) assert.deepEqual(assessmentScore(c.dimensions,c.weights),c.expected);
-"""
-        subprocess.run(['node', '--input-type=module', '-e', script], input=json.dumps(cases), text=True, check=True)
+            value = build_index(snapshot, [self.result()], path)
+            self.assertEqual(json.loads(path.read_text()), value)
+            self.assertEqual(value, build_index(snapshot, [self.result()]))
 
     def test_publication_or_collaboration_each_qualifies(self):
         for feed in [dict(EMPTY, publications=[paper()]), dict(EMPTY, collaborations=[collaboration()])]:

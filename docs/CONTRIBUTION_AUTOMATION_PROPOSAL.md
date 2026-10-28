@@ -1,95 +1,85 @@
 # Contributions and follow-up research
 
-Implementation contract for the Conjectures / Research refactor. Agreed scope:
-Conjectures ranks existing results from trureturing; outreach supplies public
-papers **or** confirmed joint research. No new research tasks are initiated.
+Conjectures opens directly on an automatically ordered list of contributions.
+Pages owns both the ranking policy and its implementation. trureturing keeps its
+existing dossiers, proof descriptions, release artifacts and release notification.
+There are no new required upstream fields and no new mathematical research tasks.
 
-## The two pages
+## The pages
 
-Conjectures leads with problems and contributions, followed by the existing open
-questions and long-term pursuits. Readers can combine ranking dimensions, search,
-filter the source collection and outcome, and inspect the original statement and
-proof. A source assessment tells a connected story: why the question matters,
-what we contributed, and what remains open. The exact theorem retains its scope.
+The first view has a title, a small search field and the ordered results. There
+are no reader-selected ranking dimensions, source categories, outcome dropdowns
+or visible point totals. OEIS and paper-derived results share one list. Original
+source links and exact mathematical statements remain in the expanded evidence.
+Existing open questions and future pursuits are available in a secondary disclosure.
 
-Research is a publication list ordered by publication date. Papers and preprints
-retain their distinct labels. The giant duplicate result catalogue and general
-announcements are removed. Historical result links redirect to Conjectures;
-publication anchors stay on Research.
-
-Follow-ups use two sentences:
+Research lists public papers and preprints by date. Outreach supplies either a
+public paper or mutually confirmed active joint research. The follow-up copy is:
 
 - “Further research on {topic} — see more details here: [arXiv / Paper].”
 - “In collaboration with {name} from {institution} to further investigate [topic].”
 
-A paper and an active collaboration can both appear. Neither is required for the
-other. Links to problems are explicit stable dossier slugs; sharing a source
-paper never establishes that a research project builds on a particular result.
+Either qualifies independently; both may appear. Associations use exact problem
+IDs, not guessed links between papers mentioning similar topics.
 
-## trureturing: assessments at the source commit
+## Automatic ranking in Pages
 
-The optional `contribution_assessment` field in `Problems/<slug>.md` frontmatter
-is carried into the release snapshot. Example **schema only**, not a real rating:
+`lib/contributions.py` derives an assessment from content already present in the
+release: `Problem`, `Motivation`, `Route`, `Triage`, bibliographic metadata, the
+bound proof's human-readable abstract and dependencies between released results.
+Every result gets a numeric score on every build, including new arrivals. No
+assessment form or new `contribution_assessment` field is requested upstream.
 
-```yaml
-contribution_assessment:
-  schema_version: contribution-assessment.v1
-  question_context: "Explain the question's place in the literature."
-  contribution: "Explain the new idea and the exact advance."
-  next_question: "State what remains unresolved."
-  dimensions:
-    concepts:
-      level: 2
-      rationale: "Explain which definition is new and how it is used."
-      evidence: ["https://example.org/public-paper"]
-    history:
-      proposed_year: 1989
-      resolved_year: 2026
-      rationale: "The cited source poses this exact question in 1989."
-      evidence: ["https://example.org/original-question"]
+`contribution-ranking.v2` uses these dimensions and maximum weights:
+
+| Dimension | Weight | Existing evidence used |
+| --- | ---: | --- |
+| Problem significance | 20 | The dossier's existing Tier 1/2/3 classification, a documented connection to a broader question, or use by another released result. |
+| Conceptual contribution | 20 | A structural formulation/correspondence in the delivered argument; stronger credit for an explicitly introduced concept. A source definition alone is insufficient. |
+| Proof methods | 15 | Existing `proof_shape: content` records and a described mathematical mechanism, such as an injection, induction, spectral estimate or isoperimetric argument. |
+| Mathematical advance | 10 | The actual proved/refuted scope. A general proof or parameterized obstruction gains more credit than one certificate; an explicitly unresolved stronger claim limits the credit. |
+| Scholarly context | 15 | Documented proposer background in Pages' cited reference file, matched only to the primary attribution. Incidental names in proof routes and secondary literature cannot transfer reputation. |
+| Historical context | 10 | A dated conjecture line, otherwise the source bibliography/arXiv date. An OEIS AUTHOR date is never substituted for a later conjecture date. |
+| Prior research | 10 | Earlier mathematical results or partial cases described in the motivation. Literature-search volume, failed searches and unverified coverage do not earn credit. |
+
+Each dimension has a capped level from 0 to 4. Signals are conservative reading
+rules, not an independent semantic review or novelty certification. Repeating
+text, adding helper declarations or using a particular source collection cannot
+inflate a dimension. Proposed, negated and explicitly unformalized statements
+are excluded from contribution signals. Missing evidence adds no bonus; it does
+not block scoring or remove the result from the list.
+
+Let C be the weighted contribution points (`concepts + methods + advance`, maximum
+45), and I the weighted context points (the remaining dimensions, maximum 55).
+The overall score is:
+
+```
+C + I × (0.35 + 0.65 × C / 45)
 ```
 
-All dimensions except `history` have an integer level 0–4, a rationale and at
-least one public HTTP(S) evidence URL. Unknown dimensions are omitted. A known
-zero is different from missing evidence. History takes documented proposed and
-resolved years; Pages computes its level. Do not use a paper's date unless it
-actually establishes when this question was posed.
+This couples the importance of a question to the actual contribution. An old
+source or famous proposer cannot, by itself, make a small witness outrank a
+substantial conceptual/methodological advance. Ties use conceptual contribution,
+then methods, then title and stable ID. The website displays this reading order;
+points are stored for audit rather than presented as a measure of mathematical worth.
 
-`contribution-ranking.v1` uses these weights and assessment anchors:
+Historical levels use 0–1 / 2–4 / 5–14 / 15–39 / 40+ years relative to the fixed
+2026 policy baseline. They indicate documented historical context, not the number
+of years people unsuccessfully worked on a problem. Fixing the baseline avoids
+rankings drifting with the build clock. Profiles in `site/assets/scholarly-context.json`
+include public references; unknown identities receive no invented affiliation or
+reputation. The initial reference set is limited and can be expanded in Pages.
 
-| Key | Weight | What the assessment should establish |
-| --- | ---: | --- |
-| `significance` | 20 | 0: narrow curiosity; 2: substantive field question; 4: central problem or a necessary foundation for a major program. Explain dependencies. |
-| `concepts` | 20 | 0: no new concept; 2: useful new formulation or definition; 4: a new framework with demonstrated explanatory/research uses. Renaming is not a new concept. |
-| `methods` | 15 | 0: direct existing technique; 2: a reusable proof technique; 4: a broadly reusable method with demonstrated applications. |
-| `advance` | 10 | 0: negligible advance; 2: meaningful partial resolution or informative obstruction; 4: substantial progress on the stated program. A counterexample is assessed by what it teaches. |
-| `standing` | 15 | The proposer's verified scholarly background, role, institution, field relevance and documented influence. 0: evidenced limited field footprint; 2: established relevant contributions; 4: foundational influence in the relevant area. Unknown biography is omitted; an institution label alone is insufficient. |
-| `history` | 10 | 0–1 / 2–4 / 5–14 / 15–39 / 40+ years correspond to levels 0 / 1 / 2 / 3 / 4. Measured at resolution, so rankings do not drift daily. |
-| `attention` | 10 | 0: evidenced isolated question; 2: independent attempts/partial results; 4: a sustained research program across groups. Cite actual attempts and literature, not guessed counts. |
+Every build writes `assets/contribution-index.json` with the policy, source
+commit, per-result input digest, score, dimension reasons, source excerpts and
+citations. These estimates can be inspected under “Why this order” in each result.
+The original verified statement and proof remain the authority for mathematical
+claims. Existing human abstracts and dossier prose supply the short explanation.
 
-Levels 1 and 3 are intermediate anchors requiring an explanation. Useful
-conceptual and methodological contributions are prioritized, without automatically
-rewarding the words “definition”, “proof” or “theorem”. These are editorial
-importance assessments, not proof verification or objective measurements of worth.
-
-For selected weights W, score = 100 × Σ(weight × level / 4) / Σ(weight).
-Complete assessments rank first, partial assessments next, and unassessed records
-last. Partial assessments sort by evidenced points with missing dimensions still
-in the denominator; no overall number is displayed until the selected dimensions
-are complete. Ties use case-folded title and stable ID. The client and build share
-weights and are checked for parity across every nonempty dimension selection.
-
-Each build writes `assets/contribution-index.json` with source commit, policy,
-scores, coverage, reasons, citations and validation errors. Malformed editorial
-metadata leaves that assessment pending; it does not quarantine a valid proof.
-Outreach never contributes ranking points. No author-name guessing or automatic
-prestige lookup is performed in the browser.
-
-Upstream work still required: extend the existing result/dossier workflow to
-produce these assessments automatically when a result is added or corrected,
-validate evidence and exact scope, and backfill existing records. An LLM can
-prepare sourced assessments; deterministic code computes the scores. Pages
-already consumes the field, but current live snapshots do not contain it.
+The current release's 1,419 results are evaluated directly from their existing
+content. The existing `truth-release-published` notification triggers the normal
+Pages build, which recomputes and stores the order. Outreach updates do not add
+ranking points. No extra trureturing issue, schema, export or release is required.
 
 ## outreach: one small public feed
 
@@ -163,5 +153,5 @@ the build and leave the existing deployed site intact.
 
 Two already-listed public papers (Padovan and sub-quorum colorings) seed the
 bootstrap follow-ups. No private tracker data or inferred active collaborations
-were imported. The upstream exporter/release and source assessment producer
-remain separate handoffs; the Pages PR does not claim they are already live.
+were imported. The outreach exporter/release remains an upstream handoff. trureturing already
+provides the content and release notification consumed by Pages; it needs no changes.

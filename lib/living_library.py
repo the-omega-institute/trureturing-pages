@@ -138,10 +138,6 @@ def parse_problem(text: str, filename: str) -> dict:
     if any(not value for value in content.values()):
         raise ValueError(f"Empty problem section: {slug}")
     result = {"slug": slug, "title": title, "bibkey": str(meta.get("bibkey", "")), **source, "triage": meta["triage"], "motivation_gids": gids, "sections": content, "source_digest": digest(text.encode()), "literature_status": "not-rechecked", "last_literature_check": None, "route_status": "proposed"}
-    if "contribution_assessment" in meta:
-        # Preserve source-bound editorial metadata. Its independent validator
-        # cannot quarantine a mathematically valid dossier or resolution.
-        result["contribution_assessment"] = meta["contribution_assessment"]
     return result
 
 

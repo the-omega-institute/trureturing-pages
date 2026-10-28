@@ -1,0 +1,61 @@
+{
+  "description": "Pages editorial background references, matched only against the primary source attribution. Levels describe documented scholarly influence; they are not inferred from surnames in proof methods or secondary citations.",
+  "people": [
+    {
+      "name": "Paul Erdős",
+      "attribution_pattern": "^(?:Paul |P\\. )?[EÉ]rd[oőö]s(?:[’']s|,|\\s+(?:and|19|20))",
+      "level": 4,
+      "context": "Paul Erdős made foundational contributions to number theory and combinatorics and posed many influential problems. This background does not enlarge the particular claim resolved here.",
+      "url": "https://mathshistory.st-andrews.ac.uk/Biographies/Erdos/"
+    },
+    {
+      "name": "Kurt Mahler",
+      "attribution_pattern": "^(?:Kurt |K\\. )?Mahler(?:[’']s|,|\\s+(?:and|19|20))",
+      "level": 4,
+      "context": "Kurt Mahler's work established major methods in Diophantine approximation and transcendental number theory. Credit applies to the exact source question only.",
+      "url": "https://mathshistory.st-andrews.ac.uk/Biographies/Mahler/"
+    },
+    {
+      "name": "Alexander Holevo",
+      "attribution_pattern": "^(?:A\\.?\\s*S\\.?\\s*|Alexander\\s+)Holevo\\b",
+      "level": 4,
+      "context": "Alexander Holevo is a leading contributor to the mathematical foundations of quantum information, including quantum channels and information bounds.",
+      "url": "https://en.wikipedia.org/wiki/Alexander_Holevo"
+    },
+    {
+      "name": "Richard Stanley",
+      "attribution_pattern": "^(?:Richard(?: P\\.)? |R\\. ?(?:P\\. ?)?|)Stanley(?:[’']s|,|\\s+(?:and|19|20))",
+      "level": 4,
+      "context": "Richard Stanley's work is foundational in algebraic and enumerative combinatorics.",
+      "url": "https://mathshistory.st-andrews.ac.uk/Biographies/Stanley/"
+    },
+    {
+      "name": "Donald Knuth",
+      "attribution_pattern": "^(?:Donald(?: E\\.)? |D\\. ?(?:E\\. ?)?|)Knuth(?:[’']s|,|\\s+(?:and|19|20))",
+      "level": 4,
+      "context": "Donald Knuth's work on algorithms and their mathematical analysis has foundational influence in computer science and combinatorics.",
+      "url": "https://mathshistory.st-andrews.ac.uk/Biographies/Knuth/"
+    },
+    {
+      "name": "Richard Jozsa",
+      "attribution_pattern": "\\b(?:Richard\\s+|R\\.\\s*)Jozsa\\b",
+      "level": 4,
+      "context": "Richard Jozsa made foundational contributions to quantum computation and quantum information, including quantum algorithms and entanglement theory.",
+      "url": "https://en.wikipedia.org/wiki/Richard_Jozsa"
+    },
+    {
+      "name": "Mary Beth Ruskai",
+      "attribution_pattern": "\\b(?:Mary\\s+Beth\\s+|M\\.\\s*B\\.\\s*|Hiai\\s+(?:and\\s+|[–-]\\s*))Ruskai\\b",
+      "level": 4,
+      "context": "Mary Beth Ruskai made foundational contributions to quantum entropy inequalities, quantum channels and mathematical quantum information.",
+      "url": "https://en.wikipedia.org/wiki/Mary_Beth_Ruskai"
+    },
+    {
+      "name": "Nilanjana Datta",
+      "attribution_pattern": "^(?:Nilanjana\\s+|N\\.\\s*)Datta\\b",
+      "level": 3,
+      "context": "Nilanjana Datta is an established quantum information researcher whose work includes information theory and quantum entropies.",
+      "url": "https://en.wikipedia.org/wiki/Nilanjana_Datta"
+    }
+  ]
+}

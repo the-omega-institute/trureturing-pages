@@ -2096,5 +2096,14 @@
   "Complete assessments appear first. Missing evidence stays unscored. Problem age measures time since the question was posed, not years of unsuccessful research.": "完整评估优先展示，缺少依据的维度暂不评分。问题年代表示从提出到解决的时间，不代表持续攻关的年数。",
   "Open questions": "开放问题",
   "Conjecture sections": "猜想分类",
-  "Back to contributions": "返回问题与贡献"
+  "Back to contributions": "返回问题与贡献",
+  "Problems solved. Ideas developed. Further research.": "解决的问题，带来的新思想，以及后续研究。",
+  "Open questions & future pursuits": "开放问题与未来研究",
+  "About this order": "排序说明",
+  "Why this order": "排序依据",
+  "Try another title or mathematical topic.": "试试其他标题或数学主题。",
+  "Conceptual contribution": "概念贡献",
+  "Proof methods": "证明方法",
+  "Historical context": "历史背景",
+  "Prior research": "已有研究"
 }

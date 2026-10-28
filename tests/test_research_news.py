@@ -352,7 +352,7 @@ class ResearchNewsTests(unittest.TestCase):
             news = (output / "research.html").read_text()
             bank = (output / "conjectures.html").read_text()
             self.assertNotIn('class="site-main research-home"', news)
-            self.assertIn('class="site-main research-home research-news"', bank)
+            self.assertIn('class="site-main research-home research-news contribution-home"', bank)
             self.assertIn('aria-current="page">Conjectures</a>', bank)
             self.assertNotIn('aria-current="page">Research</a>', bank)
             self.assertIn('aria-current="page">Research</a>', news)
