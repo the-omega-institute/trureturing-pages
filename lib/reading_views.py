@@ -504,6 +504,54 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
         '<script type="module" src="assets/conjecture-collection.mjs"></script></head>', 1)
 
 
+def ranking_guide(ranking):
+    """A short reading guide; numerical details follow the current build policy."""
+    explanations = {
+        'significance': 'The source question, its broader connections and use by other results.',
+        'concepts': 'New concepts, structural explanations and useful correspondences.',
+        'methods': 'The mathematical mechanism used in the released proof.',
+        'advance': 'The exact statement settled and the scope of its proof or counterexample.',
+        'standing': 'The proposer’s scholarly background, supported by cited sources.',
+        'history': 'A documented conjecture date, or otherwise the source publication date.',
+        'attention': 'Earlier results and partial cases documented in the source dossier.',
+    }
+    dimensions = ranking['dimensions']
+    rows = ''.join(f'<tr><th scope="row">{esc(fact["label"])}</th>'
+                   f'<td class="ranking-weight">{fact["weight"]}%</td><td>{esc(explanations[key])}</td></tr>'
+                   for key, fact in dimensions.items())
+    policy = ranking['research_news_policy']
+    maximum = sum(dimensions[key]['weight'] for key in ('concepts', 'methods', 'advance'))
+    return ('<main class="site-main ranking-method">'
+            '<header class="ranking-heading"><a href="conjectures.html#results">← Back to results</a>'
+            '<h1>About this order</h1>'
+            '<p>Editorial selections come first. The rest of the collection is ordered automatically with each release.</p></header>'
+            '<section aria-labelledby="reading-order-title"><h2 id="reading-order-title">Reading order</h2>'
+            '<ol class="ranking-order"><li id="editorial-pins"><h3>Editorial selection</h3>'
+            '<p>A small reviewed selection leads with a clear source question, answer and mathematical scope.</p></li>'
+            '<li><h3>Automatic order</h3><p>All other results are ranked from their released dossiers and proof explanations. The score combines the importance of the question with the contribution of its resolution.</p></li></ol></section>'
+            '<section aria-labelledby="score-factors-title"><h2 id="score-factors-title">What the score considers</h2>'
+            '<table class="ranking-factors"><thead><tr><th scope="col">Dimension</th><th scope="col">Weight</th><th scope="col">Evidence used</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table>'
+            '<p class="ranking-caveat">The score guides reading; it does not certify novelty or measure scholarly consensus. Each result retains its exact verified scope.</p></section>'
+            '<details class="ranking-details"><summary>Calculation &amp; Research highlights</summary>'
+            '<div class="ranking-details-body"><h3>Score calculation</h3>'
+            '<p>Each dimension is rated from 0 to 4 using documented evidence. C is the weighted contribution from concepts, methods and mathematical advance; I is the weighted total of the other dimensions.</p>'
+            f'<p class="ranking-formula"><code>C + I × (0.4 + 0.6 × C / {maximum})</code></p>'
+            '<p>This adjustment gives a question’s background more influence when the released result makes a stronger mathematical contribution. Editorial selections change reading order without changing scores.</p>'
+            '<p>Missing evidence earns no credit. Source collections such as OEIS do not affect the score. A source date records historical context, not years of unsuccessful research.</p>'
+            '<section id="research-news-selection"><h3>Research highlights</h3>'
+            '<p>Highlights include valid editorial selections and every result meeting all three automatic thresholds:</p>'
+            '<dl class="ranking-thresholds"><div><dt>Total score</dt>'
+            f'<dd>{policy["minimum_score"]} / 100</dd></div><div><dt>Problem significance</dt>'
+            f'<dd>{policy["minimum_significance"]} / 4</dd></div><div><dt>Contribution points</dt>'
+            f'<dd>{policy["minimum_contribution_points"]} / {maximum}</dd></div></dl>'
+            '<p>Known prior answers are excluded from highlights. Public papers and confirmed collaborations are shown independently of these thresholds.</p></section>'
+            '<h3>When a release changes</h3>'
+            '<p>Every release refreshes the scores. Changed sources or result scopes disable the corresponding editorial selection until reviewed. Rebuilds update existing highlights without duplicate announcements.</p>'
+            '<p>For an individual result, open “Why this order” to inspect its reasons and sources. Equal scores share a priority band; concept and method levels, then stable result IDs, break ties.</p>'
+            '</div></details></main>')
+
+
 def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
     output = Path(output)
     from lib.living_library import page_shell
@@ -533,35 +581,8 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
         path = output / name
         if path.exists():
             path.write_text(render(path.read_text()), encoding='utf-8')
-    body = ('<main class="site-main research-news ranking-method"><header class="page-heading">'
-            '<h1>About this order</h1></header>'
-            '<p>A short, source-bound editorial selection leads this collection. The remaining results are automatically ordered using the released problem dossiers and proof explanations. '
-            'The order combines the importance of the question with the contribution of its resolution: '
-            'conceptual structure, proof methods, mathematical scope, historical context, '
-            'documented scholarly background and earlier research.</p>'
-            '<p>Problem importance is weighted by the strength of the contribution. A famous proposer '
-            'or an old source alone cannot put a small counterexample above a substantial new method. '
-            'Source labels such as OEIS do not add or subtract points.</p>'
-            '<p>The automatic score is a reading aid, not an objective measure of mathematical importance. '
-            'A source date does not establish years of unsuccessful work, and an unmatched author '
-            'does not acquire an invented affiliation or reputation. Reasons and sources are available '
-            'inside each result. Mathematical claims retain their original verified scope.</p>'
-            '<p>New releases recalculate this order automatically. Equal scores indicate the same priority band; a stable result identity breaks remaining ties.</p>'
-            '<p id="editorial-pins">A short editorial list places selected results first. Each pin quotes or explicitly paraphrases the source question '
-            'and states its reason inside the result. Pins change only the reading order: scores, scope and evidence are unchanged. '
-            'Changed source or scope disables the selection until reviewed. Known prior answers are excluded from highlights; inclusion alone does not establish priority or author endorsement.</p>'
-            '<p>Missing background is recorded as not documented. Scholarly reputation contributes at most five points before the contribution adjustment; it is never estimated from a name or institution.</p>'
-            '<section id="research-news-selection"><h2>Research news selection</h2>'
-            '<p>Research News includes valid editorial selections, plus automatically qualifying results. Scores are not increased to justify a selection.</p>'
-            f'<p>Automatic selection requires {ranking["research_news_policy"]["minimum_score"]} points or above, '
-            f'with at least {ranking["research_news_policy"]["minimum_significance"]}/4 in documented problem context '
-            f'and {ranking["research_news_policy"]["minimum_contribution_points"]} contribution points. '
-            'This is an editorial selection threshold, not a citation metric or a claim of consensus.</p>'
-            '<p>Every qualifying result is included. Rebuilds update the same result rather than posting duplicate announcements. '
-            'Papers and confirmed collaborations appear independently of this threshold.</p>'
-            '<p>Unproved extensions, numerical experiments and results credited to prior literature cannot earn contribution points for the released result.</p></section>'
-            '<a href="conjectures.html#results">Back to contributions</a></main>')
-    (output / 'ranking.html').write_text(common_shell(page_shell('About this order', '', body, appearance='editorial')))
+    guide = common_shell(page_shell('About this order', '', ranking_guide(ranking), appearance='editorial'))
+    (output / 'ranking.html').write_text(guide.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css"></head>', 1))
     for pattern in ('research/*/index.html', 'results/*/index.html', 'oeis/*/index.html'):
         for path in output.glob(pattern):
             path.write_text(common_shell(path.read_text(), '../../'), encoding='utf-8')
