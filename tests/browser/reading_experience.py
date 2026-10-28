@@ -39,33 +39,31 @@ def main():
         page.goto(base+'research.html?lang=en',wait_until='networkidle')
         assert page.evaluate('getComputedStyle(document.body).backgroundColor')=='rgb(247, 248, 250)'
         assert 'Georgia' in page.locator('.news-heading h1').evaluate('e=>getComputedStyle(e).fontFamily')
-        rows=page.locator('#results [data-result-row]')
-        assert page.locator('#resolved-questions-archive, #resolved-questions').count()==0
-        total=rows.count()
-        assert total>0
-        assert rows.locator(':scope > summary').count()==total
-        assert page.locator('#results [data-result-row]:visible').count()==min(8,total)
-        assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
-        assert page.locator('nav[aria-label="Primary navigation"] a[href*="version-status.html"]:visible').count()==0
-        events.append('Research exposes results immediately with source labels, summaries and outcome badges')
-        order=page.locator('main').evaluate("e=>['results','publications','frontier'].map(id=>[...e.children].indexOf(document.getElementById(id)))")
-        assert order==sorted(order) and order[0]>=0
+        assert page.locator('[data-result-row]').count()==0
+        assert page.locator('#activities').count()==0
         catalog=json.loads((args.site/'assets/research-news.json').read_text())
         for paper in catalog['publications']:
             card=page.locator('[id="'+paper['id']+'"]')
             assert card.locator('h3').inner_text()==paper['title']
             assert card.locator('h3 a').get_attribute('href')==paper['url']
-        for activity in catalog.get('activities',[]):
-            card=page.locator('#activities [id="'+activity['id']+'"]')
-            assert card.locator('h3').inner_text()==activity['title']
-            assert card.locator('details a').get_attribute('href')==activity['source_url']
-        if catalog.get('activities'):
-            page.locator('#activities').scroll_into_view_if_needed()
-            page.screenshot(path=str(args.output/'research-news-desktop.png'))
-        page.locator('#publications').scroll_into_view_if_needed()
-        page.screenshot(path=str(args.output/'research-publications-desktop.png'))
-        page.evaluate('scrollTo(0,0)')
-        page.screenshot(path=str(args.output/'research-restored-desktop.png'),full_page=True)
+        page.screenshot(path=str(args.output/'research-publications-desktop.png'),full_page=True)
+        events.append('Research presents papers and preprints without the duplicate result archive')
+        page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
+        rows=page.locator('#results [data-result-row]')
+        total=rows.count()
+        assert total>0
+        assert rows.locator(':scope > summary').count()==total
+        assert page.locator('#results [data-result-row]:visible').count()==min(8,total)
+        assert page.locator('nav[aria-label="Primary navigation"] a[href*="spaces.html"]:visible').count()==0
+        page.locator('.ranking-controls > summary').click()
+        dimensions=page.locator('[data-rank-dimension]')
+        for item in dimensions.all()[1:]:item.uncheck()
+        assert dimensions.first.is_disabled()
+        page.locator('#results [data-clear-search]').click()
+        assert all(item.is_checked() and item.is_enabled() for item in dimensions.all())
+        page.locator('.ranking-controls > summary').click()
+        page.screenshot(path=str(args.output/'conjecture-contributions-desktop.png'),full_page=True)
+        events.append('Contribution dimensions allow multiple selection and retain a valid ranking on reset')
         if total>8:
             page.locator('[data-result-more]').click()
             assert page.locator('[data-result-row]:visible').count()==min(16,total)
@@ -109,7 +107,7 @@ def main():
         events.append('Collection/outcome/search filters compose; reset, pagination, keyboard focus and old permalinks work')
         plain=browser.new_context(java_script_enabled=False)
         plain_page=plain.new_page()
-        plain_page.goto(base+'research.html?lang=en')
+        plain_page.goto(base+'conjectures.html?lang=en')
         assert plain_page.locator('[data-result-row]:visible').count()==total
         plain_page.locator('[data-result-row] > summary').last.click()
         assert plain_page.locator('.news-result').last.is_visible()
@@ -201,6 +199,7 @@ def main():
         for target in range(len(architecture)-1,0,-1):
             pair=[archived.get((e['truth_release_digest'],e['atlas_graph_digest'])) for e in architecture[target-1:target+1]]
             if not all(pair):continue
+            if not all((args.site / entry['path']).exists() for entry in pair):continue
             old,new=map(read_content,pair)
             old_ids={n['id'] for n in old['graph']['nodes'] if n['kind']=='truth'}
             new_ids={n['id'] for n in new['graph']['nodes'] if n['kind']=='truth'}

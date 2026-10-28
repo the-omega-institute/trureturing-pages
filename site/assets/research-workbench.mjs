@@ -52,7 +52,7 @@ export async function mountResearchWorkbench() {
   const verifiedList = el("div", undefined, "rw-verified-list");
   for (const item of verified) {
     const row = el("p");
-    row.append(link(item.title, `research.html#resolved-${item.id}`),
+    row.append(link(item.title, `conjectures.html#resolved-${item.id}`),
       document.createTextNode(` / ${item.kind} / ${item.area}`));
     verifiedList.append(row);
   }

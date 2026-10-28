@@ -21,7 +21,7 @@ export async function appendRecentResults(root, nodes, recorded = new Map()) {
     for (const item of results) {
       const link = document.createElement("a");
       link.className = "concept-row";
-      link.href = `research.html#${item.id}`;
+      link.href = `conjectures.html#resolved-${item.id}`;
       const copy = document.createElement("span");
       const title = document.createElement("strong");
       title.textContent = item.title;
@@ -39,7 +39,7 @@ export async function appendRecentResults(root, nodes, recorded = new Map()) {
       if (results.some(item => `${item.module}.${item.declaration}` === problem.resolution.declaration_gid)) continue;
       const link = document.createElement("a");
       link.className = "concept-row";
-      link.href = `research.html#${problem.slug}`;
+      link.href = `conjectures.html#resolved-${problem.slug}`;
       const copy = document.createElement("span");
       const title = document.createElement("strong");
       title.textContent = problem.title;
@@ -53,7 +53,7 @@ export async function appendRecentResults(root, nodes, recorded = new Map()) {
     catalog = null;
     const link = document.createElement("a");
     link.className = "research-link";
-    link.href = "research.html#results";
+    link.href = "conjectures.html#results";
     link.textContent = "Recent resolutions";
     section.append(link);
   }

@@ -329,6 +329,13 @@ def render_news(output, snapshot, shell, catalog_path=None):
     if "schema_version" in snapshot:
         render_spaces(output, snapshot)
     catalog = json.loads(Path(catalog_path or CATALOG).read_text())
+    from lib.research_updates import load_feed, merge_publications
+    feed_path = output / 'assets/research-updates.json'
+    feed = load_feed(feed_path if feed_path.exists() else None)
+    catalog['publications'] = merge_publications(catalog['publications'], feed)
+    write(output / 'assets/publication-index.json', json.dumps({
+        'schema_version': 'publication-index.v1', 'updated_at': feed.get('updated_at'),
+        'publications': catalog['publications']}, ensure_ascii=False, indent=2) + '\n')
     publications, results, activities = [], [], []
     nodes = snapshot["graph"]["nodes"]
     records = [item for item in result_records(snapshot, catalog_path)
@@ -374,4 +381,4 @@ def render_news(output, snapshot, shell, catalog_path=None):
         '<script type="module" src="assets/research-news.mjs"></script></head>')
     write(output / "research.html", document)
     render_result_pages(output, records, shell)
-    apply_reading_views(output, snapshot, records)
+    apply_reading_views(output, snapshot, records, feed)

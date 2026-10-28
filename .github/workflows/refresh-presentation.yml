@@ -5,6 +5,10 @@ on:
     branches: [dev]
     paths: ['site/**', 'lib/**', '.github/workflows/pages.yml', '.github/workflows/refresh-presentation.yml']
   workflow_dispatch:
+  repository_dispatch:
+    types: [research-updates]
+  schedule:
+    - cron: '23 */6 * * *'
 
 permissions:
   contents: read

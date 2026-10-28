@@ -64,7 +64,12 @@ def build(output):
     graph=json.loads(acquire('data/pages-atlas-view.v1.json',current['atlas_graph_digest']))
     if graph['source_snapshot']['truth_release_digest']!=current['truth_release_digest']:raise ValueError('Graph release mismatch')
     snapshots=[]
-    for entry in index['entries']:
+    # A PR preview needs the current release, adjacent comparisons and baseline.
+    # Keep the real history index, but bound downloaded Library observations as
+    # the public archive grows. Production publication still retains all history.
+    preview_entries = [index['entries'][0]] + index['entries'][-16:]
+    preview_entries = list({entry['digest']: entry for entry in preview_entries}.values())
+    for entry in preview_entries:
         snapshot=archive_json(entry,acquire(entry['path'],entry['digest']))
         if snapshot.get('truth_release_digest')!=entry['truth_release_digest'] or snapshot.get('atlas_graph_digest')!=entry['atlas_graph_digest']:
             raise ValueError('Archived snapshot binding mismatch')
@@ -97,6 +102,7 @@ def build(output):
     report={'source':'published-pages-data','truth_release_digest':current['truth_release_digest'],
         'atlas_graph_digest':current['atlas_graph_digest'],'source_commit':current['source_commit'],
         'snapshot_count':len(snapshots),'architecture_count':len(architecture['entries']),
+        'library_preview_paths':[entry['path'] for entry in preview_entries],
         'problem_count':len(snapshots[-1]['problems']),'network_bytes':total,'deployment':False}
     (output/'preview-inputs.json').write_text(json.dumps(report,indent=2)+'\n')
     return report

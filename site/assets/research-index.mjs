@@ -1,5 +1,6 @@
 import {matchesQuery, hashTarget} from './reading-core.mjs';
 import {ready, t} from './i18n.mjs';
+import {assessmentScore, compareAssessments} from './contribution-ranking.mjs';
 
 await ready;
 const index = document.querySelector('[data-research-index]');
@@ -10,6 +11,8 @@ if (index) {
   const collections = [...index.querySelectorAll('[data-result-collection]')];
   const more = index.querySelector('[data-result-more]');
   const count = index.querySelector('[data-result-count]');
+  const dimensions = [...index.querySelectorAll('[data-rank-dimension]')];
+  const assessment = new Map(rows.map(row => [row, JSON.parse(row.dataset.assessment || '{}')]));
   const pageSize = 8;
   let collection = 'all', limit = pageSize;
   const matches = row => (collection === 'all' || row.dataset.collection === collection)
@@ -29,13 +32,35 @@ if (index) {
     index.querySelector('[data-result-empty]').hidden = total !== 0;
   }
   function filter() { limit = pageSize; render(); }
+  function rank() {
+    const weights = Object.fromEntries(dimensions.filter(input => input.checked)
+      .map(input => [input.dataset.rankDimension, Number(input.dataset.weight)]));
+    const scores = new Map(rows.map(row => [row, {...assessmentScore(assessment.get(row), weights),
+      title: row.dataset.title, id: row.id}]));
+    rows.sort((a, b) => compareAssessments(scores.get(a), scores.get(b)));
+    const archive = index.querySelector('#result-archive');
+    for (const row of rows) {
+      const value = scores.get(row);
+      row.querySelector('[data-result-score]').textContent = value.status === 'complete'
+        ? `${value.score} / 100` : t(value.status === 'partial' ? 'Partial assessment' : 'Assessment pending');
+      archive.append(row);
+    }
+    // Retain one dimension so the ranking always has a defined denominator.
+    for (const input of dimensions) input.disabled = Object.keys(weights).length === 1 && input.checked;
+    const hasEvidence = [...scores.values()].some(value => value.status !== 'pending');
+    index.querySelector('[data-ranking-order]').textContent = t(hasEvidence
+      ? 'Ranked by contribution · unassessed results follow' : 'Awaiting assessments · ordered by title');
+    filter();
+  }
+  for (const input of dimensions) input.addEventListener('change', rank);
   search.addEventListener('input', filter);
   outcome.addEventListener('change', filter);
   for (const button of collections) button.addEventListener('click', () => {
     collection = button.dataset.resultCollection; filter();
   });
   index.querySelector('[data-clear-search]').addEventListener('click', () => {
-    search.value = ''; outcome.value = 'all'; collection = 'all'; filter(); search.focus();
+    search.value = ''; outcome.value = 'all'; collection = 'all';
+    dimensions.forEach(input => { input.checked = true; }); rank(); search.focus();
   });
   more.addEventListener('click', () => {
     const next = rows.filter(matches)[limit]; limit += pageSize; render();
@@ -56,6 +81,7 @@ if (index) {
     }
   }
   index.querySelector('[data-index-controls]').hidden = false;
-  render(); followLink();
+  index.querySelector('[data-rank-picker]').hidden = false;
+  rank(); followLink();
   addEventListener('hashchange', followLink);
 }

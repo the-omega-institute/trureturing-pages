@@ -133,18 +133,20 @@ def common_shell(document: str, root=''):
     return add_spaces_navigation(document, root)
 
 
-def render_research_groups(document, snapshot, records):
+def render_result_index(document, snapshot, records, ranking=None, feed=None):
     """A browsable result index; exact statements and evidence stay in each card."""
+    from lib.contributions import build_index
+    from lib.research_updates import EMPTY
+    ranking = ranking or build_index(snapshot, records)
+    feed = feed or EMPTY
+    assessments = {r['id']: r for r in ranking['results']}
+    order = {r['id']: i for i, r in enumerate(ranking['results'])}
     parsed = Fragments(document)
     articles = {e.attrs.get('id'): parsed.raw(e) for e in parsed.select(cls='news-result')}
-    papers = parsed.select(id='publications')
-    activities = parsed.select(id='activities')
-    activity_navigation = '<a href="#activities"><span>03</span> Research news</a>' if activities else ''
-    frontier_number = '04' if activities else '03'
     collections = [series('https://oeis.org'), series('https://erdosproblems.com'), series('https://other.example')]
     counts = defaultdict(int)
     rows = []
-    for r in sorted(records, key=lambda r: (r['title'].casefold(), r['id'])):
+    for r in sorted(records, key=lambda r: order[r['id']]):
         if r['id'] not in articles:
             raise ValueError('Result card is absent: ' + r['id'])
         key, label, _ = series(r['source_url'])
@@ -153,39 +155,31 @@ def render_research_groups(document, snapshot, records):
         reference = path.split('/')[0] if key in ('oeis', 'erdos') else ''
         source_label = label + (' / ' + reference if reference else '')
         search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
-        excerpt = str(r.get('summary') or '').strip()
+        assessment = assessments[r['id']]
+        excerpt = str(assessment['assessment'].get('contribution') or r.get('summary') or '').strip()
         # Provenance introductions belong in the expanded source record, not the
         # index's one-line preview. Do not invent a mathematical paraphrase.
         if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
             excerpt = ''
         preview = f'<span class="result-excerpt">{esc(excerpt)}</span>' if excerpt else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row data-collection="{key}" '
-            f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
+            f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}" '
+            f'data-assessment="{esc(json.dumps(assessment["assessment"]["dimensions"]))}" '
+            f'data-title="{esc(r["title"].casefold())}">'
             f'<summary><span class="result-summary"><span class="result-source">{esc(source_label)}</span>'
-            f'<strong>{esc(r["title"])}</strong>{preview}</span>'
+            f'<strong>{esc(r["title"])}</strong>{preview}'
+            f'<span class="result-score" data-result-score>{score_label(assessment)}</span></span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
-            f'<div class="reading-item-body">{articles[r["id"]]}</div></details>')
+            f'<div class="reading-item-body">{assessment_story(assessment)}'
+            f'{research_followups(r.get("problem_slug") or r["id"], feed)}'
+            f'{articles[r["id"]]}{assessment_details(assessment)}</div></details>')
     filters = (f'<button type="button" data-result-collection="all" aria-pressed="true">All results <span>{len(records)}</span></button>'
         + ''.join(f'<button type="button" id="results-{key}" data-result-collection="{key}" aria-pressed="false">'
                   f'{esc(title)} <span>{counts[key]}</span></button>' for key, title, _ in collections if counts[key]))
-    proved = sum(r['kind'] == 'proved' for r in records)
-    refuted = sum(r['kind'] == 'refuted' for r in records)
-    body = ('<main class="site-main research-news"><header class="news-heading">'
-        '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p><h1>Research</h1>'
-        '<p class="news-lede">From open questions to formal results.</p>'
-        '<p class="research-intro-note">Explore the results, counterexamples and papers. Follow each claim back to its question and proof.</p>'
-        '<nav id="knowledge-spaces" class="news-links" aria-label="Research destinations">'
-        '<a href="discover.html">Explore connections <span aria-hidden="true">↗</span></a>'
-        '<a href="conjectures.html">Find an open question <span aria-hidden="true">↗</span></a></nav></div>'
-        '<dl class="research-overview"><div class="research-total"><dt>Recorded results</dt>'
-        f'<dd>{len(records)}</dd></div><div><dt>Proved</dt><dd>{proved}</dd></div>'
-        f'<div><dt>Refuted</dt><dd>{refuted}</dd></div></dl></header>'
-        '<nav class="news-index" aria-label="Research sections"><a href="#results"><span>01</span> Results</a>'
-        '<a href="#publications"><span>02</span> Publications</a>' + activity_navigation
-        + f'<a href="#frontier"><span>{frontier_number}</span> Next questions</a></nav>'
+    body = (
         '<section id="results" class="news-section" data-research-index><div class="news-section-heading"><div>'
-        '<p class="eyebrow">THE COLLECTION</p><h2>Explore the results</h2></div>'
+        '<p class="eyebrow">THE COLLECTION</p><h2>Problems &amp; contributions</h2></div>'
         '<p>Original questions. Precise scope. Inspectable proofs.</p></div>'
         '<div class="research-index-controls" data-index-controls hidden>'
         '<div class="research-collections" role="group" aria-label="Result collection">' + filters + '</div>'
@@ -195,23 +189,90 @@ def render_research_groups(document, snapshot, records):
         '<select id="results-outcome"><option value="all">All outcomes</option><option value="proved">Proved</option>'
         '<option value="refuted">Refuted</option></select></label>'
         '<button type="button" class="research-reset" data-clear-search>Reset filters</button></div></div>'
-        '<div class="research-index-meta"><p role="status" aria-live="polite" data-result-count>'
-        f'{len(records)} results</p><span>Ordered by title</span></div>'
+        + ranking_controls() + '<div class="research-index-meta"><p role="status" aria-live="polite" data-result-count>'
+        f'{len(records)} results</p><span data-ranking-order>'
+        + ('Ranked by contribution · unassessed results follow' if any(r['status'] != 'pending' for r in ranking['results'])
+           else 'Awaiting assessments · ordered by title') + '</span></div>'
         '<div id="result-archive">' + ''.join(rows) + '</div>'
         '<div class="research-no-results" data-result-empty hidden><h3>No matching results</h3>'
         '<p>Try a different title, sequence number or collection.</p></div>'
         '<div class="research-pagination"><button type="button" data-result-more hidden>Show more results</button></div></section>'
-        + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
-        + (parsed.raw(activities[0]) if activities else '')
-        + '<section id="frontier" class="news-onward"><div><p class="eyebrow">CONTINUE THE INQUIRY</p>'
-        '<h2>Every result opens a new question.</h2><p>Explore what comes next, or build on a proof already in the Library.</p></div>'
-        '<div class="research-next-links"><a href="conjectures.html#open-problems">Open conjectures <span aria-hidden="true">↗</span></a>'
-        '<a href="knowledge/">Browse the Library <span aria-hidden="true">↗</span></a></div></section></main>')
+    )
+    return body
+
+
+def score_label(item):
+    if item['status'] == 'complete':
+        return f'{item["score"]:g} / 100'
+    return 'Partial assessment' if item['status'] == 'partial' else 'Assessment pending'
+
+
+def ranking_controls():
+    from lib.contributions import DIMENSIONS
+    options = ''.join(f'<label><input type="checkbox" data-rank-dimension="{key}" data-weight="{weight}" checked>'
+                      f'<span>{esc(label)}</span></label>' for key, (label, weight) in DIMENSIONS.items())
+    return ('<details class="ranking-controls"><summary>What matters to you?</summary>'
+            '<fieldset data-rank-picker hidden><legend>Rank by one or more dimensions</legend>' + options + '</fieldset>'
+            '<p>Complete assessments appear first. Missing evidence stays unscored. '
+            'Problem age measures time since the question was posed, not years of unsuccessful research.</p>'
+            '<a href="ranking.html">How the ranking works</a></details>')
+
+
+def assessment_story(item):
+    data = item['assessment']
+    return ''.join(f'<p class="contribution-story"><strong>{label}</strong> {esc(data[key])}</p>'
+                   for key, label in [('question_context', 'Why it matters.'), ('contribution', 'Our contribution.'),
+                                      ('next_question', 'What comes next.')] if data.get(key))
+
+
+def assessment_details(item):
+    from lib.contributions import DIMENSIONS
+    data = item['assessment']['dimensions']
+    if not data:
+        return ''
+    rows = []
+    for key, fact in data.items():
+        label, weight = DIMENSIONS[key]
+        links = ' · '.join(f'<a href="{esc(url)}">Source {i + 1}</a>' for i, url in enumerate(fact['evidence']))
+        rows.append(f'<li><strong>{esc(label)}</strong> · {fact["level"]}/4 · {weight}% weight'
+                    f'<p>{esc(fact["rationale"])}</p>{links}</li>')
+    return '<details class="assessment-evidence"><summary>Ranking evidence</summary><ul>' + ''.join(rows) + '</ul></details>'
+
+
+def research_followups(slug, feed):
+    sentences = []
+    for paper in feed['publications']:
+        if slug in paper['problem_ids']:
+            label = 'arXiv' if urlsplit(paper['url']).hostname in ('arxiv.org', 'www.arxiv.org') else 'Paper'
+            sentences.append(f'<p>Further research on {esc(paper["topic"])} — '
+                             f'see more details here: <a href="{esc(paper["url"])}">{label}</a>.</p>')
+    for project in feed['collaborations']:
+        if slug in project['problem_ids']:
+            people = '; '.join(f'{esc(p["name"])} from {esc(p["institution"])}' for p in project['people'])
+            sentences.append(f'<p>In collaboration with {people} to further investigate '
+                             f'<a href="{esc(project["evidence_url"])}">{esc(project["topic"])}</a>.</p>')
+    return '<div class="research-followups">' + ''.join(sentences) + '</div>' if sentences else ''
+
+
+def render_research_groups(document, snapshot, records):
+    """Research is a publication shelf. Conjectures owns the result catalogue."""
+    parsed = Fragments(document)
+    papers = parsed.select(id='publications')
+    body = ('<main class="site-main research-news research-publications"><header class="news-heading">'
+            '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p>'
+            '<h1>Research</h1><p class="news-lede">Papers that take the work further.</p>'
+            '<p class="research-intro-note">Publications and preprints from our research and collaborations.</p>'
+            '<nav class="news-links" aria-label="Research destinations">'
+            '<a href="conjectures.html#results">Explore problems &amp; contributions ↗</a></nav></div></header>'
+            + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
+            + '</main>')
     result = common_shell(replace_main(document, body))
+    # Bare historical result anchors are known from this exact catalogue. Other
+    # fragments (including paper anchors) stay on Research.
+    aliases = json.dumps([r['id'] for r in records]).replace('<', '\\u003c')
     result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css">'
-                            '<script type="module" src="assets/research-index.mjs"></script></head>', 1)
-    if 'assets/research-route.js' not in result:
-        result = result.replace('<head>', '<head><script src="assets/research-route.js"></script>', 1)
+                            '<script type="application/json" id="legacy-result-ids">' + aliases + '</script>'
+                            '<script src="assets/research-route.js"></script></head>', 1)
     return result
 
 
@@ -223,27 +284,61 @@ def millennium_entry(output):
     return render_horizons(json.loads(path.read_text()))
 
 
-def render_conjecture_groups(document, snapshot, output):
+def render_conjecture_groups(document, snapshot, output, result_document=None, records=None, feed=None):
     from lib.conjecture_collection import render_collection
     catalog = json.loads((ROOT / 'site/assets/research-directions.json').read_text())
     sources = json.loads((ROOT / 'site/assets/conjecture-sources.json').read_text())
-    body = ('<main class="site-main research-home" data-curated-home>'
-        '<header class="page-heading curated-heading"><div><p class="eyebrow">SELECTED QUESTIONS</p>'
-        '<h1>Conjectures</h1><p class="lede">A curated collection of conjectures and open problems connected to our research.</p>'
-        '</div><a class="console-link" href="research.html#results">Research results ↗</a></header>'
+    records = records or []
+    from lib.contributions import build_index
+    ranking = build_index(snapshot, records, output / 'assets/contribution-index.json')
+    body = ('<main class="site-main research-home research-news" data-curated-home>'
+        '<header class="page-heading curated-heading"><div><p class="eyebrow">PROBLEMS &amp; CONTRIBUTIONS</p>'
+        '<h1>Conjectures</h1><p class="lede">The questions we resolve. The ideas we contribute. What comes next.</p>'
+        '</div><a class="console-link" href="research.html">Papers &amp; preprints ↗</a></header>'
+        '<nav class="news-index" aria-label="Conjecture sections"><a href="#results">Contributions</a>'
+        '<a href="#source-questions">Open questions</a><a href="#millennium-entry">Future pursuits</a></nav>'
+        + render_result_index(result_document or document, snapshot, records, ranking, feed)
         + render_collection(catalog, snapshot, sources['questions']) + millennium_entry(output) + '</main>')
     result = common_shell(replace_main(document, body))
     return result.replace('</head>', '<link rel="stylesheet" href="assets/conjecture-collection.css">'
+        '<link rel="stylesheet" href="assets/research-index.css">'
+        '<script type="module" src="assets/research-index.mjs"></script>'
         '<script type="module" src="assets/conjecture-collection.mjs"></script></head>', 1)
 
 
-def apply_reading_views(output: Path, snapshot: dict, records: list):
+def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
     output = Path(output)
+    from lib.living_library import page_shell
+    source = (output / 'research.html').read_text() if (output / 'research.html').exists() else ''
+    if source and not (output / 'conjectures.html').exists():
+        (output / 'conjectures.html').write_text(page_shell('Conjectures', '', '<main></main>', active='Conjectures', appearance='editorial').replace(
+            '</head>', '<link rel="stylesheet" href="assets/research-news.css"></head>'))
     for name, render in [('research.html', lambda d: render_research_groups(d, snapshot, records)),
-                         ('conjectures.html', lambda d: render_conjecture_groups(d, snapshot, output))]:
+                         ('conjectures.html', lambda d: render_conjecture_groups(d, snapshot, output, source, records, feed))]:
         path = output / name
         if path.exists():
             path.write_text(render(path.read_text()), encoding='utf-8')
+    from lib.contributions import DIMENSIONS
+    weights = ''.join(f'<li>{esc(label)}: {weight}%</li>' for label, weight in DIMENSIONS.values())
+    body = ('<main class="site-main research-news ranking-method"><header class="page-heading">'
+            '<h1>How the ranking works</h1></header>'
+            '<p>We rank the significance of a question together with the contribution of its resolution. '
+            'Useful new definitions and reusable methods carry more weight than an isolated theorem or counterexample.</p>'
+            '<ul>' + weights + '</ul>'
+            '<p>Each dimension has a level from 0 to 4, a written reason and linked evidence. '
+            'Scholarly context considers the proposer’s documented work, standing and relevance to the field, '
+            'including verified affiliations. An institution name alone does not establish mathematical importance.</p>'
+            '<p>Problem age is measured from the documented year the question was posed to the year of resolution. '
+            'The levels are 0–1, 2–4, 5–14, 15–39 and 40+ years. '
+            'The age of a source is not evidence of sustained unsuccessful attempts.</p>'
+            '<p>The score is the weighted sum of the selected levels, scaled to 100. '
+            'Complete assessments come first, followed by partial assessments and then unassessed results. '
+            'Within partial assessments we order by evidenced points without filling in missing dimensions. '
+            'Ties use title and stable ID. Selecting several dimensions changes the ranking locally.</p>'
+            '<p>Assessments come from the source release; scores are calculated automatically on each build. '
+            'Missing evidence stays unscored. Publication and collaboration updates do not add ranking points.</p>'
+            '<a href="conjectures.html#results">Back to contributions</a></main>')
+    (output / 'ranking.html').write_text(common_shell(page_shell('How the ranking works', '', body, appearance='editorial')))
     for pattern in ('research/*/index.html', 'results/*/index.html', 'oeis/*/index.html'):
         for path in output.glob(pattern):
             path.write_text(common_shell(path.read_text(), '../../'), encoding='utf-8')

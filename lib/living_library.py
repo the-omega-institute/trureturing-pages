@@ -137,7 +137,12 @@ def parse_problem(text: str, filename: str) -> dict:
     content = {name: "\n".join(lines[item["start"]:item.get("end", len(lines))]).strip() for name, item in sections.items()}
     if any(not value for value in content.values()):
         raise ValueError(f"Empty problem section: {slug}")
-    return {"slug": slug, "title": title, "bibkey": str(meta.get("bibkey", "")), **source, "triage": meta["triage"], "motivation_gids": gids, "sections": content, "source_digest": digest(text.encode()), "literature_status": "not-rechecked", "last_literature_check": None, "route_status": "proposed"}
+    result = {"slug": slug, "title": title, "bibkey": str(meta.get("bibkey", "")), **source, "triage": meta["triage"], "motivation_gids": gids, "sections": content, "source_digest": digest(text.encode()), "literature_status": "not-rechecked", "last_literature_check": None, "route_status": "proposed"}
+    if "contribution_assessment" in meta:
+        # Preserve source-bound editorial metadata. Its independent validator
+        # cannot quarantine a mathematically valid dossier or resolution.
+        result["contribution_assessment"] = meta["contribution_assessment"]
+    return result
 
 
 def source_material(repo: Path, commit: str) -> tuple[list[dict], dict[str, str], list[dict]]:
@@ -298,7 +303,7 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     body = f'''<main class="site-main research-home"><header class="page-heading"><div><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH FRONTIER</p><h1>Conjectures</h1><p class="lede">Open questions. Missing bridges. The next proof.</p></div><a class="console-link" href="research.html">Research news <i data-lucide="arrow-up-right"></i></a></header><div class="research-stats"><div><strong>{len(problems)}</strong><span>Source-backed dossiers</span></div><div><strong>{len({gid for p in problems for gid in p['motivation_gids'] if gid in nodes})}</strong><span>Released foundations</span></div><div><strong>{snapshot['truth_release_digest'][7:19]}</strong><span>Truth release</span></div></div><div class="research-browser"><aside><label for="research-search">Find a question</label><input type="search" id="research-search" placeholder="Problem, field, or source"><label for="research-triage">Research scope</label><select id="research-triage"><option value="">All targets</option><option value="theorem">Focused target</option><option value="window">Exploratory</option><option value="wall">Long horizon</option></select><p id="research-count" role="status">{len(problems)} dossiers</p><a id="research-clear-node" href="conjectures.html" hidden>All conjectures</a><div class="research-activity"><p class="eyebrow">DEVELOPMENT</p><a href="{repo}/commits/dev/">Daily Lean activity <i data-lucide="arrow-up-right"></i></a><small>Source branch activity / not a Truth release</small></div><a href="library-history.html">Release archive</a></aside><section class="problem-list" aria-label="Research questions">{''.join(rows) or '<p>No research dossiers in this source release.</p>'}<p id="research-empty" hidden>No questions match these filters.</p></section></div></main>'''
     from lib.research_news import render_news
     from lib.research_results import render_followups
-    destinations = '<nav class="conjecture-destinations" aria-label="Open question views"><a class="is-current" href="#open-problems">Open problems</a><a href="research.html#results">Completed results</a><a href="discover.html">Explore connections</a><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">mdBook dossiers <i data-lucide="arrow-up-right"></i></a></nav>'
+    destinations = '<nav class="conjecture-destinations" aria-label="Open question views"><a class="is-current" href="#open-problems">Open problems</a><a href="conjectures.html#results">Completed results</a><a href="discover.html">Explore connections</a><a href="https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html">mdBook dossiers <i data-lucide="arrow-up-right"></i></a></nav>'
     body = body.replace('</header>', '</header>' + destinations, 1)
     body = body.replace('</main>', render_followups(snapshot) + '</main>', 1)
     body = body.replace('class="research-browser"', 'id="open-problems" class="research-browser"', 1)

@@ -1,4 +1,18 @@
 /* Research index: source content stays intact inside each disclosure. */
+.ranking-controls { margin:20px 0 0; padding:16px 0; border-bottom:1px solid #d6ddd8; font-size:13px; }
+.ranking-controls > summary { cursor:pointer; color:#315e43; }
+.ranking-controls fieldset { display:flex; flex-wrap:wrap; gap:10px 20px; border:0; padding:18px 0 8px; }
+.ranking-controls legend { padding-top:14px; font-weight:600; }
+.ranking-controls label { display:flex; align-items:center; gap:7px; min-height:36px; cursor:pointer; }
+.ranking-controls input { accent-color:#285d4d; width:16px; height:16px; }
+.ranking-controls p { max-width:85ch; line-height:1.7; color:#53635b; }
+.result-score { color:#53635b; font:11px/1.5 Arial,sans-serif; }
+.research-followups { border-bottom:1px solid #cdd7d0; padding:8px 0; }
+.research-followups p,.contribution-story { font-size:14px; line-height:1.8; overflow-wrap:anywhere; }
+.assessment-evidence { font-size:13px; padding:12px 0; }
+.assessment-evidence li { margin:16px 0; }
+.research-publications .news-heading { grid-template-columns:1fr; gap:0; padding-bottom:12px; }
+.ranking-method { max-width:780px; padding:50px 24px; line-height:1.8; }
 .research-news { --research-accent:#285d4d; --research-soft:#e8eeeb; }
 .research-news [hidden] { display:none !important; }
 .research-editorial .research-news { max-width:1220px; padding-top:58px; }

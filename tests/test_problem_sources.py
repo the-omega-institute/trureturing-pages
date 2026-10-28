@@ -159,7 +159,7 @@ class ProblemSourceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp)
             living_library.render_research(snapshot, output, {"path": "data/example.json", "digest": "sha256:" + "b" * 64})
-            self.assertIn(f'<a href="{problem["url"]}">Original question</a>', (output / "research.html").read_text())
+            self.assertIn(f'<a href="{problem["url"]}">Original question</a>', (output / "conjectures.html").read_text())
 
     def test_generic_url_at_doi_host_does_not_claim_a_doi_identifier(self):
         url = "https://doi.org/about"

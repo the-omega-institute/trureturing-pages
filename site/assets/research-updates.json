@@ -1,0 +1,37 @@
+{
+  "schema_version": "research-updates.v1",
+  "updated_at": "2026-10-28T00:00:00Z",
+  "publications": [
+    {
+      "id": "padovan",
+      "title": "A Padovan-automatic description of a nested recurrence",
+      "authors": "Benoit Cloitre, Haobo Ma, Wenlin Zhang",
+      "date": "2026-09-27",
+      "url": "https://arxiv.org/abs/2609.33421",
+      "venue": "arXiv:2609.33421",
+      "summary": "A finite-state description of the nested recurrence OEIS A076502 in the greedy Padovan numeration system. The paper proves the exact floor-offset set {−1, 0, 1, 2}, bounded discrepancy, and an explicit 26-letter morphic presentation of the first-difference word with least balance constant four.",
+      "status": "preprint",
+      "problem_ids": [
+        "oeis-a076502-nested-recurrence-floor-refutation"
+      ],
+      "topic": "a Padovan-automatic description of the nested recurrence",
+      "evidence_url": "https://arxiv.org/abs/2609.33421"
+    },
+    {
+      "id": "subquorum",
+      "title": "Sub-quorum colorings of graphs",
+      "authors": "Haobo Ma, Rafik Sahbi, Wenlin Zhang",
+      "date": "2026-09-20",
+      "url": "https://arxiv.org/abs/2609.25128",
+      "venue": "arXiv:2609.25128 / v4 updated 10 October 2026",
+      "summary": "Structural bounds, algorithms and exact values for partial vertex colorings in which each colored vertex has a weak majority of its colored closed neighborhood in its own color. Results include a linear-time algorithm on trees, NP-completeness on bipartite graphs, exact rectangular-grid values for every fixed width from two through eleven, and the hypercube identity ψsq(Qn) = β2(Qn) = 2^(n−1) for every n ≥ 2.",
+      "status": "preprint",
+      "problem_ids": [
+        "sahbi-hypercube-subquorum"
+      ],
+      "topic": "sub-quorum colorings of graphs",
+      "evidence_url": "https://arxiv.org/abs/2609.25128"
+    }
+  ],
+  "collaborations": []
+}

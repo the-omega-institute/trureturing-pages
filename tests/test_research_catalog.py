@@ -145,7 +145,7 @@ class ResearchCatalogTests(unittest.TestCase):
             shutil.copytree(ASSETS.parent, out)
             render_research(self.snapshot, out, {"path": "data/library/current.json.gz",
                                                   "digest": "sha256:" + "a" * 64})
-            research = (out / "research.html").read_text()
+            research = (out / "conjectures.html").read_text()
             index = json.loads((out / "api/v1/index.json").read_text())
             self.assertEqual(research.count('class="news-result"'), 164)
             self.assertEqual({r["id"].removeprefix("result:") for r in index["records"]
@@ -176,7 +176,7 @@ class ResearchCatalogTests(unittest.TestCase):
             self.assertEqual(record['scope'], scope)
             family = json.loads((out / 'assets/research-catalog.json').read_text())['families'][0]
             self.assertEqual(family['summary'], expected)
-            parsed = Fragments((out / 'research.html').read_text())
+            parsed = Fragments((out / 'conjectures.html').read_text())
             row = Fragments(parsed.raw(parsed.select(id='resolved-' + slug)[0]))
             preview = row.raw(row.select(cls='result-excerpt')[0])
             self.assertEqual(preview, '<span class="result-excerpt">' + expected + '</span>')
