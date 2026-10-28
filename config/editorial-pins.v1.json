@@ -1,0 +1,255 @@
+{
+  "schema_version": "editorial-pins.v1",
+  "reviewed": "2026-10-28",
+  "policy": "Source-bound editorial reading order, distinct from numerical scores. Direct quotations preserve source wording with whitespace normalization only; paraphrases are labeled. Changed question, proof account or result scope disables the pin until reviewed. Inclusion does not assert novelty or author endorsement.",
+  "pins": [
+    {
+      "id": "erdos-1985-consecutive-product-squarefree-factor-refutation",
+      "reason": "Erdős proposes, in print, that 23 may be the only counterexample; a second one is exhibited and kernel-checked.",
+      "headline": "Erdős suggested 23 might be the only counterexample. 47 is another.",
+      "venue": "Rocky Mountain J. Math. 15 (1985)",
+      "quote": "I would not be surprised if 23 is the only counterexample.",
+      "quote_by": "P. Erdős",
+      "answer": "47",
+      "binding": "25edc3e6048f00677a9c550f5f522737cdb046f85115304f22ed7d64885315ec",
+      "source_url": "https://doi.org/10.1216/RMJ-1985-15-2-353",
+      "scope": "Only the proposed uniqueness of 23 is refuted; conjecture (22) and the classification of all counterexamples remain outside this result.",
+      "locator": "p. 361",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "Erdős 推测 23 可能是唯一反例。47 也是。",
+        "quote": "如果 23 是唯一的反例，我也不会感到意外。",
+        "answer": "47",
+        "scope": "仅推翻“23 是唯一反例”的推测；不涉及猜想 (22)，也不穷尽所有反例。"
+      }
+    },
+    {
+      "id": "benjamini-helman-tov-zhukovskii-2023-noisy-voter-repetition-variance",
+      "reason": "An explicit unanswered question in the Annals of Probability, answered under the source model and the stated graph hypotheses.",
+      "headline": "The noisy voter model: the repetition variance is never sublinear",
+      "venue": "Annals of Probability 51 (2023)",
+      "quote": "May Var(ζ₁ + … + ζ_t) be sublinear? We do not have an answer.",
+      "quote_by": "I. Benjamini, H. Helman Tov, M. Zhukovskii",
+      "answer": "No",
+      "binding": "aad9b7d99065c3407f89deb48ee089d7a3a9302dc1bf6ef86aa2e1ce902c7f78",
+      "source_url": "https://doi.org/10.1214/23-AOP1637",
+      "scope": "Synchronous noisy voter dynamics on connected locally finite simple graphs with a neighbor at every vertex, fair independent opinions, noise 0 < ε < 1 and positive lag.",
+      "locator": "§2.2 · arXiv:2207.01224v2, p. 6",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "含噪投票模型：重复事件的方差不可能次线性增长",
+        "quote": "Var(ζ₁ + … + ζ_t) 能否次线性增长？我们没有答案。",
+        "answer": "不能",
+        "scope": "适用于同步含噪投票模型：连通局部有限简单图、每个顶点均有邻居、独立公平意见、噪声 0 < ε < 1，且观察时滞为正。"
+      }
+    },
+    {
+      "id": "baumer-2024-triangle-symmetric-local-quarter",
+      "reason": "The open problem that closes the paper; answered affirmatively with an explicit local model.",
+      "headline": "A fully symmetric local triangle model beats 1/4",
+      "venue": "Phys. Rev. A 111 (2025)",
+      "quote": "Open problem. Does there exist a distribution p(A,B,C) that is local in the triangle network and fully symmetric such that p(A=B=C) > 1/4?",
+      "quote_by": "E. Bäumer, V. Gitton, T. Kriváchy, N. Gisin, R. Renner",
+      "answer": "Yes: 41/144",
+      "binding": "a6e7b64d0399da026a08b9ee6456cc4a4061692b04d36aeb41defa793d67de34",
+      "source_url": "https://doi.org/10.48550/arXiv.2405.08939",
+      "scope": "Four outcomes per party, independent local triangle sources, and symmetry under party permutations and joint outcome relabelings. The witness refutes the universal 1/4 bound.",
+      "locator": "Conclusion · arXiv:2405.08939v1",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "完全对称的局域三角网络模型突破 1/4",
+        "quote": "开放问题：是否存在三角网络中的局域且完全对称的分布 p(A,B,C)，使 p(A=B=C) > 1/4？",
+        "answer": "能：41/144",
+        "scope": "每方四种输出、相互独立的局域三角网络源，并满足参与方置换和共同输出重标记对称性。该构造推翻普遍的 1/4 上界。"
+      }
+    },
+    {
+      "id": "hiai-mosonyi-hayashi-2009-group-invariant-psi-differentiability-refutation",
+      "reason": "The authors call it the main open question of their paper; refuted by an explicit four-level faithful pair.",
+      "headline": "Hiai, Mosonyi and Hayashi’s main open question: ψ need not be differentiable",
+      "venue": "J. Math. Phys. 50 (2009)",
+      "quote": "The main open question of the present work is to show that this is indeed the case.",
+      "quote_by": "F. Hiai, M. Mosonyi, M. Hayashi",
+      "answer": "No: a corner at s = ½",
+      "binding": "b87b02b840a5139bc963389c87db5a577d1e37b7a3f5c5b136ff28e4d7c01a32",
+      "source_url": "https://doi.org/10.1063/1.3234186",
+      "scope": "A finite-group counterexample with faithful states and the stated asymptotic convergence premise; the question is differentiability of ψ on (0, 1).",
+      "locator": "§7 · arXiv:0904.0704v2",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "Hiai、Mosonyi 与 Hayashi 的主要开放问题：ψ 可以不可微",
+        "quote": "本文的主要开放问题是证明情况确实如此。",
+        "answer": "不能：s = ½ 处出现尖点",
+        "scope": "在有限群、忠实态及所声明的渐近收敛前提下给出反例；回答的是 ψ 在 (0, 1) 上的可微性问题。"
+      }
+    },
+    {
+      "id": "emeriau-2020-torpedo-perfect-classical",
+      "reason": "A named conjecture in PRX Quantum, checked by the authors for 5 ≤ d ≤ 23; proved for every d ≥ 5.",
+      "headline": "The Torpedo Game has a perfect classical strategy in every dimension d ≥ 5",
+      "venue": "PRX Quantum 3 (2022)",
+      "quote": "Conjecture: θ^C_{d≥5} = 1.",
+      "quote_by": "P.-E. Emeriau, M. Howard, S. Mansfield",
+      "answer": "Proved for every d ≥ 5",
+      "binding": "b669524b031cd14ca2f3ead8693787797a000c4f4d5e1c559cf5e132efc863f0",
+      "source_url": "https://doi.org/10.1103/PRXQuantum.3.020307",
+      "scope": "Perfect classical winning probability for the dimension-d Torpedo Game, for every integer d ≥ 5; the source had checked 5 ≤ d ≤ 23.",
+      "locator": "Conjecture · arXiv:2007.15643v2",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "每个 d ≥ 5 的 Torpedo Game 都存在完美经典策略",
+        "quote": "猜想：θ^C_{d≥5} = 1。",
+        "answer": "对所有 d ≥ 5 成立",
+        "scope": "对每个整数 d ≥ 5，d 维 Torpedo Game 的经典策略胜率均可达到 1；原文验证的范围为 5 ≤ d ≤ 23。"
+      }
+    },
+    {
+      "id": "van-dam-gill-grunwald-2005-two-singlet-strength",
+      "reason": "Conjecture 5 in IEEE Transactions on Information Theory; proved for all three statistical-strength conventions in the paper.",
+      "headline": "Two singlets are more than twice as strong as CHSH",
+      "venue": "IEEE Trans. Inf. Theory 51 (2005)",
+      "quote": "Can a 2×4×4 experiment using joint measurements on pairs of Bell singlets be more than twice as strong as CHSH?",
+      "quote_by": "W. van Dam, R. D. Gill, P. D. Grünwald",
+      "answer": "Yes",
+      "binding": "7f5bf97e55ff5fcb233f99deda037bba0a9588d8c54b592c976bf7d521283807",
+      "source_url": "https://doi.org/10.1109/TIT.2005.851738",
+      "scope": "Statistical strength means KL divergence in bits, under the uniform, product and correlated setting distributions defined in the source.",
+      "locator": "Conjecture 5 · §VI.D, p. 11",
+      "quote_kind": "paraphrase",
+      "source_excerpt": "There is an experiment on pairs of Bell singlets, of the $2\\times4\\times4$ type, more than twice as strong as CHSH, and involving joint measurements on the pairs.",
+      "zh-CN": {
+        "headline": "两对单态的统计强度超过 CHSH 的两倍",
+        "quote": "是否存在使用两对 Bell 单态的 2×4×4 型联合测量实验，其统计强度超过 CHSH 的两倍？",
+        "answer": "是",
+        "scope": "“统计强度”指以比特计的 KL 散度，采用原文定义的均匀、乘积及相关测量设置分布。"
+      }
+    },
+    {
+      "id": "milekhin-adamska-preskill-2025-spacetime-schatten-subadditivity",
+      "reason": "Conjecture 1 of a 2025 paper, supported there by numerical evidence; refuted by a three-qubit witness.",
+      "headline": "Spacetime density matrices violate Schatten subadditivity",
+      "venue": "arXiv:2502.12240 (2025)",
+      "quote": "Conjecture 1 For any T_AB on a finite-dimensional H_A ⊗ H_B and p > 1: 1 + ||T_AB||_p ≥ ||Tr_A T_AB||_p + ||Tr_B T_AB||_p.",
+      "quote_by": "A. Milekhin, Z. Adamska, J. Preskill",
+      "answer": "No: a witness at p = 2",
+      "binding": "5c12298e9cbc659c02c2c9f644f9af40bc9a1ce4723ba24399d8347e05b20f48",
+      "source_url": "https://arxiv.org/abs/2502.12240v2",
+      "scope": "A three-qubit witness at Schatten exponent p = 2 refutes Conjecture 1 for spacetime density matrices.",
+      "locator": "Conjecture 1 · arXiv:2502.12240v2",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "时空密度矩阵不满足 Schatten 次可加性",
+        "quote": "猜想 1：对有限维 H_A ⊗ H_B 上的任意 T_AB 以及 p > 1，有 1 + ||T_AB||_p ≥ ||Tr_A T_AB||_p + ||Tr_B T_AB||_p。",
+        "answer": "不成立：p = 2 的反例",
+        "scope": "一个 Schatten 指数 p = 2 的三量子比特反例推翻时空密度矩阵的猜想 1。"
+      }
+    },
+    {
+      "id": "li-theil-harrow-chuang-2026-purify-and-clone-optimality",
+      "reason": "An explicit optimality conjecture; refuted in dimension two under the preregistered one-site reading.",
+      "headline": "Purify-and-clone is not optimal beyond m = n",
+      "venue": "arXiv:2605.21457 (2026)",
+      "quote": "This channel is optimal for m ≤ n (see Ref. [S2]), and we conjecture that it is also optimal for m > n.",
+      "quote_by": "Z. Li, E. Theil, A. W. Harrow, I. Chuang",
+      "answer": "No, already at d = 2",
+      "binding": "5a3f02e043fffdfcbb391b6fec0dd924828fae5dde5f24e20eb24a1dcf08682c",
+      "source_url": "https://doi.org/10.48550/arXiv.2605.21457",
+      "scope": "The counterexample has n = 1, m = 2 and d = r = 2, under the one-site worst-case squared-infidelity reading.",
+      "locator": "§S3 A · arXiv:2605.21457v2, p. 9",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "Purify-and-clone 在 m > n 时并非总是最优",
+        "quote": "该信道在 m ≤ n 时最优（见参考文献 [S2]），我们猜想它在 m > n 时也最优。",
+        "answer": "不成立，d = 2 即有反例",
+        "scope": "反例取 n = 1、m = 2、d = r = 2，采用单站点最坏情形平方不保真度的解读。"
+      }
+    },
+    {
+      "id": "hiai-ruskai-2015-cq-contraction-coefficients",
+      "reason": "Conjecture 6.3 of Hiai and Ruskai; all three equalities proved on the full stated domain.",
+      "headline": "Hiai and Ruskai's exact contraction coefficients hold",
+      "venue": "J. Math. Phys. · arXiv:1508.03551",
+      "quote": "Conjecture 6.3. Equality holds in (45c) through (45e) above.",
+      "quote_by": "F. Hiai, M. B. Ruskai",
+      "answer": "All three equalities hold",
+      "binding": "17012c7b1c0c4fea2ab65b8a895520525e5436f5df197cdd0faea9f1578d7f66",
+      "source_url": "https://doi.org/10.1063/1.4936215",
+      "scope": "All three equalities (45c–45e) for the specified non-unital qubit CQ channel, on the full parameter domain stated in Conjecture 6.3.",
+      "locator": "Conjecture 6.3 · arXiv:1508.03551v1, p. 19",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "Hiai 与 Ruskai 猜想的三个精确收缩系数成立",
+        "quote": "猜想 6.3：上述 (45c) 至 (45e) 中等号成立。",
+        "answer": "三个等式全部成立",
+        "scope": "对猜想 6.3 所述非保幺的量子比特 CQ 信道，在完整参数范围内证明 (45c–45e) 三个等式。"
+      }
+    },
+    {
+      "id": "koutschan-krattenthaler-schlosser-2024-ten-ten-determinants",
+      "reason": "Conjecture 23, equation (10.10): the entire equality chain is proved for every n ≥ 3.",
+      "headline": "Koutschan, Krattenthaler and Schlosser's equation (10.10) is proved",
+      "venue": "J. Symbolic Comput. · arXiv:2401.08481",
+      "quote": "Moreover, the following identities are conjectured to hold for all n ≥ 3:",
+      "quote_by": "C. Koutschan, C. Krattenthaler, M. Schlosser",
+      "answer": "(10.10) holds for all n ≥ 3",
+      "binding": "dc7a6760fd9701754bf24a7bf1c445f3354c3586e2f68e9bd69fedb8e5498094",
+      "source_url": "https://doi.org/10.1016/j.jsc.2024.102352",
+      "scope": "This result proves the complete chain of equalities in equation (10.10), for all n ≥ 3. The other equations of Conjecture 23 are separate results.",
+      "locator": "Conjecture 23 · equation (10.10)",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "Koutschan、Krattenthaler 与 Schlosser 的等式 (10.10) 得证",
+        "quote": "此外，我们猜想以下恒等式对所有 n ≥ 3 成立：",
+        "answer": "(10.10) 对所有 n ≥ 3 成立",
+        "scope": "本条证明所有 n ≥ 3 时等式 (10.10) 的完整等式链；猜想 23 中的其他等式属于独立成果。"
+      }
+    },
+    {
+      "id": "erdos-1989-mahler-binary-digit-square-refutation",
+      "reason": "Mahler's suggested uniqueness, as recorded by Erdős; refuted by an explicit coprime square. Note: 11677 also appears in OEIS A342546 under a different framing.",
+      "headline": "Mahler's 0/1-digit square was not unique",
+      "venue": "Erdős on Mahler (1989)",
+      "quote": "In fact, the only nontrivial solution he found was 7^3 + 7^2 + 7 + 1 = 20^2, and perhaps there are no others",
+      "quote_by": "P. Erdős, recalling K. Mahler",
+      "answer": "521² = 111101₁₂",
+      "binding": "fba92801a9208ebe3158f8da70d4cb0a58ad06318de52ff6ea227c249202af50",
+      "source_url": "https://users.renyi.hu/~p_erdos/1989-34.pdf",
+      "scope": "A counterexample to the suggested uniqueness of a nontrivial coprime 0/1-digit square, as recorded by Erdős; not Mahler’s fixed-base finiteness conjecture.",
+      "locator": "p. 2",
+      "quote_kind": "verbatim",
+      "zh-CN": {
+        "headline": "Mahler 找到的 0/1 数字平方并不唯一",
+        "quote": "实际上，他找到的唯一非平凡解是 7^3 + 7^2 + 7 + 1 = 20^2，也许没有其他解了",
+        "answer": "521² = 111101₁₂",
+        "scope": "反驳的是 Erdős 记述的非平凡互素 0/1 数字平方唯一性推测，并非 Mahler 关于固定底数的有限性猜想。"
+      }
+    },
+    {
+      "id": "chen-kato-brandao-2020-trace-norm-cmi-contraction",
+      "reason": "Conjecture III.2 of Chen, Kato and Brandão; refuted by a qubit channel with local contraction ratio at most 1/√2.",
+      "headline": "No uniform contraction for trace-norm conditional mutual information",
+      "venue": "arXiv:2010.14682 (2020)",
+      "quote": "Must a locally strictly contracting channel uniformly contract trace-norm conditional mutual information?",
+      "quote_by": "C.-F. Chen, K. Kato, F. G. S. L. Brandão",
+      "answer": "No such η",
+      "binding": "a49464fb3e85f515a581989808f9948ec1796fe5f7dc13688739f3f4e1ac1b02",
+      "source_url": "https://arxiv.org/abs/2010.14682v3",
+      "scope": "A qubit channel with local trace-norm contraction ratio at most 1/√2 refutes the claimed uniform contraction of trace-norm conditional mutual information.",
+      "locator": "Conjecture III.2 · arXiv:2010.14682v3, p. 17",
+      "quote_kind": "paraphrase",
+      "source_excerpt": "For any channel $\\mathcal E: C \\rightarrow C'$ with local contraction ratio $\\eta_{1,C}:=\\sup_{\\rho_C,\\rho'_C}\\frac{\\lVert\\mathcal E_C[\\rho_{C}]-\\mathcal E_C[\\rho'_{C}]\\rVert_1 }{\\lVert\\rho_{C}-\\rho'_{C}\\rVert_1} <1$ There exists a global constant $\\eta < 1$ such that for any tripartite system $ABC$ and any state $\\rho_{ABC}$, it holds that $I_1(A:C'|B)_{\\mathcal E(\\rho)} \\le \\eta I_1(A:C|B)_\\rho$.",
+      "zh-CN": {
+        "headline": "迹范数条件互信息不存在所猜想的统一收缩",
+        "quote": "局部严格收缩的信道是否也会统一收缩迹范数条件互信息？",
+        "answer": "不存在这样的 η",
+        "scope": "一个局部迹范数收缩率至多为 1/√2 的量子比特信道，推翻迹范数条件互信息的统一收缩断言。"
+      }
+    }
+  ],
+  "excluded": [
+    {
+      "id": "erdos-1979-exactly-one-divisor-unimodality",
+      "reason": "Already disproved by S. Cambie (arXiv:2501.10333, 2025); erdosproblems.com #692. The release re-verifies a known answer and is not headlined."
+    }
+  ]
+}

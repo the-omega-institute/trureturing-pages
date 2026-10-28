@@ -307,6 +307,14 @@
 .discovery-diagram text { fill:#335a49; font:13px Arial,sans-serif; }
 .discovery-diagram figcaption { color:#607468; font-size:11px; line-height:1.6; }
 .discovery-story { min-width:0; }
+/* Editorial pins: the asker's sentence, then the answer, in the existing story palette. */
+.discovery-venue { margin:0 0 14px; color:#557368; font:11px/1.5 ui-monospace,monospace; letter-spacing:.02em; overflow-wrap:anywhere; }
+.discovery-quote { margin:0 0 18px; padding:2px 0 2px 18px; border-left:2px solid #afc1b4; }
+.discovery-quote p { margin:0; color:#33433c; font:italic 22px/1.45 Georgia,'Times New Roman',serif; overflow-wrap:anywhere; }
+.discovery-quote cite { display:block; margin-top:8px; color:#61736a; font:normal 12px/1.5 Arial,sans-serif; }
+.discovery-answer { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; margin:0 0 20px; }
+.discovery-answer span { color:#61736a; font-size:10px; text-transform:uppercase; letter-spacing:.07em; }
+.discovery-answer strong { color:#285b4a; font:44px/1.05 Georgia,'Times New Roman',serif; letter-spacing:-.025em; overflow-wrap:anywhere; }
 .research-story-page .highlight-card h3 { margin:0 0 14px; font:34px/1.17 Georgia,'Times New Roman',serif; letter-spacing:-.025em; text-wrap:balance; }
 .discovery-question { margin:0 0 14px; color:#5e6e65; font-size:15px; line-height:1.65; }
 .discovery-finding { color:#254f40; font-size:16px; line-height:1.8; margin:0 0 20px; font-weight:550; }
@@ -334,6 +342,8 @@
 }
 @media(max-width:620px) {
  .research-story-page .highlight-card { grid-template-columns:minmax(0,1fr); gap:22px; padding:27px 0 32px; }
+ .discovery-quote p { font-size:19px; }
+ .discovery-answer strong { font-size:34px; }
  .discovery-context { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 15px; padding-left:14px; }
  .discovery-context .eyebrow { grid-column:1/-1; margin:0 0 3px; }
  .discovery-contribution { font-size:22px; }
@@ -347,4 +357,60 @@
  .result-story-expanded { grid-template-columns:minmax(0,1fr); gap:16px; }
  .research-news .result-summary .result-excerpt { font-size:13px; -webkit-line-clamp:3; }
  .result-news-label { grid-column:1/-1; }
+}
+
+/* Editorial questions and answers, with scope visible before the audit layer. */
+.featured-discoveries { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.research-news .editorial-card { display:flex; flex-direction:column; gap:0; min-width:0; padding:26px; border:1px solid #cbd6cf; background:#f4f5f0; }
+.editorial-card-top { display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; }
+.editorial-card-top .eyebrow { color:#304e42; font-size:11px; line-height:1.6; }
+.editorial-choice { font-size:10px; color:#52675a; }
+.research-news .discovery-quote { margin:22px 0 0; padding:0; border:0; }
+.research-news .discovery-quote .quote-label { font:10px/1.6 ui-monospace,monospace; color:#5b6b61; margin:0 0 10px; }
+.research-news .discovery-quote blockquote { margin:0; padding:0; border:0; font:20px/1.5 Georgia,serif; }
+.research-news .discovery-quote blockquote p { margin:0 0 12px; }
+.research-news .discovery-quote cite { display:block; font:12px/1.6 Arial,sans-serif; color:#516359; }
+.research-news .editorial-card .discovery-answer { display:grid; gap:7px; padding:24px 0 18px; margin:0; }
+.research-news .editorial-card .discovery-answer span { font:11px/1.5 ui-monospace,monospace; color:#476153; }
+.research-news .editorial-card .discovery-answer strong { font:clamp(30px,3.6vw,53px)/1.08 Georgia,serif; letter-spacing:-.035em; color:#285d4d; overflow-wrap:anywhere; }
+.research-news .editorial-card h3 { font:20px/1.4 Georgia,serif; margin:0 0 12px; }
+.editorial-card h3 a { color:inherit; text-decoration:none; }
+.editorial-scope { font-size:13px; line-height:1.75; color:#465b50; margin:0 0 20px; }
+.research-news .editorial-card .news-links { margin-top:auto; flex-wrap:wrap; gap:12px; font-size:12px; }
+.verification-link { color:#285d4d; }
+.editorial-details, .verification-details { border-top:1px solid #ced9d1; margin-top:20px; padding-top:14px; font-size:13px; line-height:1.7; }
+.editorial-details summary,.verification-details summary { cursor:pointer; color:#355846; }
+.editorial-details .story-paragraph { font-size:13px; }
+.question-authors { border-top:1px solid #cbd6cf; border-bottom:1px solid #cbd6cf; padding:22px 0; margin:0 0 35px; }
+.question-authors .eyebrow { font-size:10px; color:#516359; margin:0 0 12px; }
+.question-authors > div { display:flex; flex-wrap:wrap; gap:10px 23px; }
+.question-authors a { font:14px/1.6 Georgia,serif; color:#355846; text-decoration:none; }
+.question-authors a:hover { text-decoration:underline; }
+.research-hero-mark p { font:16px/1.6 Georgia,serif; color:#355846; }
+.research-hero-mark a { font-size:12px; }
+.more-milestones > .editorial-card { margin:18px 0; }
+.curated-group-heading { grid-column:1/-1; font:25px/1.4 Georgia,serif; border-top:1px solid #cbd6cf; padding-top:22px; margin:20px 0 0; }
+.curated-status { color:#516359; font:11px/1.5 ui-monospace,monospace; }
+@media(max-width:1000px) {
+ .featured-discoveries { grid-template-columns:1fr; }
+ .research-news .editorial-card .discovery-answer strong { font-size:44px; }
+}
+@media(max-width:540px) {
+ .research-news .editorial-card { padding:22px 18px; }
+ .research-news .discovery-quote blockquote { font-size:21px; }
+ .question-authors a { font-size:13px; }
+}
+
+.research-story-page .news-heading h1 { max-width:none; font-size:60px; }
+.research-story-page .news-heading { align-items:center; padding-bottom:24px; }
+.research-story-page .news-heading .news-lede { max-width:40ch; }
+.research-hero-mark { grid-template-columns:1fr; gap:8px; }
+.research-hero-mark strong { font-size:54px; }
+.research-hero-mark p { margin:8px 0; }
+.research-news .editorial-card { grid-column:auto; }
+@media(max-width:620px) {
+ .research-story-page .news-heading h1 { font-size:43px; }
+ .research-hero-mark { grid-template-columns:auto 1fr; }
+ .research-hero-mark p,.research-hero-mark a { grid-column:1/-1; }
+ .research-hero-mark strong { font-size:42px; }
 }

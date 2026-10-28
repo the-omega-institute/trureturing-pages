@@ -95,7 +95,8 @@ def build_milestones(snapshot, records, ranking, destination=None):
                      'date': record.get('date'),
                      'url': 'conjectures.html#resolved-' + item['id'],
                      'story': result_story(problem, record, item, authored),
-                     'input_digest': item['input_digest']})
+                     'input_digest': item['input_digest'],
+                     **({'pin': item['editorial_pin']} if item.get('editorial_pin') else {})})
     payload = {'schema_version': 'research-milestones.v1', 'ranking_policy': ranking['schema_version'],
                'source_commit': ranking['source_commit'],
                'truth_release_digest': snapshot.get('truth_release_digest'),

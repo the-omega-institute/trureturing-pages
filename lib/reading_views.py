@@ -251,8 +251,26 @@ def story_paragraphs(story, *, compact=False):
                    for key, label in fields if story.get(key))
 
 
+def editorial_question(pin):
+    """Translated quotations are labeled; a paraphrase never gains quotation marks."""
+    direct = pin.get('quote_kind') == 'verbatim'
+    label = 'Source excerpt' if direct else 'The question · paraphrased'
+    text = '“' + pin['quote'] + '”' if direct else pin['quote']
+    return (f'<div class="discovery-quote"><p class="quote-label">{label}</p>'
+            f'<blockquote><p>{esc(text)}</p><cite>{esc(pin["quote_by"])}</cite></blockquote></div>')
+
+
+def editorial_names(ranking):
+    names = [(item['editorial_pin'], item['id']) for item in ranking['results'] if item.get('editorial_pin')]
+    if not names:
+        return ''
+    return ('<nav class="question-authors" aria-label="Questions posed by"><p class="eyebrow">Questions posed by</p>'
+            '<div>' + ''.join(f'<a href="conjectures.html#resolved-{esc(identity)}">{esc(pin["quote_by"])}</a>' for pin, identity in names)
+            + '</div></nav>')
+
+
 def research_highlights(snapshot, records, ranking, limit=None, feed=None, milestones=None):
-    """Every threshold-qualified result appears; no top-N padding below threshold."""
+    """Reviewed selections and threshold-qualified results share one news feed."""
     from lib.contribution_stories import build_milestones
     from lib.result_highlights import result_highlight
     from lib.research_updates import EMPTY
@@ -270,14 +288,32 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
         date = (f'<p class="discovery-history"><span>{esc(history["label"])}</span><strong>{esc(history["value"])}</strong></p>') if history else ''
         person = f'<p class="discovery-person">{esc(highlight["person"])}</p>' if highlight['person'] else ''
         source = record.get('source_url', '')
+        pin = news.get('pin') or {}
+        if pin:
+            cards.append(f'<article class="highlight-card editorial-card" id="news-{esc(news["id"])}" data-milestone-id="{esc(news["id"])}">'
+                f'<div class="editorial-card-top"><span class="eyebrow">{esc(pin["venue"])}</span><span class="editorial-choice">Editorial selection</span></div>'
+                + editorial_question(pin)
+                + f'<p class="discovery-answer"><span>Our answer</span><strong>{esc(pin["answer"])}</strong></p>'
+                + f'<h3><a href="{esc(news["url"])}">{esc(pin["headline"])}</a></h3>'
+                + f'<p class="editorial-scope">{esc(pin["scope"])}</p>'
+                + f'<div class="news-links"><a class="verification-link" href="{esc(news["url"])}">✓ Lean 4 kernel-checked</a>'
+                + f'<a href="{esc(pin["source_url"])}">Original question ↗</a></div>'
+                + '<details class="editorial-details"><summary>Mathematical idea &amp; verification details</summary>'
+                + f'<p>{esc(pin["locator"])}</p>' + story_paragraphs(story)
+                + f'<a href="{esc(news["url"])}">Explore the result ↗</a></details>'
+                + research_followups(news['problem_id'], feed) + '</article>')
+            continue
+        venue = quote = answer = ''
+        headline = story['headline']
         cards.append(f'<article class="highlight-card" id="news-{esc(news["id"])}" data-milestone-id="{esc(news["id"])}">'
             '<aside class="discovery-context">'
-            f'<p class="eyebrow">{esc(discipline_for(record.get("module")))}</p>'
+            f'<p class="eyebrow">{esc(discipline_for(record.get("module")))}</p>{venue}'
             f'<strong class="discovery-contribution">{esc(highlight["headline"])}</strong>{date}{person}'
             f'<span class="highlight-outcome {esc(record["kind"])}">{esc(record["kind"].capitalize())}</span>'
             + discovery_diagram(story.get('diagram')) + '</aside><div class="discovery-story">'
-            f'<h3><a href="{esc(news["url"])}">{esc(story["headline"])}</a></h3>'
-            f'<p class="discovery-question">{esc(story.get("question") or news["title"])}</p>'
+            + quote + answer
+            + f'<h3><a href="{esc(news["url"])}">{esc(headline)}</a></h3>'
+            + ('' if quote else f'<p class="discovery-question">{esc(story.get("question") or news["title"])}</p>')
             + (f'<p class="discovery-finding">{esc(story["finding"])}</p>' if story.get('finding') else '')
             + '<div class="highlight-story">' + story_paragraphs(story, compact=True) + '</div>'
             + research_followups(news['problem_id'], feed)
@@ -287,7 +323,7 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
     if not cards:
         return '<p class="discovery-empty">Research milestones will appear here as results meet the selection criteria. Explore all resolved questions below.</p>'
     featured = ranking['research_news_policy']['featured_count']
-    return ''.join(cards[:featured]) + ('<details class="more-milestones"><summary>More research highlights</summary>' + ''.join(cards[featured:]) + '</details>' if len(cards) > featured else '')
+    return '<div class="featured-discoveries">' + ''.join(cards[:featured]) + '</div>' + ('<details class="more-milestones"><summary>More research highlights</summary>' + ''.join(cards[featured:]) + '</details>' if len(cards) > featured else '')
 
 
 def render_result_index(document, snapshot, records, ranking=None, feed=None):
@@ -312,11 +348,15 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
         problem = problems.get(r.get('problem_slug') or r['id'], {})
         highlight = result_highlight(r, assessed, problem)
         story = result_story(problem, r, assessed, stories)
+        pin = assessed.get('editorial_pin') or {}
+        if pin:
+            story = {**story, 'headline': pin['headline'], 'finding': pin['scope']}
         search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
         search += ' ' + assessed['title'] + ' ' + highlight['headline'] + ' ' + discipline_for(r.get('module'))
         search += ' ' + ' '.join(str(v) for v in story.values())
         if story['origin'] == 'source-bound-editorial':
             search += ' ' + ' '.join(stories[r['id']].get('zh-CN', {}).values())
+        search += ' ' + ' '.join(str(v) for v in pin.values())
         excerpt = story.get('finding', '')
         if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
             excerpt = ''
@@ -328,20 +368,25 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
         impacts = (f'<span class="result-impact-list"><span class="result-impact-field">{esc(discipline_for(r.get("module")))}</span>'
                    f'<span class="result-impact-tag">{esc(highlight["headline"])}</span>{year}{person}'
                    + ('<span class="result-news-label">Research highlight</span>' if assessed.get('research_news', {}).get('eligible') else '') + '</span>')
+        if pin:
+            impacts = (f'<span class="result-impact-list"><span class="result-impact-field">{esc(pin["venue"])}</span>'
+                       f'<span class="result-impact-tag">{esc(pin["answer"])}</span>'
+                       '<span class="result-news-label">Editorial selection</span></span>')
         evidence = ''.join(f'<li><span>{esc(fact["label"])}</span><p>{esc(fact["text"])}</p>'
                            + (f'<a href="{esc(fact["url"])}">Read source ↗</a>' if fact['url'] else '') + '</li>'
                            for fact in highlight['evidence'])
         context = ('<details class="highlight-evidence"><summary>About this highlight</summary>'
                    f'<ul>{evidence}</ul></details>') if evidence else ''
-        formal = (f'<span class="result-formal-title">{esc(assessed["title"])}</span>') if story['headline'] != assessed['title'] else ''
+        formal = (f'<span class="result-formal-title">{esc(assessed["title"])}</span>') if not pin and story['headline'] != assessed['title'] else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
             f'<summary>{impacts}<span class="result-summary"><strong>{esc(story["headline"])}</strong>{preview}{formal}</span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
-            f'<div class="reading-item-body"><div class="result-story-expanded">{story_paragraphs(story)}</div>'
+            f'<div class="reading-item-body">' + (editorial_question(pin) if pin else '')
+            + f'<div class="result-story-expanded">{story_paragraphs(story)}</div>'
             f'{research_followups(r.get("problem_slug") or r["id"], feed)}'
-            f'{articles[r["id"]]}{context}{assessment_details(assessed)}</div></details>')
+            f'<details class="verification-details"><summary>Verification details</summary>{articles[r["id"]]}</details>{context}{assessment_details(assessed)}</div></details>')
     return ('<section id="results" class="contribution-results" data-research-index aria-label="Contributions">'
         '<div class="contribution-toolbar" data-index-controls hidden><label for="results-query">'
         '<span class="visually-hidden">Search results</span>'
@@ -368,6 +413,10 @@ def assessment_details(item):
     if not data:
         return ''
     rows = []
+    if pin := item.get('editorial_pin'):
+        rows.append(f'<li><strong>Editorial pin</strong> · position {pin["position"]}<p>{esc(pin["reason"])}</p></li>')
+    if exclusion := item.get('editorial_exclusion'):
+        rows.append(f'<li><strong>Not headlined</strong><p>{esc(exclusion["reason"])}</p></li>')
     for key, fact in data.items():
         if not fact['level']:
             continue
@@ -400,7 +449,6 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
     papers = parsed.select(id='publications')
     ranking = ranking or build_index(snapshot, records)
     data = overview_data(records)
-    publication_count = len(parsed.select(cls='news-paper'))
     from lib.research_updates import EMPTY
     feed = feed or EMPTY
     projects = ''.join('<article class="collaboration-news"><p class="eyebrow">Research in progress</p>'
@@ -412,14 +460,15 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
     body = ('<main class="site-main research-news research-story-page"><header class="news-heading">'
             '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p>'
             '<h1>Research highlights</h1><p class="news-lede">The questions we resolve. The ideas they make possible.</p>'
-            '<p class="research-intro-note">Exact limits, structural explanations, and the mathematics that connects them. Follow our discoveries into papers and ongoing collaborations.</p>'
+            f'<p class="research-intro-note"><strong>{data["proved"]:,} <span>proofs</span> · {data["refuted"]:,} <span>refutations</span>.</strong> Each result links a question from the literature to its precise formal statement and released Lean evidence.</p>'
             '<nav class="news-links" aria-label="Research destinations">'
             '<a href="conjectures.html#results">See all conjectures ↗</a></nav></div>'
-            f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><strong>{publication_count}</strong><span>publications &amp; preprints</span></div></header>'
+            f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><p>Questions from the literature.<br>Answers checked by Lean.</p><a href="evolution.html">Explore the release history ↗</a></div></header>'
             '<section id="highlights" class="research-highlights" aria-labelledby="research-highlights-title"><div class="research-section-heading"><div><p class="eyebrow">DISCOVERIES &amp; IDEAS</p><h2 id="research-highlights-title">Research news</h2></div><a href="conjectures.html#results">Browse the full result order ↗</a></div>'
             '<div class="highlight-grid">' + research_highlights(snapshot, records, ranking, feed=feed, milestones=milestones) + '</div>'
             '<p class="selection-note"><a href="ranking.html#research-news-selection">How research highlights are selected ↗</a></p></section>'
-            '<section class="research-news-intro" aria-labelledby="research-news-title"><p class="eyebrow">RESEARCH NEWS</p><h2 id="research-news-title">Papers, preprints, and collaborations</h2><p>These public records show where a resolved question turns into a longer research program.</p></section>'
+            + editorial_names(ranking)
+            + '<section class="research-news-intro" aria-labelledby="research-news-title"><p class="eyebrow">RESEARCH NEWS</p><h2 id="research-news-title">Papers, preprints, and collaborations</h2><p>These public records show where a resolved question turns into a longer research program.</p></section>'
             + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
             + ('<section class="collaboration-news-list"><h2>Ongoing collaborations</h2>' + projects + '</section>' if projects else '')
             + '</main>')
@@ -456,9 +505,9 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
         + overview
         + '<section class="resolved-results-heading" aria-labelledby="resolved-results-title"><div><p class="eyebrow">PROBLEMS &amp; CONTRIBUTIONS</p><h2 id="resolved-results-title">Resolved conjectures</h2></div><p>The question, its history, and the idea that resolves it.</p></section>'
         + render_result_index(result_document or document, snapshot, records, ranking, feed)
-        + '<details id="more-questions" class="more-questions"><summary>Open questions &amp; future pursuits</summary>'
+        + '<details id="more-questions" class="more-questions"><summary>Open questions &amp; research directions</summary>'
         + render_collection(catalog, snapshot, sources['questions'], show_source_filters=False)
-        + millennium_entry(output) + '</details></main>')
+        + '</details></main>')
     result = common_shell(replace_main(document, body))
     return result.replace('</head>', '<link rel="stylesheet" href="assets/conjecture-collection.css">'
         '<link rel="stylesheet" href="assets/research-index.css">'
@@ -476,6 +525,12 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
     locale_path = output / 'assets/locales/zh-CN.json'
     if locale_path.exists():
         translations = json.loads(locale_path.read_text())
+        from lib.contributions import load_pins
+        for pin in load_pins()['pins']:
+            for key, translated in pin.get('zh-CN', {}).items():
+                translations[pin[key]] = translated
+                if key == 'quote':
+                    translations['“' + pin[key] + '”'] = '“' + translated + '”'
         for story in load_stories().values():
             translations.update({text: story['zh-CN'][key] for key, text in story['en'].items()
                                  if key != 'diagram' and key in story.get('zh-CN', {})})
@@ -491,21 +546,25 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
             path.write_text(render(path.read_text()), encoding='utf-8')
     body = ('<main class="site-main research-news ranking-method"><header class="page-heading">'
             '<h1>About this order</h1></header>'
-            '<p>Pages automatically orders results using the released problem dossiers and proof explanations. '
+            '<p>A short, source-bound editorial selection leads this collection. The remaining results are automatically ordered using the released problem dossiers and proof explanations. '
             'The order combines the importance of the question with the contribution of its resolution: '
             'conceptual structure, proof methods, mathematical scope, historical context, '
             'documented scholarly background and earlier research.</p>'
             '<p>Problem importance is weighted by the strength of the contribution. A famous proposer '
             'or an old source alone cannot put a small counterexample above a substantial new method. '
             'Source labels such as OEIS do not add or subtract points.</p>'
-            '<p>This is an automatic reading priority based on available evidence. '
+            '<p>The automatic score is a reading aid, not an objective measure of mathematical importance. '
             'A source date does not establish years of unsuccessful work, and an unmatched author '
             'does not acquire an invented affiliation or reputation. Reasons and sources are available '
             'inside each result. Mathematical claims retain their original verified scope.</p>'
             '<p>New releases recalculate this order automatically. Equal scores indicate the same priority band; a stable result identity breaks remaining ties.</p>'
+            '<p id="editorial-pins">A short editorial list places selected results first. Each pin quotes or explicitly paraphrases the source question '
+            'and states its reason inside the result. Pins change only the reading order: scores, scope and evidence are unchanged. '
+            'Changed source or scope disables the selection until reviewed. Known prior answers are excluded from highlights; inclusion alone does not establish priority or author endorsement.</p>'
             '<p>Missing background is recorded as not documented. Scholarly reputation contributes at most five points before the contribution adjustment; it is never estimated from a name or institution.</p>'
             '<section id="research-news-selection"><h2>Research news selection</h2>'
-            f'<p>Results enter Research News at {ranking["research_news_policy"]["minimum_score"]} points or above, '
+            '<p>Research News includes valid editorial selections, plus automatically qualifying results. Scores are not increased to justify a selection.</p>'
+            f'<p>Automatic selection requires {ranking["research_news_policy"]["minimum_score"]} points or above, '
             f'with at least {ranking["research_news_policy"]["minimum_significance"]}/4 in documented problem context '
             f'and {ranking["research_news_policy"]["minimum_contribution_points"]} contribution points. '
             'This is an editorial selection threshold, not a citation metric or a claim of consensus.</p>'
