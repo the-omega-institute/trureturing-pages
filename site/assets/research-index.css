@@ -182,8 +182,7 @@
 .overview-copy { min-width: 0; }
 .overview-copy .eyebrow,
 .resolved-results-heading .eyebrow,
-.research-section-heading .eyebrow,
-.research-news-intro .eyebrow { color: #557368; font: 10px/1.5 ui-monospace, monospace; letter-spacing: .12em; }
+.research-section-heading .eyebrow { color: #557368; font: 10px/1.5 ui-monospace, monospace; letter-spacing: .12em; }
 .overview-copy h2 { margin: 14px 0 10px; font: 36px/1.15 Georgia, "Times New Roman", serif; letter-spacing: -.035em; }
 .overview-copy p { max-width: 44ch; color: #58675f; font-size: 14px; line-height: 1.75; }
 .overview-copy .overview-lede { color: #274f41; font: 20px/1.35 Georgia, "Times New Roman", serif; margin: 0 0 12px; }
@@ -243,9 +242,6 @@
 .highlight-story p { display: grid; gap: 3px; margin: 0; color: #5d6c64; font-size: 12px; line-height: 1.65; }
 .highlight-story p span { color: #315f4e; font: 10px/1.3 ui-monospace, monospace; letter-spacing: .07em; text-transform: uppercase; }
 .highlight-link { margin-top: auto; padding-top: 19px; color: #2d654f; font-size: 12px; }
-.research-news-intro { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 31px 0 17px; border-top: 1px solid #cfd8d2; }
-.research-news-intro h2 { margin: 5px 0 0; font: 30px/1.25 Georgia, "Times New Roman", serif; }
-.research-news-intro p:last-child { max-width: 42ch; margin: 0; color: #69766e; font-size: 12px; line-height: 1.6; }
 .research-story-page #publications { margin-top: 0; }
 
 @media (max-width: 900px) {
@@ -282,9 +278,6 @@
   .research-section-heading h2 { font-size: 29px; }
   .highlight-grid { grid-template-columns: minmax(0, 1fr); }
   .highlight-card:last-child { grid-column: auto; }
-  .research-news-intro { display: block; }
-  .research-news-intro h2 { font-size: 27px; }
-  .research-news-intro p:last-child { margin-top: 8px; }
 }
 
 /* Discoveries read as short research essays, with history and a visual aside. */
@@ -322,8 +315,7 @@
 .research-story-page .highlight-story p { font-size:14px; line-height:1.8; gap:5px; color:#53655a; }
 .research-story-page .highlight-story p span { font-size:10px; color:#406c56; }
 .discovery-story .news-links { margin-top:24px; }
-.selection-note { margin:18px 0 0; font-size:12px; }
-.selection-note a,.more-milestones > summary { color:#35674f; }
+.more-milestones > summary { color:#35674f; }
 .more-milestones > summary { cursor:pointer; padding:22px 0; font-size:15px; }
 .discovery-empty { max-width:65ch; line-height:1.7; color:#5c7164; padding:20px 0; }
 .collaboration-news-list { border-top:1px solid #cfd8d2; padding-top:28px; }
@@ -381,11 +373,6 @@
 .editorial-details, .verification-details { border-top:1px solid #ced9d1; margin-top:20px; padding-top:14px; font-size:13px; line-height:1.7; }
 .editorial-details summary,.verification-details summary { cursor:pointer; color:#355846; }
 .editorial-details .story-paragraph { font-size:13px; }
-.question-authors { border-top:1px solid #cbd6cf; border-bottom:1px solid #cbd6cf; padding:22px 0; margin:0 0 35px; }
-.question-authors .eyebrow { font-size:10px; color:#516359; margin:0 0 12px; }
-.question-authors > div { display:flex; flex-wrap:wrap; gap:10px 23px; }
-.question-authors a { font:14px/1.6 Georgia,serif; color:#355846; text-decoration:none; }
-.question-authors a:hover { text-decoration:underline; }
 .research-hero-mark p { font:16px/1.6 Georgia,serif; color:#355846; }
 .research-hero-mark a { font-size:12px; }
 .more-milestones > .editorial-card { margin:18px 0; }
@@ -398,7 +385,6 @@
 @media(max-width:540px) {
  .research-news .editorial-card { padding:22px 18px; }
  .research-news .discovery-quote blockquote { font-size:21px; }
- .question-authors a { font-size:13px; }
 }
 
 .research-story-page .news-heading h1 { max-width:none; font-size:60px; }

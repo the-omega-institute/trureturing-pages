@@ -260,15 +260,6 @@ def editorial_question(pin):
             f'<blockquote><p>{esc(text)}</p><cite>{esc(pin["quote_by"])}</cite></blockquote></div>')
 
 
-def editorial_names(ranking):
-    names = [(item['editorial_pin'], item['id']) for item in ranking['results'] if item.get('editorial_pin')]
-    if not names:
-        return ''
-    return ('<nav class="question-authors" aria-label="Questions posed by"><p class="eyebrow">Questions posed by</p>'
-            '<div>' + ''.join(f'<a href="conjectures.html#resolved-{esc(identity)}">{esc(pin["quote_by"])}</a>' for pin, identity in names)
-            + '</div></nav>')
-
-
 def research_highlights(snapshot, records, ranking, limit=None, feed=None, milestones=None):
     """Reviewed selections and threshold-qualified results share one news feed."""
     from lib.contribution_stories import build_milestones
@@ -464,11 +455,9 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
             '<nav class="news-links" aria-label="Research destinations">'
             '<a href="conjectures.html#results">See all conjectures ↗</a></nav></div>'
             f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><p>Questions from the literature.<br>Answers checked by Lean.</p><a href="evolution.html">Explore the release history ↗</a></div></header>'
-            '<section id="highlights" class="research-highlights" aria-labelledby="research-highlights-title"><div class="research-section-heading"><div><p class="eyebrow">DISCOVERIES &amp; IDEAS</p><h2 id="research-highlights-title">Research news</h2></div><a href="conjectures.html#results">Browse the full result order ↗</a></div>'
+            '<section id="highlights" class="research-highlights" aria-labelledby="research-highlights-title"><div class="research-section-heading"><h2 id="research-highlights-title">Selected results</h2><a href="conjectures.html#results">Browse the full result order ↗</a></div>'
             '<div class="highlight-grid">' + research_highlights(snapshot, records, ranking, feed=feed, milestones=milestones) + '</div>'
-            '<p class="selection-note"><a href="ranking.html#research-news-selection">How research highlights are selected ↗</a></p></section>'
-            + editorial_names(ranking)
-            + '<section class="research-news-intro" aria-labelledby="research-news-title"><p class="eyebrow">RESEARCH NEWS</p><h2 id="research-news-title">Papers, preprints, and collaborations</h2><p>These public records show where a resolved question turns into a longer research program.</p></section>'
+            '</section>'
             + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
             + ('<section class="collaboration-news-list"><h2>Ongoing collaborations</h2>' + projects + '</section>' if projects else '')
             + '</main>')

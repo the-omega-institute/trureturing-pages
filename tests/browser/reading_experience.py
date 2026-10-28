@@ -48,10 +48,10 @@ def main():
         featured_pins=[item['pin'] for item in milestones['results'][:milestones['policy']['featured_count']] if item.get('pin')]
         assert page.locator('.featured-discoveries .editorial-card').count()==len(featured_pins)
         assert page.locator('.featured-discoveries .discovery-answer strong').all_text_contents()==[pin['answer'] for pin in featured_pins]
-        assert page.locator('.question-authors a').count()==sum(bool(item.get('pin')) for item in milestones['results'])
+        assert page.locator('.question-authors,.selection-note,.research-news-intro').count()==0
         assert 'Fin 16' not in page.locator('#highlights').inner_text()
         assert 'The released statement is proved.' not in page.locator('#highlights').inner_text()
-        assert page.locator('.research-news-intro').count()==1
+        assert page.locator('#highlights + #publications').count()==1
         assert page.locator('#activities').count()==0
         catalog=json.loads((args.site/'assets/research-news.json').read_text())
         for paper in catalog['publications']:
