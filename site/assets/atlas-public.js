@@ -117,13 +117,13 @@ function color(node) {
     return ROLE_COLORS[
       focusRole(node.id, state.selected, state.related, state.model)
     ];
+  if (state.showChanges && state.changes?.added.has(node.id)) return "#9aefc0";
+  if (state.showChanges && state.changes?.changed.has(node.id))
+    return "#efb27e";
   if (state.mode === "theory") {
     const routes = state.theory.routes.filter(route => route.members.has(node.id));
     return routes.length > 1 ? "#ffffff" : routes[0]?.color || "#9baeb8";
   }
-  if (state.showChanges && state.changes?.added.has(node.id)) return "#9aefc0";
-  if (state.showChanges && state.changes?.changed.has(node.id))
-    return "#efb27e";
   if (
     state.bundle &&
     !state.bundles.find((b) => b.key === state.bundle)?.ids.has(node.id)
@@ -2020,6 +2020,13 @@ $("#toggle-bundles").addEventListener("click", () => {
 });
 function showChangesPanel() {
   rememberView();
+  const wasTheory = state.mode === "theory";
+  if (wasTheory) {
+    state.mode = "dependency";
+    state.route = null;
+    state.family = null;
+    state.positions = state.architecturePositions;
+  }
   state.showChanges = true;
   state.changesPanel = true;
   state.selected = null;
@@ -2027,6 +2034,7 @@ function showChangesPanel() {
   $("#toggle-changes").setAttribute("aria-pressed", "true");
   renderGraph();
   renderWiki();
+  if (wasTheory) frameNodes(currentNodes);
 }
 $("#toggle-changes").addEventListener("click", async () => {
   if (!state.changes) {
