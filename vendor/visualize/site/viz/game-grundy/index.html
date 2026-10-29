@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="GAME//GRUNDY · Three games, three settled questions">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GAME//GRUNDY 三个博弈 · 三个结算的问题</title>
+<meta name="description" content="三个组合博弈里的三个开放问题，本库都已结算。Divisor Nim：Tyagi（2026）猜想每个局面的 Grundy 值不超过最小堆的两倍——已证；随机减法游戏：Capitelli 与 Somma（2024）猜想减法集全为奇数时获胜概率不收敛——已证；二染色博弈：Krop、Mittal、Wigal（2024）猜想任何树的博弈值不超过同阶路径——被一棵十个顶点的树反驳。页面现算 Grundy 表、获胜概率序列和极小极大博弈值，并可以亲手下棋。Three open questions in three combinatorial games, all settled in this library. Divisor Nim: Tyagi (2026) conjectured that every position has Grundy value at most twice its smallest heap, now proved; random subtraction games: Capitelli and Somma (2024) conjectured that the winning probabilities do not converge when every subtraction is odd, now proved; the cordiality game: Krop, Mittal and Wigal (2024) conjectured that no tree has a larger game value than the path of the same order, refuted by a tree on ten vertices. The page computes Grundy tables, winning-probability sequences and minimax game values, and lets you play.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="game-grundy">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="GAME//GRUNDY">GAME<b>//</b>GRUNDY</h1>
+      <div class="tagline">
+        <span class="zh">三个博弈 · 三个结算的问题 · <em>两个猜想已证，一个被反驳</em></span>
+        <span class="en">Three games, three settled questions · <em>two conjectures proved, one refuted</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="nim2" aria-pressed="true"><span class="code">g ≤ 2·h<sub>min</sub></span><span class="cn zh">Divisor Nim · 两堆</span><span class="cn en">Divisor Nim · two heaps</span></button>
+        <button class="preset" data-preset="nim3" aria-pressed="false"><span class="code">+ c</span><span class="cn zh">加第三堆 · 界仍成立</span><span class="cn en">Add a third heap · the bound holds</span></button>
+        <button class="preset" data-preset="zeros" aria-pressed="false"><span class="code">g = 0</span><span class="cn zh">必败局面 · 2 的幂次</span><span class="cn en">Losing positions · powers of two</span></button>
+        <button class="preset" data-preset="tight" aria-pressed="false"><span class="code">{1, 4, 10}</span><span class="cn zh">界被取到</span><span class="cn en">The bound attained</span></button>
+        <button class="preset" data-preset="odd35" aria-pressed="false"><span class="code">S = {3, 5}</span><span class="cn zh">全奇 · 永远摆动</span><span class="cn en">All odd · oscillates forever</span></button>
+        <button class="preset" data-preset="even12" aria-pressed="false"><span class="code">S = {1, 2}</span><span class="cn zh">含偶数 · 收敛到 ½</span><span class="cn en">An even move · converges to ½</span></button>
+        <button class="preset" data-preset="tree10" aria-pressed="false"><span class="code">c<sub>g</sub>(T) = 3</span><span class="cn zh">十顶点树 · 反例</span><span class="cn en">A ten-vertex tree · the counterexample</span></button>
+        <button class="preset" data-preset="path10" aria-pressed="false"><span class="code">c<sub>g</sub>(P₁₀) = 1</span><span class="cn zh">同阶路径 · 只有 1</span><span class="cn en">The path of the same order · only 1</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">博弈</span><span class="en">Game</span><span class="aside">MEX · MINIMAX</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="博弈" data-aria-en="Game">
+        <button class="chip" data-mode="nim"><span class="zh">Divisor Nim</span><span class="en">Divisor Nim</span></button>
+        <button class="chip" data-mode="random"><span class="zh">随机减法</span><span class="en">Random subtraction</span></button>
+        <button class="chip" data-mode="cordial"><span class="zh">二染色博弈</span><span class="en">Cordiality game</span></button>
+      </div>
+      <div class="field" id="setField" hidden>
+        <span class="lbl"><span class="zh">减法集 S（点选加入或移除）</span><span class="en">Subtraction set S (click to add or remove)</span></span>
+        <div class="chips" id="setChips" role="group" aria-label="减法集" data-aria-en="Subtraction set">
+          <button class="chip" data-s="1">1</button><button class="chip" data-s="2">2</button><button class="chip" data-s="3">3</button><button class="chip" data-s="4">4</button><button class="chip" data-s="5">5</button><button class="chip" data-s="6">6</button><button class="chip" data-s="7">7</button><button class="chip" data-s="8">8</button><button class="chip" data-s="9">9</button>
+        </div>
+      </div>
+      <div class="field" id="treeField" hidden>
+        <span class="lbl"><span class="zh">在哪张图上下</span><span class="en">Play on</span></span>
+        <div class="chips" id="treeChips" role="group" aria-label="图" data-aria-en="Graph">
+          <button class="chip" data-tree="witness"><span class="zh">反例树 T</span><span class="en">the tree T</span></button>
+          <button class="chip" data-tree="path"><span class="zh">路径 P₁₀</span><span class="en">the path P₁₀</span></button>
+          <button class="chip" data-tree="star"><span class="zh">星 K₁,₉</span><span class="en">the star K₁,₉</span></button>
+        </div>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：Divisor Nim 的 Grundy 值地形、随机减法游戏的获胜概率条形，或二染色博弈的树；二染色博弈中可点选顶点落子；拖动旋转，滚轮缩放" data-aria-en="3D view: the Grundy landscape of Divisor Nim, the winning-probability bars of a random subtraction game, or the tree of the cordiality game; in the cordiality game click a vertex to play there; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前博弈的主图" data-aria-en="Main chart of the current game"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前博弈的辅助图" data-aria-en="Side chart of the current game"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">mex</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Divisor Nim：一步从一堆 h 里取走 d（1 ≤ d ≤ h），d 必须整除其余每一堆。任何非空局面的 Grundy 值都不超过最小堆的两倍——Tyagi（2026）的猜想。已冻结：</span><span class="en">Divisor Nim: a move takes d stones from one heap h (1 ≤ d ≤ h), where d must divide every other heap. Every nonempty position has Grundy value at most twice its smallest heap, as Tyagi (2026) conjectured. Frozen:</span> <code>DivisorNimBound.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Divisor Nim 的必败局面：设 k 是各堆 2-adic 阶的最小值，Grundy 值为 0 当且仅当阶恰为 k 的堆有偶数个；单独一堆 n 的 Grundy 值就是 n。已冻结：</span><span class="en">Losing positions of Divisor Nim: with k the least 2-adic valuation of the heaps, the Grundy value is 0 exactly when an even number of heaps have valuation k; a single heap n has Grundy value n. Frozen:</span> <code>DivisorNimBoundOutcome.zero_iff_even_count</code> · <code>DivisorNimPeriodPropagation.singleton_grundy</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">随机减法游戏：每步在合法减法里均匀随机挑一个，无步可走者输。减法集非空、全为奇数且最大公因数为 1 时，先手获胜概率 a<sub>n</sub> 不收敛——Capitelli 与 Somma（2024）的猜想。已冻结：</span><span class="en">Random subtraction games: each move picks a legal subtraction uniformly at random, and a player with no move loses. When the subtraction set is nonempty, all odd and has gcd 1, the winning probability a<sub>n</sub> of the player to move does not converge, as Capitelli and Somma (2024) conjectured. Frozen:</span> <code>CapitelliSommaAllOddNonconvergence.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">二染色博弈：一棵十个顶点的树（路径 0–1–…–7 加上挂在 0 上的 8、9），博弈值至少 3；同阶路径 P₁₀ 的博弈值至多 1。Krop、Mittal、Wigal（2024）的猜想 3.2 “任何树都不超过同阶路径”因此不成立。已冻结：</span><span class="en">The cordiality game: a tree on ten vertices (the path 0–1–…–7 with 8 and 9 hanging from 0) has game value at least 3, while the path P₁₀ of the same order has value at most 1. Conjecture 3.2 of Krop, Mittal and Wigal (2024), that no tree exceeds the path of the same order, is therefore false. Frozen:</span> <code>CordialityTreePathRefutation.result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面现算的数，不是定理：Grundy 表、获胜概率序列和守恒窗口 J<sub>N</sub>、各张图的精确博弈值都由页面的递推与极小极大搜索算出。</span><span class="en">Numbers computed on the page, not theorems: the Grundy tables, the winning-probability sequences with the conserved window J<sub>N</sub>, and the exact game values of each graph come from the page’s recursions and minimax search.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Tyagi（2026）证明了较弱的 g ≤ 2h<sub>min</sub> + ⌊log₂ h<sub>min</sub>⌋；Capitelli 与 Somma（2024）证明减法集含偶数且最大公因数为 1 时概率收敛；Krop、Mittal、Wigal（2024）定义二染色博弈与博弈值 c<sub>g</sub>。Grundy 值用 mex（最小的未出现值）递推，是 Sprague–Grundy 理论的经典做法。</span><span class="en">Tyagi (2026) proved the weaker g ≤ 2h<sub>min</sub> + ⌊log₂ h<sub>min</sub>⌋; Capitelli and Somma (2024) proved convergence when the subtraction set has gcd 1 and contains an even element; Krop, Mittal and Wigal (2024) defined the cordiality game and its value c<sub>g</sub>. Grundy values follow the mex (least missing value) recursion of the classical Sprague–Grundy theory.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：Divisor Nim 第三堆的大小、随机减法游戏已展开的步数，或二染色博弈已下的步数" data-aria-en="Progress: the size of the third heap in Divisor Nim, how many terms of the random subtraction game are shown, or how many moves of the cordiality game have been played">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一步 · <kbd>E</kbd> 跳到末尾 · 点顶点落子</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one step · <kbd>E</kbd> jump to the end · click a vertex to play</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">三个小博弈，各有一个作者在论文里留下的问题。本库把三个问题都结算了：两个猜想得到证明，一个被反例推翻。页面把三个博弈都现算出来，第三个还可以亲手下。</p>
+      <ol>
+        <li><b>Divisor Nim（已冻结）。</b>局面是若干堆石子。一步选一堆 h，从中取走 d 颗（1 ≤ d ≤ h），条件是 d 整除其余每一堆；取空的堆就消失。只剩一堆时什么都能取，所以单独一堆 n 的 Grundy 值就是 n。Tyagi（2026）证明 g ≤ 2h<sub>min</sub> + ⌊log₂ h<sub>min</sub>⌋，并猜想对数项可以去掉；本库证明了 g ≤ 2h<sub>min</sub>，对任意多堆、任意大小都成立。证明的第一步是必败局面的刻画：取各堆 2-adic 阶的最小值 k，g = 0 当且仅当阶恰为 k 的堆有偶数个。页面画出两堆或三堆的 Grundy 表；在页面搜索的范围里，{1, 4, 10} 这类局面恰好取到 2h<sub>min</sub>。</li>
+        <li><b>随机减法游戏（已冻结）。</b>给定减法集 S，局面是一个数 n。轮到的人在 {s ∈ S : s ≤ n} 里均匀随机挑一个减掉，无步可走者输。轮到的人的获胜概率满足 a<sub>n</sub> = 1 − 平均 a<sub>n−s</sub>。Capitelli 与 Somma（2024）证明 S 含偶数（且最大公因数为 1）时 a<sub>n</sub> 收敛，并猜想 S 全为奇数时不收敛。本库的证明：令 b<sub>n</sub> = (−1)<sup>n</sup>(1 − 2a<sub>n</sub>)、d<sub>n</sub> = b<sub>n</sub> + b<sub>n+1</sub>，则 d<sub>n</sub> ≥ 0，并且窗口和 J<sub>N</sub> = Σ<sub>s∈S</sub> Σ<sub>0≤r&lt;s</sub> d<sub>N−s+r</sub> 从 N = max S 起保持不变、至少为 2。如果 a<sub>n</sub> 收敛，d<sub>n</sub> 就会趋于 0，窗口和也会趋于 0，矛盾。卷宗还指出这个论证不需要最大公因数的条件。</li>
+        <li><b>二染色博弈（已冻结）。</b>两人轮流给树的顶点贴标签：Admirable 先手、只贴 0，Impish 只贴 1。边的标签是两端之和模 2，终局时的差 d = |e₁ − e₀| 就是比分；Admirable 想让它小，Impish 想让它大。双方最优时的比分记作 c<sub>g</sub>。Krop、Mittal、Wigal（2024）猜想任何 n 阶树都满足 c<sub>g</sub>(T) ≤ c<sub>g</sub>(P<sub>n</sub>)。反例是十个顶点的树：路径 0–1–…–7，再在 0 上挂 8 和 9。Impish 把顶点配成 (0, 4)、(1, 5)、(2, 6)、(3, 7)、(8, 9)，对手下一个他就下配对的另一个，这样终局差至少 3；而 P₁₀ 上 Admirable 有策略把差压在 1 以内（九条边，差是奇数，所以恰好是 1）。页面用极小极大搜索算出精确值，你可以在图上替任何一方落子，剩下的由双方最优续下。</li>
+        <li><b>边界。</b>页面上的 Grundy 表、概率序列和博弈值都是有限范围内现算的数；冻结的是上面三条对一切局面成立的定理。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tyagi-2026-divisor-nim-sharper-sg-bound.md" target="_blank" rel="noopener">问题卷宗：Divisor Nim 的 2h<sub>min</sub> 界</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/capitelli-somma-2024-all-odd-nonconvergence.md" target="_blank" rel="noopener">问题卷宗：全奇减法集不收敛</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/krop-mittal-wigal-2024-game-cordiality-tree-path.md" target="_blank" rel="noopener">问题卷宗：树与路径的博弈值</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBound.lean" target="_blank" rel="noopener">DivisorNimBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBoundOutcome.lean" target="_blank" rel="noopener">DivisorNimBoundOutcome.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimPeriodPropagation.lean" target="_blank" rel="noopener">DivisorNimPeriodPropagation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CapitelliSommaAllOddNonconvergence.lean" target="_blank" rel="noopener">CapitelliSommaAllOddNonconvergence.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CordialityTreePathRefutation.lean" target="_blank" rel="noopener">CordialityTreePathRefutation.lean</a> · Tyagi，<a href="https://arxiv.org/abs/2610.06925" target="_blank" rel="noopener">arXiv:2610.06925（2026）</a> · Capitelli、Somma，<a href="https://arxiv.org/abs/2405.19593" target="_blank" rel="noopener">arXiv:2405.19593（2024）</a> · Krop、Mittal、Wigal，<a href="https://doi.org/10.1007/s00373-024-02798-1" target="_blank" rel="noopener">Graphs Combin. 40, 75（2024）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Three small games, each with a question its authors left open in their paper. This library settles all three: two conjectures are proved and one is refuted by a counterexample. The page computes all three games, and you can play the third one yourself.</p>
+      <ol>
+        <li><b>Divisor Nim (frozen).</b> A position is a collection of heaps. A move picks a heap h and takes d stones from it (1 ≤ d ≤ h), provided d divides every other heap; a heap emptied disappears. With a single heap anything may be taken, so a single heap n has Grundy value n. Tyagi (2026) proved g ≤ 2h<sub>min</sub> + ⌊log₂ h<sub>min</sub>⌋ and conjectured that the logarithmic term can be dropped; this library proves g ≤ 2h<sub>min</sub> for any number of heaps of any size. The first step of the proof describes the losing positions: with k the least 2-adic valuation of the heaps, g = 0 exactly when an even number of heaps have valuation k. The page draws Grundy tables for two or three heaps; within the range the page searches, positions such as {1, 4, 10} attain 2h<sub>min</sub> exactly.</li>
+        <li><b>Random subtraction games (frozen).</b> Given a subtraction set S, a position is a number n. The player to move subtracts an element of {s ∈ S : s ≤ n} chosen uniformly at random, and a player with no move loses. The winning probability of the player to move satisfies a<sub>n</sub> = 1 − the average of a<sub>n−s</sub>. Capitelli and Somma (2024) proved that a<sub>n</sub> converges when S contains an even number (and has gcd 1), and conjectured that it does not converge when every element of S is odd. The proof in this library: put b<sub>n</sub> = (−1)<sup>n</sup>(1 − 2a<sub>n</sub>) and d<sub>n</sub> = b<sub>n</sub> + b<sub>n+1</sub>; then d<sub>n</sub> ≥ 0, and the window sum J<sub>N</sub> = Σ<sub>s∈S</sub> Σ<sub>0≤r&lt;s</sub> d<sub>N−s+r</sub> stays constant from N = max S on and is at least 2. If a<sub>n</sub> converged, d<sub>n</sub> would tend to 0 and so would the window sum, a contradiction. The dossier notes that this argument does not need the gcd condition.</li>
+        <li><b>The cordiality game (frozen).</b> Two players take turns labelling the vertices of a tree: Admirable moves first and only writes 0, Impish only writes 1. An edge is labelled by the sum of its ends mod 2, and the final discrepancy d = |e₁ − e₀| is the score; Admirable wants it small and Impish wants it large. The score under optimal play is c<sub>g</sub>. Krop, Mittal and Wigal (2024) conjectured that every tree of order n has c<sub>g</sub>(T) ≤ c<sub>g</sub>(P<sub>n</sub>). The counterexample is a tree on ten vertices: the path 0–1–…–7 with 8 and 9 hanging from 0. Impish pairs the vertices as (0, 4), (1, 5), (2, 6), (3, 7), (8, 9) and answers every move with its partner, which forces a final discrepancy of at least 3; on P₁₀, Admirable has a strategy keeping it at most 1 (nine edges make it odd, so exactly 1). The page computes exact values by minimax search; you can play a move for either side on the graph, and the rest continues with optimal play.</li>
+        <li><b>Limits.</b> The Grundy tables, probability sequences and game values on the page are numbers computed over finite ranges; what is frozen are the three theorems above, which hold for all positions.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tyagi-2026-divisor-nim-sharper-sg-bound.md" target="_blank" rel="noopener">Problem dossier: the 2h<sub>min</sub> bound for Divisor Nim</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/capitelli-somma-2024-all-odd-nonconvergence.md" target="_blank" rel="noopener">Problem dossier: all-odd subtraction sets do not converge</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/krop-mittal-wigal-2024-game-cordiality-tree-path.md" target="_blank" rel="noopener">Problem dossier: game values of trees and paths</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBound.lean" target="_blank" rel="noopener">DivisorNimBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBoundOutcome.lean" target="_blank" rel="noopener">DivisorNimBoundOutcome.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimPeriodPropagation.lean" target="_blank" rel="noopener">DivisorNimPeriodPropagation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CapitelliSommaAllOddNonconvergence.lean" target="_blank" rel="noopener">CapitelliSommaAllOddNonconvergence.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CordialityTreePathRefutation.lean" target="_blank" rel="noopener">CordialityTreePathRefutation.lean</a> · Tyagi, <a href="https://arxiv.org/abs/2610.06925" target="_blank" rel="noopener">arXiv:2610.06925 (2026)</a> · Capitelli, Somma, <a href="https://arxiv.org/abs/2405.19593" target="_blank" rel="noopener">arXiv:2405.19593 (2024)</a> · Krop, Mittal, Wigal, <a href="https://doi.org/10.1007/s00373-024-02798-1" target="_blank" rel="noopener">Graphs Combin. 40, 75 (2024)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

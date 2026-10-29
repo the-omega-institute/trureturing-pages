@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="TOMO//GLANCE · Complementarity and tomography, one look cannot see it all">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TOMO//GLANCE 互补与层析 · 一次看不全</title>
+<meta name="description" content="互补与层析：一个量子比特只沿一个方向测，相位永远看不见；三个互补方向的概率偏差平方加起来恰好是纯度；单个样本既看不全，也复制不了。Complementarity and tomography: measuring a qubit along one direction never reveals its phase; the squared probability deviations of three complementary directions add up exactly to the purity; a single sample can be neither read completely nor copied.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="tomo-glance">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="TOMO//GLANCE">TOMO<b>//</b>GLANCE</h1>
+      <div class="tagline">
+        <span class="zh">互补与层析 · 一次看不全 · <em>看几个方向，就只知道那几个方向</em></span>
+        <span class="en">Complementarity and tomography · one look cannot see it all · <em>you learn only the directions you look along</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillShots">SHOTS <strong>0</strong></span>
+      <span class="pill" id="pillVis">VISIBLE <strong>—</strong></span>
+      <span class="pill hot" id="pillRes">BLIND <strong>—</strong></span>
+      <span class="pill" id="pillRun">RUN <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="onlyZ" aria-pressed="false"><span class="code">Z-ONLY</span><span class="cn zh">只看一个方向</span><span class="cn en">One direction only</span></button>
+        <button class="preset" data-preset="phase" aria-pressed="false"><span class="code">PHASE-BLIND</span><span class="cn zh">|+⟩ 与 |−⟩ 分不开</span><span class="cn en">|+⟩ and |−⟩ look the same</span></button>
+        <button class="preset" data-preset="two" aria-pressed="true"><span class="code">TWO-AXES</span><span class="cn zh">两个方向 · 还缺一维</span><span class="cn en">Two directions · one missing</span></button>
+        <button class="preset" data-preset="full" aria-pressed="false"><span class="code">FULL-TOMO</span><span class="cn zh">三个互补方向 · 看全了</span><span class="cn en">Three complementary directions · complete</span></button>
+        <button class="preset" data-preset="tilted" aria-pressed="false"><span class="code">TILTED</span><span class="cn zh">方向不互补 · 账算重了</span><span class="cn en">Not complementary · double counting</span></button>
+        <button class="preset" data-preset="mixed" aria-pressed="false"><span class="code">MIXED</span><span class="cn zh">混合态 · 纯度更低</span><span class="cn en">Mixed state · lower purity</span></button>
+        <button class="preset" data-preset="single" aria-pressed="false"><span class="code">ONE-SHOT</span><span class="cn zh">只有一个样本</span><span class="cn en">A single sample</span></button>
+        <button class="preset" data-preset="clone" aria-pressed="false"><span class="code">NO-CLONE</span><span class="cn zh">想先复制几份？</span><span class="cn en">Copy it first?</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">测量方向</span><span class="en">Measurement directions</span><span class="aside">CONTEXTS</span></h2>
+      <div class="chips" id="ctxChips" role="group" aria-label="测量方向" data-aria-en="Measurement directions">
+        <button class="chip" data-ctx="Z" aria-pressed="true">Z</button>
+        <button class="chip" data-ctx="X" aria-pressed="true">X</button>
+        <button class="chip" data-ctx="Y" aria-pressed="false">Y</button>
+        <button class="chip" data-ctx="T" aria-pressed="false"><span class="zh">斜向 n</span><span class="en">Tilted n</span></button>
+      </div>
+      <div class="field" id="tiltField" hidden>
+        <label for="tilt"><span class="zh">斜向与 Z 的夹角 α</span><span class="en">Angle α of the tilted direction from Z</span><small class="zh">在 x–z 平面里</small><small class="en">in the x–z plane</small></label><output id="oTilt" for="tilt">45°</output>
+        <input type="range" id="tilt" min="0" max="180" step="1" value="45">
+      </div>
+      <div class="chips" id="twinChips" role="group" aria-label="对照态" data-aria-en="Comparison state">
+        <button class="chip" id="twinBtn" aria-pressed="false"><span class="zh">对照：相位翻转 ZρZ</span><span class="en">Compare: phase flip ZρZ</span></button>
+      </div>
+      <p class="note" id="ctxNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">被测的态（观察者不知道）</span><span class="en">The state being measured (unknown to the observer)</span><span class="aside">ρ</span></h2>
+      <div class="field">
+        <label for="theta"><span class="zh">极角 θ</span><span class="en">Polar angle θ</span></label><output id="oTheta" for="theta">60°</output>
+        <input type="range" id="theta" min="0" max="180" step="1" value="60">
+      </div>
+      <div class="field">
+        <label for="phase"><span class="zh">方位角 φ（相位）</span><span class="en">Azimuth φ (the phase)</span></label><output id="oPhase" for="phase">50°</output>
+        <input type="range" id="phase" min="0" max="360" step="1" value="50">
+      </div>
+      <div class="field">
+        <label for="rlen"><span class="zh">布洛赫矢量长度 |r|</span><span class="en">Bloch vector length |r|</span><small class="zh">1 为纯态</small><small class="en">1 = pure</small></label><output id="oR" for="rlen">1.00</output>
+        <input type="range" id="rlen" min="0" max="1" step="0.01" value="1">
+      </div>
+      <p class="note" id="stateNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="布洛赫球：发亮的轴是正在测的方向，每个样本飞向那条轴的一端；品红色是与观测统计一致的全部态；拖动旋转，滚轮缩放" data-aria-en="The Bloch sphere: the glowing axes are the directions being measured and each sample flies to one end of its axis; magenta marks every state consistent with the observed statistics; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">纯度的勾股分解</span><span class="en">THE PYTHAGOREAN SPLIT OF PURITY</span></h2><span id="pyMeta"></span></div>
+        <canvas id="pyth" aria-label="Tr ρ² − 1/2 拆成各测量方向的概率偏差平方与看不见的残差" data-aria-en="Tr ρ² − 1/2 split into the squared probability deviations of each measured direction and the invisible residual"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">样本越多，误差越小——除了看不见的部分</span><span class="en">MORE SAMPLES, SMALLER ERROR, EXCEPT THE BLIND PART</span></h2><span id="errMeta"></span></div>
+        <canvas id="errplot" aria-label="重建误差随样本数的变化：可见部分按 1/√N 下降，看不见的部分是一条下不去的地板" data-aria-en="Reconstruction error against the number of samples: the visible part falls like 1/√N, the invisible part is a floor that never goes down"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">Tr ρ² − ½ = Σ + R</span></h2>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">纯度 Tr ρ²</span><span class="en">Purity Tr ρ²</span></dt><dd id="roPur">—</dd></div>
+        <div class="c"><dt><span class="zh">看得见的部分 Σ(p − ½)²</span><span class="en">Visible part Σ(p − ½)²</span></dt><dd id="roVis">—</dd></div>
+        <div class="m"><dt><span class="zh">看不见的残差 R</span><span class="en">Invisible residual R</span></dt><dd id="roRes">—</dd></div>
+        <div class="a"><dt><span class="zh">重建误差（迹距离）</span><span class="en">Reconstruction error (trace distance)</span></dt><dd id="roErr">—</dd></div>
+        <div><dt><span class="zh">估计的布洛赫矢量</span><span class="en">Estimated Bloch vector</span></dt><dd id="roEst">—</dd></div>
+        <div><dt id="roL6"></dt><dd id="ro6">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">测量方向两两互补（投影两两正交）时，Tr ρ² − 1/d 恰等于各方向概率偏差的平方和，加上与所有可见方向正交的残差，已冻结：</span><span class="en">When the measured directions are mutually complementary (their projections pairwise orthogonal), Tr ρ² − 1/d equals exactly the sum of squared probability deviations over the directions plus the residual orthogonal to every visible direction; frozen:</span> <code>purity_pythagoras_decomposition</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">d + 1 个互补方向的全部概率唯一确定 ρ，看不见的残差为零，已冻结：</span><span class="en">The probabilities of d + 1 complementary directions determine ρ uniquely, and the invisible residual is zero; frozen:</span> <code>complete_context_tomography</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">只用对角（Z 方向）的可观测量，分不开 |+⟩ 和它的相位翻转 Z|+⟩ = |−⟩；能分开的可观测量一定不是对角的，已冻结：</span><span class="en">Diagonal (Z-direction) observables alone cannot tell |+⟩ from its phase flip Z|+⟩ = |−⟩; any observable that does tell them apart is not diagonal; frozen:</span> <code>diagonal_prime_observables_cannot_recover_relative_phase</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">复制机</span><span class="en">The copying machine</span><span class="aside">U|ψ⟩|0⟩ = |ψ⟩|ψ⟩ ?</span></h2>
+      <div class="field">
+        <label for="cloneAngle"><span class="zh">两个候选态在布洛赫球上的夹角 Θ</span><span class="en">Bloch-sphere angle Θ between two candidate states</span></label><output id="oClone" for="cloneAngle">60°</output>
+        <input type="range" id="cloneAngle" min="0" max="180" step="1" value="60">
+      </div>
+      <canvas class="plot clone" id="clonePlot" aria-label="复制两态时，酉变换要求重叠 c 等于 c²；只有 c = 0 或 1 才可能" data-aria-en="Copying two states would require their overlap c to equal c²; only c = 0 or 1 allows it"></canvas>
+      <p class="note" id="cloneNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">若一个酉变换能把两个态都从同一个空白复制出来，它们的重叠满足 c = c²，所以两态要么相同、要么正交，已冻结：</span><span class="en">If one unitary copies two states from the same blank, their overlap satisfies c = c², so the states are either identical or orthogonal; frozen:</span> <code>no_cloning_inner_product_criterion</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">碰撞守恒</span><span class="en">Collision conservation</span><span class="aside">Σ<sub>b</sub> Σ<sub>j</sub> p<sub>bj</sub>² = 1 + Tr ρ²</span></h2>
+      <p class="note" id="ledgerNote"></p>
+    </section>
+  </aside>
+
+  <!-- sample rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="已用的样本数" data-aria-en="Samples used">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一个样本 · <kbd>H</kbd> 隐藏真态 · <kbd>R</kbd> 换一批样本</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one sample · <kbd>H</kbd> hide the true state · <kbd>R</kbd> new samples</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一个量子比特的态 ρ = (I + r·σ)/2 是布洛赫球里的一个点 r。沿方向 n 测一次，只得到 ±1 中的一个，出现 +1 的概率是 (1 + r·n)/2。一个个样本飞向所测那条轴的一端；样本越多，越能估出 r 在这条轴上的分量——但也只有这个分量。品红色是与“已测方向的统计”完全一致的全部态：它们彼此之差落在“不可见残差”里，观察者无论再测多少次都分不开。</p>
+      <ol>
+        <li><b>可见空间与不可见残差（《观察者完备反射》§83）。</b>测量能看见的是由 I 和各效果张成的实空间 V；它的正交补 N = V<sup>⊥</sup> 是不可见残差。两个态给出完全相同的统计，当且仅当它们之差在 N 里（定理 83.1）。只测 Z 时 N 是 x、y 两个方向，与真态一致的态铺满一整张圆盘；再加 X，只剩一条弦；三个方向都测，只剩一个点。信息完备、残差为零、可见空间满、中心化效果张满，这四件事等价，已冻结：<code>informational_completeness_four_way</code>。</li>
+        <li><b>纯度的勾股分解。</b>测量方向两两互补（各自的投影两两正交）时，Tr ρ² − 1/d = Σ<sub>方向</sub>Σ<sub>结果</sub>(p − 1/d)² + 残差（已冻结：<code>purity_pythagoras_decomposition</code>；同一等式在“用概率坐标化可见投影”的抽象形式下也已冻结：<code>complementary_context_probability_pythagoras</code>）。量子比特里就是 |r|²/2 = Σ<sub>方向</sub>(r·n)²/2 + 残差。方向不互补时（例如 Z 与斜 45° 方向），重叠的部分被算了两次，平方和就不等于可见部分——“斜向”预设专门演示这一点。</li>
+        <li><b>完整层析需要 d + 1 个互补方向（§86、推论 86.2）。</b>d 维态有 d² − 1 个实参数；每个有 d 个结果的方向最多贡献 d − 1 个，所以至少要 Σ(m<sub>x</sub> − 1) ≥ d² − 1。d + 1 个互补方向恰好给出 (d + 1)(d − 1) = d² − 1，它们的全部概率唯一确定 ρ（已冻结：<code>complete_context_tomography</code>）。量子比特 d = 2：恰好 X、Y、Z 三个方向。这种完整互补组在素数幂维数里存在（Ivanović，<a href="https://doi.org/10.1088/0305-4470/14/12/019" target="_blank" rel="noopener">J. Phys. A 14, 3241 (1981)</a>；Wootters、Fields，<a href="https://doi.org/10.1016/0003-4916(89)90322-9" target="_blank" rel="noopener">Ann. Phys. 191, 363 (1989)</a>）；d = 6 时是否存在，至今未知。</li>
+        <li><b>相位盲（对角可观测量）。</b>只测 Z 方向，|+⟩ 与 Z|+⟩Z = |−⟩ 的统计完全一样，分开它们的可观测量一定不是对角的（已冻结：<code>diagonal_prime_observables_cannot_recover_relative_phase</code>）。打开“对照：相位翻转 ZρZ”，品红箭头就是这个对照态。</li>
+        <li><b>碰撞守恒（GICT E.168）。</b>对 d + 1 个互补方向，每个方向的“碰撞概率”Σ<sub>j</sub>p<sub>j</sub>² 加起来恰为 1 + Tr ρ²。它由上面两条冻结定理合起来推出：勾股分解在残差为零时给出 Σ(p − 1/d)² = Tr ρ² − 1/d，展开即得。这一步合成是本页的推导，不是另一条单独冻结的定理。</li>
+        <li><b>互补预算（GICT 定理 6.38）。</b>熵的形式：H(Z) + H(X) ≥ ln 2 + S(ρ)，与 Maassen、Uffink 的熵不确定关系一致（<a href="https://doi.org/10.1103/PhysRevLett.60.1103" target="_blank" rel="noopener">Phys. Rev. Lett. 60, 1103 (1988)</a>）。这是理论卷里的论文证明与本页的模型计算，没有形式化为 Lean 定理。</li>
+        <li><b>单个样本与不可克隆（§100）。</b>两个非正交的纯态不能由一次测量无误区分（定理 100.1），所以一个未知态的单个样本读不全，必须反复制备。想先复制几份再测也不行：若一个酉变换能复制 ψ 和 φ，内积守恒要求 ⟨φ|ψ⟩ = ⟨φ|ψ⟩²，两态只能相同或正交（定理 100.2，已冻结：<code>no_cloning_inner_product_criterion</code>；Wootters、Zurek，<a href="https://doi.org/10.1038/299802a0" target="_blank" rel="noopener">Nature 299, 802 (1982)</a>；Dieks，<a href="https://doi.org/10.1016/0375-9601(82)90084-6" target="_blank" rel="noopener">Phys. Lett. A 92, 271 (1982)</a>）。模型边界：理想投影测量；样本按所选方向轮流分配；重建用最小二乘线性反演，未测方向取一致集合的中心（分量为 0），估计可能落到球外，页面如实显示；样本由固定种子抽出。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md" target="_blank" rel="noopener">观察者完备反射 §83、§85、§86、§90、§100</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md" target="_blank" rel="noopener">GICT 定理 6.38、E.168</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/PurityPythagorasDecomposition.lean" target="_blank" rel="noopener">PurityPythagorasDecomposition.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/CompleteContextTomography.lean" target="_blank" rel="noopener">CompleteContextTomography.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/DiagonalPhaseBlindness.lean" target="_blank" rel="noopener">DiagonalPhaseBlindness.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/NoCloningInnerProductCriterion.lean" target="_blank" rel="noopener">NoCloningInnerProductCriterion.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A qubit state ρ = (I + r·σ)/2 is a point r in the Bloch ball. One measurement along a direction n gives only ±1, with +1 occurring with probability (1 + r·n)/2. Samples fly one by one to an end of the axis being measured; the more samples, the better the estimate of r’s component along that axis, and of that component only. Magenta marks every state whose statistics agree exactly with those of the measured directions: their differences lie in the invisible residual, and no number of further measurements can tell them apart.</p>
+      <ol>
+        <li><b>Visible space and invisible residual (Formal observer completion reflection, §83).</b> What the measurements can see is the real span V of I and the effects; its orthogonal complement N = V<sup>⊥</sup> is the invisible residual. Two states give identical statistics if and only if their difference lies in N (Theorem 83.1). Measuring only Z, N contains the x and y directions and the states consistent with the true one fill a whole disc; adding X leaves a chord; measuring all three directions leaves a single point. Informational completeness, a zero residual, a full visible space and a full span of centered effects are four equivalent conditions; frozen: <code>informational_completeness_four_way</code>.</li>
+        <li><b>The Pythagorean split of purity.</b> When the measured directions are mutually complementary (their projections pairwise orthogonal), Tr ρ² − 1/d = Σ<sub>directions</sub>Σ<sub>outcomes</sub>(p − 1/d)² + residual (frozen: <code>purity_pythagoras_decomposition</code>; the same identity in the abstract form where the visible projection is coordinatized by probabilities is frozen too: <code>complementary_context_probability_pythagoras</code>). For a qubit it reads |r|²/2 = Σ<sub>directions</sub>(r·n)²/2 + residual. When the directions are not complementary (for example Z and a direction tilted by 45°), the overlap is counted twice and the sum of squares no longer equals the visible part; the “Tilted” preset shows exactly this.</li>
+        <li><b>Complete tomography needs d + 1 complementary directions (§86, Corollary 86.2).</b> A d-dimensional state has d² − 1 real parameters; a direction with d outcomes contributes at most d − 1 of them, so Σ(m<sub>x</sub> − 1) ≥ d² − 1 is required. d + 1 complementary directions give exactly (d + 1)(d − 1) = d² − 1, and all their probabilities determine ρ uniquely (frozen: <code>complete_context_tomography</code>). For a qubit, d = 2: exactly the three directions X, Y and Z. Such complete complementary sets exist in prime-power dimensions (Ivanović, <a href="https://doi.org/10.1088/0305-4470/14/12/019" target="_blank" rel="noopener">J. Phys. A 14, 3241 (1981)</a>; Wootters and Fields, <a href="https://doi.org/10.1016/0003-4916(89)90322-9" target="_blank" rel="noopener">Ann. Phys. 191, 363 (1989)</a>); whether one exists for d = 6 is still unknown.</li>
+        <li><b>Phase blindness (diagonal observables).</b> Measuring only along Z, |+⟩ and Z|+⟩Z = |−⟩ give exactly the same statistics, and any observable that tells them apart is not diagonal (frozen: <code>diagonal_prime_observables_cannot_recover_relative_phase</code>). Turn on “Compare: phase flip ZρZ” and the magenta arrow shows this comparison state.</li>
+        <li><b>Collision conservation (GICT E.168).</b> Over d + 1 complementary directions, the collision probabilities Σ<sub>j</sub>p<sub>j</sub>² of the directions add up to exactly 1 + Tr ρ². It follows from the two frozen theorems above taken together: with a zero residual the Pythagorean split gives Σ(p − 1/d)² = Tr ρ² − 1/d, and expanding gives the identity. Combining them is a derivation on this page, not a separately frozen theorem.</li>
+        <li><b>The complementarity budget (GICT Theorem 6.38).</b> In entropic form, H(Z) + H(X) ≥ ln 2 + S(ρ), in line with the entropic uncertainty relation of Maassen and Uffink (<a href="https://doi.org/10.1103/PhysRevLett.60.1103" target="_blank" rel="noopener">Phys. Rev. Lett. 60, 1103 (1988)</a>). This is a paper proof in the theory volume and a model calculation on this page; it is not formalized as a Lean theorem.</li>
+        <li><b>A single sample and no-cloning (§100).</b> Two non-orthogonal pure states cannot be told apart without error by one measurement (Theorem 100.1), so a single sample of an unknown state cannot be read completely; the state has to be prepared again and again. Copying it first does not help either: if one unitary copies both ψ and φ, preservation of inner products requires ⟨φ|ψ⟩ = ⟨φ|ψ⟩², so the two states are identical or orthogonal (Theorem 100.2, frozen: <code>no_cloning_inner_product_criterion</code>; Wootters and Zurek, <a href="https://doi.org/10.1038/299802a0" target="_blank" rel="noopener">Nature 299, 802 (1982)</a>; Dieks, <a href="https://doi.org/10.1016/0375-9601(82)90084-6" target="_blank" rel="noopener">Phys. Lett. A 92, 271 (1982)</a>). Model limits: ideal projective measurements; samples are assigned to the chosen directions in turn; the reconstruction is a least-squares linear inversion that sets unmeasured directions to the centre of the consistent set (component 0), so an estimate may fall outside the ball, and the page shows it as it is; samples are drawn from fixed seeds.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (the theory volumes are in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md" target="_blank" rel="noopener">Formal observer completion reflection §83, §85, §86, §90, §100</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md" target="_blank" rel="noopener">GICT Theorem 6.38, E.168</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/PurityPythagorasDecomposition.lean" target="_blank" rel="noopener">PurityPythagorasDecomposition.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/CompleteContextTomography.lean" target="_blank" rel="noopener">CompleteContextTomography.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/DiagonalPhaseBlindness.lean" target="_blank" rel="noopener">DiagonalPhaseBlindness.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/NoCloningInnerProductCriterion.lean" target="_blank" rel="noopener">NoCloningInnerProductCriterion.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

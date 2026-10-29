@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="HARD//SQUARES · Particles that refuse to touch">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HARD//SQUARES 硬方块格气 · 互不相邻的粒子</title>
+<meta name="description" content="硬方块格气：网格上的粒子不能相邻。活度 λ 一大，粒子就自发排成棋盘格。页面用蒙特卡罗模拟 48 × 48 的环面，再精确计算 8 × 8 环面的全部配置，核对“占据数的涨落等于响应”这条冻结恒等式；还演示 Adamaszek 的项链动力学（本库证明了他的周期猜想），以及一个被推翻的硬核占据下界猜想。The hard-square lattice gas: particles on a grid may not be neighbours. At large activity λ they order spontaneously into a checkerboard. The page simulates a 48 × 48 torus by Monte Carlo and enumerates every configuration of the 8 × 8 torus exactly, checking the frozen identity that the fluctuation of the particle number equals its response; it also animates Adamaszek’s necklace dynamics (this library proved his period conjecture) and a refuted lower bound for hard-core occupancy.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="hard-squares">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="HARD//SQUARES">HARD<b>//</b>SQUARES</h1>
+      <div class="tagline">
+        <span class="zh">硬方块格气 · 互不相邻的粒子 · <em>只靠“不许挨着”这一条规则，挤满了就自己排成棋盘</em></span>
+        <span class="en">The hard-square lattice gas · particles that refuse to touch · <em>one rule, no neighbours, and when crowded they line up as a checkerboard</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="dilute" aria-pressed="false"><span class="code">λ = 0.5</span><span class="cn zh">稀薄气体 · 无序</span><span class="cn en">Dilute gas · disordered</span></button>
+        <button class="preset" data-preset="critical" aria-pressed="false"><span class="code">λ ≈ 3.8</span><span class="cn zh">临界附近 · 大块涨落</span><span class="cn en">Near critical · large fluctuations</span></button>
+        <button class="preset" data-preset="ordered" aria-pressed="false"><span class="code">λ = 20</span><span class="cn zh">拥挤 · 棋盘畴</span><span class="cn en">Crowded · checkerboard domains</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="true"><span class="code">SWEEP</span><span class="cn zh">扫过 λ · 看相变</span><span class="cn en">Sweep λ · watch the transition</span></button>
+        <button class="preset" data-preset="exact" aria-pressed="false"><span class="code">8 × 8</span><span class="cn zh">精确计数 · 涨落 = 响应</span><span class="cn en">Exact count · fluctuation = response</span></button>
+        <button class="preset" data-preset="neck12" aria-pressed="false"><span class="code">NECKLACE</span><span class="cn zh">12 格 4 颗石子</span><span class="cn en">12 sites, 4 stones</span></button>
+        <button class="preset" data-preset="neck36" aria-pressed="false"><span class="code">NECKLACE</span><span class="cn zh">36 格 10 颗石子</span><span class="cn en">36 sites, 10 stones</span></button>
+        <button class="preset" data-preset="star" aria-pressed="false"><span class="code">(15, 2, 2)</span><span class="cn zh">占据下界 · 已推翻</span><span class="cn en">An occupancy bound · refuted</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">λ</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="gas"><span class="zh">蒙特卡罗 48 × 48</span><span class="en">Monte Carlo 48 × 48</span></button>
+        <button class="chip" data-mode="exact"><span class="zh">精确 8 × 8</span><span class="en">Exact 8 × 8</span></button>
+        <button class="chip" data-mode="necklace"><span class="zh">项链</span><span class="en">Necklace</span></button>
+        <button class="chip" data-mode="star"><span class="zh">星形图</span><span class="en">Star graph</span></button>
+      </div>
+      <div class="field" id="nField" hidden>
+        <label for="nn"><span class="zh">圆周长 n（偶数）</span><span class="en">Circumference n (even)</span></label><output id="oN" for="nn">12</output>
+        <input type="range" id="nn" min="8" max="40" step="2" value="12">
+      </div>
+      <div class="field" id="kField" hidden>
+        <label for="kk"><span class="zh">石子对数 k（共 2k 颗）</span><span class="en">Stone pairs k (2k stones)</span></label><output id="oK" for="kk">2</output>
+        <input type="range" id="kk" min="1" max="10" step="1" value="2">
+      </div>
+      <div class="field" id="leafField" hidden>
+        <label for="leaf"><span class="zh">叶子的活度 λ<sub>1</sub> = λ<sub>2</sub></span><span class="en">Leaf activity λ<sub>1</sub> = λ<sub>2</sub></span></label><output id="oLeaf" for="leaf">2</output>
+        <input type="range" id="leaf" min="0.1" max="10" step="0.1" value="2">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：格气模式下是环面网格，粒子是方块，颜色区分棋盘的两个子格；项链模式下每一圈是一个时刻，石子的箭头是它的向量；拖动旋转，滚轮缩放" data-aria-en="3D view: in the gas modes a torus grid with particles as tiles, coloured by the two checkerboard sublattices; in the necklace mode each ring is one time step and each stone’s arrow is its vector; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前模型的主图" data-aria-en="Main chart of the current model"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前模型的辅助图" data-aria-en="Side chart of the current model"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">P(S) ∝ λ<sup>|S|</sup></span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">任意有限图上的硬核模型（独立集按 λ<sup>|S|</sup> 加权）：λ·d⟨N⟩/dλ = Var(N)，即占据数的响应等于它的涨落；每个顶点被占据的概率是 1 − Z(G − v)/Z(G)。已冻结：</span><span class="en">For the hard-core model on any finite graph (independent sets weighted by λ<sup>|S|</sup>): λ·d⟨N⟩/dλ = Var(N), the response of the particle number equals its fluctuation; and each vertex is occupied with probability 1 − Z(G − v)/Z(G). Frozen:</span> <code>GibbsOccupation.mean_occupation_fluctuation_response</code> · <code>GibbsOccupation.gibbs_vertex_occupied</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明 Adamaszek 的猜想 7.4（arXiv:1202.1655）：对每条周长为偶数 n、有 2k 颗石子的项链 N，T<sup>n−3k</sup>N 是 N 在圆的某个保距变换下的像。已冻结：</span><span class="en">Proves Adamaszek’s Conjecture 7.4 (arXiv:1202.1655): for every necklace N of even circumference n with 2k stones, T<sup>n−3k</sup>N is the image of N under an isometry of the circle. Frozen:</span> <code>HardSquareNecklacePeriod.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 Davies、Sandhu、Seo、Tan（arXiv:2605.05149）对任意正活度提出的占据下界：星形图 K<sub>1,2</sub> 取活度 (15, 2, 2) 时 𝔼|I| = 9/8，而下界是 259/230，多出 1/920。已冻结：</span><span class="en">Refutes the occupancy lower bound that Davies, Sandhu, Seo and Tan (arXiv:2605.05149) proposed for all positive activities: on the star K<sub>1,2</sub> with activities (15, 2, 2), 𝔼|I| = 9/8 while the bound is 259/230, larger by 1/920. Frozen:</span> <code>MultivariateOccupancyRefutation.result</code></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">硬方块模型没有已知的精确解：它的自由能与临界活度都只有数值估计（不像 Baxter 精确求解的硬六边形模型）。</span><span class="en">The hard-square model has no known exact solution: its free energy and critical activity are known only numerically (unlike the hard-hexagon model, which Baxter solved exactly).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">硬方块格气在活度约 3.7962 处从无序相转变为棋盘有序相（Baxter、Enting、Tsang 1980 的数值估计）。Adamaszek 在偶数 n ≤ 36 上用计算机检验过项链猜想。本库没有形式化前者。</span><span class="en">The hard-square gas passes from a disordered phase to checkerboard order at activity about 3.7962 (a numerical estimate of Baxter, Enting and Tsang, 1980). Adamaszek checked the necklace conjecture by computer for even n ≤ 36. This library has not formalized the former.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：活度 λ（项链模式下为步数 t）" data-aria-en="Progress: the activity λ (the step t in the necklace mode)">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>R</kbd> 重新随机 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>R</kbd> reshuffle · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">硬核模型：在一个图上放粒子，相邻的两个顶点不能同时有粒子（配置就是独立集 S），每个配置的权重是 λ<sup>|S|</sup>，λ 叫活度。在正方形网格上它叫硬方块格气。λ 小时粒子稀疏、无序；λ 大时粒子挤满一个子格，形成棋盘。三维视图里粒子是方块，青色和品红区分棋盘的两个子格。</p>
+      <ol>
+        <li><b>涨落等于响应（已冻结）。</b>对任意有限图，平均粒子数 ⟨N⟩ 对 log λ 的导数等于 N 的方差：λ·d⟨N⟩/dλ = Var(N)（<code>GibbsOccupation.mean_occupation_fluctuation_response</code>）。这是统计力学里“响应 = 涨落”的一个精确有限版本。页面对 8 × 8 环面逐个数出各粒子数的配置个数（一共 213 256 442 503 个配置），算出 ⟨N⟩、Var(N)，再用数值微分核对这条等式。</li>
+        <li><b>相变（文献，数值）。</b>无限网格上，λ 越过约 3.7962 时，两个子格的对称性自发破缺（Baxter、Enting、Tsang，<a href="https://doi.org/10.1007/BF01012867" target="_blank" rel="noopener">J. Stat. Phys. 22, 465 (1980)</a>）。页面在 48 × 48 环面上做热浴蒙特卡罗：随机挑一个格点，邻居都空时以 λ/(1 + λ) 的概率放一个粒子，否则清空。有限格子上只能看到相变的痕迹：子格占据差 |ρ<sub>A</sub> − ρ<sub>B</sub>| 在 λ 大时变大。</li>
+        <li><b>项链（已冻结的猜想证明）。</b>Adamaszek 研究圆柱上硬方块的独立复形，引入了一个组合模型：周长 n（偶数）的圆上有 2k 颗石子，每颗带向量 −2、−1、1 或 2，相邻石子方向相反，并满足若干间距条件。一步 T：所有石子同时按向量跳，然后转向（−2→1，−1→2，1→−2，2→−1），最后把相距 3、面对面的石子的长度 2 向量缩成 1。他猜想 T<sup>n−3k</sup>N 回到 N（在圆的保距变换意义下），并在 n ≤ 36 上验证过（<a href="https://arxiv.org/abs/1202.1655" target="_blank" rel="noopener">arXiv:1202.1655</a>，猜想 7.4）。本库证明了它（<code>HardSquareNecklacePeriod.result</code>）：把石子“压缩”成速度 ±1 的粒子，T 变成自由运动加交换标签，L = n − 3k 步后每个粒子绕回整圈。三维视图把每一步画成一圈，往上叠，最上面那圈与初始配置的旋转像重合。</li>
+        <li><b>占据下界被推翻（已冻结）。</b>Davies、Sandhu、Seo、Tan 证明了 λ 有上界时的多变量占据下界 𝔼|I| ≥ Σ<sub>v</sub> λ<sub>v</sub>/(1 + (d<sub>v</sub> + 1)λ<sub>v</sub>)，并猜测上界可以去掉（<a href="https://arxiv.org/abs/2605.05149" target="_blank" rel="noopener">arXiv:2605.05149</a>）。本库给出反例：星形图 K<sub>1,2</sub>，中心活度 15、两片叶子活度 2。五个独立集 ∅, {0}, {1}, {2}, {1, 2} 的权重是 1, 15, 2, 2, 4，所以 𝔼|I| = 27/24 = 9/8，而右边是 15/46 + 2/5 + 2/5 = 259/230（<code>MultivariateOccupancyRefutation.result</code>）。页面画出整个 (λ<sub>中心</sub>, λ<sub>叶</sub>) 平面上下界失败的区域。</li>
+        <li><b>模型边界。</b>蒙特卡罗是随机模拟，读数带统计误差；8 × 8 的精确结果是有限格子的，不是无限网格的极限；相变点 3.7962 是文献的数值估计。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/GibbsOccupation.lean" target="_blank" rel="noopener">GibbsOccupation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/HardSquareNecklacePeriod.lean" target="_blank" rel="noopener">HardSquareNecklacePeriod.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/MultivariateOccupancyRefutation.lean" target="_blank" rel="noopener">MultivariateOccupancyRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/adamaszek-2012-necklace-cycle-length.md" target="_blank" rel="noopener">项链猜想问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/davies-sandhu-seo-tan-2026-multivariate-occupancy-refutation.md" target="_blank" rel="noopener">占据下界问题卷宗</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The hard-core model: put particles on a graph so that no two neighbouring vertices are both occupied (a configuration is an independent set S), and give each configuration weight λ<sup>|S|</sup>, where λ is the activity. On the square grid it is called the hard-square lattice gas. For small λ the particles are sparse and disordered; for large λ they crowd onto one sublattice and form a checkerboard. In the 3D view particles are tiles, cyan and magenta for the two sublattices of the checkerboard.</p>
+      <ol>
+        <li><b>Fluctuation equals response (frozen).</b> On any finite graph the derivative of the mean particle number ⟨N⟩ with respect to log λ equals the variance of N: λ·d⟨N⟩/dλ = Var(N) (<code>GibbsOccupation.mean_occupation_fluctuation_response</code>). It is an exact finite version of the statistical-mechanics rule “response = fluctuation”. The page counts the configurations of the 8 × 8 torus by particle number (213 256 442 503 configurations in all), computes ⟨N⟩ and Var(N), and checks the identity by numerical differentiation.</li>
+        <li><b>The phase transition (literature, numerical).</b> On the infinite grid the symmetry between the two sublattices breaks spontaneously once λ passes about 3.7962 (Baxter, Enting and Tsang, <a href="https://doi.org/10.1007/BF01012867" target="_blank" rel="noopener">J. Stat. Phys. 22, 465 (1980)</a>). The page runs heat-bath Monte Carlo on a 48 × 48 torus: pick a site at random; if its neighbours are all empty, occupy it with probability λ/(1 + λ), otherwise empty it. A finite lattice shows only traces of the transition: the sublattice imbalance |ρ<sub>A</sub> − ρ<sub>B</sub>| grows for large λ.</li>
+        <li><b>Necklaces (a frozen proof of a conjecture).</b> Studying independence complexes of hard squares on cylinders, Adamaszek introduced a combinatorial model: 2k stones on a circle of even circumference n, each carrying a vector −2, −1, 1 or 2, neighbouring stones pointing in opposite directions and obeying some spacing rules. One step T: all stones jump by their vectors at once, then turn (−2→1, −1→2, 1→−2, 2→−1), and finally facing stones at distance 3 have their length-2 vectors shortened to 1. He conjectured that T<sup>n−3k</sup>N returns to N up to an isometry of the circle, and checked it for n ≤ 36 (<a href="https://arxiv.org/abs/1202.1655" target="_blank" rel="noopener">arXiv:1202.1655</a>, Conjecture 7.4). This library proves it (<code>HardSquareNecklacePeriod.result</code>): compressed into particles of velocity ±1, T becomes free motion plus a relabelling, and after L = n − 3k steps every particle has wound once round. The 3D view stacks one ring per step; the top ring coincides with a rotated copy of the start.</li>
+        <li><b>An occupancy bound refuted (frozen).</b> Davies, Sandhu, Seo and Tan proved the multivariate occupancy bound 𝔼|I| ≥ Σ<sub>v</sub> λ<sub>v</sub>/(1 + (d<sub>v</sub> + 1)λ<sub>v</sub>) for bounded activities and conjectured that the bound on λ can be removed (<a href="https://arxiv.org/abs/2605.05149" target="_blank" rel="noopener">arXiv:2605.05149</a>). This library gives a counterexample: the star K<sub>1,2</sub> with activity 15 at the centre and 2 at both leaves. The five independent sets ∅, {0}, {1}, {2}, {1, 2} have weights 1, 15, 2, 2, 4, so 𝔼|I| = 27/24 = 9/8, while the right-hand side is 15/46 + 2/5 + 2/5 = 259/230 (<code>MultivariateOccupancyRefutation.result</code>). The page maps the region of the (λ<sub>centre</sub>, λ<sub>leaf</sub>) plane where the bound fails.</li>
+        <li><b>Model limits.</b> Monte Carlo is a random simulation and its readings carry statistical error; the exact 8 × 8 results belong to a finite lattice, not to the infinite-grid limit; the transition point 3.7962 is a numerical estimate from the literature.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/GibbsOccupation.lean" target="_blank" rel="noopener">GibbsOccupation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/HardSquareNecklacePeriod.lean" target="_blank" rel="noopener">HardSquareNecklacePeriod.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/MultivariateOccupancyRefutation.lean" target="_blank" rel="noopener">MultivariateOccupancyRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/adamaszek-2012-necklace-cycle-length.md" target="_blank" rel="noopener">necklace dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/davies-sandhu-seo-tan-2026-multivariate-occupancy-refutation.md" target="_blank" rel="noopener">occupancy dossier</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

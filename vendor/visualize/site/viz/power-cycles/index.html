@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="POWER//CYCLES · A 64-cycle in every orientation">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>POWER//CYCLES 每一种取向都有 64 圈</title>
+<meta name="description" content="Erdős–Gyárfás 猜想问：最小度至少 3 的有限图是否总有长度为 2 的幂的圈。Garcia（2026）想用仿射群 AGL(1, 29)、AGL(1, 31) 的 Cayley 图把每个顶点换成 15 个顶点的小部件，造出没有 4、8、16、32、64 长圈的三次图，但需要给每个顶点选一个“取向”，搜索没有结束。本库在 Lean 里证明：这八个实例的任何取向都会出现长度恰为 64 的圈。页面画出环面上的 Cayley 图、两族 14 圈的全部平移与平均计数 2S₄ + S₆ = 28N，并把强制出现的 64 圈在替换图里逐边展开。The Erdős–Gyárfás conjecture asks whether every finite graph of minimum degree at least 3 has a cycle whose length is a power of 2. Garcia (2026) proposed to replace each vertex of Cayley graphs of the affine groups AGL(1, 29) and AGL(1, 31) by a 15-vertex gadget, giving cubic graphs without cycles of length 4, 8, 16, 32, 64, but this needs an “orientation” at every vertex and the search did not finish. This library proves in Lean that every orientation of these eight instances has a cycle of length exactly 64. The page draws the Cayley graph on a torus, all translates of two families of 14-cycles with the averaging identity 2S₄ + S₆ = 28N, and expands the forced 64-cycle edge by edge in the replacement graph.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="power-cycles">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="POWER//CYCLES">POWER<b>//</b>CYCLES</h1>
+      <div class="tagline">
+        <span class="zh">2 的幂长度的圈 · <em>Garcia 的八个取向实例都有 64 圈（已冻结）</em></span>
+        <span class="en">Cycles of power-of-two length · <em>Garcia’s eight orientation instances all have a 64-cycle (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="avg" aria-pressed="true"><span class="code">AGL(1, 29) · 812</span><span class="cn zh">扫过全部平移</span><span class="cn en">Sweep every translate</span></button>
+        <button class="preset" data-preset="six" aria-pressed="false"><span class="code">6 × t</span><span class="cn zh">另一族 14 圈</span><span class="cn en">The other 14-cycle family</span></button>
+        <button class="preset" data-preset="noT" aria-pressed="false"><span class="code">σ ≠ t</span><span class="cn zh">从不选 t：平均恰好 10</span><span class="cn en">Never t: average exactly 10</span></button>
+        <button class="preset" data-preset="allT" aria-pressed="false"><span class="code">σ = t</span><span class="cn zh">全选 t：平均 12</span><span class="cn en">Always t: average 12</span></button>
+        <button class="preset" data-preset="cyc29" aria-pressed="false"><span class="code">64 = 14 + 30 + 20</span><span class="cn zh">展开 64 圈</span><span class="cn en">Expand the 64-cycle</span></button>
+        <button class="preset" data-preset="cyc31" aria-pressed="false"><span class="code">AGL(1, 31) · 930</span><span class="cn zh">p = 31 也一样</span><span class="cn en">p = 31 as well</span></button>
+        <button class="preset" data-preset="gadget" aria-pressed="false"><span class="code">H₁₅</span><span class="cn zh">小部件里的短路与长路</span><span class="cn en">Short and long paths in the gadget</span></button>
+        <button class="preset" data-preset="reroll" aria-pressed="false"><span class="code">σ, τ random</span><span class="cn zh">换一种取向</span><span class="cn en">Try another orientation</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">2ᵏ</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="base"><span class="zh">Cayley 图与平均</span><span class="en">Cayley graph and averaging</span></button>
+        <button class="chip" data-mode="cycle"><span class="zh">展开的 64 圈</span><span class="en">The expanded 64-cycle</span></button>
+      </div>
+      <div class="chips subchips" id="instChips" role="group" aria-label="实例" data-aria-en="Instance">
+        <button class="chip" data-inst="29-3">p 29 · a 3</button>
+        <button class="chip" data-inst="29-8">p 29 · a 8</button>
+        <button class="chip" data-inst="29-10">p 29 · a 10</button>
+        <button class="chip" data-inst="29-11">p 29 · a 11</button>
+        <button class="chip" data-inst="31-11">p 31 · a 11</button>
+        <button class="chip" data-inst="31-17">p 31 · a 17</button>
+        <button class="chip" data-inst="31-22">p 31 · a 22</button>
+        <button class="chip" data-inst="31-24">p 31 · a 24</button>
+      </div>
+      <div class="chips subchips" id="sigmaChips" role="group" aria-label="取向" data-aria-en="Orientation">
+        <button class="chip" data-sigma="random"><span class="zh">随机 σ</span><span class="en">random σ</span></button>
+        <button class="chip" data-sigma="noT"><span class="zh">σ 从不取 t</span><span class="en">σ never t</span></button>
+        <button class="chip" data-sigma="allT"><span class="zh">σ 总取 t</span><span class="en">σ always t</span></button>
+        <button class="chip" id="reroll"><span class="zh">重抽</span><span class="en">Re-roll</span></button>
+      </div>
+      <div class="chips subchips" id="famChips" role="group" aria-label="14 圈族" data-aria-en="14-cycle family">
+        <button class="chip" data-fam="4"><span class="zh">四个 t 的词</span><span class="en">four-t word</span></button>
+        <button class="chip" data-fam="6"><span class="zh">六个 t 的词</span><span class="en">six-t word</span></button>
+      </div>
+      <p class="note" id="wordNote"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：环面上的 Cayley 图与一个 14 圈，或替换图里展开的 64 圈；拖动旋转，滚轮缩放" data-aria-en="3D view: the Cayley graph on a torus with one 14-cycle, or the 64-cycle expanded in the replacement graph; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="经过端口 u 的次数分布，或每次经过的路长" data-aria-en="Distribution of visits through port u, or the path length of each visit"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="平均恒等式或小部件 H₁₅" data-aria-en="The averaging identity or the gadget H₁₅"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">2ᵏ</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Garcia（2026）给出的 AGL(1, 29) 实例（812 个顶点，乘子 a ∈ {3, 8, 10, 11}）与 AGL(1, 31) 实例（930 个顶点，a ∈ {11, 17, 22, 24}）留下一个搜索：能否给每个顶点 x 选一个边类型 σ(x)（接到小部件 H₁₅ 的端口 u），并把另两条边分给端口 v、w，使替换图里没有长度 64 的圈。不能：每个乘子各有一个含四个 t、一个含六个 t 的 14 圈，平移计数给出 2S₄ + S₆ = 28N，所以某个平移至少 10 次经过端口 u；在这 10 次用小部件里的 3 边路、其余 4 次用 5 边路，得到 14 + 10·3 + 4·5 = 64 的简单圈。已冻结：</span><span class="en">Garcia (2026) left a search open for the AGL(1, 29) instances (812 vertices, multipliers a ∈ {3, 8, 10, 11}) and the AGL(1, 31) instances (930 vertices, a ∈ {11, 17, 22, 24}): choose for each vertex x an edge type σ(x) (attached to port u of the gadget H₁₅) and give the other two edges to ports v, w, so that the replacement graph has no cycle of length 64. Impossible: each multiplier has one 14-cycle with four t’s and one with six, the translate count gives 2S₄ + S₆ = 28N, so some translate passes through port u at least 10 times; using the gadget’s 3-edge paths for those 10 visits and 5-edge paths for the other 4 gives a simple cycle of 14 + 10·3 + 4·5 = 64. Frozen: </span><code>ErdosGyarfasGarciaOrientation.result · ErdosGyarfasGarciaOrientationThirtyOne.result</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗里计算并推导、但没有形式化：把一般的“对合加生成元”规范化以后，girth 为 14 的生成对只剩上面四个乘子，其余八个本原乘子的圈更短。</span><span class="en">Computed and derived in the dossier but not formalized: after normalizing a general involution-and-generator pair, the generating pairs of girth 14 are exactly the four multipliers above; the other eight primitive multipliers have shorter cycles.</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：取向 σ 与端口分配 τ 由种子随机或按规则选出；页面在每个平移上数经过 u 的次数，算出 S₄、S₆，找到至少 10 次的平移，并在替换图里逐边核对所得的 64 圈（64 个不同顶点，每一步都是边）。</span><span class="en">Numbers computed on the page, not theorems: the orientation σ and the port assignment τ are drawn from a seed or set by a rule; the page counts visits through u on every translate, computes S₄ and S₆, finds a translate with at least 10, and checks the resulting 64-cycle edge by edge in the replacement graph (64 distinct vertices, every step an edge).</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：f(6) 的值，即没有 4、8、16、32、64 长圈的三次图的最小阶；完整的 Erdős–Gyárfás 猜想（对最小度 3）。</span><span class="en">Open: the value of f(6), the least order of a cubic graph with no cycle of length 4, 8, 16, 32 or 64; the full Erdős–Gyárfás conjecture (for minimum degree 3).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Erdős 与 Gyárfás 猜想（Erdős 问题 64）：最小度至少 3 的有限图都有长度为 2ᵏ（k ≥ 2）的圈。Liu 与 Montgomery（2023）在最小度大于某个绝对常数时证明了它；Heckman 与 Krakovski（2013）证明了三连通三次平面图的情形。Garcia（2026）研究没有 2 的幂长圈的小三次图，并提出上面的取向构造。</span><span class="en">Erdős and Gyárfás conjectured (Erdős problem 64) that every finite graph of minimum degree at least 3 has a cycle of length 2ᵏ (k ≥ 2). Liu and Montgomery (2023) proved it when the minimum degree exceeds an absolute constant; Heckman and Krakovski (2013) proved it for 3-connected cubic planar graphs. Garcia (2026) studies small cubic graphs without power-of-two cycles and proposed the orientation construction above.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：平移的编号，或沿 64 圈走过的边数" data-aria-en="Progress: the translate index, or the number of edges walked along the 64-cycle">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">Erdős 与 Gyárfás 问：最小度至少 3 的有限图是否总有长度为 4、8、16、32 … 的圈。要找反例，就得造出避开所有这些长度的三次图。Garcia 把 f(k) 定义为没有长度 2ᵐ（m ≤ k）的圈的三次图的最小阶，并提出一个构造：在仿射群的 Cayley 图上做顶点替换，只要能找到合适的“取向”，就得到 f(6) 的候选图。</p>
+      <ol>
+        <li><b>Cayley 图。</b>V = AGL(1, p) = (ℤ/p)ˣ × ℤ/p，乘法 (x, y)(z, w) = (xz, xw + y)。取 t = (−1, 0)、g = (a, 1)、r = g⁻¹，把 x 连到 xt、xg、xr，得到 N = p(p − 1) 个顶点的三次图（p = 29 时 812，p = 31 时 930）。页面把它画在环面上：一圈方向是 x 的离散对数，另一圈方向是 y。</li>
+        <li><b>小部件与取向。</b>每个顶点 x 换成 15 个顶点的 H₁₅，它有三个端口 u = 14、v = 7、w = 0。取向 σ(x) ∈ {t, g, r} 指定哪条边接到 u，另两条边按 τₓ 接到 v、w。替换图有 15N 个顶点。问题是：能否选 σ、τ 使替换图没有 64 圈？</li>
+        <li><b>两族 14 圈。</b>每个乘子都有两个词，从单位元出发右乘后回到单位元、途中 14 个前缀互不相同：一个含四个 t，一个含六个 t（例如 a = 3 时 tgtggggtrrrtrr 与 tgtgtgtgtrrrtr）。在圈的每个顶点，有一种边类型没被圈用到；圈经过端口 u，恰好当 σ(x) 不等于这个类型。</li>
+        <li><b>平均。</b>把每个圈的全部 N 个左平移加起来，经过 u 的总次数是 S₄ = 10N − 2T 与 S₆ = 8N + 4T，其中 T 是 σ = t 的顶点数。于是 2S₄ + S₆ = 28N。若每个平移都至多 9 次经过 u，则 28N ≤ 27N，矛盾。所以总有一个平移至少 10 次经过 u。</li>
+        <li><b>展开成 64 圈。</b>小部件里，u 到 v、u 到 w 各有一条 3 边路与一条 5 边路，v 到 w 有一条 5 边路。在那 10 次经过 u 的地方走 3 边路，其余 4 次走 5 边路，再加上 14 条外部边：14 + 30 + 20 = 64。各次经过在不同的小部件里，所以这是简单圈。Lean 对任意 σ、τ 构造出这条圈。</li>
+        <li><b>边界。</b>这否定了经过这八个实例构造 f(6) 的路线，但没有确定 f(6)，也没有解决 Erdős–Gyárfás 猜想。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl29-orientation.md" target="_blank" rel="noopener">问题卷宗：AGL(1, 29)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl31-orientation.md" target="_blank" rel="noopener">问题卷宗：AGL(1, 31)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientation.lean" target="_blank" rel="noopener">ErdosGyarfasGarciaOrientation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientationThirtyOne.lean" target="_blank" rel="noopener">ErdosGyarfasGarciaOrientationThirtyOne.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientationBase.lean" target="_blank" rel="noopener">ErdosGyarfasGarciaOrientationBase.lean</a> · Garcia，<a href="https://arxiv.org/abs/2609.04686" target="_blank" rel="noopener">arXiv:2609.04686（2026）</a> · <a href="https://www.erdosproblems.com/64" target="_blank" rel="noopener">Erdős 问题 64</a> · Liu、Montgomery，<a href="https://doi.org/10.1090/jams/1018" target="_blank" rel="noopener">J. Amer. Math. Soc.（2023）</a> · Heckman、Krakovski，<a href="https://doi.org/10.37236/3252" target="_blank" rel="noopener">Electron. J. Combin.（2013）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Erdős and Gyárfás asked whether every finite graph of minimum degree at least 3 has a cycle of length 4, 8, 16, 32, … A counterexample would be a cubic graph avoiding all these lengths. Garcia defines f(k) as the least order of a cubic graph with no cycle of length 2ᵐ (m ≤ k), and proposed a construction: replace the vertices of a Cayley graph of an affine group; a suitable “orientation” would give a candidate graph for f(6).</p>
+      <ol>
+        <li><b>The Cayley graph.</b> V = AGL(1, p) = (ℤ/p)ˣ × ℤ/p with (x, y)(z, w) = (xz, xw + y). With t = (−1, 0), g = (a, 1), r = g⁻¹, join x to xt, xg, xr, a cubic graph on N = p(p − 1) vertices (812 for p = 29, 930 for p = 31). The page draws it on a torus: one way round is the discrete logarithm of x, the other is y.</li>
+        <li><b>The gadget and the orientation.</b> Each vertex x becomes a copy of the 15-vertex H₁₅ with three ports u = 14, v = 7, w = 0. The orientation σ(x) ∈ {t, g, r} says which edge attaches to u, and τₓ gives the other two edges to v and w. The replacement graph has 15N vertices. The question: can σ, τ be chosen so that it has no 64-cycle?</li>
+        <li><b>Two families of 14-cycles.</b> Each multiplier has two words that, multiplied on the right from the identity, return to it with 14 distinct prefixes: one with four t’s and one with six (for a = 3, tgtggggtrrrtrr and tgtgtgtgtrrrtr). At each vertex of the cycle one edge type is unused; the cycle passes through port u exactly when σ(x) differs from that type.</li>
+        <li><b>Averaging.</b> Summing over all N left translates of each cycle, the visits through u total S₄ = 10N − 2T and S₆ = 8N + 4T, where T counts the vertices with σ = t. So 2S₄ + S₆ = 28N. If every translate had at most 9 visits through u, then 28N ≤ 27N, a contradiction. So some translate passes through u at least 10 times.</li>
+        <li><b>Expansion to a 64-cycle.</b> Inside the gadget, u–v and u–w each have a 3-edge path and a 5-edge path, and v–w has a 5-edge path. Use 3-edge paths for 10 visits through u, 5-edge paths for the other 4, plus 14 external edges: 14 + 30 + 20 = 64. The visits lie in different gadgets, so the cycle is simple. Lean builds this cycle for every σ, τ.</li>
+        <li><b>Limits.</b> This rules out the route to f(6) through these eight instances, but determines neither f(6) nor the Erdős–Gyárfás conjecture.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl29-orientation.md" target="_blank" rel="noopener">Problem dossier: AGL(1, 29)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl31-orientation.md" target="_blank" rel="noopener">Problem dossier: AGL(1, 31)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientation.lean" target="_blank" rel="noopener">ErdosGyarfasGarciaOrientation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientationThirtyOne.lean" target="_blank" rel="noopener">ErdosGyarfasGarciaOrientationThirtyOne.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientationBase.lean" target="_blank" rel="noopener">ErdosGyarfasGarciaOrientationBase.lean</a> · Garcia, <a href="https://arxiv.org/abs/2609.04686" target="_blank" rel="noopener">arXiv:2609.04686 (2026)</a> · <a href="https://www.erdosproblems.com/64" target="_blank" rel="noopener">Erdős problem 64</a> · Liu, Montgomery, <a href="https://doi.org/10.1090/jams/1018" target="_blank" rel="noopener">J. Amer. Math. Soc. (2023)</a> · Heckman, Krakovski, <a href="https://doi.org/10.37236/3252" target="_blank" rel="noopener">Electron. J. Combin. (2013)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

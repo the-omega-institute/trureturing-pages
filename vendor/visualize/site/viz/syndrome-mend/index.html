@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="SYNDROME//MEND · Quantum error correction, leaving the code space is not losing the information">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SYNDROME//MEND 量子纠错 · 离开编码空间不等于丢了信息</title>
+<meta name="description" content="量子纠错：噪声把三比特重复码推出编码空间，落进正交的错误副本；读出综合征（或干脆不读，直接折回）就能完整找回。路径带来的相位要靠记录补偿，记录被删掉一位，最优误差就跳上去。Quantum error correction: noise pushes a three-qubit repetition code out of its code space into orthogonal error copies; reading the syndrome, or folding the copies back without reading anything, recovers the state exactly. Phases picked up along the way need the record to be undone, and deleting one record bit raises the best achievable error.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="syndrome-mend">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="SYNDROME//MEND">SYNDROME<b>//</b>MEND</h1>
+      <div class="tagline">
+        <span class="zh">量子纠错 · 离开编码空间不等于丢了信息 · <em>能不能找回，取决于你还留着什么</em></span>
+        <span class="en">Quantum error correction · leaving the code space is not losing the information · <em>what you can recover depends on what you kept</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillStage">STAGE <strong>—</strong></span>
+      <span class="pill" id="pillFid">F̄ <strong>—</strong></span>
+      <span class="pill hot" id="pillErr">e<sub>*</sub> <strong>—</strong></span>
+      <span class="pill" id="pillRun">RUN <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="flip" aria-pressed="false"><span class="code">FLIP-ONE</span><span class="cn zh">整个态都被推出去</span><span class="cn en">Pushed out entirely</span></button>
+        <button class="preset" data-preset="mixed" aria-pressed="false"><span class="code">MIXED</span><span class="cn zh">随机单翻转 · 不读也行</span><span class="cn en">Random single flips · no reading needed</span></button>
+        <button class="preset" data-preset="coh" aria-pressed="false"><span class="code">COHERENT</span><span class="cn zh">错误的相干叠加</span><span class="cn en">A coherent superposition of errors</span></button>
+        <button class="preset" data-preset="iid" aria-pressed="false"><span class="code">TWO-FLIPS</span><span class="cn zh">两个比特同时翻 · 骗过译码</span><span class="cn en">Two flips fool the decoder</span></button>
+        <button class="preset" data-preset="twist" aria-pressed="false"><span class="code">TWIST-FULL</span><span class="cn zh">路径扭转 · 完整记录</span><span class="cn en">Path twists · full record</span></button>
+        <button class="preset" data-preset="onebit" aria-pressed="false"><span class="code">ONE-BIT</span><span class="cn zh">删掉一个记录比特</span><span class="cn en">Delete one record bit</span></button>
+        <button class="preset" data-preset="coarse" aria-pressed="true"><span class="code">COARSE</span><span class="cn zh">只留半个综合征</span><span class="cn en">Half the syndrome kept</span></button>
+        <button class="preset" data-preset="bins" aria-pressed="false"><span class="code">PHASE-BINS</span><span class="cn zh">只记相位落在哪一箱</span><span class="cn en">Record only the phase bin</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">噪声</span><span class="en">Noise</span><span class="aside">𝒩</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="噪声类型" data-aria-en="Kind of noise">
+        <button class="chip" data-mode="mix" aria-pressed="true"><span class="zh">随机单翻转</span><span class="en">Random single flip</span></button>
+        <button class="chip" data-mode="coh" aria-pressed="false"><span class="zh">相干叠加</span><span class="en">Coherent superposition</span></button>
+        <button class="chip" data-mode="iid" aria-pressed="false"><span class="zh">每个比特独立翻转</span><span class="en">Each qubit flips independently</span></button>
+      </div>
+      <div id="weightFields">
+        <div class="field"><label for="w0"><span class="zh">不翻</span><span class="en">No flip</span></label><output id="oW0" for="w0">—</output><input type="range" id="w0" min="0" max="1" step="0.01" value="0.25"></div>
+        <div class="field"><label for="w1"><span class="zh">翻第 1 个比特 X<sub>1</sub></span><span class="en">Flip qubit 1, X<sub>1</sub></span></label><output id="oW1" for="w1">—</output><input type="range" id="w1" min="0" max="1" step="0.01" value="0.25"></div>
+        <div class="field"><label for="w2"><span class="zh">翻第 2 个比特 X<sub>2</sub></span><span class="en">Flip qubit 2, X<sub>2</sub></span></label><output id="oW2" for="w2">—</output><input type="range" id="w2" min="0" max="1" step="0.01" value="0.25"></div>
+        <div class="field"><label for="w3"><span class="zh">翻第 3 个比特 X<sub>3</sub></span><span class="en">Flip qubit 3, X<sub>3</sub></span></label><output id="oW3" for="w3">—</output><input type="range" id="w3" min="0" max="1" step="0.01" value="0.25"></div>
+      </div>
+      <div class="field" id="chiField" hidden>
+        <label for="chi"><span class="zh">叠加的相对相位 χ</span><span class="en">Relative phase of the superposition χ</span><small class="zh">第 j 个分支带 e<sup>ijχ</sup></small><small class="en">branch j carries e<sup>ijχ</sup></small></label><output id="oChi" for="chi">90°</output>
+        <input type="range" id="chi" min="0" max="360" step="1" value="90">
+      </div>
+      <div class="field" id="pField" hidden>
+        <label for="pflip"><span class="zh">每个比特的翻转概率 p</span><span class="en">Flip probability per qubit p</span></label><output id="oP" for="pflip">0.10</output>
+        <input type="range" id="pflip" min="0" max="0.5" step="0.005" value="0.1">
+      </div>
+      <p class="note" id="noiseNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">路径扭转</span><span class="en">Path twists</span><span class="aside">V<sub>j</sub> = diag(z<sub>j</sub>, 1)</span></h2>
+      <div class="chips" id="twistChips" role="group" aria-label="扭转相位" data-aria-en="Twist phases">
+        <button class="chip" data-twist="none" aria-pressed="false"><span class="zh">没有扭转</span><span class="en">No twist</span></button>
+        <button class="chip" data-twist="spread" aria-pressed="true"><span class="zh">铺开 0/90/180/270°</span><span class="en">Spread 0/90/180/270°</span></button>
+        <button class="chip" data-twist="pair" aria-pressed="false"><span class="zh">两两相反 0/180°</span><span class="en">Opposite pairs 0/180°</span></button>
+      </div>
+      <p class="note" id="twistNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">留下的记录</span><span class="en">The record kept</span><span class="aside">T(r|j)</span></h2>
+      <div class="chips" id="recChips" role="group" aria-label="记录" data-aria-en="Record">
+        <button class="chip" data-rec="full" aria-pressed="false"><span class="zh">完整综合征</span><span class="en">Full syndrome</span></button>
+        <button class="chip" data-rec="bitA" aria-pressed="true"><span class="zh">只留第一位</span><span class="en">First bit only</span></button>
+        <button class="chip" data-rec="bitB" aria-pressed="false"><span class="zh">只留第二位</span><span class="en">Second bit only</span></button>
+        <button class="chip" data-rec="none" aria-pressed="false"><span class="zh">不留记录</span><span class="en">No record</span></button>
+        <button class="chip" data-rec="bins" aria-pressed="false"><span class="zh">相位分箱</span><span class="en">Phase bins</span></button>
+        <button class="chip" data-rec="noisy" aria-pressed="false"><span class="zh">带噪记录</span><span class="en">Noisy record</span></button>
+      </div>
+      <div class="field" id="kField" hidden>
+        <label for="kbins"><span class="zh">相位箱数 K</span><span class="en">Number of phase bins K</span></label><output id="oK" for="kbins">3</output>
+        <input type="range" id="kbins" min="2" max="8" step="1" value="3">
+      </div>
+      <div class="field" id="epsField" hidden>
+        <label for="eps"><span class="zh">每个记录位读错的概率 ε</span><span class="en">Chance that each record bit is misread ε</span></label><output id="oEps" for="eps">0.10</output>
+        <input type="range" id="eps" min="0" max="0.5" step="0.005" value="0.1">
+      </div>
+      <p class="note" id="recNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">要保护的逻辑态</span><span class="en">The logical state to protect</span><span class="aside">|ψ⟩</span></h2>
+      <div class="field">
+        <label for="theta"><span class="zh">极角 θ</span><span class="en">Polar angle θ</span></label><output id="oTheta" for="theta">70°</output>
+        <input type="range" id="theta" min="0" max="180" step="1" value="70">
+      </div>
+      <div class="field">
+        <label for="phase"><span class="zh">方位角 φ</span><span class="en">Azimuth φ</span></label><output id="oPhase" for="phase">20°</output>
+        <input type="range" id="phase" min="0" max="360" step="1" value="20">
+      </div>
+      <p class="note" id="inputNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三比特重复码的四个正交层：最上层是编码空间，下面三层是翻转一个比特后的错误副本；拖动旋转，滚轮缩放" data-aria-en="The four orthogonal layers of the three-qubit repetition code: the top layer is the code space, the three below are the error copies after one qubit flips; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">记录格里的相位</span><span class="en">PHASES IN EACH RECORD CELL</span></h2><span id="phMeta"></span></div>
+        <canvas id="phasor" aria-label="单位圆上的各分支相位；同一记录值的分支加成一个箭头，箭头总长 s_T 决定最优误差；可以拖动圆上的点改变扭转相位" data-aria-en="The phase of each branch on the unit circle; branches with the same record value add up to one arrow, and the total arrow length s_T sets the best error; drag a dot on the circle to change its twist"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="cmpTitle"></h2><span id="cmpMeta"></span></div>
+        <canvas id="compare" aria-label="不同记录下的最优误差，或独立翻转时逻辑错误率随物理错误率的变化" data-aria-en="The best error under each kind of record, or the logical error rate against the physical error rate for independent flips"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">e<sub>*</sub> = (1 − s<sub>T</sub>)/2</span></h2>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">这个输入态的保真度 F(ψ)</span><span class="en">Fidelity for this input F(ψ)</span></dt><dd id="roF">—</dd></div>
+        <div class="c"><dt><span class="zh">平均保真度 F̄</span><span class="en">Average fidelity F̄</span></dt><dd id="roFbar">—</dd></div>
+        <div class="m"><dt><span class="zh">最优恢复误差 e<sub>*</sub></span><span class="en">Best recovery error e<sub>*</sub></span></dt><dd id="roErr">—</dd></div>
+        <div><dt><span class="zh">记录可见度 s<sub>T</sub> = Σ|c<sub>r</sub>|</span><span class="en">Record visibility s<sub>T</sub> = Σ|c<sub>r</sub>|</span></dt><dd id="roS">—</dd></div>
+        <div class="a"><dt><span class="zh">漏出 λ（离开编码空间的权重）</span><span class="en">Leakage λ (weight outside the code space)</span></dt><dd id="roLeak">—</dd></div>
+        <div><dt><span class="zh">完美恢复存在吗（Knill–Laflamme）</span><span class="en">Does a perfect recovery exist (Knill–Laflamme)</span></dt><dd id="roKL">—</dd></div>
+        <div><dt id="roL7"></dt><dd id="ro7">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">错误副本两两正交（S<sub>i</sub><sup>†</sup>S<sub>j</sub> = δ<sub>ij</sub>I）时，折回解码 Σ<sub>i</sub>S<sub>i</sub><sup>†</sup>(·)S<sub>i</sub> 作用在 Σ<sub>jk</sub>σ<sub>jk</sub>S<sub>j</sub>ρS<sub>k</sub><sup>†</sup> 上恰得 tr(σ)·ρ，σ 可以带非对角元，已冻结：</span><span class="en">When the error copies are mutually orthogonal (S<sub>i</sub><sup>†</sup>S<sub>j</sub> = δ<sub>ij</sub>I), the fold-back decoder Σ<sub>i</sub>S<sub>i</sub><sup>†</sup>(·)S<sub>i</sub> applied to Σ<sub>jk</sub>σ<sub>jk</sub>S<sub>j</sub>ρS<sub>k</sub><sup>†</sup> gives exactly tr(σ)·ρ, even when σ has off-diagonal entries; frozen:</span> <code>orthogonal_syndrome_recovery</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">只要存在把噪声完全倒回去的恢复，每一对错误就必须满足 E<sub>a</sub><sup>†</sup>E<sub>c</sub> = c<sub>ac</sub>·I（Knill–Laflamme 条件的必要性），已冻结：</span><span class="en">If any recovery undoes the noise exactly, every pair of errors must satisfy E<sub>a</sub><sup>†</sup>E<sub>c</sub> = c<sub>ac</sub>·I (necessity of the Knill–Laflamme condition); frozen:</span> <code>left_inverse_error_products</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">反过来，满足这个条件就能构造出一个精确的恢复（充分性），已冻结：</span><span class="en">Conversely, when the condition holds an exact recovery can be constructed (sufficiency); frozen:</span> <code>scalar_products_construct_left_inverse</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">这一次运行</span><span class="en">This run</span><span class="aside" id="runAside">—</span></h2>
+      <dl class="ro run" id="runList">
+        <div><dt><span class="zh">发生的分支</span><span class="en">Branch that happened</span></dt><dd id="runBranch">—</dd></div>
+        <div><dt><span class="zh">留下的记录 r</span><span class="en">Record left r</span></dt><dd id="runRec">—</dd></div>
+        <div><dt><span class="zh">据记录施加的补偿</span><span class="en">Compensation applied from the record</span></dt><dd id="runComp">—</dd></div>
+        <div class="c"><dt><span class="zh">这一次的保真度</span><span class="en">Fidelity of this run</span></dt><dd id="runFid">—</dd></div>
+      </dl>
+      <p class="note" id="runNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">折回之后的账</span><span class="en">The ledger after folding back</span><span class="aside">Σ<sub>j</sub>S<sub>j</sub><sup>†</sup>𝒩(ρ)S<sub>j</sub></span></h2>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">每个副本先做一个逻辑酉运输 V<sub>j</sub>，副本 S<sub>j</sub>V<sub>j</sub> 仍两两正交，所以用 S<sub>j</sub>V<sub>j</sub> 构造的解码器同样精确，已冻结：</span><span class="en">If each copy first undergoes a logical unitary transport V<sub>j</sub>, the copies S<sub>j</sub>V<sub>j</sub> stay mutually orthogonal, so the decoder built from S<sub>j</sub>V<sub>j</sub> is exact as well; frozen:</span> <code>syndrome_transport_orthogonal</code></span></div>
+      <p class="note" id="ledgerNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="5" step="0.001" value="0" aria-label="纠错的阶段" data-aria-en="Stage of the correction">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一个阶段 · <kbd>R</kbd> 换一次运行</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one stage · <kbd>R</kbd> new run</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一个逻辑量子比特 α|0⟩ + β|1⟩ 被写成三个物理比特 α|000⟩ + β|111⟩（三比特重复码）。8 维空间分成四个两两正交的 2 维层：最上面是编码空间 {|000⟩, |111⟩}；下面三层是翻转第 1、2、3 个比特后的副本，例如 {|100⟩, |011⟩}。两个奇偶校验 Z<sub>1</sub>Z<sub>2</sub>、Z<sub>2</sub>Z<sub>3</sub> 的结果（综合征）正好说出态在哪一层。每层中央的小球是那一层里逻辑比特的布洛赫矢量，层的亮度是落在这一层的概率。</p>
+      <ol>
+        <li><b>正交错误副本（理论卷 ST27.1）。</b>记 S<sub>j</sub> = X<sub>j</sub>·Enc（S<sub>0</sub> = Enc），它们满足 S<sub>i</sub><sup>†</sup>S<sub>j</sub> = δ<sub>ij</sub>I：每一层都是逻辑信息的一份正交副本。这不是复制了未知态——一次实际状态只占一个联合编码。</li>
+        <li><b>不读也能精确恢复（定理 ST27.2）。</b>噪声 𝒩<sub>σ</sub>(ρ) = Σ<sub>jk</sub>σ<sub>jk</sub>S<sub>j</sub>ρS<sub>k</sub><sup>†</sup> 可以是概率混合（σ 对角），也可以是“没翻、翻 1、翻 2、翻 3”的相干叠加（σ 有非对角元）。折回解码 𝒟(X) = Σ<sub>j</sub>S<sub>j</sub><sup>†</sup>XS<sub>j</sub> 不读取 σ，也不要求它对角，都给出 tr(σ)ρ = ρ。矩阵恒等式已冻结：<code>orthogonal_syndrome_recovery</code>；把它写成真正的 CPTP 解码通道也已冻结：<code>full_syndrome_decoder</code>。</li>
+        <li><b>漏出 ≠ 丢失（例 ST27.3）。</b>“翻第 1 个比特”确定发生时，整个态都离开了编码空间（相对旧投影的漏出 λ = 1），恢复误差却是 0。能否恢复取决于你被允许访问哪些输出自由度。</li>
+        <li><b>Knill–Laflamme 条件（命题 ST28.1；Knill、Laflamme，<a href="https://doi.org/10.1103/PhysRevA.55.900" target="_blank" rel="noopener">Phys. Rev. A 55, 900 (1997)</a>）。</b>噪声的 Kraus 算子 E<sub>a</sub> 能被精确倒回，当且仅当每一对都满足 E<sub>a</sub><sup>†</sup>E<sub>c</sub> = c<sub>ac</sub>I。必要性已冻结：<code>left_inverse_error_products</code>；充分性已冻结：<code>scalar_products_construct_left_inverse</code>；只要任何恢复存在，仓库里显式算出的谱恢复就是精确的：<code>computed_recovery_of_kraus_left_inverse</code>。“每个比特独立翻转”时，X<sub>1</sub>X<sub>2</sub> 与 X<sub>3</sub> 落在同一层，但 (X<sub>3</sub>Enc)<sup>†</sup>(X<sub>1</sub>X<sub>2</sub>Enc) 是逻辑翻转 X 而不是 I 的倍数：条件不成立，没有任何恢复能完全倒回。重复码把逻辑错误率从 p 压到 3p² − 2p³（p &lt; 1/2 时更小），这是教科书里的标准计算；重复结构正是 Shor 码（<a href="https://doi.org/10.1103/PhysRevA.52.R2493" target="_blank" rel="noopener">Phys. Rev. A 52, R2493 (1995)</a>）的内层。</li>
+        <li><b>路径扭转（定理 ST29.1、命题 ST29.2）。</b>若第 j 个分支沿途还带回一个已知的逻辑酉 V<sub>j</sub>（页面里取相位 V<sub>j</sub> = diag(z<sub>j</sub>, 1)），副本 S<sub>j</sub>V<sub>j</sub> 仍两两正交（已冻结：<code>syndrome_transport_orthogonal</code>），知道扭转的解码器仍精确。但若用旧解码 S<sub>j</sub><sup>†</sup> 折回、又把分支信息丢了，就只剩混合 Σ<sub>j</sub>p<sub>j</sub>V<sub>j</sub>ρV<sub>j</sub><sup>†</sup>。</li>
+        <li><b>记录不全时的最优误差（定理 ST30.2 至例 ST30.5）。</b>页面的流水线是：读出一个可能不完整的经典记录 r（条件概率 T(r|j)），用旧解码折回（删掉综合征的量子自由度），再按 r 补偿相位。记 c<sub>r</sub> = Σ<sub>j</sub>p<sub>j</sub>T(r|j)z<sub>j</sub>、s<sub>T</sub> = Σ<sub>r</sub>|c<sub>r</sub>|，所有恢复中最好的半钻石距离误差恰为 e<sub>*</sub> = (1 − s<sub>T</sub>)/2，按 c<sub>r</sub> 的相位补偿即可达到；记录被粗化只会让 e<sub>*</sub> 变大（推论 ST30.4）；两个相反相位各占一半时，一个记录比特决定误差是 0 还是 1/2（例 ST30.5）。这些是理论卷里的论文证明与本页的模型计算，<b>没有</b>形式化为 Lean 定理。相关的既有研究：环境辅助纠错（Trendelkamp-Schroer、Helm、Strunz，<a href="https://doi.org/10.1103/PhysRevA.84.062314" target="_blank" rel="noopener">Phys. Rev. A 84, 062314 (2011)</a>），近似纠错的一般条件（Bény、Oreshkov，<a href="https://doi.org/10.1103/PhysRevLett.104.120501" target="_blank" rel="noopener">Phys. Rev. Lett. 104, 120501 (2010)</a>）。</li>
+        <li><b>相位分箱与模型边界（定理 ST31.1）。</b>记录只保存相位落在 K 个等宽箱中的哪一个时，e<sub>*</sub> ≤ (1 − cos(π/K))/2 ≤ π²/(4K²)。页面的箱从 0° 起等分。门与测量都是理想、瞬时的；平均保真度用 F̄ = (2F<sub>e</sub> + 1)/3 由纠缠保真度换算。独立翻转模式下，补偿仍按各层的相位做，e<sub>*</sub> 公式不再适用，页面只显示这条流水线实际达到的保真度。单次运行用固定种子抽出发生的分支和留下的记录。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md" target="_blank" rel="noopener">量子现实 ST27–ST31</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeDecoding.lean" target="_blank" rel="noopener">OrthogonalSyndromeDecoding.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeChannel.lean" target="_blank" rel="noopener">OrthogonalSyndromeChannel.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/KrausLeftInverseNecessity.lean" target="_blank" rel="noopener">KrausLeftInverseNecessity.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/FiniteKrausReversibility.lean" target="_blank" rel="noopener">FiniteKrausReversibility.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/SpectralRecoveryCorrectness.lean" target="_blank" rel="noopener">SpectralRecoveryCorrectness.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">One logical qubit α|0⟩ + β|1⟩ is written into three physical qubits as α|000⟩ + β|111⟩ (the three-qubit repetition code). The 8-dimensional space splits into four mutually orthogonal 2-dimensional layers: on top the code space {|000⟩, |111⟩}; below it the copies after qubit 1, 2 or 3 flips, for example {|100⟩, |011⟩}. The outcomes of the two parity checks Z<sub>1</sub>Z<sub>2</sub> and Z<sub>2</sub>Z<sub>3</sub> (the syndrome) say exactly which layer the state is in. The small sphere in each layer is the Bloch vector of the logical qubit inside that layer; the brightness of a layer is the probability of being in it.</p>
+      <ol>
+        <li><b>Orthogonal error copies (theory volume ST27.1).</b> Write S<sub>j</sub> = X<sub>j</sub>·Enc (S<sub>0</sub> = Enc). They satisfy S<sub>i</sub><sup>†</sup>S<sub>j</sub> = δ<sub>ij</sub>I: every layer is an orthogonal copy of the logical information. The unknown state is not cloned; a single actual state occupies one joint encoding.</li>
+        <li><b>Exact recovery without reading anything (Theorem ST27.2).</b> The noise 𝒩<sub>σ</sub>(ρ) = Σ<sub>jk</sub>σ<sub>jk</sub>S<sub>j</sub>ρS<sub>k</sub><sup>†</sup> may be a probabilistic mixture (σ diagonal) or a coherent superposition of “no flip, flip 1, flip 2, flip 3” (σ with off-diagonal entries). The fold-back decoder 𝒟(X) = Σ<sub>j</sub>S<sub>j</sub><sup>†</sup>XS<sub>j</sub> never reads σ and does not need it to be diagonal; it always returns tr(σ)ρ = ρ. The matrix identity is frozen: <code>orthogonal_syndrome_recovery</code>; writing it as an honest CPTP decoding channel is frozen too: <code>full_syndrome_decoder</code>.</li>
+        <li><b>Leakage is not loss (Example ST27.3).</b> When “flip qubit 1” happens with certainty, the whole state leaves the code space (leakage λ = 1 relative to the old projection), yet the recovery error is 0. Whether you can recover depends on which output degrees of freedom you are allowed to access.</li>
+        <li><b>The Knill–Laflamme condition (Proposition ST28.1; Knill and Laflamme, <a href="https://doi.org/10.1103/PhysRevA.55.900" target="_blank" rel="noopener">Phys. Rev. A 55, 900 (1997)</a>).</b> Noise with Kraus operators E<sub>a</sub> can be undone exactly if and only if every pair satisfies E<sub>a</sub><sup>†</sup>E<sub>c</sub> = c<sub>ac</sub>I. Necessity is frozen: <code>left_inverse_error_products</code>; sufficiency is frozen: <code>scalar_products_construct_left_inverse</code>; and whenever any recovery exists, the explicitly computed spectral recovery in the repository is exact: <code>computed_recovery_of_kraus_left_inverse</code>. When each qubit flips independently, X<sub>1</sub>X<sub>2</sub> lands in the same layer as X<sub>3</sub>, but (X<sub>3</sub>Enc)<sup>†</sup>(X<sub>1</sub>X<sub>2</sub>Enc) is a logical flip X, not a multiple of I: the condition fails and no recovery can undo the noise exactly. The repetition code lowers the logical error rate from p to 3p² − 2p³ (smaller when p &lt; 1/2), the standard textbook calculation; the same repetition structure is the inner layer of Shor’s code (<a href="https://doi.org/10.1103/PhysRevA.52.R2493" target="_blank" rel="noopener">Phys. Rev. A 52, R2493 (1995)</a>).</li>
+        <li><b>Path twists (Theorem ST29.1, Proposition ST29.2).</b> If branch j also brings back a known logical unitary V<sub>j</sub> (on this page a phase, V<sub>j</sub> = diag(z<sub>j</sub>, 1)), the copies S<sub>j</sub>V<sub>j</sub> are still mutually orthogonal (frozen: <code>syndrome_transport_orthogonal</code>), and a decoder that knows the twists is still exact. But if you fold back with the old decoder S<sub>j</sub><sup>†</sup> and lose the branch information, only the mixture Σ<sub>j</sub>p<sub>j</sub>V<sub>j</sub>ρV<sub>j</sub><sup>†</sup> is left.</li>
+        <li><b>The best error with an incomplete record (Theorem ST30.2 to Example ST30.5).</b> The page’s pipeline reads a classical record r that may be incomplete (conditional probabilities T(r|j)), folds back with the old decoder (deleting the quantum degrees of freedom of the syndrome), then undoes the phase according to r. With c<sub>r</sub> = Σ<sub>j</sub>p<sub>j</sub>T(r|j)z<sub>j</sub> and s<sub>T</sub> = Σ<sub>r</sub>|c<sub>r</sub>|, the best half-diamond-distance error over all recoveries is exactly e<sub>*</sub> = (1 − s<sub>T</sub>)/2, reached by undoing the phase of c<sub>r</sub>; coarsening the record can only raise e<sub>*</sub> (Corollary ST30.4); with two opposite phases at one half each, a single record bit decides whether the error is 0 or 1/2 (Example ST30.5). These are paper proofs in the theory volume and model calculations on this page; they are <b>not</b> formalized as Lean theorems. Related earlier work: environment-assisted error correction (Trendelkamp-Schroer, Helm and Strunz, <a href="https://doi.org/10.1103/PhysRevA.84.062314" target="_blank" rel="noopener">Phys. Rev. A 84, 062314 (2011)</a>) and general conditions for approximate error correction (Bény and Oreshkov, <a href="https://doi.org/10.1103/PhysRevLett.104.120501" target="_blank" rel="noopener">Phys. Rev. Lett. 104, 120501 (2010)</a>).</li>
+        <li><b>Phase bins and model limits (Theorem ST31.1).</b> If the record keeps only which of K equal-width bins the phase falls into, e<sub>*</sub> ≤ (1 − cos(π/K))/2 ≤ π²/(4K²). The page’s bins split the circle starting at 0°. Gates and measurements are ideal and instantaneous; the average fidelity is converted from the entanglement fidelity by F̄ = (2F<sub>e</sub> + 1)/3. In the independent-flip mode the phase is still undone layer by layer; the e<sub>*</sub> formula no longer applies, and the page shows only the fidelity this pipeline actually reaches. The single run draws the branch that happened and the record left from fixed seeds.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (the theory volume is in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md" target="_blank" rel="noopener">Quantum reality ST27–ST31</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeDecoding.lean" target="_blank" rel="noopener">OrthogonalSyndromeDecoding.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeChannel.lean" target="_blank" rel="noopener">OrthogonalSyndromeChannel.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/KrausLeftInverseNecessity.lean" target="_blank" rel="noopener">KrausLeftInverseNecessity.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/FiniteKrausReversibility.lean" target="_blank" rel="noopener">FiniteKrausReversibility.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/SpectralRecoveryCorrectness.lean" target="_blank" rel="noopener">SpectralRecoveryCorrectness.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

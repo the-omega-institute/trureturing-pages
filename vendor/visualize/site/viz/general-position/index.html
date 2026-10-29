@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="GENERAL//POSITION · Robots, polynomials and outer sets">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GENERAL//POSITION 一般位置：机器人、多项式与外部位置</title>
+<meta name="description" content="图上的一般位置：顶点集中没有三个点落在同一条最短路上。本库结算了三个相关问题：柱面 C₇ □ Pₛ 与 C₁₀ □ Pₛ 的移动一般位置数是 4；连通图的一般位置多项式 ψ(G) 只有实根当且仅当图是完全图；外部一般位置数在删去非割点时的上界猜想不成立（19 个顶点的反例）。页面在三维里演示机器人在柱面上移动、从路到完全图加边时 ψ 的根，以及反例图上的五色阻挡。General position in graphs: no three vertices of a set lie on a common shortest path. This library settles three related problems: the mobile general position number of the cylinders C₇ □ Pₛ and C₁₀ □ Pₛ is 4; the general position polynomial ψ(G) of a connected graph is real-rooted exactly when the graph is complete; and a conjectured bound for the outer general position number under deletion of a non-cut vertex fails (a 19-vertex counterexample). The page shows robots moving on a cylinder in 3D, the roots of ψ while edges are added from a path to the complete graph, and the five-colour obstruction on the counterexample.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="general-position">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="GENERAL//POSITION">GENERAL<b>//</b>POSITION</h1>
+      <div class="tagline">
+        <span class="zh">一般位置：机器人、多项式与外部位置 · <em>三个问题已结算（已冻结）</em></span>
+        <span class="en">Robots, polynomials and outer sets · <em>three problems settled (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="cyl7" aria-pressed="true"><span class="code">C₇ □ P₅ · 4</span><span class="cn zh">四个机器人走遍柱面</span><span class="cn en">Four robots cover the cylinder</span></button>
+        <button class="preset" data-preset="cyl10" aria-pressed="false"><span class="code">C₁₀ □ P₆ · 4</span><span class="cn zh">十边形柱面也一样</span><span class="cn en">The ten-cycle cylinder too</span></button>
+        <button class="preset" data-preset="five" aria-pressed="false"><span class="code">C₇ □ P₆ · 5</span><span class="cn zh">五个机器人只能上下</span><span class="cn en">Five robots only move up and down</span></button>
+        <button class="preset" data-preset="tall" aria-pressed="false"><span class="code">C₁₀ □ P₈ · 5</span><span class="cn zh">再高也有空列</span><span class="cn en">Taller, still empty columns</span></button>
+        <button class="preset" data-preset="p3" aria-pressed="false"><span class="code">ψ(P₃)</span><span class="cn zh">最小的反例</span><span class="cn en">The smallest non-example</span></button>
+        <button class="preset" data-preset="toK" aria-pressed="false"><span class="code">P₆ → K₆</span><span class="cn zh">加边到完全图</span><span class="cn en">Add edges up to complete</span></button>
+        <button class="preset" data-preset="outer" aria-pressed="false"><span class="code">19 · gp₀</span><span class="cn zh">删一个点多出三个</span><span class="cn en">Delete one vertex, gain three</span></button>
+        <button class="preset" data-preset="colors" aria-pressed="false"><span class="code">5 colours</span><span class="cn zh">五种颜色挡住</span><span class="cn en">Five colours block</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">gp</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="robots"><span class="zh">移动机器人</span><span class="en">Mobile robots</span></button>
+        <button class="chip" data-mode="poly"><span class="zh">多项式 ψ(G)</span><span class="en">Polynomial ψ(G)</span></button>
+        <button class="chip" data-mode="outer"><span class="zh">外部位置</span><span class="en">Outer position</span></button>
+      </div>
+      <div class="field" id="cylField">
+        <div class="chips subchips" id="rChips" role="group" aria-label="圈长 r" data-aria-en="Cycle length r">
+          <button class="chip" data-r="7">C₇ □ Pₛ</button>
+          <button class="chip" data-r="10">C₁₀ □ Pₛ</button>
+        </div>
+        <div class="chips subchips" id="kChips" role="group" aria-label="机器人数" data-aria-en="Number of robots">
+          <button class="chip" data-k="4"><span class="zh">4 个机器人</span><span class="en">4 robots</span></button>
+          <button class="chip" data-k="5"><span class="zh">5 个机器人</span><span class="en">5 robots</span></button>
+        </div>
+        <label for="ss"><span class="zh">路的顶点数 s（行数）</span><span class="en">Path vertices s (rows)</span></label><output id="oS" for="ss">5</output>
+        <input type="range" id="ss" min="2" max="8" step="1" value="5">
+      </div>
+      <div class="field" id="polyField" hidden>
+        <div class="chips subchips" id="startChips" role="group" aria-label="起点图" data-aria-en="Starting graph">
+          <button class="chip" data-start="path"><span class="zh">路 Pₙ</span><span class="en">path Pₙ</span></button>
+          <button class="chip" data-start="star"><span class="zh">星 K₁,ₙ₋₁</span><span class="en">star K₁,ₙ₋₁</span></button>
+          <button class="chip" data-start="cycle"><span class="zh">圈 Cₙ</span><span class="en">cycle Cₙ</span></button>
+        </div>
+        <label for="nn"><span class="zh">顶点数 n</span><span class="en">Vertices n</span></label><output id="oN" for="nn">6</output>
+        <input type="range" id="nn" min="3" max="9" step="1" value="6">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：图的顶点与边，一般位置的集合高亮；拖动旋转，滚轮缩放" data-aria-en="3D view: the graph's vertices and edges with the general position sets highlighted; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="随时间轴变化的计数图" data-aria-en="Counts along the time axis"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="展开的网格、复平面上的根或冲突矩阵" data-aria-en="The unrolled grid, the roots in the complex plane, or the conflict matrix"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">gp</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Klavžar 等人（2026）猜想柱面 C₇ □ Pₛ 与 C₁₀ □ Pₛ（s ≥ 5）的移动一般位置数都是 4。已证明：五个处于一般位置的顶点必在不同的行，按行排好后列号是公差 ±2（C₇）或 ±3（C₁₀）的等差数列；这样的五个机器人只能上下移动，空着的列永远走不到；六个顶点不可能处于一般位置。四个机器人则能走遍所有顶点。已冻结：</span><span class="en">Klavžar et al. (2026) conjectured that the cylinders C₇ □ Pₛ and C₁₀ □ Pₛ (s ≥ 5) have mobile general position number 4. Proved: five vertices in general position lie in distinct rows, and in row order their columns form an arithmetic progression with step ±2 (C₇) or ±3 (C₁₀); five such robots can only move up and down, so an empty column is never visited; no six vertices are in general position. Four robots do visit every vertex. Frozen: </span><code>CylinderSevenTen.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Rather（2026）问一般位置多项式 ψ(G) = Σ αₖ xᵏ（αₖ 是 k 元一般位置集的个数）在哪些图类上只有实根。答案：连通图的 ψ(G) 只有实根当且仅当 G 是完全图。前三个系数是 1、n、n(n − 1)/2；若根全是实数，Newton 不等式迫使 ψ 的次数等于 n，也就是全部顶点处于一般位置，连通的非完全图做不到；完全图的 ψ = (1 + x)ⁿ。已冻结：</span><span class="en">Rather (2026) asked on which graph classes the general position polynomial ψ(G) = Σ αₖ xᵏ (αₖ counts general position sets of size k) is real-rooted. Answer: for a connected graph, ψ(G) is real-rooted exactly when G is complete. The first three coefficients are 1, n, n(n − 1)/2; if all roots are real, Newton’s inequality forces deg ψ = n, i.e. the whole vertex set in general position, which no connected non-complete graph has; for the complete graph ψ = (1 + x)ⁿ. Frozen: </span><code>RatherRealRootedComplete.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Tian、Dokyeesun 与 Klavžar 猜想：x 不是割点时，外部一般位置数满足 gp₀(G − x) ≤ gp₀(G) + deg x。不成立：十二边形的两个对顶点各换成 4 个互不相邻的顶点 A、B，再加一个 2 度的顶点 x，连接 A 与 B 旁边圈上的各一个点，共 19 个顶点。删去 x 后 A ∪ B 这 8 个点处于外部一般位置；在 G 中一种五色染色让每对同色顶点都被某条最短路挡住，所以 gp₀(G) ≤ 5，而 8 &gt; 5 + 2。已冻结：</span><span class="en">Tian, Dokyeesun and Klavžar conjectured that for a non-cut vertex x the outer general position number satisfies gp₀(G − x) ≤ gp₀(G) + deg x. It fails: replace two opposite vertices of a twelve-cycle by independent sets A and B of four vertices each, and add a vertex x of degree 2 adjacent to the cycle neighbours of A and B, 19 vertices in all. Without x, the 8 vertices A ∪ B are in outer general position; in G a five-colouring makes every pair of equal colour blocked by some shortest path, so gp₀(G) ≤ 5, while 8 &gt; 5 + 2. Frozen: </span><code>TianDokyeesunKlavzarOuterGeneralPositionRefutation.result</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗里由原文与上面的结果推出（散文论证，未形式化）：r ≥ 5、s ≥ 5 的柱面值全部确定，r ∈ {5, 6, 7, 8, 10} 为 4，r = 9 或 r ≥ 11 为 5；按有限距离的约定，不连通图的 ψ 只有实根当且仅当每个连通分支都是完全图。</span><span class="en">Derived in the dossiers from the sources and the results above (prose arguments, not formalized): every cylinder value with r ≥ 5, s ≥ 5 is determined, 4 for r ∈ {5, 6, 7, 8, 10} and 5 for r = 9 or r ≥ 11; under the finite-distance convention, ψ of a disconnected graph is real-rooted exactly when every component is complete.</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：机器人配置的广度优先搜索；五元一般位置集的个数（s = 2 … 6 时 C₇ 为 0、0、0、14、84，C₁₀ 为 0、0、0、20、120，与卷宗的实验一致）；ψ(G) 的系数与数值求出的根；外部一般位置数的穷举值 gp₀(G − x) = 8、gp₀(G) = 5（Lean 只证明 ≥ 8 与 ≤ 5）。</span><span class="en">Numbers computed on the page, not theorems: breadth-first search over robot configurations; the number of five-vertex general position sets (for s = 2 … 6: 0, 0, 0, 14, 84 on C₇ and 0, 0, 0, 20, 120 on C₁₀, matching the dossier’s experiment); the coefficients of ψ(G) and its numerically computed roots; the exhaustive outer numbers gp₀(G − x) = 8 and gp₀(G) = 5 (Lean proves only ≥ 8 and ≤ 5).</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：环面 C_r □ C_s 的移动一般位置数；删去一个非割点时外部一般位置数的正确上界。</span><span class="en">Open: the mobile general position numbers of the tori C_r □ C_s; a correct upper bound for the outer general position number after deleting a non-cut vertex.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">一般位置数由 Manuel 与 Klavžar（2018）引入，移动一般位置由 Klavžar、Krishnakumar、Tuite 与 Yero（2023）引入。Klavžar 等人（2026）对其余柱面给出 s ≥ 5 时 r ∈ {5, 6, 8} 为 4、r = 9 或 r ≥ 11 为 5，并留下 r = 7、10。ψ(G) 由 Rather（2026）定义；删点猜想出自 Tian、Dokyeesun 与 Klavžar（arXiv 2025）。</span><span class="en">The general position number was introduced by Manuel and Klavžar (2018), mobile general position by Klavžar, Krishnakumar, Tuite and Yero (2023). Klavžar et al. (2026) give, for s ≥ 5, the value 4 for r ∈ {5, 6, 8} and 5 for r = 9 or r ≥ 11, leaving r = 7, 10. ψ(G) was defined by Rather (2026); the deletion conjecture is from Tian, Dokyeesun and Klavžar (arXiv 2025).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：机器人的步数、加上的边数或反例的阶段" data-aria-en="Progress: the robots’ move, the number of added edges, or the stage of the counterexample">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">在连通图里，顶点 v 落在 u、w 之间的最短路上当且仅当 d(u, v) + d(v, w) = d(u, w)。顶点集 S 处于<b>一般位置</b>，是说 S 里没有三个不同的点满足这个等式。三个问题都围绕这个定义。</p>
+      <ol>
+        <li><b>移动机器人。</b>每个顶点上最多一个机器人；一步是把一个机器人沿边移到空顶点，并且移动后的集合仍在一般位置。若一串这样的步能让每个顶点都被某个机器人到过，就说起始集合是移动的。移动一般位置数 Mob_gp(G) 是能做到这件事的最多机器人数。</li>
+        <li><b>柱面 C₇ □ Pₛ 与 C₁₀ □ Pₛ（已冻结）。</b>顶点是 (列, 行)，列沿 r 边形绕一圈，行沿 s 个顶点的路排开。Lean 证明：五个一般位置的顶点在不同的行，列号构成公差 ±2 或 ±3 的等差数列；任何横向移动都会破坏一般位置，所以五个机器人只能上下移动，空着的列永远到不了；六个顶点不可能处于一般位置。四个机器人的走法：两行一组，四次横移把整组转动一格，转 r 次走遍这两行，再用四次竖移进入下一组。</li>
+        <li><b>一般位置多项式（已冻结）。</b>ψ(G) = Σ αₖ xᵏ，αₖ 是 k 元一般位置集的个数。任意两个点总在一般位置，所以 α₀ = 1、α₁ = n、α₂ = n(n − 1)/2。若 ψ 的根全是实数（系数为正，根就都是负数），Newton 不等式 α₁² ≥ α₀α₂ · 2d/(d − 1) 化简为 d ≥ n，d 是 ψ 的次数，即最大一般位置集的大小。于是全部顶点处于一般位置；连通的非完全图里，最短路上相邻的三个点就违反这一点。完全图的 ψ = (1 + x)ⁿ，只有根 −1。</li>
+        <li><b>外部一般位置（已冻结的反例）。</b>S 处于外部一般位置，是说对 S 里的每个 u 与图里任何 v，u 到 v 的最短路都不经过 S 里别的点。最大的这种集合的大小记为 gp₀。删去 x 后 A ∪ B 是 8 元外部一般位置集；加上 x 后，A 与 B 之间出现一条经过 x 的短路，页面按五色染色逐类显示：每对同色顶点都有一个第三点把它们挡住，所以每种颜色最多选一个。</li>
+        <li><b>页面怎么算。</b>距离用广度优先搜索；机器人的走法按 Lean 里的构造逐步重放，每一步都重新检查一般位置；五个机器人的可达配置用广度优先搜索列出；ψ 的系数由枚举所有子集得到，根用 Aberth 迭代求；外部一般位置数用冲突图上的最大独立集穷举。这些都是页面数值。</li>
+        <li><b>边界。</b>环面上的值，以及删点时外部一般位置数的正确上界，都还未决。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/klavzar-et-al-2025-mobile-general-position-cylinders.md" target="_blank" rel="noopener">问题卷宗：柱面上的移动一般位置</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rather-2026-general-position-real-rooted-complete.md" target="_blank" rel="noopener">问题卷宗：ψ 的实根性</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tian-dokyeesun-klavzar-conjecture34-refutation.md" target="_blank" rel="noopener">问题卷宗：外部一般位置的删点猜想</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/CylinderSevenTen.lean" target="_blank" rel="noopener">CylinderSevenTen.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/RatherRealRootedComplete.lean" target="_blank" rel="noopener">RatherRealRootedComplete.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/TianDokyeesunKlavzarOuterGeneralPositionRefutation.lean" target="_blank" rel="noopener">TianDokyeesunKlavzarOuterGeneralPositionRefutation.lean</a> · Klavžar、Krishnakumar、Kuziak、Shallcross、Tuite、Yero，<a href="https://doi.org/10.1016/j.dam.2025.10.041" target="_blank" rel="noopener">Discrete Appl. Math.（2026）</a> · Rather，<a href="https://arxiv.org/abs/2603.06930" target="_blank" rel="noopener">arXiv:2603.06930（2026）</a> · Tian、Dokyeesun、Klavžar，<a href="https://arxiv.org/abs/2510.01294" target="_blank" rel="noopener">arXiv:2510.01294（2025）</a> · Manuel、Klavžar，<a href="https://doi.org/10.1017/S0004972718000473" target="_blank" rel="noopener">Bull. Aust. Math. Soc.（2018）</a> · Klavžar、Krishnakumar、Tuite、Yero，<a href="https://doi.org/10.1017/S0004972723000102" target="_blank" rel="noopener">Bull. Aust. Math. Soc.（2023）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">In a connected graph, a vertex v lies on a shortest path between u and w exactly when d(u, v) + d(v, w) = d(u, w). A vertex set S is in <b>general position</b> when no three distinct vertices of S satisfy this equation. All three problems build on this definition.</p>
+      <ol>
+        <li><b>Mobile robots.</b> Each vertex holds at most one robot; a move takes one robot along an edge to an empty vertex, and the new set must still be in general position. A starting set is mobile if some sequence of moves lets every vertex be visited by some robot. The mobile general position number Mob_gp(G) is the largest number of robots that can do this.</li>
+        <li><b>The cylinders C₇ □ Pₛ and C₁₀ □ Pₛ (frozen).</b> Vertices are (column, row): columns go round an r-cycle and rows along a path of s vertices. Lean proves: five vertices in general position lie in distinct rows, and their columns form an arithmetic progression with step ±2 or ±3; any sideways move breaks general position, so five robots can only move up and down and an empty column is never reached; no six vertices are in general position. The four-robot route: take two rows at a time, four sideways moves turn the group by one column, r turns cover both rows, and four vertical moves step to the next pair of rows.</li>
+        <li><b>The general position polynomial (frozen).</b> ψ(G) = Σ αₖ xᵏ, where αₖ counts general position sets of size k. Any two vertices are in general position, so α₀ = 1, α₁ = n, α₂ = n(n − 1)/2. If all roots of ψ are real (with positive coefficients they are then negative), Newton’s inequality α₁² ≥ α₀α₂ · 2d/(d − 1) reduces to d ≥ n, where d = deg ψ is the size of a largest general position set. So the whole vertex set is in general position, and in a connected non-complete graph three consecutive vertices of a shortest path violate that. For the complete graph ψ = (1 + x)ⁿ, whose only root is −1.</li>
+        <li><b>Outer general position (a frozen counterexample).</b> S is in outer general position when, for every u in S and any vertex v, no shortest path from u to v passes through another vertex of S. The largest such set has size gp₀. Without x, A ∪ B is an outer set of 8; with x there is a short route between A and B through x, and the page shows the five-colouring class by class: every pair of equal colour has a third vertex blocking it, so at most one vertex of each colour can be chosen.</li>
+        <li><b>How the page computes.</b> Distances come from breadth-first search; the four-robot route replays the Lean construction step by step, re-checking general position after every move; the reachable five-robot configurations are listed by breadth-first search; the coefficients of ψ come from enumerating all subsets and its roots from Aberth iteration; the outer numbers come from an exhaustive maximum independent set in the conflict graph. All of these are page numerics.</li>
+        <li><b>Limits.</b> The values on tori and a correct bound for outer general position under vertex deletion remain open.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/klavzar-et-al-2025-mobile-general-position-cylinders.md" target="_blank" rel="noopener">Problem dossier: mobile general position on cylinders</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rather-2026-general-position-real-rooted-complete.md" target="_blank" rel="noopener">Problem dossier: real-rootedness of ψ</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tian-dokyeesun-klavzar-conjecture34-refutation.md" target="_blank" rel="noopener">Problem dossier: the outer deletion conjecture</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/CylinderSevenTen.lean" target="_blank" rel="noopener">CylinderSevenTen.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/RatherRealRootedComplete.lean" target="_blank" rel="noopener">RatherRealRootedComplete.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/TianDokyeesunKlavzarOuterGeneralPositionRefutation.lean" target="_blank" rel="noopener">TianDokyeesunKlavzarOuterGeneralPositionRefutation.lean</a> · Klavžar, Krishnakumar, Kuziak, Shallcross, Tuite, Yero, <a href="https://doi.org/10.1016/j.dam.2025.10.041" target="_blank" rel="noopener">Discrete Appl. Math. (2026)</a> · Rather, <a href="https://arxiv.org/abs/2603.06930" target="_blank" rel="noopener">arXiv:2603.06930 (2026)</a> · Tian, Dokyeesun, Klavžar, <a href="https://arxiv.org/abs/2510.01294" target="_blank" rel="noopener">arXiv:2510.01294 (2025)</a> · Manuel, Klavžar, <a href="https://doi.org/10.1017/S0004972718000473" target="_blank" rel="noopener">Bull. Aust. Math. Soc. (2018)</a> · Klavžar, Krishnakumar, Tuite, Yero, <a href="https://doi.org/10.1017/S0004972723000102" target="_blank" rel="noopener">Bull. Aust. Math. Soc. (2023)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

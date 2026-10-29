@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="CHRONO//SLIT · Double-slit spacetime block">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHRONO//SLIT 双缝时空体</title>
+<meta name="description" content="双缝与延迟选择擦除的静态时空体。Double-slit and delayed-choice eraser as a static spacetime block: switch clocks, conditional spacetimes (2–8), read order and time relabelling.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="chrono-slit">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="CHRONO//SLIT">CHRONO<b>//</b>SLIT</h1>
+      <div class="tagline">
+        <span class="zh">双缝时空体 · 波粒整体的关系全息表示 · <em>τ 只是一个钟读数：换一个钟，就换一种切法</em></span>
+        <span class="en">Double-slit spacetime block · relational holography of the wave–particle whole · <em>τ is only a clock reading: change the clock, change the cut</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill">Γ <strong class="zh">静态关系体</strong><strong class="en">static whole</strong></span>
+      <span class="pill" id="pillMode">MODE <strong>LINEAR</strong></span>
+      <span class="pill" id="pillClock">CLOCK <strong>RUN</strong></span>
+      <span class="pill hot" id="pillHash">ARCHIVE <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="young" aria-pressed="false"><span class="code">YOUNG</span><span class="cn zh">杨氏双缝</span><span class="cn en">Young’s double slit</span></button>
+        <button class="preset" data-preset="whichway" aria-pressed="false"><span class="code">WHICH-WAY</span><span class="cn zh">路径标记</span><span class="cn en">Which-way marker</span></button>
+        <button class="preset" data-preset="eraser" aria-pressed="false"><span class="code">ERASER</span><span class="cn zh">量子擦除</span><span class="cn en">Quantum eraser</span></button>
+        <button class="preset" data-preset="delayed" aria-pressed="true"><span class="code">DELAYED</span><span class="cn zh">延迟选择擦除</span><span class="cn en">Delayed-choice eraser</span></button>
+        <button class="preset" data-preset="partial" aria-pressed="false"><span class="code">PARTIAL</span><span class="cn zh">部分路径记录</span><span class="cn en">Partial path record</span></button>
+        <button class="preset" data-preset="quarter" aria-pressed="false"><span class="code">PHASE-90</span><span class="cn zh">相位擦除</span><span class="cn en">Phase eraser</span></button>
+        <button class="preset" data-preset="trine" aria-pressed="false"><span class="code">TRINE</span><span class="cn zh">三路读取 · 3 个时空</span><span class="cn en">3 outcomes · 3 spacetimes</span></button>
+        <button class="preset" data-preset="octet" aria-pressed="false"><span class="code">OCTET</span><span class="cn zh">八路读取 · 8 个时空</span><span class="cn en">8 outcomes · 8 spacetimes</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">路径记录</span><span class="en">Path record</span><span class="aside">d<sub>L</sub> · d<sub>R</sub></span></h2>
+      <div class="field">
+        <label for="kappa"><span class="zh">记录重叠 |κ|</span><span class="en">Record overlap |κ|</span><small>⟨d_L|d_R⟩</small></label><output id="oKappa" for="kappa">0.00</output>
+        <input type="range" id="kappa" min="0" max="1" step="0.01" value="0">
+      </div>
+      <div class="field">
+        <label for="phi"><span class="zh">两缝相对相位 φ</span><span class="en">Relative slit phase φ</span></label><output id="oPhi" for="phi">0°</output>
+        <input type="range" id="phi" min="0" max="360" step="1" value="0">
+      </div>
+      <p class="note"><span class="zh">|κ|=1：记录不含路径信息；|κ|=0：记录完全区分两缝。</span><span class="en">|κ| = 1: the record carries no path information; |κ| = 0: it fully distinguishes the slits.</span></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">记录读取仪器</span><span class="en">Record instrument</span><span class="aside">Σ E<sub>k</sub> = I</span></h2>
+      <div class="field">
+        <label for="nout"><span class="zh">读数个数 N</span><span class="en">Outcomes N</span><small class="zh">每个读数一个条件时空</small><small class="en">one conditional spacetime each</small></label><output id="oN" for="nout">2</output>
+        <input type="range" id="nout" min="2" max="8" step="1" value="2">
+      </div>
+      <p class="note" id="instrumentNote"></p>
+      <div class="field">
+        <label for="beta"><span class="zh">基角 β</span><span class="en">Basis angle β</span><small class="zh">0°=路径基 · 45°=擦除基</small><small class="en">0° path · 45° eraser</small></label><output id="oBeta" for="beta">45°</output>
+        <input type="range" id="beta" min="0" max="90" step="1" value="45">
+      </div>
+      <div class="field">
+        <label for="chi"><span class="zh">读数相位 χ</span><span class="en">Readout phase χ</span></label><output id="oChi" for="chi">0°</output>
+        <input type="range" id="chi" min="0" max="360" step="1" value="0">
+      </div>
+      <div class="field">
+        <label for="tr"><span class="zh">记录读取时刻 T<sub>R</sub></span><span class="en">Record read time T<sub>R</sub></span><small class="zh">以飞行时间 T<sub>f</sub>=1 计</small><small class="en">in flight times T<sub>f</sub> = 1</small></label><output id="oTr" for="tr">2.60</output>
+        <input type="range" id="tr" min="0.40" max="3.20" step="0.01" value="2.6">
+      </div>
+      <p class="note" id="orderNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">钟</span><span class="en">Clock</span><span class="aside">θ(τ)</span></h2>
+      <div class="field">
+        <label for="frame"><span class="zh">时间嵌入</span><span class="en">Time embedding</span><small class="zh">运行钟 ↔ 实验室钟</small><small class="en">run clock ↔ lab clock</small></label><output id="oFrame" for="frame">RUN</output>
+        <input type="range" id="frame" min="0" max="1" step="0.01" value="0">
+      </div>
+      <p class="note"><span class="zh">运行钟：每次运行按自己的钟对齐，480 个副本叠在同一时刻。实验室钟：按发射先后排开。两种嵌入是同一份事件档案。</span><span class="en">Run clock: every run is aligned on its own clock, so 480 copies overlap at one moment. Lab clock: runs are laid out in emission order. Both embeddings hold the same event archive.</span></p>
+      <div class="chips" id="warpChips" role="group" aria-label="钟重标" data-aria-en="Clock relabelling">
+        <button class="chip" data-warp="0" aria-pressed="true"><span class="zh">线性</span><span class="en">Linear</span></button>
+        <button class="chip" data-warp="1" aria-pressed="false"><span class="zh">前段拉伸</span><span class="en">Stretch early</span></button>
+        <button class="chip" data-warp="2" aria-pressed="false"><span class="zh">后段拉伸</span><span class="en">Stretch late</span></button>
+        <button class="chip" data-warp="3" aria-pressed="false"><span class="zh">折叠</span><span class="en">Fold</span></button>
+      </div>
+      <div class="field">
+        <label for="warpK"><span class="zh">重标强度 θ</span><span class="en">Relabel strength θ</span></label><output id="oWarpK" for="warpK">0.60</output>
+        <input type="range" id="warpK" min="0" max="1" step="0.01" value="0.6">
+      </div>
+      <canvas class="plot plot-wide" id="warpPlot" aria-label="钟重标函数 θ" data-aria-en="Clock relabelling function θ"></canvas>
+      <p class="note" id="warpNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="时空体三维视图：拖动旋转，滚轮缩放，点击落点选择一次运行" data-aria-en="3D spacetime block: drag to rotate, scroll to zoom, click a hit to select a run">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">LINEAR · τ = 0.000</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">屏 x–t</span><span class="en">Screen x–t</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">压缩时间 x–z</span><span class="en">Collapse time x–z</span></button>
+        <button class="chip" data-cam="beam" aria-pressed="false"><span class="zh">世界线 z–t</span><span class="en">Worldlines z–t</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">屏幕档案 SCREEN ARCHIVE</span><span class="en">SCREEN ARCHIVE</span></h2><span id="histMeta"></span></div>
+        <canvas id="hist" aria-label="屏幕落点直方图，悬停查看两路相量，点击选择一次运行" data-aria-en="Histogram of screen hits; hover to see the two-path phasors, click to select a run"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">切面 ρ(τ) · x–z</span><span class="en">SLICE ρ(τ) · x–z</span></h2><span id="sliceMeta"></span></div>
+        <canvas id="slice" aria-label="当前钟读数下的空间切面" data-aria-en="Spatial slice at the current clock reading"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="时空选择与读数" data-aria-en="Spacetime selection and readouts">
+    <section class="panel sec">
+      <h2><span class="zh">时空选择</span><span class="en">Spacetime</span><span class="aside">p(x) = Σ<sub>k</sub> p(x, k)</span></h2>
+      <div class="branches" id="branches" role="group" aria-label="条件时空" data-aria-en="Conditional spacetimes"></div>
+      <div class="field">
+        <label for="split"><span class="zh">展开第四轴</span><span class="en">Unfold 4th axis</span><small id="splitLabel"></small></label><output id="oSplit" for="split">0.00</output>
+        <input type="range" id="split" min="0" max="1" step="0.01" value="0">
+      </div>
+      <div class="modes" id="modes" role="group" aria-label="条件化方式" data-aria-en="Conditioning">
+        <button class="mode" data-mode="0" aria-pressed="true"><span class="code">LINEAR</span><span class="cn zh">只用 τ 之前读到的记录</span><span class="cn en">records read before τ only</span></button>
+        <button class="mode" data-mode="1" aria-pressed="false"><span class="code">BLOCK</span><span class="cn zh">用整个关系体条件化</span><span class="cn en">conditioned on the whole block</span></button>
+      </div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readout</span><span class="aside">V · D</span></h2>
+      <dl class="ro">
+        <div><dt><span class="zh">可见度 V = |κ|</span><span class="en">Visibility V = |κ|</span></dt><dd id="roV">0.000</dd></div>
+        <div><dt><span class="zh">可分辨度 D</span><span class="en">Distinguishability D</span></dt><dd id="roD">1.000</dd></div>
+        <div class="a wide"><dt><span class="zh">读取顺序</span><span class="en">Read order</span></dt><dd id="roOrder">—</dd></div>
+      </dl>
+      <div class="btable" id="branchTable"></div>
+      <canvas class="plot plot-sq" id="gauge" aria-label="互补关系 D² + V² = 1" data-aria-en="Complementarity D² + V² = 1"></canvas>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">D²+V²=1 已在 trureturing 中由内核验证并冻结：</span><span class="en">D² + V² = 1 is kernel-verified and frozen in trureturing:</span> <code>pure_record_distinguishability_coherence_complementarity</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">两路相量</span><span class="en">Two-path phasors</span><span class="aside" id="phasorX">x = +0.000</span></h2>
+      <canvas class="plot plot-sq" id="phasor" aria-label="两条路径振幅的相量图" data-aria-en="Phasor diagram of the two path amplitudes"></canvas>
+      <p class="note" id="phasorNote"></p>
+      <div class="runcard" id="runcard"></div>
+    </section>
+  </aside>
+
+  <!-- clock rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau">τ 0.000 <small>/ 3.500</small></span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0.5" aria-label="钟读数 τ" data-aria-en="Clock reading τ">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 逐步 · <kbd>1</kbd>–<kbd>9</kbd> 时空 · <kbd>Esc</kbd> 取消选择</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>1</kbd>–<kbd>9</kbd> spacetime · <kbd>Esc</kbd> clear</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">页面上的每个控件都对应 trureturing 理论卷《波粒整体的关系全息表示》里的一条接口。三维体是一次运行的静态历史，不是动画；播放只是移动条件化用的钟读数。</p>
+      <ol>
+        <li><b>静态关系体与钟切面（§3）。</b>一次运行写成钟—系统历史态 Γ = WρW†。读钟标签 τ 得到该时刻的切面 ρ<sub>τ</sub>（命题 3.2），NOW 平面就是这个钟条件化。只读钟不会选出走哪条缝（命题 3.3）。</li>
+        <li><b>路径记录与互补（§5.1–5.3）。</b>粒子穿缝时在记录系统留下 d<sub>L</sub> 或 d<sub>R</sub>。重叠 κ = ⟨d<sub>L</sub>|d<sub>R</sub>⟩ 给出总体条纹可见度 V = |κ|、路径可分辨度 D = √(1−|κ|²)，且 D² + V² = 1。这条等式在 trureturing 中已由 Lean 内核验证并冻结：<code>D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean</code>。</li>
+        <li><b>擦除与分拣（§5.4）。</b>在旋转基 e<sub>±</sub> 上读记录，按读数分拣出的两个子系综分别给出条纹与反条纹，相加回到无条纹的总体。屏幕上的总体分布与读取方式无关：改 β、χ 或 N 时落点坐标一个也不动，只有分拣变了，所以不能借此向过去传信号。</li>
+        <li><b>不止两个时空（§4.1、§8.1）。</b>同一份路径记录可以用任何仪器读取：一组满足 Σ<sub>k</sub> E<sub>k</sub> = I 的效果，每个读数 k 都给出一个条件时空，它们的联合律 p(x, k) 对 k 求和恒等于未分拣的总体。两结果投影测量只是其中一种；N ≥ 3 时页面用相位协变仪器 m<sub>k</sub> = (1, e<sup>i(χ+2πk/N)</sup>)/√N，第 k 个时空的条纹相位错开 2πk/N。换一个仪器就换一族分解，总体不变；所以时空的“个数”取决于怎么读记录，不是记录本身携带的。</li>
+        <li><b>读取顺序（§8.2）。</b>顺序概率满足 p(w) = Tr(ρ<sub>0</sub>F<sub>w</sub>)。屏和记录作用在不同子系统上，先读、后读给出同一联合律 p(x, e)。页面沿用同一组随机种子，所以连单个落点和它的标签都不变，档案哈希保持不动。改 κ、φ 才会移动落点；改读取仪器（β、χ、N）只会重新分拣，档案哈希随分拣标签变化。</li>
+        <li><b>两种条件化。</b>LINEAR 只用 τ 之前已读到的记录，未读的运行保持灰色；BLOCK 用整个关系体条件化，包括 τ 之后才读到的记录，所以过去的切面也按分支着色。两者的差别只在条件化用了哪些记录，落点本身没有被改写。</li>
+        <li><b>钟重标（§24）。</b>严格递增的重标只搬运标签，事件信息保持（定理 24.2）。“折叠”重标不是单射，不同时刻被并到同一标签，能恢复什么要另行判断（定理 21.4）。“时间嵌入”滑块在运行钟与实验室钟之间切换，是同一份档案的两种排法。</li>
+        <li><b>模型边界。</b>近轴高斯缝、纵向包络和二维记录空间是示意模型，只保证定性结构和上面的恒等式；它不是某台真实装置的数值模拟。“切换时空”指切换条件化的子系综和时间嵌入。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean" target="_blank" rel="noopener">RecordCoherenceComplementarity.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Every control on this page corresponds to an interface in the trureturing theory volume “Relational holographic representation of the wave–particle whole” (written in Chinese). The 3D block is the static history of one run, not an animation; playing only moves the clock reading used for conditioning.</p>
+      <ol>
+        <li><b>Static whole and clock slices (§3).</b> One run is written as a clock–system history state Γ = WρW†. Reading the clock label τ gives the slice ρ<sub>τ</sub> at that moment (Proposition 3.2); the NOW plane is this clock conditioning. Reading the clock alone does not select a slit (Proposition 3.3).</li>
+        <li><b>Path record and complementarity (§5.1–5.3).</b> Passing the slits leaves d<sub>L</sub> or d<sub>R</sub> in a record system. The overlap κ = ⟨d<sub>L</sub>|d<sub>R</sub>⟩ gives the overall fringe visibility V = |κ| and the path distinguishability D = √(1−|κ|²), with D² + V² = 1. This identity is kernel-verified and frozen in trureturing: <code>D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean</code>.</li>
+        <li><b>Erasure and sorting (§5.4).</b> Reading the record in a rotated basis e<sub>±</sub> sorts the hits into two sub-ensembles, one with fringes and one with anti-fringes, which add back to the fringe-free whole. The whole’s distribution on the screen does not depend on how the record is read: changing β, χ or N moves no hit and only re-sorts them, so this cannot send a signal into the past.</li>
+        <li><b>More than two spacetimes (§4.1, §8.1).</b> The same path record can be read by any instrument, that is, any set of effects with Σ<sub>k</sub> E<sub>k</sub> = I. Each outcome k defines a conditional spacetime, and the joint law p(x, k) summed over k always equals the unsorted whole. A two-outcome projective measurement is one choice; for N ≥ 3 the page uses the phase-covariant instrument m<sub>k</sub> = (1, e<sup>i(χ+2πk/N)</sup>)/√N, whose k-th spacetime has fringes shifted by 2πk/N. A different instrument gives a different family of decompositions of the same whole, so the number of spacetimes depends on how the record is read, not on the record itself.</li>
+        <li><b>Read order (§8.2).</b> Sequential probabilities satisfy p(w) = Tr(ρ<sub>0</sub>F<sub>w</sub>). The screen and the record act on different subsystems, so reading the record first or later gives the same joint law p(x, e). The page reuses the same random seeds, so even single hits and their labels stay the same and the archive hash does not change. Changing κ or φ moves hits; changing the instrument (β, χ, N) only re-sorts them, and the hash follows the new labels.</li>
+        <li><b>Two kinds of conditioning.</b> LINEAR uses only records read before τ, so unread runs stay grey. BLOCK conditions on the whole relational block, including records read after τ, so past slices are coloured by branch too. The only difference is which records the conditioning uses; no hit is rewritten.</li>
+        <li><b>Clock relabelling (§24).</b> A strictly increasing relabel only moves labels and preserves event information (Theorem 24.2). The “fold” relabel is not injective: different moments merge into one label, and what can still be recovered needs a separate check (Theorem 21.4). The time-embedding slider switches between the run clock and the lab clock, two arrangements of the same archive.</li>
+        <li><b>Model limits.</b> Paraxial Gaussian slits, a longitudinal envelope and a two-dimensional record space make a schematic model that guarantees only the qualitative structure and the identities above; it is not a numerical simulation of a real apparatus. “Switching spacetime” means switching the conditioned sub-ensemble and the time embedding.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean" target="_blank" rel="noopener">RecordCoherenceComplementarity.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

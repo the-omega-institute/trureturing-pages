@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="LEDGER//GROWTH · How the truth ledger grows">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LEDGER//GROWTH 真值账本的生长</title>
+<meta name="description" content="trureturing 把数学真值放在 Lean 里，冻结后永不解冻；理论卷被摄入成 atom，逐条消化；外部开放问题有卷宗和结算记录。页面从 dev 分支的 git 历史里每天取一个快照（当天最后一个 first-parent 提交），只数文件：Lean 模块、冻结状态片、问题卷宗、理论卷、atom 与四种消化状态，画成三维时间丝带、按领域的城市、消化账目和问题日历。The trureturing library keeps mathematical truth in Lean, frozen once verified; theory volumes are ingested as atoms and digested one by one; external open problems get dossiers and resolution records. The page takes one snapshot per day from the git history of the dev branch (the last first-parent commit of that day) and only counts files: Lean modules, frozen state files, problem dossiers, theory volumes, atoms and the four digestion states. It draws them as 3D time ribbons, an area skyline, the digestion ledger and a problem calendar.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="ledger-growth">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="LEDGER//GROWTH">LEDGER<b>//</b>GROWTH</h1>
+      <div class="tagline">
+        <span class="zh">真值账本的生长 · <em>dev 分支每天一个快照，只数文件，不读证明</em></span>
+        <span class="en">How the truth ledger grows · <em>one snapshot of dev per day, counting files, not reading proofs</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="now" aria-pressed="true"><span class="code">10-28</span><span class="cn zh">今天的账本</span><span class="cn en">The ledger today</span></button>
+        <button class="preset" data-preset="dayOne" aria-pressed="false"><span class="code">07-10</span><span class="cn zh">第一天</span><span class="cn en">Day one</span></button>
+        <button class="preset" data-preset="firstFreeze" aria-pressed="false"><span class="code">08-13 · 629</span><span class="cn zh">第一批冻结</span><span class="cn en">The first freezes</span></button>
+        <button class="preset" data-preset="migration" aria-pressed="false"><span class="code">09-04 · state</span><span class="cn zh">冻结格式换成状态片</span><span class="cn en">Freezes move to state files</span></button>
+        <button class="preset" data-preset="areas" aria-pressed="false"><span class="code">S3 · S1 · S0</span><span class="cn zh">按领域</span><span class="cn en">By area</span></button>
+        <button class="preset" data-preset="ingest" aria-pressed="false"><span class="code">09-27 · +11 865</span><span class="cn zh">一天摄入的 atom</span><span class="cn en">A day of ingestion</span></button>
+        <button class="preset" data-preset="settle" aria-pressed="false"><span class="code">10-14 · +3 572</span><span class="cn zh">结算收据</span><span class="cn en">Settlement receipts</span></button>
+        <button class="preset" data-preset="problems" aria-pressed="false"><span class="code">848 · 495</span><span class="cn zh">开放问题：证明与反驳</span><span class="cn en">Open problems: proved and refuted</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">视图</span><span class="en">View</span><span class="aside">DAG</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="视图" data-aria-en="View">
+        <button class="chip" data-mode="growth"><span class="zh">生长丝带</span><span class="en">Growth ribbons</span></button>
+        <button class="chip" data-mode="areas"><span class="zh">领域城市</span><span class="en">Area skyline</span></button>
+        <button class="chip" data-mode="digest"><span class="zh">消化账目</span><span class="en">Digestion ledger</span></button>
+        <button class="chip" data-mode="problems"><span class="zh">问题日历</span><span class="en">Problem calendar</span></button>
+      </div>
+      <div class="chips subchips" id="scaleChips" role="group" aria-label="高度" data-aria-en="Height">
+        <button class="chip" data-scale="norm"><span class="zh">各自归一</span><span class="en">each to its maximum</span></button>
+        <button class="chip" data-scale="log"><span class="zh">共同对数轴</span><span class="en">common log scale</span></button>
+      </div>
+      <div class="chips subchips" id="areaChips" role="group" aria-label="领域的量" data-aria-en="Area measure">
+        <button class="chip" data-area="d5"><span class="zh">Lean 模块</span><span class="en">Lean modules</span></button>
+        <button class="chip" data-area="frozen"><span class="zh">冻结模块</span><span class="en">frozen modules</span></button>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：随时间生长的丝带、按领域的城市、消化账目的分层带，或问题卷宗的日历塔；拖动旋转，滚轮缩放" data-aria-en="3D view: ribbons growing over time, an area skyline, the stacked bands of the digestion ledger, or calendar towers of problem dossiers; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="随时间的计数，或当天按领域的条形图" data-aria-en="Counts over time, or the day’s bars by area"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="每天合并的提交、层级、闭合比例或每天的新卷宗" data-aria-en="Merges per day, strata, closed share or new dossiers per day"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">GIT</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="w"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面上的每个数都是计数：在 trureturing 的 dev 分支上，每天（按 UTC 日期）取最后一个 first-parent 提交，数它的文件树里符合路径规则的文件（规则见理论接口）。这些数不是定理，页面也没有重新运行 Lean；“冻结”只表示状态片文件存在，这正是仓库对冻结成员的定义。结算类型（证明或反驳）取今天 Scribe 源码里的记录。</span><span class="en">Every number on the page is a count: for each day (by UTC date), the last first-parent commit on trureturing’s dev branch, and the files in its tree that match the path rules (listed in the theory interface). These counts are not theorems, and the page does not rerun Lean; “frozen” only means that a state file exists, which is exactly the repository’s definition of frozen membership. Resolution kinds (proved or refuted) are today’s records in the Scribe sources.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">没有测：Lean 的行数、证明大小与内核检查时间。9 月 4 日以前没有状态片，冻结数取 accepted 事件文件数，它与模块数不完全相等（9 月 4 日两者都在：3318 个事件、3309 个状态片）。消化账目的跳变有的来自记账规则（例如 10 月 14 日的结算收据），不等于当天新增的数学内容。</span><span class="en">Not measured: Lean line counts, proof sizes and kernel checking time. Before September 4 there are no state files, so the frozen count is the number of accepted event files, which is not exactly the number of modules (on September 4 both exist: 3318 events, 3309 state files). Some jumps in the digestion ledger come from bookkeeping rules (for example the settlement receipts of October 14), not from new mathematics on that day.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">数据来源</span><span class="en">Data source</span><span class="aside">DEV</span></h2>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="1" aria-label="日期（UTC）：从 2026-07-10 到 2026-10-28" data-aria-en="Date (UTC): from 2026-07-10 to 2026-10-28">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 前后一天 · <kbd>E</kbd> 跳到今天</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one day · <kbd>E</kbd> jump to today</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在数什么</span><span class="en">Theory interface · what this page counts</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">trureturing 把整个系统当作一张只增不减的真值图：节点是命题，边是证明依赖。Lean 内核验证过的声明一旦冻结就永不解冻；理论卷只是参考输入，经摄入变成 atom，再一条条被形式化结果覆盖。这个页面不读任何证明，只看这张图在 git 历史里每天长成什么样。</p>
+      <ol>
+        <li><b>快照。</b>dev 分支从 2026 年 7 月 10 日到 10 月 28 日共 111 天，日期一律按 UTC。每天取当天最后一个 first-parent 提交（即最后一次合并后的状态），列出它的文件树。“合并数”是到那天为止的 first-parent 提交数。提交者分布在多个时区，按各自时区的日期分天会让日期在 first-parent 链上前后颠倒，UTC 时间戳则是单调的。</li>
+        <li><b>Lean 模块。</b>D5/**/*.lean 的文件数，按第二级目录分层（S0 载体、S1、S3 等），按第三级目录分领域。Lean 是唯一的数学真源。</li>
+        <li><b>冻结。</b>仓库规定：Golden/Frozen/state/&lt;模块&gt;.lean.json 存在，该模块就是冻结成员。状态片从 9 月 4 日开始出现；8 月 13 日到 10 月 11 日之间还有旧格式的 accepted 事件文件（以内容哈希命名）。页面在有状态片的日子数状态片，此前数事件文件。</li>
+        <li><b>消化账目。</b>理论卷（docs/develop/theory）经摄入切成 atom，存入内容寻址的 Meta/Digestion/atoms。每个 atom 的账目条目在四个目录之一：residual-open（还没有覆盖）、partial-closed（部分覆盖）、absorbed-closed（由冻结声明覆盖）、nonpropositional-inapplicable（凭收据结算：不是命题，或只由上游库闭合）。冻结与消化是两个独立的状态：定理冻结了，它对应的 atom 不一定已经闭合。</li>
+        <li><b>开放问题。</b>Problems/*.md 每份卷宗对应一个已发表的猜想或问题，附逐字出处与文献核对。Blueprint 的 Scribe 源码为结算了的问题记录 ResolutionKind：Proved 或 Refuted。页面按卷宗第一次出现在 dev 上的日期排进日历，颜色取今天的记录。</li>
+        <li><b>边界。</b>计数只说明文件存在，不说明内容的难度或价值；记账规则的变化（格式迁移、结算收据）会让曲线跳变。这些都在读数旁边注明。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/CLAUDE.md" target="_blank" rel="noopener">CLAUDE.md（真值图、冻结律与生产链）</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/D5" target="_blank" rel="noopener">D5</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Golden/Frozen/state" target="_blank" rel="noopener">Golden/Frozen/state</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Problems" target="_blank" rel="noopener">Problems</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Meta/Digestion" target="_blank" rel="noopener">Meta/Digestion</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/docs/develop/theory" target="_blank" rel="noopener">docs/develop/theory</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">trureturing treats the whole system as a truth graph that only grows: nodes are propositions, edges are proof dependencies. A declaration verified by the Lean kernel is frozen and never unfrozen; theory volumes are only reference input, ingested as atoms and then covered one by one by formal results. This page reads no proofs; it only shows what the graph looked like on each day of the git history.</p>
+      <ol>
+        <li><b>Snapshots.</b> The dev branch from July 10 to October 28, 2026: 111 days, all dates in UTC. For each day the page takes the last first-parent commit (the state after the day’s last merge) and lists its file tree. “Merges” is the number of first-parent commits up to that day. Committers work in several time zones; dating commits in each committer’s own zone would put dates out of order along the first-parent chain, while UTC timestamps are monotonic.</li>
+        <li><b>Lean modules.</b> The number of files D5/**/*.lean, split into strata by the second directory level (S0 carrier, S1, S3, …) and into areas by the third. Lean is the only source of mathematical truth.</li>
+        <li><b>Frozen.</b> The repository’s rule: a module is a frozen member when Golden/Frozen/state/&lt;module&gt;.lean.json exists. State files appear from September 4; between August 13 and October 11 there are also accepted event files in an older format (named by content hash). The page counts state files on days that have them, and event files before.</li>
+        <li><b>The digestion ledger.</b> Theory volumes (docs/develop/theory) are ingested and cut into atoms, stored content-addressed in Meta/Digestion/atoms. Each atom’s account entry sits in one of four directories: residual-open (not yet covered), partial-closed (partly covered), absorbed-closed (covered by frozen declarations) and nonpropositional-inapplicable (settled by a receipt: not a proposition, or closed by an upstream library only). Frozen and digested are separate states: a frozen theorem does not mean its atom is closed.</li>
+        <li><b>Open problems.</b> Each Problems/*.md dossier is a published conjecture or question with its verbatim source and a literature check. For a settled problem, the Scribe sources of the Blueprint record a ResolutionKind: Proved or Refuted. The page places each dossier on the calendar by the day it first appeared on dev, coloured by today’s record.</li>
+        <li><b>Limits.</b> A count says that files exist, not how hard or valuable their content is; changes in bookkeeping (a format migration, settlement receipts) make the curves jump. The readouts point these out.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/CLAUDE.md" target="_blank" rel="noopener">CLAUDE.md (truth graph, freezing law, production chain)</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/D5" target="_blank" rel="noopener">D5</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Golden/Frozen/state" target="_blank" rel="noopener">Golden/Frozen/state</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Problems" target="_blank" rel="noopener">Problems</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/Meta/Digestion" target="_blank" rel="noopener">Meta/Digestion</a> · <a href="https://github.com/the-omega-institute/trureturing/tree/dev/docs/develop/theory" target="_blank" rel="noopener">docs/develop/theory</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="data.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

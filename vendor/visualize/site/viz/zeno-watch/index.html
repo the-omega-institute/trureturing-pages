@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="ZENO//WATCH · Quantum Zeno effect, the watched transition">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZENO//WATCH 量子芝诺效应 · 被盯住的跃迁</title>
+<meta name="description" content="量子芝诺效应：频繁刷新可以冻结一个跃迁，缓慢移动的测量可以把状态拖走，刷新也可能反过来加速衰变。每一次刷新都是一次物理交互。Quantum Zeno effect: frequent refreshes can freeze a transition, a slowly moving measurement can drag a state along, and refreshing can also speed decay up. Every refresh is a physical interaction.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="zeno-watch">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="ZENO//WATCH">ZENO<b>//</b>WATCH</h1>
+      <div class="tagline">
+        <span class="zh">量子芝诺效应 · 被盯住的跃迁 · <em>刷新是一次物理交互：它能冻结、能拖动，也能加速</em></span>
+        <span class="en">Quantum Zeno effect · the watched transition · <em>a refresh is a physical interaction: it can freeze, drag, or speed things up</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillMode">MODE <strong>FREEZE</strong></span>
+      <span class="pill" id="pillN">N <strong>0</strong></span>
+      <span class="pill hot" id="pillKey">P<sub>1</sub>(T) <strong>—</strong></span>
+      <span class="pill" id="pillRun">RUN <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="free" aria-pressed="false"><span class="code">UNWATCHED</span><span class="cn zh">不看 · 完整翻转</span><span class="cn en">Unwatched · full flip</span></button>
+        <button class="preset" data-preset="few" aria-pressed="false"><span class="code">FOUR-LOOKS</span><span class="cn zh">看 4 次</span><span class="cn en">Four looks</span></button>
+        <button class="preset" data-preset="itano" aria-pressed="true"><span class="code">ITANO-1990</span><span class="cn zh">Itano 1990 · 64 次</span><span class="cn en">Itano 1990 · 64 looks</span></button>
+        <button class="preset" data-preset="weak" aria-pressed="false"><span class="code">WEAK-LOOKS</span><span class="cn zh">不完全的记录</span><span class="cn en">Incomplete records</span></button>
+        <button class="preset" data-preset="rate" aria-pressed="false"><span class="code">FINITE-RATE</span><span class="cn zh">有限监视率 γ</span><span class="cn en">Finite monitoring rate γ</span></button>
+        <button class="preset" data-preset="drag" aria-pressed="false"><span class="code">ZENO-DRAG</span><span class="cn zh">测量把态拖走</span><span class="cn en">Measurement drags the state</span></button>
+        <button class="preset" data-preset="anti" aria-pressed="false"><span class="code">ANTI-ZENO</span><span class="cn zh">反芝诺 · 越看越快</span><span class="cn en">Anti-Zeno · faster when watched</span></button>
+        <button class="preset" data-preset="decay" aria-pressed="false"><span class="code">ZENO-DECAY</span><span class="cn zh">衰变被拖慢</span><span class="cn en">Decay slowed down</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">现象</span><span class="en">Phenomenon</span><span class="aside">MODE</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="现象" data-aria-en="Phenomenon">
+        <button class="chip" data-mode="freeze" aria-pressed="true"><span class="zh">冻结</span><span class="en">Freeze</span></button>
+        <button class="chip" data-mode="drag" aria-pressed="false"><span class="zh">拖动</span><span class="en">Drag</span></button>
+        <button class="chip" data-mode="anti" aria-pressed="false"><span class="zh">反芝诺</span><span class="en">Anti-Zeno</span></button>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+
+    <section class="panel sec" data-modes="freeze drag">
+      <h2><span class="zh">刷新</span><span class="en">Refreshes</span><span class="aside">N</span></h2>
+      <div class="field">
+        <label for="looks"><span class="zh">刷新次数 N</span><span class="en">Refreshes N</span><small class="zh">等间隔</small><small class="en">evenly spaced</small></label><output id="oLooks" for="looks">64</output>
+        <input type="range" id="looks" min="0" max="256" step="1" value="64">
+      </div>
+      <div class="field" data-modes="freeze">
+        <label for="span"><span class="zh">总时间 T</span><span class="en">Total time T</span><small class="zh">以 π/Ω 计（1 = 完整翻转）</small><small class="en">in units of π/Ω (1 = full flip)</small></label><output id="oSpan" for="span">1.00</output>
+        <input type="range" id="span" min="0.25" max="4" step="0.25" value="1">
+      </div>
+      <p class="note" id="looksNote"></p>
+    </section>
+
+    <section class="panel sec" data-modes="freeze">
+      <h2><span class="zh">每次刷新的强度</span><span class="en">Strength of each refresh</span><span class="aside">η</span></h2>
+      <div class="chips" id="scaleChips" role="group" aria-label="强度怎样随间隔变化" data-aria-en="How the strength scales with the interval">
+        <button class="chip" data-scale="eta" aria-pressed="true"><span class="zh">每次固定 η</span><span class="en">Fixed η each time</span></button>
+        <button class="chip" data-scale="gamma" aria-pressed="false"><span class="zh">η = e<sup>−γδ</sup></span><span class="en">η = e<sup>−γδ</sup></span></button>
+      </div>
+      <div class="field" id="fieldEta">
+        <label for="eta"><span class="zh">记录重叠 η</span><span class="en">Record overlap η</span><small class="zh">0 = 理想投影，1 = 没有记录</small><small class="en">0 = ideal projection, 1 = no record</small></label><output id="oEta" for="eta">0.00</output>
+        <input type="range" id="eta" min="0" max="1" step="0.01" value="0">
+      </div>
+      <div class="field" id="fieldGamma" hidden>
+        <label for="gamma"><span class="zh">监视率 γ</span><span class="en">Monitoring rate γ</span><small class="zh">以 Ω 计</small><small class="en">in units of Ω</small></label><output id="oGamma" for="gamma">8.0</output>
+        <input type="range" id="gamma" min="0" max="40" step="0.5" value="8">
+      </div>
+      <p class="note" id="strengthNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">一次刷新留下重叠为 η 的记录；即使没人去读，系统相干也乘以 η，已冻结：</span><span class="en">A refresh leaves records with overlap η; even if nobody reads them, the system’s coherence is multiplied by η; frozen:</span> <code>trace_environment_controlled_record_eq_phase_damping</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">只做记录、不加驱动时，N 次之后相干恰为初值乘以累积重叠 ∏η<sub>r</sub>，已冻结：</span><span class="en">With records only and no drive, the coherence after N records is exactly the initial value times the cumulative overlap ∏η<sub>r</sub>; frozen:</span> <code>record_action_controls_coherence_survival</code></span></div>
+    </section>
+
+    <section class="panel sec" data-modes="drag">
+      <h2><span class="zh">测量路径</span><span class="en">Measurement path</span><span class="aside">Θ</span></h2>
+      <div class="field">
+        <label for="target"><span class="zh">目标角 Θ</span><span class="en">Target angle Θ</span><small class="zh">希尔伯特空间角，90° = 正交态</small><small class="en">Hilbert-space angle, 90° = orthogonal state</small></label><output id="oTarget" for="target">90°</output>
+        <input type="range" id="target" min="0" max="90" step="1" value="90">
+      </div>
+      <p class="note" id="dragNote"></p>
+    </section>
+
+    <section class="panel sec" data-modes="anti">
+      <h2><span class="zh">不稳定态与环境谱</span><span class="en">Unstable state and environment</span><span class="aside">J(ω)</span></h2>
+      <div class="field">
+        <label for="detune"><span class="zh">谱峰失谐 a</span><span class="en">Spectral peak detuning a</span><small class="zh">ω<sub>c</sub> − ω<sub>0</sub>，以谱宽 Λ 计</small><small class="en">ω<sub>c</sub> − ω<sub>0</sub>, in spectral widths Λ</small></label><output id="oDetune" for="detune">6.0</output>
+        <input type="range" id="detune" min="0" max="10" step="0.1" value="6">
+      </div>
+      <div class="field">
+        <label for="tau"><span class="zh">测量间隔 τ</span><span class="en">Measurement interval τ</span><small class="zh">对数刻度，以 1/Λ 计</small><small class="en">log scale, in units of 1/Λ</small></label><output id="oTau" for="tau">0.50</output>
+        <input type="range" id="tau" min="-2" max="2" step="0.01" value="-0.4">
+      </div>
+      <p class="note" id="antiNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：布洛赫球上的态与测量轴，或反芝诺模式下的环境谱与测量滤波；拖动旋转，滚轮缩放" data-aria-en="3D view: the state and the measurement axis on the Bloch sphere, or the environment spectrum and the measurement filter in anti-Zeno mode; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">t = 0</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="tlTitle"></h2><span id="tlMeta"></span></div>
+        <canvas id="timeline" aria-label="随时间的变化" data-aria-en="Change over time"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="scTitle"></h2><span id="scMeta"></span></div>
+        <canvas id="scaling" aria-label="随刷新次数或测量频率的变化" data-aria-en="Dependence on the number of refreshes or the measurement rate"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside" id="roAside">FREEZE</span></h2>
+      <dl class="ro" id="roList">
+        <div class="c"><dt id="roL1"></dt><dd id="ro1">—</dd></div>
+        <div><dt id="roL2"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="roL3"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="roL4"></dt><dd id="ro4">—</dd></div>
+        <div class="m"><dt id="roL5"></dt><dd id="ro5">—</dd></div>
+        <div><dt id="roL6"></dt><dd id="ro6">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">这一次运行的记录带</span><span class="en">This run’s record tape</span><span class="aside">Y<sub>1</sub>…Y<sub>N</sub></span></h2>
+      <canvas class="plot tape" id="tape" aria-label="这一次运行中每次刷新留下的结果" data-aria-en="The outcome left by each refresh in this run"></canvas>
+      <p class="note" id="tapeNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">账上的全部分支</span><span class="en">Every branch on the ledger</span><span class="aside">Σ = 1</span></h2>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">“演化一步 + 是/否投影”交替的监视协议里，各步首次探测概率之和加上仍未探测到的存活概率恰为 1，并且逐步守恒，已冻结：</span><span class="en">In a monitoring protocol that alternates one evolution step with a yes/no projection, the first-detection probabilities of all steps plus the remaining survival probability sum to exactly 1, step by step; frozen:</span> <code>monitored_return_conservation</code></span></div>
+      <p class="note" id="ledgerNote"></p>
+    </section>
+  </aside>
+
+  <!-- clock rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0.3" aria-label="时间" data-aria-en="Time">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一次刷新 · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 冻结 / 拖动 / 反芝诺 · <kbd>R</kbd> 换一次运行</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one refresh · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> freeze / drag / anti-Zeno · <kbd>R</kbd> new run</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一个量子比特被恒定的 Rabi 驱动从 |0⟩ 推向 |1⟩，不去管它，经过 T = π/Ω 就完整翻转。现在每隔 δ = T/N 刷新一次：让一个记录装置与它作用，看它是否还在 |0⟩。刷新越密，翻转越难发生——这就是量子芝诺效应。页面上的公式都在下面逐条列出出处。</p>
+      <ol>
+        <li><b>来源。</b>Misra 与 Sudarshan 在 1977 年给出“被观察的系统不衰变”的数学形式（<a href="https://doi.org/10.1063/1.523304" target="_blank" rel="noopener">J. Math. Phys. 18, 756</a>）。Itano、Heinzen、Bollinger、Wineland 在 1990 年用囚禁离子做了“π 脉冲期间测 N 次”的实验，N 最多到 64（<a href="https://doi.org/10.1103/PhysRevA.41.2295" target="_blank" rel="noopener">Phys. Rev. A 41, 2295</a>）；ITANO-1990 预设复现这个协议的理论预言 P<sub>1</sub>(T) = (1 − cos<sup>N</sup>(π/N))/2，不包含实验数据点。</li>
+        <li><b>刷新是一次物理交互（理论卷 §222）。</b>记录交互把 |0⟩、|1⟩ 分别写进记录态 |m<sub>0</sub>⟩、|m<sub>1</sub>⟩，重叠 ⟨m<sub>1</sub>|m<sub>0</sub>⟩ = η。不读记录，系统也经历相位阻尼：非对角元乘以 η。这正是冻结定理 <code>trace_environment_controlled_record_eq_phase_damping</code> 的内容；多次记录的累积重叠控制相干存活，见 <code>record_action_controls_coherence_survival</code>。同一个通道也可以由随机相位踢实现（以概率 (1 − η)/2 施加 Z），它不留下任何可读结果（定理 222.2）。所以“单次运行”在 η = 0 时画成投影测量的跳变，在 η &gt; 0 时画成随机相位踢；两者的系综平均都与精确的系综演化一致。</li>
+        <li><b>冻结的定量界（§223）。</b>每段时间 δ 内从 |0⟩ 翻到 |1⟩ 的概率是 q = sin²(Ωδ/2)。N 次全部仍在 |0⟩ 的概率为 (1 − q)<sup>N</sup>，而至少一次被测到离开的概率满足 P<sub>离开</sub> ≤ κ²T²/N，其中 κ = ‖QHP‖/ħ = Ω/2。N 翻倍，界减半。系综在 T 时刻处于 |1⟩ 的概率是 (1 − z<sub>N</sub>)/2，理想投影时 z<sub>N</sub> = cos<sup>N</sup>(Ωδ)。</li>
+        <li><b>决定效果的是“间隔 × 强度”（§225）。</b>每次固定 η 时，N → ∞ 等于把总监视强度推向无穷，系统冻结。若每次强度随间隔缩小，η = e<sup>−γδ</sup>，N → ∞ 收敛到连续弱测量：z̈ + γż + Ω²z = 0；γ ≫ Ω 时慢衰减率约为 Ω²/γ，跃迁被拖慢却没有冻结。“分成无限多小步”与“监视强度无限大”不是同一个极限。</li>
+        <li><b>稳定与学习的权衡（§226，CONE_PROGRAM_FORMAL §5.4）。</b>理想投影时记录序列的熵率为 h<sub>2</sub>(q)/δ（自然对数），在 Ωδ ≈ 0.9518 处最大（约 0.5398 Ω），δ → 0 时趋于零；完整记录关于 Ω 的 Fisher 信息为 T²/N，随刷新次数下降。看得越勤，记录越单调，能学到的驱动信息越少。熵率趋零也不表示刷新本身免费（§229）。</li>
+        <li><b>拖动（§227）。</b>没有哈密顿量，只让测量方向从 |0⟩ 缓慢转到 cos Θ|0⟩ + sin Θ|1⟩，每步检查是否跟上。全部跟上的概率是 cos<sup>2N</sup>(Θ/N)，且 1 − p ≤ Θ²/N：测量路径本身就能把态带走。失败分支并没有消失，它们在记录带上以红色出现。</li>
+        <li><b>反芝诺（§228）。</b>对一个向环境衰变的不稳定态，周期测量把衰变率变成环境谱 J(ω) 与滤波函数 F<sub>τ</sub>(ω) = (τ/2π) sinc²((ω − ω<sub>0</sub>)τ/2) 的重叠：Γ(τ) = 2π∫J F<sub>τ</sub> dω（弱耦合领先阶）。本页取洛伦兹谱，峰在 ω<sub>c</sub>、宽 Λ，积分有闭式解。谱峰与能级对齐时只有芝诺抑制；谱峰失谐时，适中的测量频率把滤波展宽到谱峰上，衰变反而加快，即反芝诺（Kofman 与 Kurizki，<a href="https://doi.org/10.1038/35014537" target="_blank" rel="noopener">Nature 405, 546 (2000)</a>；冷原子实验 Fischer、Gutiérrez-Medina、Raizen，<a href="https://doi.org/10.1103/PhysRevLett.87.040402" target="_blank" rel="noopener">PRL 87, 040402 (2001)</a>）。并非任何测量加速的衰变都该叫反芝诺：仪器直接驱动或额外耗散也会加速，需要对照实验分开。</li>
+        <li><b>模型边界与证据状态。</b>本页以 Ω = 1（反芝诺模式以 Λ = 1）为单位，测量瞬时、理想；反芝诺模式取耦合 G = 0.02 Λ 的弱耦合领先阶与洛伦兹谱。§223–§228 的界和公式是理论卷的纸面证明，理论卷自己写明这批 Zeno 结论没有运行 Lean 编译；本页把它们标为模型计算，LEAN ✓ 只标在三个已冻结的定理上。§229 的资源界（形成正交记录需要非零作用时间）没有进入本页模型。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md" target="_blank" rel="noopener">QUANTUM-REALITY.md §221–§230</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/CONE_PROGRAM_FORMAL.md" target="_blank" rel="noopener">CONE_PROGRAM_FORMAL.md §5.4</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/EnvironmentRecords.lean" target="_blank" rel="noopener">EnvironmentRecords.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RecordActionCoherenceSurvival.lean" target="_blank" rel="noopener">RecordActionCoherenceSurvival.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean" target="_blank" rel="noopener">MonitoredReturnConservation.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A qubit is pushed from |0⟩ towards |1⟩ by a constant Rabi drive; left alone it flips completely after T = π/Ω. Now refresh it every δ = T/N: let a recording device interact with it and check whether it is still in |0⟩. The denser the refreshes, the harder it is for the flip to happen: this is the quantum Zeno effect. Each formula on the page is traced to its source below.</p>
+      <ol>
+        <li><b>Origins.</b> Misra and Sudarshan gave the mathematical form of “an observed system does not decay” in 1977 (<a href="https://doi.org/10.1063/1.523304" target="_blank" rel="noopener">J. Math. Phys. 18, 756</a>). Itano, Heinzen, Bollinger and Wineland ran the “measure N times during a π pulse” experiment with trapped ions in 1990, with N up to 64 (<a href="https://doi.org/10.1103/PhysRevA.41.2295" target="_blank" rel="noopener">Phys. Rev. A 41, 2295</a>); the ITANO-1990 preset reproduces that protocol’s theoretical prediction P<sub>1</sub>(T) = (1 − cos<sup>N</sup>(π/N))/2 and contains no experimental data points.</li>
+        <li><b>A refresh is a physical interaction (theory volume §222).</b> The recording interaction writes |0⟩ and |1⟩ into record states |m<sub>0</sub>⟩ and |m<sub>1</sub>⟩ with overlap ⟨m<sub>1</sub>|m<sub>0</sub>⟩ = η. Even if the record is never read, the system is phase-damped: its off-diagonal entries are multiplied by η. This is the frozen theorem <code>trace_environment_controlled_record_eq_phase_damping</code>; the cumulative overlap of many records controls the surviving coherence, see <code>record_action_controls_coherence_survival</code>. The same channel can also be produced by random phase kicks (Z applied with probability (1 − η)/2), which leave no readable outcome at all (Theorem 222.2). So a “single run” is drawn as projective jumps when η = 0 and as random phase kicks when η &gt; 0; both average to the exact ensemble evolution.</li>
+        <li><b>A quantitative freezing bound (§223).</b> Within each interval δ the probability of flipping from |0⟩ to |1⟩ is q = sin²(Ωδ/2). The chance of finding |0⟩ all N times is (1 − q)<sup>N</sup>, and the chance of catching at least one departure obeys P<sub>leave</sub> ≤ κ²T²/N with κ = ‖QHP‖/ħ = Ω/2. Doubling N halves the bound. The ensemble’s probability of being in |1⟩ at time T is (1 − z<sub>N</sub>)/2, with z<sub>N</sub> = cos<sup>N</sup>(Ωδ) for ideal projections.</li>
+        <li><b>What matters is “interval × strength” (§225).</b> With a fixed η each time, N → ∞ drives the total monitoring strength to infinity and the system freezes. If each refresh weakens as the interval shrinks, η = e<sup>−γδ</sup>, then N → ∞ converges to continuous weak measurement: z̈ + γż + Ω²z = 0; for γ ≫ Ω the slow decay rate is about Ω²/γ, so the transition is slowed but not frozen. “Infinitely many small steps” and “infinitely strong monitoring” are not the same limit.</li>
+        <li><b>A trade-off between stability and learning (§226, CONE_PROGRAM_FORMAL §5.4).</b> With ideal projections the record sequence has entropy rate h<sub>2</sub>(q)/δ (natural log), largest near Ωδ ≈ 0.9518 (about 0.5398 Ω) and going to zero as δ → 0; the Fisher information of the full record about Ω is T²/N, which falls as refreshes are added. The more often you look, the more monotonous the record and the less it can teach about the drive. A vanishing entropy rate does not make refreshing free (§229).</li>
+        <li><b>Dragging (§227).</b> With no Hamiltonian at all, turn the measurement direction slowly from |0⟩ to cos Θ|0⟩ + sin Θ|1⟩ and check at each step whether the state followed. The chance that it followed every time is cos<sup>2N</sup>(Θ/N), with 1 − p ≤ Θ²/N: the measurement path alone can carry the state away. The failed branches do not disappear; they show up in red on the record tape.</li>
+        <li><b>Anti-Zeno (§228).</b> For an unstable state decaying into an environment, periodic measurement turns the decay rate into the overlap of the environment spectrum J(ω) with the filter F<sub>τ</sub>(ω) = (τ/2π) sinc²((ω − ω<sub>0</sub>)τ/2): Γ(τ) = 2π∫J F<sub>τ</sub> dω (leading order in weak coupling). This page uses a Lorentzian spectrum peaked at ω<sub>c</sub> with width Λ, for which the integral has a closed form. When the peak sits on the level there is only Zeno suppression; when it is detuned, a moderate measurement rate widens the filter onto the peak and the decay speeds up: the anti-Zeno effect (Kofman and Kurizki, <a href="https://doi.org/10.1038/35014537" target="_blank" rel="noopener">Nature 405, 546 (2000)</a>; cold-atom experiment by Fischer, Gutiérrez-Medina and Raizen, <a href="https://doi.org/10.1103/PhysRevLett.87.040402" target="_blank" rel="noopener">PRL 87, 040402 (2001)</a>). Not every measurement-induced speed-up deserves the name: an apparatus that drives the transition or adds dissipation also speeds decay, and control experiments are needed to tell them apart.</li>
+        <li><b>Model limits and status of the evidence.</b> The page uses Ω = 1 (Λ = 1 in anti-Zeno mode) as the unit, with instantaneous ideal measurements; the anti-Zeno mode uses the weak-coupling leading order with coupling G = 0.02 Λ and a Lorentzian spectrum. The bounds and formulas of §223–§228 are paper proofs in the theory volume, which states itself that this batch of Zeno results was not compiled in Lean; the page labels them as model calculations, and LEAN ✓ marks only the three frozen theorems. The resource bound of §229 (forming orthogonal records takes non-zero interaction time) is not part of this page’s model.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (the theory volumes are in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md" target="_blank" rel="noopener">QUANTUM-REALITY.md §221–§230</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/CONE_PROGRAM_FORMAL.md" target="_blank" rel="noopener">CONE_PROGRAM_FORMAL.md §5.4</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/EnvironmentRecords.lean" target="_blank" rel="noopener">EnvironmentRecords.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RecordActionCoherenceSurvival.lean" target="_blank" rel="noopener">RecordActionCoherenceSurvival.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean" target="_blank" rel="noopener">MonitoredReturnConservation.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

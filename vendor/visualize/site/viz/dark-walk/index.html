@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="DARK//WALK · First detection and dark states, the walker that is never found">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DARK//WALK 首次探测与暗态 · 永远找不到的行走者</title>
+<meta name="description" content="首次探测与暗态：量子粒子在环或链上行走，探测器每隔 τ 检查一个格点。经典随机行走者一定会被找到；量子行走者却可能因为相干相消而永远不被探到。First detection and dark states: a quantum particle walks on a ring or a chain while a detector checks one site every τ. A classical random walker is always found eventually; a quantum walker can stay forever undetected through destructive interference.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="dark-walk">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="DARK//WALK">DARK<b>//</b>WALK</h1>
+      <div class="tagline">
+        <span class="zh">首次探测与暗态 · 永远找不到的行走者 · <em>相干相消可以让探测器永远等不到它</em></span>
+        <span class="en">First detection and dark states · the walker that is never found · <em>destructive interference can keep the detector waiting forever</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillRound">ROUND <strong>0</strong></span>
+      <span class="pill" id="pillDet">P<sub>det</sub> <strong>—</strong></span>
+      <span class="pill hot" id="pillDark">DARK <strong>—</strong></span>
+      <span class="pill" id="pillRun">RUN <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="ret" aria-pressed="false"><span class="code">RETURN</span><span class="cn zh">回到出发点</span><span class="cn en">Return to the start</span></button>
+        <button class="preset" data-preset="half" aria-pressed="true"><span class="code">HALF-DARK</span><span class="cn zh">一半永远找不到</span><span class="cn en">Half is never found</span></button>
+        <button class="preset" data-preset="two" aria-pressed="false"><span class="code">TWO-PATHS</span><span class="cn zh">两条路相消</span><span class="cn en">Two paths cancel</span></button>
+        <button class="preset" data-preset="chain" aria-pressed="false"><span class="code">CHAIN-END</span><span class="cn zh">链端探测 · 必被找到</span><span class="cn en">Chain end · always found</span></button>
+        <button class="preset" data-preset="darkstart" aria-pressed="false"><span class="code">DARK-START</span><span class="cn zh">从暗态出发</span><span class="cn en">Start in the dark state</span></button>
+        <button class="preset" data-preset="special" aria-pressed="false"><span class="code">SPECIAL-τ</span><span class="cn zh">特殊间隔 · 几乎全暗</span><span class="cn en">Special interval · almost all dark</span></button>
+        <button class="preset" data-preset="alldark" aria-pressed="false"><span class="code">ALL-DARK</span><span class="cn zh">特殊间隔 · 完全找不到</span><span class="cn en">Special interval · never found</span></button>
+        <button class="preset" data-preset="zeno" aria-pressed="false"><span class="code">TOO-OFTEN</span><span class="cn zh">看得太勤 · 迟迟不到</span><span class="cn en">Looking too often · late arrival</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">图与探测点</span><span class="en">Graph and detector</span><span class="aside">H = −γA</span></h2>
+      <div class="chips" id="graphChips" role="group" aria-label="图" data-aria-en="Graph">
+        <button class="chip" data-graph="ring" aria-pressed="true"><span class="zh">环</span><span class="en">Ring</span></button>
+        <button class="chip" data-graph="end" aria-pressed="false"><span class="zh">链 · 端点探测</span><span class="en">Chain · end detector</span></button>
+        <button class="chip" data-graph="mid" aria-pressed="false"><span class="zh">链 · 中点探测</span><span class="en">Chain · middle detector</span></button>
+      </div>
+      <div class="field">
+        <label for="sites"><span class="zh">格点数 N</span><span class="en">Sites N</span></label><output id="oSites" for="sites">8</output>
+        <input type="range" id="sites" min="3" max="24" step="1" value="8">
+      </div>
+      <p class="note" id="graphNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">出发态</span><span class="en">Initial state</span><span class="aside">ψ<sub>0</sub></span></h2>
+      <div class="field">
+        <label for="start"><span class="zh">出发格点 x<sub>0</sub></span><span class="en">Start site x<sub>0</sub></span><small class="zh">也可在三维里点格点</small><small class="en">or click a site in 3D</small></label><output id="oStart" for="start">3</output>
+        <input type="range" id="start" min="0" max="7" step="1" value="3">
+      </div>
+      <div class="chips" id="partChips" role="group" aria-label="取哪一部分" data-aria-en="Which part to keep">
+        <button class="chip" data-part="all" aria-pressed="true"><span class="zh">局域 |x<sub>0</sub>⟩</span><span class="en">Localized |x<sub>0</sub>⟩</span></button>
+        <button class="chip" data-part="dark" aria-pressed="false"><span class="zh">只取暗分量</span><span class="en">Dark part only</span></button>
+        <button class="chip" data-part="bright" aria-pressed="false"><span class="zh">只取亮分量</span><span class="en">Bright part only</span></button>
+      </div>
+      <p class="note" id="startNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">探测间隔</span><span class="en">Detection interval</span><span class="aside">τ</span></h2>
+      <div class="field">
+        <label for="tau"><span class="zh">每隔 τ 检查一次</span><span class="en">Check every τ</span><small class="zh">以 1/γ 计</small><small class="en">in units of 1/γ</small></label><output id="oTau" for="tau">1.00</output>
+        <input type="range" id="tau" min="0.05" max="5" step="0.01" value="1">
+      </div>
+      <div class="chips special" id="specialChips" role="group" aria-label="特殊间隔" data-aria-en="Special intervals"></div>
+      <p class="note" id="tauNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="行走者在图上的三维视图：柱高是尚未被探到的概率，颜色是相位；拖动旋转，滚轮缩放，点击格点改变出发点" data-aria-en="3D view of the walker on the graph: bar height is the probability not yet detected, colour is the phase; drag to rotate, scroll to zoom, click a site to change the start">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">n = 0</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">首次探测的轮数</span><span class="en">ROUND OF FIRST DETECTION</span></h2><span id="tlMeta"></span></div>
+        <canvas id="timeline" aria-label="每一轮首次被探到的概率，以及尚未被探到的存活概率" data-aria-en="Probability of first detection at each round, and the survival probability"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">探测概率与间隔 τ</span><span class="en">DETECTION PROBABILITY VS τ</span></h2><span id="scMeta"></span></div>
+        <canvas id="scan" aria-label="总探测概率随探测间隔的变化，特殊间隔处突然下降" data-aria-en="Total detection probability against the detection interval, dropping at special intervals"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">P<sub>det</sub> + P<sub>dark</sub> = 1</span></h2>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">总探测概率 P<sub>det</sub></span><span class="en">Total detection P<sub>det</sub></span></dt><dd id="roDet">—</dd></div>
+        <div class="m"><dt><span class="zh">永远不被探到 P<sub>dark</sub></span><span class="en">Never detected P<sub>dark</sub></span></dt><dd id="roDark">—</dd></div>
+        <div><dt><span class="zh">暗空间维数 dim 𝒟</span><span class="en">Dark-space dimension dim 𝒟</span></dt><dd id="roDim">—</dd></div>
+        <div class="a"><dt><span class="zh">此刻：已探到 / 仍存活</span><span class="en">Now: detected / surviving</span></dt><dd id="roNow">—</dd></div>
+        <div><dt><span class="zh">平均探测轮数（被探到时）</span><span class="en">Mean detection round (if detected)</span></dt><dd id="roMean">—</dd></div>
+        <div><dt id="roL6"></dt><dd id="ro6">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">暗空间恰是 I − (Q<sup>†</sup>)<sup>d</sup>Q<sup>d</sup> 的核：只需检查前 d 轮，已冻结：</span><span class="en">The dark space is exactly the kernel of I − (Q<sup>†</sup>)<sup>d</sup>Q<sup>d</sup>: the first d rounds suffice; frozen:</span> <code>dark_space_eq_survival_defect_kernel</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">存活效果 (Q<sup>†</sup>)<sup>N</sup>Q<sup>N</sup> 收敛到暗空间投影，所以永不被探到的概率 = Tr(ρP<sub>𝒟</sub>)，已冻结：</span><span class="en">The survival effects (Q<sup>†</sup>)<sup>N</sup>Q<sup>N</sup> converge to the dark-space projection, so the chance of never being detected is Tr(ρP<sub>𝒟</sub>); frozen:</span> <code>finite_detection_survival_limit</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">这一次运行</span><span class="en">This run</span><span class="aside" id="runAside">—</span></h2>
+      <canvas class="plot tape" id="tape" aria-label="这一次运行中每一轮的检查结果" data-aria-en="The outcome of each check in this run"></canvas>
+      <p class="note" id="tapeNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">账上的全部分支</span><span class="en">Every branch on the ledger</span><span class="aside">Σ = 1</span></h2>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">从 v 出发、每轮演化后检查是否回到 v 的协议里，各轮首次回归概率加上尚未回归的存活概率恰为 1，且逐轮守恒，已冻结：</span><span class="en">In the protocol that starts at v and checks after each step whether the walker is back at v, the first-return probabilities of all rounds plus the remaining survival sum to exactly 1, round by round; frozen:</span> <code>monitored_return_conservation</code></span></div>
+      <p class="note" id="ledgerNote"></p>
+    </section>
+  </aside>
+
+  <!-- clock rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="检查轮数" data-aria-en="Check rounds">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一轮 · <kbd>C</kbd> 经典对照 · <kbd>R</kbd> 换一次运行</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one round · <kbd>C</kbd> classical comparison · <kbd>R</kbd> new run</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一个量子粒子在环或链上跳跃（哈密顿量 H = −γA，A 是图的邻接矩阵）。探测器守在一个格点上，每隔 τ 检查一次：在就“点击”，协议停止；不在就把那个格点上的振幅抹去，粒子继续走。柱子的高度是“到现在还没被探到”的概率在各格点上的分布，颜色是相位。</p>
+      <ol>
+        <li><b>首次探测协议（理论卷 §11）。</b>每轮的未点击算子 Q = (I − P<sub>d</sub>)U、点击算子 L = P<sub>d</sub>U，其中 U = e<sup>−iHτ</sup>、P<sub>d</sub> 是探测点投影。第 n 轮首次点击的概率 F<sub>n</sub> = ‖LQ<sup>n−1</sup>ψ‖²，还没点击的概率 S<sub>N</sub> = ‖Q<sup>N</sup>ψ‖²，且 Σ<sub>n≤N</sub>F<sub>n</sub> + S<sub>N</sub> = 1（命题 11.2）。“从 v 出发、检查是否回到 v”这一特例的逐轮守恒已冻结：<code>monitored_return_conservation</code>。这个重复测量框架来自 Friedman、Kessler、Barkai（<a href="https://doi.org/10.1103/PhysRevE.95.032141" target="_blank" rel="noopener">Phys. Rev. E 95, 032141 (2017)</a>）。</li>
+        <li><b>暗空间（§13）。</b>协议暗空间 𝒟 是所有 LQ<sup>n</sup> 的公共核：落在这里的分量在任何一轮都不会被探到。它恰好是 I − (Q<sup>†</sup>)<sup>d</sup>Q<sup>d</sup> 的核，检查前 d 轮就够了（命题 13.2，已冻结：<code>dark_space_eq_survival_defect_kernel</code>）；存活效果收敛到暗空间投影，永不点击的概率是 Tr(ρP<sub>𝒟</sub>)（命题 13.3，已冻结：<code>finite_detection_survival_limit</code>）。</li>
+        <li><b>为什么会暗：相干相消。</b>环上能量相同的两个行波可以叠加成在探测点上恰好为零的驻波——它在环上一直“走”，探测点却永远看不到它。命题 13.5 给出最小的例子：两条路的反对称组合 (L − R)/√2 永不点击；“两条路相消”预设就是这个结构（三格链，探测点在中间）。经典随机行走没有相位，不会相消，在有限连通图上最终一定被找到，所以经典对照的存活曲线总会降到零。</li>
+        <li><b>特殊间隔。</b>暗空间取决于 U = e<sup>−iHτ</sup> 的本征相位 e<sup>−iE τ</sup> 怎样分组。一般的 τ 下，只有能量相同的本征态才落在同一组；当 τ 使两个不同能量的相位恰好重合（(E − E′)τ = 2πm），两组合并，新的组合又能在探测点上相消，暗空间变大，探测概率突然下降。所以 P<sub>det</sub>(τ) 几乎处处是常数，只在这些孤立的特殊间隔上掉下来。相关的暗态分析见 Thiel、Mualem、Meidan、Barkai、Kessler（<a href="https://doi.org/10.1103/PhysRevResearch.2.043107" target="_blank" rel="noopener">Phys. Rev. Research 2, 043107 (2020)</a>）。</li>
+        <li><b>返回时间是整数。</b>从探测点出发、问何时回来时，返回必然发生，平均返回轮数恰好等于初态所在循环子空间的维数，也就是不同本征相位的个数（Grünbaum、Velázquez、A. H. Werner、R. F. Werner，<a href="https://doi.org/10.1007/s00220-012-1645-2" target="_blank" rel="noopener">Commun. Math. Phys. 320, 543 (2013)</a>，理论卷 §49 引用）。页面的数值迭代与这个整数对照显示；这是文献结果与模型计算，不是仓库里的 Lean 定理。</li>
+        <li><b>看得太勤。</b>τ 很小时，每轮几乎什么都没发生，探测又把振幅钉回原处——这是芝诺效应的一面：探测概率不变，平均到达时间却变得很长。</li>
+        <li><b>模型边界。</b>最近邻跳跃、γ = 1，探测瞬时且理想；轮数窗口有限，窗口内的累计值与渐近值分开显示。单次运行用固定种子抽出首次点击的轮数；落进暗分支的运行永远不会点击。经典对照取同一张图上速率为 γ 的连续时间随机行走，同样每隔 τ 检查一次。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">波粒整体的关系全息表示 §11–§13、§49</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionDarkSpace.lean" target="_blank" rel="noopener">FiniteDetectionDarkSpace.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean" target="_blank" rel="noopener">FiniteDetectionSurvivalLimit.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean" target="_blank" rel="noopener">MonitoredReturnConservation.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A quantum particle hops on a ring or a chain (Hamiltonian H = −γA, with A the adjacency matrix of the graph). A detector guards one site and checks it every τ: if the particle is there it “clicks” and the protocol stops; if not, the amplitude on that site is wiped out and the particle walks on. The bar heights show how the probability of “not detected yet” is spread over the sites; the colours show the phase.</p>
+      <ol>
+        <li><b>The first-detection protocol (theory volume §11).</b> Each round has no-click operator Q = (I − P<sub>d</sub>)U and click operator L = P<sub>d</sub>U, where U = e<sup>−iHτ</sup> and P<sub>d</sub> projects onto the detector site. The chance of the first click at round n is F<sub>n</sub> = ‖LQ<sup>n−1</sup>ψ‖², the chance of no click yet is S<sub>N</sub> = ‖Q<sup>N</sup>ψ‖², and Σ<sub>n≤N</sub>F<sub>n</sub> + S<sub>N</sub> = 1 (Proposition 11.2). The round-by-round balance for the special case “start at v and check whether it is back at v” is frozen: <code>monitored_return_conservation</code>. The repeated-measurement framework is from Friedman, Kessler and Barkai (<a href="https://doi.org/10.1103/PhysRevE.95.032141" target="_blank" rel="noopener">Phys. Rev. E 95, 032141 (2017)</a>).</li>
+        <li><b>The dark space (§13).</b> The protocol’s dark space 𝒟 is the common kernel of all LQ<sup>n</sup>: anything lying there is never detected in any round. It is exactly the kernel of I − (Q<sup>†</sup>)<sup>d</sup>Q<sup>d</sup>, so checking the first d rounds is enough (Proposition 13.2, frozen: <code>dark_space_eq_survival_defect_kernel</code>); the survival effects converge to the dark-space projection, and the chance of never clicking is Tr(ρP<sub>𝒟</sub>) (Proposition 13.3, frozen: <code>finite_detection_survival_limit</code>).</li>
+        <li><b>Why it is dark: destructive interference.</b> On a ring, two travelling waves of the same energy can add up to a standing wave that vanishes exactly at the detector: it keeps “walking” around the ring, yet the detector never sees it. Proposition 13.5 gives the smallest example: the antisymmetric combination (L − R)/√2 of two paths never clicks; the “Two paths cancel” preset has exactly this structure (a three-site chain with the detector in the middle). A classical random walk has no phase and cannot cancel itself; on a finite connected graph it is always found in the end, so the classical survival curve always falls to zero.</li>
+        <li><b>Special intervals.</b> The dark space depends on how the eigenphases e<sup>−iEτ</sup> of U = e<sup>−iHτ</sup> group together. For a generic τ only eigenstates of equal energy share a group; when τ makes the phases of two different energies coincide ((E − E′)τ = 2πm), the groups merge, new combinations can cancel at the detector, the dark space grows and the detection probability drops abruptly. So P<sub>det</sub>(τ) is constant almost everywhere and drops only at these isolated special intervals. For an analysis of such dark states see Thiel, Mualem, Meidan, Barkai and Kessler (<a href="https://doi.org/10.1103/PhysRevResearch.2.043107" target="_blank" rel="noopener">Phys. Rev. Research 2, 043107 (2020)</a>).</li>
+        <li><b>Return times are integers.</b> Starting at the detector site and asking when the walker comes back, the return is certain and the mean return round equals the dimension of the cyclic subspace of the initial state, that is, the number of distinct eigenphases (Grünbaum, Velázquez, A. H. Werner and R. F. Werner, <a href="https://doi.org/10.1007/s00220-012-1645-2" target="_blank" rel="noopener">Commun. Math. Phys. 320, 543 (2013)</a>, cited in §49 of the theory volume). The page shows its numerical iteration next to this integer; this is a literature result and a model calculation, not a Lean theorem in the repository.</li>
+        <li><b>Looking too often.</b> For very small τ almost nothing happens within a round, and each check pins the amplitude back in place. This is one face of the Zeno effect: the detection probability stays the same, but the mean arrival time becomes very long.</li>
+        <li><b>Model limits.</b> Nearest-neighbour hopping with γ = 1, instantaneous ideal detection; the window of rounds is finite, and values accumulated within it are shown apart from the asymptotic ones. The single run draws its first-click round from fixed seeds; a run that falls into the dark branch never clicks. The classical comparison is a continuous-time random walk with rate γ on the same graph, checked every τ in the same way.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (the theory volume is in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">Relational holographic representation of the wave–particle whole §11–§13, §49</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionDarkSpace.lean" target="_blank" rel="noopener">FiniteDetectionDarkSpace.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean" target="_blank" rel="noopener">FiniteDetectionSurvivalLimit.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean" target="_blank" rel="noopener">MonitoredReturnConservation.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

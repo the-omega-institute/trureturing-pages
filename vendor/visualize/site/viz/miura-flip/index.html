@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="MIURA//FLIP · Height functions on the Miura-ori flip graph">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIURA//FLIP Miura-ori 翻转图上的高度函数</title>
+<meta name="description" content="Gupta（2026）把 m × n Miura-ori 的折法写成网格上的高度函数，翻转图的一步是把一个局部极值的高度改变 2。他问：网格上任何整数 1-Lipschitz 函数的离散度是否都不超过 D(m, n)（不等式 (4)）；又猜想：极值个数固定时，“极小值不全在同一条边上”的高度函数个数是总次数至多 d − 3 的多项式（猜想 8.3）。本库把两者都证明了。页面画出高度地形、一条恰好 D(m, n) 步的翻转测地线、离散度与最优中心，以及证明里先排行、再排列的重排。Gupta (2026) writes the foldings of the m × n Miura-ori as height functions on the grid, one step of the flip graph changing a local extremum by 2. He asked whether every integer 1-Lipschitz function on the grid has dispersion at most D(m, n) (inequality (4)), and conjectured that with the number of extrema fixed, the height functions whose minima are not all on one side are counted by a polynomial of total degree at most d − 3 (Conjecture 8.3). This library proves both. The page draws the height terrain, a flip geodesic of exactly D(m, n) steps, the dispersion with its best centre, and the proof’s rearrangement that sorts rows and then columns.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="miura-flip">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="MIURA//FLIP">MIURA<b>//</b>FLIP</h1>
+      <div class="tagline">
+        <span class="zh">Miura-ori 翻转图上的高度函数 · <em>直径与度数两个问题（本库已证）</em></span>
+        <span class="en">Height functions on the Miura-ori flip graph · <em>two questions on diameter and degrees (proved here)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="geo" aria-pressed="true"><span class="code">−A → A · 6 × 6</span><span class="cn zh">最长的翻转路 · 70 步</span><span class="cn en">The longest flip path · 70 steps</span></button>
+        <button class="preset" data-preset="small" aria-pressed="false"><span class="code">4 × 4 · BFS</span><span class="cn zh">2604 个状态 · 直径 20</span><span class="cn en">2604 states · diameter 20</span></button>
+        <button class="preset" data-preset="wander" aria-pressed="false"><span class="code">h → A · 7 × 5</span><span class="cn zh">随机状态走到斜坡</span><span class="cn en">A random state walks to the ramp</span></button>
+        <button class="preset" data-preset="extrema" aria-pressed="false"><span class="code">a + b = d</span><span class="cn zh">极值 = 可翻转的点</span><span class="cn en">Extrema = the flippable cells</span></button>
+        <button class="preset" data-preset="ramp" aria-pressed="false"><span class="code">φ = i + j</span><span class="cn zh">斜坡取到上界 D</span><span class="cn en">The ramp attains the bound D</span></button>
+        <button class="preset" data-preset="lip" aria-pressed="false"><span class="code">disp ≤ D</span><span class="cn zh">随机 1-Lipschitz 函数</span><span class="cn en">A random 1-Lipschitz function</span></button>
+        <button class="preset" data-preset="sortL" aria-pressed="false"><span class="code">sort · rows, cols</span><span class="cn zh">证明的重排</span><span class="cn en">The proof’s rearrangement</span></button>
+        <button class="preset" data-preset="sortH" aria-pressed="false"><span class="code">sort · ±1 steps</span><span class="cn zh">排序保住单位台阶</span><span class="cn en">Sorting keeps unit steps</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">m × n</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="walk"><span class="zh">翻转路</span><span class="en">Flip path</span></button>
+        <button class="chip" data-mode="disp"><span class="zh">离散度</span><span class="en">Dispersion</span></button>
+        <button class="chip" data-mode="sort"><span class="zh">重排</span><span class="en">Rearrangement</span></button>
+      </div>
+      <div class="field" id="mField">
+        <label for="mm"><span class="zh">行数 m</span><span class="en">Rows m</span></label><output id="oM" for="mm">6</output>
+        <input type="range" id="mm" min="2" max="9" step="1" value="6">
+      </div>
+      <div class="field" id="nField">
+        <label for="nn"><span class="zh">列数 n</span><span class="en">Columns n</span></label><output id="oN" for="nn">6</output>
+        <input type="range" id="nn" min="2" max="9" step="1" value="6">
+      </div>
+      <div class="field" id="toolField">
+        <span class="lbl"><span class="zh">函数（点下方网格图的格子可修改）</span><span class="en">Function (click a cell of the grid chart below to change it)</span></span>
+        <div class="chips" id="toolChips" role="group" aria-label="函数" data-aria-en="Function">
+          <button class="chip" data-fn="ramp"><span class="zh">斜坡 i + j</span><span class="en">Ramp i + j</span></button>
+          <button class="chip" data-fn="random"><span class="zh">随机 ↻</span><span class="en">Random ↻</span></button>
+          <button class="chip" data-fn="flat" id="flatChip"><span class="zh">平地</span><span class="en">Flat</span></button>
+          <button class="chip" data-tool="up" id="upChip"><span class="zh">点击 +1</span><span class="en">Click +1</span></button>
+          <button class="chip" data-tool="down" id="downChip"><span class="zh">点击 −1</span><span class="en">Click −1</span></button>
+        </div>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：网格上的高度地形，局部极小（青）与极大（品红）可以翻转；离散度模式下琥珀平面是中心 K；拖动旋转，滚轮缩放" data-aria-en="3D view: the height terrain over the grid, with flippable local minima (cyan) and maxima (magenta); in the dispersion mode the amber plane is the centre K; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="网格上的函数值" data-aria-en="The function values on the grid"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前模式的辅助图" data-aria-en="Side chart of the current mode"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">disp ≤ D</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Gupta（2026）的不等式 (4)：m × n 网格上任何整数 1-Lipschitz 函数 φ（相邻格的值相差不超过 1，不要求来自折纸），离散度 disp(φ) = min<sub>K∈ℤ</sub> Σ|φ − K| 都不超过 D(m, n) = min<sub>K∈ℤ</sub> Σ<sub>i,j</sub>|i + j − K|。原文只在 4 × 4、3 × 5 以内用穷举验证。证明（冻结模块里的私有引理）：先把每一行排序、再把每一列排序，值的多重集不变、单位台阶保持，得到行列都递增的 F；再用 FKG 不等式比较 F 与斜坡 i + j 的平均绝对偏差。已冻结：</span><span class="en">Gupta’s inequality (4) (2026): every integer 1-Lipschitz function φ on the m × n grid (neighbouring cells differ by at most 1; no origami realisability required) has dispersion disp(φ) = min<sub>K∈ℤ</sub> Σ|φ − K| at most D(m, n) = min<sub>K∈ℤ</sub> Σ<sub>i,j</sub>|i + j − K|. The source checked it by enumeration only up to 4 × 4 and 3 × 5. The proof (private lemmas of the frozen module) sorts every row and then every column, which keeps the multiset of values and the unit steps and gives an F increasing along rows and columns, and then compares the mean absolute deviations of F and of the ramp i + j by the FKG inequality. Frozen:</span> <code>GuptaMiuraGridDispersion.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Gupta（2026）猜想 8.3：对 d ≥ 5、1 ≤ a ≤ b、a + b = d，m × n 网格上恰有 a 个严格局部极小、b 个严格局部极大、而且极小值不全在同一条边上的高度函数（相邻格高度差恰为 ±1，左上角高度为 0），个数在 m, n ≥ 2d − 1 时等于同一个总次数至多 d − 3 的二元多项式。证明把每个函数收缩到唯一的“核”，把计数写成按核求和的正合分解，再用两个方向冻结列数的联合上界压低次数。已冻结：</span><span class="en">Gupta’s Conjecture 8.3 (2026): for d ≥ 5, 1 ≤ a ≤ b and a + b = d, the height functions on the m × n grid (neighbouring heights differ by exactly ±1, height 0 at the top-left corner) with exactly a strict local minima and b strict local maxima, whose minima do not all lie on one common side, are counted for m, n ≥ 2d − 1 by one bivariate polynomial of total degree at most d − 3. The proof contracts each function to a unique “core”, writes the count as an exact sum over cores, and lowers the degree with a joint bound on the frozen runs in both directions. Frozen:</span> <code>MiuraResolution.result</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗论证、未形式化：斜坡 φ = i + j 的离散度就是 D(m, n)，所以上界是精确的；与原文的定理 4.1（下界）和命题 4.2（直径不超过最大离散度）合起来，m × n Miura-ori 翻转图的直径等于 D(m, n)。这两步折纸归约是原文的结果，本库没有形式化。</span><span class="en">Argued in the dossier and not formalized: the ramp φ = i + j has dispersion exactly D(m, n), so the bound is sharp; together with the source’s Theorem 4.1 (the lower bound) and Proposition 4.2 (the diameter is at most the largest dispersion), the diameter of the m × n Miura-ori flip graph equals D(m, n). Those two origami reductions are results of the source, not formalized here.</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：页面的翻转图把相差常数的高度函数看成同一个状态，一步翻转把一个严格局部极值的高度改变 2；在状态数不超过 3000 的网格上（如 4 × 4、3 × 5、2 × 7），页面用广度优先搜索得到的直径等于 D(m, n)，所有状态对之间的翻转距离都等于 disp((h₁ − h₂)/2)；最长路从 −A 走到 A（A = i + j）。页面也穷举 3 × 4、2 × 6 以内网格上的全部 1-Lipschitz 函数，最大离散度等于 D(m, n)。</span><span class="en">Numbers computed on the page, not theorems: the page’s flip graph treats height functions that differ by a constant as one state, and one flip changes a strict local extremum by 2. On grids with at most 3000 states (such as 4 × 4, 3 × 5 and 2 × 7) the diameter found by breadth-first search equals D(m, n) and every pair of states is at flip distance disp((h₁ − h₂)/2); a longest path runs from −A to A (A = i + j). The page also enumerates every 1-Lipschitz function on grids up to 3 × 4 and 2 × 6, and the largest dispersion equals D(m, n).</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：原文猜想 4.6（对所有抽象 ν-链的更强版本）；非矩形折纸的翻转图直径；原文定理 9.10 更高的区域与薄区域的修正。</span><span class="en">Open: the source’s Conjecture 4.6 (a stronger version for all abstract ν-chains); flip-graph diameters for non-rectangular origami; the higher region of the source’s Theorem 9.10 and its thin-region corrections.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Gupta（2026）用高度函数研究 m × n Miura-ori 翻转图的度数序列与直径，并在续篇里构造度数序列的多项式；Christensen、Hull、O’Neil、Pappano、Ter-Saakov（2025）研究 2 × n 的情形。证明用到的 FKG 不等式来自 Fortuin、Kasteleyn、Ginibre（1971）：乘积偏序上两个递增函数的协方差非负。</span><span class="en">Gupta (2026) studies the degree sequence and diameter of the m × n Miura-ori flip graph through height functions, and constructs polynomials for the degree sequence in a sequel; Christensen, Hull, O’Neil, Pappano and Ter-Saakov (2025) treat the 2 × n case. The FKG inequality used by the proof is due to Fortuin, Kasteleyn and Ginibre (1971): two increasing functions on a product order have nonnegative covariance.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：翻转路上的步数、离散度模式下的中心 K，或重排的阶段" data-aria-en="Progress: the step along the flip path, the centre K in the dispersion mode, or the stage of the rearrangement">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">Miura-ori 是一种由平行四边形组成的折纸。Gupta（2026）把 m × n Miura-ori 的每种合法折法写成网格上的一个高度函数：相邻格的高度恰好相差 1。一个格子若比所有邻居都低（严格局部极小）或都高（严格局部极大），就可以把它的高度改变 2，对应翻转图的一条边。本库证明了他提出的两个问题：一个关于翻转图的直径，一个关于度数的计数多项式。</p>
+      <ol>
+        <li><b>高度函数与翻转（原文）。</b>高度函数 h 在每条网格边上满足 |h(u) − h(v)| = 1，h mod 3 是网格的一个真 3-着色。严格局部极小的所有邻居都比它高 1，翻转把它升高 2；严格局部极大反之。一个状态在翻转图里的度数就是它的严格局部极值个数 d = a + b。</li>
+        <li><b>离散度不等式（已冻结）。</b>对网格上任何整数 1-Lipschitz 函数 φ，disp(φ) = min<sub>K</sub> Σ|φ − K| ≤ D(m, n)，D(m, n) 是斜坡 i + j 的离散度。这里不要求 φ 来自折纸，相邻差可以是 0。斜坡本身取到等号（卷宗论证）。</li>
+        <li><b>证明的重排（冻结证明的私有引理）。</b>把每一行排序、再把每一列排序：值的多重集不变，所以离散度不变；相邻行逐位比较的关系在排序后仍然成立，单位台阶也不会被拉开，得到行列都递增的 F。F 与 A − F（A = i + j）都是递增函数，FKG 不等式给出 Cov(sgn(F − EF), A − F) ≥ 0，由此 F 的平均绝对偏差不超过 A 的；最后说明整数中心不比有理中心差，A 的最优中心在 (m + n + 2)/2。</li>
+        <li><b>直径（卷宗论证 + 页面数值）。</b>原文的定理 4.1 给出直径 ≥ D(m, n)，命题 4.2 给出直径 ≤ 最大离散度；加上不等式 (4)，直径恰为 D(m, n)。页面在状态数不超过 3000 的网格上用广度优先搜索核对：直径等于 D(m, n)，任意两个状态的翻转距离等于 disp((h₁ − h₂)/2)。最长的一条路从 −A 走到 A，页面一步一步画出来，每一步都翻转一个让距离减 1 的极值。</li>
+        <li><b>度数的计数多项式（已冻结）。</b>固定 a 个严格极小、b 个严格极大（d = a + b ≥ 5，a ≤ b），只数“极小值不全在同一条边上”的高度函数，计数在 m, n ≥ 2d − 1 时是一个总次数 ≤ d − 3 的多项式。证明的关键：把函数沿“冻结”的整列、整行收缩到唯一的核，计数分解成按核求和，每个核贡献正整数组合数的乘积；两个方向冻结段数的联合上界 r + s ≤ d − 1 把次数压到 d − 3。</li>
+        <li><b>边界。</b>原文的折纸对应、定理 4.1 与命题 4.2、翻转图本身都没有在本库形式化；页面的翻转图、直径、翻转距离与穷举都是现算的数值。原文的猜想 4.6 与非矩形折纸的问题仍然开放。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-grid-dispersion-inequality-4.md" target="_blank" rel="noopener">问题卷宗：Miura 网格的离散度不等式 (4)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-residual-degree-conjecture-83.md" target="_blank" rel="noopener">问题卷宗：剩余项次数猜想 8.3</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/GuptaMiuraGridDispersion.lean" target="_blank" rel="noopener">GuptaMiuraGridDispersion.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/MiuraResolution.lean" target="_blank" rel="noopener">MiuraResolution.lean</a> · Gupta，<a href="https://arxiv.org/abs/2606.22614" target="_blank" rel="noopener">arXiv:2606.22614（2026）</a>、<a href="https://arxiv.org/abs/2607.05567" target="_blank" rel="noopener">arXiv:2607.05567（2026）</a> · Christensen 等，<a href="https://arxiv.org/abs/2506.19700" target="_blank" rel="noopener">arXiv:2506.19700（2025）</a> · Fortuin、Kasteleyn、Ginibre，<a href="https://doi.org/10.1007/BF01651330" target="_blank" rel="noopener">Comm. Math. Phys. 22, 89（1971）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The Miura-ori is a fold pattern made of parallelograms. Gupta (2026) writes each valid folding of the m × n Miura-ori as a height function on the grid: neighbouring cells differ in height by exactly 1. A cell lower than all its neighbours (a strict local minimum) or higher than all of them (a strict local maximum) can change its height by 2, which is one edge of the flip graph. This library proves two of his questions, one on the diameter of the flip graph and one on the counting polynomials of its degrees.</p>
+      <ol>
+        <li><b>Height functions and flips (source).</b> A height function h satisfies |h(u) − h(v)| = 1 on every grid edge, and h mod 3 is a proper 3-colouring of the grid. All neighbours of a strict local minimum are higher by 1, and a flip raises it by 2; a strict local maximum works the other way. The degree of a state in the flip graph is its number of strict local extrema, d = a + b.</li>
+        <li><b>The dispersion inequality (frozen).</b> Every integer 1-Lipschitz function φ on the grid has disp(φ) = min<sub>K</sub> Σ|φ − K| ≤ D(m, n), where D(m, n) is the dispersion of the ramp i + j. No origami realisability is assumed, and neighbouring differences may be 0. The ramp itself attains equality (argued in the dossier).</li>
+        <li><b>The proof’s rearrangement (private lemmas of the frozen proof).</b> Sort every row and then every column. The multiset of values is unchanged, so the dispersion is unchanged; the entrywise comparison between neighbouring rows survives sorting, and no unit step is stretched, giving an F increasing along rows and columns. Both F and A − F (A = i + j) are increasing, so the FKG inequality gives Cov(sgn(F − EF), A − F) ≥ 0, and hence the mean absolute deviation of F is at most that of A. Finally an integer centre is no worse than a rational one, and the best centre of A is (m + n + 2)/2.</li>
+        <li><b>The diameter (argued in the dossier + page numerics).</b> The source’s Theorem 4.1 gives diameter ≥ D(m, n) and its Proposition 4.2 gives diameter ≤ the largest dispersion; with inequality (4) the diameter is exactly D(m, n). The page checks this by breadth-first search on grids with at most 3000 states: the diameter equals D(m, n), and any two states are at flip distance disp((h₁ − h₂)/2). A longest path runs from −A to A, and the page draws it step by step, each step flipping an extremum that lowers the distance by 1.</li>
+        <li><b>The counting polynomials of degrees (frozen).</b> Fix a strict minima and b strict maxima (d = a + b ≥ 5, a ≤ b) and count only the height functions whose minima are not all on one side; for m, n ≥ 2d − 1 the count is a polynomial of total degree ≤ d − 3. The key steps: contract the function along whole “frozen” columns and rows to a unique core, split the count into a sum over cores where each core contributes a product of counts of positive compositions, and lower the degree to d − 3 with the joint bound r + s ≤ d − 1 on the frozen runs in both directions.</li>
+        <li><b>Limits.</b> The source’s origami correspondence, its Theorem 4.1 and Proposition 4.2 and the flip graph itself are not formalized here; the page’s flip graph, diameters, flip distances and enumerations are computed numbers. The source’s Conjecture 4.6 and the non-rectangular questions remain open.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-grid-dispersion-inequality-4.md" target="_blank" rel="noopener">Problem dossier: the Miura grid dispersion inequality (4)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-residual-degree-conjecture-83.md" target="_blank" rel="noopener">Problem dossier: the residual degree conjecture 8.3</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/GuptaMiuraGridDispersion.lean" target="_blank" rel="noopener">GuptaMiuraGridDispersion.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/MiuraResolution.lean" target="_blank" rel="noopener">MiuraResolution.lean</a> · Gupta, <a href="https://arxiv.org/abs/2606.22614" target="_blank" rel="noopener">arXiv:2606.22614 (2026)</a>, <a href="https://arxiv.org/abs/2607.05567" target="_blank" rel="noopener">arXiv:2607.05567 (2026)</a> · Christensen et al., <a href="https://arxiv.org/abs/2506.19700" target="_blank" rel="noopener">arXiv:2506.19700 (2025)</a> · Fortuin, Kasteleyn, Ginibre, <a href="https://doi.org/10.1007/BF01651330" target="_blank" rel="noopener">Comm. Math. Phys. 22, 89 (1971)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

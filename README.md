@@ -17,7 +17,7 @@ follows dependency depth; horizontal positions follow actual connections and
 connected components. Dependencies adds support metrics; Structure provides the
 concept-family view. `atlas-explorer.html` is a compatibility alias.
 `site/dag.html` retains the advanced analysis console. The primary navigation
-also links directly to [Visualize](https://the-omega-institute.github.io/trureturing-visualize/),
+also links directly to [Visualize](https://www.trureturing.org/visualize/),
 the companion collection of interactive explanations; Library retains the
 module texts, sources and release history. To preview against a
 verified copy of the current published release, run:
@@ -36,6 +36,14 @@ node records load in verified shards when selected. The generator verifies the
 canonical graph before producing these artifacts; the canonical archive remains
 available and older startup indexes still work. Article shards and release
 history are outside the initial loading path.
+
+Visualize is served at `/visualize/` from a pinned copy of its existing Pages
+publication. All 30 interactive pages and their scripts, images, datasets and
+Three.js runtime are hosted under this domain. The source publication and its
+file digests are recorded in `vendor/visualize/publication.v1.json`; the original
+files stay intact. `lib/visualize.py` mounts the collection during both production
+and preview assembly and adds the Pages navigation/language adapter. See
+`vendor/visualize/README.md` for refresh instructions.
 The preview generates the Library and all concept Wiki pages locally, including
 complete relationship maps and the shared site theme. Open
 `http://127.0.0.1:8765/knowledge/` to browse them.

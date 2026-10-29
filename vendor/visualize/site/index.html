@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="TRURETURING//VISUALIZE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TRURETURING//VISUALIZE</title>
+<meta name="description" content="trureturing 理论的交互可视化。Interactive visualizations of trureturing theory; each page names its theory sections, its Lean-verified results and its model limits.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/theme.css">
+<link rel="stylesheet" href="assets/hub.css">
+<script src="assets/shell.js"></script>
+</head>
+<body>
+<div class="hub" id="app">
+  <header class="top">
+    <div class="brand">
+      <h1 class="logo" data-text="TRURETURING//VISUALIZE">TRURETURING<b>//</b>VISUALIZE</h1>
+      <div class="tagline">
+        <span class="zh">trureturing 理论的交互可视化 · <em>动画只改变看法，真值以 Lean 内核验证为准</em></span>
+        <span class="en">Interactive visualizations of trureturing theory · <em>animation changes the view; truth rests on the Lean kernel</em></span>
+      </div>
+    </div>
+    <nav class="status" aria-label="链接" data-aria-en="Links">
+      <span class="pill">INDEX <strong id="countLive">—</strong></span>
+      <a class="pill" href="https://github.com/the-omega-institute/trureturing" target="_blank" rel="noopener">THEORY <strong>trureturing ↗</strong></a>
+      <a class="pill" href="https://github.com/the-omega-institute/trureturing-visualize" target="_blank" rel="noopener">SOURCE <strong>↗</strong></a>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </nav>
+  </header>
+
+  <section class="hero panel" aria-labelledby="heroTitle">
+    <canvas id="field" aria-hidden="true"></canvas>
+    <div class="hero-text">
+      <h2 id="heroTitle"><span class="zh">把理论里的关系结构，做成可以操作的对象</span><span class="en">The relations in the theory, as objects you can operate</span></h2>
+      <p class="zh">每个可视化对应 trureturing 里的一卷理论或一组定理。页面会写明依据的条目，哪些结论已由 Lean 内核验证并冻结，哪些只是为了看清结构而设的示意模型。</p>
+      <p class="en">Each visualization follows one theory volume or a group of theorems in trureturing. Every page names the sections it draws on, which results are kernel-verified and frozen in Lean, and which parts are a schematic model chosen to make the structure visible.</p>
+      <ul class="legend">
+        <li><span class="k ok">LEAN ✓</span><span class="zh">仓库中已冻结的定理</span><span class="en">frozen theorem in trureturing</span></li>
+        <li><span class="k">THEORY</span><span class="zh">理论卷条目（参考输入）</span><span class="en">theory volume section (reference input)</span></li>
+        <li><span class="k model">MODEL</span><span class="zh">示意模型，只保证定性结构</span><span class="en">schematic model, qualitative structure only</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="indexTitle">
+    <div class="index-head"><h2 id="indexTitle"><span class="zh">索引 INDEX</span><span class="en">INDEX</span></h2><span id="indexMeta"></span></div>
+    <div class="grid" id="grid">
+      <p class="note"><span class="zh">正在读取可视化注册表…</span><span class="en">Loading the registry…</span></p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span class="zh">新增可视化：复制 <code>templates/viz-starter</code>，在 <code>visualizations.json</code> 登记，见仓库 README。</span>
+    <span class="en">To add a visualization, copy <code>templates/viz-starter</code> and register it in <code>visualizations.json</code>; see the README.</span>
+    <span>Apache-2.0 · the-omega-institute</span>
+  </footer>
+</div>
+<script src="assets/hub.js"></script>
+</body>
+</html>

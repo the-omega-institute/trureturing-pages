@@ -13,7 +13,7 @@ from lib import reconcile_releases as reconcile, vertical_smoke
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = 'pages-build-cache.v1'
-BUILD_ROOTS = ('lib/', 'tools/', 'src/', 'contracts/', 'schemas/', 'config/', 'content/', 'pipeline/')
+BUILD_ROOTS = ('lib/', 'tools/', 'src/', 'contracts/', 'schemas/', 'config/', 'content/', 'pipeline/', 'vendor/visualize/')
 BUILD_FILES = {'Makefile', 'requirements.txt', 'global.json', 'Directory.Build.props', 'nuget.config',
                'Trureturing.Pages.slnx', '.github/workflows/pages.yml'}
 MEDIA = {'.css', '.png', '.jpg', '.jpeg', '.svg', '.ico', '.webp', '.woff', '.woff2', '.ttf'}

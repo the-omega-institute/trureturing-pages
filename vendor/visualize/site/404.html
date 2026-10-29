@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SIGNAL LOST · 404</title>
+<style>
+  /* Self-contained: a 404 can be served at any depth, so it loads no relative assets. */
+  :root { color-scheme: dark; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: #03060c; color: #d4efff; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
+    font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+  }
+  main { max-width: 560px; border: 1px solid #143049; padding: 24px 26px; background: rgba(7, 15, 26, 0.86); }
+  h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: 0.1em; color: #19f0ff; text-shadow: 0 0 18px rgba(25, 240, 255, 0.5); }
+  p { margin: 0 0 14px; color: #6f8ea5; line-height: 1.6; font-family: "Noto Sans SC", system-ui, sans-serif; }
+  code { color: #ffc83d; overflow-wrap: anywhere; }
+  a { color: #001318; background: #19f0ff; padding: 6px 12px; text-decoration: none; display: inline-block; letter-spacing: 0.08em; }
+  a:focus-visible { outline: 2px solid #ffc83d; outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>SIGNAL LOST · 404</h1>
+  <p>这个地址上没有可视化。<br>No visualization lives at this address.<br><code id="path"></code></p>
+  <a id="home" href="./">返回索引 · Back to index</a>
+</main>
+<script>
+  // Project sites live under /<repo>/ on github.io; resolve the index from the first path segment there.
+  document.getElementById('path').textContent = location.pathname;
+  if (/\.github\.io$/.test(location.hostname)) {
+    const seg = location.pathname.split('/').filter(Boolean)[0];
+    document.getElementById('home').href = seg ? '/' + seg + '/' : '/';
+  }
+</script>
+</body>
+</html>
