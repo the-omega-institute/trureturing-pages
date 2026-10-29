@@ -158,6 +158,12 @@ complete finite node coordinates and downward import direction are checked befor
 rendering. No graph nodes,
 relationship categories or Wiki content are removed for this optimization.
 
+The Atlas entry script and its model/layout/startup imports use the same
+`?v=connected-dag-v3` cache coordinate. Change that coordinate together when their
+interfaces change: a cached caller must not import an incompatible fresh layout
+module. `tests/browser/atlas-cache-upgrade.cjs` exercises previous-release module
+responses independently and together while requiring the entire current DAG.
+
 Research and history load after the graph becomes interactive. Research has an
 explicit pending state; slow or failed research cannot delay the main Atlas.
 An older deployment without the startup index retains the verified graph and

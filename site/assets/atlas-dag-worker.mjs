@@ -1,6 +1,6 @@
-import { createPublicModel } from './atlas-public-core.mjs';
+import { createPublicModel } from './atlas-public-core.mjs?v=connected-dag-v3';
 import { analyzeArchitecture } from './architecture-core.mjs';
-import { theoryModel, theoryLayout } from './atlas-theory-core.mjs';
+import { theoryModel, theoryLayout } from './atlas-theory-core.mjs?v=connected-dag-v3';
 self.onmessage = ({data}) => {
   try {
     const model = createPublicModel(data), architecture = analyzeArchitecture(data);

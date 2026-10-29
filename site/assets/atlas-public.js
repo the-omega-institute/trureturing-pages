@@ -1,4 +1,4 @@
-import { theoryModel, documentPositions, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs";
+import { theoryModel, documentPositions, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=connected-dag-v3";
 import { t } from "./i18n.mjs";
 import {
   FAMILIES,
@@ -10,7 +10,7 @@ import {
   searchNodes,
   title,
   viewFor,
-} from "./atlas-public-core.mjs";
+} from "./atlas-public-core.mjs?v=connected-dag-v3";
 import {
   METRICS,
   analyzeArchitecture,
@@ -25,7 +25,7 @@ import {
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
 import { appendRecentResults } from "./atlas-results.mjs";
-import { loadStartup } from "./atlas-startup.mjs";
+import { loadStartup } from "./atlas-startup.mjs?v=connected-dag-v3";
 import {
   structuralScaffold,
   focusRole,
@@ -1490,7 +1490,7 @@ async function load() {
     }));
   state.structurePositions = state.positions;
   const dependencyPositions = startup.dependencyPositions || await new Promise((resolve, reject) => {
-    const worker = new Worker(new URL("./atlas-dag-worker.mjs", import.meta.url), { type: "module" });
+    const worker = new Worker(new URL("./atlas-dag-worker.mjs?v=connected-dag-v3", import.meta.url), { type: "module" });
     $("#loading-message").textContent = t("Laying out the complete dependency DAG");
     worker.onmessage = ({data}) => { worker.terminate(); data.error ? reject(new Error(data.error)) : resolve(data.positions); };
     worker.onerror = () => { worker.terminate(); reject(new Error("Dependency layout worker failed.")); };
