@@ -1,36 +1,38 @@
 # Public Mathematical Atlas
 
-`site/atlas.html` is the public 3D DAG and concept Wiki. It opens in **Theory**,
-a reading map of the released theory's development. Four editorial routes trace
-concept readouts to acquisition, records to measurement, information loss to
-prediction, and digit names to arithmetic structure. Each route resolves all
-waypoints through actual directed module imports, retaining every intermediate
-module. Additional actual import paths show shared constructions between the
-routes. An unavailable route is omitted, never connected by an inferred arrow.
-Older releases without any complete named route show a labelled dependency
-selection instead.
+`site/atlas.html` is the public 3D DAG and concept Wiki. It opens in **Full DAG**:
+every released mathematical module and every published proof dependency, including
+all cross-parent and shortcut imports. The default view does not select editorial
+routes, filter subjects, reduce dependencies to a tree, or hide edges in bundles.
 
-The diagram uses the vendored Dagre layout for horizontal placement and local
-longest-path depth for vertical placement. Independent roots share a row; every
-import points downward. Coordinates and route colors describe this reading map,
-not subject membership or mathematical importance. The selected-module count is
-always visible. Selecting a module retains access to its complete proof lineage,
-Blueprint explanation and revision-pinned Lean source. Search covers the entire
-released corpus. Route URLs preserve their selection, and Previous view restores
-the camera and route.
+The deterministic layout uses actual weak connected components and all import
+edges. Roots share a vertical level and every dependency points downward, from
+prerequisite to dependent. Square-root spacing compresses long dependency chains;
+x/z positions are relaxed by actual connections, independently of subject labels.
+Smaller components are packed beside the largest; modules with no local dependency
+edge remain visible as separate nodes. Color indicates dependency depth, with
+shared prerequisites emphasized by downstream reach. These display coordinates
+do not replace the certified Topology conformation.
 
-**Dependencies** provides the complete released module DAG and its support
-metrics. **Structure** retains the concept-family view; **Open questions** provides
-the research overlay. Existing explicit mode and family links keep their meaning.
+The sidebar reports the full module/edge counts, component count and maximum
+depth. Readers can focus a real connected component, then return to the entire
+DAG. Selecting a module exposes its complete proof lineage, Blueprint explanation
+and revision-pinned Lean source. Search covers the entire released corpus.
+Previous view restores the camera and component. Older `#route=` URLs locate their
+starting module within the full graph; they no longer restrict it to a route.
+
+**Dependencies** uses the same complete layout with support metrics and inspection.
+**Structure** retains the concept-family view; **Open questions** provides the
+research overlay. Existing explicit mode and family links keep their meaning.
 `atlas-explorer.html` is a compatibility alias. `site/dag.html` remains the advanced
 research workspace, including Topology Atlas, comparison and CMA integrations.
-No upstream graph, publication artifact or verification contract changes.
+Edges here record published module imports, not theorem-use counts. External
+Mathlib imports are outside this graph. Upstream artifacts remain unchanged.
 
-Dependencies now provides an architecture view weighted by downstream support,
-direct reuse, or source-domain coverage. Node inspection exposes domain-specific
-dependency paths and verified release observations. `site/evolution.html` is the
-full evolution workspace. See [Architecture evolution](ARCHITECTURE_EVOLUTION.md)
-for metric definitions, archive preservation, and comparison boundaries.
+Node inspection exposes domain-specific dependency paths and verified release
+observations. `site/evolution.html` is the full evolution workspace. See
+[Architecture evolution](ARCHITECTURE_EVOLUTION.md) for metric definitions,
+archive preservation, and comparison boundaries.
 
 ## Why the previous overview was difficult to read
 
@@ -93,7 +95,7 @@ relationship set. Previous view restores the exact camera and exploration state,
 including on mobile. Adaptive landmark labels prioritize selected concepts and
 avoid controls and other labels.
 
-At overview distance, directed cross-family proof dependencies are aggregated
+In Structure at overview distance, directed cross-family proof dependencies are aggregated
 into curved bundles with exact counts. Selecting a bundle exposes every original
 source/target pair. Close zoom expands the individual dependencies, and the bundle
 toggle exposes them at any distance. Lighting, restrained distance fog and node
@@ -145,19 +147,22 @@ the release's source catalog and must not be inferred by topology metrics.
 
 ## Startup performance
 
-`tools/build_atlas_startup.mjs` runs the existing deterministic public layout
-during each Pages deployment. It publishes `data/atlas-startup.v1.json` and
+`tools/build_atlas_startup.mjs` precomputes both the Structure positions and the
+complete connected DAG positions during each Pages deployment. The current
+profile is `atlas-connected-dag-v3`. It publishes `data/atlas-startup.v1.json` and
 digest-addressed gzip artifacts containing the original graph bytes and all
 node positions. The browser revalidates the small mutable manifest and startup
 index, then reuses immutable graph/layout bytes from its HTTP cache. Compressed
 artifact hashes, the original graph hash, release binding, layout profile and
-complete finite node coordinates are checked before rendering. No graph nodes,
+complete finite node coordinates and downward import direction are checked before
+rendering. No graph nodes,
 relationship categories or Wiki content are removed for this optimization.
 
 Research and history load after the graph becomes interactive. Research has an
 explicit pending state; slow or failed research cannot delay the main Atlas.
 An older deployment without the startup index retains the verified graph and
-worker-layout path. Invalid artifacts do not silently use unverified positions.
+worker-layout path. A legacy v2 startup also computes the complete connected DAG
+in `atlas-dag-worker.mjs`, keeping simulation off the main browser thread. Invalid artifacts do not silently use unverified positions.
 Changes to public layout semantics must increment `LAYOUT_PROFILE` in
 `site/assets/atlas-startup.mjs`; the deploy step regenerates artifacts for every
 release and Pages build. The original certified Topology conformation remains

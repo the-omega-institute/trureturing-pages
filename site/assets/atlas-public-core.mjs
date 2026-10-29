@@ -208,13 +208,13 @@ export function viewFor(
     research = null,
     problem = null,
     theory = null,
-    route = null,
+    component = null,
   } = {},
 ) {
   let nodes = model.nodes;
-  if (mode === "theory" && theory) {
-    const ids = theory.routes.find(r => r.id === route)?.members || theory.ids;
-    nodes = nodes.filter(n => ids.has(n.id));
+  if (mode === "theory" && theory && component) {
+    const group = theory.components.find(c => c.id === component);
+    if (group) nodes = nodes.filter(n => group.members.has(n.id));
   }
   if (mode === "frontier") {
     const ids = researchScope(model, research, problem);

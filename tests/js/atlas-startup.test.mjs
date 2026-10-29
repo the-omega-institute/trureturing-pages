@@ -4,7 +4,7 @@ import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash } from "node:crypto";
-import { gunzipSync } from "node:zlib";
+import { gunzipSync, gzipSync } from "node:zlib";
 import { buildStartup } from "../../tools/build_atlas_startup.mjs";
 import {
   loadStartup,
@@ -67,6 +67,26 @@ test("published startup preserves exact graph bytes and layout, validates all no
       /cover/,
     );
   }
+  assert.ok(layout.dependency_positions.A.y > layout.dependency_positions.B.y);
+  for (const dependency_positions of [
+    undefined,
+    { A: layout.dependency_positions.A },
+    { ...layout.dependency_positions, extra: { x: 0, y: 0, z: 0 } },
+    { ...layout.dependency_positions, A: { x: NaN, y: 0, z: 0 } },
+  ]) {
+    assert.throws(() => validateLayout({ ...layout, dependency_positions }, graph, manifest), /Dependency layout does not cover/);
+  }
+  assert.throws(() => validateLayout({ ...layout, dependency_positions: {
+    ...layout.dependency_positions, B: { x: 0, y: layout.dependency_positions.A.y, z: 0 },
+  } }, graph, manifest), /reverses a published import/);
+  const legacyLayout = { ...layout, layout_profile: "atlas-dependency-scaffold-v2", dependency_positions: undefined };
+  assert.deepEqual(validateLayout(legacyLayout, graph, manifest), layout.positions);
+  const legacyBytes = gzipSync(JSON.stringify(legacyLayout));
+  const legacyDigest = hash(legacyBytes);
+  const legacyPath = `data/atlas-startup/${legacyDigest.slice(7)}.json.gz`;
+  await writeFile(join(root, legacyPath), legacyBytes);
+  const legacyIndex = { ...index, layout_profile: legacyLayout.layout_profile,
+    layout: { path: legacyPath, digest: legacyDigest, bytes: legacyBytes.length } };
   const requests = [];
   let mode = "valid";
   t.mock.method(globalThis, "fetch", async (url, options) => {
@@ -81,7 +101,7 @@ test("published startup preserves exact graph bytes and layout, validates all no
     if (path === "data/atlas-startup.v1.json")
       return mode === "legacy"
         ? new Response("", { status: 404 })
-        : Response.json(index);
+        : Response.json(mode === "v2" ? legacyIndex : mode === "profile-mismatch" ? { ...index, layout_profile: legacyLayout.layout_profile } : index);
     if (path === "data/pages-atlas-view.v1.json") return new Response(text);
     if (mode === "corrupt") return new Response("corrupt");
     return new Response(await readFile(join(root, path)));
@@ -90,6 +110,13 @@ test("published startup preserves exact graph bytes and layout, validates all no
   assert.deepEqual(result.graph, graph);
   assert.deepEqual(result.positions, layout.positions);
   assert.equal(result.timing.source, "precomputed");
+  assert.deepEqual(result.dependencyPositions, layout.dependency_positions);
+  mode = "profile-mismatch";
+  await assert.rejects(loadStartup("https://example.test/"), /profile disagrees/);
+  mode = "v2";
+  const v2 = await loadStartup("https://example.test/");
+  assert.deepEqual(v2.positions, layout.positions);
+  assert.equal(v2.dependencyPositions, null, "Legacy startup requires the complete DAG worker");
   mode = "corrupt";
   await assert.rejects(loadStartup("https://example.test/"), /digest mismatch/);
   mode = "legacy";

@@ -13,7 +13,6 @@
     <script defer src="assets/vendor/lucide.min.js"></script>
     <script defer src="assets/concept-lens-core.js"></script>
     <script defer src="assets/vendor/d3.min.js"></script>
-    <script defer src="assets/vendor/dagre.min.js"></script>
     <script defer src="assets/relation-map.js"></script>
     <script type="module" src="assets/atlas-public.js"></script>
     <script type="module" src="assets/i18n.mjs"></script>
@@ -70,7 +69,7 @@
         </form>
         <div class="view-controls" role="group" aria-label="Graph view">
           <div class="segmented">
-            <button data-mode="theory" aria-pressed="true">Theory</button
+            <button data-mode="theory" aria-pressed="true">Full DAG</button
             ><button data-mode="dependency" aria-pressed="false">
               Dependencies</button
             ><button data-mode="structure" aria-pressed="false">Structure</button
@@ -99,7 +98,7 @@
           </div>
         </section>
         <div id="theory-guide" class="theory-guide" hidden>
-          <span>FOUNDATIONS</span><i data-lucide="arrow-down"></i><span>CONSTRUCTIONS &amp; BRIDGES</span><i data-lucide="arrow-down"></i><span>CONSEQUENCES</span>
+          <span>PREREQUISITES</span><i data-lucide="arrow-down"></i><span>BRANCHES &amp; JOINS</span><i data-lucide="arrow-down"></i><span>CONSEQUENCES</span>
         </div>
         <div
           id="family-labels"
@@ -231,7 +230,7 @@
         <div id="map-note" class="map-note" hidden>
           <strong>About this map</strong>
           <p>
-            Theory traces selected reading routes through published module imports; every intermediate module is retained. Arrows run from prerequisite to dependent. The full graph is available in Dependencies. Roots may still import external Mathlib. In Structure, colors group concepts into editorial topic families. Position
+            The default DAG retains every released mathematical module and every published dependency edge. Position follows actual graph connections and dependency depth. Arrows run from prerequisite to dependent. Roots may still import external Mathlib. In Structure, colors group concepts into editorial topic families. Position
             reflects topic grouping and proof connections, not a mathematical
             measure of similarity. Proof dependencies, structural affinity and
             document links retain their distinct authority and colors.

@@ -3,7 +3,8 @@ import { sha256 } from "./architecture-core.mjs";
 
 export const STARTUP_SCHEMA = "pages-atlas-startup.v1";
 export const LAYOUT_SCHEMA = "pages-public-layout.v1";
-export const LAYOUT_PROFILE = "atlas-dependency-scaffold-v2";
+export const LAYOUT_PROFILE = "atlas-connected-dag-v3";
+const PROFILES = [LAYOUT_PROFILE, "atlas-dependency-scaffold-v2"];
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 
 export function validateStartup(index, manifest) {
@@ -11,7 +12,7 @@ export function validateStartup(index, manifest) {
     index.schema_version !== STARTUP_SCHEMA ||
     index.atlas_graph_digest !== manifest.atlas_graph_digest ||
     index.truth_release_digest !== manifest.truth_release_digest ||
-    index.layout_profile !== LAYOUT_PROFILE
+    !PROFILES.includes(index.layout_profile)
   )
     throw new Error("Startup artifacts do not bind the current Atlas.");
   for (const entry of [index.graph, index.layout]) {
@@ -27,7 +28,7 @@ export function validateStartup(index, manifest) {
 export function validateLayout(layout, graph, manifest) {
   if (
     layout.schema_version !== LAYOUT_SCHEMA ||
-    layout.layout_profile !== LAYOUT_PROFILE ||
+    !PROFILES.includes(layout.layout_profile) ||
     layout.atlas_graph_digest !== manifest.atlas_graph_digest ||
     layout.truth_release_digest !== manifest.truth_release_digest ||
     !layout.positions ||
@@ -45,6 +46,18 @@ export function validateLayout(layout, graph, manifest) {
     })
   )
     throw new Error("Precomputed layout does not cover this Atlas.");
+  if (layout.layout_profile === LAYOUT_PROFILE) {
+    const points = layout.dependency_positions;
+    if (!points || Array.isArray(points) || Object.keys(points).length !== graph.nodes.length ||
+        graph.nodes.some(n => !Object.hasOwn(points, n.id) || !points[n.id] ||
+          ![points[n.id].x, points[n.id].y, points[n.id].z].every(v => Number.isFinite(v) && Math.abs(v) < 1e7)))
+      throw new Error("Dependency layout does not cover this Atlas.");
+    const truthIds = new Set(graph.nodes.filter(n => n.kind === "truth").map(n => n.id));
+    const endpoint = value => typeof value === "object" ? value.id : value;
+    if (graph.edges.some(e => truthIds.has(endpoint(e.source)) && truthIds.has(endpoint(e.target)) && ["truth-dependency", "module-import", "frozen-prerequisite", "dependency"].includes(e.layer || "dependency") &&
+        !["advisory", "proposed"].includes(e.status) && points[endpoint(e.source)].y <= points[endpoint(e.target)].y))
+      throw new Error("Dependency layout reverses a published import.");
+  }
   return layout.positions;
 }
 
@@ -108,11 +121,14 @@ export async function loadStartup(base) {
     artifactText(base, index.layout),
   ]);
   const graph = await verifyGraph(graphText, manifest, sha256);
-  const positions = validateLayout(JSON.parse(layoutText), graph, manifest);
+  const layout = JSON.parse(layoutText);
+  if (layout.layout_profile !== index.layout_profile) throw new Error("Layout profile disagrees with its startup index.");
+  const positions = validateLayout(layout, graph, manifest);
   return {
     graph,
     manifest,
     positions,
+    dependencyPositions: layout.layout_profile === LAYOUT_PROFILE ? layout.dependency_positions : null,
     timing: { source: "precomputed", dataReadyMs: performance.now() - started },
   };
 }

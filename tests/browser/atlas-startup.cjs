@@ -19,7 +19,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
       window.Worker = class extends NativeWorker {
         constructor(url, options) {
           super(url, options);
-          if (String(url).includes("atlas-public-worker"))
+          if (/atlas-(public|dag)-worker/.test(String(url)))
             window.layoutWorkers++;
         }
       };
@@ -36,8 +36,8 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
     }));
     assert.equal(initial.startup.source, "precomputed");
     assert.equal(initial.workers, 0);
-    assert.ok(initial.nodes > 0 && initial.nodes < 2890, "The reading map is a labelled selection from the complete DAG");
-    assert.equal(initial.mode, "theory", "The homepage opens on theory development");
+    assert.equal(initial.nodes, 2890, "Every released mathematical node is in the default DAG");
+    assert.equal(initial.mode, "theory", "The homepage opens on the complete dependency DAG");
     assert.equal(
       initial.researchQuestions,
       0,
