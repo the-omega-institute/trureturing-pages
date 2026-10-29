@@ -14,6 +14,8 @@ import {
   LAYOUT_PROFILE,
   validateLayout,
 } from "../site/assets/atlas-startup.mjs";
+import { analyzeArchitecture } from "../site/assets/architecture-core.mjs";
+import { theoryModel, theoryLayout, documentPositions } from "../site/assets/atlas-theory-core.mjs";
 
 const digest = (raw) =>
   "sha256:" + createHash("sha256").update(raw).digest("hex");
@@ -21,12 +23,14 @@ export async function buildStartup(graphPath, manifestPath, output) {
   const raw = await readFile(graphPath, "utf8");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
   const graph = await verifyGraph(raw, manifest, digest);
+  const model = createPublicModel(graph), architecture = analyzeArchitecture(graph);
   const layout = {
     schema_version: LAYOUT_SCHEMA,
     layout_profile: LAYOUT_PROFILE,
     atlas_graph_digest: manifest.atlas_graph_digest,
     truth_release_digest: manifest.truth_release_digest,
-    positions: computeLayout(createPublicModel(graph)),
+    positions: computeLayout(model),
+    dependency_positions: documentPositions(model, theoryLayout(theoryModel(model, architecture), architecture)),
   };
   validateLayout(layout, graph, manifest);
   await mkdir(join(output, "data/atlas-startup"), { recursive: true });

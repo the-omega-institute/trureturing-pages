@@ -11,10 +11,12 @@ The site is plain HTML, CSS, and client-side JavaScript. It has no frontend buil
 
 ## Public Atlas preview
 
-`site/atlas.html` opens with a 3D reading map of theory development and its
-concept Wiki. Dependencies shows the complete released module graph; Structure
-retains the concept-family view. The view switch changes perspective without
-replacing the underlying graph. `atlas-explorer.html` is a compatibility alias. `site/dag.html` retains the advanced analysis console. To preview against a
+`site/atlas.html` opens with the complete published module dependency DAG and its
+concept Wiki. Every mathematical node and dependency is present. Vertical position
+follows dependency depth; horizontal positions follow actual connections and
+connected components. Dependencies adds support metrics; Structure provides the
+concept-family view. `atlas-explorer.html` is a compatibility alias.
+`site/dag.html` retains the advanced analysis console. To preview against a
 verified copy of the current published release, run:
 
 ```bash

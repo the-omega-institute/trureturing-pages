@@ -210,7 +210,7 @@ const sha = (text) =>
     await page.getByRole("button", { name: "Show release changes", exact: true }).click();
     await page.waitForFunction(() => window.atlasDiagnostics().changes?.kind === "comparable");
     const expandedChanges = await page.evaluate(() => window.atlasDiagnostics());
-    assert.equal(expandedChanges.mode, "dependency", "Release additions expand beyond the selected reading map");
+    assert.equal(expandedChanges.mode, "dependency", "Release additions open support metrics on the complete dependency DAG");
     assert.equal(expandedChanges.nodes, current.nodes.length);
     await page.getByRole("button", { name: "Previous view", exact: true }).click();
     assert.equal(await page.evaluate(() => window.atlasDiagnostics().mode), "theory");
