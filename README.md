@@ -16,7 +16,10 @@ concept Wiki. Every mathematical node and dependency is present. Vertical positi
 follows dependency depth; horizontal positions follow actual connections and
 connected components. Dependencies adds support metrics; Structure provides the
 concept-family view. `atlas-explorer.html` is a compatibility alias.
-`site/dag.html` retains the advanced analysis console. To preview against a
+`site/dag.html` retains the advanced analysis console. The primary navigation
+also links directly to [Visualize](https://the-omega-institute.github.io/trureturing-visualize/),
+the companion collection of interactive explanations; Library retains the
+module texts, sources and release history. To preview against a
 verified copy of the current published release, run:
 
 ```bash
