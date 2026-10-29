@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urljoin, urlsplit
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 import yaml
 from markdown_it import MarkdownIt
@@ -28,6 +28,7 @@ DIGEST = re.compile(r"sha256:[a-f0-9]{64}\Z")
 SECTIONS = ("Problem", "Motivation", "Gap", "Route", "Falsifier", "Evidence", "Triage", "ASSUMED-UNVERIFIED")
 PROBLEM_SOURCES = ("doi", "arxiv_id", "url")
 MARKDOWN = MarkdownIt("commonmark", {"html": False}).use(texmath_plugin, delimiters="brackets")
+REMOTE_USER_AGENT = "trureturing-pages/1.0"
 
 
 def render_math(renderer, tokens, idx, options, env):
@@ -225,7 +226,8 @@ def read_remote(base: str, path: str, optional=False) -> bytes | None:
     url = urljoin(base.rstrip("/") + "/", path)
     for attempt in range(3):
         try:
-            with urlopen(url, timeout=30) as response:
+            request = Request(url, headers={"User-Agent": REMOTE_USER_AGENT})
+            with urlopen(request, timeout=30) as response:
                 return response.read()
         except HTTPError as error:
             if optional and error.code == 404:

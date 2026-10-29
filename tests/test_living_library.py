@@ -29,8 +29,11 @@ class RemoteHistoryReadTests(unittest.TestCase):
              patch.object(living_library.time, 'sleep') as sleep:
             self.assertEqual(living_library.read_remote('https://example.test/pages/', 'data/history.json?reconcile=abc', True), history)
         self.assertEqual(read.call_count, 3)
-        self.assertTrue(all(call == read.call_args_list[0] for call in read.call_args_list))
-        self.assertEqual(read.call_args.args[0], 'https://example.test/pages/data/history.json?reconcile=abc')
+        requests = [call.args[0] for call in read.call_args_list]
+        self.assertTrue(all(request.full_url == requests[0].full_url for request in requests))
+        self.assertTrue(all(request.get_header('User-agent') == requests[0].get_header('User-agent') for request in requests))
+        self.assertEqual(requests[0].full_url, 'https://example.test/pages/data/history.json?reconcile=abc')
+        self.assertEqual(requests[0].get_header('User-agent'), living_library.REMOTE_USER_AGENT)
         self.assertEqual([call.args[0] for call in sleep.call_args_list], [1, 2])
 
     def test_interrupted_body_is_discarded_before_retry(self):
