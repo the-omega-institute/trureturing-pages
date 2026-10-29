@@ -204,6 +204,16 @@ const sha = (text) =>
     await page.screenshot({
       path: path.join(output, "visual-release-changes-fixture.png"),
     });
+    await page.goto(`${root}/atlas.html`);
+    await page.waitForFunction(() => window.atlasDiagnostics);
+    assert.equal(await page.evaluate(() => window.atlasDiagnostics().mode), "theory");
+    await page.getByRole("button", { name: "Show release changes", exact: true }).click();
+    await page.waitForFunction(() => window.atlasDiagnostics().changes?.kind === "comparable");
+    const expandedChanges = await page.evaluate(() => window.atlasDiagnostics());
+    assert.equal(expandedChanges.mode, "dependency", "Release additions expand beyond the selected reading map");
+    assert.equal(expandedChanges.nodes, current.nodes.length);
+    await page.getByRole("button", { name: "Previous view", exact: true }).click();
+    assert.equal(await page.evaluate(() => window.atlasDiagnostics().mode), "theory");
     console.log(
       "PASS: a browser-only second-release fixture activates exact new-node, changed-content and new-dependency highlights; history loads only on request and manual controls work with reduced motion.",
     );

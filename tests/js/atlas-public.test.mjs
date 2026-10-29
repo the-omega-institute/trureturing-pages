@@ -10,6 +10,57 @@ import {
   viewFor,
 } from "../../site/assets/atlas-public-core.mjs";
 import { researchIndex } from "../../site/assets/atlas-research-core.mjs";
+import { analyzeArchitecture } from "../../site/assets/architecture-core.mjs";
+import { importPath, theoryModel, theoryLayout } from "../../site/assets/atlas-theory-core.mjs";
+
+test("theory routes retain intermediate imports and reject affinity shortcuts and missing bridges", () => {
+  const graph = {
+    nodes: ["a", "middle", "b", "unrelated"].map(id => ({ id, kind: "truth", domain: "Test" })),
+    edges: [
+      { source: "a", target: "middle", layer: "truth-dependency" },
+      { source: "middle", target: "b", layer: "truth-dependency" },
+      { source: "a", target: "b", layer: "structural-affinity" },
+      { source: "b", target: "unrelated", layer: "structural-affinity" },
+    ],
+  };
+  const model = createPublicModel(graph), architecture = analyzeArchitecture(graph);
+  const theory = theoryModel(model, architecture, [
+    { id: "valid", waypoints: ["a", "b"] },
+    { id: "similar", waypoints: ["a", "unrelated"] },
+    { id: "missing", waypoints: ["a", "absent"] },
+  ]);
+  assert.deepEqual(theory.routes.map(r => r.ids), [["a", "middle", "b"]]);
+  assert.deepEqual(theory.unavailable, ["similar", "missing"]);
+  assert.equal(theory.edges.length, 2);
+  assert.deepEqual(importPath(architecture, "b", "a"), []);
+  assert.deepEqual(viewFor(model, { mode: "theory", theory }).nodes.map(n => n.id), ["a", "b", "middle"]);
+  assert.equal(viewFor(model, { mode: "dependency" }).nodes.length, 4);
+  const selected = viewFor(model, { mode: "theory", theory, selected: "a", depth: "all", context: false, types: ["proof"] });
+  assert.equal(selected.nodes.length, 3, "Full proof lineage remains available from the reading map");
+});
+
+test("older releases fall back to real dependencies without inventing named theory routes", () => {
+  const model = createPublicModel(graph), architecture = analyzeArchitecture(graph);
+  const theory = theoryModel(model, architecture);
+  assert.equal(theory.routes.length, 0);
+  assert.equal(theory.unavailable.length, 4);
+  assert.ok(theory.ids.has("A") && theory.ids.has("B"));
+  assert.equal(theory.edges.length, 1);
+});
+
+test("theory layout aligns independent roots and every import points downward", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { runInNewContext } = await import("node:vm");
+  const sandbox = {};
+  runInNewContext(readFileSync(new URL("../../site/assets/vendor/dagre.min.js", import.meta.url), "utf8"), sandbox);
+  const nodes = ["a", "b", "middle", "end"].map(id => ({ id }));
+  const edges = [{ source: "a", target: "middle" }, { source: "middle", target: "end" }, { source: "b", target: "end" }];
+  const fallback = { hidden: { x: 1, y: 2, z: 3 } };
+  const positions = theoryLayout({ nodes, edges }, fallback, sandbox.dagre);
+  assert.equal(positions.a.y, positions.b.y);
+  for (const e of edges) assert.ok(positions[e.source].y > positions[e.target].y);
+  assert.equal(positions.hidden, fallback.hidden);
+});
 
 const graph = {
   source_snapshot: { truth_release_digest: "sha256:release" },

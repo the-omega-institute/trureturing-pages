@@ -1437,3 +1437,25 @@ button.research-link {
     scroll-behavior: auto !important;
   }
 }
+
+/* Theory is organized by actual import paths; topic colors stay in Structure. */
+.theory-guide { position: absolute; top: 154px; left: 30px; display: flex; align-items: center; gap: 12px; color: #9ab3b2; font: 8px ui-monospace, monospace; pointer-events: none; }
+.theory-guide svg { width: 12px; height: 12px; }
+.theory-routes { display: grid; gap: 10px; margin: 18px 0 22px; }
+.theory-route { width: 100%; text-align: left; border: 1px solid #2a383e; border-left: 2px solid var(--route-color); background: #121a20; padding: 15px 14px; display: grid; grid-template-columns: 24px 1fr; gap: 7px 8px; line-height: 1.5; }
+.theory-route:hover { background: #1a282e; border-color: var(--route-color); }
+.theory-route small { color: var(--route-color); font: 9px ui-monospace, monospace; padding-top: 4px; }
+.theory-route strong { font-size: 13px; font-weight: 500; }
+.theory-route span, .theory-route em { grid-column: 2; font-size: 11px; color: #9eadb5; font-style: normal; }
+.theory-route em { color: var(--route-color); font-size: 10px; margin-top: 3px; }
+.theory-scope { color: #94a8ad; font-size: 11px; line-height: 1.7; margin: 22px 0 8px; }
+.theory-question { color: #b8d5d0; line-height: 1.6; font-size: 13px; }
+.theory-steps { padding-left: 20px; }
+.theory-steps li { color: #6ad7c8; padding: 5px 0; }
+.theory-steps .concept-row { width: 100%; }
+.theory-mode .node-label { max-width: 170px; white-space: normal; text-align: center; font-size: 10px; line-height: 1.45; background: #10191fe8; border-color: #385052; }
+@media (max-width: 1150px) and (min-width: 701px) { .theory-guide { top: 190px; font-size: 7px; gap: 8px; } }
+@media (max-width: 700px) { .theory-guide { top: 210px; left: 19px; gap: 8px; font-size: 6px; } .theory-mode .node-label { max-width: 145px; font-size: 8px; } .segmented button { padding: 0 10px; } }
+
+.theory-mode .back-to-all { top: 185px; }
+@media (max-width: 700px) { .theory-mode .back-to-all { top: 210px; } }

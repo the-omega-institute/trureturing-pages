@@ -36,8 +36,8 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
     }));
     assert.equal(initial.startup.source, "precomputed");
     assert.equal(initial.workers, 0);
-    assert.equal(initial.nodes, 2890);
-    assert.equal(initial.mode, "dependency", "The homepage opens on the released DAG dependency view");
+    assert.ok(initial.nodes > 0 && initial.nodes < 2890, "The reading map is a labelled selection from the complete DAG");
+    assert.equal(initial.mode, "theory", "The homepage opens on theory development");
     assert.equal(
       initial.researchQuestions,
       0,
