@@ -66,7 +66,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
       assert.deepEqual(facts.values, [model.nodes.length, model.edges.length, theory.components.length, theory.maxDepth].map(String));
       assert.ok(facts.semanticOrder, "Each statistic's term precedes its definition");
       const label = target.locator(".dag-isolated-label");
-      assert.ok((await label.innerText()).includes(theory.isolated.toLocaleString("en-US")));
+      assert.ok((await label.textContent()).includes(theory.isolated.toLocaleString("en-US")), "Grid annotation retains its count when collision handling hides it on a narrow viewport");
       assert.ok((await target.locator(".dag-connectivity").innerText()).includes((theory.components.length - theory.isolated).toLocaleString("en-US")));
     };
     await assertPresentation(page);
