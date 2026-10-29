@@ -1,0 +1,1709 @@
+{
+  "version": 1,
+  "visualizations": [
+    {
+      "id": "ledger-growth",
+      "code": "LEDGER//GROWTH",
+      "title": "真值账本的生长",
+      "title_en": "How the truth ledger grows",
+      "summary": "trureturing 把数学真值放在 Lean 里，验证后冻结、永不解冻；理论卷被摄入成 atom，逐条消化；外部开放问题有卷宗和结算记录。页面从 dev 分支的 git 历史里每个 UTC 日取一个快照（当天最后一个 first-parent 提交），只数文件，不读证明：Lean 模块、冻结状态片、问题卷宗、理论卷、atom 与四种消化状态。四个视图：七条生长丝带、按领域的城市、消化账目的分层墙、问题卷宗的日历塔（证明 848 份、反驳 495 份）。",
+      "summary_en": "trureturing keeps mathematical truth in Lean, frozen once verified and never unfrozen; theory volumes are ingested as atoms and digested one by one; external open problems get dossiers and resolution records. The page takes one snapshot per UTC day from the git history of the dev branch (the last first-parent commit of that day) and only counts files, reading no proofs: Lean modules, frozen state files, problem dossiers, theory files, atoms and the four digestion states. Four views: seven growth ribbons, an area skyline, the layered wall of the digestion ledger, and a calendar of problem dossiers (848 proved, 495 refuted).",
+      "path": "viz/ledger-growth/",
+      "thumbnail": "viz/ledger-growth/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "账本",
+        "仓库统计",
+        "仪表盘",
+        "WebGL"
+      ],
+      "tags_en": [
+        "ledger",
+        "repository statistics",
+        "dashboard",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "CLAUDE.md：真值图、冻结律与生产链",
+          "label_en": "CLAUDE.md: truth graph, freezing law and production chain",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/CLAUDE.md"
+        },
+        {
+          "label": "冻结状态片 Golden/Frozen/state",
+          "label_en": "Frozen state files Golden/Frozen/state",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/Golden/Frozen/state"
+        },
+        {
+          "label": "消化账本 Meta/Digestion",
+          "label_en": "Digestion ledger Meta/Digestion",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/Meta/Digestion"
+        },
+        {
+          "label": "问题卷宗 Problems",
+          "label_en": "Problem dossiers Problems",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/Problems"
+        }
+      ]
+    },
+    {
+      "id": "power-cycles",
+      "code": "POWER//CYCLES",
+      "title": "每一种取向都有 64 圈",
+      "title_en": "Every orientation has a 64-cycle",
+      "summary": "Erdős 与 Gyárfás 猜想最小度至少 3 的图都有长度为 2 的幂的圈。Garcia（2026）想用仿射群 AGL(1, 29) 与 AGL(1, 31) 上的三次凯莱图，把每个顶点按选定的取向换成 15 顶点的小部件，造出没有 4、8、16、32、64 圈的图，并留下一个搜索。本库在 Lean 里证明这个搜索无解，两个结果都已冻结：不论怎样取向，总有某个 14 圈的平移至少 10 次经过端口 u，于是能在小部件里绕出长度恰为 64 的简单圈。页面随机或按规则选取向，数出每个平移经过 u 的次数，验证恒等式 2S₄ + S₆ = 28N，并在替换图里逐边画出那个 64 圈。",
+      "summary_en": "Erdős and Gyárfás conjectured that every graph of minimum degree at least 3 has a cycle whose length is a power of two. Garcia (2026) tried to build a counterexample from cubic Cayley graphs on the affine groups AGL(1, 29) and AGL(1, 31), replacing each vertex by a 15-vertex gadget according to a chosen orientation so that no cycle has length 4, 8, 16, 32 or 64, and left a search open. This library proves in Lean that the search has no solution; both results are frozen. Whatever the orientation, some translate of a 14-cycle passes through port u at least 10 times, and the gadget then routes a simple cycle of length exactly 64. The page draws orientations at random or by rule, counts how often each translate passes through u, checks the identity 2S₄ + S₆ = 28N, and draws that 64-cycle edge by edge in the replacement graph.",
+      "path": "viz/power-cycles/",
+      "thumbnail": "viz/power-cycles/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "图论",
+        "Erdős 问题",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "graph theory",
+        "Erdős problems",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：AGL(1, 29)",
+          "label_en": "Problem dossier: AGL(1, 29)",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl29-orientation.md"
+        },
+        {
+          "label": "问题卷宗：AGL(1, 31)",
+          "label_en": "Problem dossier: AGL(1, 31)",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/garcia-2026-erdos64-agl31-orientation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "ErdosGyarfasGarciaOrientation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientation.lean"
+        },
+        {
+          "label": "ErdosGyarfasGarciaOrientationThirtyOne.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/ErdosGyarfasGarciaOrientationThirtyOne.lean"
+        }
+      ]
+    },
+    {
+      "id": "factorial-steps",
+      "code": "FACTORIAL//STEPS",
+      "title": "分数阶乘之比为什么是整数",
+      "title_en": "Integer ratios of fractional factorials",
+      "summary": "Peter Bala 在 OEIS 上猜想 A347854–A347858 这五个含分数阶乘（x! = Γ(1 + x)）的比值，以及 A347855 的两个辅助序列，对每个自然数 n 都是整数。本库在 Lean 里证明了全部七个，均已冻结；Blanco Gómez（Zenodo，2026）此前已发表证明，本库的是独立的形式化。页面用精确有理数算出每一项（半整数阶乘的 √π 在比值里相消），把素数分解画成三维天际线，并把 Legendre 公式背后的周期阶梯函数画出来：四个半整数序列的阶梯只取 0 和 1，所以每个素数幂贡献 0 或 1。",
+      "summary_en": "Peter Bala conjectured on the OEIS that the five ratios A347854–A347858, which involve fractional factorials (x! = Γ(1 + x)), and the two auxiliary sequences of A347855 are integers for every natural n. This library proves all seven in Lean, all frozen; Blanco Gómez (Zenodo, 2026) had published a proof before, and these Lean proofs are an independent formalization. The page computes every term as an exact rational (the √π of half-integer factorials cancels in each ratio), draws the prime factorization as a 3D skyline, and draws the periodic step functions behind Legendre's formula: for the four half-index sequences they take only the values 0 and 1, so each prime power contributes 0 or 1.",
+      "path": "viz/factorial-steps/",
+      "thumbnail": "viz/factorial-steps/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "数论",
+        "阶乘",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "number theory",
+        "factorials",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：A347854",
+          "label_en": "Problem dossier: A347854",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347854-bala-half-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347855",
+          "label_en": "Problem dossier: A347855",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-third-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347856",
+          "label_en": "Problem dossier: A347856",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347856-bala-half-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347857",
+          "label_en": "Problem dossier: A347857",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347857-bala-half-index-integrality.md"
+        },
+        {
+          "label": "问题卷宗：A347858",
+          "label_en": "Problem dossier: A347858",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347858-bala-half-index-integrality.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "OeisA347854BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347854BalaHalfIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347855BalaThirdIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaThirdIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347855BalaAuxBIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaAuxBIntegral.lean"
+        },
+        {
+          "label": "OeisA347855BalaAuxCIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaAuxCIntegral.lean"
+        },
+        {
+          "label": "OeisA347856BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347856BalaHalfIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347857BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347857BalaHalfIndexIntegral.lean"
+        },
+        {
+          "label": "OeisA347858BalaHalfIndexIntegral.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347858BalaHalfIndexIntegral.lean"
+        }
+      ]
+    },
+    {
+      "id": "general-position",
+      "code": "GENERAL//POSITION",
+      "title": "一般位置：机器人、多项式与外部位置",
+      "title_en": "General position: robots, polynomials and outer sets",
+      "summary": "图上的一般位置：顶点集中没有三个点落在同一条最短路上。本库结算了三个相关问题，都已冻结：Klavžar 等人猜想柱面 C₇ □ Pₛ 与 C₁₀ □ Pₛ（s ≥ 5）的移动一般位置数是 4，已证明；Rather 问一般位置多项式 ψ(G) 何时只有实根，答案是连通图恰好在完全图时；Tian、Dokyeesun 与 Klavžar 关于删去非割点的外部一般位置上界被一个 19 个顶点的图推翻（8 > 5 + 2）。页面在三维里重放四个机器人走遍柱面的 Lean 构造、五个机器人只能上下移动的可达配置，从路加边到完全图时 ψ 的根，以及反例图上的五色阻挡。",
+      "summary_en": "General position in graphs: no three vertices of a set lie on a common shortest path. This library settles three related problems, all frozen: Klavžar et al. conjectured that the cylinders C₇ □ Pₛ and C₁₀ □ Pₛ (s ≥ 5) have mobile general position number 4, now proved; Rather asked when the general position polynomial ψ(G) is real-rooted, and for connected graphs the answer is exactly the complete graphs; and the outer general position bound of Tian, Dokyeesun and Klavžar under deletion of a non-cut vertex is refuted by a 19-vertex graph (8 > 5 + 2). The page replays in 3D the Lean construction of four robots covering a cylinder, the reachable configurations of five robots that can only move up and down, the roots of ψ while edges are added from a path to the complete graph, and the five-colour obstruction on the counterexample.",
+      "path": "viz/general-position/",
+      "thumbnail": "viz/general-position/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "图论",
+        "一般位置",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "graph theory",
+        "general position",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：柱面上的移动一般位置",
+          "label_en": "Problem dossier: mobile general position on cylinders",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/klavzar-et-al-2025-mobile-general-position-cylinders.md"
+        },
+        {
+          "label": "问题卷宗：ψ 的实根性",
+          "label_en": "Problem dossier: real-rootedness of ψ",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rather-2026-general-position-real-rooted-complete.md"
+        },
+        {
+          "label": "问题卷宗：外部一般位置的删点猜想",
+          "label_en": "Problem dossier: the outer deletion conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tian-dokyeesun-klavzar-conjecture34-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "CylinderSevenTen.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/CylinderSevenTen.lean"
+        },
+        {
+          "label": "RatherRealRootedComplete.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/GeneralPosition/RatherRealRootedComplete.lean"
+        },
+        {
+          "label": "TianDokyeesunKlavzarOuterGeneralPositionRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Graph/TianDokyeesunKlavzarOuterGeneralPositionRefutation.lean"
+        }
+      ]
+    },
+    {
+      "id": "lemniscate-area",
+      "code": "LEMNISCATE//AREA",
+      "title": "Erdős 最小面积问题 · 单位水平集",
+      "title_en": "Erdős’s minimal area problem",
+      "summary": "首一多项式的单位水平集 {|p| < 1} 面积能有多小？Ghosh 与 Ramachandran（2026）问了两件事，本库都给出否定回答并冻结：区间 K = [−20, 20] 上四次 Fekete 多项式 (z² − 400)(z² − 80) 的面积比 (z² − 400)(z² − 100) 大，两边都用有理半径的圆盘证书夹住；K = 闭单位圆盘 ∪ {4} 时，(zᴺ − 1)(z − 4)ᵏ 取 N = k² + 1 让面积不超过 20π·2⁻ᵏ，最小面积既不是 Θ(1/n) 也不是 Θ(1/log n)。页面把 log|p| 画成曲面，扫描竞争者的内根，放大每个根附近的小圆盘与 Lean 的证书圆，并把单位圆附近的花瓣展开在环带 1 ± 2⁻ᵏ 里。",
+      "summary_en": "How small can the unit sublevel set {|p| < 1} of a monic polynomial be? Ghosh and Ramachandran (2026) asked two questions, and this library answers both in the negative, frozen: on K = [−20, 20] the quartic Fekete polynomial (z² − 400)(z² − 80) has larger area than (z² − 400)(z² − 100), with both sides squeezed by certificate discs of rational radius; on K = the closed unit disc ∪ {4}, (zᴺ − 1)(z − 4)ᵏ with N = k² + 1 has area at most 20π·2⁻ᵏ, so the minimal area is neither Θ(1/n) nor Θ(1/log n). The page draws log|p| as a surface, sweeps the competitor's inner root, magnifies the tiny discs near each root with the Lean certificate circles, and unrolls the petals near the unit circle inside the annulus 1 ± 2⁻ᵏ.",
+      "path": "viz/lemniscate-area/",
+      "thumbnail": "viz/lemniscate-area/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "位势论",
+        "多项式",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "potential theory",
+        "polynomials",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Fekete 多项式与水平集面积",
+          "label_en": "Problem dossier: Fekete polynomials and lemniscate area",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-fekete-lemniscate-area.md"
+        },
+        {
+          "label": "问题卷宗：容量为一时的衰减率",
+          "label_en": "Problem dossier: the decay rate on capacity one",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-capacity-one-decay-rate.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "FeketeLemniscateAreaRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/FeketeLemniscateAreaRefutation.lean"
+        },
+        {
+          "label": "CapacityOneAreaDecayRate.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/CapacityOneAreaDecayRate.lean"
+        }
+      ]
+    },
+    {
+      "id": "imitate-cycle",
+      "code": "IMITATE//CYCLE",
+      "title": "模仿与最佳回应 · 一个永不停下的循环",
+      "title_en": "Imitation and best response: a cycle that never settles",
+      "summary": "网络上的协调博弈：模仿者抄效用最高的邻居，最佳回应者选对自己更好的策略。Hasheminejad 与 Ramazi（2023）在几类网络上证明混合群体会到达均衡，问一般图是否也如此。本库给出已冻结的反例：K₄ 去掉一条边，一个最佳回应者、三个模仿者，从 BABB 出发按 2, 0, 3, 1 循环激活，状态每 8 步重复，永远到不了均衡 AAAA 或 BBBB。页面画出网络与效用、16 个状态组成的四维立方体和其中的 8 步环、时空图与收益表；可以切换每个人的规则（16 种分配里只有反例那一种循环），也可以改用随机激活（2000 次模拟全部很快停下）。",
+      "summary_en": "Coordination games on a network: imitators copy their best-earning neighbour, best responders pick the strategy better for themselves. Hasheminejad and Ramazi (2023) proved that mixed populations equilibrate on several network classes and asked whether general graphs do too. This library has a frozen counterexample: K₄ minus one edge, one best responder and three imitators, which from BABB under the schedule 2, 0, 3, 1 repeated cycles every 8 steps and never reaches the equilibria AAAA or BBBB. The page draws the network with its utilities, the four-dimensional cube of the 16 states with the 8-cycle inside it, a space-time chart and the payoff tables; each agent's rule can be switched (only the counterexample's assignment out of 16 cycles), and random activation can be compared (all 2000 simulated runs settle quickly).",
+      "path": "viz/imitate-cycle/",
+      "thumbnail": "viz/imitate-cycle/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "演化博弈",
+        "网络动力学",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "evolutionary games",
+        "network dynamics",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：混合模仿与最佳回应在一般图上不一定到达均衡",
+          "label_en": "Problem dossier: mixed imitation and best response need not equilibrate on general graphs",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/hasheminejad-ramazi-2023-mixed-imitation-best-response-nonequilibration.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "MixedImitationBestResponseCycle.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/DecisionValue/MixedImitationBestResponseCycle.lean"
+        }
+      ]
+    },
+    {
+      "id": "miura-flip",
+      "code": "MIURA//FLIP",
+      "title": "Miura-ori 翻转图上的高度函数",
+      "title_en": "Height functions on the Miura-ori flip graph",
+      "summary": "Gupta（2026）把 m × n Miura-ori 的折法写成网格上的高度函数：相邻格高度恰差 1，翻转一个严格局部极值就是翻转图的一条边。他的两个问题本库都已证明：任何整数 1-Lipschitz 函数的离散度不超过斜坡 i + j 的离散度 D(m, n)（不等式 (4)，由此翻转图直径为 D(m, n)），以及极值个数固定、极小值不全在同一边上的高度函数个数是总次数至多 d − 3 的多项式（猜想 8.3）。页面画出高度地形、一条从 −A 到 A 恰好 D(m, n) 步的翻转路（小网格上用广度优先搜索核对直径）、离散度与最优中心，以及证明里先排行再排列的重排。",
+      "summary_en": "Gupta (2026) writes the foldings of the m × n Miura-ori as height functions on the grid: neighbouring heights differ by exactly 1, and flipping a strict local extremum is one edge of the flip graph. This library proves two of his questions: every integer 1-Lipschitz function has dispersion at most D(m, n), that of the ramp i + j (inequality (4), which makes the flip-graph diameter D(m, n)), and with the number of extrema fixed, the height functions whose minima are not all on one side are counted by a polynomial of total degree at most d − 3 (Conjecture 8.3). The page draws the height terrain, a flip path of exactly D(m, n) steps from −A to A (with the diameter checked by breadth-first search on small grids), the dispersion with its best centre, and the proof's rearrangement that sorts rows and then columns.",
+      "path": "viz/miura-flip/",
+      "thumbnail": "viz/miura-flip/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "折纸",
+        "高度函数",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "origami",
+        "height functions",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Miura 网格的离散度不等式 (4)",
+          "label_en": "Problem dossier: the Miura grid dispersion inequality (4)",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-grid-dispersion-inequality-4.md"
+        },
+        {
+          "label": "问题卷宗：剩余项次数猜想 8.3",
+          "label_en": "Problem dossier: the residual degree conjecture 8.3",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/gupta-2026-miura-residual-degree-conjecture-83.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "GuptaMiuraGridDispersion.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/GuptaMiuraGridDispersion.lean"
+        },
+        {
+          "label": "MiuraResolution.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Geometry/MiuraResolution.lean"
+        }
+      ]
+    },
+    {
+      "id": "lee-yang-tree",
+      "code": "LEE-YANG//TREE",
+      "title": "树上的单位圆 · 何时守住、何时破开",
+      "title_en": "The unit circle on trees: when it holds, when it breaks",
+      "summary": "Lee 与 Yang 证明铁磁 Ising 模型的配分函数零点都在单位圆上。Fiol、Martínez-Montoya、Rios Fukelman（2020）猜想树上的一族同类多项式也是如此，对任意正的分法权重都成立。本库给出两个已冻结的反例：三点路径配联合权重 W₃₁，以及原文物理权重下的九点双中心树（离圆只有约 0.002）。但对“两条边总数 3、其余 2”把所有放法加起来，任何树的根都回到单位圆上，这一点也已冻结。页面在复平面上把离圆的距离放大画出：权重 M 增大时根在 M = 31 离开圆；放大倍数升到几百倍时，物理反例才显形；逐个加入放法时，根沿着圆移动；有的放法单独看会离圆，加完之后的和全部在圆上。",
+      "summary_en": "Lee and Yang proved that the partition function of a ferromagnetic Ising model has all its zeros on the unit circle. Fiol, Martínez-Montoya and Rios Fukelman (2020) conjectured the same for a family of such polynomials on trees, with any positive split weights. This library has two frozen counterexamples: the three-vertex path with joint weights W₃₁, and a nine-vertex double hub under the source’s physical weights (only about 0.002 off the circle). Yet summing all placements of “two edges with total 3, the rest 2” brings every root back to the unit circle on every tree, which is frozen as well. The page draws the complex plane with the distance from the circle magnified: as the weight M grows the roots leave the circle at M = 31; the physical counterexample appears only at a magnification of a few hundred; and as placements are added one by one the roots move along the circle; some placements leave it on their own, while the full sum lies entirely on it.",
+      "path": "viz/lee-yang-tree/",
+      "thumbnail": "viz/lee-yang-tree/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "Lee–Yang 零点",
+        "树",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Lee–Yang zeros",
+        "trees",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：树上的 Lee–Yang 猜想",
+          "label_en": "Problem dossier: the Lee–Yang conjecture on trees",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fiol-martinezmontoya-riosfukelman-2020-tree-lee-yang.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "QuiverTreeIsingRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreeIsingRefutation.lean"
+        },
+        {
+          "label": "QuiverTreePhysicalE8.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreePhysicalE8.lean"
+        },
+        {
+          "label": "TreePairTheorem.complete_named_tree_pair",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/TreePairTheorem.lean"
+        },
+        {
+          "label": "FiolDoubleHubPhysical.physical_root_classification",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubPhysical.lean"
+        },
+        {
+          "label": "FiolDoubleHubCoefficient.actual_coefficient_identity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubCoefficient.lean"
+        }
+      ]
+    },
+    {
+      "id": "game-grundy",
+      "code": "GAME//GRUNDY",
+      "title": "三个博弈 · 三个结算的问题",
+      "title_en": "Three games, three settled questions",
+      "summary": "三个组合博弈里的三个开放问题，本库都已结算：Divisor Nim 中 Tyagi（2026）猜想 Grundy 值不超过最小堆的两倍——已证；随机减法游戏中 Capitelli 与 Somma（2024）猜想减法集全为奇数时获胜概率不收敛——已证；二染色博弈中 Krop、Mittal、Wigal（2024）猜想任何树的博弈值不超过同阶路径——被一棵十个顶点、博弈值为 3 的树反驳（路径只有 1）。页面现算 Grundy 表与必败局面的 2-adic 规则、概率序列与证明里守恒的窗口和，以及精确的极小极大博弈值，二染色博弈可以亲手落子。",
+      "summary_en": "Three open questions in three combinatorial games, all settled in this library: in Divisor Nim, Tyagi (2026) conjectured that the Grundy value is at most twice the smallest heap, now proved; in random subtraction games, Capitelli and Somma (2024) conjectured that the winning probability does not converge when every move is odd, now proved; in the cordiality game, Krop, Mittal and Wigal (2024) conjectured that no tree beats the path of the same order, refuted by a ten-vertex tree of value 3 (the path has 1). The page computes Grundy tables with the 2-adic rule for losing positions, the probability sequences with the window sum the proof conserves, and exact minimax game values; you can play the cordiality game yourself.",
+      "path": "viz/game-grundy/",
+      "thumbnail": "viz/game-grundy/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "组合博弈",
+        "Grundy 值",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorial games",
+        "Grundy values",
+        "open problems settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：Divisor Nim 的 2h_min 界",
+          "label_en": "Problem dossier: the 2h_min bound for Divisor Nim",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tyagi-2026-divisor-nim-sharper-sg-bound.md"
+        },
+        {
+          "label": "问题卷宗：全奇减法集不收敛",
+          "label_en": "Problem dossier: all-odd subtraction sets do not converge",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/capitelli-somma-2024-all-odd-nonconvergence.md"
+        },
+        {
+          "label": "问题卷宗：树与路径的博弈值",
+          "label_en": "Problem dossier: game values of trees and paths",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/krop-mittal-wigal-2024-game-cordiality-tree-path.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "DivisorNimBound.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBound.lean"
+        },
+        {
+          "label": "DivisorNimBoundOutcome.zero_iff_even_count",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimBoundOutcome.lean"
+        },
+        {
+          "label": "DivisorNimPeriodPropagation.singleton_grundy",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/DivisorNimPeriodPropagation.lean"
+        },
+        {
+          "label": "CapitelliSommaAllOddNonconvergence.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CapitelliSommaAllOddNonconvergence.lean"
+        },
+        {
+          "label": "CordialityTreePathRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/Games/CordialityTreePathRefutation.lean"
+        }
+      ]
+    },
+    {
+      "id": "hofstadter-gap",
+      "code": "HOFSTADTER//GAP",
+      "title": "π/2 磁通 Hofstadter 模型 · 质量间隙",
+      "title_en": "The π/2-flux Hofstadter model · the mass gap",
+      "summary": "四带 π/2 磁通 Hofstadter 模型：质量 m 不为零时，第三、四条 Bloch 能带在整个布里渊区上被费米能 μ = 2 隔开。Fabbri、Marcelli、Giuliani（2026）只给了数值证据，本库给出证明：对 −2 ≤ m ≤ 2、m ≠ 0 有一致间隙 m²/500。页面画出能带曲面随 m 闭合又张开、证明用的行列式证书 det(H − 2) = −4q 与“一正三负”的惯性计数、证出的界与网格上实际间隙的对比，以及经典的 Hofstadter 蝴蝶——m = −2 时模型的能带正好是蝴蝶的 1/4 切片（页面数值对比）。",
+      "summary_en": "The four-band π/2-flux Hofstadter model: for nonzero mass m the third and fourth Bloch bands are separated by the Fermi energy μ = 2 over the whole Brillouin zone. Fabbri, Marcelli and Giuliani (2026) gave numerical evidence only; this library proves it, with a uniform gap m²/500 for −2 ≤ m ≤ 2, m ≠ 0. The page draws the band surfaces closing and reopening as m varies, the determinant certificate det(H − 2) = −4q and the one-positive, three-negative inertia count used by the proof, the proved bound against the actual gap on a grid, and the classic Hofstadter butterfly, whose 1/4 slice the model reproduces at m = −2 (a numerical comparison on the page).",
+      "path": "viz/hofstadter-gap/",
+      "thumbnail": "viz/hofstadter-gap/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-28",
+      "tags": [
+        "能带",
+        "拓扑相变",
+        "开放问题结算",
+        "WebGL"
+      ],
+      "tags_en": [
+        "band structure",
+        "topological transition",
+        "open problem settled",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "问题卷宗：π/2 磁通 Hofstadter 模型的一致质量间隙",
+          "label_en": "Problem dossier: a uniform mass gap for the π/2-flux Hofstadter model",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fabbri-marcelli-giuliani-2026-half-flux-hofstadter-mass-gap.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "HalfFluxHofstadterMassGap.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/SpectralTopology/HalfFluxHofstadterMassGap.lean"
+        },
+        {
+          "label": "HalfFluxHofstadterMassGap.bloch_isHermitian",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/SpectralTopology/HalfFluxHofstadterMassGap.lean"
+        }
+      ]
+    },
+    {
+      "id": "auric-pyramid",
+      "code": "AURIC//PYRAMID",
+      "title": "FIB-ATOM 金字塔 · 平均值看见什么、看不见什么",
+      "title_en": "The FIB-ATOM pyramid · what averages see and what they miss",
+      "summary": "三个位置排成一排、相邻两个不能同时选，只剩五种合法组合，它们的平均占用恰好铺满一个方底金字塔（已冻结）。页面展开替换树 α → β、β → ⟨β, α⟩ 数出斐波那契数，把金字塔一层层切开并用随机撒点估体积 1/3，再固定平均点、拖动隐藏量 κ，看同一组平均值背后的一整段分布；最后把小窗口沿路径拼接（总能成功）和围成奇环（局部全对、整体失败）。",
+      "summary_en": "Three positions in a row in which neighbours cannot both be chosen leave five legal combinations, and their average occupancies fill exactly a square-based pyramid (frozen). The page unfolds the substitution tree α → β, β → ⟨β, α⟩ to count Fibonacci numbers, slices the pyramid layer by layer and estimates its volume 1/3 from random points, then fixes an average point and moves the hidden quantity κ to show a whole range of laws behind the same averages; finally it glues small windows along a path (always possible) and around an odd cycle (every local check passes, the whole fails).",
+      "path": "viz/auric-pyramid/",
+      "thumbnail": "viz/auric-pyramid/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "斐波那契",
+        "多面体",
+        "联合分布",
+        "局部到整体",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Fibonacci",
+        "polytopes",
+        "joint distributions",
+        "local to global",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "AURIC FIB-ATOM 金字塔：基本公式与关系",
+          "label_en": "AURIC FIB-ATOM pyramid: foundational formulas and relations",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_FOUNDATIONAL_FORMULAS_AND_RELATIONS.md"
+        },
+        {
+          "label": "AURIC FIB-ATOM 金字塔：边界演算",
+          "label_en": "AURIC FIB-ATOM pyramid: boundary calculus",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_BOUNDARY_CALCULUS.md"
+        },
+        {
+          "label": "AURIC FIB-ATOM 金字塔：局部填充与奇环障碍",
+          "label_en": "AURIC FIB-ATOM pyramid: local fillings and odd-cycle obstructions",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_LOCAL_FILLINGS_SOFT_TO_RIGID_AND_ODD_CYCLE_OBSTRUCTIONS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "PathStableSetPolytope.convexHull_three_pyramid",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/PathStableSetPolytope.lean"
+        },
+        {
+          "label": "PathStableSetPolytope.convexHull_vertices",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/PathStableSetPolytope.lean"
+        },
+        {
+          "label": "AdmissibleCount.admissibleWord_card_eq_fib",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/AdmissibleCount.lean"
+        },
+        {
+          "label": "FiniteEventCouplingSharpBounds.event_coupling_target_feasible_iff",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/Causal/FiniteEventCouplingSharpBounds.lean"
+        }
+      ]
+    },
+    {
+      "id": "palindrome-cuts",
+      "code": "PALINDROME//CUTS",
+      "title": "回文切分 · 前缀最少能切成几个回文",
+      "title_en": "Palindromic length · how few palindromes a prefix splits into",
+      "summary": "把无限词的前缀切成尽量少的回文，最少块数叫前缀回文长度 P(n)。页面用回文树算出倍周期词前 30 万个、斐波那契词前 10 万个前缀的 P(n)，把最优切分画成拱桥。倍周期词上，本库证明了 Frid、Laborde、Peltomäki 2021 年的猜想 17（差分不是 2-自动的，P 不是 2-正则的），以及带符号二进制下界 P(n) ≥ F(n) 和稀疏地址上的精确值；斐波那契词上，本库证明了 Frid 2018 年的猜想：长 F₆ₖ₊₃/2 的前缀恰好需要 2k + 1 个回文。",
+      "summary_en": "Cut a prefix of an infinite word into as few palindromes as possible; the least number of pieces is the prefix palindromic length P(n). The page computes P(n) with a palindromic tree for the first 300 000 prefixes of the period-doubling word and the first 100 000 of the Fibonacci word, and draws optimal cuts as arches. For the period-doubling word this library proves Conjecture 17 of Frid, Laborde and Peltomäki (2021): the differences are not 2-automatic and P is not 2-regular, together with the signed-binary lower bound P(n) ≥ F(n) and exact values at sparse addresses. For the Fibonacci word it proves Frid’s 2018 conjecture: the prefix of length F₆ₖ₊₃/2 needs exactly 2k + 1 palindromes.",
+      "path": "viz/palindrome-cuts/",
+      "thumbnail": "viz/palindrome-cuts/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "组合词",
+        "回文",
+        "自动序列",
+        "猜想证明",
+        "WebGL"
+      ],
+      "tags_en": [
+        "combinatorics on words",
+        "palindromes",
+        "automatic sequences",
+        "conjecture proved",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "倍周期词猜想 17 问题卷宗",
+          "label_en": "Problem dossier: period-doubling Conjecture 17",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-laborde-peltomaki-2021-period-doubling-c17.md"
+        },
+        {
+          "label": "Frid 斐波那契前缀猜想问题卷宗",
+          "label_en": "Problem dossier: Frid’s Fibonacci-prefix conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-2018-fibonacci-prefix-palindromic-length.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "PrefixPalindromicLengthNotAutomatic.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/PrefixPalindromicLengthNotAutomatic.lean"
+        },
+        {
+          "label": "SparseKernelRank.stronger_PPL_kernel_span",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseKernelRank.lean"
+        },
+        {
+          "label": "SparseExactDiagonal.diagonal_exact_family",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseExactDiagonal.lean"
+        },
+        {
+          "label": "SparseExactOffDiagonal.offdiagonal_exact_family",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseExactOffDiagonal.lean"
+        },
+        {
+          "label": "SignedCutLowerBound.palindromic_suffix_signed_bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SignedCutLowerBound.lean"
+        },
+        {
+          "label": "FridPrefixPalindromicLength.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/FridPrefix/FridPrefixPalindromicLength.lean"
+        }
+      ]
+    },
+    {
+      "id": "uncertainty",
+      "code": "UNCERTAINTY//LEDGER",
+      "title": "不确定性账本 · 不对易的代价记在哪里",
+      "title_en": "The uncertainty ledger · where the price of non-commuting is booked",
+      "summary": "ΔA²·ΔB² 恰好分成三笔：协方差、对易子项、非负的 Gram 余项（本库冻结的 Robertson–Schrödinger 恒等式）。布洛赫球上，纯量子比特的余项总是 0，混合态的余项正好是 |a×b|²(1 − |r|²)；自旋 j 在单轴扭转下，账从对易子挪到协方差再挪进余项，猫态时全在余项。然后在 d + 1 组互无偏基上核对碰撞守恒 Σp² = 1 + tr ρ² 与冻结的熵不确定关系，并数值搜索最小熵和：d = 3 时恰好取到下界。",
+      "summary_en": "ΔA²·ΔB² splits exactly into three entries: the covariance, the commutator term and a non-negative Gram remainder (the Robertson–Schrödinger identity frozen in this library). On the Bloch ball the remainder of a pure qubit is always 0, and for a mixed state it is exactly |a×b|²(1 − |r|²); for spin j under one-axis twisting the balance moves from the commutator to the covariance and then into the remainder, which holds all of it for a cat state. Then the page checks collision conservation Σp² = 1 + tr ρ² and the frozen entropic uncertainty relation on d + 1 mutually unbiased bases, and searches numerically for the least entropy sum: in d = 3 it reaches the bound exactly.",
+      "path": "viz/uncertainty/",
+      "thumbnail": "viz/uncertainty/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "量子力学",
+        "不确定关系",
+        "互无偏基",
+        "熵",
+        "自旋压缩",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum mechanics",
+        "uncertainty relations",
+        "mutually unbiased bases",
+        "entropy",
+        "spin squeezing",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "量子界 Lean 源目录 QuantumBounds",
+          "label_en": "Lean sources of the quantum bounds: QuantumBounds",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/QuantumBounds"
+        },
+        {
+          "label": "测量 Lean 源目录 Quantum/Measurements",
+          "label_en": "Lean sources of the measurements: Quantum/Measurements",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/Quantum/Measurements"
+        }
+      ],
+      "lean": [
+        {
+          "label": "RobertsonSchrodinger.robertson_schrodinger",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/RobertsonSchrodinger.lean"
+        },
+        {
+          "label": "MixedStateRobertson.mixed_state_robertson_uncertainty",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/MixedStateRobertson.lean"
+        },
+        {
+          "label": "CompleteContextCollisionConservation.complete_context_collision_conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurements/CompleteContextCollisionConservation.lean"
+        },
+        {
+          "label": "CollisionConservation.collision_sum_eq_one_add_purity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/CollisionConservation.lean"
+        },
+        {
+          "label": "CollisionEntropyUncertainty.collision_entropy_uncertainty",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionEntropyUncertainty.lean"
+        },
+        {
+          "label": "CollisionShannonComparison.collision_entropy_le_shannon_entropy",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionShannonComparison.lean"
+        }
+      ]
+    },
+    {
+      "id": "hard-squares",
+      "code": "HARD//SQUARES",
+      "title": "硬方块格气 · 互不相邻的粒子",
+      "title_en": "The hard-square lattice gas · particles that refuse to touch",
+      "summary": "网格上的粒子不许相邻，活度 λ 一大就自发排成棋盘。页面用蒙特卡罗模拟 48 × 48 环面，并精确数出 8 × 8 环面的全部 213 256 442 503 个配置，核对冻结恒等式 λ·d⟨N⟩/dλ = Var(N)；演示 Adamaszek 的项链动力学（本库证明了他的猜想 7.4：n − 3k 步后回到旋转像）；以及在星形图 K₁,₂ 上被推翻的硬核占据下界（活度 15, 2, 2 时 9/8 < 259/230）。",
+      "summary_en": "Particles on a grid may not be neighbours, and at large activity λ they order into a checkerboard. The page simulates a 48 × 48 torus by Monte Carlo and counts all 213 256 442 503 configurations of the 8 × 8 torus exactly, checking the frozen identity λ·d⟨N⟩/dλ = Var(N); it animates Adamaszek's necklace dynamics (this library proved his Conjecture 7.4: a rotated copy returns after n − 3k steps); and it shows the hard-core occupancy bound refuted on the star K₁,₂ (9/8 < 259/230 at activities 15, 2, 2).",
+      "path": "viz/hard-squares/",
+      "thumbnail": "viz/hard-squares/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-10",
+      "tags": [
+        "统计力学",
+        "硬核模型",
+        "格气",
+        "项链",
+        "猜想证明",
+        "WebGL"
+      ],
+      "tags_en": [
+        "statistical mechanics",
+        "hard-core model",
+        "lattice gas",
+        "necklaces",
+        "conjecture proved",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "Adamaszek 项链猜想问题卷宗",
+          "label_en": "Problem dossier: Adamaszek's necklace conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/adamaszek-2012-necklace-cycle-length.md"
+        },
+        {
+          "label": "多变量占据下界问题卷宗",
+          "label_en": "Problem dossier: the multivariate occupancy bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/davies-sandhu-seo-tan-2026-multivariate-occupancy-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "GibbsOccupation.mean_occupation_fluctuation_response",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/GibbsOccupation.lean"
+        },
+        {
+          "label": "HardSquareNecklacePeriod.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/HardSquareNecklacePeriod.lean"
+        },
+        {
+          "label": "MultivariateOccupancyRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/HardCore/MultivariateOccupancyRefutation.lean"
+        }
+      ]
+    },
+    {
+      "id": "prime-gaps",
+      "code": "PRIME//GAPS",
+      "title": "素数间隙 · 素数能挤多近、能隔多远",
+      "title_en": "Prime gaps · how close primes can crowd, how far apart they can drift",
+      "summary": "在两千万以内筛出全部素数，直接计数：一组偏移量什么时候可能同时都是素数（可容许元组），八个素数最窄能挤进宽 26 的窗口，有界间隙定理怎样由 DHL 与一个窄元组拼成，最大间隙的纪录怎样增长；再看本库推翻的三条 OEIS 猜想：A079063 的 √ 间隙下界、A089610 的最终递增、A049591 的因子数刻画（反例 529）。孪生素数与 Hardy–Littlewood 猜想仍是开放问题。",
+      "summary_en": "Every prime below twenty million, counted directly: when a set of offsets can all be prime at once (admissible tuples), how eight primes fit into a window of width 26 at best, how the bounded-gaps theorem is assembled from DHL and one narrow tuple, and how the record gaps grow; then three OEIS conjectures this library has refuted: the √-gap lower bound of A079063, the eventual increase of A089610 and the divisor-count characterization of A049591 (counterexample 529). The twin prime and Hardy–Littlewood conjectures remain open.",
+      "path": "viz/prime-gaps/",
+      "thumbnail": "viz/prime-gaps/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "素数",
+        "素数间隙",
+        "可容许元组",
+        "有界间隙",
+        "猜想反驳",
+        "WebGL"
+      ],
+      "tags_en": [
+        "primes",
+        "prime gaps",
+        "admissible tuples",
+        "bounded gaps",
+        "refuted conjectures",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "A079063 √ 间隙下界猜想问题卷宗",
+          "label_en": "Problem dossier: the A079063 √-gap lower bound",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a079063-sqrt-prime-gap-lower-bound-refutation.md"
+        },
+        {
+          "label": "A089610 平方区间素数个数问题卷宗",
+          "label_en": "Problem dossier: A089610 primes in square intervals",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a089610-square-interval-prime-count-eventual-increase-refutation.md"
+        },
+        {
+          "label": "A049591 因子数刻画问题卷宗",
+          "label_en": "Problem dossier: the A049591 divisor-count characterization",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a049591-prime-gap-divisor-characterization-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "OptimalAdmissibleEightTuple.minimalAdmissibleDiameter_eight_26",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/OptimalAdmissibleEightTuple.lean"
+        },
+        {
+          "label": "DHLAdmissibleDiameterTransfer.dhl_two_and_admissible_window_yield_bounded_gap",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/DHLAdmissibleDiameterTransfer.lean"
+        },
+        {
+          "label": "PrimeGap186TwoAxisAssembly.dhl40TwoNat_yields_gap186",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/PrimeGap186TwoAxisAssembly.lean"
+        },
+        {
+          "label": "LongGapsBetweenPrimes.long_prime_gaps",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/LongGapConclusion.lean"
+        },
+        {
+          "label": "CloitreSquareRootPrimeGapRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/CloitreSquareRootPrimeGapRefutation.lean"
+        },
+        {
+          "label": "HilliardSquareIntervalPrimeCountEventualIncreaseRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/HilliardSquareIntervalPrimeCountEventualIncreaseRefutation.lean"
+        },
+        {
+          "label": "CloitrePrimeGapDivisorCharacterizationRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S0/Certificates/CloitrePrimeGapDivisorCharacterizationRefutation.lean"
+        }
+      ]
+    },
+    {
+      "id": "explicit-formula",
+      "code": "EXPLICIT//FORMULA",
+      "title": "显式公式 · 用 ζ 的零点重建素数",
+      "title_en": "The explicit formula · rebuilding the primes from the zeros of ζ",
+      "summary": "显式公式把素数和黎曼 ζ 函数的零点写进同一条等式。页面用 Odlyzko 表的前一万个零点逐个叠加，看素数的台阶 ψ(x) 和素数幂处的尖峰怎样从波里长出来，逐项核对 Weil 形式的两边；再看 Weil 正性为什么等价于黎曼猜想，以及一个假想的离线零点会怎样让零点和变负。黎曼猜想本身仍是开放问题。",
+      "summary_en": "The explicit formula puts the primes and the zeros of the Riemann zeta function into one identity. The page adds the first ten thousand zeros from Odlyzko's table one by one, watches the staircase ψ(x) and the spikes at prime powers grow out of the waves, and checks both sides of Weil's form term by term; then it shows why Weil positivity is equivalent to the Riemann hypothesis, and how a hypothetical zero off the critical line would make the zero sum negative. The Riemann hypothesis itself remains open.",
+      "path": "viz/explicit-formula/",
+      "thumbnail": "viz/explicit-formula/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "ζ 函数",
+        "显式公式",
+        "素数",
+        "黎曼猜想",
+        "Weil 正性",
+        "WebGL"
+      ],
+      "tags_en": [
+        "zeta function",
+        "explicit formula",
+        "primes",
+        "Riemann hypothesis",
+        "Weil positivity",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "Weil 显式公式 Lean 源目录 ZetaBridge",
+          "label_en": "Lean sources of the Weil explicit formula: ZetaBridge",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/Weil/ZetaBridge"
+        },
+        {
+          "label": "Weil 判据与无条件显式公式 Lean 源目录 Separator",
+          "label_en": "Lean sources of Weil's criterion and the unconditional formula: Separator",
+          "href": "https://github.com/the-omega-institute/trureturing/tree/dev/D5/S3/Weil/Separator"
+        }
+      ],
+      "lean": [
+        {
+          "label": "ClassicExplicitFormula.weil_explicit_formula",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/ClassicExplicitFormula.lean"
+        },
+        {
+          "label": "UnconditionalExplicitFormula.explicitFormula_unconditional",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/UnconditionalExplicitFormula.lean"
+        },
+        {
+          "label": "ExplicitFormulaObstruction.isNontrivialZero_infinite",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZeroInfinitude/ExplicitFormulaObstruction.lean"
+        },
+        {
+          "label": "ExplicitFormulaWeilCriterion.rh_iff_explicitFormulaPositivity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/ExplicitFormulaWeilCriterion.lean"
+        },
+        {
+          "label": "OffLineNonrealZeroNegativeWeilSquare.offLineNonrealZero_yields_negative_weil_square",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/OffLineNonrealZeroNegativeWeilSquare.lean"
+        },
+        {
+          "label": "MediumPNT.MediumPNT",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/PrimeNumberTheorem/MediumPNT.lean"
+        }
+      ]
+    },
+    {
+      "id": "state-transfer",
+      "code": "STATE//TRANSFER",
+      "title": "完美态传输 · 量子行走把态送到哪里",
+      "title_en": "Perfect state transfer · where a quantum walk carries a state",
+      "summary": "把量子态放在图的一个顶点，让它按哈密顿量演化：耦合调对了，链条两端能一点不剩地完美传输；边权全是有理数的奇数链在 t = π 永远差一点；有的顶点永远收不到任何振幅。页面展示本库推翻或回答的五个已发表猜想与问题：Song–Lin 的零传输奇偶猜想、Connelly 等的普适传输猜想、Kay 的传输率猜想、Kirkland 等关于内部完美传输的逆命题（一条五点带权路径内部送达、两端永远不行），以及 Coutinho–Baptista 的树猜想（一棵 17 顶点树在归一化拉普拉斯下完美传输）。",
+      "summary_en": "Put a quantum state on one vertex of a graph and let it evolve under the Hamiltonian: with the right couplings a chain transfers it perfectly end to end; an odd chain whose weights are all rational always falls short at t = π; some vertices never receive any amplitude at all. The page shows five published conjectures and questions this library has refuted or answered: Song and Lin's parity conjecture for zero transfer, the universal-transfer conjecture of Connelly et al., Kay's transfer-rate conjecture, the converse asked by Kirkland et al. for interior transfer (a weighted five-site path transfers inside but never between its ends), and the tree conjecture of Coutinho and Baptista (a 17-vertex tree transfers perfectly under the normalized Laplacian).",
+      "path": "viz/state-transfer/",
+      "thumbnail": "viz/state-transfer/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "量子行走",
+        "完美态传输",
+        "零传输",
+        "猜想反驳",
+        "谱",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum walks",
+        "perfect state transfer",
+        "zero transfer",
+        "refuted conjectures",
+        "spectra",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "Song–Lin 零传输奇偶猜想问题卷宗",
+          "label_en": "Problem dossier: Song and Lin's zero-transfer parity conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/song-lin-2026-oriented-circulant-zero-transfer-parity-refutation.md"
+        },
+        {
+          "label": "Connelly 等性质 𝕋 普适传输问题卷宗",
+          "label_en": "Problem dossier: Connelly et al. on property 𝕋 universal transfer",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/connelly-2017-property-t-universal-state-transfer.md"
+        },
+        {
+          "label": "Kay 传输率猜想问题卷宗",
+          "label_en": "Problem dossier: Kay's transfer-rate conjecture",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kay-2010-transfer-rate-refutation.md"
+        },
+        {
+          "label": "Kirkland 等内部完美传输逆命题问题卷宗",
+          "label_en": "Problem dossier: Kirkland et al. on the converse for interior transfer",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kirkland-2019-interior-pst-converse-refutation.md"
+        },
+        {
+          "label": "Coutinho–Baptista 归一化拉普拉斯树猜想问题卷宗",
+          "label_en": "Problem dossier: Coutinho and Baptista's tree conjecture for the normalized Laplacian",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/coutinho-baptista-2023-normalized-laplacian-tree-state-transfer-refutation.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "OddPathRationalWeightTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/OddPathRationalWeightTransfer.lean"
+        },
+        {
+          "label": "OrientedCirculantZeroTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/OrientedCirculantZeroTransfer.lean"
+        },
+        {
+          "label": "PropertyTCirculantUniversalTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/PropertyTCirculantUniversalTransfer.lean"
+        },
+        {
+          "label": "KayTransferRateRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/KayTransferRateRefutation.lean"
+        },
+        {
+          "label": "InteriorPathTransferConverseRefutation.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/InteriorPathTransferConverseRefutation.lean"
+        },
+        {
+          "label": "NormalizedLaplacianTreeStateTransfer.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/NormalizedLaplacianTreeStateTransfer.lean"
+        }
+      ]
+    },
+    {
+      "id": "fourth-basis",
+      "code": "FOURTH//BASIS",
+      "title": "六维第四组互无偏基 · 一个开放问题",
+      "title_en": "A fourth mutually unbiased basis in dimension six · an open problem",
+      "summary": "两组基互无偏，是说一组里的任何态拿去按另一组测，每个结果的概率都是 1/d。素数维有 d + 1 组；六维只构造出 3 组，第四组存不存在至今没有证明。页面用同一个梯度下降在 3、5、7 维里找到第四组，在六维里停住，连一个与已知三组都无偏的向量也找不到。这只是数值线索；本库已冻结的是归约和若干分支的排除。新增的判据视图把已知三组基当作纠缠判据：本库证明了 Tavakoli–Morelli 的不完全互无偏基 Schmidt 数界，用三组基能在可见度 v > 1/3 时证出纠缠，若有第四组门槛可降到 1/4。",
+      "summary_en": "Two bases are mutually unbiased when every state of one, measured in the other, gives each outcome with probability 1/d. Prime dimensions have d + 1 of them; in dimension six only 3 have been constructed, and whether a fourth exists is still unproved. One gradient descent finds a fourth basis in dimensions 3, 5 and 7 and stalls in six, where it cannot find even one vector unbiased to the known three. That is only a numerical lead; what the library has frozen is a reduction and the exclusion of some branches. A witness view uses the known three bases as an entanglement witness: this library proved the Schmidt-number bound of Tavakoli and Morelli for incomplete sets of mutually unbiased bases, and three bases certify entanglement for visibility v > 1/3, where a fourth basis would lower the threshold to 1/4.",
+      "path": "viz/fourth-basis/",
+      "thumbnail": "viz/fourth-basis/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "互无偏基",
+        "六维",
+        "开放问题",
+        "Zauner 猜想",
+        "数值搜索",
+        "WebGL"
+      ],
+      "tags_en": [
+        "mutually unbiased bases",
+        "dimension six",
+        "open problem",
+        "Zauner's conjecture",
+        "numerical search",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "六维第四组互无偏基理论卷 · §0 开放目标 · §23 关键开放命题",
+          "label_en": "The six-dimensional fourth-basis volume · §0 open target · §23 key open propositions",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/MUB_SIX_FOURTH_BASIS_THEORY.md"
+        },
+        {
+          "label": "Tavakoli–Morelli 不完全互无偏基 Schmidt 数界问题卷宗",
+          "label_en": "Problem dossier: the Schmidt-number bound of Tavakoli and Morelli for incomplete sets of mutually unbiased bases",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/tavakoli-morelli-2024-conjecture-3-incomplete-mub-schmidt-bound.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "mutually_unbiased_diagonal_planes",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MutuallyUnbiasedDiagonalPlanes.lean"
+        },
+        {
+          "label": "fourMUBContexts_have_commutator_sum_ten",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/MUBHadamardCompatibility.lean"
+        },
+        {
+          "label": "no_fourMUBHadamardWitness_of_no_lifted_atlas",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/MUBHadamardCompatibility.lean"
+        },
+        {
+          "label": "zaunerCanonicalCompletion_crossGram_not_nonzero_flat",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/MUB/ZaunerCompletionFibre.lean"
+        },
+        {
+          "label": "TavakoliMorelliIncompleteMUB.result",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/TavakoliMorelliIncompleteMUB.lean"
+        }
+      ]
+    },
+    {
+      "id": "whole-parts",
+      "code": "WHOLE//PARTS",
+      "title": "整体大于局部 · 纠缠、局部盲区与隐形传态",
+      "title_en": "The whole is more than its parts · entanglement, the local blind spot and teleportation",
+      "summary": "两个量子比特的整体可以正交，两边各自的状态却完全一样：贝尔态是纯态，单看任一边都是完全混合的 I/2。只看一边读不到的关联扇区占两比特全部 15 个方向中的 9 个。隐形传态正好用上这块关联：两边约化态相同的资源，传态保真度可以从 1/3 一直到 1，经典关联只能做到 2/3。",
+      "summary_en": "Two qubits can make orthogonal wholes while each side holds exactly the same state: the Bell state is pure, yet either half alone is the completely mixed I/2. The correlation sector that neither side can read alone takes up 9 of the 15 directions of two qubits. Teleportation uses exactly this correlation: resources whose halves are identical teleport with fidelity anywhere from 1/3 to 1, and classical correlation reaches only 2/3.",
+      "path": "viz/whole-parts/",
+      "thumbnail": "viz/whole-parts/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "纠缠",
+        "约化态",
+        "局部-整体余量",
+        "引导椭球",
+        "隐形传态",
+        "WebGL"
+      ],
+      "tags_en": [
+        "entanglement",
+        "reduced states",
+        "local-global residual",
+        "steering ellipsoid",
+        "teleportation",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者完备反射 §118 局部—全局余量 · §119 跨素数相关扇区 · §120 观察层级",
+          "label_en": "Formal observer completion reflection §118 local-global residual · §119 cross-prime correlation sectors · §120 observation hierarchy",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md"
+        },
+        {
+          "label": "递归关系观察 §165 标准隐形传态过程",
+          "label_en": "Recursive relational observation §165 the standard teleportation process",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_PHASE_BOUNDARY.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "bell_pure_state_has_maximally_mixed_marginal",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPureStateMixedMarginal.lean"
+        },
+        {
+          "label": "bell_pair_local_global_residual",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPairLocalGlobalResidual.lean"
+        },
+        {
+          "label": "local_marginal_correlation_blind_spot",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalMarginalCorrelationBlindSpot.lean"
+        },
+        {
+          "label": "local_observation_partial_trace_equivalence",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean"
+        }
+      ]
+    },
+    {
+      "id": "hermite-ladder",
+      "code": "HERMITE//LADDER",
+      "title": "量子谐振子 · 能级阶梯与厄米函数",
+      "title_en": "The quantum oscillator · the energy ladder and Hermite functions",
+      "summary": "谐振子的能级是 ħω(n + ½) 的等距阶梯，本征态是厄米函数：基态能量不为零，相干态像经典小球一样来回摆，每个周期精确复原；二维时频率比是有理数，轨道才闭合。厄米函数两两正交、合起来能拼出任何形状，但方盒、三角这类有跳跃或尖角的形状，能量加权的系数平方和发散，哈密顿量作用不上去。",
+      "summary_en": "The oscillator's energies form the evenly spaced ladder ħω(n + ½) and its eigenstates are Hermite functions: the ground-state energy is not zero, a coherent state swings like a classical ball and returns exactly every period, and in 2D the orbit closes only when the frequency ratio is rational. The Hermite functions are orthonormal and together build any shape, but for shapes with jumps or corners, such as a box or a triangle, the energy-weighted sum of squared coefficients diverges and the Hamiltonian cannot act on them.",
+      "path": "viz/hermite-ladder/",
+      "thumbnail": "viz/hermite-ladder/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "量子谐振子",
+        "厄米函数",
+        "零点能",
+        "相干态",
+        "算子定义域",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum oscillator",
+        "Hermite functions",
+        "zero-point energy",
+        "coherent states",
+        "operator domain",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "谐振子微分图 · 定理 7.1 厄米检验函数 · 定理 6.1 加权系数 · 定理 8.1 条件闭包",
+          "label_en": "Actual oscillator differential graph · Theorem 7.1 Hermite tests · Theorem 6.1 weighted coefficients · Theorem 8.1 conditional closure",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/ACTUAL_OSCILLATOR_GRAPH.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "physical_hermite_tests",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalHermiteTests.lean"
+        },
+        {
+          "label": "physical_product_orthonormal_integral",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductOrthonormality.lean"
+        },
+        {
+          "label": "physical_product_totality",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductTotality.lean"
+        },
+        {
+          "label": "eigenbasis_graph_coefficients",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/EigenbasisGraphCore.lean"
+        },
+        {
+          "label": "physical_graph_closure",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalGraphClosure.lean"
+        }
+      ]
+    },
+    {
+      "id": "tomo-glance",
+      "code": "TOMO//GLANCE",
+      "title": "互补与层析 · 一次看不全",
+      "title_en": "Complementarity and tomography · one look cannot see it all",
+      "summary": "一个量子比特一次只能沿一个方向测，结果只有 ±1。只看 Z 方向时，相位完全看不见，统计相同的态铺满一整张圆盘；加上 X 还剩一条弦；X、Y、Z 三个互补方向才唯一确定态。纯度恰好拆成各方向概率偏差的平方和，再加看不见的残差。单个样本读不全，也复制不了。",
+      "summary_en": "A qubit can be measured along only one direction at a time, and each result is just ±1. Measuring along Z alone, the phase is completely invisible and the states with the same statistics fill a whole disc; adding X leaves a chord; only the three complementary directions X, Y and Z determine the state. The purity splits exactly into the squared probability deviations of the directions plus an invisible residual. A single sample can be neither read completely nor copied.",
+      "path": "viz/tomo-glance/",
+      "thumbnail": "viz/tomo-glance/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-09",
+      "tags": [
+        "量子层析",
+        "互补",
+        "相位盲",
+        "纯度勾股",
+        "不可克隆",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum tomography",
+        "complementarity",
+        "phase blindness",
+        "purity Pythagoras",
+        "no-cloning",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者完备反射 §83 可见空间与不可见残差 · §86 结果预算 · §100 单样本与不可克隆",
+          "label_en": "Formal observer completion reflection §83 visible space and invisible residual · §86 outcome budgets · §100 single samples and no-cloning",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md"
+        },
+        {
+          "label": "GICT 定理 6.38 互补预算 · E.168 碰撞守恒",
+          "label_en": "GICT Theorem 6.38 complementarity budget · E.168 collision conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "purity_pythagoras_decomposition",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/PurityPythagorasDecomposition.lean"
+        },
+        {
+          "label": "complete_context_tomography",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/CompleteContextTomography.lean"
+        },
+        {
+          "label": "diagonal_prime_observables_cannot_recover_relative_phase",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/DiagonalPhaseBlindness.lean"
+        },
+        {
+          "label": "no_cloning_inner_product_criterion",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/NoCloningInnerProductCriterion.lean"
+        },
+        {
+          "label": "informational_completeness_four_way",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Tomography/InformationalCompletenessEquivalence.lean"
+        }
+      ]
+    },
+    {
+      "id": "syndrome-mend",
+      "code": "SYNDROME//MEND",
+      "title": "量子纠错 · 离开编码空间不等于丢了信息",
+      "title_en": "Quantum error correction · leaving the code space is not losing the information",
+      "summary": "三比特重复码把一个逻辑比特写成 α|000⟩ + β|111⟩。噪声把态推出编码空间，落进三份两两正交的错误副本；把副本折回来，哪怕整个态都离开了编码空间、哪怕错误是相干叠加，也能精确找回。两个比特同时翻转会骗过译码：Knill–Laflamme 条件不成立。各分支沿路径带回的相位要靠记录补偿，记录被删掉一位，最优误差就从 0 跳上去。",
+      "summary_en": "The three-qubit repetition code writes one logical qubit as α|000⟩ + β|111⟩. Noise pushes the state out of the code space into three mutually orthogonal error copies; folding the copies back recovers the state exactly, even when the whole state has left the code space and even when the error is a coherent superposition. Two simultaneous flips fool the decoder: the Knill–Laflamme condition fails. Phases that the branches bring back along their paths must be undone from the record, and deleting one record bit raises the best error above 0.",
+      "path": "viz/syndrome-mend/",
+      "thumbnail": "viz/syndrome-mend/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-03",
+      "tags": [
+        "量子纠错",
+        "综合征",
+        "重复码",
+        "Knill–Laflamme",
+        "记录与恢复",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum error correction",
+        "syndrome",
+        "repetition code",
+        "Knill–Laflamme",
+        "record and recovery",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "量子现实 ST27–ST31 正交错误副本、带记录的恢复条件与记录不全时的最优误差",
+          "label_en": "Quantum reality ST27–ST31 orthogonal error copies, recovery conditions with records and the best error with an incomplete record",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "orthogonal_syndrome_recovery",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeDecoding.lean"
+        },
+        {
+          "label": "syndrome_transport_orthogonal",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeDecoding.lean"
+        },
+        {
+          "label": "full_syndrome_decoder",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/OrthogonalSyndromeChannel.lean"
+        },
+        {
+          "label": "left_inverse_error_products",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/KrausLeftInverseNecessity.lean"
+        },
+        {
+          "label": "scalar_products_construct_left_inverse",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Recovery/FiniteKrausReversibility.lean"
+        }
+      ]
+    },
+    {
+      "id": "dark-walk",
+      "code": "DARK//WALK",
+      "title": "首次探测与暗态 · 永远找不到的行走者",
+      "title_en": "First detection and dark states · the walker that is never found",
+      "summary": "量子粒子在环或链上行走，探测器每隔 τ 检查一个格点。经典随机行走者最终一定会被找到；量子行走者却有一部分落在暗空间里——那些在探测点上相消为零的驻波——永远不被探到。在特殊的探测间隔上，暗空间会突然变大；从探测点出发时，平均返回轮数是一个整数。",
+      "summary_en": "A quantum particle walks on a ring or a chain while a detector checks one site every τ. A classical random walker is always found in the end; part of a quantum walker can lie in the dark space, standing waves that cancel at the detector, and is never detected. At special detection intervals the dark space suddenly grows; starting at the detector, the mean return round is an integer.",
+      "path": "viz/dark-walk/",
+      "thumbnail": "viz/dark-walk/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-01",
+      "tags": [
+        "首次探测",
+        "暗态",
+        "量子行走",
+        "相干相消",
+        "返回量子化",
+        "WebGL"
+      ],
+      "tags_en": [
+        "first detection",
+        "dark states",
+        "quantum walk",
+        "destructive interference",
+        "return quantization",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §11–§13 首次探测与暗空间 · §49 返回量子化",
+          "label_en": "Relational holographic representation of the wave–particle whole §11–§13 first detection and the dark space · §49 return quantization",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "dark_space_eq_survival_defect_kernel",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionDarkSpace.lean"
+        },
+        {
+          "label": "finite_detection_survival_limit",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean"
+        },
+        {
+          "label": "monitored_return_conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean"
+        }
+      ]
+    },
+    {
+      "id": "zeno-watch",
+      "code": "ZENO//WATCH",
+      "title": "量子芝诺效应 · 被盯住的跃迁",
+      "title_en": "Quantum Zeno effect · the watched transition",
+      "summary": "一个被 Rabi 驱动的量子比特，在翻转途中被反复刷新：刷新越密，翻转越难发生。刷新是一次物理交互，所以它还能做别的事——不完全的记录只能减弱冻结，强度随间隔变小的刷新只把跃迁拖慢；缓慢转动的测量能把态拖到正交的位置；对向环境衰变的不稳定态，适中的测量频率反而加速衰变。",
+      "summary_en": "A Rabi-driven qubit is refreshed again and again while it flips: the denser the refreshes, the harder the flip. A refresh is a physical interaction, so it can do more: incomplete records only weaken the freeze, refreshes that weaken with the interval merely slow the transition down, a slowly turning measurement drags the state to an orthogonal position, and for an unstable state decaying into an environment a moderate measurement rate speeds the decay up.",
+      "path": "viz/zeno-watch/",
+      "thumbnail": "viz/zeno-watch/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-01",
+      "tags": [
+        "量子芝诺",
+        "反芝诺",
+        "测量反作用",
+        "记录强度",
+        "布洛赫球",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum Zeno",
+        "anti-Zeno",
+        "measurement back-action",
+        "record strength",
+        "Bloch sphere",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "量子现实 §221–§230 记录强度、Zeno 动力学与稳定—学习权衡",
+          "label_en": "Quantum reality §221–§230 record strength, Zeno dynamics and the stability–learning trade-off",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/QUANTUM-REALITY.md"
+        },
+        {
+          "label": "锥程序 §5.4 监视熵产律",
+          "label_en": "Cone program §5.4 monitoring entropy law",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/CONE_PROGRAM_FORMAL.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "trace_environment_controlled_record_eq_phase_damping",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/EnvironmentRecords.lean"
+        },
+        {
+          "label": "record_action_controls_coherence_survival",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RecordActionCoherenceSurvival.lean"
+        },
+        {
+          "label": "monitored_return_conservation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumChannels/ProjectionDiagnostics/MonitoredReturnConservation.lean"
+        }
+      ]
+    },
+    {
+      "id": "delay-eraser",
+      "code": "DELAY//ERASER",
+      "title": "延迟选择量子擦除 · 先落点，后贴标签",
+      "title_en": "Delayed-choice quantum eraser · hits first, labels later",
+      "summary": "信号光子先落在屏上，孪生的闲置光子绕过延迟线后才被决定：测路径，还是擦除路径。屏上的落点一个也不会移动，D0 从来没有条纹；条纹只在按闲置探测器事后分拣的符合计数里出现，而标签要经由不比光快的电脉冲送来。可以在光子飞行途中扳动开关，也可以把选择放到落点之前或之后的任何时刻。",
+      "summary_en": "The signal photon lands on the screen first; its idler twin runs through a delay line before its fate is decided: measure the path, or erase it. No hit on the screen ever moves and D0 never shows fringes; fringes appear only in the coincidences sorted afterwards by the idler detector, and the labels arrive over electrical pulses no faster than light. Flip the switch while the photons are in flight, or put the choice anywhere before or after the hit.",
+      "path": "viz/delay-eraser/",
+      "thumbnail": "viz/delay-eraser/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-01",
+      "tags": [
+        "量子擦除",
+        "延迟选择",
+        "符合计数",
+        "互补",
+        "光锥",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum eraser",
+        "delayed choice",
+        "coincidence counting",
+        "complementarity",
+        "light cones",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §5 路线记录与擦除 · §8 顺序事件",
+          "label_en": "Relational holographic representation of the wave–particle whole §5 route records and erasure · §8 sequential events",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "nonselective_recording_marginal",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/NonselectiveMarginalization.lean"
+        },
+        {
+          "label": "selective_record_conditioning",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Observer/Conditioning/SelectiveRecordConditioning.lean"
+        },
+        {
+          "label": "pure_record_distinguishability_coherence_complementarity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean"
+        },
+        {
+          "label": "local_observation_partial_trace_equivalence",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean"
+        }
+      ]
+    },
+    {
+      "id": "darwin-echo",
+      "code": "DARWIN//ECHO",
+      "title": "量子达尔文主义 · 事实的回声",
+      "title_en": "Quantum Darwinism · echoes of a fact",
+      "summary": "系统把自己的一个量一份一份写进环境。第一份完美副本写下之后，任何一小片碎片都恰好带着全部经典信息 H(p)，互不相识的观察者读各自的碎片就会一致；只有拿到整个环境才多出 H(p) 的量子关联。换记录规则就换了指针基；问互补的相位时，碎片一无所知——每份账本只有一种经典。",
+      "summary_en": "A system writes one of its quantities into the environment, copy by copy. From the first perfect copy on, any small fragment carries exactly the whole classical information H(p), and observers reading their own fragments agree; only the whole environment adds H(p) of quantum correlation. Changing the record rule changes the pointer basis; asking about the complementary phase, the fragments know nothing. One classical world per ledger.",
+      "path": "viz/darwin-echo/",
+      "thumbnail": "viz/darwin-echo/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-30",
+      "tags": [
+        "量子达尔文主义",
+        "退相干",
+        "指针基",
+        "冗余",
+        "单配",
+        "WebGL"
+      ],
+      "tags_en": [
+        "quantum Darwinism",
+        "decoherence",
+        "pointer basis",
+        "redundancy",
+        "monogamy",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者量子论 §5 经典性三层定理",
+          "label_en": "Observer quantum theory §5 three layers of classicality",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md"
+        },
+        {
+          "label": "GICT 定理 6.26 经典性三层定理",
+          "label_en": "GICT Theorem 6.26 three layers of classicality",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "orthogonal_record_trace_gives_sbs_consensus",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/OrthogonalRecordEntropy.lean"
+        },
+        {
+          "label": "coherent_copy_correlation_tax",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/CoherentCopyCorrelationTax.lean"
+        },
+        {
+          "label": "phase_damping_in_basis_fixed_iff",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PointerBasis.lean"
+        },
+        {
+          "label": "repeated_record_exponential_decay",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RepeatedRecordExponentialDecay.lean"
+        }
+      ]
+    },
+    {
+      "id": "friend-bell",
+      "code": "FRIEND//BELL",
+      "title": "Wigner 之友 · 贝尔竞技场",
+      "title_en": "Wigner’s friend in a Bell arena",
+      "summary": "朋友写下的结果作 CHSH 的一臂，Wigner 撤销朋友之后的相干测量作另一臂。量子比特朋友给出 2√2，超过任何“绝对事实答案表”都达不到的 2；朋友的记录副本越多、撤销越难，违背越小，真人朋友只剩 2。换参考系可以让 Wigner 或 Bob 先测，关联不变；两份结果只在汇合处才成为同一本账上的事实。",
+      "summary_en": "The friend’s written result is one arm of a CHSH test and Wigner’s coherent measurement after undoing the friend is the other. A qubit friend gives 2√2, beyond the 2 that no absolute answer table can exceed; the more copies of the friend’s record and the harder the undo, the smaller the violation, down to 2 for a human friend. Boosting to another frame lets Wigner or Bob measure first without changing the correlations, and the two results become facts in one ledger only where they meet.",
+      "path": "viz/friend-bell/",
+      "thumbnail": "viz/friend-bell/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-29",
+      "tags": [
+        "Wigner 之友",
+        "贝尔不等式",
+        "CHSH",
+        "账本相对事实",
+        "参考系",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Wigner’s friend",
+        "Bell inequality",
+        "CHSH",
+        "ledger-relative facts",
+        "reference frames",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "观察者量子论 §8 嵌套观察者与事实的账本相对性",
+          "label_en": "Observer quantum theory §8 nested observers and ledger-relative facts",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md"
+        },
+        {
+          "label": "GICT 观察 6.30 账本相对事实",
+          "label_en": "GICT Observation 6.30 ledger-relative facts",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "classical_chsh_bound_is_exact",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/ClassicalFiberBound.lean"
+        },
+        {
+          "label": "bell_chsh_state_expectation_is_greatest",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/TsirelsonTightness.lean"
+        },
+        {
+          "label": "landau_identity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/LandauIdentity.lean"
+        }
+      ]
+    },
+    {
+      "id": "cat-ledger",
+      "code": "CAT//LEDGER",
+      "title": "薛定谔的猫 · 账本时空块",
+      "title_en": "Schrödinger’s cat as a ledger spacetime",
+      "summary": "400 只盒子里的猫画成一块记录时空：计数器第一次响就是猫的死亡时刻。盒内账本随时写下事实，盒外账本到开箱才读到；改检查频率、衰变方式和暗态会改变历史，改开箱时刻、账本、钟和条件化只是读账，档案一个字节也不变。还可以调记录副本数看相干怎样消失，试一次 Wigner 撤销，并切换到只在写入记录时前进的账本钟。",
+      "summary_en": "Cats in 400 boxes drawn as one block of records: the counter’s first click is a cat’s death time. The inside ledger writes each fact as it happens and the outside ledger reads it only at opening. Changing the check interval, the decay coupling or the dark state changes the history; changing the opening time, the ledger, the clock or the conditioning only reads it, and the archive does not change by a byte. You can also vary the number of record copies to watch coherence vanish, try Wigner’s undo, and switch to a ledger clock that moves only when a record is written.",
+      "path": "viz/cat-ledger/",
+      "thumbnail": "viz/cat-ledger/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-29",
+      "tags": [
+        "薛定谔的猫",
+        "首次探测",
+        "账本相对事实",
+        "Wigner 撤销",
+        "账本钟",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Schrödinger’s cat",
+        "first detection",
+        "ledger-relative facts",
+        "Wigner’s undo",
+        "ledger clock",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §5 §8 §11–§13",
+          "label_en": "Relational holography of the wave–particle whole §5 §8 §11–§13",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        },
+        {
+          "label": "观察者量子论 §8 嵌套观察者 · §18.2 账本与时间",
+          "label_en": "Observer quantum theory §8 nested observers · §18.2 ledger and time",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "finite_detection_survival_limit",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean"
+        },
+        {
+          "label": "repeated_record_exponential_decay",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RepeatedRecordExponentialDecay.lean"
+        },
+        {
+          "label": "pure_record_distinguishability_coherence_complementarity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean"
+        },
+        {
+          "label": "word_probability_trace_representation",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/WordProbabilityTraceRepresentation.lean"
+        }
+      ]
+    },
+    {
+      "id": "chrono-slit",
+      "code": "CHRONO//SLIT",
+      "title": "双缝时空体",
+      "title_en": "Double-slit spacetime block",
+      "summary": "把双缝与延迟选择擦除的一次运行画成静态时空体。路径记录可以用 2 到 8 个读数的仪器读取，每个读数一个条件时空，它们相加总是同一个总体；还可以切换钟条件化、展开第四轴、交换读取顺序，并对时间做非线性重标。",
+      "summary_en": "One run of the double-slit and delayed-choice eraser drawn as a static spacetime block. The path record can be read by an instrument with 2 to 8 outcomes; each outcome defines a conditional spacetime, and together they always add up to the same whole. You can also switch clock conditioning, unfold a fourth axis, swap the read order and relabel time nonlinearly.",
+      "path": "viz/chrono-slit/",
+      "thumbnail": "viz/chrono-slit/thumb.jpg",
+      "status": "live",
+      "added": "2026-09-29",
+      "tags": [
+        "波粒",
+        "延迟选择",
+        "量子擦除",
+        "多结果读取",
+        "钟条件化",
+        "WebGL"
+      ],
+      "tags_en": [
+        "wave–particle",
+        "delayed choice",
+        "quantum eraser",
+        "multi-outcome readout",
+        "clock conditioning",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "波粒整体的关系全息表示 §3 §4 §5 §8 §24",
+          "label_en": "Relational holography of the wave–particle whole §3 §4 §5 §8 §24",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "pure_record_distinguishability_coherence_complementarity",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean"
+        }
+      ]
+    },
+    {
+      "id": "robin-lattice",
+      "code": "ROBIN//LATTICE",
+      "title": "Robin 证书着色 · 素数指数格上的点、边、面与纤维",
+      "title_en": "Robin certificate colouring · vertices, edges, faces and fibres of the prime-exponent lattice",
+      "summary": "把每个正整数放到素数指数格上：2、3、5 三个方向加一条 7 的斜向 κ 纤维，颜色是它的 Robin 证书——7-光滑与 11-光滑（已冻结）、素数替换压缩（已冻结）、5040 黄金最优界、边检验，或者只有数值。边按 log m 着长度、按 Robin 势的变化着颜色；沿素数纤维看首层边检验一次通过就管住整条纤维（已冻结），也看它在 27440·11 处失败而 Robin 仍成立；面上读混合差，连续松弛给出最优指数 p^{a+1} = T。最后数遍 (5040, 10⁶]：99.935% 有证书，剩下的前沿是至少六个不同素因子的数，最小 30030——这不是黎曼猜想的证明。",
+      "summary_en": "Every positive integer sits on the prime-exponent lattice: directions 2, 3, 5 and a diagonal κ-fibre for 7, coloured by its Robin certificate — 7-smooth and 11-smooth (frozen), prime-replacement compression (frozen), the 5040 golden optimum, the edge test, or numbers only. Edges carry the length log m and the change of Robin potential; along a prime fibre a passing first-layer edge test controls the whole fibre (frozen), and the page shows it failing at 27440·11 while Robin still holds. Faces read the mixed difference, and the continuous relaxation gives the optimal exponents p^{a+1} = T. The last view counts (5040, 10⁶]: 99.935% is certified and the frontier left is integers with at least six distinct primes, the smallest 30030 — this is not a proof of the Riemann hypothesis.",
+      "path": "viz/robin-lattice/",
+      "thumbnail": "viz/robin-lattice/thumb.jpg",
+      "status": "live",
+      "added": "2026-10-11",
+      "tags": [
+        "Robin 判据",
+        "约数和",
+        "素数格",
+        "证书",
+        "WebGL"
+      ],
+      "tags_en": [
+        "Robin criterion",
+        "divisor sums",
+        "prime lattice",
+        "certificates",
+        "WebGL"
+      ],
+      "theory": [
+        {
+          "label": "FIB-ATOM 与 Robin 的约数尺度几何",
+          "label_en": "FIB-ATOM and Robin: divisor-scale geometry",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ROBIN_DIVISOR_SCALE_GEOMETRY.md"
+        },
+        {
+          "label": "AURIC FIB-ATOM 的隐藏坐标、κ-荷与 5040 编码",
+          "label_en": "AURIC FIB-ATOM hidden coordinates, κ-charge and the 5040 encoding",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_KAPPA_CHARGE_EXPONENT_FIBERS_AND_GOLDEN_NORM_READOUT.md"
+        }
+      ],
+      "lean": [
+        {
+          "label": "SevenSmooth.robin_seven_smooth",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/SevenSmooth.lean"
+        },
+        {
+          "label": "ElevenSmooth.robin_eleven_smooth",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/ElevenSmooth.lean"
+        },
+        {
+          "label": "PrimeFiberPropagation.robinAt_prime_replace",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/PrimeFiberPropagation.lean"
+        },
+        {
+          "label": "PrimeFiberPropagation.robinAt_mul_prime_pow",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/PrimeFiberPropagation.lean"
+        },
+        {
+          "label": "GoldenResourceOptimalInteger.golden_resource_unique_optimum",
+          "href": "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/GoldenResourceOptimalInteger.lean"
+        }
+      ]
+    }
+  ]
+}

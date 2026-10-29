@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="EXPLICIT//FORMULA · Rebuilding the primes from the zeros of ζ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EXPLICIT//FORMULA 显式公式 · 用 ζ 的零点重建素数</title>
+<meta name="description" content="显式公式把素数和黎曼 ζ 函数的零点写进同一条等式：一边是素数幂的和，一边是零点的和。页面用前一万个零点逐个叠加，看素数的台阶和尖峰怎样从波里长出来；再看 Weil 正性为什么等价于黎曼猜想，以及一个离开临界线的零点会怎样破坏它。The explicit formula puts the primes and the zeros of the Riemann zeta function into one identity: a sum over prime powers on one side, a sum over zeros on the other. The page adds the first ten thousand zeros one by one and watches the staircase and the spikes of the primes grow out of the waves; then it shows why Weil positivity is equivalent to the Riemann hypothesis, and how a single zero off the critical line would break it.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="explicit-formula">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="EXPLICIT//FORMULA">EXPLICIT<b>//</b>FORMULA</h1>
+      <div class="tagline">
+        <span class="zh">显式公式 · 用 ζ 的零点重建素数 · <em>素数的台阶，是零点的波叠出来的</em></span>
+        <span class="en">The explicit formula · rebuilding the primes from the zeros of ζ · <em>the staircase of the primes is a sum of waves, one per zero</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillK">ZEROS <strong>0</strong></span>
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillRH">RH <strong>OPEN</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="psi30" aria-pressed="false"><span class="code">ψ ≤ 30</span><span class="cn zh">素数台阶 · 前几百个零点</span><span class="cn en">Prime staircase · a few hundred zeros</span></button>
+        <button class="preset" data-preset="psi100" aria-pressed="false"><span class="code">ψ ≤ 100</span><span class="cn zh">更长的台阶 · 两千个零点</span><span class="cn en">A longer staircase · two thousand zeros</span></button>
+        <button class="preset" data-preset="spikes" aria-pressed="true"><span class="code">SPIKES</span><span class="cn zh">素数探测器 · 一万个零点</span><span class="cn en">Prime detector · ten thousand zeros</span></button>
+        <button class="preset" data-preset="blur" aria-pressed="false"><span class="code">BLUR</span><span class="cn zh">宽的检验函数 · 零点少也够</span><span class="cn en">A wide test function · few zeros suffice</span></button>
+        <button class="preset" data-preset="balance" aria-pressed="false"><span class="code">BALANCE</span><span class="cn zh">等式两边逐项对账</span><span class="cn en">Both sides, term by term</span></button>
+        <button class="preset" data-preset="square" aria-pressed="false"><span class="code">WEIL ≥ 0</span><span class="cn zh">平方检验函数 · 每项非负</span><span class="cn en">A square test · every term ≥ 0</span></button>
+        <button class="preset" data-preset="offline" aria-pressed="false"><span class="code">OFF-LINE</span><span class="cn zh">假设一个零点离线 · 和变负</span><span class="cn en">If a zero left the line · the sum turns negative</span></button>
+        <button class="preset" data-preset="count" aria-pressed="false"><span class="code">N(T)</span><span class="cn zh">数零点 · 一万个</span><span class="cn en">Counting zeros · ten thousand</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">公式</span><span class="en">Formula</span><span class="aside">Σ<sub>ρ</sub> ↔ Σ<sub>p</sub></span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="公式" data-aria-en="Formula">
+        <button class="chip" data-mode="psi"><span class="zh">ψ(x) 台阶</span><span class="en">ψ(x) staircase</span></button>
+        <button class="chip" data-mode="spikes"><span class="zh">素数探测器</span><span class="en">Prime detector</span></button>
+        <button class="chip" data-mode="balance"><span class="zh">两边对账</span><span class="en">Balance</span></button>
+        <button class="chip" data-mode="square"><span class="zh">Weil 正性</span><span class="en">Weil positivity</span></button>
+        <button class="chip" data-mode="offline"><span class="zh">离线零点（假设）</span><span class="en">Off-line zero (hypothetical)</span></button>
+        <button class="chip" data-mode="count"><span class="zh">零点计数</span><span class="en">Zero count</span></button>
+      </div>
+      <div class="field" id="xField">
+        <label for="xx"><span class="zh">x 的范围上限 X</span><span class="en">Upper end X of the x range</span></label><output id="oX" for="xx">30</output>
+        <input type="range" id="xx" min="20" max="200" step="10" value="30">
+      </div>
+      <div class="field" id="epsField" hidden>
+        <label for="eps"><span class="zh">尖峰半宽 ε（检验函数的宽度）</span><span class="en">Spike half-width ε (width of the test function)</span></label><output id="oEps" for="eps">0.06</output>
+        <input type="range" id="eps" min="0.03" max="0.3" step="0.01" value="0.06">
+      </div>
+      <div class="field" id="lField" hidden>
+        <label for="ll"><span class="zh">检验函数支撑半宽 L</span><span class="en">Support half-width L of the test function</span></label><output id="oL" for="ll">3</output>
+        <input type="range" id="ll" min="0.5" max="6" step="0.1" value="3">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="临界带：零点是临界线 σ = 1/2 上的点，竖线高度是它在当前公式里的权重；右侧每条波是一个零点的贡献，最前面是它们的总和与素数一侧；拖动旋转，滚轮缩放" data-aria-en="The critical strip: zeros are points on the critical line σ = 1/2 and each stem is the weight of that zero in the current formula; each wave on the right is the contribution of one zero, and the front shows their sum against the prime side; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前公式的主图：素数一侧（灰）与用 K 个零点算出的零点一侧（青）" data-aria-en="Main chart of the current formula: the prime side (grey) against the zero side computed from K zeros (cyan)"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="辅助图：误差、各零点的权重、等式各项或零点计数的涨落" data-aria-en="Side chart: the error, the weight of each zero, the terms of the identity, or the fluctuation of the zero count"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">ρ = ½ + iγ</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Weil 显式公式：偶的、光滑、紧支撑的检验函数 g，零点和 Σ<sub>ρ</sub> ĝ(γ<sub>ρ</sub>) 等于极点项 − 素数项 + 阿基米德项，两个收敛条件都已证明，已冻结：</span><span class="en">The Weil explicit formula: for every even, smooth, compactly supported test function g, the zero sum Σ<sub>ρ</sub> ĝ(γ<sub>ρ</sub>) equals the pole term − the prime term + the archimedean term, with both convergence conditions proved; frozen:</span> <code>ClassicExplicitFormula.weil_explicit_formula</code> · <code>UnconditionalExplicitFormula.explicitFormula_unconditional</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">ζ 有无穷多个非平凡零点（由显式公式推出），所以上面公式里的零点数据确实存在，已冻结：</span><span class="en">ζ has infinitely many nontrivial zeros (derived from the explicit formula), so the zero data in the formula above exists; frozen:</span> <code>ExplicitFormulaObstruction.isNontrivialZero_infinite</code> · <code>ExplicitFormulaObstruction.nonempty_zeroData</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Weil 判据：黎曼猜想成立，当且仅当对每个检验函数 f，平方 g = f ∗ f̃ 的素数一侧（极点项 − 素数项 + 阿基米德项）都 ≥ 0，已冻结：</span><span class="en">Weil’s criterion: the Riemann hypothesis holds if and only if, for every test function f, the prime side (pole − prime + archimedean) of the square g = f ∗ f̃ is ≥ 0; frozen:</span> <code>ExplicitFormulaWeilCriterion.rh_iff_explicitFormulaPositivity</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">只要有一个非实的零点不在临界线上，就存在一个平方检验函数，它的零点和严格小于 0，已冻结：</span><span class="en">If a single nonreal zero lies off the critical line, some square test function has a strictly negative zero sum; frozen:</span> <code>OffLineNonrealZeroNegativeWeilSquare.offLineNonrealZero_yields_negative_weil_square</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">带误差项的素数定理：存在 c &gt; 0，使 ψ(x) − x = O(x·exp(−c(log x)<sup>1/10</sup>))，已冻结：</span><span class="en">The prime number theorem with an error term: for some c &gt; 0, ψ(x) − x = O(x·exp(−c(log x)<sup>1/10</sup>)); frozen:</span> <code>MediumPNT.MediumPNT</code></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">黎曼猜想：所有非平凡零点都在 σ = 1/2 上。未解决。数值上，前 3·10<sup>12</sup> 个零点都已验证在线上（Platt、Trudgian，2021）；本页用的前一万个零点也都在线上。</span><span class="en">The Riemann hypothesis: every nontrivial zero lies on σ = 1/2. Unsolved. Numerically, the first 3·10<sup>12</sup> zeros have been verified to lie on the line (Platt and Trudgian, 2021); so do the first ten thousand used on this page.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">ψ(x) 的经典显式公式（von Mangoldt，1895）与零点计数公式 N(T) = (T/2π)log(T/2π) − T/2π + 7/8 + S(T) + O(1/T)（von Mangoldt，1905）。本库没有形式化这两条的原始形式；页面直接用零点数值计算。</span><span class="en">The classical explicit formula for ψ(x) (von Mangoldt, 1895) and the zero-counting formula N(T) = (T/2π)log(T/2π) − T/2π + 7/8 + S(T) + O(1/T) (von Mangoldt, 1905). This library has not formalized these two in their original form; the page computes them from the numerical zeros.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：用了多少个零点（离线模式下为偏离 δ，计数模式下为高度 T）" data-aria-en="Progress: how many zeros are used (the offset δ in the off-line mode, the height T in the count mode)">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾（用上全部零点）</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end (all zeros)</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">黎曼 ζ 函数的非平凡零点写成 ρ = ½ + iγ（目前算到的都在临界线 σ = ½ 上）。显式公式是一条等式：一边是对素数幂求和，一边是对零点求和。每个零点贡献一个频率为 γ 的波；把越来越多的波叠起来，素数就从波里显现出来。三维视图里，左边的带子是临界带 0 ≤ σ ≤ 1，零点是线 σ = ½ 上的点，竖线是它在当前公式里的权重；右边每条波是一个零点的贡献，最前面一条是总和（琥珀）与素数一侧（白）。</p>
+      <ol>
+        <li><b>素数的台阶（经典，文献）。</b>切比雪夫函数 ψ(x) = Σ<sub>p<sup>k</sup> ≤ x</sub> log p 在每个素数幂处跳一级。von Mangoldt 证明，x &gt; 1 且不是素数幂时，ψ(x) = x − Σ<sub>ρ</sub> x<sup>ρ</sup>/ρ − log 2π − ½ log(1 − x<sup>−2</sup>)，零点按 |γ| 由小到大求和（<a href="https://doi.org/10.1515/crll.1895.114.255" target="_blank" rel="noopener">J. reine angew. Math. 114, 255 (1895)</a>）。每对 ρ、ρ̄ 贡献 −2Re(x<sup>ρ</sup>/ρ)，振幅约 2√x/γ。页面用前 K 对零点画出右边，看它怎样逼近台阶（跳跃处有 Gibbs 振荡）。</li>
+        <li><b>Weil 的形式（已冻结）。</b>取偶的、光滑、紧支撑的检验函数 g，记 ĝ(z) = ∫ g(x) e<sup>−izx</sup> dx，则 Σ<sub>ρ</sub> m<sub>ρ</sub> ĝ(γ<sub>ρ</sub>) = ĝ(i/2) + ĝ(−i/2) − Σ<sub>n</sub> Λ(n) n<sup>−1/2</sup> (g(log n) + g(−log n)) + (1/2π) ∫ ĝ(t) (Re (Γ′/Γ)(¼ + it/2) − log π) dt，零点和按对称截断 |γ| ≤ T → ∞ 取极限（<code>ClassicExplicitFormula.weil_explicit_formula</code>）。两个收敛前提都已证明，得到无条件版本（<code>UnconditionalExplicitFormula.explicitFormula_unconditional</code>）。公式里的零点数据确实存在，因为 ζ 有无穷多个非平凡零点（<code>ExplicitFormulaObstruction.isNontrivialZero_infinite</code>）。公式本身归功于 Weil（Comm. Sém. Math. Univ. Lund, 1952）。“两边对账”模式用 g(x) = φ(x/L)，φ(u) = e<sup>−1/(1−u²)</sup>，把三项与零点部分和逐项算出来。</li>
+        <li><b>素数探测器。</b>取 g<sub>a</sub>(x) = φ((x − a)/ε) + φ((x + a)/ε)：两个宽 ε 的小鼓包放在 ±a。代入冻结的等式，素数项只在 a 靠近某个 log n 时不为零，于是 素数项(a) = 极点项(a) + 阿基米德项(a) − 零点和(a)。右边只用零点和两个光滑项算出来；把它乘以 e·e<sup>a/2</sup>/2，在 a = log p<sup>k</sup> 处的峰高约为 log p。零点越多，尖峰越清楚；ε 越小，需要的零点越多。</li>
+        <li><b>正性与黎曼猜想（已冻结的等价）。</b>取平方 g = f ∗ f̃，则 ĝ = |f̂|²，线上的每个零点贡献 |f̂(γ)|² ≥ 0。冻结定理：黎曼猜想成立，当且仅当所有这种平方的素数一侧都 ≥ 0（<code>ExplicitFormulaWeilCriterion.rh_iff_explicitFormulaPositivity</code>）；反过来，只要有一个非实零点离开临界线，就存在一个零点和为负的平方（<code>OffLineNonrealZeroNegativeWeilSquare.offLineNonrealZero_yields_negative_weil_square</code>）。黎曼猜想本身仍未解决。</li>
+        <li><b>离线零点（模型，不是事实）。</b>页面假设第一个零点 γ₁ 离开临界线。由函数方程与共轭对称，它必须成对出现在 ½ ± δ + iγ₁。取 f(x) = x sin(γ₁x) φ(x/L)，这一对的贡献是 4 Re f̂(γ₁ − iδ)²，δ 稍大于 0 就是负数，并且压过其余零点的正贡献。这只是一个假想的零点集合：真实的零点数据里没有这样的零点，页面也只展示这一个检验函数。</li>
+        <li><b>数零点（文献）。</b>N(T) 是 0 &lt; γ ≤ T 的零点个数。von Mangoldt 证明 N(T) = θ(T)/π + 1 + S(T)，其中 θ 是 Riemann–Siegel θ 函数，S(T) = O(log T)（<a href="https://doi.org/10.1007/BF01447494" target="_blank" rel="noopener">Math. Ann. 60, 1 (1905)</a>）。页面画出 N(T) 与光滑项，以及涨落 S(T)。</li>
+        <li><b>带误差项的素数定理（已冻结）。</b>ψ(x) − x = O(x·exp(−c(log x)<sup>1/10</sup>))（<code>MediumPNT.MediumPNT</code>）。经典的 de la Vallée Poussin 误差项 exp(−c√log x) 更强，本库没有形式化那一版。</li>
+        <li><b>模型边界。</b>零点数据取自 Odlyzko 的表，前一万个，精确到 3·10<sup>−9</sup>（<a href="https://www-users.cse.umn.edu/~odlyzko/zeta_tables/" target="_blank" rel="noopener">zeta_tables</a>）；它们都在线上、都是单零点，这是数值事实（Platt、Trudgian，<a href="https://doi.org/10.1112/blms.12460" target="_blank" rel="noopener">Bull. London Math. Soc. 53, 792 (2021)</a>），不是本库的定理。页面上的零点和都在第 K 个零点处截断；“两边相差 10<sup>−10</sup>”是数值读数，定理来自冻结证明。积分用数值求积。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/ClassicExplicitFormula.lean" target="_blank" rel="noopener">ClassicExplicitFormula.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/UnconditionalExplicitFormula.lean" target="_blank" rel="noopener">UnconditionalExplicitFormula.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZeroInfinitude/ExplicitFormulaObstruction.lean" target="_blank" rel="noopener">ExplicitFormulaObstruction.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/ExplicitFormulaWeilCriterion.lean" target="_blank" rel="noopener">ExplicitFormulaWeilCriterion.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/OffLineNonrealZeroNegativeWeilSquare.lean" target="_blank" rel="noopener">OffLineNonrealZeroNegativeWeilSquare.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/PrimeNumberTheorem/MediumPNT.lean" target="_blank" rel="noopener">MediumPNT.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The nontrivial zeros of the Riemann zeta function are written ρ = ½ + iγ (all computed so far lie on the critical line σ = ½). The explicit formula is an identity: a sum over prime powers on one side, a sum over zeros on the other. Each zero contributes a wave of frequency γ; stack more and more waves and the primes emerge from them. In the 3D view the band on the left is the critical strip 0 ≤ σ ≤ 1, zeros are points on the line σ = ½, and each stem is the weight of that zero in the current formula; each wave on the right is the contribution of one zero, and the front line is their sum (amber) against the prime side (white).</p>
+      <ol>
+        <li><b>The staircase of the primes (classical, literature).</b> The Chebyshev function ψ(x) = Σ<sub>p<sup>k</sup> ≤ x</sub> log p steps up at every prime power. Von Mangoldt proved that for x &gt; 1 not a prime power, ψ(x) = x − Σ<sub>ρ</sub> x<sup>ρ</sup>/ρ − log 2π − ½ log(1 − x<sup>−2</sup>), the zeros summed in order of |γ| (<a href="https://doi.org/10.1515/crll.1895.114.255" target="_blank" rel="noopener">J. reine angew. Math. 114, 255 (1895)</a>). Each pair ρ, ρ̄ contributes −2Re(x<sup>ρ</sup>/ρ), of amplitude about 2√x/γ. The page draws the right-hand side with the first K pairs and watches it approach the staircase (with Gibbs ripples at the jumps).</li>
+        <li><b>Weil’s form (frozen).</b> For an even, smooth, compactly supported test function g, with ĝ(z) = ∫ g(x) e<sup>−izx</sup> dx, Σ<sub>ρ</sub> m<sub>ρ</sub> ĝ(γ<sub>ρ</sub>) = ĝ(i/2) + ĝ(−i/2) − Σ<sub>n</sub> Λ(n) n<sup>−1/2</sup> (g(log n) + g(−log n)) + (1/2π) ∫ ĝ(t) (Re (Γ′/Γ)(¼ + it/2) − log π) dt, the zero sum taken as the limit of the symmetric cutoff |γ| ≤ T → ∞ (<code>ClassicExplicitFormula.weil_explicit_formula</code>). Both convergence premises are proved, giving the unconditional version (<code>UnconditionalExplicitFormula.explicitFormula_unconditional</code>). The zero data in the formula exists because ζ has infinitely many nontrivial zeros (<code>ExplicitFormulaObstruction.isNontrivialZero_infinite</code>). The formula itself is due to Weil (Comm. Sém. Math. Univ. Lund, 1952). The balance mode uses g(x) = φ(x/L) with φ(u) = e<sup>−1/(1−u²)</sup> and computes the three terms and the partial zero sums one by one.</li>
+        <li><b>A prime detector.</b> Take g<sub>a</sub>(x) = φ((x − a)/ε) + φ((x + a)/ε): two bumps of width ε placed at ±a. Put it into the frozen identity: the prime term is nonzero only when a is near some log n, so prime term(a) = pole term(a) + archimedean term(a) − zero sum(a). The right-hand side uses only the zero sum and two smooth terms; multiplied by e·e<sup>a/2</sup>/2, its peak at a = log p<sup>k</sup> has height about log p. More zeros give sharper spikes; a smaller ε needs more zeros.</li>
+        <li><b>Positivity and the Riemann hypothesis (a frozen equivalence).</b> For a square g = f ∗ f̃, ĝ = |f̂|², so every zero on the line contributes |f̂(γ)|² ≥ 0. Frozen theorem: the Riemann hypothesis holds if and only if the prime side of every such square is ≥ 0 (<code>ExplicitFormulaWeilCriterion.rh_iff_explicitFormulaPositivity</code>); conversely, a single nonreal zero off the critical line yields a square with a negative zero sum (<code>OffLineNonrealZeroNegativeWeilSquare.offLineNonrealZero_yields_negative_weil_square</code>). The Riemann hypothesis itself remains unsolved.</li>
+        <li><b>An off-line zero (a model, not a fact).</b> The page supposes that the first zero γ₁ leaves the critical line. By the functional equation and conjugate symmetry it must then appear as a pair at ½ ± δ + iγ₁. With f(x) = x sin(γ₁x) φ(x/L), the pair contributes 4 Re f̂(γ₁ − iδ)², which is negative as soon as δ is a little above 0 and outweighs the positive contributions of all other zeros. This is a hypothetical zero set: the real zero data contains no such zero, and the page shows this one test function only.</li>
+        <li><b>Counting zeros (literature).</b> N(T) is the number of zeros with 0 &lt; γ ≤ T. Von Mangoldt proved N(T) = θ(T)/π + 1 + S(T), where θ is the Riemann–Siegel theta function and S(T) = O(log T) (<a href="https://doi.org/10.1007/BF01447494" target="_blank" rel="noopener">Math. Ann. 60, 1 (1905)</a>). The page draws N(T) against the smooth term, and the fluctuation S(T).</li>
+        <li><b>The prime number theorem with an error term (frozen).</b> ψ(x) − x = O(x·exp(−c(log x)<sup>1/10</sup>)) (<code>MediumPNT.MediumPNT</code>). The classical de la Vallée Poussin error term exp(−c√log x) is stronger; this library has not formalized that version.</li>
+        <li><b>Model limits.</b> The zero data is the first ten thousand zeros from Odlyzko’s tables, accurate to 3·10<sup>−9</sup> (<a href="https://www-users.cse.umn.edu/~odlyzko/zeta_tables/" target="_blank" rel="noopener">zeta_tables</a>); that they all lie on the line and are simple is a numerical fact (Platt and Trudgian, <a href="https://doi.org/10.1112/blms.12460" target="_blank" rel="noopener">Bull. London Math. Soc. 53, 792 (2021)</a>), not a theorem of this library. Every zero sum on the page is cut off at the K-th zero; “the two sides differ by 10<sup>−10</sup>” is a numerical reading, and the theorem comes from the frozen proof. Integrals use numerical quadrature.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/ClassicExplicitFormula.lean" target="_blank" rel="noopener">ClassicExplicitFormula.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/UnconditionalExplicitFormula.lean" target="_blank" rel="noopener">UnconditionalExplicitFormula.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZeroInfinitude/ExplicitFormulaObstruction.lean" target="_blank" rel="noopener">ExplicitFormulaObstruction.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/Separator/ExplicitFormulaWeilCriterion.lean" target="_blank" rel="noopener">ExplicitFormulaWeilCriterion.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/ZetaBridge/OffLineNonrealZeroNegativeWeilSquare.lean" target="_blank" rel="noopener">OffLineNonrealZeroNegativeWeilSquare.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Weil/PrimeNumberTheorem/MediumPNT.lean" target="_blank" rel="noopener">MediumPNT.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="zeros.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

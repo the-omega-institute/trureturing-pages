@@ -1,0 +1,87 @@
+/* ROBIN//LATTICE layout: control deck | lattice view over the main chart and the side chart | readout column.
+   Shared pieces (panels, chips, stage HUD, drawer) come from assets/theme.css. */
+body { overflow: hidden; }
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr) minmax(280px, 330px);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  padding-block: 10px;
+  padding-inline: var(--gutter);
+}
+header.top { grid-column: 1 / -1; }
+
+.presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.preset {
+  text-align: left; border: 1px solid var(--line-hot); background: rgba(10, 24, 38, 0.6); cursor: pointer; padding: 6px 8px;
+  display: flex; flex-direction: column; gap: 1px; color: var(--ink); font: inherit;
+}
+.preset .code { font-family: var(--font-display); font-weight: 600; font-size: 11px; letter-spacing: 0.08em; color: var(--cyan); }
+.preset .cn { font-size: 12.5px; color: var(--ink); }
+.preset:hover { border-color: var(--cyan); }
+.preset[aria-pressed="true"] { border-color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber), 0 0 14px rgba(255, 200, 61, 0.25); }
+.preset[aria-pressed="true"] .code { color: var(--amber); }
+
+#modeChips .chip, #edgeChips .chip, #pChips .chip, #fqChips .chip { text-transform: none; }
+.field .lbl { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink); }
+.field .chips { grid-column: 1 / -1; }
+.nfield .nrow { grid-column: 1 / -1; display: flex; gap: 6px; }
+.nfield input {
+  flex: 1; min-width: 0; background: rgba(2, 6, 12, 0.8); border: 1px solid var(--line-hot); color: var(--amber);
+  font-family: var(--font-data); font-size: 13px; padding: 4px 8px;
+}
+.nfield input:focus { outline: none; border-color: var(--amber); }
+.nerr { grid-column: 1 / -1; color: var(--warn); font-size: 11px; min-height: 0; }
+.nerr:empty { display: none; }
+
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--ink); }
+.legend li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 8px; align-items: start; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-top: 3px; }
+.sw.lean { background: var(--ok); box-shadow: 0 0 8px rgba(70, 255, 178, 0.6); }
+.sw.chain { background: var(--cyan); box-shadow: 0 0 8px rgba(25, 240, 255, 0.5); }
+.sw.bound { background: #9d8cff; }
+.sw.edge { background: var(--magenta); }
+.sw.num { background: var(--dim); }
+.sw.out { background: var(--faint); border: 1px solid var(--dim); }
+
+.lean.lit { border-color: rgba(255, 200, 61, 0.4); }
+.lean.lit .ok { color: var(--amber); }
+.lean.theory { border-color: rgba(157, 140, 255, 0.45); }
+.lean.theory .ok { color: #9d8cff; }
+.lean a { color: var(--cyan); }
+.note { overflow-wrap: anywhere; }
+.note.cert { color: var(--ink); font-size: 12px; line-height: 1.55; }
+.note.cert b { color: var(--amber); }
+.note.cert code { font-family: var(--font-data); font-size: 11px; color: var(--ok); }
+dl.ro div.wide { grid-column: 1 / -1; }
+dl.ro dd small { font-size: 11px; color: var(--dim); }
+
+.tag.raw { text-transform: none; letter-spacing: 0.04em; font-family: var(--font-data); }
+.tag.sel { color: var(--amber); font-size: 12px; }
+.tag.ax { color: var(--dim); font-size: 10.5px; }
+
+.center { display: grid; grid-template-rows: minmax(0, 1fr) 200px; gap: 10px; min-height: 0; min-width: 0; }
+.strip { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 10px; min-height: 0; }
+.strip .panel { display: flex; flex-direction: column; min-height: 0; }
+.strip .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 7px 12px 0; flex-wrap: wrap; }
+.strip .head h2 { margin: 0; font-family: var(--font-display); font-size: 11.5px; letter-spacing: 0.12em; color: var(--cyan); font-weight: 600; }
+.strip .head span { font-family: var(--font-data); font-size: 11px; color: var(--dim); }
+.strip canvas { flex: 1; min-height: 0; width: 100%; display: block; }
+
+@media (max-width: 1080px) {
+  html, body { height: auto; }
+  body { overflow: auto; }
+  .app { height: auto; grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  header.top { order: 0; }
+  .center { order: 1; grid-template-rows: minmax(320px, 58vh) auto; }
+  .side { order: 2; overflow: visible; }
+  .deck { order: 3; overflow: visible; }
+  .strip { grid-template-columns: minmax(0, 1fr); }
+  .strip canvas { height: 200px; flex: none; }
+  .hud-tr { max-width: calc(100% - 24px); top: auto; bottom: 12px; right: 12px; left: 12px; justify-content: flex-start; }
+  .toast { top: 58px; bottom: auto; font-size: 11.5px; padding: 6px 10px; }
+}
+@media (max-width: 520px) {
+  .presets { grid-template-columns: 1fr; }
+}

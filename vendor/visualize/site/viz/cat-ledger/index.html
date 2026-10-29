@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="CAT//LEDGER · Schrödinger’s cat as a ledger spacetime">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CAT//LEDGER 薛定谔的猫 · 账本时空块</title>
+<meta name="description" content="把薛定谔的猫画成一块记录时空：盒内与盒外两本账、开箱时刻、检查频率、暗态分支、记录副本与 Wigner 撤销。Schrödinger’s cat as a block of records: inside and outside ledgers, opening time, check interval, dark branch, record copies and Wigner’s undo.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="cat-ledger">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="CAT//LEDGER">CAT<b>//</b>LEDGER</h1>
+      <div class="tagline">
+        <span class="zh">薛定谔的猫 · 账本时空块 · <em>猫的死活是一条记录；开箱只是读账</em></span>
+        <span class="en">Schrödinger’s cat as a block of records · <em>the fate is a record; opening the box only reads it</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillMode">MODE <strong>LINEAR</strong></span>
+      <span class="pill" id="pillLedger">LEDGER <strong>OUT</strong></span>
+      <span class="pill" id="pillClock">CLOCK <strong>LAB</strong></span>
+      <span class="pill hot" id="pillHash">ARCHIVE <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="classic" aria-pressed="true"><span class="code">CLASSIC</span><span class="cn zh">经典猫</span><span class="cn en">Classic cat</span></button>
+        <button class="preset" data-preset="early" aria-pressed="false"><span class="code">EARLY-OPEN</span><span class="cn zh">提前开箱</span><span class="cn en">Open early</span></button>
+        <button class="preset" data-preset="zeno" aria-pressed="false"><span class="code">ZENO</span><span class="cn zh">频繁检查 · 芝诺</span><span class="cn en">Frequent checks · Zeno</span></button>
+        <button class="preset" data-preset="sparse" aria-pressed="false"><span class="code">SPARSE</span><span class="cn zh">稀疏检查</span><span class="cn en">Sparse checks</span></button>
+        <button class="preset" data-preset="dark" aria-pressed="false"><span class="code">DARK</span><span class="cn zh">暗态 · 永生分支</span><span class="cn en">Dark state · immortal branch</span></button>
+        <button class="preset" data-preset="qubit" aria-pressed="false"><span class="code">QUBIT-CAT</span><span class="cn zh">量子比特猫</span><span class="cn en">Qubit cat</span></button>
+        <button class="preset" data-preset="wigner" aria-pressed="false"><span class="code">WIGNER</span><span class="cn zh">Wigner 撤销</span><span class="cn en">Wigner’s undo</span></button>
+        <button class="preset" data-preset="macro" aria-pressed="false"><span class="code">MACRO-UNDO</span><span class="cn zh">宏观猫的撤销</span><span class="cn en">Undoing a real cat</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">形成记录的观测</span><span class="en">Observations that write</span><span class="aside zh">会改档案</span><span class="aside en">change the archive</span></h2>
+      <div class="chips" id="couplingChips" role="group" aria-label="衰变方式" data-aria-en="Decay coupling">
+        <button class="chip" data-coupling="0" aria-pressed="true"><span class="zh">马尔可夫衰变</span><span class="en">Markov decay</span></button>
+        <button class="chip" data-coupling="1" aria-pressed="false"><span class="zh">相干耦合</span><span class="en">Coherent coupling</span></button>
+      </div>
+      <div class="field">
+        <label for="dt"><span class="zh">检查间隔 Δt</span><span class="en">Check interval Δt</span><small class="zh">盖革计数器每隔 Δt 看一次</small><small class="en">the counter looks every Δt</small></label><output id="oDt" for="dt">1.00 min</output>
+        <input type="range" id="dt" min="0" max="1" step="0.005" value="0.5">
+      </div>
+      <div class="field">
+        <label for="dark"><span class="zh">暗态权重 w</span><span class="en">Dark weight w</span><small class="zh">永远不会被探测到的分量</small><small class="en">the part no check can ever detect</small></label><output id="oDark" for="dark">0.00</output>
+        <input type="range" id="dark" min="0" max="0.6" step="0.01" value="0">
+      </div>
+      <p class="note" id="writeNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">只读记录的观测</span><span class="en">Observations that only read</span><span class="aside zh">档案不变</span><span class="aside en">archive unchanged</span></h2>
+      <div class="field">
+        <label for="open"><span class="zh">开箱时刻 t<sub>open</sub></span><span class="en">Opening time t<sub>open</sub></span><small class="zh">盒外观察者读记录</small><small class="en">the outside observer reads</small></label><output id="oOpen" for="open">60.0 min</output>
+        <input type="range" id="open" min="0" max="60" step="0.5" value="60">
+      </div>
+      <div class="chips" id="ledgerChips" role="group" aria-label="账本" data-aria-en="Ledger">
+        <button class="chip" data-ledger="0" aria-pressed="false"><span class="zh">盒内账本 · 猫与计数器</span><span class="en">Inside · cat and counter</span></button>
+        <button class="chip" data-ledger="1" aria-pressed="true"><span class="zh">盒外账本 · 观察者</span><span class="en">Outside · the observer</span></button>
+      </div>
+      <p class="note" id="readNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">顺序概率的迹表示 p(w) = Tr(ρ<sub>0</sub>F<sub>w</sub>) 已冻结：</span><span class="en">The trace form of sequential probabilities, p(w) = Tr(ρ<sub>0</sub>F<sub>w</sub>), is frozen:</span> <code>word_probability_trace_representation</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">记录副本与撤销</span><span class="en">Record copies and undo</span><span class="aside">κ = c<sup>M</sup></span></h2>
+      <div class="field">
+        <label for="copies"><span class="zh">记录副本数 M</span><span class="en">Record copies M</span><small class="zh">计数器、毒药瓶、猫的身体、空气……</small><small class="en">counter, vial, the cat’s body, air…</small></label><output id="oCopies" for="copies">10²³</output>
+        <input type="range" id="copies" min="0" max="15" step="1" value="15">
+      </div>
+      <div class="field">
+        <label for="overlap"><span class="zh">单份重叠 c</span><span class="en">Overlap per copy c</span><small class="zh">一份副本的“活”版与“死”版有多像</small><small class="en">how alike one copy’s alive and dead versions are</small></label><output id="oOverlap" for="overlap">0.500</output>
+        <input type="range" id="overlap" min="0" max="0.999" step="0.001" value="0.5">
+      </div>
+      <div class="field">
+        <label for="fid"><span class="zh">反演保真度 f</span><span class="en">Reversal fidelity f</span><small class="zh">每份副本被相干反演回去的程度</small><small class="en">how well each copy is coherently reversed</small></label><output id="oFid" for="fid">0.999</output>
+        <input type="range" id="fid" min="0" max="1" step="0.001" value="0.333">
+      </div>
+      <button class="chip undo" id="undoBtn" aria-pressed="false"><span class="zh">Wigner 撤销 · 在此刻反演全部副本</span><span class="en">Wigner’s undo · reverse every copy now</span></button>
+      <p class="note" id="copyNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">重复 N 次的记录把相干乘上 N 次方的重叠，已冻结：</span><span class="en">Repeating a record N times multiplies the coherence by the overlap to the N-th power; frozen:</span> <code>repeated_record_exponential_decay</code></span></div>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="账本时空块三维视图：拖动旋转，滚轮缩放，点击世界线选择一次运行" data-aria-en="3D ledger block: drag to rotate, scroll to zoom, click a worldline to select a run">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">LINEAR · t = 0.0 min</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视 x–t</span><span class="en">Side x–t</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视 · 压缩时间</span><span class="en">Top · collapse time</span></button>
+        <button class="chip" data-cam="low" aria-pressed="false"><span class="zh">仰视 · 从过去看</span><span class="en">Low · from the past</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">存活曲线 SURVIVAL</span><span class="en">SURVIVAL</span></h2><span id="survMeta"></span></div>
+        <canvas id="surv" aria-label="存活概率随实验室时间的变化" data-aria-en="Survival probability against lab time"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">死亡时刻档案 ARCHIVE</span><span class="en">DEATH-TIME ARCHIVE</span></h2><span id="histMeta"></span></div>
+        <canvas id="hist" aria-label="死亡时刻直方图，点击选择一次运行" data-aria-en="Histogram of death times; click to select a run"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="时空选择与读数" data-aria-en="Spacetime selection and readouts">
+    <section class="panel sec">
+      <h2><span class="zh">时空选择</span><span class="en">Spacetime</span><span class="aside zh">Σ = 活 + 死</span><span class="aside en">Σ = alive + dead</span></h2>
+      <div class="branches" id="branches" role="group" aria-label="条件时空" data-aria-en="Conditional spacetimes"></div>
+      <div class="field">
+        <label for="split"><span class="zh">展开第四轴</span><span class="en">Unfold 4th axis</span><small class="zh">按记录标签分块</small><small class="en">split by record label</small></label><output id="oSplit" for="split">0.00</output>
+        <input type="range" id="split" min="0" max="1" step="0.01" value="0">
+      </div>
+      <div class="modes" id="modes" role="group" aria-label="条件化方式" data-aria-en="Conditioning">
+        <button class="mode" data-mode="0" aria-pressed="true"><span class="code">LINEAR</span><span class="cn zh">只用此刻账上已有的记录</span><span class="cn en">only records already in the ledger</span></button>
+        <button class="mode" data-mode="1" aria-pressed="false"><span class="code">BLOCK</span><span class="cn zh">用整块历史条件化</span><span class="cn en">conditioned on the whole block</span></button>
+      </div>
+      <div class="chips" id="clockChips" role="group" aria-label="时间轴用哪个钟" data-aria-en="Clock for the time axis">
+        <button class="chip" data-clock="0" aria-pressed="true"><span class="zh">实验室钟</span><span class="en">Lab clock</span></button>
+        <button class="chip" data-clock="1" aria-pressed="false"><span class="zh">账本钟 · 记录条数</span><span class="en">Ledger clock · record count</span></button>
+      </div>
+      <p class="note" id="clockNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readout</span><span class="aside">D · V</span></h2>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">存活概率 s(t)</span><span class="en">Survival s(t)</span></dt><dd id="roS">1.000</dd></div>
+        <div><dt><span class="zh">检查次数</span><span class="en">Checks so far</span></dt><dd id="roChecks">0</dd></div>
+        <div><dt><span class="zh">盒内已写入</span><span class="en">Written inside</span></dt><dd id="roIn">0</dd></div>
+        <div><dt><span class="zh">盒外已读到</span><span class="en">Read outside</span></dt><dd id="roOut">0</dd></div>
+        <div class="wide"><dt><span class="zh">两支记录的重叠 |κ|</span><span class="en">Overlap of the two branches’ records |κ|</span></dt><dd id="roKappa">0</dd></div>
+        <div><dt><span class="zh">事实强度 D</span><span class="en">Fact strength D</span></dt><dd id="roD">1.000</dd></div>
+        <div><dt><span class="zh">相干 V = |κ|</span><span class="en">Coherence V = |κ|</span></dt><dd id="roV">0.000</dd></div>
+      </dl>
+      <div class="btable" id="branchTable"></div>
+      <canvas class="plot plot-sq" id="gauge" aria-label="互补关系 D² + V² = 1" data-aria-en="Complementarity D² + V² = 1"></canvas>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">D²+V²=1 已在 trureturing 中由内核验证并冻结：</span><span class="en">D² + V² = 1 is kernel-verified and frozen in trureturing:</span> <code>pure_record_distinguishability_coherence_complementarity</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">干涉探针 · 盒外</span><span class="en">Interference probe · outside</span><span class="aside" id="probeV">V<sub>t</sub> = 0.000</span></h2>
+      <canvas class="plot plot-wide" id="probe" aria-label="盒外观察者在活/死叠加基上测量得到的条纹" data-aria-en="Fringe an outside observer would see measuring in an alive/dead superposition basis"></canvas>
+      <p class="note" id="probeNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">活着的时空 · 条件态</span><span class="en">Alive spacetime · conditional state</span><span class="aside">Q<sup>n</sup>ρQ<sup>†n</sup>/s</span></h2>
+      <div class="bars" id="condBars"></div>
+      <p class="note" id="condNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">长期存活概率收敛到暗空间上的权重，已冻结：</span><span class="en">Long-run survival converges to the weight on the dark space; frozen:</span> <code>finite_detection_survival_limit</code></span></div>
+      <div class="runcard" id="runcard"></div>
+    </section>
+  </aside>
+
+  <!-- clock rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau">t 0.0 <small>/ 60 min</small></span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0.5" aria-label="实验室时间 t" data-aria-en="Lab time t">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 逐步 · <kbd>1</kbd>–<kbd>3</kbd> 时空 · <kbd>L</kbd> 换账本 · <kbd>Esc</kbd> 取消选择</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>1</kbd>–<kbd>3</kbd> spacetime · <kbd>L</kbd> ledger · <kbd>Esc</kbd> clear</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">400 只猫各关在一只盒子里，盒里有一个会衰变的原子和一台盖革计数器。三维体的每条竖线是一只猫的整段历史（下方是过去，上方是 60 分钟后），亮点是计数器第一次响、毒药放出的时刻。整块画的是同一份记录档案；播放只移动“现在”，不改写任何一条记录。</p>
+      <ol>
+        <li><b>猫就是首次探测协议（§11–§12）。</b>计数器每隔 Δt 检查一次：没响就继续，第一次响就记下轮次 n 并停止。未点击算子 Q 与点击算子 L 满足 Q†Q + L†L = I；第 n 轮首次点击的概率与到第 N 轮仍未点击的概率加起来恰好为一（命题 11.2）。整段历史可以写成一个带停止标签的等距编码：活着的分支加上“死于第 1、2、3……轮”的各个分支，每支一个正交标签（命题 12.2）。BLOCK 模式看的就是这块整体。</li>
+        <li><b>观测分两类。</b>检查间隔、衰变方式、暗态权重参与<b>形成</b>记录，改变死亡时刻的概率律，所以档案指纹会变。开箱时刻、看哪本账、用哪个钟、怎样条件化，只是<b>读取</b>已有记录：顺序概率满足 p(w) = Tr(ρ<sub>0</sub>F<sub>w</sub>)（§8.2；迹表示已冻结为 <code>word_probability_trace_representation</code>），开箱不作用于原子，所以死亡时刻律与开箱早晚无关。页面沿用同一组随机种子，这些控件一个字节也不改档案。</li>
+        <li><b>检查本身会改变猫何时死（命题 11.3）。</b>一直被检查时，“没响”之后的状态不等于没人检查时的自由演化。相干耦合下，检查越频繁，每次看到衰变的机会越小，猫活得越久（量子芝诺效应）；检查稀疏时反而死得更快。马尔可夫衰变下，死亡时刻律与检查间隔无关。两个模型在 Δt = 1 分钟时重合，半衰期都取 20 分钟。</li>
+        <li><b>暗态与永生分支（§13）。</b>若原子有一部分处在任何检查都探测不到的暗空间里，长期存活概率就收敛到这部分的权重 w。这一条已冻结：<code>finite_detection_survival_limit</code>（暗空间的刻画见 <code>dark_space_eq_survival_defect_kernel</code>）。账本里分不出一只活猫是暗态还是尚未衰变；“活着的时空”面板给出的是条件概率。</li>
+        <li><b>为什么看不到半死半活（§5 与退相干）。</b>猫的死活被 M 份副本记下：计数器、毒药瓶、猫的身体、空气分子、光子……每份副本的“活”版与“死”版重叠为 c，全部副本的重叠就是 κ = c<sup>M</sup>，这一条已冻结：<code>repeated_record_exponential_decay</code>。两支之间的相干 V = |κ|，记录的可分辨度 D = √(1 − |κ|²)，二者满足 D² + V² = 1，也已冻结：<code>pure_record_distinguishability_coherence_complementarity</code>。页面把 D 叫作“事实强度”：记录越弱，块里的死活颜色越淡。</li>
+        <li><b>事实相对于账本（OBSERVER-QUANTUM 第 8 节，GICT 观察 6.30）。</b>盒内账本在猫死的那一刻就写下了事实，盒外账本要到开箱才读到。两本账都自洽，不必合并；已观测事件的绝对性从未被授予。开箱之后，观察者自己的记忆也成了一份理想记录（重叠 0）。这一节是理论卷的推导与数值证书，不是 Lean 定理。</li>
+        <li><b>Wigner 撤销。</b>盒外观察者原则上可以把全部副本相干地反演回去，这是理论卷明文允许的“合法反测量”。撤销后死活不再是任何账本里的事实，两支之间的干涉重新可测。页面假设每份副本的反演保真度为 f，残余重叠为 f<sup>M</sup>：这是示意假设，不是定理。对真实的猫，副本数是天文数字（页面最大取 10<sup>23</sup>），f 只要比 1 小一点点，撤销就等于不可能——实际的不可逆就来自这里。撤销只在按下的那一刻成立，时间一动就回到未撤销的历史，之后的新历史不做模拟。</li>
+        <li><b>非线性时间。</b>实验室钟均匀流逝；账本钟只在写入记录时前进（OBSERVER-QUANTUM §18.2：时间是账本长度，因果结构是记录前缀的偏序）。账本钟不是实验室时间的单射：没有记录的时段被压成一点。在盒外账本里，开箱前的整段时间都压在开箱那一刻；撤销成功时，被抹掉的那段历史在账本钟上长度为零。</li>
+        <li><b>这个页面不解释什么。</b>某一次运行里猫为什么恰好死于那一刻，理论明确不解释（“无主格”）：概率律是被逼出来的，具体发生哪一个由世界给出。页面用固定种子抽样。两种衰变模型、参数和弱记录区（D 明显小于 1）都是示意；死亡时刻律按理想检测计算，不是真实猫或原子的数值模拟。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md" target="_blank" rel="noopener">OBSERVER-QUANTUM.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean" target="_blank" rel="noopener">FiniteDetectionSurvivalLimit.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RepeatedRecordExponentialDecay.lean" target="_blank" rel="noopener">RepeatedRecordExponentialDecay.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">400 cats each sit in a box with a decaying atom and a Geiger counter. Every vertical line in the 3D block is one cat’s whole history (the past at the bottom, 60 minutes later at the top), and a bright point marks the moment the counter first clicks and the poison is released. The block is one and the same archive of records; playing only moves “now” and never rewrites a record.</p>
+      <ol>
+        <li><b>The cat is a first-detection protocol (§11–§12).</b> The counter checks every Δt: no click, keep going; first click, record the round n and stop. The no-click operator Q and the click operator L satisfy Q†Q + L†L = I, and the probabilities of a first click at round n plus the probability of no click up to round N add up to exactly one (Proposition 11.2). The whole history can be written as one isometric encoding with stop labels: the alive branch plus the branches “died at round 1, 2, 3 …”, each with its own orthogonal label (Proposition 12.2). BLOCK mode shows that whole.</li>
+        <li><b>Two kinds of observation.</b> The check interval, the decay coupling and the dark weight take part in <b>writing</b> the records and change the law of death times, so the archive fingerprint changes. The opening time, which ledger you look at, which clock you use and how you condition only <b>read</b> existing records. Sequential probabilities satisfy p(w) = Tr(ρ<sub>0</sub>F<sub>w</sub>) (§8.2; the trace form is frozen as <code>word_probability_trace_representation</code>), and opening the box does not act on the atom, so the death-time law does not depend on when you open it. The page reuses the same random seeds, so these controls leave the archive byte-for-byte unchanged.</li>
+        <li><b>Checking changes when the cat dies (Proposition 11.3).</b> Under continual checks, the state after “no click” is not the free evolution without checks. With coherent coupling, frequent checks leave less chance to catch a decay each time, so the cat lives longer (the quantum Zeno effect); sparse checks kill it faster. With Markov decay the death-time law does not depend on the check interval. The two models coincide at Δt = 1 minute, with a 20-minute half-life.</li>
+        <li><b>Dark state and the immortal branch (§13).</b> If part of the atom lies in a dark space that no check can detect, the long-run survival probability converges to the weight w of that part. This is frozen: <code>finite_detection_survival_limit</code> (the dark space is characterised in <code>dark_space_eq_survival_defect_kernel</code>). The ledger cannot tell whether a living cat is dark or simply not yet decayed; the “alive spacetime” panel gives the conditional probabilities.</li>
+        <li><b>Why nobody sees a half-dead cat (§5 and decoherence).</b> The cat’s fate is recorded in M copies: the counter, the vial, the cat’s body, air molecules, photons … If each copy’s alive and dead versions overlap by c, all copies together overlap by κ = c<sup>M</sup>; this is frozen as <code>repeated_record_exponential_decay</code>. The coherence between the two branches is V = |κ| and the distinguishability of the records is D = √(1 − |κ|²), with D² + V² = 1, also frozen: <code>pure_record_distinguishability_coherence_complementarity</code>. The page calls D the “fact strength”: the weaker the record, the paler the alive/dead colours in the block.</li>
+        <li><b>Facts are relative to a ledger (OBSERVER-QUANTUM section 8, GICT Observation 6.30, both in Chinese).</b> The inside ledger writes the fact the moment the cat dies; the outside ledger reads it only when the box is opened. Both ledgers are consistent and need not be merged: the absoluteness of observed events is never granted. After opening, the observer’s own memory is one more ideal record (overlap 0). This part is a derivation plus numerical certificates in the theory volumes, not a Lean theorem.</li>
+        <li><b>Wigner’s undo.</b> In principle the outside observer can coherently reverse every copy, which the theory volume explicitly allows as a legitimate reverse measurement. After the undo the cat’s fate is no longer a fact in any ledger, and interference between the branches becomes measurable again. The page assumes each copy is reversed with fidelity f, leaving an overlap f<sup>M</sup>; this is a schematic assumption, not a theorem. For a real cat the number of copies is astronomical (the page goes up to 10<sup>23</sup>), and with f even slightly below 1 the undo is effectively impossible, which is where practical irreversibility comes from. The undo holds only at the moment you press it: once time moves, the page returns to the history without it and does not simulate the new history.</li>
+        <li><b>Nonlinear time.</b> The lab clock runs evenly; the ledger clock moves only when a record is written (OBSERVER-QUANTUM §18.2: time is ledger length, and causal structure is the prefix order of records). The ledger clock is not injective in lab time: stretches without records collapse to a point. In the outside ledger the whole time before opening collapses onto the moment of opening; after a successful undo, the erased stretch of history has zero length on the ledger clock.</li>
+        <li><b>What this page does not explain.</b> Why a cat in one particular run died at that moment is explicitly left unexplained by the theory (the “unowned slot”): the probability law is forced, but which outcome happens is supplied by the world. The page samples with fixed seeds. Both decay models, the parameters and the weak-record regime (D well below 1) are schematic; the death-time law assumes ideal detection. This is not a numerical simulation of a real cat or atom.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (theory volumes in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md" target="_blank" rel="noopener">OBSERVER-QUANTUM.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurement/FiniteDetectionSurvivalLimit.lean" target="_blank" rel="noopener">FiniteDetectionSurvivalLimit.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/RepeatedRecordExponentialDecay.lean" target="_blank" rel="noopener">RepeatedRecordExponentialDecay.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="FACTORIAL//STEPS · Integer ratios of fractional factorials">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FACTORIAL//STEPS 分数阶乘之比为什么是整数</title>
+<meta name="description" content="Peter Bala 在 OEIS 上猜想 A347854–A347858 这五个含分数阶乘的比值（x! = Γ(1 + x)）对每个自然数 n 都是整数，另有两个辅助序列。本库在 Lean 里证明了全部七个；Blanco Gómez（2026）此前已发表证明。页面精确算出每一项，把它的素数分解画成三维天际线，并把证明的机制——Legendre 公式与只取 0、1 两个值的周期阶梯函数——画成阶梯。Peter Bala conjectured on the OEIS that the five ratios A347854–A347858, which involve fractional factorials (x! = Γ(1 + x)), are integers for every natural n, together with two auxiliary sequences. This library proves all seven in Lean; Blanco Gómez (2026) had published a proof before. The page computes every term exactly, draws its prime factorization as a 3D skyline, and draws the mechanism of the proof, Legendre’s formula with periodic step functions that take only the values 0 and 1, as staircases.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="factorial-steps">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="FACTORIAL//STEPS">FACTORIAL<b>//</b>STEPS</h1>
+      <div class="tagline">
+        <span class="zh">分数阶乘之比为什么是整数 · <em>Bala 的七个整除性猜想（已冻结）</em></span>
+        <span class="en">Integer ratios of fractional factorials · <em>Bala’s seven integrality conjectures (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="a854" aria-pressed="true"><span class="code">A347854</span><span class="cn zh">素数天际线</span><span class="cn en">The prime skyline</span></button>
+        <button class="preset" data-preset="a858" aria-pressed="false"><span class="code">A347858 · 2⁸ⁿ</span><span class="cn zh">奇数项里的 2 的高次幂</span><span class="cn en">High powers of 2 at odd n</span></button>
+        <button class="preset" data-preset="a855" aria-pressed="false"><span class="code">A347855 · 3ⁿ</span><span class="cn zh">三分之一阶乘</span><span class="cn en">Third-index factorials</span></button>
+        <button class="preset" data-preset="aux" aria-pressed="false"><span class="code">b(n), c(n)</span><span class="cn zh">两个辅助序列</span><span class="cn en">The two auxiliaries</span></button>
+        <button class="preset" data-preset="stairs" aria-pressed="false"><span class="code">p = 5</span><span class="cn zh">阶梯只取 0 和 1</span><span class="cn en">Steps of height 0 and 1</span></button>
+        <button class="preset" data-preset="seven" aria-pressed="false"><span class="code">p = 7 · n = 25</span><span class="cn zh">逐个 7 的幂数台阶</span><span class="cn en">Count the steps power by power</span></button>
+        <button class="preset" data-preset="odd" aria-pressed="false"><span class="code">n odd</span><span class="cn zh">奇数 n 的另一条阶梯</span><span class="cn en">The other staircase for odd n</span></button>
+        <button class="preset" data-preset="sporadic" aria-pressed="false"><span class="code">u(n)</span><span class="cn zh">偶数项：Vasyunin 的序列</span><span class="cn en">Even n: Vasyunin’s sequence</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">vₚ</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="skyline"><span class="zh">素数天际线</span><span class="en">Prime skyline</span></button>
+        <button class="chip" data-mode="stairs"><span class="zh">Legendre 阶梯</span><span class="en">Legendre staircases</span></button>
+      </div>
+      <div class="chips subchips" id="seqChips" role="group" aria-label="序列" data-aria-en="Sequence">
+        <button class="chip" data-seq="A347854">A347854</button>
+        <button class="chip" data-seq="A347855">A347855</button>
+        <button class="chip" data-seq="A347856">A347856</button>
+        <button class="chip" data-seq="A347857">A347857</button>
+        <button class="chip" data-seq="A347858">A347858</button>
+        <button class="chip" data-seq="B">b(n)</button>
+        <button class="chip" data-seq="C">c(n)</button>
+      </div>
+      <div class="chips subchips" id="pChips" role="group" aria-label="素数 p" data-aria-en="Prime p" hidden>
+        <button class="chip" data-p="3">p = 3</button>
+        <button class="chip" data-p="5">p = 5</button>
+        <button class="chip" data-p="7">p = 7</button>
+        <button class="chip" data-p="11">p = 11</button>
+        <button class="chip" data-p="13">p = 13</button>
+      </div>
+      <div class="field">
+        <label for="nn"><span class="zh">最大的 n</span><span class="en">Largest n</span></label><output id="oN" for="nn">30</output>
+        <input type="range" id="nn" min="8" max="40" step="1" value="30">
+      </div>
+      <p class="note" id="formula"></p>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：素数天际线或 Legendre 阶梯；拖动旋转，滚轮缩放" data-aria-en="3D view: the prime skyline or the Legendre staircases; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="随 n 变化的图" data-aria-en="A chart against n"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前一项的分解或每个素数幂的贡献" data-aria-en="The factorization of the current term or the contribution of each prime power"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">a(n)</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Bala 在 OEIS 上猜想（x! = Γ(1 + x)）：A347854、A347855、A347856、A347857、A347858 对每个自然数 n 都是整数，A347855 的两个辅助序列 b(n)、c(n) 也是。七个都已在 Lean 里证明：Legendre 公式把整除性化成向下取整之和的不等式；半整数处 Γ 函数的 √π 相消并给出 2 的幂，三分之一处的 Γ 递推给出 3 的幂与一串线性因子。已冻结：</span><span class="en">Bala conjectured on the OEIS (with x! = Γ(1 + x)) that A347854, A347855, A347856, A347857 and A347858 are integers for every natural n, and so are the two auxiliary sequences b(n), c(n) of A347855. All seven are proved in Lean: Legendre’s formula turns divisibility into inequalities between sums of floors; at half-integers the √π of the Gamma function cancels and leaves a power of 2, and the Gamma recurrence at thirds gives a power of 3 times a product of linear factors. Frozen: </span><code>OeisA347854BalaHalfIndexIntegral · OeisA347855BalaThirdIndexIntegral · OeisA347855BalaAuxBIntegral · OeisA347855BalaAuxCIntegral · OeisA347856BalaHalfIndexIntegral · OeisA347857BalaHalfIndexIntegral · OeisA347858BalaHalfIndexIntegral</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">中间结论：3 ∤ n 时 (2n)!·n!·∏ⱼ₌₁ⁿ (n + 3j) 整除 (4n)!。它给出 A347855 在 3 ∤ n 处与两个辅助序列的整除性。已冻结：</span><span class="en">An intermediate result: for 3 ∤ n, (2n)!·n!·∏ⱼ₌₁ⁿ (n + 3j) divides (4n)!. It gives A347855 at 3 ∤ n and both auxiliaries. Frozen: </span><code>OeisA347855BalaThirdIndexIntegral.third_dvd</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗里由这些约化推出（散文论证）：n 为奇数时 A347854、A347856、A347857 是 2²ⁿ 乘整数，A347858 是 2⁸ⁿ 乘整数；3 ∤ n 时 A347855 是 3ⁿ 乘整数。</span><span class="en">Derived in the dossier from these reductions (prose argument): for odd n, A347854, A347856 and A347857 are 2²ⁿ times an integer and A347858 is 2⁸ⁿ times an integer; for 3 ∤ n, A347855 is 3ⁿ times an integer.</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：每一项都用精确的有理数算出（半整数阶乘写成 (2k)!/(4ᵏk!) 乘 √π，√π 在比值里相消），分母都是 1；素数分解由试除得到；阶梯函数在一个周期的每个断点区间上取值，只出现 0 和 1。</span><span class="en">Numbers computed on the page, not theorems: every term is computed as an exact rational (a half-integer factorial is (2k)!/(4ᵏk!) times √π, and √π cancels in each ratio), and every denominator is 1; the factorizations come from trial division; the step functions are evaluated on every breakpoint interval of a period and take only the values 0 and 1.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：OEIS 条目里的超同余猜想、相应超几何函数的代数性，以及 A295432 更强的辅助整除性。</span><span class="en">Open: the supercongruences conjectured in the OEIS entries, the algebraicity of the corresponding hypergeometric functions, and the stronger auxiliary divisibility of A295432.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Blanco Gómez（Zenodo，2026 年 10 月，推论 1.5）先于本库发表了这些整除性的证明，本库的 Lean 证明是独立的形式化。Landau 判别：整数系数的阶乘之比对所有 n 为整数，当且仅当对应的阶梯函数处处非负。Bober（2009）分类了阶梯函数只取 0、1 的情形；u(n) = (12n)!n!/((6n)!(4n)!(3n)!) 是其中 Vasyunin 的 52 个零散序列之一，A347854(2m) = u(m)。</span><span class="en">Blanco Gómez (Zenodo, October 2026, Corollary 1.5) published proofs of these integrality statements before this library; the Lean proofs here are an independent formalization. Landau’s criterion: a factorial ratio with integer coefficients is an integer for all n exactly when its step function is nonnegative everywhere. Bober (2009) classified the cases whose step function takes only the values 0 and 1; u(n) = (12n)!n!/((6n)!(4n)!(3n)!) is one of Vasyunin’s 52 sporadic sequences among them, and A347854(2m) = u(m).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：下标 n" data-aria-en="Progress: the index n">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">阶乘之比 (6n)!/((3n)!(2n)!) 这类数是不是整数，是一个古老的问题。Bala 把其中一些分母或分子换成分数阶乘 x! = Γ(1 + x)，例如 (n/2)!、(3n/2)!、(n/3)!，猜想所得的比值仍然对每个 n 都是整数。本库在 Lean 里证明了他的七个猜想。</p>
+      <ol>
+        <li><b>七个序列。</b>A347854 = (6n)!(n/2)!/((3n)!(2n)!(3n/2)!)；A347856 = (6n)!(n/2)!/((4n)!n!(3n/2)!)；A347857 = (6n)!(3n/2)!/((3n)!(2n)!(5n/2)!)；A347858 = (9n)!(n/2)!/((3n)!(2n)!(9n/2)!)；A347855 = (4n)!(n/3)!/((2n)!n!(4n/3)!)；以及 a(3n + 1) = 3³ⁿ⁺¹·b(n)、a(3n + 2) = 3³ⁿ⁺²·c(n) 里的辅助序列 b、c。七个都已冻结。</li>
+        <li><b>分数阶乘怎么变成有理数。</b>n 为偶数时 (n/2)! 就是普通阶乘。n 为奇数时 Γ(k + ½) = (2k)!·√π/(4ᵏ·k!)，同一个比值里分子分母各有一个 √π，相消后剩下有理数，并带出一个 2 的幂。三分之一处用 Γ(1 + x)/Γ(1 + x + n) = 1/∏(x + j)，得到 3ⁿ/∏ⱼ₌₁ⁿ (n + 3j)。页面就这样精确算出每一项。</li>
+        <li><b>Legendre 公式与阶梯。</b>素数 p 在 m! 里的次数是 Σₑ ⌊m/pᵉ⌋。对奇素数 p，半整数阶乘的次数换成 Σₑ ⌊(m/pᵉ + 1)/2⌋（数 1 到 m 中的奇数里 pᵉ 的倍数）。于是 vₚ(a(n)) = Σₑ L(n/pᵉ)，其中 L 是由向下取整拼成的阶梯函数，n 为偶数与奇数各一条。页面在一个周期 [0, 2) 的每个断点区间上算出 L：四个半整数序列的两条阶梯都只取 0 和 1。所以每个素数幂贡献 0 或 1，vₚ(a(n)) ≥ 0。</li>
+        <li><b>p = 2 与 p = 3。</b>p = 2 在奇数 n 处来自 Γ 的那一项单独计算，卷宗说明奇数 n 时 A347854、A347856、A347857 带有 2²ⁿ，A347858 带有 2⁸ⁿ；A347855 在 3 ∤ n 时带有 3ⁿ，Lean 里的中间结论 third_dvd 给出其余部分的整除性。</li>
+        <li><b>与文献的关系。</b>Blanco Gómez（Zenodo，2026）先于本库发表了这些整除性的证明；本库的 Lean 证明是独立的形式化。偶数项 A347854(2m) = u(m) 是 Vasyunin 的零散序列之一，Bober（2009）用阶梯函数研究了这一类比值。</li>
+        <li><b>边界。</b>OEIS 条目里的超同余与代数性问题仍然开放。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347854-bala-half-index-integrality.md" target="_blank" rel="noopener">问题卷宗：A347854</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-third-index-integrality.md" target="_blank" rel="noopener">A347855</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-aux-b-integrality.md" target="_blank" rel="noopener">b(n)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-aux-c-integrality.md" target="_blank" rel="noopener">c(n)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347856-bala-half-index-integrality.md" target="_blank" rel="noopener">A347856</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347857-bala-half-index-integrality.md" target="_blank" rel="noopener">A347857</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347858-bala-half-index-integrality.md" target="_blank" rel="noopener">A347858</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347854BalaHalfIndexIntegral.lean" target="_blank" rel="noopener">OeisA347854BalaHalfIndexIntegral.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaThirdIndexIntegral.lean" target="_blank" rel="noopener">OeisA347855BalaThirdIndexIntegral.lean</a> · OEIS <a href="https://oeis.org/A347854" target="_blank" rel="noopener">A347854</a>、<a href="https://oeis.org/A347855" target="_blank" rel="noopener">A347855</a>、<a href="https://oeis.org/A347856" target="_blank" rel="noopener">A347856</a>、<a href="https://oeis.org/A347857" target="_blank" rel="noopener">A347857</a>、<a href="https://oeis.org/A347858" target="_blank" rel="noopener">A347858</a> · Blanco Gómez，<a href="https://doi.org/10.5281/zenodo.23426707" target="_blank" rel="noopener">Zenodo（2026）</a> · Bober，<a href="https://doi.org/10.1112/jlms/jdn078" target="_blank" rel="noopener">J. London Math. Soc.（2009）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Whether ratios such as (6n)!/((3n)!(2n)!) are integers is an old question. Bala replaced some of the factorials by fractional ones, x! = Γ(1 + x), such as (n/2)!, (3n/2)! and (n/3)!, and conjectured that the ratios are still integers for every n. This library proves his seven conjectures in Lean.</p>
+      <ol>
+        <li><b>The seven sequences.</b> A347854 = (6n)!(n/2)!/((3n)!(2n)!(3n/2)!); A347856 = (6n)!(n/2)!/((4n)!n!(3n/2)!); A347857 = (6n)!(3n/2)!/((3n)!(2n)!(5n/2)!); A347858 = (9n)!(n/2)!/((3n)!(2n)!(9n/2)!); A347855 = (4n)!(n/3)!/((2n)!n!(4n/3)!); and the auxiliaries b, c in a(3n + 1) = 3³ⁿ⁺¹·b(n), a(3n + 2) = 3³ⁿ⁺²·c(n). All seven are frozen.</li>
+        <li><b>How fractional factorials become rationals.</b> For even n, (n/2)! is an ordinary factorial. For odd n, Γ(k + ½) = (2k)!·√π/(4ᵏ·k!), and in each ratio one √π above cancels one below, leaving a rational with a power of 2. At thirds, Γ(1 + x)/Γ(1 + x + n) = 1/∏(x + j) gives 3ⁿ/∏ⱼ₌₁ⁿ (n + 3j). The page computes every term exactly this way.</li>
+        <li><b>Legendre’s formula and the staircases.</b> The exponent of a prime p in m! is Σₑ ⌊m/pᵉ⌋. For an odd prime, the exponent in a half-integer factorial becomes Σₑ ⌊(m/pᵉ + 1)/2⌋ (counting the multiples of pᵉ among the odd numbers up to m). So vₚ(a(n)) = Σₑ L(n/pᵉ), where L is a step function made of floors, one for even n and one for odd n. The page evaluates L on every breakpoint interval of a period [0, 2): both staircases of all four half-index sequences take only the values 0 and 1. So each prime power contributes 0 or 1, and vₚ(a(n)) ≥ 0.</li>
+        <li><b>p = 2 and p = 3.</b> For p = 2 at odd n, the term from the Gamma function is counted separately; the dossier shows that at odd n A347854, A347856 and A347857 carry 2²ⁿ and A347858 carries 2⁸ⁿ, and that A347855 carries 3ⁿ for 3 ∤ n, while the intermediate Lean result third_dvd gives divisibility of the rest.</li>
+        <li><b>Relation to the literature.</b> Blanco Gómez (Zenodo, 2026) published proofs of these integrality statements before this library; the Lean proofs here are an independent formalization. The even terms A347854(2m) = u(m) form one of Vasyunin’s sporadic sequences, and Bober (2009) studied this class of ratios through their step functions.</li>
+        <li><b>Limits.</b> The supercongruences and algebraicity questions in the OEIS entries remain open.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347854-bala-half-index-integrality.md" target="_blank" rel="noopener">Problem dossier: A347854</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-third-index-integrality.md" target="_blank" rel="noopener">A347855</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-aux-b-integrality.md" target="_blank" rel="noopener">b(n)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347855-bala-aux-c-integrality.md" target="_blank" rel="noopener">c(n)</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347856-bala-half-index-integrality.md" target="_blank" rel="noopener">A347856</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347857-bala-half-index-integrality.md" target="_blank" rel="noopener">A347857</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a347858-bala-half-index-integrality.md" target="_blank" rel="noopener">A347858</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347854BalaHalfIndexIntegral.lean" target="_blank" rel="noopener">OeisA347854BalaHalfIndexIntegral.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/FactorialRatio/OeisA347855BalaThirdIndexIntegral.lean" target="_blank" rel="noopener">OeisA347855BalaThirdIndexIntegral.lean</a> · OEIS <a href="https://oeis.org/A347854" target="_blank" rel="noopener">A347854</a>, <a href="https://oeis.org/A347855" target="_blank" rel="noopener">A347855</a>, <a href="https://oeis.org/A347856" target="_blank" rel="noopener">A347856</a>, <a href="https://oeis.org/A347857" target="_blank" rel="noopener">A347857</a>, <a href="https://oeis.org/A347858" target="_blank" rel="noopener">A347858</a> · Blanco Gómez, <a href="https://doi.org/10.5281/zenodo.23426707" target="_blank" rel="noopener">Zenodo (2026)</a> · Bober, <a href="https://doi.org/10.1112/jlms/jdn078" target="_blank" rel="noopener">J. London Math. Soc. (2009)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

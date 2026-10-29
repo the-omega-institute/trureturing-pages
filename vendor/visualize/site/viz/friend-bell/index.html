@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="FRIEND//BELL · Wigner’s friend in a Bell arena">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FRIEND//BELL Wigner 之友 · 贝尔竞技场</title>
+<meta name="description" content="Wigner 之友与 CHSH 贝尔实验：朋友的记录作一臂、撤销后的相干测量作另一臂；切换参考系、账本与答案表，看“绝对事实 + 设置自由 + 无超距”为何不可兼得。Wigner’s friend in a CHSH Bell test: the friend’s record is one arm, a coherent measurement after the undo is the other; switch frames, ledgers and answer tables.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="friend-bell">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="FRIEND//BELL">FRIEND<b>//</b>BELL</h1>
+      <div class="tagline">
+        <span class="zh">Wigner 之友 · 贝尔竞技场 · <em>谁先测取决于参考系；关联只在两份记录汇合处成为事实</em></span>
+        <span class="en">Wigner’s friend in a Bell arena · <em>who measures first depends on the frame; a correlation becomes a fact only where the records meet</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillMode">MODE <strong>LINEAR</strong></span>
+      <span class="pill" id="pillFrame">β <strong>0.00</strong></span>
+      <span class="pill" id="pillS">CHSH <strong>2.828</strong></span>
+      <span class="pill hot" id="pillHash">ARCHIVE <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="qubit" aria-pressed="true"><span class="code">QUBIT-FRIEND</span><span class="cn zh">量子比特朋友</span><span class="cn en">Qubit friend</span></button>
+        <button class="preset" data-preset="partial" aria-pressed="false"><span class="code">PARTIAL-UNDO</span><span class="cn zh">部分撤销</span><span class="cn en">Partial undo</span></button>
+        <button class="preset" data-preset="human" aria-pressed="false"><span class="code">HUMAN-FRIEND</span><span class="cn zh">真人朋友</span><span class="cn en">Human friend</span></button>
+        <button class="preset" data-preset="noundo" aria-pressed="false"><span class="code">NO-UNDO</span><span class="cn zh">不撤销直接测</span><span class="cn en">Measure without undo</span></button>
+        <button class="preset" data-preset="table" aria-pressed="false"><span class="code">ANSWER-TABLE</span><span class="cn zh">绝对事实答案表</span><span class="cn en">Absolute answer table</span></button>
+        <button class="preset" data-preset="mix" aria-pressed="false"><span class="code">MIXED-TABLES</span><span class="cn zh">混合答案表</span><span class="cn en">Mixed answer tables</span></button>
+        <button class="preset" data-preset="wfirst" aria-pressed="false"><span class="code">WIGNER-FIRST</span><span class="cn zh">换系 · Wigner 先测</span><span class="cn en">Frame · Wigner first</span></button>
+        <button class="preset" data-preset="bfirst" aria-pressed="false"><span class="code">BOB-FIRST</span><span class="cn zh">换系 · Bob 先测</span><span class="cn en">Frame · Bob first</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">朋友与撤销</span><span class="en">Friend and undo</span><span class="aside">v = f<sup>M</sup></span></h2>
+      <div class="chips" id="undoChips" role="group" aria-label="Wigner 的第二个设置" data-aria-en="Wigner’s second setting">
+        <button class="chip" data-undo="1" aria-pressed="true"><span class="zh">撤销后测 X<sub>S</sub>⊗X<sub>F</sub></span><span class="en">Undo, then X<sub>S</sub>⊗X<sub>F</sub></span></button>
+        <button class="chip" data-undo="0" aria-pressed="false"><span class="zh">不撤销直接测</span><span class="en">Measure without undo</span></button>
+      </div>
+      <div class="field">
+        <label for="copies"><span class="zh">朋友的记录副本 M</span><span class="en">Friend’s record copies M</span><small class="zh">记忆、笔记、实验室……</small><small class="en">memory, notes, the lab…</small></label><output id="oCopies" for="copies">1</output>
+        <input type="range" id="copies" min="0" max="15" step="1" value="0">
+      </div>
+      <div class="field">
+        <label for="fid"><span class="zh">反演保真度 f</span><span class="en">Reversal fidelity f</span><small class="zh">每份副本被相干反演回去的程度</small><small class="en">how well each copy is reversed</small></label><output id="oFid" for="fid">1</output>
+        <input type="range" id="fid" min="0" max="1" step="0.001" value="1">
+      </div>
+      <p class="note" id="undoNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">测量角度</span><span class="en">Measurement angles</span><span class="aside">XZ</span></h2>
+      <div class="field">
+        <label for="phi"><span class="zh">Wigner 第二设置角 φ</span><span class="en">Wigner’s second angle φ</span><small class="zh">0°=再问朋友 · 90°=X</small><small class="en">0° ask again · 90° X</small></label><output id="oPhi" for="phi">90°</output>
+        <input type="range" id="phi" min="0" max="180" step="1" value="90">
+      </div>
+      <div class="field">
+        <label for="th0"><span class="zh">Bob 设置 0 · θ<sub>0</sub></span><span class="en">Bob setting 0 · θ<sub>0</sub></span></label><output id="oTh0" for="th0">45°</output>
+        <input type="range" id="th0" min="-180" max="180" step="1" value="45">
+      </div>
+      <div class="field">
+        <label for="th1"><span class="zh">Bob 设置 1 · θ<sub>1</sub></span><span class="en">Bob setting 1 · θ<sub>1</sub></span></label><output id="oTh1" for="th1">-45°</output>
+        <input type="range" id="th1" min="-180" max="180" step="1" value="-45">
+      </div>
+      <button class="chip" id="bestBtn"><span class="zh">按当前 v 调到最优角度</span><span class="en">Optimal angles for this v</span></button>
+      <p class="note" id="angleNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">绝对事实假设</span><span class="en">Absolute facts</span><span class="aside">|S| ≤ 2</span></h2>
+      <div class="chips" id="modelChips" role="group" aria-label="用什么产生结果" data-aria-en="What produces the outcomes">
+        <button class="chip" data-model="0" aria-pressed="true"><span class="zh">量子账本</span><span class="en">Quantum ledgers</span></button>
+        <button class="chip" data-model="1" aria-pressed="false"><span class="zh">绝对事实答案表</span><span class="en">Absolute answer table</span></button>
+      </div>
+      <div class="table4" id="table4" role="group" aria-label="答案表" data-aria-en="Answer table">
+        <button class="bit" data-bit="0" aria-pressed="true"><span>A<sub>0</sub></span><b>+1</b></button>
+        <button class="bit" data-bit="1" aria-pressed="true"><span>A<sub>1</sub></span><b>+1</b></button>
+        <button class="bit" data-bit="2" aria-pressed="true"><span>B<sub>0</sub></span><b>+1</b></button>
+        <button class="bit" data-bit="3" aria-pressed="true"><span>B<sub>1</sub></span><b>+1</b></button>
+      </div>
+      <div class="chips">
+        <button class="chip" id="mixBtn"><span class="zh">随机混合 16 张表</span><span class="en">Random mix of 16 tables</span></button>
+        <button class="chip" id="pureBtn"><span class="zh">回到单张表</span><span class="en">Back to one table</span></button>
+      </div>
+      <p class="note" id="tableNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">任何局域答案表及其概率混合都满足 |S| ≤ 2，且 2 能取到，已冻结：</span><span class="en">Every local answer table and every probabilistic mixture satisfies |S| ≤ 2, and 2 is attained; frozen:</span> <code>classical_chsh_bound_is_exact</code></span></div>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="贝尔竞技场的时空图：横轴是空间，竖轴是时间，纵深是 400 次运行；拖动旋转，点击事件选择一次运行" data-aria-en="Spacetime diagram of the Bell arena: space across, time up, 400 runs in depth; drag to rotate, click an event to select a run">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">LINEAR · τ = 0.00</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">时空图 x–t</span><span class="en">Diagram x–t</span></button>
+        <button class="chip" data-cam="runs" aria-pressed="false"><span class="zh">侧看运行</span><span class="en">Runs side-on</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视 · 压缩时间</span><span class="en">Top · collapse time</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">CHSH 读数 METER</span><span class="en">CHSH METER</span></h2><span id="meterMeta"></span></div>
+        <canvas id="meter" aria-label="CHSH 值：局域区、量子区与禁区" data-aria-en="CHSH value: local zone, quantum zone and forbidden zone"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">关联 E(x, y)</span><span class="en">CORRELATIONS E(x, y)</span></h2><span id="gridMeta"></span></div>
+        <canvas id="grid" aria-label="四组设置的关联，点击聚焦该组" data-aria-en="Correlations for the four setting pairs; click to focus one"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="时空选择与读数" data-aria-en="Spacetime selection and readouts">
+    <section class="panel sec">
+      <h2><span class="zh">时空选择</span><span class="en">Spacetime</span><span class="aside">(x, y)</span></h2>
+      <div class="branches" id="branches" role="group" aria-label="按设置条件化的时空" data-aria-en="Spacetimes conditioned on the settings"></div>
+      <div class="field">
+        <label for="split"><span class="zh">展开第四轴</span><span class="en">Unfold 4th axis</span><small class="zh">按设置分块</small><small class="en">group by settings</small></label><output id="oSplit" for="split">0.00</output>
+        <input type="range" id="split" min="0" max="1" step="0.01" value="0">
+      </div>
+      <div class="modes" id="modes" role="group" aria-label="条件化方式" data-aria-en="Conditioning">
+        <button class="mode" data-mode="0" aria-pressed="true"><span class="code">LINEAR</span><span class="cn zh">只看此刻切片以前的事件</span><span class="cn en">only events before the current slice</span></button>
+        <button class="mode" data-mode="1" aria-pressed="false"><span class="code">BLOCK</span><span class="cn zh">整块时空一起看</span><span class="cn en">the whole block at once</span></button>
+      </div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">参考系</span><span class="en">Frame</span><span class="aside">t′ = γ(t − βx)</span></h2>
+      <div class="field">
+        <label for="beta"><span class="zh">观察者速度 β</span><span class="en">Observer velocity β</span><small class="zh">以光速为 1</small><small class="en">in units of c</small></label><output id="oBeta" for="beta">0.00</output>
+        <input type="range" id="beta" min="-0.6" max="0.6" step="0.01" value="0">
+      </div>
+      <div class="chips" id="coordChips" role="group" aria-label="画在哪套坐标里" data-aria-en="Which coordinates to draw in">
+        <button class="chip" data-coord="0" aria-pressed="true"><span class="zh">实验室坐标 · 切片倾斜</span><span class="en">Lab coordinates · tilted slice</span></button>
+        <button class="chip" data-coord="1" aria-pressed="false"><span class="zh">该系坐标 · 事件移动</span><span class="en">Frame coordinates · events move</span></button>
+      </div>
+      <p class="note" id="frameNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readout</span><span class="aside">S = E₀₀ + E₀₁ + E₁₀ − E₁₁</span></h2>
+      <dl class="ro">
+        <div class="a"><dt><span class="zh">CHSH 理论值 S</span><span class="en">CHSH law S</span></dt><dd id="roS">2.828</dd></div>
+        <div><dt><span class="zh">档案估计</span><span class="en">Archive estimate</span></dt><dd id="roSemp">—</dd></div>
+        <div><dt><span class="zh">撤销可见度 v</span><span class="en">Undo visibility v</span></dt><dd id="roV">1.000</dd></div>
+        <div><dt><span class="zh">最优角度下 S<sub>max</sub></span><span class="en">S<sub>max</sub> at best angles</span></dt><dd id="roSmax">2.828</dd></div>
+        <div class="wide"><dt><span class="zh">账本（此刻切片）</span><span class="en">Ledgers (current slice)</span></dt><dd id="roLedger">—</dd></div>
+      </dl>
+      <div class="premises" id="premises"></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">对页面默认的这组观测量，任何两比特态的 CHSH 期望都不超过 2√2，贝尔态恰好取到，已冻结：</span><span class="en">For this page’s default observables, no two-qubit state has a CHSH expectation above 2√2, and the Bell state attains it; frozen:</span> <code>bell_chsh_state_expectation_is_greatest</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Landau 恒等式 C² = 4I − [A₀,A₁]⊗[B₀,B₁] 已冻结：</span><span class="en">Landau’s identity C² = 4I − [A₀,A₁]⊗[B₀,B₁] is frozen:</span> <code>landau_identity</code></span></div>
+      <div class="runcard" id="runcard"></div>
+    </section>
+  </aside>
+
+  <!-- clock rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau">τ 0.00</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0.5" aria-label="该参考系中的时间 τ" data-aria-en="Time τ in the chosen frame">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 逐步 · <kbd>1</kbd>–<kbd>5</kbd> 时空 · <kbd>Esc</kbd> 取消选择</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> step · <kbd>1</kbd>–<kbd>5</kbd> spacetime · <kbd>Esc</kbd> clear</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一个源发出一对纠缠的量子比特，一个飞向左边的实验室，一个飞向右边的 Bob。左边实验室里有一位朋友，他先测 Z 并写下结果；实验室外的 Wigner 随后要么去问朋友（设置 0），要么先把朋友的测量相干地撤销、再测 X<sub>S</sub>⊗X<sub>F</sub>（设置 1）。Bob 在类空间隔之外选两种角度之一。两边的结果以光速送到中间汇合。三维体横轴是空间、竖轴是时间，纵深排着 400 次运行。</p>
+      <ol>
+        <li><b>朋友的记录是一臂，撤销后的相干测量是另一臂（OBSERVER-QUANTUM 第 8 节，GICT 观察 6.30）。</b>设置 0 读朋友写下的 Z；设置 1 的观测量 A<sub>1</sub> = X<sub>S</sub>⊗X<sub>F</sub> 必然相干地触碰朋友的记忆。对共享的贝尔态，关联为 E(0, y) = cos θ<sub>y</sub>，E(1, y) = cos φ cos θ<sub>y</sub> + v sin φ sin θ<sub>y</sub>，CHSH 值 S = E₀₀ + E₀₁ + E₁₀ − E₁₁ 在默认角度下为 2√2。</li>
+        <li><b>三者不可兼得。</b>若朋友的结果在每一次运行里都是绝对事实（包括被撤销的那些），再加上设置自由与无超距，每次运行就对应一张写满 A<sub>0</sub>, A<sub>1</sub>, B<sub>0</sub>, B<sub>1</sub> 的答案表，而任何答案表及其混合都满足 |S| ≤ 2——这一条已在 trureturing 中冻结：<code>classical_chsh_bound_is_exact</code>。量子账本给出 2√2 &gt; 2，所以三者不能同时成立。理论卷的结论是放弃第一条：已观测事件的绝对性从未被授予，事实只相对于记录它的账本；跨越未共享记录合并事实，不是允许的推理规则。理论卷同时写明，这是拒绝 no-go 的一个前提，其他解释可以拒绝别的前提。这一节是理论卷的推导与数值证书，不是 Lean 定理。</li>
+        <li><b>Tsirelson 上界。</b>对页面默认的那组观测量（A<sub>0</sub> = Z，A<sub>1</sub> = X，B<sub>0,1</sub> = (Z ± X)/√2），任何两比特态的 CHSH 期望都不超过 2√2，贝尔态恰好取到：<code>bell_chsh_state_expectation_is_greatest</code>。Landau 恒等式 C² = 4I − [A₀,A₁]⊗[B₀,B₁] 也已冻结：<code>landau_identity</code>。对任意角度的一般 Tsirelson 上界是已知结果（Cirel’son 1980），页面把禁区画在 2√2 以外，但不把它说成已冻结。</li>
+        <li><b>撤销的代价。</b>朋友的结果被写进 M 份副本（记忆、笔记、实验室环境……）。页面假设每份副本以保真度 f 被反演，撤销后剩下的相干可见度 v = f<sup>M</sup>：这是示意假设，不是定理。可见度把 X 部分的关联乘上 v，最优角度下的最大值为 S<sub>max</sub> = 2√(1 + v²)。量子比特朋友 v = 1，达到 2√2；真人朋友的副本数是天文数字，v → 0，S<sub>max</sub> 只剩 2，违背消失——朋友的结果在实际上表现得像绝对事实。不撤销直接测，等同于 v = 0。</li>
+        <li><b>谁先测取决于参考系。</b>Wigner 与 Bob 的测量是类空间隔的：在实验室系里 Bob 先测，换到 β &lt; −0.117 的参考系里 Wigner 先测，而每组设置的关联完全不变。“此刻”切片是 t′ = γ(t − βx) 等于常数的面，在实验室坐标里是倾斜的。两份结果以光速送到中间汇合，汇合事件在两次测量的未来光锥里，在任何参考系中都排在两次测量之后：关联只在那里才成为某一本账上的事实。</li>
+        <li><b>LINEAR 与 BLOCK。</b>LINEAR 只显示当前参考系中切片以前的事件，账本读数按切片统计：朋友账本里被撤销的记录划掉，档案估计的 S 要等汇合事件进入切片才有。BLOCK 把整块时空一起显示。换参考系、换坐标、换条件化方式都不改档案指纹；改角度、撤销或答案表才会改变结果。</li>
+        <li><b>模型边界。</b>纠缠态、测量和撤销都是理想化的两比特模型，撤销可见度 f<sup>M</sup> 是示意假设，时空几何只用到 1+1 维洛伦兹变换。页面用固定种子抽样，每组设置约 100 次运行，档案估计带有统计涨落。它不是某个真实实验的数值模拟。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md" target="_blank" rel="noopener">OBSERVER-QUANTUM.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md" target="_blank" rel="noopener">GICT.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/ClassicalFiberBound.lean" target="_blank" rel="noopener">ClassicalFiberBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/TsirelsonTightness.lean" target="_blank" rel="noopener">TsirelsonTightness.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/LandauIdentity.lean" target="_blank" rel="noopener">LandauIdentity.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A source emits an entangled pair of qubits, one flying to the lab on the left and one to Bob on the right. Inside the left lab a friend measures Z first and writes the result down; Wigner, outside the lab, then either asks the friend (setting 0) or first coherently undoes the friend’s measurement and then measures X<sub>S</sub>⊗X<sub>F</sub> (setting 1). Bob, spacelike separated, picks one of two angles. Both results travel to the middle at the speed of light. The 3D block shows space across and time up, with 400 runs lined up in depth.</p>
+      <ol>
+        <li><b>The friend’s record is one arm; the coherent measurement after the undo is the other (OBSERVER-QUANTUM section 8, GICT Observation 6.30, both in Chinese).</b> Setting 0 reads the Z the friend wrote down; the setting-1 observable A<sub>1</sub> = X<sub>S</sub>⊗X<sub>F</sub> necessarily touches the friend’s memory coherently. For the shared Bell state the correlations are E(0, y) = cos θ<sub>y</sub> and E(1, y) = cos φ cos θ<sub>y</sub> + v sin φ sin θ<sub>y</sub>, and the CHSH value S = E₀₀ + E₀₁ + E₁₀ − E₁₁ is 2√2 at the default angles.</li>
+        <li><b>The three cannot all hold.</b> If the friend’s result were an absolute fact in every run (including the undone ones), then together with free settings and no superluminal influence each run would carry one answer table filled with A<sub>0</sub>, A<sub>1</sub>, B<sub>0</sub>, B<sub>1</sub>, and every answer table and every mixture of them satisfies |S| ≤ 2. That bound is frozen in trureturing: <code>classical_chsh_bound_is_exact</code>. The quantum ledgers give 2√2 &gt; 2, so the three cannot hold together. The theory volume gives up the first: the absoluteness of observed events is never granted, facts are relative to the ledger that records them, and merging facts across unshared records is not an allowed inference. The volume also says this rejects one premise of the no-go theorem and that other interpretations may reject another. This part is a derivation plus numerical certificates in the theory volumes, not a Lean theorem.</li>
+        <li><b>Tsirelson’s bound.</b> For the page’s default observables (A<sub>0</sub> = Z, A<sub>1</sub> = X, B<sub>0,1</sub> = (Z ± X)/√2), no two-qubit state has a CHSH expectation above 2√2, and the Bell state attains it: <code>bell_chsh_state_expectation_is_greatest</code>. Landau’s identity C² = 4I − [A₀,A₁]⊗[B₀,B₁] is frozen too: <code>landau_identity</code>. The general Tsirelson bound for arbitrary angles is a known result (Cirel’son 1980); the page draws the forbidden zone beyond 2√2 but does not call that general bound frozen.</li>
+        <li><b>The price of the undo.</b> The friend’s result is written into M copies (memory, notes, the lab’s surroundings …). The page assumes each copy is reversed with fidelity f, leaving a coherence visibility v = f<sup>M</sup> after the undo; this is a schematic assumption, not a theorem. The visibility multiplies the X part of the correlations, and at the best angles the maximum is S<sub>max</sub> = 2√(1 + v²). A qubit friend has v = 1 and reaches 2√2; a human friend has an astronomical number of copies, v → 0, S<sub>max</sub> drops to 2 and the violation disappears, so in practice the friend’s result behaves like an absolute fact. Measuring without the undo is the same as v = 0.</li>
+        <li><b>Who measures first depends on the frame.</b> Wigner’s and Bob’s measurements are spacelike separated: in the lab frame Bob measures first, in a frame with β &lt; −0.117 Wigner does, and the correlation for every setting pair stays exactly the same. The “now” slice is the surface t′ = γ(t − βx) = constant, tilted in lab coordinates. Both results travel to the middle at light speed; the meeting event lies in the future light cone of both measurements and comes after both in every frame, and only there does the correlation become a fact in anyone’s ledger.</li>
+        <li><b>LINEAR and BLOCK.</b> LINEAR shows only the events before the slice in the chosen frame, and the ledger readouts count by that slice: undone records are struck out of the friend’s ledger, and the archive estimate of S appears only once the meeting event is inside the slice. BLOCK shows the whole block at once. Changing the frame, the coordinates or the conditioning leaves the archive fingerprint unchanged; only the angles, the undo or the answer table change the results.</li>
+        <li><b>Model limits.</b> The entangled state, the measurements and the undo form an idealised two-qubit model, the undo visibility f<sup>M</sup> is a schematic assumption, and the geometry uses only 1+1-dimensional Lorentz transformations. The page samples with fixed seeds, about 100 runs per setting pair, so the archive estimate fluctuates. It is not a numerical simulation of a real experiment.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (theory volumes in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md" target="_blank" rel="noopener">OBSERVER-QUANTUM.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md" target="_blank" rel="noopener">GICT.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/ClassicalFiberBound.lean" target="_blank" rel="noopener">ClassicalFiberBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/TsirelsonTightness.lean" target="_blank" rel="noopener">TsirelsonTightness.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/LandauIdentity.lean" target="_blank" rel="noopener">LandauIdentity.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

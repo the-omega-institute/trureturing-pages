@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="PALINDROME//CUTS · How few palindromes a prefix splits into">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PALINDROME//CUTS 回文切分 · 前缀最少能切成几个回文</title>
+<meta name="description" content="把一个无限词的前缀切成尽量少的回文，最少块数叫前缀回文长度 P(n)。倍周期词（a → ab，b → aa）上，本库证明了 Frid、Laborde、Peltomäki 2021 年的猜想 17：差分 P(n + 1) − P(n) 不是 2-自动的，P 也不是 2-正则的；还证明了带符号二进制权重的下界和两族精确值。斐波那契词上，本库证明了 Frid 2018 年的猜想：长度为 (100)²ᵏ⁻¹101（斐波那契记数）的前缀恰好需要 2k + 1 个回文。页面把最优切分画成拱桥，并核对这些冻结结论。Cut a prefix of an infinite word into as few palindromes as possible; the least number of pieces is the prefix palindromic length P(n). For the period-doubling word (a → ab, b → aa) this library proves Conjecture 17 of Frid, Laborde and Peltomäki (2021): the differences P(n + 1) − P(n) are not 2-automatic and P is not 2-regular; it also proves a signed-binary-weight lower bound and two families of exact values. For the Fibonacci word it proves Frid’s 2018 conjecture: the prefix of length (100)²ᵏ⁻¹101 in Fibonacci numeration needs exactly 2k + 1 palindromes. The page draws optimal cuts as arches and checks these frozen results.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="palindrome-cuts">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="PALINDROME//CUTS">PALINDROME<b>//</b>CUTS</h1>
+      <div class="tagline">
+        <span class="zh">回文切分 · 前缀最少能切成几个回文 · <em>倍周期词与斐波那契词上的两个猜想，本库都证明了</em></span>
+        <span class="en">Palindromic length · how few palindromes a prefix splits into · <em>two conjectures on the period-doubling and Fibonacci words, both proved in this library</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="pdcut" aria-pressed="true"><span class="code">a → ab, b → aa</span><span class="cn zh">倍周期词 · 逐个切分</span><span class="cn en">Period doubling · cut by cut</span></button>
+        <button class="preset" data-preset="fibcut" aria-pressed="false"><span class="code">a → ab, b → a</span><span class="cn zh">斐波那契词 · 逐个切分</span><span class="cn en">Fibonacci · cut by cut</span></button>
+        <button class="preset" data-preset="lower" aria-pressed="false"><span class="code">n = 72</span><span class="cn zh">下界差 2 · 第一次</span><span class="cn en">Two above the bound · first time</span></button>
+        <button class="preset" data-preset="offdiag" aria-pressed="false"><span class="code">N(1, 5)</span><span class="cn zh">非对角精确值 · 6</span><span class="cn en">Off-diagonal exact value · 6</span></button>
+        <button class="preset" data-preset="diag" aria-pressed="false"><span class="code">N(3, 5)</span><span class="cn zh">对角精确值 · 9</span><span class="cn en">Diagonal exact value · 9</span></button>
+        <button class="preset" data-preset="kernel" aria-pressed="false"><span class="code">2-KERNEL</span><span class="cn zh">差分的 2-核 · 不停变多</span><span class="cn en">The 2-kernel · it keeps growing</span></button>
+        <button class="preset" data-preset="frid" aria-pressed="false"><span class="code">k = 4</span><span class="cn zh">Frid 前缀 · 9 个回文</span><span class="cn en">Frid prefix · 9 palindromes</span></button>
+        <button class="preset" data-preset="fridsweep" aria-pressed="false"><span class="code">SWEEP</span><span class="cn zh">斐波那契 · 扫到 10⁵</span><span class="cn en">Fibonacci · sweep to 10⁵</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">P(n)</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="cut"><span class="zh">逐个切分</span><span class="en">Cut by cut</span></button>
+        <button class="chip" data-mode="pd"><span class="zh">倍周期 · 下界</span><span class="en">Period doubling · bound</span></button>
+        <button class="chip" data-mode="kernel"><span class="zh">2-核</span><span class="en">2-kernel</span></button>
+        <button class="chip" data-mode="fib"><span class="zh">斐波那契 · Frid</span><span class="en">Fibonacci · Frid</span></button>
+      </div>
+      <div class="field" id="wordField" hidden>
+        <span class="lbl"><span class="zh">词</span><span class="en">Word</span></span>
+        <div class="chips" id="wordChips" role="group" aria-label="词" data-aria-en="Word">
+          <button class="chip" data-word="pd"><span class="zh">倍周期</span><span class="en">Period doubling</span></button>
+          <button class="chip" data-word="fib"><span class="zh">斐波那契</span><span class="en">Fibonacci</span></button>
+        </div>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：前缀的字母排成一行或一条螺线（a 青，b 品红），最优回文切分的每一块画成一座拱桥；2-核模式下是二叉树，每个节点是一条子序列，颜色表示它是不是新出现的；拖动旋转，滚轮缩放" data-aria-en="3D view: the letters of the prefix along a line or a spiral (a cyan, b magenta), each block of an optimal palindromic cut drawn as an arch; in the 2-kernel mode a binary tree whose nodes are subsequences, coloured by whether they are new; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前模型的主图" data-aria-en="Main chart of the current model"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前模型的辅助图" data-aria-en="Side chart of the current model"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">P(n) = PL(u[0, n))</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明 Frid、Laborde、Peltomäki（2021）的猜想 17：倍周期词前缀回文长度的差分 d(n) = P(n + 1) − P(n) 不是 2-自动的（它的 2-核，即全部子序列 n ↦ d(2ᵉn + r)，有无穷多个），而且 P 的 2-核张成的有理向量空间是无穷维的，所以 P 不是 2-正则的。已冻结：</span><span class="en">Proves Conjecture 17 of Frid, Laborde and Peltomäki (2021): the differences d(n) = P(n + 1) − P(n) of the prefix palindromic length of the period-doubling word are not 2-automatic (their 2-kernel, all subsequences n ↦ d(2ᵉn + r), is infinite), and the 2-kernel of P spans an infinite-dimensional rational vector space, so P is not 2-regular. Frozen:</span> <code>PrefixPalindromicLengthNotAutomatic.result</code> · <code>SparseKernelRank.stronger_PPL_kernel_span</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">两族精确值：令 N(a, b) = Σ<sub>i&lt;a</sub> 2<sup>2b+2+3i</sup> + Σ<sub>j&lt;b</sub> 2<sup>2j+1</sup>。对正奇数 a，P(N(a, 2a − 1)) = 3a；对正奇数 a 与奇数 b ≥ 2a + 1，P(N(a, b)) = a + b。已冻结：</span><span class="en">Two families of exact values: with N(a, b) = Σ<sub>i&lt;a</sub> 2<sup>2b+2+3i</sup> + Σ<sub>j&lt;b</sub> 2<sup>2j+1</sup>, P(N(a, 2a − 1)) = 3a for positive odd a, and P(N(a, b)) = a + b for positive odd a and odd b ≥ 2a + 1. Frozen:</span> <code>SparseExactDiagonal.diagonal_exact_family</code> · <code>SparseExactOffDiagonal.offdiagonal_exact_family</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">带符号二进制下界：P(n) ≥ F(n)，其中 F(n) 是 ⌊(n + 1)/2⌋ 写成 ±2ᵏ 之和时最少要几项（带符号二进制权重）。已冻结：</span><span class="en">A signed-binary lower bound: P(n) ≥ F(n), where F(n) is the least number of terms ±2ᵏ that sum to ⌊(n + 1)/2⌋ (the signed binary weight). Frozen:</span> <code>SignedCutLowerBound.palindromic_suffix_signed_bound</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">证明 Frid（2018）的猜想 2：斐波那契词长为 N(k) 的前缀（N(k) 在斐波那契记数中写作 (100)<sup>2k−1</sup>101，等于 F<sub>6k+3</sub>/2）恰好需要 2k + 1 个回文，不能更少。已冻结：</span><span class="en">Proves Conjecture 2 of Frid (2018): the prefix of the Fibonacci word of length N(k) (written (100)<sup>2k−1</sup>101 in Fibonacci numeration, equal to F<sub>6k+3</sub>/2) needs exactly 2k + 1 palindromes, no fewer. Frozen:</span> <code>FridPrefixPalindromicLength.result</code> · <code>FridNumerals.frid_numeral_twice</code></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">倍周期词：P(n) ≤ F(n) + 2 是否对所有 n 成立？P(N(a, 2a − 1) + 1) = 3a 与 P(N(a, b) + 1) = a + b + 1 是否总成立（上界已证）？差分序列是否是 morphic 的？斐波那契词：任意前缀的回文长度的精确公式，以及 limsup P(n)/log n 的精确常数，都还未知。</span><span class="en">Period doubling: does P(n) ≤ F(n) + 2 hold for every n? Do P(N(a, 2a − 1) + 1) = 3a and P(N(a, b) + 1) = a + b + 1 always hold (the upper bounds are proved)? Is the difference sequence morphic? Fibonacci: an exact formula for the palindromic length of every prefix, and the exact constant of limsup P(n)/log n, are still unknown.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Frid、Laborde、Peltomäki（2021）研究自动词的前缀回文长度，提出猜想 17；Bulgakova、Frid、Scanvic（2022）在 Sierpiński 词的论文里仍把倍周期词的非 2-正则性记为猜想。Frid（2018，Numeration 会议摘要）提出斐波那契前缀的猜想；Ambrož、Kadlec、Masáková、Pelantová（2019）指出，它若成立就给出斐波那契词回文长度 limsup 的下界。</span><span class="en">Frid, Laborde and Peltomäki (2021) studied the prefix palindromic length of automatic words and stated Conjecture 17; Bulgakova, Frid and Scanvic (2022), in their paper on the Sierpiński word, still list non-2-regularity for the period-doubling word as a conjecture. Frid (2018, a Numeration conference abstract) stated the Fibonacci-prefix conjecture; Ambrož, Kadlec, Masáková and Pelantová (2019) noted that it would give a lower bound on the limsup of the palindromic length of the Fibonacci word.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：前缀长度 n（2-核模式下为层数 e）" data-aria-en="Progress: the prefix length n (the level e in the 2-kernel mode)">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">回文是正读反读一样的词，比如 aba、abba。任何词都能切成若干个回文（单个字母就是回文），最少要切几块叫它的回文长度。对一个无限词 u，记 P(n) 为长 n 的前缀的回文长度。页面用回文树（eertree）一次算出所有前缀的 P(n)：每读一个字母，就遍历以它结尾的全部回文后缀，取 P(n) = min P(n − |回文|) + 1，并记下最优的那一刀。三维视图把前缀的字母排开，最优切分的每一块画成一座拱桥。</p>
+      <ol>
+        <li><b>两个词。</b>倍周期词是 a → ab、b → aa 从 a 出发反复替换的极限：abaaabababaaabaa…；第 n 个字母（从 0 数）是 b 当且仅当 n + 1 含有奇数个因子 2。斐波那契词是 a → ab、b → a 的极限：abaababaabaab…（本库把字母编码成 true/false：第 i 个字母是 a 当且仅当 i 的 Zeckendorf 表示不含 1；字母叫什么不影响回文长度）。</li>
+        <li><b>猜想 17（已冻结的证明）。</b>Frid、Laborde、Peltomäki 证明了只含有限多个回文的 k-自动词，前缀回文长度都是 k-正则的；倍周期词含有无穷多个回文，他们的计算实验提示它不是 2-正则的，于是猜测（<a href="https://doi.org/10.1016/j.tcs.2021.08.016" target="_blank" rel="noopener">Theoret. Comput. Sci. 891, 13–23 (2021)</a>，<a href="https://arxiv.org/abs/2009.02934" target="_blank" rel="noopener">arXiv:2009.02934</a>，猜想 17）：差分 d(n) = P(n + 1) − P(n) 不是 2-自动的。一个序列是 2-自动的，当且仅当它的 2-核——全部子序列 n ↦ d(2ᵉn + r)，0 ≤ r &lt; 2ᵉ——只有有限多个。本库证明 2-核是无穷的（<code>PrefixPalindromicLengthNotAutomatic.result</code>），并更强地证明 P 的 2-核张成无穷维空间，所以 P 不是 2-正则的（<code>SparseKernelRank.stronger_PPL_kernel_span</code>）。2-核模式数的是有限窗口里不同子序列的个数，只是旁证；无穷性来自证明，不来自这些数。</li>
+        <li><b>下界与精确值（已冻结）。</b>每切掉一个回文后缀，⌊(n + 1)/2⌋ 的带符号二进制权重 F 最多降 1，所以 P(n) ≥ F(n)（<code>SignedCutLowerBound</code>）。在稀疏地址 N(a, b) 上，这个下界与构造的切分配合给出精确值 P(N(a, 2a − 1)) = 3a 与 P(N(a, b)) = a + b（<code>SparseExactDiagonal</code>、<code>SparseExactOffDiagonal</code>），这些精确值正是 2-核秩无界的来源。页面算到 n = 3·10⁵：P − F 只取 0、1、2，第一次取 2 在 n = 72——这是有限范围的读数，P ≤ F + 2 是否总成立仍是开放问题。</li>
+        <li><b>Frid 的斐波那契猜想（已冻结的证明）。</b>Frid 猜测斐波那契词长为 (100)<sup>2k−1</sup>101（斐波那契记数，权重 1, 2, 3, 5, 8, …）的前缀不能切成至多 2k 个回文（<a href="https://numeration2018.sciencesconf.org/data/pages/num18_abstracts.pdf" target="_blank" rel="noopener">Numeration 2018 摘要</a>，猜想 2）。本库证明它恰好需要 2k + 1 个（<code>FridPrefixPalindromicLength.result</code>），而这个长度等于 F<sub>6k+3</sub>/2（<code>FridNumerals.frid_numeral_twice</code>）：k = 1, 2, 3, 4 时是 17、305、5473、98209。Ambrož、Kadlec、Masáková、Pelantová 指出，这个猜想若成立就给出 limsup 的下界 1/(3 log φ)（<a href="https://arxiv.org/abs/1812.00711" target="_blank" rel="noopener">arXiv:1812.00711</a>）；页面画出的斜率 1/(3 ln φ) 是由此推出的参考线，没有形式化。</li>
+        <li><b>模型边界。</b>页面上的 P(n) 是对有限前缀的精确计算；2-核计数、P − F 的取值范围、各 P 值第一次出现的位置都只是有限范围的读数，不能代替证明。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/PrefixPalindromicLengthNotAutomatic.lean" target="_blank" rel="noopener">PrefixPalindromicLengthNotAutomatic.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseKernelRank.lean" target="_blank" rel="noopener">SparseKernelRank.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SignedCutLowerBound.lean" target="_blank" rel="noopener">SignedCutLowerBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/FridPrefix/FridPrefixPalindromicLength.lean" target="_blank" rel="noopener">FridPrefixPalindromicLength.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-laborde-peltomaki-2021-period-doubling-c17.md" target="_blank" rel="noopener">猜想 17 问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-2018-fibonacci-prefix-palindromic-length.md" target="_blank" rel="noopener">Frid 猜想问题卷宗</a> · Bulgakova、Frid、Scanvic，<a href="https://arxiv.org/abs/2201.09556" target="_blank" rel="noopener">arXiv:2201.09556</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A palindrome reads the same forwards and backwards, like aba or abba. Every word can be cut into palindromes (a single letter is one), and the least number of pieces is its palindromic length. For an infinite word u, write P(n) for the palindromic length of its prefix of length n. The page computes P(n) for every prefix at once with a palindromic tree (eertree): after each letter it runs through all palindromic suffixes ending there, takes P(n) = min P(n − |palindrome|) + 1, and records the best cut. The 3D view lays out the letters of the prefix and draws each block of an optimal cut as an arch.</p>
+      <ol>
+        <li><b>Two words.</b> The period-doubling word is the limit of repeatedly substituting a → ab, b → aa starting from a: abaaabababaaabaa…; its letter at position n (from 0) is b exactly when n + 1 has an odd number of factors 2. The Fibonacci word is the limit of a → ab, b → a: abaababaabaab… (this library codes the letters as true/false: the letter at i is a exactly when the Zeckendorf representation of i has no 1; the names of the letters do not affect palindromic length).</li>
+        <li><b>Conjecture 17 (a frozen proof).</b> Frid, Laborde and Peltomäki proved that the prefix palindromic length of every k-automatic word with only finitely many palindromes is k-regular; the period-doubling word has infinitely many palindromes, their computations suggested it is not 2-regular, and they conjectured (<a href="https://doi.org/10.1016/j.tcs.2021.08.016" target="_blank" rel="noopener">Theoret. Comput. Sci. 891, 13–23 (2021)</a>, <a href="https://arxiv.org/abs/2009.02934" target="_blank" rel="noopener">arXiv:2009.02934</a>, Conjecture 17): the differences d(n) = P(n + 1) − P(n) are not 2-automatic. A sequence is 2-automatic exactly when its 2-kernel, the set of subsequences n ↦ d(2ᵉn + r) with 0 ≤ r &lt; 2ᵉ, is finite. This library proves the 2-kernel is infinite (<code>PrefixPalindromicLengthNotAutomatic.result</code>), and more strongly that the 2-kernel of P spans an infinite-dimensional space, so P is not 2-regular (<code>SparseKernelRank.stronger_PPL_kernel_span</code>). The 2-kernel mode counts distinct subsequences on a finite window, which is only circumstantial evidence; infinitude comes from the proof, not from these counts.</li>
+        <li><b>A lower bound and exact values (frozen).</b> Cutting off one palindromic suffix lowers the signed binary weight F of ⌊(n + 1)/2⌋ by at most 1, so P(n) ≥ F(n) (<code>SignedCutLowerBound</code>). At the sparse addresses N(a, b) this bound and explicit cuts give the exact values P(N(a, 2a − 1)) = 3a and P(N(a, b)) = a + b (<code>SparseExactDiagonal</code>, <code>SparseExactOffDiagonal</code>), and these exact values are what makes the rank of the 2-kernel unbounded. The page computes up to n = 3·10⁵: P − F takes only the values 0, 1, 2 and first reaches 2 at n = 72; this is a reading on a finite range, and whether P ≤ F + 2 always holds is open.</li>
+        <li><b>Frid’s Fibonacci conjecture (a frozen proof).</b> Frid conjectured that the prefix of the Fibonacci word of length (100)<sup>2k−1</sup>101 (in Fibonacci numeration, weights 1, 2, 3, 5, 8, …) cannot be cut into at most 2k palindromes (<a href="https://numeration2018.sciencesconf.org/data/pages/num18_abstracts.pdf" target="_blank" rel="noopener">Numeration 2018 abstracts</a>, Conjecture 2). This library proves it needs exactly 2k + 1 (<code>FridPrefixPalindromicLength.result</code>), and the length equals F<sub>6k+3</sub>/2 (<code>FridNumerals.frid_numeral_twice</code>): 17, 305, 5473, 98209 for k = 1, 2, 3, 4. Ambrož, Kadlec, Masáková and Pelantová noted that the conjecture would give the lower bound 1/(3 log φ) on the limsup (<a href="https://arxiv.org/abs/1812.00711" target="_blank" rel="noopener">arXiv:1812.00711</a>); the slope 1/(3 ln φ) drawn on the page is a guide derived from it, not formalized.</li>
+        <li><b>Model limits.</b> The values P(n) on the page are exact computations for finite prefixes; the 2-kernel counts, the range of P − F and the first positions of each value of P are readings on a finite range and cannot replace a proof.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/PrefixPalindromicLengthNotAutomatic.lean" target="_blank" rel="noopener">PrefixPalindromicLengthNotAutomatic.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SparseKernelRank.lean" target="_blank" rel="noopener">SparseKernelRank.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/PeriodDoubling/SignedCutLowerBound.lean" target="_blank" rel="noopener">SignedCutLowerBound.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Palindromes/FridPrefix/FridPrefixPalindromicLength.lean" target="_blank" rel="noopener">FridPrefixPalindromicLength.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-laborde-peltomaki-2021-period-doubling-c17.md" target="_blank" rel="noopener">Conjecture 17 dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/frid-2018-fibonacci-prefix-palindromic-length.md" target="_blank" rel="noopener">Frid conjecture dossier</a> · Bulgakova, Frid and Scanvic, <a href="https://arxiv.org/abs/2201.09556" target="_blank" rel="noopener">arXiv:2201.09556</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

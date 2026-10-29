@@ -52,6 +52,8 @@ def download(path):
 def build(output):
     if output.exists():raise ValueError('Preview directory already exists')
     shutil.copytree(ROOT/'site',output)
+    from lib.visualize import mount_visualize
+    mount_visualize(output)
     total=0
     def acquire(path,expected=None):
         nonlocal total

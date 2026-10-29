@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="ROBIN//LATTICE · Robin certificate colouring on the prime-exponent lattice">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ROBIN//LATTICE Robin 证书着色 · 素数指数格上的点、边、面与纤维</title>
+<meta name="description" content="每个整数是素数指数格上的一个点。页面按证据强度给 n &gt; 5040 着色：七光滑和十一光滑族由已冻结的 Lean 定理直接覆盖；把素数换成更大的素数保持 Robin 不等式（Lean），再加上 5040 最优界，覆盖 5600 以上全部至多五个不同素因子的整数；沿一条素数纤维，首层边检验通过则整条纤维通过（Lean）。剩下的前沿是六个及以上不同素因子的整数。页面不证明黎曼猜想。Every integer is a point of the prime-exponent lattice. The page colours n &gt; 5040 by strength of evidence: the 7-smooth and 11-smooth families are covered by frozen Lean theorems; replacing a prime by a larger one keeps Robin's inequality (Lean), and with the 5040 optimum this reaches every integer above 5600 with at most five distinct primes; along a prime fibre a passing first edge test carries the whole fibre (Lean). The remaining frontier is the integers with six or more distinct primes. The page does not prove the Riemann hypothesis.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="robin-lattice">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="ROBIN//LATTICE">ROBIN<b>//</b>LATTICE</h1>
+      <div class="tagline">
+        <span class="zh">Robin 证书着色 · 素数指数格上的点、边、面与纤维 · <em>颜色记录的是证据，不是猜测</em></span>
+        <span class="en">Robin certificate colouring · vertices, edges, faces and fibres of the prime-exponent lattice · <em>a colour records evidence, not a guess</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="core" aria-pressed="true"><span class="code">n = 5040</span><span class="cn zh">5040 · 唯一越界的端点</span><span class="cn en">5040 · the excluded endpoint</span></button>
+        <button class="preset" data-preset="kappa" aria-pressed="false"><span class="code">(4, 3, 2)</span><span class="cn zh">同一位置 · 三种来源</span><span class="cn en">One position · three sources</span></button>
+        <button class="preset" data-preset="fibre" aria-pressed="false"><span class="code">10080 · 11ᵏ</span><span class="cn zh">首层通过 · 整条纤维通过</span><span class="cn en">First layer passes · whole fibre passes</span></button>
+        <button class="preset" data-preset="fail" aria-pressed="false"><span class="code">27440 → ×11</span><span class="cn zh">检验不过 · 结论照样成立</span><span class="cn en">Test fails · conclusion still holds</span></button>
+        <button class="preset" data-preset="face" aria-pressed="false"><span class="code">10080 · 2 × 3</span><span class="cn zh">一块面 · 确定的损失</span><span class="cn en">One face · a definite loss</span></button>
+        <button class="preset" data-preset="replace" aria-pressed="false"><span class="code">7 → 11</span><span class="cn zh">换成更大的素数</span><span class="cn en">Swap in a larger prime</span></button>
+        <button class="preset" data-preset="cover" aria-pressed="false"><span class="code">n ≤ 10⁶</span><span class="cn zh">覆盖率与剩余前沿</span><span class="cn en">Coverage and the frontier</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">视图</span><span class="en">View</span><span class="aside">MODE</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="视图" data-aria-en="View">
+        <button class="chip" data-mode="lattice"><span class="zh">格点</span><span class="en">Lattice</span></button>
+        <button class="chip" data-mode="kappa"><span class="zh">κ 纤维</span><span class="en">κ fibre</span></button>
+        <button class="chip" data-mode="fibre"><span class="zh">素数纤维</span><span class="en">Prime fibre</span></button>
+        <button class="chip" data-mode="face"><span class="zh">面</span><span class="en">Face</span></button>
+        <button class="chip" data-mode="cover"><span class="zh">覆盖</span><span class="en">Coverage</span></button>
+      </div>
+      <div class="field nfield">
+        <label for="nInput"><span class="zh">选定整数 n</span><span class="en">Selected integer n</span></label>
+        <div class="nrow"><input id="nInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="5040" aria-label="整数 n" data-aria-en="Integer n"><button class="chip" id="nGo"><span class="zh">查看</span><span class="en">Show</span></button></div>
+        <small class="nerr" id="nErr"></small>
+      </div>
+      <div class="field" id="sliceField">
+        <span class="lbl"><span class="zh">11 的指数 a₁₁（格点切片）</span><span class="en">Exponent of 11, a₁₁ (lattice slice)</span></span>
+        <div class="chips" id="sliceChips" role="group" aria-label="11 的指数" data-aria-en="Exponent of 11">
+          <button class="chip" data-slice="0">0</button><button class="chip" data-slice="1">1</button><button class="chip" data-slice="2">2</button>
+        </div>
+      </div>
+      <div class="field" id="edgeField">
+        <span class="lbl"><span class="zh">边的颜色</span><span class="en">Edge colour</span></span>
+        <div class="chips" id="edgeChips" role="group" aria-label="边的颜色" data-aria-en="Edge colour">
+          <button class="chip" data-edge="grad"><span class="zh">端点渐变</span><span class="en">Endpoint gradient</span></button>
+          <button class="chip" data-edge="test"><span class="zh">边检验</span><span class="en">Edge test</span></button>
+        </div>
+      </div>
+      <div class="field" id="qField" hidden>
+        <span class="lbl"><span class="zh">纤维方向 q</span><span class="en">Fibre direction q</span></span>
+        <div class="chips" id="qChips" role="group" aria-label="纤维方向" data-aria-en="Fibre direction">
+          <button class="chip" data-q="2">2</button><button class="chip" data-q="3">3</button><button class="chip" data-q="5">5</button><button class="chip" data-q="7">7</button><button class="chip" data-q="11">11</button><button class="chip" data-q="13">13</button>
+        </div>
+      </div>
+      <div class="field" id="faceField" hidden>
+        <span class="lbl"><span class="zh">面的两个方向 p、q</span><span class="en">The face directions p and q</span></span>
+        <div class="chips" id="pChips" role="group" aria-label="方向 p" data-aria-en="Direction p">
+          <button class="chip" data-p="2">p = 2</button><button class="chip" data-p="3">p = 3</button><button class="chip" data-p="5">p = 5</button><button class="chip" data-p="7">p = 7</button>
+        </div>
+        <div class="chips" id="fqChips" role="group" aria-label="方向 q" data-aria-en="Direction q">
+          <button class="chip" data-fq="3">q = 3</button><button class="chip" data-fq="5">q = 5</button><button class="chip" data-fq="7">q = 7</button><button class="chip" data-fq="11">q = 11</button>
+        </div>
+      </div>
+      <div class="field" id="xField" hidden>
+        <label for="xx"><span class="zh">覆盖上限 X</span><span class="en">Coverage bound X</span></label><output id="oX" for="xx">10⁶</output>
+        <input type="range" id="xx" min="4" max="6" step="0.25" value="6">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+
+    <section class="panel sec legend-sec">
+      <h2><span class="zh">颜色 = 证据</span><span class="en">Colour = evidence</span><span class="aside">KEY</span></h2>
+      <ul class="legend" id="legend">
+        <li><i class="sw lean"></i><span class="zh">Lean 定理直接覆盖（七、十一光滑）</span><span class="en">A Lean theorem covers it directly (7- and 11-smooth)</span></li>
+        <li><i class="sw chain"></i><span class="zh">Lean 定理链：从压缩数换素数，实例条件为精确整数</span><span class="en">Chain of Lean theorems: swap primes from the compression; side conditions are exact integers</span></li>
+        <li><i class="sw bound"></i><span class="zh">冻结的 5040 最优定理 + 一条数值阈值</span><span class="en">Frozen 5040-optimum theorem + one numerical threshold</span></li>
+        <li><i class="sw edge"></i><span class="zh">Lean 边/纤维规则 + 浮点边检验</span><span class="en">Lean edge/fibre rule + floating-point edge test</span></li>
+        <li><i class="sw num"></i><span class="zh">只有数值：没有证书，不是反例</span><span class="en">Numbers only: no certificate, not a counterexample</span></li>
+        <li><i class="sw out"></i><span class="zh">n ≤ 5040：不在 Robin 判据的量词范围内</span><span class="en">n ≤ 5040: outside the range of Robin’s criterion</span></li>
+      </ul>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" data-thumb aria-label="三维视图：素数指数格的 AURIC 投影，位置 (a₂ + a₇, a₃, a₅ + a₇)，同一位置上不同的 κ = a₇ 沿纤维错开；点击顶点选中，拖动旋转，滚轮缩放" data-aria-en="3D view: the AURIC projection of the prime-exponent lattice at (a₂ + a₇, a₃, a₅ + a₇), with different κ = a₇ at one position offset along the fibre; click a vertex to select it, drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前视图的主图" data-aria-en="Main chart of the current view"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前视图的辅助图" data-aria-en="Side chart of the current view"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside" id="roAside">n</span></h2>
+      <dl class="ro">
+        <div class="a wide"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="c"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="m"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+        <div class="wide"><dt id="ro6L"></dt><dd id="ro6">—</dd></div>
+      </dl>
+      <p class="note cert" id="certNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">已验证</span><span class="en">Verified</span><span class="aside">LEAN</span></h2>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">任意 2<sup>a</sup>3<sup>b</sup>5<sup>c</sup>7<sup>d</sup> &gt; 5040 都满足 σ(n)/n &lt; e<sup>γ</sup> log log n，四个指数不设上限。已冻结：</span><span class="en">Every 2<sup>a</sup>3<sup>b</sup>5<sup>c</sup>7<sup>d</sup> &gt; 5040 satisfies σ(n)/n &lt; e<sup>γ</sup> log log n, with no bound on the four exponents. Frozen:</span> <code>SevenSmooth.robin_seven_smooth</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">同样的结论对任意 2<sup>a</sup>3<sup>b</sup>5<sup>c</sup>7<sup>d</sup>11<sup>e</sup> &gt; 5040 成立：e = 0 时套用上一条；2<sup>22</sup> 以上用饱和界 77/16；以下是内核检查的有限表。已冻结：</span><span class="en">The same holds for every 2<sup>a</sup>3<sup>b</sup>5<sup>c</sup>7<sup>d</sup>11<sup>e</sup> &gt; 5040: e = 0 reuses the previous theorem, above 2<sup>22</sup> the saturation bound 77/16 applies, and below it a kernel-checked finite table. Frozen:</span> <code>ElevenSmooth.robin_eleven_smooth</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">素数 p ≤ q、都不整除 m 时，p<sup>a</sup>m 满足 Robin 不等式 ⇒ q<sup>a</sup>m 也满足。已冻结：</span><span class="en">For primes p ≤ q dividing neither m: Robin’s inequality at p<sup>a</sup>m implies it at q<sup>a</sup>m. Frozen:</span> <code>PrimeFiberPropagation.robinAt_prime_replace</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">边检验 (Z(nm)/Z(n) − 1)·log log n ≤ log(1 + log m / log n) 把 Robin 不等式从 n 传到 nm；沿素数 q 的纤维，log n ≥ 3 时首层通过则每一层都通过，于是整条纤维 n·q<sup>k</sup> 都满足。已冻结：</span><span class="en">The edge test (Z(nm)/Z(n) − 1)·log log n ≤ log(1 + log m / log n) carries Robin’s inequality from n to nm; along the fibre of a prime q, once log n ≥ 3, a passing first layer makes every layer pass, so the whole fibre n·q<sup>k</sup> satisfies it. Frozen:</span> <code>PrimeFiberPropagation.robinAt_mul_of_edgeTest</code> · <code>edgeTest_mul_prime_pow</code> · <code>robinAt_mul_prime_pow</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">对全部 n ≥ 1，Z(n)/n<sup>1/25</sup> ≤ Z(5040)/5040<sup>1/25</sup>，等号只在 n = 5040；所以 n ≤ 5040 时 Z(n) ≤ 403/105。已冻结：</span><span class="en">For all n ≥ 1, Z(n)/n<sup>1/25</sup> ≤ Z(5040)/5040<sup>1/25</sup>, with equality only at n = 5040; hence Z(n) ≤ 403/105 for n ≤ 5040. Frozen:</span> <code>GoldenResourceOptimalInteger.golden_resource_unique_optimum</code></span></div>
+      <div class="lean theory"><span class="ok">DERIVED</span><span><span class="zh">本页推导、未形式化：面混合差公式 C(npq) − C(np) − C(nq) + C(n) = g(L+h+k) − g(L+h) − g(L+k) + g(L) &lt; 0（g = log log）；连续松弛的 Hessian 与最坏分配 p<sup>a+1</sup> = T；“压缩数”把任意整数送到前几个素数上，并有 R(N) ≤ R(c(N))。</span><span class="en">Derived on this page, not formalized: the face mixed difference C(npq) − C(np) − C(nq) + C(n) = g(L+h+k) − g(L+h) − g(L+k) + g(L) &lt; 0 (g = log log); the Hessian of the continuous relaxation and its worst allocation p<sup>a+1</sup> = T; the compression that moves any integer onto the first primes, with R(N) ≤ R(c(N)).</span></span></div>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Robin 判据（RH ⇔ 全部 n &gt; 5040 满足该不等式）是经典结果，本库引自 Choie–Lichiardopol–Moree–Solé；Nicolas（1983）的准则把 RH 等价于全部素数阶乘 N<sub>k</sub> 满足 N<sub>k</sub>/φ(N<sub>k</sub>) &gt; e<sup>γ</sup> log log N<sub>k</sub>。页面只引用，不证明。</span><span class="en">Robin’s criterion (RH ⇔ every n &gt; 5040 satisfies the inequality) is classical; the library cites it from Choie–Lichiardopol–Moree–Solé. Nicolas’s criterion (1983) makes RH equivalent to N<sub>k</sub>/φ(N<sub>k</sub>) &gt; e<sup>γ</sup> log log N<sub>k</sub> for every primorial N<sub>k</sub>. The page cites both and proves neither.</span></span></div>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </section>
+  </aside>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">整数 n = ∏ p<sup>a<sub>p</sub></sup> 是素数指数格上的一个点，乘以素数 p 是一条边。记 Z(n) = σ(n)/n = ∏ S<sub>p</sub>(a<sub>p</sub>)，S<sub>p</sub>(a) = 1 + 1/p + … + 1/p<sup>a</sup>，Robin 容量 e<sup>γ</sup> log log n，余量 M(n) = e<sup>γ</sup> log log n − Z(n)，对数余量 C(n) = log(e<sup>γ</sup> log log n / Z(n))。Robin 判据说：黎曼猜想成立 ⇔ 全部 n &gt; 5040 都有 M(n) &gt; 0。页面给每个点着上“证据的颜色”，然后研究哪些证书能覆盖整条边、整条纤维乃至无限区域。</p>
+      <ol>
+        <li><b>格点与 κ 纤维（理论卷）。</b>AURIC 投影把 (a<sub>2</sub>, a<sub>3</sub>, a<sub>5</sub>, a<sub>7</sub>) 送到 (U, V, W) = (a<sub>2</sub> + a<sub>7</sub>, a<sub>3</sub>, a<sub>5</sub> + a<sub>7</sub>)。7 在投影里是 2 方向与 5 方向的对角，因为 7 = 2 + 5；被合并的来源由隐藏坐标 κ = a<sub>7</sub> 恢复，0 ≤ κ ≤ min(U, W)，同一位置上的整数是 n(κ) = 2<sup>U</sup>3<sup>V</sup>5<sup>W</sup>·(7/10)<sup>κ</sup>。例如 (4, 3, 2) 上的 10800、7560、5292 投影重合，余量却分别约为 0.410、0.090、0.811。</li>
+        <li><b>边（已冻结）。</b>沿 n → nq，Z 的倍率是 1 + 1/(q·σ(q<sup>a</sup>))（a 是 q 在 n 中的指数），尺度的增长是 log log 的增量。边检验 (Z(nm)/Z(n) − 1)·log log n ≤ log(1 + log m / log n) 恰好说 Robin 比值不增，所以把 Robin 不等式从 n 传到 nm（<code>robinAt_mul_of_edgeTest</code>）。它扔掉了 n 处已有的余量，只是充分条件：27440 → 301840 这条边不过检验，但 301840 的比值只有约 0.655。</li>
+        <li><b>素数纤维（已冻结）。</b>同一方向上增量按至少 1/q 的比例缩小，而对数尺度只按调和速度减小；配合 (L + ℓ)(L + 2ℓ) ≤ L<sup>2</sup>e<sup>ℓ</sup>（L = log n ≥ 3，ℓ = log q），首层检验通过就推出每一层通过（<code>edgeTest_mul_prime_pow</code>），于是整条纤维 n·q<sup>k</sup> 都满足 Robin（<code>robinAt_mul_prime_pow</code>）。这对每个素数方向成立，不需要 q &gt; 7。</li>
+        <li><b>换素数与压缩（已冻结 + 推导）。</b>固定指数时 S<sub>q</sub>(a) ≤ S<sub>p</sub>(a)（q ≥ p），而整数变大，所以 Robin 不等式从 p<sup>a</sup>m 传到 q<sup>a</sup>m（<code>robinAt_prime_replace</code>）。把 N 的第 i 小素数换成第 i 个素数得到压缩数 c(N) ≤ N，并有 Z(N) ≤ Z(c(N))。不同素因子不超过 5 个时 c(N) 是十一光滑数：c(N) &gt; 5040 时由 <code>robin_eleven_smooth</code> 加逐个换素数得到 N 的证书（青色）；c(N) ≤ 5040 时由冻结的 5040 最优定理得 Z(N) ≤ 403/105，而 N ≥ 5600 时 e<sup>γ</sup> log log N &gt; 403/105（这条阈值在页面上是浮点核对，紫色）。</li>
+        <li><b>面（推导，未形式化）。</b>两个不同素数的 Euler 因子分离，Z(n)Z(npq) = Z(np)Z(nq)，所以 C 的四角混合差只剩 g = log log 的混合差，g″ &lt; 0 使它为负：每块乘法矩形有一笔确定的“面损失” A<sub>p,q</sub>(n)，hk·K(L + h + k) ≤ A ≤ hk·K(L)，K(L) = (log L + 1)/(L<sup>2</sup>(log L)<sup>2</sup>)。三个角都安全还不够，余量要付得起这块损失。</li>
+        <li><b>覆盖与前沿。</b>覆盖视图把 (5040, X] 中每个整数按最强的可用证据着色。10<sup>6</sup> 以内，青色与紫色几乎覆盖了不同素因子 ≤ 5 的全部整数；剩下的是不同素因子 ≥ 6 个的整数，它们只能靠边检验（品红）或只有数值（灰）。第 k 个前缀族的饱和常数 M<sub>k</sub> = ∏<sub>i≤k</sub> p<sub>i</sub>/(p<sub>i</sub> − 1) 决定它的有限危险范围 log log N &lt; e<sup>−γ</sup>M<sub>k</sub>；Mertens 给出 M<sub>k</sub> ~ e<sup>γ</sup> log p<sub>k</sub>，这个范围随 k 无界增长，所以逐族加素数永远不能完成全称命题。按 Nicolas 的准则，“每个范围都包含自己的素数阶乘”恰好等价于黎曼猜想；右图只画数值。</li>
+        <li><b>边界。</b>颜色是证据，不是置信度。浮点数只用于显示、边检验和一条阈值，相应颜色已经标明；页面没有把任何未覆盖的点说成反例，也没有证明全部 n &gt; 5040 的 Robin 不等式。连续松弛（把指数当实数）在 log n ≈ log 6000 附近超过 Robin 上界，这说明光滑插值不能代替整数证书，不是整数反例。黎曼猜想仍是开放问题。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ROBIN_DIVISOR_SCALE_GEOMETRY.md" target="_blank" rel="noopener">FIB-ATOM 与 Robin 的约数尺度几何</a>（§3 素数方向配置盒、§7 5040 端点、§8 加层收益与固定支撑、§9 前缀缺口、§12 共同目标）· <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_KAPPA_CHARGE_EXPONENT_FIBERS_AND_GOLDEN_NORM_READOUT.md" target="_blank" rel="noopener">AURIC 隐藏坐标与 κ-荷</a>（§3 整数指数中的隐藏方向）· <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/SevenSmooth.lean" target="_blank" rel="noopener">SevenSmooth.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/ElevenSmooth.lean" target="_blank" rel="noopener">ElevenSmooth.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/PrimeFiberPropagation.lean" target="_blank" rel="noopener">PrimeFiberPropagation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/GoldenResourceOptimalInteger.lean" target="_blank" rel="noopener">GoldenResourceOptimalInteger.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/ArithSums/choie2006robincriterion.md" target="_blank" rel="noopener">Robin 判据文献卡</a> · Nicolas，<a href="https://doi.org/10.1016/0022-314X(83)90055-0" target="_blank" rel="noopener">J. Number Theory 17, 375 (1983)</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">An integer n = ∏ p<sup>a<sub>p</sub></sup> is a point of the prime-exponent lattice, and multiplying by a prime p is an edge. Write Z(n) = σ(n)/n = ∏ S<sub>p</sub>(a<sub>p</sub>) with S<sub>p</sub>(a) = 1 + 1/p + … + 1/p<sup>a</sup>, the Robin capacity e<sup>γ</sup> log log n, the margin M(n) = e<sup>γ</sup> log log n − Z(n) and the log margin C(n) = log(e<sup>γ</sup> log log n / Z(n)). Robin’s criterion says the Riemann hypothesis holds if and only if M(n) &gt; 0 for every n &gt; 5040. The page gives every point the colour of its evidence and asks which certificates cover a whole edge, a whole fibre or an infinite region.</p>
+      <ol>
+        <li><b>The lattice and the κ fibre (theory volume).</b> The AURIC projection sends (a<sub>2</sub>, a<sub>3</sub>, a<sub>5</sub>, a<sub>7</sub>) to (U, V, W) = (a<sub>2</sub> + a<sub>7</sub>, a<sub>3</sub>, a<sub>5</sub> + a<sub>7</sub>). In the projection 7 is the diagonal of the 2 and 5 directions, because 7 = 2 + 5; the merged sources are recovered by the hidden coordinate κ = a<sub>7</sub> with 0 ≤ κ ≤ min(U, W), and the integers at one position are n(κ) = 2<sup>U</sup>3<sup>V</sup>5<sup>W</sup>·(7/10)<sup>κ</sup>. For instance 10800, 7560 and 5292 project onto (4, 3, 2), yet their margins are about 0.410, 0.090 and 0.811.</li>
+        <li><b>Edges (frozen).</b> Along n → nq the factor of Z is 1 + 1/(q·σ(q<sup>a</sup>)), where a is the exponent of q in n, while the scale grows by the increment of log log. The edge test (Z(nm)/Z(n) − 1)·log log n ≤ log(1 + log m / log n) says exactly that the Robin ratio does not increase, so it carries Robin’s inequality from n to nm (<code>robinAt_mul_of_edgeTest</code>). It discards the margin already present at n and is only sufficient: the edge 27440 → 301840 fails the test, yet 301840 has ratio about 0.655.</li>
+        <li><b>Prime fibres (frozen).</b> Along one direction the excess shrinks by at least a factor 1/q while the logarithmic scale shrinks only harmonically; with (L + ℓ)(L + 2ℓ) ≤ L<sup>2</sup>e<sup>ℓ</sup> (L = log n ≥ 3, ℓ = log q), a passing first layer forces every later layer to pass (<code>edgeTest_mul_prime_pow</code>), so the whole fibre n·q<sup>k</sup> satisfies Robin’s inequality (<code>robinAt_mul_prime_pow</code>). This holds in every prime direction; q &gt; 7 is not needed.</li>
+        <li><b>Swapping primes and compression (frozen + derived).</b> At a fixed exponent S<sub>q</sub>(a) ≤ S<sub>p</sub>(a) for q ≥ p while the integer grows, so Robin’s inequality passes from p<sup>a</sup>m to q<sup>a</sup>m (<code>robinAt_prime_replace</code>). Replacing the i-th smallest prime of N by the i-th prime gives the compression c(N) ≤ N with Z(N) ≤ Z(c(N)). With at most five distinct primes c(N) is 11-smooth: if c(N) &gt; 5040, <code>robin_eleven_smooth</code> and one swap per prime certify N (cyan); if c(N) ≤ 5040, the frozen 5040-optimum theorem gives Z(N) ≤ 403/105, and e<sup>γ</sup> log log N &gt; 403/105 once N ≥ 5600 (this threshold is a floating-point check on the page, violet).</li>
+        <li><b>Faces (derived, not formalized).</b> The Euler factors of two different primes separate, Z(n)Z(npq) = Z(np)Z(nq), so the four-corner mixed difference of C is the mixed difference of g = log log alone, and g″ &lt; 0 makes it negative: every multiplication rectangle carries a definite face loss A<sub>p,q</sub>(n), with hk·K(L + h + k) ≤ A ≤ hk·K(L) and K(L) = (log L + 1)/(L<sup>2</sup>(log L)<sup>2</sup>). Three safe corners are not enough; their margins must pay for this loss.</li>
+        <li><b>Coverage and the frontier.</b> The coverage view colours each integer in (5040, X] by the strongest evidence available. Below 10<sup>6</sup>, cyan and violet cover almost every integer with at most five distinct primes; what remains are the integers with six or more distinct primes, reached only by the edge test (magenta) or by numbers alone (grey). The saturation constant M<sub>k</sub> = ∏<sub>i≤k</sub> p<sub>i</sub>/(p<sub>i</sub> − 1) of the k-th prefix family fixes its finite danger range log log N &lt; e<sup>−γ</sup>M<sub>k</sub>; Mertens gives M<sub>k</sub> ~ e<sup>γ</sup> log p<sub>k</sub>, so this range grows without bound in k, and adding primes family by family can never finish the universal statement. By Nicolas’s criterion, “every range contains its own primorial” is exactly equivalent to the Riemann hypothesis; the side chart draws numbers only.</li>
+        <li><b>Limits.</b> A colour is evidence, not confidence. Floating-point numbers are used only for display, for the edge test and for one threshold, and the colours say so; the page calls no uncovered point a counterexample and does not prove Robin’s inequality for all n &gt; 5040. The continuous relaxation (exponents treated as reals) exceeds the Robin bound near log n ≈ log 6000; this shows that smooth interpolation cannot replace integer certificates and is not an integer counterexample. The Riemann hypothesis remains open.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (the theory volumes are in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ROBIN_DIVISOR_SCALE_GEOMETRY.md" target="_blank" rel="noopener">FIB-ATOM and Robin’s divisor-scale geometry</a> (§3 prime-direction configuration boxes, §7 the endpoint 5040, §8 layer gain and fixed support, §9 prefix gaps, §12 the common target) · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_KAPPA_CHARGE_EXPONENT_FIBERS_AND_GOLDEN_NORM_READOUT.md" target="_blank" rel="noopener">AURIC hidden coordinates and the κ-charge</a> (§3 the hidden direction among integer exponents) · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/SevenSmooth.lean" target="_blank" rel="noopener">SevenSmooth.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/ElevenSmooth.lean" target="_blank" rel="noopener">ElevenSmooth.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Robin/PrimeFiberPropagation.lean" target="_blank" rel="noopener">PrimeFiberPropagation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/GoldenResourceOptimalInteger.lean" target="_blank" rel="noopener">GoldenResourceOptimalInteger.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Library/ArithSums/choie2006robincriterion.md" target="_blank" rel="noopener">Robin’s criterion, library card</a> · Nicolas, <a href="https://doi.org/10.1016/0022-314X(83)90055-0" target="_blank" rel="noopener">J. Number Theory 17, 375 (1983)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

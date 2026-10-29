@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="PRIME//GAPS · How close primes can crowd, how far apart they can drift">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRIME//GAPS 素数间隙 · 素数能挤多近、能隔多远</title>
+<meta name="description" content="素数之间的空隙：一组偏移量什么时候可能同时都是素数（可容许元组），八个素数最挤能挤进多宽的窗口，有界间隙定理怎样由两部分拼成，最大间隙怎样增长；再看本库推翻的三条 OEIS 猜想。页面在两千万以内筛出全部素数直接计数。The gaps between primes: when a set of offsets can all be prime at once (admissible tuples), how narrow a window eight primes can crowd into, how the bounded-gaps theorem is assembled from two parts, and how the largest gaps grow; then three OEIS conjectures this library has refuted. The page sieves every prime below twenty million and counts directly.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="prime-gaps">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="PRIME//GAPS">PRIME<b>//</b>GAPS</h1>
+      <div class="tagline">
+        <span class="zh">素数间隙 · 素数能挤多近、能隔多远 · <em>挤不挤得下，先看每个素数留没留出一个空位</em></span>
+        <span class="en">Prime gaps · how close primes can crowd, how far apart they can drift · <em>whether they fit is decided first by every prime leaving one slot free</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="twin" aria-pressed="false"><span class="code">{0, 2}</span><span class="cn zh">孪生素数 · 数一数</span><span class="cn en">Twin primes · counted</span></button>
+        <button class="preset" data-preset="blocked" aria-pressed="false"><span class="code">{0, 2, 4}</span><span class="cn zh">被 3 堵死的三元组</span><span class="cn en">A triple blocked by 3</span></button>
+        <button class="preset" data-preset="eight" aria-pressed="true"><span class="code">8 → 26</span><span class="cn zh">八个素数最窄的窗口</span><span class="cn en">The narrowest window for eight</span></button>
+        <button class="preset" data-preset="forty" aria-pressed="false"><span class="code">40 → 186</span><span class="cn zh">四十个偏移 · 宽 186</span><span class="cn en">Forty offsets · width 186</span></button>
+        <button class="preset" data-preset="records" aria-pressed="false"><span class="code">RECORDS</span><span class="cn zh">最大间隙的纪录</span><span class="cn en">Record gaps</span></button>
+        <button class="preset" data-preset="sqrt" aria-pressed="false"><span class="code">A079063</span><span class="cn zh">√ 间隙猜想 · 已推翻</span><span class="cn en">A √-gap conjecture · refuted</span></button>
+        <button class="preset" data-preset="square" aria-pressed="false"><span class="code">A089610</span><span class="cn zh">平方区间猜想 · 已推翻</span><span class="cn en">A square-interval conjecture · refuted</span></button>
+        <button class="preset" data-preset="divisor" aria-pressed="false"><span class="code">529</span><span class="cn zh">因子数刻画 · 已推翻</span><span class="cn en">A divisor characterization · refuted</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">问题</span><span class="en">Question</span><span class="aside">n + H</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="问题" data-aria-en="Question">
+        <button class="chip" data-mode="tuple"><span class="zh">可容许元组</span><span class="en">Admissible tuples</span></button>
+        <button class="chip" data-mode="records"><span class="zh">最大间隙</span><span class="en">Largest gaps</span></button>
+        <button class="chip" data-mode="sqrt">A079063</button>
+        <button class="chip" data-mode="square">A089610</button>
+        <button class="chip" data-mode="divisor">A049591</button>
+      </div>
+      <div id="tupleBox">
+        <p class="note" id="tupleLabel"></p>
+        <div class="offsets" id="offsets" role="group" aria-label="偏移量 1 到 60（0 总在元组里）" data-aria-en="Offsets 1 to 60 (0 is always in the tuple)"></div>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：可容许元组模式下，每个素数 p 一圈 p 个余数槽，元组占用的槽亮起，空槽为绿；其他模式下是数轴与区间；拖动旋转，滚轮缩放" data-aria-en="3D view: in the tuple mode each prime p is a ring of p residue slots, the slots the tuple occupies light up and free slots are green; in the other modes it shows the number line and the intervals; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前问题的主图" data-aria-en="Main chart of the current question"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前问题的辅助图" data-aria-en="Side chart of the current question"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">p ≤ 2·10⁷</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">可容许的 8 元组，宽度最小是 26，由 {0, 2, 6, 8, 12, 18, 20, 26} 取到；宽 25 的窗口放不下，已冻结：</span><span class="en">An admissible 8-tuple has width at least 26, attained by {0, 2, 6, 8, 12, 18, 20, 26}; no window of width 25 holds one; frozen:</span> <code>OptimalAdmissibleEightTuple.minimalAdmissibleDiameter_eight_26</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">有界间隙的两部分拼接：若 DHL[k, 2] 成立，且有一个宽 B 的可容许 k 元组，则宽 ≤ B 的相邻素数间隙出现无穷多次。本库给出了一个宽 186 的可容许 40 元组，所以 DHL[40, 2] ⇒ 间隙 ≤ 186 无穷多次。本库没有证明 DHL[40, 2]。已冻结：</span><span class="en">The two parts of a bounded-gaps proof: if DHL[k, 2] holds and some admissible k-tuple has width B, then consecutive prime gaps ≤ B occur infinitely often. This library exhibits an admissible 40-tuple of width 186, so DHL[40, 2] ⇒ gaps ≤ 186 infinitely often. This library does not prove DHL[40, 2]. Frozen:</span> <code>DHLAdmissibleDiameterTransfer.dhl_two_and_admissible_window_yield_bounded_gap</code> · <code>PrimeGap186AdmissibilityCertificate.admissibleTuple186_is_admissible</code> · <code>PrimeGap186TwoAxisAssembly.dhl40TwoNat_yields_gap186</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">长间隙（Ford、Green、Konyagin、Maynard、Tao 2018 的定理 1.1）：存在 c &gt; 0，使 X 以下总有一个相邻素数间隙 &gt; c·log X·loglog X·loglogloglog X/(logloglog X)²。形式化移植自 openai/LongGapsBetweenPrimes，已冻结：</span><span class="en">Long gaps (Theorem 1.1 of Ford, Green, Konyagin, Maynard and Tao, 2018): for some c &gt; 0 there is always a consecutive prime gap below X larger than c·log X·loglog X·loglogloglog X/(logloglog X)². The formalization is ported from openai/LongGapsBetweenPrimes; frozen:</span> <code>LongGapsBetweenPrimes.long_prime_gaps</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 OEIS A079063 的猜想（Cloitre 2003）：不存在 c &gt; 0 使 a(n) &gt; c√n 最终总成立，已冻结：</span><span class="en">Refutes the OEIS A079063 conjecture (Cloitre, 2003): no c &gt; 0 makes a(n) &gt; c√n hold eventually; frozen:</span> <code>CloitreSquareRootPrimeGapRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 OEIS A089610 的猜想：(n², n² + n] 里的素数个数不会从某处起一直严格增加，已冻结：</span><span class="en">Refutes the OEIS A089610 conjecture: the number of primes in (n², n² + n] does not eventually increase at every step; frozen:</span> <code>HilliardSquareIntervalPrimeCountEventualIncreaseRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 OEIS A049591 的一条刻画（Cloitre 2002）：529 = 23² 与 529 + τ(529)² = 538 之间没有素数，但 529 不在数列里，已冻结：</span><span class="en">Refutes a characterization of OEIS A049591 (Cloitre, 2002): there is no prime between 529 = 23² and 529 + τ(529)² = 538, yet 529 is not in the sequence; frozen:</span> <code>CloitrePrimeGapDivisorCharacterizationRefutation.result</code></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">孪生素数猜想与 Hardy–Littlewood k 元组猜想（每个可容许元组都无穷多次全为素数，且有渐近公式）都未解决。最大间隙的 Cramér 猜想 O(log² p)、Oppermann 猜想（(n², n² + n] 里总有素数）也未解决。</span><span class="en">The twin prime conjecture and the Hardy–Littlewood k-tuple conjecture (every admissible tuple is all prime infinitely often, with an asymptotic count) are unsolved. Cramér’s conjecture O(log² p) for the largest gaps and Oppermann’s conjecture (there is always a prime in (n², n² + n]) are unsolved as well.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">有界间隙：张益唐（2014）首次证明 7000 万以内的间隙出现无穷多次；Maynard（2015）证明 DHL[105, 2]，得到 600；Polymath 计划（2014）证明 DHL[50, 2]，得到 246。最小宽度 s(k) 取自 OEIS A008407，纪录间隙取自 A002386 与 A005250。本库只形式化了上面标 LEAN 的部分。</span><span class="en">Bounded gaps: Zhang (2014) first proved that gaps below 70 million occur infinitely often; Maynard (2015) proved DHL[105, 2], giving 600; the Polymath project (2014) proved DHL[50, 2], giving 246. The minimal widths s(k) are from OEIS A008407, the record gaps from A002386 and A005250. This library has formalized only the parts marked LEAN above.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：扫描到的数的大小" data-aria-en="Progress: how far the scan has reached">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">页面先在 2·10<sup>7</sup> 以内筛出全部 1 270 607 个素数，下面所有计数都是直接数出来的。一组偏移量 H = {h₁, …, h<sub>k</sub>} 叫可容许元组，如果对每个素数 p，H 都没有占满模 p 的全部 p 个余数类；否则总有一个 n + h 被 p 整除，n + H 最多只有有限次全为素数。三维视图里，每个素数 p 是一圈 p 个槽，H 占用的槽亮起，空着的槽是绿色；一圈全被占满就是堵死。</p>
+      <ol>
+        <li><b>可容许元组与最窄窗口（8 元组已冻结）。</b>{0, 2, 4} 占满了模 3 的三个余数，除 3, 5, 7 外永远不会同时为素数。k 个偏移的可容许元组，最小宽度记作 s(k)（OEIS A008407）。本库证明 s(8) = 26：{0, 2, 6, 8, 12, 18, 20, 26} 可容许，而宽 25 的窗口里放不下 8 个可容许偏移（<code>OptimalAdmissibleEightTuple.minimalAdmissibleDiameter_eight_26</code>）。2·10<sup>7</sup> 以内，这个 8 元组全为素数只出现两次：n = 11 与 n = 15 760 091。</li>
+        <li><b>有界间隙由两部分拼成（已冻结的拼接）。</b>DHL[k, 2] 是说：每个可容许 k 元组 H，都有无穷多个 n 使 n + H 里至少两个是素数。再给一个宽 B 的可容许 k 元组，就得到无穷多个 ≤ B 的相邻素数间隙（<code>DHLAdmissibleDiameterTransfer.dhl_two_and_admissible_window_yield_bounded_gap</code>）。本库给出并核验了一个宽 186 的可容许 40 元组，所以 DHL[40, 2] ⇒ 间隙 ≤ 186 无穷多次（<code>PrimeGap186TwoAxisAssembly.dhl40TwoNat_yields_gap186</code>）；DHL[40, 2] 本身本库没有证明。文献上，Maynard 证明 DHL[105, 2]（<a href="https://doi.org/10.4007/annals.2015.181.1.7" target="_blank" rel="noopener">Ann. of Math. 181, 383 (2015)</a>），Polymath 证明 DHL[50, 2] 并得到 246（<a href="https://doi.org/10.1186/s40687-014-0012-7" target="_blank" rel="noopener">Res. Math. Sci. 1 (2014)</a>）；第一个有界间隙结果是张益唐的 7000 万（<a href="https://doi.org/10.4007/annals.2014.179.3.7" target="_blank" rel="noopener">Ann. of Math. 179, 1121 (2014)</a>）。</li>
+        <li><b>Hardy–Littlewood 预测（猜想，开放）。</b>对可容许 H，猜想 n ≤ x 中 n + H 全为素数的个数约为 𝔖(H)∫<sub>2</sub><sup>x</sup> dt/∏<sub>h∈H</sub> log(t + h)，其中 𝔖(H) = ∏<sub>p</sub> (1 − ν(p)/p)(1 − 1/p)<sup>−k</sup>，ν(p) 是 H 占用的模 p 余数个数。页面把实际计数和这条预测画在一起；连 k = 2 的孪生素数是否无穷多都还未知。</li>
+        <li><b>长间隙（已冻结）。</b>Ford、Green、Konyagin、Maynard、Tao 证明：X 以下总有一个相邻间隙 &gt; c·log X·loglog X·loglogloglog X/(logloglog X)²（<a href="https://doi.org/10.1090/jams/876" target="_blank" rel="noopener">J. Amer. Math. Soc. 31, 65 (2018)</a>）；本库的版本移植自 openai/LongGapsBetweenPrimes（<code>LongGapsBetweenPrimes.long_prime_gaps</code>）。这条下界在 2·10<sup>7</sup> 以内的数值没有意义（logloglog X 只有 1 左右），页面只画实际纪录、平均间隙 log p 与 Cramér 猜想的 log² p。</li>
+        <li><b>A079063（已推翻）。</b>a(n) 是使 √p<sub>n+k</sub> − √p<sub>n</sub> &gt; 1 的最小 k。Cloitre 猜想存在 c &gt; 0（可取 0.4）使 a(n) &gt; c√n 最终总成立，并给出下极限约 0.46。本库证明不存在这样的 c（<code>CloitreSquareRootPrimeGapRefutation.result</code>）。由素数定理粗估 a(n) ≈ 2√p<sub>n</sub>/log p<sub>n</sub>，比值 a(n)/√n 像 2/√log n 那样极慢地趋于 0；在页面能算的范围（n ≤ 10<sup>6</sup>）里它还在 0.4 以上，反驳来自证明，不来自这些数值。</li>
+        <li><b>A089610（已推翻）。</b>a(n) 是 (n², n² + n] 里的素数个数。OEIS 的猜想说从某个 n 起 a(n) &lt; a(n + 1) 总成立。本库证明这不可能（<code>HilliardSquareIntervalPrimeCountEventualIncreaseRefutation.result</code>）；证明的一步是 a(2k) ≤ k（区间里只有 k 个奇数）。Oppermann 猜想 a(n) &gt; 0 仍未解决。</li>
+        <li><b>A049591 的一条刻画（已推翻）。</b>A049591 是 p + 2 为合数的奇素数 p。Cloitre 提出：它恰好是那些 n &gt; 1，使 n 与 n + τ(n)² 之间没有素数（τ 是因子个数）。529 = 23² 有 3 个因子，530 到 537 全是合数，但 529 不是素数（<code>CloitrePrimeGapDivisorCharacterizationRefutation.result</code>）。页面算到 2·10<sup>5</sup>：最小的反例就是 529，一共有 9439 个不符的 n。</li>
+        <li><b>模型边界。</b>所有计数都限于 2·10<sup>7</sup> 以内；Hardy–Littlewood 曲线是猜想的预测，不是定理；比值 a(n)/√n 的粗估只是启发式。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/OptimalAdmissibleEightTuple.lean" target="_blank" rel="noopener">OptimalAdmissibleEightTuple.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/DHLAdmissibleDiameterTransfer.lean" target="_blank" rel="noopener">DHLAdmissibleDiameterTransfer.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/PrimeGap186TwoAxisAssembly.lean" target="_blank" rel="noopener">PrimeGap186TwoAxisAssembly.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/LongGapConclusion.lean" target="_blank" rel="noopener">LongGapConclusion.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a079063-sqrt-prime-gap-lower-bound-refutation.md" target="_blank" rel="noopener">A079063 问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a089610-square-interval-prime-count-eventual-increase-refutation.md" target="_blank" rel="noopener">A089610 问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a049591-prime-gap-divisor-characterization-refutation.md" target="_blank" rel="noopener">A049591 问题卷宗</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The page first sieves all 1 270 607 primes below 2·10<sup>7</sup>; every count below is a direct count. A set of offsets H = {h₁, …, h<sub>k</sub>} is an admissible tuple if, for every prime p, H misses at least one of the p residue classes mod p; otherwise some n + h is always divisible by p, and n + H is all prime only finitely often. In the 3D view each prime p is a ring of p slots, the slots occupied by H light up and the free slots are green; a ring with every slot occupied is a blockade.</p>
+      <ol>
+        <li><b>Admissible tuples and the narrowest window (the 8-tuple is frozen).</b> {0, 2, 4} fills all three classes mod 3, so apart from 3, 5, 7 it is never all prime. The minimal width of an admissible k-tuple is written s(k) (OEIS A008407). This library proves s(8) = 26: {0, 2, 6, 8, 12, 18, 20, 26} is admissible, and no window of width 25 holds 8 admissible offsets (<code>OptimalAdmissibleEightTuple.minimalAdmissibleDiameter_eight_26</code>). Below 2·10<sup>7</sup> this 8-tuple is all prime only twice: n = 11 and n = 15 760 091.</li>
+        <li><b>Bounded gaps come in two parts (the frozen assembly).</b> DHL[k, 2] says that for every admissible k-tuple H, infinitely many n have at least two primes in n + H. Add one admissible k-tuple of width B and infinitely many consecutive prime gaps ≤ B follow (<code>DHLAdmissibleDiameterTransfer.dhl_two_and_admissible_window_yield_bounded_gap</code>). This library exhibits and checks an admissible 40-tuple of width 186, so DHL[40, 2] ⇒ gaps ≤ 186 infinitely often (<code>PrimeGap186TwoAxisAssembly.dhl40TwoNat_yields_gap186</code>); this library does not prove DHL[40, 2] itself. In the literature, Maynard proved DHL[105, 2] (<a href="https://doi.org/10.4007/annals.2015.181.1.7" target="_blank" rel="noopener">Ann. of Math. 181, 383 (2015)</a>) and the Polymath project proved DHL[50, 2], reaching 246 (<a href="https://doi.org/10.1186/s40687-014-0012-7" target="_blank" rel="noopener">Res. Math. Sci. 1 (2014)</a>); the first bounded-gaps result was Zhang’s 70 million (<a href="https://doi.org/10.4007/annals.2014.179.3.7" target="_blank" rel="noopener">Ann. of Math. 179, 1121 (2014)</a>).</li>
+        <li><b>The Hardy–Littlewood prediction (a conjecture, open).</b> For admissible H the conjectured number of n ≤ x with n + H all prime is about 𝔖(H)∫<sub>2</sub><sup>x</sup> dt/∏<sub>h∈H</sub> log(t + h), with 𝔖(H) = ∏<sub>p</sub> (1 − ν(p)/p)(1 − 1/p)<sup>−k</sup> and ν(p) the number of classes mod p occupied by H. The page draws the actual count against this prediction; whether there are infinitely many twin primes (k = 2) is still unknown.</li>
+        <li><b>Long gaps (frozen).</b> Ford, Green, Konyagin, Maynard and Tao proved that below X there is always a consecutive gap &gt; c·log X·loglog X·loglogloglog X/(logloglog X)² (<a href="https://doi.org/10.1090/jams/876" target="_blank" rel="noopener">J. Amer. Math. Soc. 31, 65 (2018)</a>); this library’s version is ported from openai/LongGapsBetweenPrimes (<code>LongGapsBetweenPrimes.long_prime_gaps</code>). The bound is numerically meaningless below 2·10<sup>7</sup> (logloglog X is about 1 there), so the page draws only the actual records, the average gap log p and Cramér’s conjectured log² p.</li>
+        <li><b>A079063 (refuted).</b> a(n) is the least k with √p<sub>n+k</sub> − √p<sub>n</sub> &gt; 1. Cloitre conjectured that some c &gt; 0 (0.4 would do) makes a(n) &gt; c√n hold eventually, with a lower limit of about 0.46. This library proves that no such c exists (<code>CloitreSquareRootPrimeGapRefutation.result</code>). By the prime number theorem a(n) ≈ 2√p<sub>n</sub>/log p<sub>n</sub>, so a(n)/√n tends to 0 extremely slowly, like 2/√log n; in the range the page can compute (n ≤ 10<sup>6</sup>) it is still above 0.4, and the refutation comes from the proof, not from these numbers.</li>
+        <li><b>A089610 (refuted).</b> a(n) is the number of primes in (n², n² + n]. The OEIS conjecture says that from some n on, a(n) &lt; a(n + 1) always. This library proves that impossible (<code>HilliardSquareIntervalPrimeCountEventualIncreaseRefutation.result</code>); one step of the proof is a(2k) ≤ k (the interval contains only k odd numbers). Oppermann’s conjecture a(n) &gt; 0 remains unsolved.</li>
+        <li><b>A characterization of A049591 (refuted).</b> A049591 lists the odd primes p with p + 2 composite. Cloitre proposed that it is exactly the set of n &gt; 1 with no prime between n and n + τ(n)² (τ counts divisors). 529 = 23² has 3 divisors and 530 to 537 are all composite, yet 529 is not prime (<code>CloitrePrimeGapDivisorCharacterizationRefutation.result</code>). Computing up to 2·10<sup>5</sup>, the page finds 529 to be the smallest counterexample, with 9439 disagreeing n in all.</li>
+        <li><b>Model limits.</b> Every count stops at 2·10<sup>7</sup>; the Hardy–Littlewood curve is a conjectural prediction, not a theorem; the estimate for a(n)/√n is only heuristic.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/OptimalAdmissibleEightTuple.lean" target="_blank" rel="noopener">OptimalAdmissibleEightTuple.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/DHLAdmissibleDiameterTransfer.lean" target="_blank" rel="noopener">DHLAdmissibleDiameterTransfer.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/PrimeGap186TwoAxisAssembly.lean" target="_blank" rel="noopener">PrimeGap186TwoAxisAssembly.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/PrimeGaps/LongGapConclusion.lean" target="_blank" rel="noopener">LongGapConclusion.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a079063-sqrt-prime-gap-lower-bound-refutation.md" target="_blank" rel="noopener">A079063 dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a089610-square-interval-prime-count-eventual-increase-refutation.md" target="_blank" rel="noopener">A089610 dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a049591-prime-gap-divisor-characterization-refutation.md" target="_blank" rel="noopener">A049591 dossier</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

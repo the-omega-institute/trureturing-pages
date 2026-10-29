@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="STATE//TRANSFER · Perfect state transfer: where a quantum walk carries a state">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STATE//TRANSFER 完美态传输 · 量子行走把态送到哪里</title>
+<meta name="description" content="把一个量子态放在图的一个顶点上，让它按哈密顿量自己演化：它什么时候能一点不剩地出现在另一个顶点？耦合取对了，链条两端可以完美传输；有理权的奇数链在 t = π 永远做不到；有的顶点永远收不到任何振幅。页面还展示本库推翻或回答的五个已发表猜想与问题，包括一条内部送达、两端永远不行的五点路径，和一棵完美传输的 17 顶点树。Put a quantum state on one vertex of a graph and let it evolve under the Hamiltonian: when does it reappear, in full, on another vertex? With the right couplings a chain transfers perfectly end to end; an odd chain with rational weights never manages it at t = π; some vertices never receive any amplitude at all. The page also shows five published conjectures and questions this library has refuted or answered, including a five-site path that transfers inside but never between its ends, and a 17-vertex tree with perfect transfer.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="state-transfer">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="STATE//TRANSFER">STATE<b>//</b>TRANSFER</h1>
+      <div class="tagline">
+        <span class="zh">完美态传输 · 量子行走把态送到哪里 · <em>同一个态，有的地方送得到，有的地方永远到不了</em></span>
+        <span class="en">Perfect state transfer · where a quantum walk carries a state · <em>the same state reaches some vertices in full and others never at all</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillT">t <strong>0.00</strong></span>
+      <span class="pill" id="pillF">F <strong>—</strong></span>
+      <span class="pill hot" id="pillMax">MAX F <strong>—</strong></span>
+      <span class="pill" id="pillG">GRAPH <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="uniform3" aria-pressed="false"><span class="code">P3</span><span class="cn zh">三格点均匀链 · 送到了</span><span class="cn en">Uniform 3-chain · arrives</span></button>
+        <button class="preset" data-preset="uniform6" aria-pressed="false"><span class="code">P6</span><span class="cn zh">六格点均匀链 · 送不全</span><span class="cn en">Uniform 6-chain · never in full</span></button>
+        <button class="preset" data-preset="kraw9" aria-pressed="true"><span class="code">KRAWTCHOUK</span><span class="cn zh">调好的耦合 · t = π 送达</span><span class="cn en">Tuned couplings · arrives at t = π</span></button>
+        <button class="preset" data-preset="rational5" aria-pressed="false"><span class="code">RATIONAL</span><span class="cn zh">有理权 · t = π 永远差一点</span><span class="cn en">Rational weights · always short at π</span></button>
+        <button class="preset" data-preset="kay8" aria-pressed="false"><span class="code">KAY</span><span class="cn zh">反例谱造出的链</span><span class="cn en">A chain from a counterexample</span></button>
+        <button class="preset" data-preset="cube" aria-pressed="false"><span class="code">CUBE</span><span class="cn zh">立方体 · 送到对角</span><span class="cn en">The cube · to the far corner</span></button>
+        <button class="preset" data-preset="zero30" aria-pressed="false"><span class="code">Z₃₀</span><span class="cn zh">永远到不了的偶数顶点</span><span class="cn en">An even vertex never reached</span></button>
+        <button class="preset" data-preset="universal3" aria-pressed="false"><span class="code">UNIVERSAL</span><span class="cn zh">任意两点都能送达</span><span class="cn en">Every pair, eventually</span></button>
+        <button class="preset" data-preset="interior5" aria-pressed="false"><span class="code">1 → 3 · 0 ↛ 4</span><span class="cn zh">内部送达，两端不行</span><span class="cn en">Inside yes, ends no</span></button>
+        <button class="preset" data-preset="tree17" aria-pressed="false"><span class="code">TREE · 17</span><span class="cn zh">归一化拉普拉斯下的树</span><span class="cn en">A tree, normalized Laplacian</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">图</span><span class="en">Graph</span><span class="aside">H</span></h2>
+      <div class="chips" id="graphChips" role="group" aria-label="图" data-aria-en="Graph">
+        <button class="chip" data-graph="uniform"><span class="zh">均匀链</span><span class="en">Uniform chain</span></button>
+        <button class="chip" data-graph="kraw"><span class="zh">Krawtchouk 链</span><span class="en">Krawtchouk chain</span></button>
+        <button class="chip" data-graph="rational"><span class="zh">有理权链</span><span class="en">Rational chain</span></button>
+        <button class="chip" data-graph="kay"><span class="zh">Kay 反例链</span><span class="en">Kay chain</span></button>
+        <button class="chip" data-graph="cube"><span class="zh">立方体</span><span class="en">Cube</span></button>
+        <button class="chip" data-graph="z30">Z₃₀</button>
+        <button class="chip" data-graph="triT"><span class="zh">单位相位三角</span><span class="en">Unit-phase triangle</span></button>
+        <button class="chip" data-graph="triI"><span class="zh">定向三角</span><span class="en">Oriented triangle</span></button>
+        <button class="chip" data-graph="potpath"><span class="zh">带权五点路径</span><span class="en">Weighted 5-path</span></button>
+        <button class="chip" data-graph="tree17"><span class="zh">17 顶点树</span><span class="en">17-vertex tree</span></button>
+      </div>
+      <div class="field" id="nField">
+        <label for="nN"><span class="zh">格点数 N</span><span class="en">Sites N</span></label><output id="oN" for="nN">9</output>
+        <input type="range" id="nN" min="2" max="12" step="1" value="9">
+      </div>
+      <div class="field" id="qField" hidden>
+        <label for="qq"><span class="zh">分母 q（权取 1/q 的倍数）</span><span class="en">Denominator q (weights in steps of 1/q)</span></label><output id="oQ" for="qq">8</output>
+        <input type="range" id="qq" min="1" max="48" step="1" value="8">
+      </div>
+      <div class="field">
+        <label for="source"><span class="zh">起点 a</span><span class="en">Start vertex a</span></label><output id="oA" for="source">0</output>
+        <input type="range" id="source" min="0" max="8" step="1" value="0">
+      </div>
+      <div class="field">
+        <label for="target"><span class="zh">目标顶点 b</span><span class="en">Target vertex b</span></label><output id="oB" for="target">8</output>
+        <input type="range" id="target" min="0" max="8" step="1" value="8">
+      </div>
+      <p class="note" id="graphNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="图的顶点与边；每个顶点上柱子的高度是此刻在这个顶点上找到粒子的概率，颜色是振幅的相位；拖动旋转，滚轮缩放" data-aria-en="The vertices and edges of the graph; the bar on each vertex is the probability of finding the particle there now, and its colour is the phase of the amplitude; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">到达目标的概率 F(t)</span><span class="en">PROBABILITY AT THE TARGET F(t)</span></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="目标顶点上的概率 F(t) = |U(t)₍b,a₎|² 随时间的变化" data-aria-en="The probability F(t) = |U(t)_(b,a)|² at the target vertex against time"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="每个顶点能达到的最大概率与此刻的概率；有理权链时为 t = π 的差距随分母的变化；Kay 链时为四个和 R_k" data-aria-en="The largest probability each vertex reaches and the probability now; for the rational chain, the gap at t = π against the denominator; for the Kay chain, the four sums R_k"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">U(t) = e<sup>−iHt</sup></span></h2>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">此刻目标上的概率 F(t)</span><span class="en">Probability at the target now F(t)</span></dt><dd id="roF">—</dd></div>
+        <div class="m"><dt><span class="zh">时间窗内最大 F 与时刻</span><span class="en">Largest F in the window, and when</span></dt><dd id="roMax">—</dd></div>
+        <div class="a"><dt><span class="zh">t = π 时的 F</span><span class="en">F at t = π</span></dt><dd id="roPi">—</dd></div>
+        <div><dt><span class="zh">总概率（幺正性检查）</span><span class="en">Total probability (unitarity check)</span></dt><dd id="roNorm">—</dd></div>
+        <div class="w"><dt><span class="zh">谱（哈密顿量的本征值）</span><span class="en">Spectrum (eigenvalues of H)</span></dt><dd id="roSpec">—</dd></div>
+        <div class="w"><dt id="ro6L"></dt><dd id="ro6">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">有 2m + 1 个格点、边权都是正有理数的链（势能任意），在 t = π 时两端之间都不可能完美传输，已冻结：</span><span class="en">A chain with 2m + 1 sites and positive rational edge weights (arbitrary potentials) never has perfect state transfer between its ends at t = π; frozen:</span> <code>OddPathRationalWeightTransfer.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 Song–Lin 猜想 4.1（arXiv:2608.10643）：定向循环图 G(Z₃₀, {5, 6, 9, 20}) 上，0 与偶数顶点 2 之间零传输，已冻结：</span><span class="en">Refutes Song–Lin Conjecture 4.1 (arXiv:2608.10643): on the oriented circulant G(Z₃₀, {5, 6, 9, 20}) there is zero transfer between 0 and the even vertex 2; frozen:</span> <code>OrientedCirculantZeroTransfer.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 Connelly 等（2017）的猜想：Circ(0, α, ᾱ)，α = (−4√3 + i)/7，有性质 𝕋 与普适完美传输，却不切换等价于 K₂ 或 Circ(0, −i, i)，已冻结：</span><span class="en">Refutes the conjecture of Connelly et al. (2017): Circ(0, α, ᾱ) with α = (−4√3 + i)/7 has property 𝕋 and universal perfect state transfer, yet is switching equivalent neither to K₂ nor to Circ(0, −i, i); frozen:</span> <code>PropertyTCirculantUniversalTransfer.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 Kay（2010）的传输率猜想：谱 0, 31, 46, 65, 88, 107, 122, 153 满足完美传输条件，且 M = 4 时四个 R<sub>k</sub> 都等于 194/38984495395755，已冻结：</span><span class="en">Refutes Kay’s transfer-rate conjecture (2010): the spectrum 0, 31, 46, 65, 88, 107, 122, 153 satisfies the perfect-transfer condition and, for M = 4, all four R<sub>k</sub> equal 194/38984495395755; frozen:</span> <code>KayTransferRateRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">回答 Kirkland 等（2019）的开放问题：五点路径、边权 2√2, √5, √5, 2√2、势能为 0，内部顶点 1 与 3 之间在 t = π/√2 完美传输，两端 0 与 4 之间任何时刻都不完美传输，所以“内部完美传输推出端点完美传输”的逆命题不成立，已冻结：</span><span class="en">Answers the open question of Kirkland et al. (2019): on the five-site path with weights 2√2, √5, √5, 2√2 and zero potentials, the interior vertices 1 and 3 have perfect transfer at t = π/√2, while the ends 0 and 4 have perfect transfer at no time, so the converse “interior transfer implies endpoint transfer” fails; frozen:</span> <code>InteriorPathTransferConverseRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">推翻 Coutinho 与 Baptista（2023）的猜想“除 2、3 个顶点的路径外，没有树在归一化拉普拉斯下完美传输”：这棵 17 顶点树在 t = 3π 把 u 送到 v，已冻结：</span><span class="en">Refutes the conjecture of Coutinho and Baptista (2023) that no tree other than the paths on 2 and 3 vertices has perfect transfer under the normalized Laplacian: this 17-vertex tree carries u to v at t = 3π; frozen:</span> <code>NormalizedLaplacianTreeStateTransfer.result</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Krawtchouk 耦合 ½√(n(N − n)) 的链在 t = π 完美传输，立方体（超立方体）在 t = π/2 把态送到对角顶点（Christandl 等，2004、2005）。本库没有形式化这两条；页面直接算矩阵指数核对。</span><span class="en">A chain with Krawtchouk couplings ½√(n(N − n)) transfers perfectly at t = π, and the cube (hypercube) carries a state to the opposite corner at t = π/2 (Christandl et al., 2004, 2005). This library has not formalized these two; the page checks them by computing the matrix exponential.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="时间" data-aria-en="Time">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调时间 · <kbd>P</kbd> 跳到 t = π · <kbd>M</kbd> 跳到最大值</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge time · <kbd>P</kbd> jump to t = π · <kbd>M</kbd> jump to the maximum</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">连续时间量子行走：图的厄米邻接矩阵 H 当作哈密顿量，态按 U(t) = e<sup>−iHt</sup> 演化。从顶点 a 出发（预设大多取 a = 0），t 时刻在顶点 b 找到粒子的概率是 F(t) = |U(t)<sub>b,a</sub>|²。F = 1 叫完美态传输：态一点不剩地出现在 b。F 恒为 0 叫零传输：无论等多久，b 都收不到振幅。三维视图里每个顶点上柱子的高度是此刻的概率，颜色是振幅的相位。</p>
+      <ol>
+        <li><b>耦合决定能不能送到。</b>均匀耦合的 3 格点链在 t = π/√2 完美传输；6 格点均匀链在页面算到的 t &lt; 200 内最多只到 0.988。把耦合调成 Krawtchouk 型 ½√(n(N − n))，任意长的链都在 t = π 完美传输；立方体在 t = π/2 把态送到对角（Christandl、Datta、Ekert、Landahl，<a href="https://doi.org/10.1103/PhysRevLett.92.187902" target="_blank" rel="noopener">Phys. Rev. Lett. 92, 187902 (2004)</a>；Christandl 等，<a href="https://doi.org/10.1103/PhysRevA.71.032312" target="_blank" rel="noopener">Phys. Rev. A 71, 032312 (2005)</a>）。</li>
+        <li><b>有理权的奇数链在 t = π 做不到（已冻结）。</b>格点数为 2m + 1、边权都是正有理数时，无论势能怎么取，t = π 时两端都不可能完美传输（<code>OddPathRationalWeightTransfer.result</code>）。由这条定理，奇数格点的 Krawtchouk 链在 t = π 能完美传输，它的边权就不可能全是有理数——比如 N = 3 时两条边权都是 √2/2。页面把 Krawtchouk 耦合四舍五入到 1/q 的倍数：取整越细，t = π 的 F 大体越接近 1（并不单调，五格点 q = 40 时只差 1.2 × 10⁻⁷），但永远不等于 1。</li>
+        <li><b>零传输：推翻一个猜想（已冻结）。</b>Song 与 Lin 猜想：n ≡ 2 (mod 4) 的连通定向循环图上，若 0 与 v 之间零传输，则 v 必为奇数（<a href="https://arxiv.org/abs/2608.10643" target="_blank" rel="noopener">arXiv:2608.10643</a>，猜想 4.1）。本库证明 G(Z₃₀, {5, 6, 9, 20}) 上 0 与偶数顶点 2 之间零传输（<code>OrientedCirculantZeroTransfer.result</code>）。证明的思路是：H = iS，S 是整数反对称矩阵，S 的幂在 (0, 2) 处恒为零。页面用整数（BigInt）精确算 S 的前 30 个幂，由 Cayley–Hamilton 定理判定从 0 出发的全部零传输顶点。</li>
+        <li><b>普适完美传输：推翻另一个猜想（已冻结）。</b>Connelly、Grammel、Kraut、Serazo、Tamon 猜想：边权模长都为 1（性质 𝕋）、任意两点间都能完美传输的循环图，只有 K₂ 与 Circ(0, −i, i)（<a href="https://doi.org/10.1016/j.laa.2017.06.015" target="_blank" rel="noopener">Linear Algebra Appl. 531, 516 (2017)</a>）。本库给出 Circ(0, α, ᾱ)，α = (−4√3 + i)/7：它也有这两个性质，却不切换等价于那两个（<code>PropertyTCirculantUniversalTransfer.result</code>）。页面算出它在 t ≈ 8.46 把 0 送到 2、在 t ≈ 16.93 送到 1。</li>
+        <li><b>传输率：推翻 Kay 的猜想（已冻结）。</b>Kay 猜想：满足完美传输条件的谱，不可能对 M &gt; 2 满足他的传输率引理的条件（<a href="https://doi.org/10.1142/S0219749910006514" target="_blank" rel="noopener">Int. J. Quantum Inf. 8, 641 (2010)</a>）。本库证明谱 0, 31, 46, 65, 88, 107, 122, 153 在 M = 4 时四个 R<sub>k</sub> 精确相等（<code>KayTransferRateRefutation.result</code>）；页面用分数精确重算这四个和。页面还用 Lanczos 方法、取权 1/|B′(λ)|，从这个谱反解出一条 8 格点镜像对称链，它在 t = π 完美传输——这一步是页面的模型计算，不属于冻结定理。</li>
+        <li><b>内部送达不等于两端送达（已冻结）。</b>Kirkland、McLaren、Pereira、Plosker、Zhang 证明：带权路径（可带势能）两端之间完美传输，则每对镜像内部顶点之间也完美传输；若内部某点的本征向量分量都不为零，则反过来也成立。他们问：有分量为零时逆命题是否仍成立（<a href="https://doi.org/10.1080/03081087.2018.1442810" target="_blank" rel="noopener">Linear Multilinear Algebra 67 (2019)</a>，<a href="https://arxiv.org/abs/1708.03283" target="_blank" rel="noopener">arXiv:1708.03283</a>）。不成立：边权 2√2, √5, √5, 2√2 的五点路径，谱是 0、±2√2、±3√2，1 → 3 在 t = π/√2 完美传输；而 0 → 4 若在时刻 s 完美传输，就要求 2√2·s/π 是奇数、3√2·s/π 是偶数，二者乘以 3 和 2 后相等，变成 6k + 3 = 4l，奇偶矛盾（<code>InteriorPathTransferConverseRefutation.result</code>）。页面在一个周期 π√2 里采样 0 → 4 的 F，它的最大值小于 1。</li>
+        <li><b>树上的完美传输：推翻一个猜想（已冻结）。</b>用归一化拉普拉斯 𝓛 = I − D<sup>−1/2</sup>AD<sup>−1/2</sup> 当哈密顿量时，Coutinho 与 Baptista 猜想除了 2、3 个顶点的路径，没有树能完美传输（<a href="https://doi.org/10.1080/03081087.2023.2236282" target="_blank" rel="noopener">Linear Multilinear Algebra (2023)</a>，<a href="https://arxiv.org/abs/2209.04668" target="_blank" rel="noopener">arXiv:2209.04668</a>）。反例：中心连着两片叶子 u、v 和七条两节的臂，共 17 个顶点。e<sub>u</sub> − e<sub>v</sub> 的本征值是 1；e<sub>u</sub> + e<sub>v</sub> 分解到本征值 0、2/3、4/3、2 的四个对称本征向量上。t = 3π 时对称部分的相位都是 1、反对称部分是 −1，所以 U(3π)e<sub>u</sub> = e<sub>v</sub>（<code>NormalizedLaplacianTreeStateTransfer.result</code>）。</li>
+        <li><b>模型边界。</b>矩阵指数由厄米 Jacobi 对角化精确给出，没有做时间步进；F 的最大值在采样网格上取得。零传输集用整数精确计算。“F 永远到不了 1”这类结论，页面只展示有限个例子，证明来自冻结定理。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/OddPathRationalWeightTransfer.lean" target="_blank" rel="noopener">OddPathRationalWeightTransfer.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/song-lin-2026-oriented-circulant-zero-transfer-parity-refutation.md" target="_blank" rel="noopener">Song–Lin 问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/connelly-2017-property-t-universal-state-transfer.md" target="_blank" rel="noopener">Connelly 等问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kay-2010-transfer-rate-refutation.md" target="_blank" rel="noopener">Kay 问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kirkland-2019-interior-pst-converse-refutation.md" target="_blank" rel="noopener">Kirkland 等问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/InteriorPathTransferConverseRefutation.lean" target="_blank" rel="noopener">InteriorPathTransferConverseRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/coutinho-baptista-2023-normalized-laplacian-tree-state-transfer-refutation.md" target="_blank" rel="noopener">Coutinho–Baptista 问题卷宗</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/NormalizedLaplacianTreeStateTransfer.lean" target="_blank" rel="noopener">NormalizedLaplacianTreeStateTransfer.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">A continuous-time quantum walk: the Hermitian adjacency matrix H of a graph serves as the Hamiltonian, and a state evolves by U(t) = e<sup>−iHt</sup>. Starting at vertex a (most presets take a = 0), the probability of finding the particle at vertex b at time t is F(t) = |U(t)<sub>b,a</sub>|². F = 1 is perfect state transfer: the state reappears in full at b. F identically 0 is zero transfer: however long one waits, b receives no amplitude. In the 3D view the bar on each vertex is the probability now, and its colour is the phase of the amplitude.</p>
+      <ol>
+        <li><b>The couplings decide whether it arrives.</b> A uniform 3-site chain transfers perfectly at t = π/√2; a uniform 6-site chain reaches at most 0.988 within the t &lt; 200 the page computes. With Krawtchouk couplings ½√(n(N − n)) a chain of any length transfers perfectly at t = π, and the cube carries a state to the opposite corner at t = π/2 (Christandl, Datta, Ekert and Landahl, <a href="https://doi.org/10.1103/PhysRevLett.92.187902" target="_blank" rel="noopener">Phys. Rev. Lett. 92, 187902 (2004)</a>; Christandl et al., <a href="https://doi.org/10.1103/PhysRevA.71.032312" target="_blank" rel="noopener">Phys. Rev. A 71, 032312 (2005)</a>).</li>
+        <li><b>An odd chain with rational weights cannot do it at t = π (frozen).</b> With 2m + 1 sites and positive rational edge weights, whatever the potentials, there is no perfect transfer between the ends at t = π (<code>OddPathRationalWeightTransfer.result</code>). By this theorem, since an odd Krawtchouk chain does transfer perfectly at t = π, its edge weights cannot all be rational; for N = 3, for instance, both are √2/2. The page rounds the Krawtchouk couplings to multiples of 1/q: finer rounding mostly brings F at t = π closer to 1 (not monotonically; with five sites and q = 40 it is only 1.2 × 10⁻⁷ short), but it never equals 1.</li>
+        <li><b>Zero transfer: a conjecture refuted (frozen).</b> Song and Lin conjectured that on a connected oriented circulant graph with n ≡ 2 (mod 4), zero transfer between 0 and v forces v to be odd (<a href="https://arxiv.org/abs/2608.10643" target="_blank" rel="noopener">arXiv:2608.10643</a>, Conjecture 4.1). This library proves zero transfer between 0 and the even vertex 2 on G(Z₃₀, {5, 6, 9, 20}) (<code>OrientedCirculantZeroTransfer.result</code>). The idea of the proof: H = iS with S an integer skew-symmetric matrix, and every power of S vanishes at (0, 2). The page computes the first 30 powers of S exactly in integers (BigInt) and, by the Cayley–Hamilton theorem, finds every vertex with zero transfer from 0.</li>
+        <li><b>Universal perfect transfer: another conjecture refuted (frozen).</b> Connelly, Grammel, Kraut, Serazo and Tamon conjectured that K₂ and Circ(0, −i, i) are the only circulants whose nonzero entries have modulus 1 (property 𝕋) and that transfer perfectly between every pair of vertices (<a href="https://doi.org/10.1016/j.laa.2017.06.015" target="_blank" rel="noopener">Linear Algebra Appl. 531, 516 (2017)</a>). This library gives Circ(0, α, ᾱ) with α = (−4√3 + i)/7: it has both properties yet is switching equivalent to neither (<code>PropertyTCirculantUniversalTransfer.result</code>). The page finds that it carries 0 to 2 at t ≈ 8.46 and to 1 at t ≈ 16.93.</li>
+        <li><b>Transfer rate: Kay’s conjecture refuted (frozen).</b> Kay conjectured that no spectrum satisfying the perfect-transfer condition can satisfy the condition of his transfer-rate lemma for M &gt; 2 (<a href="https://doi.org/10.1142/S0219749910006514" target="_blank" rel="noopener">Int. J. Quantum Inf. 8, 641 (2010)</a>). This library proves that for the spectrum 0, 31, 46, 65, 88, 107, 122, 153 the four R<sub>k</sub> are exactly equal at M = 4 (<code>KayTransferRateRefutation.result</code>); the page recomputes the four sums exactly as fractions. The page also uses the Lanczos method with weights 1/|B′(λ)| to rebuild an 8-site mirror-symmetric chain with this spectrum, which transfers perfectly at t = π; that step is the page’s own model calculation, not part of the frozen theorem.</li>
+        <li><b>Transfer inside does not mean transfer between the ends (frozen).</b> Kirkland, McLaren, Pereira, Plosker and Zhang proved that perfect transfer between the ends of a weighted path (potentials allowed) gives perfect transfer between every mirror pair of interior vertices, and that the converse holds when no eigenvector vanishes at the interior vertex. They asked whether the converse survives when some eigenvector vanishes there (<a href="https://doi.org/10.1080/03081087.2018.1442810" target="_blank" rel="noopener">Linear Multilinear Algebra 67 (2019)</a>, <a href="https://arxiv.org/abs/1708.03283" target="_blank" rel="noopener">arXiv:1708.03283</a>). It does not: the five-site path with weights 2√2, √5, √5, 2√2 has spectrum 0, ±2√2, ±3√2 and transfers 1 → 3 perfectly at t = π/√2; perfect transfer 0 → 4 at a time s would need 2√2·s/π odd and 3√2·s/π even, and multiplying by 3 and by 2 makes them equal, 6k + 3 = 4l, which fails by parity (<code>InteriorPathTransferConverseRefutation.result</code>). The page samples F for 0 → 4 over one period π√2, and its maximum stays below 1.</li>
+        <li><b>Perfect transfer on a tree: a conjecture refuted (frozen).</b> With the normalized Laplacian 𝓛 = I − D<sup>−1/2</sup>AD<sup>−1/2</sup> as the Hamiltonian, Coutinho and Baptista conjectured that no tree except the paths on 2 and 3 vertices has perfect transfer (<a href="https://doi.org/10.1080/03081087.2023.2236282" target="_blank" rel="noopener">Linear Multilinear Algebra (2023)</a>, <a href="https://arxiv.org/abs/2209.04668" target="_blank" rel="noopener">arXiv:2209.04668</a>). A counterexample: a centre joined to two leaves u, v and to seven arms of two edges each, 17 vertices in all. e<sub>u</sub> − e<sub>v</sub> has eigenvalue 1; e<sub>u</sub> + e<sub>v</sub> splits over four symmetric eigenvectors with eigenvalues 0, 2/3, 4/3 and 2. At t = 3π the symmetric phases are all 1 and the antisymmetric one is −1, so U(3π)e<sub>u</sub> = e<sub>v</sub> (<code>NormalizedLaplacianTreeStateTransfer.result</code>).</li>
+        <li><b>Model limits.</b> The matrix exponential comes exactly from a Hermitian Jacobi diagonalization, with no time stepping; the maximum of F is taken on a sampling grid. Zero-transfer sets are computed exactly in integers. Statements such as “F never reaches 1” are shown on finitely many examples; the proof comes from the frozen theorem.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/OddPathRationalWeightTransfer.lean" target="_blank" rel="noopener">OddPathRationalWeightTransfer.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/song-lin-2026-oriented-circulant-zero-transfer-parity-refutation.md" target="_blank" rel="noopener">Song–Lin problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/connelly-2017-property-t-universal-state-transfer.md" target="_blank" rel="noopener">Connelly et al. problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kay-2010-transfer-rate-refutation.md" target="_blank" rel="noopener">Kay problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/kirkland-2019-interior-pst-converse-refutation.md" target="_blank" rel="noopener">Kirkland et al. problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/InteriorPathTransferConverseRefutation.lean" target="_blank" rel="noopener">InteriorPathTransferConverseRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/coutinho-baptista-2023-normalized-laplacian-tree-state-transfer-refutation.md" target="_blank" rel="noopener">Coutinho–Baptista problem dossier</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Dynamics/NormalizedLaplacianTreeStateTransfer.lean" target="_blank" rel="noopener">NormalizedLaplacianTreeStateTransfer.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

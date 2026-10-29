@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="LEMNISCATE//AREA · Erdős’s minimal area problem">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LEMNISCATE//AREA Erdős 最小面积问题 · 单位水平集</title>
+<meta name="description" content="Erdős 最小面积问题：根都在紧集 K 里的 n 次首一多项式 p，单位水平集 {|p| &lt; 1} 的面积最小能有多小。Ghosh 与 Ramachandran（2026）留下两个问题：K 连通时 Fekete 多项式是否面积最小；容量为一的 K 上最小面积是否只能按 1/n 或 1/log n 衰减。本库把两个问题都否定了。页面画出 log|p| 的曲面与单位水平集，区间 [−R, R] 上 Fekete 多项式与竞争者的面积对比（R = 20 时的证书圆盘），以及单位圆盘加一个孤立点上面积的超快衰减。Erdős’s minimal area problem: how small can the area of the unit sublevel set {|p| &lt; 1} be for a monic polynomial of degree n with all roots in a compact set K. Ghosh and Ramachandran (2026) left two questions: whether Fekete polynomials minimize the area when K is connected, and whether on a capacity-one K the minimal area can only decay like 1/n or 1/log n. This library answers both in the negative. The page draws the surface log|p| with the unit sublevel set, the areas of the Fekete polynomial and a competitor on the interval [−R, R] (with the certificate discs at R = 20), and the very fast decay of area on the unit disc plus one isolated point.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="lemniscate-area">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="LEMNISCATE//AREA">LEMNISCATE<b>//</b>AREA</h1>
+      <div class="tagline">
+        <span class="zh">Erdős 最小面积问题 · <em>两个问题都被否定（已冻结）</em></span>
+        <span class="en">Erdős’s minimal area problem · <em>two questions answered no (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="witness" aria-pressed="true"><span class="code">R = 20 · ±10</span><span class="cn zh">Fekete 输给 ±10</span><span class="cn en">Fekete loses to ±10</span></button>
+        <button class="preset" data-preset="scan" aria-pressed="false"><span class="code">c: 0 → R</span><span class="cn zh">扫过竞争者的内根</span><span class="cn en">Sweep the competitor’s inner roots</span></button>
+        <button class="preset" data-preset="small" aria-pressed="false"><span class="code">R = 2</span><span class="cn zh">水平集看得见的时候</span><span class="cn en">When the sublevel set is visible</span></button>
+        <button class="preset" data-preset="one" aria-pressed="false"><span class="code">R = 1.2</span><span class="cn zh">连成一片 · 仍不是最小</span><span class="cn en">One piece · still not minimal</span></button>
+        <button class="preset" data-preset="decay" aria-pressed="false"><span class="code">k: 2 → 8</span><span class="cn zh">圆盘加一点 · 面积骤降</span><span class="cn en">Disc plus a point · area plummets</span></button>
+        <button class="preset" data-preset="petals" aria-pressed="false"><span class="code">N = 10, k = 3</span><span class="cn zh">单位圆上的花瓣</span><span class="cn en">Petals on the unit circle</span></button>
+        <button class="preset" data-preset="far" aria-pressed="false"><span class="code">(z − 4)ᵏ</span><span class="cn zh">孤立点把面积压下去</span><span class="cn en">The isolated point presses the area down</span></button>
+        <button class="preset" data-preset="rate" aria-pressed="false"><span class="code">n·A → 0</span><span class="cn zh">不是 1/n · 也不是 1/log n</span><span class="cn en">Neither 1/n nor 1/log n</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">{|p| &lt; 1}</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="fekete"><span class="zh">区间上的 Fekete</span><span class="en">Fekete on an interval</span></button>
+        <button class="chip" data-mode="decay"><span class="zh">容量为一 · 衰减率</span><span class="en">Capacity one · decay rate</span></button>
+      </div>
+      <div class="field" id="rField">
+        <label for="rr"><span class="zh">区间半长 R（K = [−R, R]）</span><span class="en">Half-length R (K = [−R, R])</span></label><output id="oR" for="rr">20</output>
+        <input type="range" id="rr" min="0" max="1" step="0.005" value="1">
+      </div>
+      <div class="field" id="nField" hidden>
+        <label for="nn"><span class="zh">单位根个数 N（p = (zᴺ − 1)(z − 4)ᵏ）</span><span class="en">Roots of unity N (p = (zᴺ − 1)(z − 4)ᵏ)</span></label><output id="oN" for="nn">10</output>
+        <input type="range" id="nn" min="2" max="66" step="1" value="10">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：复平面上的曲面 log|p(z)|，零高度平面以下的部分就是单位水平集 {|p| &lt; 1}；拖动旋转，滚轮缩放" data-aria-en="3D view: the surface log|p(z)| over the complex plane; the part below the zero-height plane is the unit sublevel set {|p| &lt; 1}; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="面积对参数的图" data-aria-en="Area against the parameter"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="单位水平集在根附近的放大图" data-aria-en="The unit sublevel set magnified near the roots"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">m(Λₚ)</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Ghosh 与 Ramachandran（2026）问：K 连通时，Fekete 多项式（根取在使 Π|aᵢ − aⱼ| 最大的位置）是否面积最小？不是。K = [−20, 20]、n = 4：Fekete 多项式 F = (z² − 400)(z² − 80) 的单位水平集面积 ≥ 7.231744 × 10⁻⁸π，竞争者 G = (z² − 400)(z² − 100) 的面积 ≤ 7.204616 × 10⁻⁸π。两边都用有理半径的圆盘证书：F 的水平集包含四个不相交的小圆盘，G 的水平集被四个小圆盘覆盖。已冻结：</span><span class="en">Ghosh and Ramachandran (2026) ask whether, for connected K, Fekete polynomials (roots placed to maximize Π|aᵢ − aⱼ|) minimize the area. They do not. K = [−20, 20], n = 4: the Fekete polynomial F = (z² − 400)(z² − 80) has unit sublevel area ≥ 7.231744 × 10⁻⁸π, the competitor G = (z² − 400)(z² − 100) has area ≤ 7.204616 × 10⁻⁸π. Both sides use certificate discs with rational radii: F’s sublevel set contains four disjoint small discs, G’s is covered by four small discs. Frozen:</span> <code>FeketeLemniscateAreaRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">他们又问：容量为一的紧集上，最小面积 Aₙ(K) 是否只能按 1/n 或 1/log n 衰减？也不是。K 取闭单位圆盘加孤立点 4，它的超限直径为 1；竞争者 (zᴺ − 1)(z − 4)ᵏ 的单位水平集落在环带 1 − 2⁻ᵏ &lt; |z| &lt; 1 + 2⁻ᵏ 与 4 附近半径 2⁻⁽ᵏ⁻²⁾ 的圆盘里，取 N = k² + 1 得 A<sub>k²+k+1</sub>(K) ≤ 20π·2⁻ᵏ，于是 n·Aₙ 沿这串 n 趋于 0，两种衰减率都不成立。已冻结：</span><span class="en">They also ask whether on a compact set of capacity one the minimal area Aₙ(K) can only decay like 1/n or 1/log n. Neither. Take K the closed unit disc plus the isolated point 4, whose transfinite diameter is 1; the competitor (zᴺ − 1)(z − 4)ᵏ has its unit sublevel set inside the annulus 1 − 2⁻ᵏ &lt; |z| &lt; 1 + 2⁻ᵏ and a disc of radius 2⁻⁽ᵏ⁻²⁾ about 4; with N = k² + 1 this gives A<sub>k²+k+1</sub>(K) ≤ 20π·2⁻ᵏ, so n·Aₙ tends to 0 along these n and neither rate holds. Frozen:</span> <code>CapacityOneAreaDecayRate.result</code></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：面积用数值积分算出（实根时沿竖直截线积分，否则沿每个根的极坐标积分）；R = 20 时 F、G 的面积分别约 7.32 × 10⁻⁸π 与 6.94 × 10⁻⁸π，落在 Lean 的两个界之外侧；页面扫描的各个 R 上，对称竞争者 (z² − R²)(z² − c²) 中都有比 Fekete 更小的；(zᴺ − 1)(z − 4)ᵏ 的实际面积远小于 Lean 的上界。</span><span class="en">Numbers computed on the page, not theorems: areas come from numerical integration (along vertical slices for real roots, otherwise in polar coordinates about each root); at R = 20 the areas of F and G are about 7.32 × 10⁻⁸π and 6.94 × 10⁻⁸π, on the far sides of the two Lean bounds; for every R the page scans, some symmetric competitor (z² − R²)(z² − c²) beats the Fekete polynomial; the actual area of (zᴺ − 1)(z − 4)ᵏ is far below the Lean bound.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：哪些连通集上 Fekete 多项式恰好面积最小；容量为一的集合上还能出现哪些衰减率，最小面积的精确阶。</span><span class="en">Open: on which connected sets Fekete polynomials do minimize the area; which other decay rates occur on capacity-one sets, and the exact order of the minimal area.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">问题源于 Erdős、Herzog 与 Piranian（1958）。Ghosh 与 Ramachandran（2026）证明 cap(K) &gt; 1 时 Fekete 多项式在对数尺度上渐近最优，并用不连通的集合说明它一般不是最小；区间 [−2, 2] 上 Aₙ ≤ c/n。Pendyala（2026）给出圆盘与圆周上 1/log n 的精确阶。</span><span class="en">The problem goes back to Erdős, Herzog and Piranian (1958). Ghosh and Ramachandran (2026) prove that Fekete polynomials are asymptotically optimal on a logarithmic scale when cap(K) &gt; 1, show with a disconnected set that they are not minimal in general, and prove Aₙ ≤ c/n on [−2, 2]. Pendyala (2026) gives the sharp order 1/log n for the disc and the circle.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：竞争者的内根 c，或衰减模式下的 k" data-aria-en="Progress: the competitor’s inner root c, or k in the decay mode">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">给定复平面上的紧集 K，考虑所有根都在 K 里的 n 次首一多项式 p。它的单位水平集 Λₚ = {z : |p(z)| &lt; 1} 是一些围绕根的区域，Erdős 问这块区域的面积最小能有多小，记为 Aₙ(K)。Ghosh 与 Ramachandran（2026）留下两个具体问题，本库把两者都否定了。</p>
+      <ol>
+        <li><b>Fekete 多项式（原文）。</b>在 Kⁿ 里使 Π<sub>i&lt;j</sub>|aᵢ − aⱼ| 最大的点组叫 Fekete 点组，对应的多项式 F = Π(z − aᵢ)。原文证明 cap(K) &gt; 1 时 Fekete 多项式在对数尺度上渐近最优，又用不连通的集合说明它一般不是面积最小，留下 K 连通时的问题。</li>
+        <li><b>连通集上的反例（已冻结）。</b>K = [−20, 20]、n = 4：Fekete 点组是 ±20、±√80（一般地 ±R、±R/√5）。竞争者把内根放在 ±10。根之间相距很远，每个根附近的水平集几乎是半径约 1/|p′(a)| 的小圆盘；Lean 用有理半径的圆盘夹住两边的面积：F 至少 7.231744 × 10⁻⁸π，G 至多 7.204616 × 10⁻⁸π。</li>
+        <li><b>为什么 Fekete 会输（页面数值的解释）。</b>水平集面积近似为 π Σ 1/|p′(aₖ)|²，Fekete 点组却最大化 Π|p′(aₖ)|。乘积最大与倒数平方和最小不是同一个目标：把内根从 ±√80 外移到 ±10，内根处的 |p′| 变大、外根处变小，倒数平方和反而下降。</li>
+        <li><b>容量为一的衰减率（已冻结）。</b>K = 闭单位圆盘 ∪ {4}，超限直径为 1。(zᴺ − 1)(z − 4)ᵏ 在单位圆附近只剩 N 个小花瓣，在 4 附近只剩一个极小的圆盘：Lean 证明它们落在环带 1 ± 2⁻ᵏ 与半径 2⁻⁽ᵏ⁻²⁾ 的圆盘里，取 N = k² + 1 得到 A<sub>k²+k+1</sub>(K) ≤ 20π·2⁻ᵏ，比 1/n 快得多。</li>
+        <li><b>页面怎么算面积。</b>根都是实数时，|p(x + iy)|² 对 |y| 单调，每条竖直截线上的水平集是一个区间，沿 x 积分即可；否则在每个根周围按极坐标求边界半径。页面的面积是数值，不承担证明。</li>
+        <li><b>边界。</b>哪些连通集上 Fekete 恰好最小、容量为一时还能有哪些衰减率，都还是开放问题。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-fekete-lemniscate-area.md" target="_blank" rel="noopener">问题卷宗：连通集上的 Fekete 多项式</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-capacity-one-decay-rate.md" target="_blank" rel="noopener">问题卷宗：容量为一时的衰减率</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/FeketeLemniscateAreaRefutation.lean" target="_blank" rel="noopener">FeketeLemniscateAreaRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/CapacityOneAreaDecayRate.lean" target="_blank" rel="noopener">CapacityOneAreaDecayRate.lean</a> · Ghosh、Ramachandran，<a href="https://doi.org/10.1090/proc/17897" target="_blank" rel="noopener">Proc. AMS（2026）</a>（<a href="https://arxiv.org/abs/2604.03036" target="_blank" rel="noopener">arXiv:2604.03036</a>） · Erdős、Herzog、Piranian，<a href="https://doi.org/10.1007/BF02790232" target="_blank" rel="noopener">J. Analyse Math. 6（1958）</a> · Pendyala，<a href="https://arxiv.org/abs/2606.17097" target="_blank" rel="noopener">arXiv:2606.17097（2026）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Given a compact set K in the complex plane, consider the monic polynomials p of degree n with all roots in K. The unit sublevel set Λₚ = {z : |p(z)| &lt; 1} consists of regions around the roots, and Erdős asked how small its area can be; call the infimum Aₙ(K). Ghosh and Ramachandran (2026) left two concrete questions, and this library answers both in the negative.</p>
+      <ol>
+        <li><b>Fekete polynomials (source).</b> A Fekete tuple maximizes Π<sub>i&lt;j</sub>|aᵢ − aⱼ| over Kⁿ, giving F = Π(z − aᵢ). The source proves that Fekete polynomials are asymptotically optimal on a logarithmic scale when cap(K) &gt; 1, shows with a disconnected set that they are not area minimizers in general, and leaves the connected case open.</li>
+        <li><b>A counterexample on a connected set (frozen).</b> K = [−20, 20], n = 4: the Fekete tuple is ±20, ±√80 (in general ±R, ±R/√5). The competitor puts its inner roots at ±10. The roots are far apart, so near each root the sublevel set is almost a disc of radius about 1/|p′(a)|; Lean squeezes both areas between discs of rational radius: F has at least 7.231744 × 10⁻⁸π, G at most 7.204616 × 10⁻⁸π.</li>
+        <li><b>Why Fekete loses (an explanation of the page numerics).</b> The area is close to π Σ 1/|p′(aₖ)|², while a Fekete tuple maximizes Π|p′(aₖ)|. Maximizing the product and minimizing the sum of inverse squares are different goals: moving the inner roots from ±√80 out to ±10 raises |p′| at the inner roots and lowers it at the outer ones, and the sum of inverse squares goes down.</li>
+        <li><b>Decay on capacity one (frozen).</b> K = closed unit disc ∪ {4} has transfinite diameter 1. The polynomial (zᴺ − 1)(z − 4)ᵏ leaves only N small petals near the unit circle and one tiny disc near 4: Lean proves they lie in the annulus 1 ± 2⁻ᵏ and a disc of radius 2⁻⁽ᵏ⁻²⁾, and with N = k² + 1 this gives A<sub>k²+k+1</sub>(K) ≤ 20π·2⁻ᵏ, much faster than 1/n.</li>
+        <li><b>How the page computes area.</b> With real roots, |p(x + iy)|² is monotone in |y|, so each vertical slice of the sublevel set is an interval and the area is an integral over x; otherwise the boundary radius is found in polar coordinates about each root. The page’s areas are numbers, not proofs.</li>
+        <li><b>Limits.</b> On which connected sets Fekete polynomials do minimize, and which decay rates occur at capacity one, remain open.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-fekete-lemniscate-area.md" target="_blank" rel="noopener">Problem dossier: Fekete polynomials on connected sets</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/ghosh-ramachandran-2026-capacity-one-decay-rate.md" target="_blank" rel="noopener">Problem dossier: the decay rate at capacity one</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/FeketeLemniscateAreaRefutation.lean" target="_blank" rel="noopener">FeketeLemniscateAreaRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Analytic/Lemniscates/CapacityOneAreaDecayRate.lean" target="_blank" rel="noopener">CapacityOneAreaDecayRate.lean</a> · Ghosh, Ramachandran, <a href="https://doi.org/10.1090/proc/17897" target="_blank" rel="noopener">Proc. AMS (2026)</a> (<a href="https://arxiv.org/abs/2604.03036" target="_blank" rel="noopener">arXiv:2604.03036</a>) · Erdős, Herzog, Piranian, <a href="https://doi.org/10.1007/BF02790232" target="_blank" rel="noopener">J. Analyse Math. 6 (1958)</a> · Pendyala, <a href="https://arxiv.org/abs/2606.17097" target="_blank" rel="noopener">arXiv:2606.17097 (2026)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

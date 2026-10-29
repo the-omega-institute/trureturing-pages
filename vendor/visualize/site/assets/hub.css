@@ -1,0 +1,72 @@
+/* Index layout: header, a hero band over a live interference field, then the registry grid.
+   The first live entry is featured across two columns when there is room. */
+.hub {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-block: 14px 28px;
+  padding-inline: var(--gutter);
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+.hero { position: relative; overflow: hidden; min-height: 240px; display: flex; align-items: flex-end; }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0.85; }
+.hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(3, 6, 12, 0.94) 0%, rgba(3, 6, 12, 0.7) 45%, rgba(3, 6, 12, 0.15) 100%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+}
+.hero-text { position: relative; z-index: 2; padding: 26px 24px 22px; max-width: 640px; display: flex; flex-direction: column; gap: 10px; }
+.hero h2 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(20px, 3vw, 28px); line-height: 1.25; letter-spacing: 0.02em; text-wrap: balance; }
+.hero p { margin: 0; color: var(--dim); font-size: 13.5px; max-width: 60ch; }
+.legend { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--dim); }
+.legend li { display: flex; align-items: center; gap: 6px; }
+
+.k {
+  font-family: var(--font-data); font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em;
+  border: 1px solid var(--line-hot); color: var(--cyan); padding: 1px 6px; white-space: nowrap;
+}
+.k.ok { color: var(--ok); border-color: rgba(70, 255, 178, 0.45); }
+.k.model { color: var(--amber); border-color: rgba(255, 200, 61, 0.45); }
+
+.index-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.index-head h2 { margin: 0; font-family: var(--font-display); font-size: 12px; letter-spacing: 0.18em; color: var(--cyan); font-weight: 600; }
+.index-head span { font-family: var(--font-data); font-size: 11px; color: var(--dim); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.card { display: flex; flex-direction: column; }
+.card .thumb { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; background: #02040a; border-bottom: 1px solid var(--panel-edge); }
+.card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease, filter 0.6s ease; filter: saturate(1.05); }
+.card .thumb::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px); }
+.card .thumb .code {
+  position: absolute; left: 12px; bottom: 10px; z-index: 1;
+  font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; color: var(--ink);
+  text-shadow: 0 0 12px rgba(25, 240, 255, 0.8), 0 0 3px #000;
+}
+.card:hover .thumb img, .card:focus-within .thumb img { transform: scale(1.03); filter: saturate(1.25) brightness(1.08); }
+.card .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.card h3 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3; }
+.card h3 a { color: var(--ink); text-decoration: none; }
+.card h3 a:hover { color: var(--cyan); }
+.card .en-title { margin: -4px 0 0; font-family: var(--font-display); font-size: 11.5px; letter-spacing: 0.08em; color: var(--dim); text-transform: uppercase; }
+.card .sum { margin: 0; color: var(--dim); font-size: 13px; max-width: 64ch; }
+.card .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 5px; }
+.card .tags li { font-size: 11px; color: var(--ink); border: 1px solid var(--panel-edge); padding: 1px 7px; background: rgba(20, 48, 73, 0.35); }
+.card .refs { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.card .refs div { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.card .refs a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--line-hot); overflow-wrap: anywhere; min-width: 0; }
+.card .refs a:hover { color: var(--cyan); border-bottom-color: var(--cyan); }
+.card .refs code { font-family: var(--font-data); font-size: 11px; }
+.card .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 4px; }
+.card .actions .date { font-family: var(--font-data); font-size: 11px; color: var(--faint); }
+.card .enter { border-color: var(--cyan); color: var(--cyan); }
+.card .enter:hover { background: var(--cyan); color: #001318; }
+
+@media (min-width: 900px) {
+  .grid .card.featured { grid-column: span 2; flex-direction: row; }
+  .grid .card.featured .thumb { flex: 1.35 1 0; aspect-ratio: auto; min-height: 300px; border-bottom: 0; border-right: 1px solid var(--panel-edge); }
+  .grid .card.featured .body { flex: 1 1 0; }
+}
+
+.foot { display: flex; justify-content: space-between; gap: 10px 20px; flex-wrap: wrap; color: var(--faint); font-size: 12px; border-top: 1px solid var(--panel-edge); padding-top: 10px; }
+.foot code { font-family: var(--font-data); color: var(--dim); font-size: 11.5px; }

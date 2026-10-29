@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="HERMITE//LADDER · The quantum oscillator, the energy ladder and Hermite functions">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HERMITE//LADDER 量子谐振子 · 能级阶梯与厄米函数</title>
+<meta name="description" content="量子谐振子：能级是 ħω(n + ½) 的等距阶梯，本征态是厄米函数；它们两两正交、合起来能逼近任何波函数，但只有能量加权的系数平方可和时，哈密顿量才作用得上。The quantum oscillator: its energies form the evenly spaced ladder ħω(n + ½) and its eigenstates are Hermite functions; they are orthonormal and together approximate any wave function, but the Hamiltonian acts only when the energy-weighted coefficients are square-summable.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="hermite-ladder">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="HERMITE//LADDER">HERMITE<b>//</b>LADDER</h1>
+      <div class="tagline">
+        <span class="zh">量子谐振子 · 能级阶梯与厄米函数 · <em>拼得出任何形状，却不是每个形状都算得了能量</em></span>
+        <span class="en">The quantum oscillator · the energy ladder and Hermite functions · <em>they can build any shape, but not every shape has an energy</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillT">t <strong>0.00</strong></span>
+      <span class="pill" id="pillE">⟨E⟩ <strong>—</strong></span>
+      <span class="pill hot" id="pillDom">DOMAIN <strong>—</strong></span>
+      <span class="pill" id="pillMode">MODE <strong>1D</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="ground" aria-pressed="false"><span class="code">GROUND</span><span class="cn zh">基态 · 停不下的零点能</span><span class="cn en">Ground state · zero-point energy</span></button>
+        <button class="preset" data-preset="excited" aria-pressed="false"><span class="code">EXCITED</span><span class="cn zh">第 4 激发态 · 4 个节点</span><span class="cn en">Fourth excited state · 4 nodes</span></button>
+        <button class="preset" data-preset="coherent" aria-pressed="true"><span class="code">COHERENT</span><span class="cn zh">相干态 · 像经典小球</span><span class="cn en">Coherent state · like a classical ball</span></button>
+        <button class="preset" data-preset="cat" aria-pressed="false"><span class="code">CAT</span><span class="cn zh">两个相干态叠加 · 干涉条纹</span><span class="cn en">Two coherent states · fringes</span></button>
+        <button class="preset" data-preset="box" aria-pressed="false"><span class="code">BOX</span><span class="cn zh">方盒 · 拼得出，算不了能量</span><span class="cn en">A box · buildable, no energy</span></button>
+        <button class="preset" data-preset="smooth" aria-pressed="false"><span class="code">SMOOTH</span><span class="cn zh">光滑双峰 · 很快拼好</span><span class="cn en">Smooth double hump · fast</span></button>
+        <button class="preset" data-preset="lissajous" aria-pressed="false"><span class="code">LISSAJOUS</span><span class="cn zh">二维 · 3:2 的轨道</span><span class="cn en">2D · a 3:2 orbit</span></button>
+        <button class="preset" data-preset="vortex" aria-pressed="false"><span class="code">VORTEX</span><span class="cn zh">二维 · 密度不动，相位在转</span><span class="cn en">2D · still density, turning phase</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">维度</span><span class="en">Dimension</span><span class="aside">d</span></h2>
+      <div class="chips" id="dimChips" role="group" aria-label="维度" data-aria-en="Dimension">
+        <button class="chip" data-dim="1" aria-pressed="true"><span class="zh">一维</span><span class="en">1D</span></button>
+        <button class="chip" data-dim="2" aria-pressed="false"><span class="zh">二维</span><span class="en">2D</span></button>
+      </div>
+      <div class="field" id="ratioField" hidden>
+        <label for="ratio"><span class="zh">频率比 ω<sub>2</sub>/ω<sub>1</sub></span><span class="en">Frequency ratio ω<sub>2</sub>/ω<sub>1</sub></span></label><output id="oRatio" for="ratio">1.50</output>
+        <input type="range" id="ratio" min="0.5" max="3" step="0.005" value="1.5">
+      </div>
+      <div class="chips" id="ratioChips" role="group" aria-label="常用频率比" data-aria-en="Common frequency ratios" hidden>
+        <button class="chip" data-ratio="1">1</button>
+        <button class="chip" data-ratio="1.5">3/2</button>
+        <button class="chip" data-ratio="2">2</button>
+        <button class="chip" data-ratio="1.4142135623730951">√2</button>
+      </div>
+      <p class="note" id="dimNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">要演化的态</span><span class="en">The state to evolve</span><span class="aside">ψ = Σ c<sub>n</sub>Φ<sub>n</sub></span></h2>
+      <div class="chips" id="srcChips1" role="group" aria-label="一维的态" data-aria-en="1D states">
+        <button class="chip" data-src="eigen" aria-pressed="false"><span class="zh">本征态</span><span class="en">Eigenstate</span></button>
+        <button class="chip" data-src="coherent" aria-pressed="true"><span class="zh">相干态</span><span class="en">Coherent</span></button>
+        <button class="chip" data-src="cat" aria-pressed="false"><span class="zh">猫态</span><span class="en">Cat</span></button>
+        <button class="chip" data-src="target" aria-pressed="false"><span class="zh">逼近一个形状</span><span class="en">Approximate a shape</span></button>
+      </div>
+      <div class="chips" id="srcChips2" role="group" aria-label="二维的态" data-aria-en="2D states" hidden>
+        <button class="chip" data-src="eig2" aria-pressed="false"><span class="zh">本征态 (n₁, n₂)</span><span class="en">Eigenstate (n₁, n₂)</span></button>
+        <button class="chip" data-src="coh2" aria-pressed="true"><span class="zh">相干态</span><span class="en">Coherent</span></button>
+        <button class="chip" data-src="vortex" aria-pressed="false"><span class="zh">涡旋</span><span class="en">Vortex</span></button>
+      </div>
+      <div class="field" id="nField">
+        <label for="nq"><span class="zh">量子数 n</span><span class="en">Quantum number n</span></label><output id="oN" for="nq">4</output>
+        <input type="range" id="nq" min="0" max="12" step="1" value="4">
+      </div>
+      <div class="field" id="n2Field" hidden>
+        <label for="nq2"><span class="zh">第二个量子数 n₂</span><span class="en">Second quantum number n₂</span></label><output id="oN2" for="nq2">1</output>
+        <input type="range" id="nq2" min="0" max="8" step="1" value="1">
+      </div>
+      <div class="field" id="aField">
+        <label for="alpha"><span class="zh">位移 |α|</span><span class="en">Displacement |α|</span><small class="zh">相干态的振幅</small><small class="en">amplitude of the coherent state</small></label><output id="oAlpha" for="alpha">2.00</output>
+        <input type="range" id="alpha" min="0" max="3.5" step="0.01" value="2">
+      </div>
+      <div class="chips" id="tgtChips" role="group" aria-label="目标形状" data-aria-en="Target shape" hidden>
+        <button class="chip" data-tgt="box" aria-pressed="true"><span class="zh">方盒</span><span class="en">Box</span></button>
+        <button class="chip" data-tgt="tri" aria-pressed="false"><span class="zh">三角</span><span class="en">Triangle</span></button>
+        <button class="chip" data-tgt="gauss" aria-pressed="false"><span class="zh">偏移高斯</span><span class="en">Shifted Gaussian</span></button>
+        <button class="chip" data-tgt="hump" aria-pressed="false"><span class="zh">双峰</span><span class="en">Double hump</span></button>
+      </div>
+      <div class="field" id="termsField" hidden>
+        <label for="terms"><span class="zh">只用前 N 个本征态</span><span class="en">Use only the first N eigenstates</span></label><output id="oTerms" for="terms">20</output>
+        <input type="range" id="terms" min="1" max="80" step="1" value="20">
+      </div>
+      <p class="note" id="srcNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="一维：势阱、能级阶梯，以及随时间转动的复波函数；二维：概率密度高度场，颜色是相位；拖动旋转，滚轮缩放" data-aria-en="1D: the potential well, the energy ladder and the complex wave function turning in time; 2D: the probability density as a height field coloured by phase; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">每一级占多少</span><span class="en">HOW MUCH SITS ON EACH RUNG</span></h2><span id="coMeta"></span></div>
+        <canvas id="coef" aria-label="展开系数 |c_n|² 随能级 n 的分布" data-aria-en="The expansion weights |c_n|² over the levels n"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">拼得出吗？算得了能量吗？</span><span class="en">CAN IT BE BUILT? DOES IT HAVE AN ENERGY?</span></h2><span id="dmMeta"></span></div>
+        <canvas id="domain" aria-label="前 N 项的逼近误差，以及能量加权的系数平方和 Σ E²|c|² 随 N 的变化" data-aria-en="The error of the first N terms, and the energy-weighted sum Σ E²|c|² against N"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">E<sub>n</sub> = ħω(n + ½)</span></h2>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">平均能量 ⟨E⟩/ħω</span><span class="en">Mean energy ⟨E⟩/ħω</span></dt><dd id="roE">—</dd></div>
+        <div class="c"><dt><span class="zh">总权重 Σ|c<sub>n</sub>|²</span><span class="en">Total weight Σ|c<sub>n</sub>|²</span></dt><dd id="roNorm">—</dd></div>
+        <div class="m"><dt><span class="zh">H 作用得上吗（Σ E²|c|²）</span><span class="en">Can H act (Σ E²|c|²)</span></dt><dd id="roDom">—</dd></div>
+        <div class="a"><dt><span class="zh">回归周期</span><span class="en">Revival period</span></dt><dd id="roT">—</dd></div>
+        <div><dt><span class="zh">数值正交性偏差</span><span class="en">Numerical orthonormality defect</span></dt><dd id="roOrth">—</dd></div>
+        <div><dt id="roL6"></dt><dd id="ro6">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">每个厄米乘积 Φ<sub>α</sub> 都是 Schwartz 函数，且 H<sub>0</sub>Φ<sub>α</sub> = E<sub>α</sub>Φ<sub>α</sub>，E<sub>α</sub> = Σ<sub>j</sub>ħω<sub>j</sub>(α<sub>j</sub> + ½)，已冻结：</span><span class="en">Each Hermite product Φ<sub>α</sub> is a Schwartz function with H<sub>0</sub>Φ<sub>α</sub> = E<sub>α</sub>Φ<sub>α</sub>, E<sub>α</sub> = Σ<sub>j</sub>ħω<sub>j</sub>(α<sub>j</sub> + ½); frozen:</span> <code>physical_hermite_tests</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">它们两两正交、各自归一：∫Φ<sub>α</sub>Φ<sub>β</sub> = δ<sub>αβ</sub>，已冻结：</span><span class="en">They are orthonormal: ∫Φ<sub>α</sub>Φ<sub>β</sub> = δ<sub>αβ</sub>; frozen:</span> <code>physical_product_orthonormal_integral</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">而且是完备的：与所有 Φ<sub>α</sub> 都正交的平方可积函数几乎处处为零，已冻结：</span><span class="en">And they are complete: a square-integrable function orthogonal to every Φ<sub>α</sub> vanishes almost everywhere; frozen:</span> <code>physical_product_totality</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">H 的定义域</span><span class="en">The domain of H</span><span class="aside">(E<sub>n</sub>c<sub>n</sub>) ∈ ℓ²</span></h2>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">只要本征函数构成希尔伯特基，哈密顿量的闭包 K 自伴、非负，且 f 在 K 的定义域里当且仅当 (E<sub>n</sub>⟨Φ<sub>n</sub>, f⟩) 平方可和；有限项的厄米和同时逼近 f 与 Kf，已冻结：</span><span class="en">Provided the eigenfunctions form a Hilbert basis, the closure K of the Hamiltonian is self-adjoint and nonnegative, and f lies in its domain exactly when (E<sub>n</sub>⟨Φ<sub>n</sub>, f⟩) is square-summable; finite Hermite sums approximate f and Kf together; frozen:</span> <code>physical_graph_closure</code></span></div>
+      <p class="note" id="domNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="时间" data-aria-en="Time">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 八分之一周期 · <kbd>+</kbd><kbd>−</kbd> 多/少一项</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> an eighth of a period · <kbd>+</kbd><kbd>−</kbd> one more / fewer term</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">谐振子的哈密顿量 H<sub>0</sub> = Σ<sub>j</sub>[−(ħ²/2m<sub>j</sub>)∂<sub>j</sub>² + (m<sub>j</sub>ω<sub>j</sub>²/2)x<sub>j</sub>²]。页面取 ħ = m = 1，长度以 ℓ = √(ħ/mω<sub>1</sub>) 计、时间以 1/ω<sub>1</sub> 计。一维时，三维视图里的螺旋就是复波函数 ψ(x, t)：横轴是 x，另外两个方向是它的实部和虚部，颜色是相位；它悬在平均能量 ⟨E⟩ 的高度上，背后是抛物线势阱与能级阶梯。二维时，高度是概率密度，颜色是相位。</p>
+      <ol>
+        <li><b>能级阶梯与厄米函数（理论卷定义 1.3、定理 7.1）。</b>归一化的物理厄米函数 Φ<sub>α</sub>(x) = Π<sub>j</sub> He<sub>α<sub>j</sub></sub>(√2 x<sub>j</sub>/ℓ<sub>j</sub>) e<sup>−x<sub>j</sub>²/2ℓ<sub>j</sub>²</sup>/√(√π ℓ<sub>j</sub> α<sub>j</sub>!) 都是 Schwartz 函数，满足 H<sub>0</sub>Φ<sub>α</sub> = E<sub>α</sub>Φ<sub>α</sub>，E<sub>α</sub> = Σ<sub>j</sub>ħω<sub>j</sub>(α<sub>j</sub> + ½)（已冻结：<code>physical_hermite_tests</code>；底下的高斯 Schwartz 存在性也已冻结：<code>exists_gaussian_schwartz</code>）。基态能量 ½ħω 不为零：它永远停不下来。</li>
+        <li><b>正交与完备。</b>∫Φ<sub>α</sub>Φ<sub>β</sub> = δ<sub>αβ</sub>（已冻结：<code>physical_product_orthonormal_integral</code>）；与所有 Φ<sub>α</sub> 都正交的平方可积函数几乎处处为零（已冻结：<code>physical_product_totality</code>）。合起来就是：任何平方可积的波函数都能用厄米函数逼近，前 N 项的误差恰是剩下的系数平方和 Σ<sub>n≥N</sub>|c<sub>n</sub>|²。页面的“逼近一个形状”在 x ∈ [−16, 16] 上做数值积分求系数，正交性偏差就是这个数值积分的读数。</li>
+        <li><b>拼得出 ≠ 算得了能量（定理 3.1、6.1、8.1）。</b>在本征函数张成的有限组合上定义 H，它的闭包 K 自伴（已冻结：<code>eigenbasis_closable_selfAdjoint</code>），而且 f 属于 K 的定义域当且仅当 (E<sub>n</sub>c<sub>n</sub>) 平方可和（已冻结：<code>eigenbasis_graph_coefficients</code>）。对谐振子，只要厄米函数构成希尔伯特基，K 就等于 Schwartz 函数上微分算子的闭包，K 非负，有限项厄米和同时逼近 f 与 Kf（已冻结：<code>physical_graph_closure</code>）。方盒、三角这样有跳跃或尖角的形状能拼出来，Σ E²|c|² 却随 N 发散：H 作用不上去。高斯、双峰这样光滑的形状，这个和很快收敛。注意：正交、完备与闭包三件事各自已冻结；理论卷把它们拼成一条无条件定理的那一步（定理形式 2.3）仍标为“待建立”。页面对发散与收敛的判断来自前 80 项的数值趋势，是模型计算，不是证明。</li>
+        <li><b>相干态与经典极限。</b>c<sub>n</sub> = e<sup>−|α|²/2</sup>α<sup>n</sup>/√n! 的叠加形状不变地来回摆动，⟨x⟩ 走的正是经典轨迹（Schrödinger，<a href="https://doi.org/10.1007/BF01507634" target="_blank" rel="noopener">Naturwissenschaften 14, 664 (1926)</a>；Glauber，<a href="https://doi.org/10.1103/PhysRev.131.2766" target="_blank" rel="noopener">Phys. Rev. 131, 2766 (1963)</a>）。两个相干态叠加成“猫态”，在中间相遇时出现干涉条纹。</li>
+        <li><b>回归。</b>所有能级间隔都是 ħω，所以每过 T = 2π/ω，每个系数都乘上同一个相位 e<sup>−iπ</sup>，概率密度精确复原。二维时两个频率之比若是 p/q（既约），周期是 2πq/ω<sub>1</sub>；比值是无理数时永不精确回归，轨道（李萨如图形）也永不闭合。各向同性时 (Φ<sub>10</sub> + iΦ<sub>01</sub>)/√2 是两个同能量态的叠加：密度不动，相位绕着中心转。</li>
+        <li><b>模型边界。</b>系数在 [−16, 16] 上用梯形法则、间距 0.01 数值积分，最多取 80 项；数值读数（正交性偏差、总权重、能量和）都带着这个精度。二维用可分离的乘积之和计算；时间演化精确地乘相位，不做数值积分。页面没有画出无穷多项本身，只画出有限项与它们的趋势。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/ACTUAL_OSCILLATOR_GRAPH.md" target="_blank" rel="noopener">Actual oscillator differential graph（英文理论卷）</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalHermiteTests.lean" target="_blank" rel="noopener">PhysicalHermiteTests.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductOrthonormality.lean" target="_blank" rel="noopener">PhysicalProductOrthonormality.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductTotality.lean" target="_blank" rel="noopener">PhysicalProductTotality.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/EigenbasisGraphCore.lean" target="_blank" rel="noopener">EigenbasisGraphCore.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalGraphClosure.lean" target="_blank" rel="noopener">PhysicalGraphClosure.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The oscillator Hamiltonian is H<sub>0</sub> = Σ<sub>j</sub>[−(ħ²/2m<sub>j</sub>)∂<sub>j</sub>² + (m<sub>j</sub>ω<sub>j</sub>²/2)x<sub>j</sub>²]. The page sets ħ = m = 1, measures length in ℓ = √(ħ/mω<sub>1</sub>) and time in 1/ω<sub>1</sub>. In 1D, the helix in the 3D view is the complex wave function ψ(x, t): x runs along it, the other two directions are its real and imaginary parts, and the colour is its phase; it hangs at the height of the mean energy ⟨E⟩, in front of the parabolic well and the energy ladder. In 2D, height is the probability density and colour is the phase.</p>
+      <ol>
+        <li><b>The energy ladder and Hermite functions (theory volume Definition 1.3, Theorem 7.1).</b> The normalized physical Hermite functions Φ<sub>α</sub>(x) = Π<sub>j</sub> He<sub>α<sub>j</sub></sub>(√2 x<sub>j</sub>/ℓ<sub>j</sub>) e<sup>−x<sub>j</sub>²/2ℓ<sub>j</sub>²</sup>/√(√π ℓ<sub>j</sub> α<sub>j</sub>!) are Schwartz functions with H<sub>0</sub>Φ<sub>α</sub> = E<sub>α</sub>Φ<sub>α</sub>, E<sub>α</sub> = Σ<sub>j</sub>ħω<sub>j</sub>(α<sub>j</sub> + ½) (frozen: <code>physical_hermite_tests</code>; the underlying existence of the Gaussian as a Schwartz function is frozen too: <code>exists_gaussian_schwartz</code>). The ground-state energy ½ħω is not zero: the oscillator never comes to rest.</li>
+        <li><b>Orthonormal and complete.</b> ∫Φ<sub>α</sub>Φ<sub>β</sub> = δ<sub>αβ</sub> (frozen: <code>physical_product_orthonormal_integral</code>); a square-integrable function orthogonal to every Φ<sub>α</sub> vanishes almost everywhere (frozen: <code>physical_product_totality</code>). Together: any square-integrable wave function can be approximated by Hermite functions, and the error of the first N terms is exactly the sum of the remaining squared coefficients Σ<sub>n≥N</sub>|c<sub>n</sub>|². “Approximate a shape” computes the coefficients by numerical integration over x ∈ [−16, 16]; the orthonormality defect is a reading of that numerical integration.</li>
+        <li><b>Buildable is not the same as having an energy (Theorems 3.1, 6.1, 8.1).</b> Define H on finite combinations of eigenfunctions: its closure K is self-adjoint (frozen: <code>eigenbasis_closable_selfAdjoint</code>), and f lies in the domain of K exactly when (E<sub>n</sub>c<sub>n</sub>) is square-summable (frozen: <code>eigenbasis_graph_coefficients</code>). For the oscillator, provided the Hermite functions form a Hilbert basis, K equals the closure of the differential operator on Schwartz functions, K is nonnegative, and finite Hermite sums approximate f and Kf together (frozen: <code>physical_graph_closure</code>). Shapes with jumps or corners, such as the box and the triangle, can be built, but Σ E²|c|² grows without bound in N: H cannot act on them. Smooth shapes such as the Gaussian or the double hump make the sum converge quickly. Note that orthonormality, completeness and the closure are each frozen; the step that combines them into one unconditional theorem (theorem-form 2.3 in the volume) is still marked “to be established” there. The page’s verdict on divergence or convergence comes from the numerical trend of the first 80 terms; it is a model calculation, not a proof.</li>
+        <li><b>Coherent states and the classical limit.</b> The superposition c<sub>n</sub> = e<sup>−|α|²/2</sup>α<sup>n</sup>/√n! swings back and forth without changing shape, and ⟨x⟩ follows the classical trajectory exactly (Schrödinger, <a href="https://doi.org/10.1007/BF01507634" target="_blank" rel="noopener">Naturwissenschaften 14, 664 (1926)</a>; Glauber, <a href="https://doi.org/10.1103/PhysRev.131.2766" target="_blank" rel="noopener">Phys. Rev. 131, 2766 (1963)</a>). Two coherent states added together make a “cat state”, which shows interference fringes when the two meet in the middle.</li>
+        <li><b>Revivals.</b> Every level spacing is ħω, so after T = 2π/ω every coefficient is multiplied by the same phase e<sup>−iπ</sup> and the probability density returns exactly. In 2D, if the frequency ratio is p/q in lowest terms the period is 2πq/ω<sub>1</sub>; for an irrational ratio there is never an exact revival, and the orbit (a Lissajous figure) never closes. In the isotropic case (Φ<sub>10</sub> + iΦ<sub>01</sub>)/√2 is a superposition of two states with the same energy: the density stays still while the phase turns around the centre.</li>
+        <li><b>Model limits.</b> Coefficients are integrated numerically over [−16, 16] with the trapezoidal rule at spacing 0.01, using at most 80 terms; the numerical readings (orthonormality defect, total weight, energy sums) carry that accuracy. 2D states are computed as sums of separable products; time evolution multiplies by exact phases, with no numerical integration. The page does not draw infinitely many terms, only finitely many terms and their trend.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/ACTUAL_OSCILLATOR_GRAPH.md" target="_blank" rel="noopener">Actual oscillator differential graph</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalHermiteTests.lean" target="_blank" rel="noopener">PhysicalHermiteTests.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductOrthonormality.lean" target="_blank" rel="noopener">PhysicalProductOrthonormality.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/Hermite/PhysicalProductTotality.lean" target="_blank" rel="noopener">PhysicalProductTotality.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/EigenbasisGraphCore.lean" target="_blank" rel="noopener">EigenbasisGraphCore.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Analysis/PhysicalGraphClosure.lean" target="_blank" rel="noopener">PhysicalGraphClosure.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

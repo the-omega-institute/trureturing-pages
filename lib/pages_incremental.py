@@ -13,7 +13,7 @@ from lib import reconcile_releases as reconcile, vertical_smoke
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = 'pages-build-cache.v1'
-BUILD_ROOTS = ('lib/', 'tools/', 'src/', 'contracts/', 'schemas/', 'config/', 'content/', 'pipeline/')
+BUILD_ROOTS = ('lib/', 'tools/', 'src/', 'contracts/', 'schemas/', 'config/', 'content/', 'pipeline/', 'vendor/visualize/')
 BUILD_FILES = {'Makefile', 'requirements.txt', 'global.json', 'Directory.Build.props', 'nuget.config',
                'Trureturing.Pages.slnx', '.github/workflows/pages.yml'}
 MEDIA = {'.css', '.png', '.jpg', '.jpeg', '.svg', '.ico', '.webp', '.woff', '.woff2', '.ttf'}
@@ -55,7 +55,8 @@ def inputs(root=ROOT):
             presentation = (path.suffix in MEDIA or path.parent == Path('site') and path.suffix == '.html'
                             or name.startswith(('site/assets/locales/', 'site/assets/open-math/'))
                             or path.suffix in {'.js', '.mjs'} and name not in modules)
-            if not presentation:
+            # The Visualize adapter is also copied into a generated mount path.
+            if not presentation or name == 'site/assets/visualize-bridge.js':
                 build[name] = source[path.relative_to('site').as_posix()]
         elif name.startswith(BUILD_ROOTS) or name in BUILD_FILES:
             build[name] = sha(root / name)

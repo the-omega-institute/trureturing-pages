@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="AURIC//PYRAMID · What averages see and what they miss">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AURIC//PYRAMID FIB-ATOM 金字塔 · 平均值看见什么、看不见什么</title>
+<meta name="description" content="三个位置排成一行，中间与两端互斥、两端可以同选：合法组合恰有五种。对它们的任意概率分布取平均占用，所有可能的点围成一个方底金字塔（本库已证）；平均值少记了一笔“两端同时被选”的概率，这笔隐藏量能取的范围由 Fréchet 区间给出。页面还展示生成这套规则的斐波那契替换树、合法位串的斐波那契计数，以及小金字塔沿路径能拼成整体、在奇环上却会失败。Three positions in a row, the middle excluding both ends while the two ends may be chosen together: there are exactly five legal combinations. The average occupancies of all their probability laws fill a square-based pyramid (proved in this library); the averages forget one quantity, the probability that both ends are chosen, whose possible range is a Fréchet interval. The page also shows the Fibonacci substitution tree behind the rule, the Fibonacci count of legal words, and how small pyramids glue together along a path but fail on an odd cycle.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="auric-pyramid">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="AURIC//PYRAMID">AURIC<b>//</b>PYRAMID</h1>
+      <div class="tagline">
+        <span class="zh">FIB-ATOM 金字塔 · 平均值看见什么、看不见什么 · <em>三个位置、中间排斥两端：五种合法组合围成一个方底金字塔</em></span>
+        <span class="en">The FIB-ATOM pyramid · what averages see and what they miss · <em>three positions, the middle excluding both ends: five legal combinations span a square-based pyramid</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="tree" aria-pressed="false"><span class="code">α → β, β → ⟨β, α⟩</span><span class="cn zh">替换树 · 斐波那契生长</span><span class="cn en">Substitution tree · Fibonacci growth</span></button>
+        <button class="preset" data-preset="five" aria-pressed="false"><span class="code">n = 3</span><span class="cn zh">五个合法位串 = 五种模式</span><span class="cn en">Five legal words = five modes</span></button>
+        <button class="preset" data-preset="slice" aria-pressed="true"><span class="code">Z ↑</span><span class="cn zh">金字塔 · 一层层切</span><span class="cn en">The pyramid · slice by slice</span></button>
+        <button class="preset" data-preset="same" aria-pressed="false"><span class="code">(½, ½, 0)</span><span class="cn zh">同一个平均 · 一整段分布</span><span class="cn en">One average · a whole range of laws</span></button>
+        <button class="preset" data-preset="uniform" aria-pressed="false"><span class="code">p = ⅕</span><span class="cn zh">均匀分布 · 乘积补全</span><span class="cn en">Uniform law · product completion</span></button>
+        <button class="preset" data-preset="face" aria-pressed="false"><span class="code">X = 0</span><span class="cn zh">侧面上 · 平均值定死分布</span><span class="cn en">On a side face · averages fix the law</span></button>
+        <button class="preset" data-preset="path" aria-pressed="false"><span class="code">P₇</span><span class="cn zh">沿路径拼接 · 总能成功</span><span class="cn en">Gluing along a path · always works</span></button>
+        <button class="preset" data-preset="odd" aria-pressed="false"><span class="code">C₅</span><span class="cn zh">奇环 · 局部可以、整体不行</span><span class="cn en">Odd cycle · locally fine, globally not</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">(X, Y, Z)</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="tree"><span class="zh">替换树</span><span class="en">Tree</span></button>
+        <button class="chip" data-mode="pyramid"><span class="zh">金字塔</span><span class="en">Pyramid</span></button>
+        <button class="chip" data-mode="fiber"><span class="zh">隐藏纤维</span><span class="en">Hidden fibre</span></button>
+        <button class="chip" data-mode="glue"><span class="zh">拼接</span><span class="en">Gluing</span></button>
+      </div>
+      <div class="field" id="uField" hidden>
+        <label for="uu"><span class="zh">底面位置 u（X = u·(1 − Z)）</span><span class="en">Base position u (X = u·(1 − Z))</span></label><output id="oU" for="uu">0.50</output>
+        <input type="range" id="uu" min="0" max="1" step="0.05" value="0.5">
+      </div>
+      <div class="field" id="vField" hidden>
+        <label for="vv"><span class="zh">底面位置 v（Y = v·(1 − Z)）</span><span class="en">Base position v (Y = v·(1 − Z))</span></label><output id="oV" for="vv">0.50</output>
+        <input type="range" id="vv" min="0" max="1" step="0.05" value="0.5">
+      </div>
+      <div class="field" id="zField" hidden>
+        <label for="zz"><span class="zh">中位占用 Z</span><span class="en">Middle occupancy Z</span></label><output id="oZ" for="zz">0.00</output>
+        <input type="range" id="zz" min="0" max="0.95" step="0.05" value="0">
+      </div>
+      <div class="field" id="graphField" hidden>
+        <span class="lbl"><span class="zh">把小窗口串成</span><span class="en">Chain the windows into</span></span>
+        <div class="chips" id="graphChips" role="group" aria-label="图" data-aria-en="Graph">
+          <button class="chip" data-graph="path"><span class="zh">路径</span><span class="en">a path</span></button>
+          <button class="chip" data-graph="cycle"><span class="zh">环</span><span class="en">a cycle</span></button>
+        </div>
+      </div>
+      <div class="field" id="nField" hidden>
+        <label for="nn"><span class="zh">位置个数 n</span><span class="en">Number of positions n</span></label><output id="oN" for="nn">7</output>
+        <input type="range" id="nn" min="3" max="11" step="1" value="7">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：替换树、金字塔（五个顶点是五种合法组合）、或者把小窗口串成的路径与环；拖动旋转，滚轮缩放" data-aria-en="3D view: the substitution tree, the pyramid (its five vertices are the five legal combinations), or the windows chained into a path or a cycle; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前模型的主图" data-aria-en="Main chart of the current model"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前模型的辅助图" data-aria-en="Side chart of the current model"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">xz = yz = 0</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">五种合法组合的平均占用恰好铺满方底金字塔 {X, Y, Z ≥ 0，X + Z ≤ 1，Y + Z ≤ 1}，而且每个点都能写成“底面一点”与“顶点”的凸组合。已冻结：</span><span class="en">The average occupancies of the five legal combinations fill exactly the square-based pyramid {X, Y, Z ≥ 0, X + Z ≤ 1, Y + Z ≤ 1}, and every point is a convex combination of a base point and the apex. Frozen:</span> <code>PathStableSetPolytope.convexHull_three_pyramid</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">任意长度的一排位置、相邻两个不能同时选：可以实现的平均占用，恰好是“每个在 0 到 1 之间、相邻两个之和不超过 1”的那些。已冻结：</span><span class="en">For a row of any length in which neighbours cannot both be chosen, the achievable average occupancies are exactly those with every entry between 0 and 1 and every two neighbours summing to at most 1. Frozen:</span> <code>PathStableSetPolytope.convexHull_vertices</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">长 m、没有两个相邻 1 的位串恰有 F(m + 2) 个（F 是斐波那契数）。已冻结：</span><span class="en">There are exactly F(m + 2) words of length m with no two adjacent 1s (F the Fibonacci numbers). Frozen:</span> <code>AdmissibleCount.admissibleWord_card_eq_fib</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">两个事件的概率 a、b 给定时，它们同时发生的概率 t 能够实现，当且仅当 max(0, a + b − 1) ≤ t ≤ min(a, b)（Fréchet 区间）。已冻结：</span><span class="en">Given the probabilities a and b of two events, a joint probability t is achievable exactly when max(0, a + b − 1) ≤ t ≤ min(a, b) (the Fréchet interval). Frozen:</span> <code>FiniteEventCouplingSharpBounds.event_coupling_target_feasible_iff</code></span></div>
+      <div class="lean theory"><span class="ok">THEORY</span><span><span class="zh">以下来自 AURIC FIB-ATOM 理论卷，有普通证明，本库尚未形式化：替换树的数量读数 F(n + 3)；金字塔里隐藏量 κ 的区间与宽度 min{X, Y, r − X, r − Y}（r = 1 − Z，即把 Fréchet 区间按 r 缩放）；底面行列式 Δ = rκ − XY 与 |Δ| ≤ r²/4；乘积补全 κ* = XY/r；沿路径的 Markov 拼接；奇环上的局部到整体障碍。</span><span class="en">The following come from the AURIC FIB-ATOM theory volumes, with ordinary proofs, and are not yet formalized in this library: the quantity reading F(n + 3) of the substitution tree; the interval of the hidden quantity κ in the pyramid and its width min{X, Y, r − X, r − Y} (r = 1 − Z, the Fréchet interval rescaled by r); the base determinant Δ = rκ − XY and |Δ| ≤ r²/4; the product completion κ* = XY/r; Markov gluing along a path; the local-to-global obstruction on odd cycles.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Stanley（1986）的 chain polytope 在“栅栏”偏序上给出同样的相邻和不等式；两事件联合概率的界是 Fréchet 的经典结果；Chvátal（1975）研究图的独立集多面体，二分图上只用边约束就足够；Padberg（1973）证明奇环不等式是这类多面体的面。理论卷把这些作为既有原料引用，不计作新发现。</span><span class="en">Stanley’s chain polytope (1986) gives the same adjacent-sum inequalities on the fence poset; the bounds on the joint probability of two events are Fréchet’s classical result; Chvátal (1975) studied the stable set polytopes of graphs, where edge constraints alone suffice for bipartite graphs; Padberg (1973) showed that odd-cycle inequalities are facets of such polytopes. The theory volumes cite these as existing ingredients and do not count them as new findings.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：树的层数、截面高度 Z、隐藏量 κ 在可行区间里的位置，或拼接时每个位置的占用 t" data-aria-en="Progress: the tree level, the slice height Z, the position of the hidden quantity κ in its feasible interval, or the occupancy t of every position when gluing">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>R</kbd> 重新抽样 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>R</kbd> resample · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">AURIC FIB-ATOM 理论卷从一条很小的局部规则出发：三个位置排成一行（低端 x、中间 z、高端 y），中间与两端互斥（xz = yz = 0），两端可以同时选。合法组合恰有五种，理论卷记作 0（全空）、2（只选低端）、3（只选中间）、5（只选高端）、25（两端都选），数字是它们的“数量”读数。这个页面画出这五种组合围成的几何，以及平均值能看见什么、看不见什么。</p>
+      <ol>
+        <li><b>替换树（理论卷）。</b>两个原子 α、β，替换 α → β、β → ⟨β, α⟩，有序括号是来源的一部分。第 n 层 T<sub>n+2</sub> = ⟨T<sub>n+1</sub>, T<sub>n</sub>⟩，叶子数、α 与 β 的个数都是斐波那契数；按“α 记 2、β 记 3”读出的数量恰为 F(n + 3)。另一方面，长 n、没有两个相邻 1 的位串恰有 F(n + 2) 个（已冻结），n = 3 时这五个位串 000、100、010、001、101 正是五种模式。</li>
+        <li><b>金字塔（已冻结）。</b>对五种组合取任意概率分布，平均占用 (X, Y, Z) 所在的点恰好铺满方底金字塔 {X, Y, Z ≥ 0，X + Z ≤ 1，Y + Z ≤ 1}：底面是单位正方形（Z = 0 的四种组合），顶点是“只选中间”。高度 Z 处的截面是边长 1 − Z 的正方形，所以体积 ∫(1 − Z)² dZ = 1/3，体积重心 (3/8, 3/8, 1/4)。这个凸包描述就是 Stanley 的 chain polytope 在三点栅栏上的特例。页面撒在单位立方体里的点约有三分之一落在金字塔里（蒙特卡罗，只是演示）。</li>
+        <li><b>隐藏纤维（理论卷，Fréchet 区间已冻结）。</b>五个概率只有四个自由度，三个平均值定住三个，剩下的是“两端同时被选”的概率 κ。给定平均点，可行的分布是 p = (r − X − Y + κ, X − κ, Z, Y − κ, κ)（次序 0, 2, 3, 5, 25，r = 1 − Z），κ 的范围是 [max(0, X + Y − r), min(X, Y)]——两事件的 Fréchet 区间（已冻结）按 r 缩放。区间宽度为 min{X, Y, r − X, r − Y}：在四个三角侧面上为零（平均值定死分布），在底面内部为正。两个同均值分布只能相差 t·(1, −1, 0, −1, 1)，也就是正方形关系 v<sub>0</sub> + v<sub>25</sub> = v<sub>2</sub> + v<sub>5</sub>。底面四格的行列式 Δ = p<sub>0</sub>p<sub>25</sub> − p<sub>2</sub>p<sub>5</sub> = rκ − XY 是中间空着时两端的协方差乘 r²，且 |Δ| ≤ r²/4；Δ = 0 的那一点 κ* = XY/r 是乘积补全（中间条件下两端独立）。均匀分布 p = (1/5, …, 1/5) 正好落在 κ* 上，却仍有整体协方差 XYZ/r = 1/25。</li>
+        <li><b>拼接（路径已冻结，奇环来自理论卷）。</b>把很多小窗口串成一排：每个位置平均占用 t，相邻约束是 t + t ≤ 1。路径上只要满足相邻约束就能实现（已冻结），理论卷还给出一个具体的 Markov 拼接：第一个位置以概率 t 选，之后上一个选了就不选，没选就以 t/(1 − t) 选。环上不一样：奇环 C<sub>2k+1</sub> 上每点 1/2 满足所有相邻约束，但任何真正的选法最多选 k 个点，平均和至多 k &lt; k + 1/2，所以不能实现；均匀占用最多只能到 k/(2k + 1)。偶环没有这个障碍。这就是局部一致不保证整体一致的最小例子。</li>
+        <li><b>边界。</b>理论卷明确写道：金字塔上的一个点是概率分布的平均，不是一次实际填充；页面上的类比与推导不能推出几何装箱的最优值，不能把奇环现象解释成物理曲率，也不能当作黎曼猜想或物理理论的证明。页面上的抽样（立方体撒点、路径与环上的配置）只是演示，读数带随机误差。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_FOUNDATIONAL_FORMULAS_AND_RELATIONS.md" target="_blank" rel="noopener">FIB-ATOM 金字塔：基础公式与原子关系</a>（§§1–6）· <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_BOUNDARY_CALCULUS.md" target="_blank" rel="noopener">FIB 原子—金字塔—边界演算</a>（§9 路径与 Markov 补全）· <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_LOCAL_FILLINGS_SOFT_TO_RIGID_AND_ODD_CYCLE_OBSTRUCTIONS.md" target="_blank" rel="noopener">局部填充、软到刚与奇环障碍</a>（§§9、16）· <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/PathStableSetPolytope.lean" target="_blank" rel="noopener">PathStableSetPolytope.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/AdmissibleCount.lean" target="_blank" rel="noopener">AdmissibleCount.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/Causal/FiniteEventCouplingSharpBounds.lean" target="_blank" rel="noopener">FiniteEventCouplingSharpBounds.lean</a> · Stanley，<a href="https://doi.org/10.1007/BF02187680" target="_blank" rel="noopener">Discrete Comput. Geom. 1, 9 (1986)</a> · Chvátal，<a href="https://doi.org/10.1016/0095-8956(75)90041-6" target="_blank" rel="noopener">J. Combin. Theory B 18, 138 (1975)</a> · Padberg，<a href="https://doi.org/10.1007/BF01580121" target="_blank" rel="noopener">Math. Programming 5, 199 (1973)</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The AURIC FIB-ATOM theory volumes start from a very small local rule: three positions in a row (low end x, middle z, high end y), the middle excluding both ends (xz = yz = 0) while the two ends may be chosen together. There are exactly five legal combinations, written 0 (empty), 2 (low end only), 3 (middle only), 5 (high end only) and 25 (both ends) in the volumes, the numbers being their “quantity” readings. This page draws the geometry these five combinations span, and what averages can and cannot see.</p>
+      <ol>
+        <li><b>The substitution tree (theory volume).</b> Two atoms α and β with the substitution α → β, β → ⟨β, α⟩; ordered brackets are part of the source. Level by level T<sub>n+2</sub> = ⟨T<sub>n+1</sub>, T<sub>n</sub>⟩, and the numbers of leaves, of α and of β are Fibonacci numbers; the quantity read as “α counts 2, β counts 3” is exactly F(n + 3). Separately, there are exactly F(n + 2) words of length n with no two adjacent 1s (frozen); for n = 3 these five words 000, 100, 010, 001, 101 are precisely the five modes.</li>
+        <li><b>The pyramid (frozen).</b> Over all probability laws on the five combinations, the average occupancy (X, Y, Z) fills exactly the square-based pyramid {X, Y, Z ≥ 0, X + Z ≤ 1, Y + Z ≤ 1}: the base is the unit square (the four combinations with Z = 0) and the apex is “middle only”. The slice at height Z is a square of side 1 − Z, so the volume is ∫(1 − Z)² dZ = 1/3 and the volume centroid is (3/8, 3/8, 1/4). This hull description is Stanley’s chain polytope of the three-point fence. About a third of the points scattered in the unit cube on the page land in the pyramid (Monte Carlo, a demonstration only).</li>
+        <li><b>The hidden fibre (theory volume; the Fréchet interval is frozen).</b> Five probabilities have four degrees of freedom; three averages fix three of them, and what remains is κ, the probability that both ends are chosen. Given the average point, the feasible laws are p = (r − X − Y + κ, X − κ, Z, Y − κ, κ) (order 0, 2, 3, 5, 25, r = 1 − Z), with κ in [max(0, X + Y − r), min(X, Y)]: the two-event Fréchet interval (frozen) rescaled by r. The width of the interval is min{X, Y, r − X, r − Y}: zero on the four triangular side faces (the averages fix the law) and positive inside the base. Two laws with the same averages can differ only by t·(1, −1, 0, −1, 1), the square relation v<sub>0</sub> + v<sub>25</sub> = v<sub>2</sub> + v<sub>5</sub>. The determinant of the four base cells, Δ = p<sub>0</sub>p<sub>25</sub> − p<sub>2</sub>p<sub>5</sub> = rκ − XY, is r² times the covariance of the two ends when the middle is empty, and |Δ| ≤ r²/4; the point κ* = XY/r where Δ = 0 is the product completion (the ends independent given the middle). The uniform law p = (1/5, …, 1/5) sits exactly at κ*, and still has overall covariance XYZ/r = 1/25.</li>
+        <li><b>Gluing (the path is frozen, the odd cycle comes from the theory volume).</b> Chain many small windows in a row, every position with average occupancy t; the neighbour constraint is t + t ≤ 1. On a path, satisfying the neighbour constraints is enough (frozen), and the theory volume gives an explicit Markov gluing: choose the first position with probability t, then never choose a position after a chosen one, and choose it with probability t/(1 − t) after an unchosen one. A cycle is different: on an odd cycle C<sub>2k+1</sub> the value 1/2 everywhere meets every neighbour constraint, but any actual choice has at most k positions, so the average sum is at most k &lt; k + 1/2 and the value cannot be realized; uniform occupancy can reach only k/(2k + 1). Even cycles have no such obstruction. This is the smallest example of local consistency failing to guarantee global consistency.</li>
+        <li><b>Limits.</b> The theory volumes state it plainly: a point of the pyramid is the average of a probability law, not one actual filling; the analogies and derivations on the page do not give optimal values for geometric packing, do not turn the odd-cycle phenomenon into physical curvature, and are not a proof of the Riemann hypothesis or of a physical theory. The sampling on the page (points in the cube, configurations on the path and cycle) is a demonstration, and its readings carry random error.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_FOUNDATIONAL_FORMULAS_AND_RELATIONS.md" target="_blank" rel="noopener">The FIB-ATOM pyramid: foundational formulas and atomic relations</a> (§§1–6) · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_BOUNDARY_CALCULUS.md" target="_blank" rel="noopener">FIB atom, pyramid and boundary calculus</a> (§9, paths and Markov completion) · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/AURIC_FIB_ATOM_PYRAMID_LOCAL_FILLINGS_SOFT_TO_RIGID_AND_ODD_CYCLE_OBSTRUCTIONS.md" target="_blank" rel="noopener">Local fillings, soft to rigid and odd-cycle obstructions</a> (§§9, 16) · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/PathStableSetPolytope.lean" target="_blank" rel="noopener">PathStableSetPolytope.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/AdmissibleWords/AdmissibleCount.lean" target="_blank" rel="noopener">AdmissibleCount.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/Causal/FiniteEventCouplingSharpBounds.lean" target="_blank" rel="noopener">FiniteEventCouplingSharpBounds.lean</a> · Stanley, <a href="https://doi.org/10.1007/BF02187680" target="_blank" rel="noopener">Discrete Comput. Geom. 1, 9 (1986)</a> · Chvátal, <a href="https://doi.org/10.1016/0095-8956(75)90041-6" target="_blank" rel="noopener">J. Combin. Theory B 18, 138 (1975)</a> · Padberg, <a href="https://doi.org/10.1007/BF01580121" target="_blank" rel="noopener">Math. Programming 5, 199 (1973)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

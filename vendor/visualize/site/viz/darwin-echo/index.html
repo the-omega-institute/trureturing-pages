@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="DARWIN//ECHO · Quantum Darwinism, echoes of a fact">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DARWIN//ECHO 量子达尔文主义 · 事实的回声</title>
+<meta name="description" content="量子达尔文主义：系统把自己的一个量写进环境的许多碎片，任何一小片都带着几乎完整的经典事实，互不相识的观察者读各自的碎片就能达成一致。Quantum Darwinism: a system writes one quantity into many fragments of its environment; any small fragment carries almost the whole classical fact, and observers reading disjoint fragments agree.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="darwin-echo">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="DARWIN//ECHO">DARWIN<b>//</b>ECHO</h1>
+      <div class="tagline">
+        <span class="zh">量子达尔文主义 · 事实的回声 · <em>经典 = 集体账本中被冗余登记的那部分</em></span>
+        <span class="en">Quantum Darwinism · echoes of a fact · <em>the classical is what the collective ledger records redundantly</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillRecords">RECORDS <strong>0</strong></span>
+      <span class="pill" id="pillRed">R<sub>δ</sub> <strong>—</strong></span>
+      <span class="pill" id="pillAgree">CONSENSUS <strong>—</strong></span>
+      <span class="pill hot" id="pillHash">RUN <strong>--------</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="ideal" aria-pressed="true"><span class="code">IDEAL-COPY</span><span class="cn zh">理想复制</span><span class="cn en">Ideal copies</span></button>
+        <button class="preset" data-preset="partial" aria-pressed="false"><span class="code">PARTIAL</span><span class="cn zh">部分记录</span><span class="cn en">Partial records</span></button>
+        <button class="preset" data-preset="weak" aria-pressed="false"><span class="code">WEAK</span><span class="cn zh">弱记录 · 没有共识</span><span class="cn en">Weak records · no consensus</span></button>
+        <button class="preset" data-preset="equal" aria-pressed="false"><span class="code">EQUAL</span><span class="cn zh">等权叠加 · 1 比特</span><span class="cn en">Equal superposition · 1 bit</span></button>
+        <button class="preset" data-preset="fourier" aria-pressed="false"><span class="code">FOURIER-RULE</span><span class="cn zh">换记录规则 · X 指针</span><span class="cn en">Other record rule · X pointer</span></button>
+        <button class="preset" data-preset="askx" aria-pressed="false"><span class="code">ASK-PHASE</span><span class="cn zh">问相位 · 单配锁</span><span class="cn en">Ask the phase · monogamy lock</span></button>
+        <button class="preset" data-preset="few" aria-pressed="false"><span class="code">FEW</span><span class="cn zh">环境很小</span><span class="cn en">Tiny environment</span></button>
+        <button class="preset" data-preset="eigen" aria-pressed="false"><span class="code">EIGENSTATE</span><span class="cn zh">已是指针态</span><span class="cn en">Already a pointer state</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">系统态</span><span class="en">System state</span><span class="aside">|ψ⟩</span></h2>
+      <div class="field">
+        <label for="theta"><span class="zh">极角 ϑ</span><span class="en">Polar angle ϑ</span><small class="zh">布洛赫球上与 Z 轴的夹角</small><small class="en">from the Z axis on the Bloch sphere</small></label><output id="oTheta" for="theta">60°</output>
+        <input type="range" id="theta" min="0" max="180" step="1" value="60">
+      </div>
+      <div class="field">
+        <label for="phase"><span class="zh">方位角 φ</span><span class="en">Azimuth φ</span></label><output id="oPhase" for="phase">0°</output>
+        <input type="range" id="phase" min="0" max="360" step="1" value="0">
+      </div>
+      <p class="note" id="stateNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">记录规则</span><span class="en">Record rule</span><span class="aside">η</span></h2>
+      <div class="chips" id="ruleChips" role="group" aria-label="环境记什么" data-aria-en="What the environment records">
+        <button class="chip" data-rule="0" aria-pressed="true"><span class="zh">记 Z（地址）</span><span class="en">Record Z (address)</span></button>
+        <button class="chip" data-rule="90" aria-pressed="false"><span class="zh">记 X（傅里叶）</span><span class="en">Record X (Fourier)</span></button>
+      </div>
+      <div class="field">
+        <label for="eta"><span class="zh">指针轴 η</span><span class="en">Pointer axis η</span><small class="zh">环境复制的是这个方向上的值</small><small class="en">the environment copies this axis</small></label><output id="oEta" for="eta">0°</output>
+        <input type="range" id="eta" min="0" max="180" step="1" value="0">
+      </div>
+      <p class="note" id="ruleNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">记录规则选定指针基：阻尼通道恰好保持在它所记坐标里对角的矩阵，已冻结：</span><span class="en">The record rule selects the pointer basis: a damping channel fixes exactly the matrices diagonal in the coordinates it records; frozen:</span> <code>phase_damping_in_basis_fixed_iff</code> · <code>fourier_phase_damping_fixed_iff</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">环境</span><span class="en">Environment</span><span class="aside">c<sup>n</sup></span></h2>
+      <div class="field">
+        <label for="overlap"><span class="zh">单份记录重叠 c</span><span class="en">Overlap per record c</span><small class="zh">0 = 完美副本</small><small class="en">0 = perfect copy</small></label><output id="oOverlap" for="overlap">0.00</output>
+        <input type="range" id="overlap" min="0" max="0.99" step="0.01" value="0">
+      </div>
+      <div class="field">
+        <label for="envn"><span class="zh">环境大小 N</span><span class="en">Environment size N</span><small class="zh">最终写入的记录份数</small><small class="en">records written in the end</small></label><output id="oEnv" for="envn">48</output>
+        <input type="range" id="envn" min="2" max="64" step="1" value="48">
+      </div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">每份记录把系统相干乘上重叠 c，n 份之后剩 c<sup>n</sup>，已冻结：</span><span class="en">Each record multiplies the system’s coherence by the overlap c, leaving c<sup>n</sup> after n records; frozen:</span> <code>repeated_record_exponential_decay</code> · <code>trace_environment_controlled_record_eq_phase_damping</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">观察者</span><span class="en">Observers</span><span class="aside">K × m</span></h2>
+      <div class="field">
+        <label for="obsk"><span class="zh">观察者人数 K</span><span class="en">Number of observers K</span></label><output id="oObsK" for="obsk">5</output>
+        <input type="range" id="obsk" min="1" max="8" step="1" value="5">
+      </div>
+      <div class="field">
+        <label for="frag"><span class="zh">每人读的碎片大小 m</span><span class="en">Fragment per observer m</span><small class="zh">互不重叠</small><small class="en">disjoint</small></label><output id="oFrag" for="frag">3</output>
+        <input type="range" id="frag" min="1" max="12" step="1" value="3">
+      </div>
+      <div class="chips" id="askChips" role="group" aria-label="观察者问什么" data-aria-en="What the observers ask">
+        <button class="chip" data-ask="0" aria-pressed="true"><span class="zh">问指针值</span><span class="en">Ask the pointer value</span></button>
+        <button class="chip" data-ask="1" aria-pressed="false"><span class="zh">问相位（互补量）</span><span class="en">Ask the phase (complementary)</span></button>
+      </div>
+      <p class="note" id="obsNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="系统与环境记录的三维视图：拖动旋转，滚轮缩放，点击观察者查看他读到的碎片" data-aria-en="3D view of the system and its environment records: drag to rotate, scroll to zoom, click an observer to see the fragment they read">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">n = 0</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+        <button class="chip" data-cam="side" aria-pressed="false"><span class="zh">侧视</span><span class="en">Side</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">达尔文平台 I(S:F)</span><span class="en">DARWIN PLATEAU I(S:F)</span></h2><span id="plateauMeta"></span></div>
+        <canvas id="plateau" aria-label="系统与碎片的互信息随碎片比例的变化" data-aria-en="Mutual information between the system and a fragment against the fragment fraction"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">单配锁 Z 对 X</span><span class="en">MONOGAMY LOCK · Z vs X</span></h2><span id="lockMeta"></span></div>
+        <canvas id="lock" aria-label="碎片预测指针值与相位的能力" data-aria-en="How well a fragment predicts the pointer value and the phase"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="系统与读数" data-aria-en="System and readouts">
+    <section class="panel sec">
+      <h2><span class="zh">系统的约化态</span><span class="en">System’s reduced state</span><span class="aside">ρ<sub>S</sub></span></h2>
+      <canvas class="plot plot-sq" id="bloch" aria-label="系统布洛赫矢量在记录下向指针轴塌缩" data-aria-en="The system’s Bloch vector collapsing onto the pointer axis as records accumulate"></canvas>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">指针概率 p</span><span class="en">Pointer probability p</span></dt><dd id="roP">0.750</dd></div>
+        <div><dt><span class="zh">经典信息 H(p)</span><span class="en">Classical information H(p)</span></dt><dd id="roH">0.811</dd></div>
+        <div><dt><span class="zh">剩余相干 |ρ<sub>01</sub>|</span><span class="en">Coherence left |ρ<sub>01</sub>|</span></dt><dd id="roCoh">0.433</dd></div>
+        <div><dt><span class="zh">系统熵 S(ρ<sub>S</sub>)</span><span class="en">System entropy S(ρ<sub>S</sub>)</span></dt><dd id="roSS">0.000</dd></div>
+        <div class="a"><dt><span class="zh">冗余度 R<sub>δ</sub>（δ = 0.1）</span><span class="en">Redundancy R<sub>δ</sub> (δ = 0.1)</span></dt><dd id="roR">—</dd></div>
+        <div><dt><span class="zh">观察者共识</span><span class="en">Observer consensus</span></dt><dd id="roAgree">—</dd></div>
+      </dl>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">观察者读到什么</span><span class="en">What the observers read</span><span class="aside" id="factTag">—</span></h2>
+      <div class="obs" id="obsList"></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">正交记录下，任一碎片与系统的互信息恰为指针的全部经典熵 H(p)，已冻结：</span><span class="en">With orthogonal records, any fragment shares exactly the pointer’s whole classical entropy H(p) with the system; frozen:</span> <code>orthogonal_record_trace_gives_sbs_consensus</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">相干复制时，系统与记录的关联 = 记录熵 + 被摧毁的相干（纯态为 2H），已冻结：</span><span class="en">For a coherent copy, the system–record correlation equals the record entropy plus the destroyed coherence (2H for a pure state); frozen:</span> <code>coherent_copy_correlation_tax</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">三层经典性</span><span class="en">Three layers of classicality</span><span class="aside">GICT 6.26</span></h2>
+      <ol class="layers" id="layers"></ol>
+    </section>
+  </aside>
+
+  <!-- clock rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau">n 0 <small>/ 48</small></span>
+      <input type="range" id="now" min="0" max="1" step="0.001" value="0.5" aria-label="已写入的记录（账本钟）" data-aria-en="Records written so far (ledger clock)">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一份记录 · <kbd>Q</kbd> 换问题 · <kbd>Esc</kbd> 取消选择</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one record · <kbd>Q</kbd> switch question · <kbd>Esc</kbd> clear</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">中间的光球是一个量子比特系统。环境里的量子比特一个接一个飞过它，每一个都带走一份关于系统某个量的副本，然后向外散开。外圈的观察者各自只读一小片互不重叠的碎片。时间轴就是已经写入的记录份数。</p>
+      <ol>
+        <li><b>三层经典性（OBSERVER-QUANTUM 第 5 节，GICT 定理 6.26）。</b>理论卷把经典世界的涌现分成三层：中心层是强制的；指针基层由记录规则选定——账本就是环境，记账就是退相干；冗余层是量子达尔文主义——账本的任何一小片都载有几乎完整的经典事实，互不相识的观察者读各自的碎片就会一致。理论卷自己声明：后两层是对特定记账通道的条件定理。本页演示的就是这样一个具体通道。</li>
+        <li><b>模型。</b>系统态 |ψ⟩ 的指针概率为 p。第 k 份记录把系统写成 |0⟩|e<sub>0</sub>⟩ + |1⟩|e<sub>1</sub>⟩ 的形式，两份记录态的重叠为 c。n 份之后整体是纯态 √p|0⟩|A⟩ + √(1−p)|1⟩|B⟩，⟨A|B⟩ = c<sup>n</sup>。系统、任一碎片和其余部分的熵都由两个非正交纯态的混合给出，所以互信息 I(S:F) = S(S) + S(F) − S(SF) 有闭式解，页面逐点精确计算。</li>
+        <li><b>达尔文平台。</b>c = 0 时，任何不完整的碎片都恰好给出 I(S:F) = H(p)：一小片就带着全部经典信息，再多也不会增加，直到拿到整个环境，才跳到 2H(p)（其中多出的 H(p) 是量子关联）。这两端都有冻结定理：<code>orthogonal_record_trace_gives_sbs_consensus</code>（正交记录下碎片的互信息恰为 H(p)）与 <code>coherent_copy_correlation_tax</code>（相干复制的关联 = 记录熵 + 被摧毁的相干，纯态时为 2H）。c &gt; 0 时，要攒够更多份才爬上平台。冗余度 R<sub>δ</sub> 是“能各自得到 (1−δ)H 的互不重叠碎片数”，页面取 δ = 0.1。</li>
+        <li><b>指针基由记录规则选定。</b>换一种记录规则（例如记 X 而不是 Z），被保留下来的就是另一组坐标里的对角矩阵：<code>phase_damping_in_basis_fixed_iff</code>、<code>fourier_phase_damping_fixed_iff</code>。系统的布洛赫矢量向指针轴塌缩，垂直分量按 c<sup>n</sup> 衰减：<code>repeated_record_exponential_decay</code>、<code>trace_environment_controlled_record_eq_phase_damping</code>。</li>
+        <li><b>单配锁：每份账本一种经典。</b>碎片猜中指针值的最优成功率为 ½(1 + √(1 − 4p(1−p)c<sup>2m</sup>))，一小片就足够；而任何碎片与系统相位（互补量）的关联至多 2√(p(1−p))·c<sup>n−m</sup>，只有几乎拿到整个环境才不为零。所以互补的那种“经典”在数学上合法，却被锁死，无法被冗余登记。理论卷给出的是这一结论及其数值证书；本页的两个公式是对这个模型的直接计算，不是 Lean 定理。</li>
+        <li><b>观察者。</b>每位观察者用对称的最优测量读自己的碎片，读对的概率是 ½(1 + √(1 − c<sup>2m</sup>))，条件于分支彼此独立。页面用固定种子抽出这次运行的事实和每个人的读数，所以只改观察者的问题或视角不会改变这次运行。问相位时，每人猜中的概率只有 ½(1 + 关联)，彼此不再一致。</li>
+        <li><b>模型边界。</b>系统是单个量子比特，环境是逐份写入的独立量子比特，记录重叠 c 对每份相同，观察者的读法是示意的对称测量。它不是某个真实系统的数值模拟；理论卷里的平台与单配数值证书对应的具体通道未必与本页参数相同。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md" target="_blank" rel="noopener">OBSERVER-QUANTUM.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md" target="_blank" rel="noopener">GICT.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/OrthogonalRecordEntropy.lean" target="_blank" rel="noopener">OrthogonalRecordEntropy.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/CoherentCopyCorrelationTax.lean" target="_blank" rel="noopener">CoherentCopyCorrelationTax.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PointerBasis.lean" target="_blank" rel="noopener">PointerBasis.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">The glowing orb in the middle is a one-qubit system. Environment qubits fly past it one after another, each carrying off a copy of one of the system’s quantities before drifting outward. The observers on the outer ring each read only a small fragment, and no two fragments overlap. The time axis is simply the number of records written so far.</p>
+      <ol>
+        <li><b>Three layers of classicality (OBSERVER-QUANTUM section 5, GICT Theorem 6.26, both in Chinese).</b> The theory volume splits the emergence of the classical world into three layers. The central layer is forced. The pointer layer is selected by the record rule: the ledger is the environment, and keeping the ledger is decoherence. The redundancy layer is quantum Darwinism: any small piece of the ledger carries almost the whole classical fact, and observers who never meet agree by reading their own fragments. The volume itself states that the last two layers are conditional theorems for a specific record channel. This page shows one such concrete channel.</li>
+        <li><b>The model.</b> The system state |ψ⟩ has pointer probability p. The k-th record writes the system as |0⟩|e<sub>0</sub>⟩ + |1⟩|e<sub>1</sub>⟩, where the two record states overlap by c. After n records the whole is the pure state √p|0⟩|A⟩ + √(1−p)|1⟩|B⟩ with ⟨A|B⟩ = c<sup>n</sup>. The entropies of the system, of any fragment and of the rest all come from mixtures of two non-orthogonal pure states, so the mutual information I(S:F) = S(S) + S(F) − S(SF) has a closed form, which the page evaluates exactly at every point.</li>
+        <li><b>The Darwin plateau.</b> With c = 0 every incomplete fragment gives exactly I(S:F) = H(p): one small piece carries all the classical information, and more pieces add nothing until the whole environment is taken, when it jumps to 2H(p) (the extra H(p) is quantum correlation). Both ends are frozen theorems: <code>orthogonal_record_trace_gives_sbs_consensus</code> (with orthogonal records a fragment’s mutual information is exactly H(p)) and <code>coherent_copy_correlation_tax</code> (a coherent copy’s correlation equals the record entropy plus the destroyed coherence, 2H for a pure state). With c &gt; 0 more records are needed to climb onto the plateau. The redundancy R<sub>δ</sub> is the number of disjoint fragments that each obtain (1−δ)H; the page uses δ = 0.1.</li>
+        <li><b>The record rule selects the pointer basis.</b> With a different record rule (for example recording X instead of Z), the matrices that survive are diagonal in other coordinates: <code>phase_damping_in_basis_fixed_iff</code>, <code>fourier_phase_damping_fixed_iff</code>. The system’s Bloch vector collapses onto the pointer axis, and its perpendicular part decays as c<sup>n</sup>: <code>repeated_record_exponential_decay</code>, <code>trace_environment_controlled_record_eq_phase_damping</code>.</li>
+        <li><b>The monogamy lock: one classical world per ledger.</b> A fragment guesses the pointer value with optimal success ½(1 + √(1 − 4p(1−p)c<sup>2m</sup>)), so a small piece is enough; but the correlation of any fragment with the system’s phase (the complementary quantity) is at most 2√(p(1−p))·c<sup>n−m</sup>, which is non-zero only when the fragment is almost the whole environment. The complementary kind of “classical” is mathematically legitimate but locked, and cannot be recorded redundantly. The theory volume states this conclusion with numerical certificates; the two formulas here are direct calculations for this model, not Lean theorems.</li>
+        <li><b>The observers.</b> Each observer reads their fragment with the symmetric optimal measurement, which is right with probability ½(1 + √(1 − c<sup>2m</sup>)), independently given the branch. The page draws this run’s fact and every reading from fixed seeds, so changing only the observers’ question or the view does not change the run. When they ask about the phase, each guesses right only with probability ½(1 + correlation), and they stop agreeing.</li>
+        <li><b>Model limits.</b> The system is a single qubit, the environment consists of independent qubits written one at a time, every record has the same overlap c, and the observers’ readout is a schematic symmetric measurement. This is not a numerical simulation of any real system, and the specific channel behind the theory volume’s plateau and monogamy certificates need not use this page’s parameters.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (theory volumes in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/OBSERVER-QUANTUM.md" target="_blank" rel="noopener">OBSERVER-QUANTUM.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/GICT.md" target="_blank" rel="noopener">GICT.md</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/OrthogonalRecordEntropy.lean" target="_blank" rel="noopener">OrthogonalRecordEntropy.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Information/CoherentCopyCorrelationTax.lean" target="_blank" rel="noopener">CoherentCopyCorrelationTax.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PointerBasis.lean" target="_blank" rel="noopener">PointerBasis.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

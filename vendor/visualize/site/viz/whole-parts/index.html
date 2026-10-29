@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="WHOLE//PARTS · The whole is more than its parts: entanglement, the local blind spot and teleportation">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WHOLE//PARTS 整体大于局部 · 纠缠、局部盲区与隐形传态</title>
+<meta name="description" content="两个量子比特的局部状态完全相同，整体却可以正交：只看一边读不到的关联扇区占全部方向的 9/15。隐形传态正好用上这块看不见的关联。Two qubits can have identical local states while the global states are orthogonal: the correlation sector that neither side can read alone holds 9 of the 15 directions. Teleportation uses exactly this invisible correlation.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="whole-parts">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="WHOLE//PARTS">WHOLE<b>//</b>PARTS</h1>
+      <div class="tagline">
+        <span class="zh">整体大于局部 · 纠缠、局部盲区与隐形传态 · <em>两边各看各的，看不见它们之间的关联</em></span>
+        <span class="en">The whole is more than its parts · entanglement, the local blind spot and teleportation · <em>each side sees its own half, never the correlation between them</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillN">N <strong>0</strong></span>
+      <span class="pill" id="pillLoc">LOCAL Δ <strong>—</strong></span>
+      <span class="pill hot" id="pillGlob">GLOBAL Δ <strong>—</strong></span>
+      <span class="pill" id="pillMode">MODE <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="bellpair" aria-pressed="true"><span class="code">Φ⁺ / Φ⁻</span><span class="cn zh">局部一样 · 整体正交</span><span class="cn en">Same parts · orthogonal wholes</span></button>
+        <button class="preset" data-preset="classical" aria-pressed="false"><span class="code">BELL / MIX</span><span class="cn zh">纠缠对经典关联</span><span class="cn en">Entangled vs classically correlated</span></button>
+        <button class="preset" data-preset="werner" aria-pressed="false"><span class="code">WERNER</span><span class="cn zh">掺噪声 · 局部不变</span><span class="cn en">Add noise · parts unchanged</span></button>
+        <button class="preset" data-preset="phase" aria-pressed="false"><span class="code">PHASE</span><span class="cn zh">相对相位 · 局部看不见</span><span class="cn en">Relative phase · locally invisible</span></button>
+        <button class="preset" data-preset="product" aria-pressed="false"><span class="code">PRODUCT</span><span class="cn zh">对照：局部不同就读得出</span><span class="cn en">Control: different parts show</span></button>
+        <button class="preset" data-preset="teleport" aria-pressed="false"><span class="code">TELEPORT</span><span class="cn zh">隐形传态 · 保真度 1</span><span class="cn en">Teleportation · fidelity 1</span></button>
+        <button class="preset" data-preset="nobits" aria-pressed="false"><span class="code">NO BITS</span><span class="cn zh">不发两个比特 · 什么也没收到</span><span class="cn en">Withhold the bits · nothing arrives</span></button>
+        <button class="preset" data-preset="weak" aria-pressed="false"><span class="code">CLASSICAL</span><span class="cn zh">经典关联做资源 · 2/3</span><span class="cn en">Classical resource · 2/3</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">实验</span><span class="en">Mode</span><span class="aside">MODE</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="实验" data-aria-en="Mode">
+        <button class="chip" data-mode="compare" aria-pressed="true"><span class="zh">比较两个整体</span><span class="en">Compare two wholes</span></button>
+        <button class="chip" data-mode="teleport" aria-pressed="false"><span class="zh">隐形传态</span><span class="en">Teleportation</span></button>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+
+    <section class="panel sec" id="cmpPanel">
+      <h2><span class="zh">两个整体</span><span class="en">Two wholes</span><span class="aside">ρ<sub>A</sub>, ρ<sub>B</sub></span></h2>
+      <div class="sub"><span class="zh">整体 A</span><span class="en">Whole A</span></div>
+      <div class="chips fam" id="famA" role="group" aria-label="整体 A" data-aria-en="Whole A"></div>
+      <div class="field" id="parAField" hidden>
+        <label for="parA" id="parALabel"></label><output id="oParA" for="parA">—</output>
+        <input type="range" id="parA" min="0" max="1" step="0.005" value="0.5">
+      </div>
+      <div class="sub"><span class="zh">整体 B</span><span class="en">Whole B</span></div>
+      <div class="chips fam" id="famB" role="group" aria-label="整体 B" data-aria-en="Whole B"></div>
+      <div class="field" id="parBField" hidden>
+        <label for="parB" id="parBLabel"></label><output id="oParB" for="parB">—</output>
+        <input type="range" id="parB" min="0" max="1" step="0.005" value="0.5">
+      </div>
+      <div class="sub"><span class="zh">测量方向：甲 ⊗ 乙</span><span class="en">Measured directions: Alice ⊗ Bob</span></div>
+      <div class="axes">
+        <div class="chips" id="axA" role="group" aria-label="甲的测量方向" data-aria-en="Alice's direction"><button class="chip" data-ax="0">X</button><button class="chip" data-ax="1">Y</button><button class="chip" data-ax="2">Z</button></div>
+        <span class="otimes">⊗</span>
+        <div class="chips" id="axB" role="group" aria-label="乙的测量方向" data-aria-en="Bob's direction"><button class="chip" data-ax="0">X</button><button class="chip" data-ax="1">Y</button><button class="chip" data-ax="2">Z</button></div>
+      </div>
+      <p class="note" id="cmpNote"></p>
+    </section>
+
+    <section class="panel sec" id="tpPanel" hidden>
+      <h2><span class="zh">隐形传态</span><span class="en">Teleportation</span><span class="aside">|ψ⟩ → <span class="zh">乙</span><span class="en">Bob</span></span></h2>
+      <div class="sub"><span class="zh">共享资源 ρ<sub>甲乙</sub></span><span class="en">Shared resource ρ<sub>AB</sub></span></div>
+      <div class="chips fam" id="famR" role="group" aria-label="共享资源" data-aria-en="Shared resource"></div>
+      <div class="field" id="parRField" hidden>
+        <label for="parR" id="parRLabel"></label><output id="oParR" for="parR">—</output>
+        <input type="range" id="parR" min="0" max="1" step="0.005" value="0.5">
+      </div>
+      <div class="field">
+        <label for="theta"><span class="zh">输入态的极角 θ</span><span class="en">Polar angle θ of the input</span></label><output id="oTheta" for="theta">60°</output>
+        <input type="range" id="theta" min="0" max="180" step="1" value="60">
+      </div>
+      <div class="field">
+        <label for="phi"><span class="zh">输入态的方位角 φ</span><span class="en">Azimuth φ of the input</span></label><output id="oPhi" for="phi">40°</output>
+        <input type="range" id="phi" min="0" max="360" step="1" value="40">
+      </div>
+      <div class="chips" id="bitChips" role="group" aria-label="经典比特" data-aria-en="Classical bits">
+        <button class="chip" data-bits="1" aria-pressed="true"><span class="zh">发送两个比特</span><span class="en">Send the two bits</span></button>
+        <button class="chip" data-bits="0" aria-pressed="false"><span class="zh">不发送</span><span class="en">Withhold them</span></button>
+      </div>
+      <p class="note" id="tpNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="甲、乙两个量子比特的布洛赫球：箭头是各自的局部状态，网格椭球是甲的测量能把乙引导到的状态；隐形传态时多一个输入比特；拖动旋转，滚轮缩放" data-aria-en="Bloch balls of Alice's and Bob's qubits: the arrows are the local states, the wire ellipsoid holds the states Alice's measurements can steer Bob into; teleportation adds an input qubit; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="局部统计与联合关联；隐形传态时为四种贝尔测量结果的频率" data-aria-en="Local statistics and the joint correlation; in teleportation, the frequencies of the four Bell outcomes"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="十五个泡利方向上两个整体的差别；隐形传态时为保真度随次数的变化" data-aria-en="The difference between the two wholes along the fifteen Pauli directions; in teleportation, the fidelity against the number of runs"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside" id="roAside"></span></h2>
+      <dl class="ro" id="roCmp">
+        <div class="c"><dt><span class="zh">局部差别（两边约化态的迹距离）</span><span class="en">Local difference (trace distance of the reduced states)</span></dt><dd id="roLoc">—</dd></div>
+        <div class="m"><dt><span class="zh">整体差别（迹距离）</span><span class="en">Global difference (trace distance)</span></dt><dd id="roGlob">—</dd></div>
+        <div class="a"><dt><span class="zh">纯度：整体 / 甲的一半</span><span class="en">Purity: whole / Alice's half</span></dt><dd id="roPur">—</dd></div>
+        <div><dt><span class="zh">一次猜对 A 还是 B 的最好概率：只看一边 / 看整体</span><span class="en">Best chance to tell A from B in one shot: one side only / the whole</span></dt><dd id="roGuess">—</dd></div>
+        <div><dt id="roCorrL"></dt><dd id="roCorr">—</dd></div>
+        <div><dt><span class="zh">关联扇区占迹零方向</span><span class="en">Correlation sector among traceless directions</span></dt><dd id="roShare">—</dd></div>
+      </dl>
+      <dl class="ro" id="roTp" hidden>
+        <div class="c"><dt><span class="zh">这个输入的期望保真度</span><span class="en">Expected fidelity for this input</span></dt><dd id="roF">—</dd></div>
+        <div class="m"><dt><span class="zh">对全部输入平均 (2F + 1)/3</span><span class="en">Average over all inputs (2F + 1)/3</span></dt><dd id="roAvg">—</dd></div>
+        <div class="a"><dt><span class="zh">资源与 Φ⁺ 的重叠 F</span><span class="en">Overlap F of the resource with Φ⁺</span></dt><dd id="roEnt">—</dd></div>
+        <div><dt><span class="zh">四种结果的概率</span><span class="en">Probabilities of the four outcomes</span></dt><dd id="roPk">—</dd></div>
+        <div><dt><span class="zh">没收到比特时乙的态（布洛赫向量长度）</span><span class="en">Bob's state without the bits (Bloch length)</span></dt><dd id="roBob">—</dd></div>
+        <div><dt><span class="zh">已做次数的平均保真度</span><span class="en">Mean fidelity over the runs so far</span></dt><dd id="roRun">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">贝尔态是纯态（秩 1、幂等），但只看任意一边得到 I/2，这个约化态不是纯态，已冻结：</span><span class="en">The Bell state is pure (rank one, idempotent), yet either half alone is I/2, and that reduced state is not pure; frozen:</span> <code>bell_pure_state_has_maximally_mixed_marginal</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Φ⁺ 与 Φ⁻ 是两个正交的纯态，两边的约化态却完全相同，已冻结：</span><span class="en">Φ⁺ and Φ⁻ are orthogonal pure states, yet both reduced states agree exactly; frozen:</span> <code>bell_pair_local_global_residual</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">m × n 维时，两边的局部方向共 (m² − 1) + (n² − 1) 维，剩下 (m² − 1)(n² − 1) 维关联扇区与它们正交、局部读不到；贝尔态与经典关联混合态的两边约化态相同，已冻结：</span><span class="en">For m × n dimensions the local directions span (m² − 1) + (n² − 1) dimensions; the remaining (m² − 1)(n² − 1)-dimensional correlation sector is orthogonal to them and cannot be read locally; the Bell state and the classically correlated mixture have the same reduced states; frozen:</span> <code>local_marginal_correlation_blind_spot</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">对一边的每一个局部可观测量都给出相同期望，当且仅当这一边的约化态相同，已冻结：</span><span class="en">Two states give the same expectation for every observable on one side exactly when their reduced states on that side agree; frozen:</span> <code>local_observation_partial_trace_equivalence</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">应用：隐形传态</span><span class="en">Application: teleportation</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">隐形传态协议（Bennett 等，1993）与保真度公式 (2F + 1)/3（Horodecki，1999）是文献结果，本库没有形式化。页面按矩阵直接计算每一步，并用这个公式核对。</span><span class="en">The teleportation protocol (Bennett et al., 1993) and the fidelity formula (2F + 1)/3 (Horodecki, 1999) are literature results; this library has not formalized them. The page computes every step with matrices and checks the formula against that.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="次数" data-aria-en="Runs">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 一次 · <kbd>R</kbd> 重新抽样</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> one run · <kbd>R</kbd> new samples</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">两个量子比特，甲（Alice）拿一个，乙（Bob）拿一个。整体状态是一个 4 × 4 密度矩阵 ρ；甲只能读到自己那一半 ρ<sub>甲</sub> = Tr<sub>乙</sub>ρ，乙只能读到 ρ<sub>乙</sub> = Tr<sub>甲</sub>ρ。三维视图里，每个布洛赫球中的箭头是这一半的状态（箭头缩到球心就是完全混合的 I/2）；乙的球里的网格椭球是“引导椭球”：甲在自己那边做各种测量、按结果把乙的态分组后，乙可能被引导到的全部状态（Jevtic、Pusey、Jennings、Rudolph，<a href="https://doi.org/10.1103/PhysRevLett.113.020402" target="_blank" rel="noopener">Phys. Rev. Lett. 113, 020402 (2014)</a>）。两半的箭头可以一模一样，椭球却天差地别——差别全在两边之间的关联里。</p>
+      <ol>
+        <li><b>纯的整体，混的局部（观察者完备反射 §118）。</b>贝尔态 Φ⁺ = (|00⟩ + |11⟩)/√2 是纯态：秩 1、ρ² = ρ。可是任意一边单独看都是 I/2，完全混合（已冻结：<code>bell_pure_state_has_maximally_mixed_marginal</code>）。整体知道的，局部一点都不知道。</li>
+        <li><b>局部完整，整体仍不唯一（定理 118.1）。</b>Φ⁺ 与 Φ⁻ 是正交的两个纯态（整体迹距离 1，一次就能分开），两边的约化态却都是 I/2（已冻结：<code>bell_pair_local_global_residual</code>）。对一边所有可观测量的期望都相同，当且仅当这一边的约化态相同（已冻结：<code>local_observation_partial_trace_equivalence</code>）；所以只看一边的测量结果，猜对的概率永远只有 ½；要把两边的结果放在一起对照，才看得到差别。</li>
+        <li><b>看不见的方向有多少（定理 119.1）。</b>两个比特的迹零算子一共 15 个方向：甲本地 3 个（σ<sub>i</sub> ⊗ I），乙本地 3 个（I ⊗ σ<sub>j</sub>），关联 9 个（σ<sub>i</sub> ⊗ σ<sub>j</sub>）。一般地，m × n 维时局部方向共 (m² − 1) + (n² − 1) 维，关联扇区 (m² − 1)(n² − 1) 维，与局部方向正交，占全部迹零方向的 (m² − 1)(n² − 1)/(m²n² − 1)（已冻结：<code>local_marginal_correlation_blind_spot</code>）。页面右下的 4 × 4 网格把两个整体的差别逐个方向画出来：只要局部那一行一列全是零，只看任何一边都一点也分不开。</li>
+        <li><b>纠缠与经典关联。</b>经典关联混合态 ½(|00⟩⟨00| + |11⟩⟨11|) 的两边也都是 I/2，Z ⊗ Z 关联也是 +1，和 Φ⁺ 一样；差别在 X ⊗ X 与 Y ⊗ Y 上（已冻结的同一条定理给出它与贝尔态的约化态相同）。Werner 态 pΦ⁺ + (1 − p)I/4 对每个 p 局部都相同，只有关联随 p 缩小（Werner，<a href="https://doi.org/10.1103/PhysRevA.40.4277" target="_blank" rel="noopener">Phys. Rev. A 40, 4277 (1989)</a>）。</li>
+        <li><b>应用：隐形传态（文献结果，本库未形式化）。</b>甲把一个未知态 |ψ⟩ 与自己那一半做贝尔测量，得到四种结果之一，用两个经典比特告诉乙；乙按结果做 I、X、Z 或 ZX，手里的比特就变成 |ψ⟩（Bennett 等，<a href="https://doi.org/10.1103/PhysRevLett.70.1895" target="_blank" rel="noopener">Phys. Rev. Lett. 70, 1895 (1993)</a>）。四种结果各占 1/4，与 |ψ⟩ 无关；不收比特，乙的态始终是他自己的约化态 I/2，所以不能超光速传信。用资源 ρ 做这套标准协议，对所有输入平均的保真度是 (2F + 1)/3，F 是 ρ 与 Φ⁺ 的重叠（Horodecki 等，<a href="https://doi.org/10.1103/PhysRevA.60.1888" target="_blank" rel="noopener">Phys. Rev. A 60, 1888 (1999)</a>）。不用纠缠、只测量再重新制备，最好只能做到 2/3（Massar、Popescu，<a href="https://doi.org/10.1103/PhysRevLett.74.1259" target="_blank" rel="noopener">Phys. Rev. Lett. 74, 1259 (1995)</a>；Popescu，<a href="https://doi.org/10.1103/PhysRevLett.72.797" target="_blank" rel="noopener">Phys. Rev. Lett. 72, 797 (1994)</a>）。经典关联混合态恰好停在 2/3；Werner 态在 p > 1/3 时超过它。局部完全相同的资源，传态能力却可以从 1/3 到 1——只看一边读不到的那块关联，正是传态用掉的东西。理论卷递归关系观察 §165 用同一套标准传态过程模拟通道。</li>
+        <li><b>模型边界。</b>所有态都是精确的 4 × 4（隐形传态时 8 × 8）矩阵；测量结果按玻恩概率抽样，A 与 B 用同一串随机数，比较才公平。保真度的球面平均按公式给出，测试用独立的数值积分核对它。抽样统计会涨落，精确值以读数为准。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md" target="_blank" rel="noopener">观察者完备反射 §118–§120</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_PHASE_BOUNDARY.md" target="_blank" rel="noopener">递归关系观察 §165</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPureStateMixedMarginal.lean" target="_blank" rel="noopener">BellPureStateMixedMarginal.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPairLocalGlobalResidual.lean" target="_blank" rel="noopener">BellPairLocalGlobalResidual.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalMarginalCorrelationBlindSpot.lean" target="_blank" rel="noopener">LocalMarginalCorrelationBlindSpot.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean" target="_blank" rel="noopener">LocalObservationPartialTraceEquivalence.lean</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Two qubits: Alice holds one and Bob the other. The whole state is a 4 × 4 density matrix ρ; Alice can read only her half ρ<sub>A</sub> = Tr<sub>B</sub>ρ and Bob only ρ<sub>B</sub> = Tr<sub>A</sub>ρ. In the 3D view the arrow in each Bloch ball is the state of that half (an arrow shrunk to the centre is the completely mixed I/2); the wire ellipsoid in Bob’s ball is the steering ellipsoid: every state Bob’s qubit can be steered into when Alice makes some measurement and Bob’s states are grouped by her result (Jevtic, Pusey, Jennings and Rudolph, <a href="https://doi.org/10.1103/PhysRevLett.113.020402" target="_blank" rel="noopener">Phys. Rev. Lett. 113, 020402 (2014)</a>). The arrows of both halves can be identical while the ellipsoids differ completely; the whole difference lives in the correlation between the two sides.</p>
+      <ol>
+        <li><b>A pure whole, mixed parts (formal observer completion reflection §118).</b> The Bell state Φ⁺ = (|00⟩ + |11⟩)/√2 is pure: rank one, ρ² = ρ. Yet either half alone is I/2, completely mixed (frozen: <code>bell_pure_state_has_maximally_mixed_marginal</code>). What the whole knows, the parts do not know at all.</li>
+        <li><b>Complete parts, an undetermined whole (Theorem 118.1).</b> Φ⁺ and Φ⁻ are orthogonal pure states (global trace distance 1, distinguishable in one shot), yet both reduced states are I/2 (frozen: <code>bell_pair_local_global_residual</code>). Two states give the same expectation for every observable on one side exactly when their reduced states on that side agree (frozen: <code>local_observation_partial_trace_equivalence</code>); so from the results on one side alone the chance of guessing right stays at ½; only putting the two sides’ results together reveals the difference.</li>
+        <li><b>How many directions are invisible (Theorem 119.1).</b> The traceless operators on two qubits have 15 directions: 3 local to Alice (σ<sub>i</sub> ⊗ I), 3 local to Bob (I ⊗ σ<sub>j</sub>) and 9 correlations (σ<sub>i</sub> ⊗ σ<sub>j</sub>). In general, for m × n dimensions the local directions span (m² − 1) + (n² − 1) dimensions and the correlation sector (m² − 1)(n² − 1), orthogonal to them and making up the share (m² − 1)(n² − 1)/(m²n² − 1) of all traceless directions (frozen: <code>local_marginal_correlation_blind_spot</code>). The 4 × 4 grid at the lower right draws the difference between the two wholes direction by direction: as long as the local row and column are all zero, neither side alone can tell them apart at all.</li>
+        <li><b>Entanglement and classical correlation.</b> The classically correlated mixture ½(|00⟩⟨00| + |11⟩⟨11|) also has I/2 on both sides and the same Z ⊗ Z correlation +1 as Φ⁺; the difference sits in X ⊗ X and Y ⊗ Y (the same frozen theorem shows that its reduced states agree with the Bell state’s). The Werner state pΦ⁺ + (1 − p)I/4 has the same parts for every p; only its correlations shrink with p (Werner, <a href="https://doi.org/10.1103/PhysRevA.40.4277" target="_blank" rel="noopener">Phys. Rev. A 40, 4277 (1989)</a>).</li>
+        <li><b>Application: teleportation (a literature result, not formalized in this library).</b> Alice makes a Bell measurement on an unknown state |ψ⟩ together with her half, gets one of four results and sends it to Bob as two classical bits; Bob applies I, X, Z or ZX accordingly, and his qubit becomes |ψ⟩ (Bennett et al., <a href="https://doi.org/10.1103/PhysRevLett.70.1895" target="_blank" rel="noopener">Phys. Rev. Lett. 70, 1895 (1993)</a>). Each result has probability 1/4 whatever |ψ⟩ is; without the bits Bob’s state stays his reduced state I/2, so no signal travels faster than light. Run this standard protocol on a resource ρ and the fidelity averaged over all inputs is (2F + 1)/3, where F is the overlap of ρ with Φ⁺ (Horodecki et al., <a href="https://doi.org/10.1103/PhysRevA.60.1888" target="_blank" rel="noopener">Phys. Rev. A 60, 1888 (1999)</a>). Without entanglement, measuring and re-preparing reaches at most 2/3 (Massar and Popescu, <a href="https://doi.org/10.1103/PhysRevLett.74.1259" target="_blank" rel="noopener">Phys. Rev. Lett. 74, 1259 (1995)</a>; Popescu, <a href="https://doi.org/10.1103/PhysRevLett.72.797" target="_blank" rel="noopener">Phys. Rev. Lett. 72, 797 (1994)</a>). The classically correlated mixture stops exactly at 2/3; the Werner state beats it for p > 1/3. Resources with exactly the same parts teleport anywhere from 1/3 to 1: the correlation that neither side can see alone is precisely what teleportation uses up. The recursive relational observation volume §165 uses the same standard teleportation process to simulate channels.</li>
+        <li><b>Model limits.</b> All states are exact 4 × 4 matrices (8 × 8 in teleportation); outcomes are sampled from Born probabilities, and A and B share one stream of random numbers so the comparison is fair. The sphere average of the fidelity is given by the formula, which the tests check against an independent numerical integration. Sampled statistics fluctuate; the readouts give the exact values.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/FORMAL_OBSERVER_COMPLETION_REFLECTION.md" target="_blank" rel="noopener">Formal observer completion reflection §118–§120</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_PHASE_BOUNDARY.md" target="_blank" rel="noopener">Recursive relational observation §165</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPureStateMixedMarginal.lean" target="_blank" rel="noopener">BellPureStateMixedMarginal.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/BellPairLocalGlobalResidual.lean" target="_blank" rel="noopener">BellPairLocalGlobalResidual.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalMarginalCorrelationBlindSpot.lean" target="_blank" rel="noopener">LocalMarginalCorrelationBlindSpot.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean" target="_blank" rel="noopener">LocalObservationPartialTraceEquivalence.lean</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

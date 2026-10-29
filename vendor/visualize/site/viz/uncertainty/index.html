@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="UNCERTAINTY//LEDGER · Where the price of non-commuting is booked">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UNCERTAINTY//LEDGER 不确定性账本 · 不对易的代价记在哪里</title>
+<meta name="description" content="不确定关系的一本账：ΔA²·ΔB² 恰好分成三笔——协方差、对易子、非负的 Gram 余项（本库冻结的 Robertson–Schrödinger 恒等式）。页面在布洛赫球上看量子比特（纯态余项为零，混合态余项是 |a×b|²(1 − |r|²)），在自旋 j 上看单轴扭转把账从对易子挪到协方差再挪到余项；然后在 d + 1 组互无偏基上核对碰撞守恒与冻结的熵不确定关系，并数值搜索熵和的最小值（d = 3 时恰好取到下界）。An account book of uncertainty: ΔA²·ΔB² splits exactly into three entries, the covariance, the commutator and a non-negative Gram remainder (the Robertson–Schrödinger identity frozen in this library). The page shows qubits on the Bloch ball (the remainder vanishes for pure states and equals |a×b|²(1 − |r|²) for mixed ones), spin j under one-axis twisting, which moves the balance from the commutator to the covariance to the remainder, and then checks collision conservation and the frozen entropic uncertainty relation on d + 1 mutually unbiased bases, with a numerical search for the smallest entropy sum (in d = 3 it reaches the bound exactly).">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="uncertainty">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="UNCERTAINTY//LEDGER">UNCERTAINTY<b>//</b>LEDGER</h1>
+      <div class="tagline">
+        <span class="zh">不确定性账本 · 不对易的代价记在哪里 · <em>ΔA²·ΔB² 恰好分成三笔：协方差、对易子、Gram 余项</em></span>
+        <span class="en">The uncertainty ledger · where the price of non-commuting is booked · <em>ΔA²·ΔB² splits exactly into three entries: covariance, commutator, Gram remainder</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="pure" aria-pressed="false"><span class="code">QUBIT</span><span class="cn zh">纯态 · 余项为零</span><span class="cn en">Pure state · no remainder</span></button>
+        <button class="preset" data-preset="mixed" aria-pressed="false"><span class="code">|r| ↓</span><span class="cn zh">变混 · 余项长出来</span><span class="cn en">Mixing · the remainder grows</span></button>
+        <button class="preset" data-preset="coherent" aria-pressed="false"><span class="code">j = 5</span><span class="cn zh">相干态 · Robertson 取等</span><span class="cn en">Coherent state · Robertson is tight</span></button>
+        <button class="preset" data-preset="twist" aria-pressed="true"><span class="code">TWIST</span><span class="cn zh">单轴扭转 · 账在挪</span><span class="cn en">One-axis twisting · the balance moves</span></button>
+        <button class="preset" data-preset="cat" aria-pressed="false"><span class="code">μ = π</span><span class="cn zh">猫态 · 全在余项</span><span class="cn en">Cat state · all in the remainder</span></button>
+        <button class="preset" data-preset="mub5" aria-pressed="false"><span class="code">d = 5</span><span class="cn zh">六组互无偏基 · 熵账</span><span class="cn en">Six unbiased bases · entropy</span></button>
+        <button class="preset" data-preset="tight3" aria-pressed="false"><span class="code">d = 3</span><span class="cn zh">找最小熵和 · 取到下界</span><span class="cn en">Least entropy sum · the bound is hit</span></button>
+        <button class="preset" data-preset="hunt5" aria-pressed="false"><span class="code">d = 5</span><span class="cn zh">找最小熵和 · 留有空隙</span><span class="cn en">Least entropy sum · a gap remains</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">A, B</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="qubit"><span class="zh">量子比特</span><span class="en">Qubit</span></button>
+        <button class="chip" data-mode="spin"><span class="zh">自旋 j</span><span class="en">Spin j</span></button>
+        <button class="chip" data-mode="mub"><span class="zh">互无偏基熵</span><span class="en">Unbiased-basis entropy</span></button>
+        <button class="chip" data-mode="hunt"><span class="zh">找最小熵和</span><span class="en">Least entropy sum</span></button>
+      </div>
+      <div class="field" id="alphaField" hidden>
+        <label for="alpha"><span class="zh">a 与 b 的夹角 α（A = a·σ，B = b·σ）</span><span class="en">Angle α between a and b (A = a·σ, B = b·σ)</span></label><output id="oAlpha" for="alpha">90°</output>
+        <input type="range" id="alpha" min="0" max="180" step="5" value="90">
+      </div>
+      <div class="field" id="thetaField" hidden>
+        <label for="theta"><span class="zh">态的方向：极角 θ</span><span class="en">State direction: polar angle θ</span></label><output id="oTheta" for="theta">60°</output>
+        <input type="range" id="theta" min="0" max="180" step="5" value="60">
+      </div>
+      <div class="field" id="phiField" hidden>
+        <label for="phi"><span class="zh">态的方向：方位角 φ</span><span class="en">State direction: azimuth φ</span></label><output id="oPhi" for="phi">30°</output>
+        <input type="range" id="phi" min="0" max="355" step="5" value="30">
+      </div>
+      <div class="field" id="jField" hidden>
+        <label for="jj"><span class="zh">自旋 j（维数 2j + 1）</span><span class="en">Spin j (dimension 2j + 1)</span></label><output id="oJ" for="jj">5</output>
+        <input type="range" id="jj" min="1" max="20" step="1" value="10">
+      </div>
+      <div class="field" id="dField" hidden>
+        <span class="lbl"><span class="zh">维数 d（素数）</span><span class="en">Dimension d (prime)</span></span>
+        <div class="chips" id="dChips" role="group" aria-label="维数" data-aria-en="Dimension">
+          <button class="chip" data-d="2">2</button><button class="chip" data-d="3">3</button><button class="chip" data-d="5">5</button><button class="chip" data-d="7">7</button>
+        </div>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：量子比特模式下是布洛赫球，青色是 a，品红是 b，琥珀是 a×b，白点是态；自旋模式下是 Husimi 分布画在球面上；熵模式下每一圈柱子是一组基的结果概率；拖动旋转，滚轮缩放" data-aria-en="3D view: in the qubit mode the Bloch ball with a in cyan, b in magenta, a×b in amber and the state as a white dot; in the spin mode the Husimi distribution painted on the sphere; in the entropy modes each ring of bars is the outcome distribution of one basis; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前模型的主图" data-aria-en="Main chart of the current model"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前模型的辅助图" data-aria-en="Side chart of the current model"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">ΔA²ΔB² = cov² + c² + G</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Robertson–Schrödinger 恒等式，保留 Gram 余项：对复内积空间上的对称算子 A、B 与单位向量 ψ，令 u = Aψ − ⟨A⟩ψ，v = Bψ − ⟨B⟩ψ，则 ΔA²·ΔB² = cov² + c² + G，其中 cov = Re⟨u, v⟩ 是对称化协方差，c = Im⟨u, v⟩ = ⟨[A, B]⟩/2i 是对易子项，G ≥ 0。已冻结：</span><span class="en">The Robertson–Schrödinger identity with its Gram remainder kept: for symmetric operators A, B on a complex inner-product space and a unit vector ψ, with u = Aψ − ⟨A⟩ψ and v = Bψ − ⟨B⟩ψ, ΔA²·ΔB² = cov² + c² + G, where cov = Re⟨u, v⟩ is the symmetrized covariance, c = Im⟨u, v⟩ = ⟨[A, B]⟩/2i is the commutator term, and G ≥ 0. Frozen:</span> <code>RobertsonSchrodinger.robertson_schrodinger</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">混合态的 Robertson 不等式：对密度矩阵 ρ 与厄米矩阵 A、B，令 u = (A − tr ρA)√ρ，v = (B − tr ρB)√ρ（Hilbert–Schmidt 范数，‖u‖² 就是 ΔA²），则 ‖u‖·‖v‖ ≥ ½|tr ρ[A, B]|。已冻结：</span><span class="en">The Robertson inequality for mixed states: for a density matrix ρ and Hermitian matrices A, B, with u = (A − tr ρA)√ρ and v = (B − tr ρB)√ρ (Hilbert–Schmidt norm, so ‖u‖² is ΔA²), ‖u‖·‖v‖ ≥ ½|tr ρ[A, B]|. Frozen:</span> <code>MixedStateRobertson.mixed_state_robertson_uncertainty</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">碰撞守恒：d 维中有 d + 1 组两两互补（互无偏）的秩一测量时，对任意密度矩阵 ρ，所有组的结果概率平方和加起来恰好是 1 + tr ρ²。已冻结：</span><span class="en">Collision conservation: given d + 1 pairwise complementary (mutually unbiased) rank-one measurements in dimension d, for every density matrix ρ the squared outcome probabilities of all of them add up to exactly 1 + tr ρ². Frozen:</span> <code>CompleteContextCollisionConservation.complete_context_collision_conservation</code> · <code>CollisionConservation.collision_sum_eq_one_add_purity</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">熵不确定关系：d + 1 个 d 点分布的平方和之和若是 1 + P，则 Σ<sub>b</sub> H(p<sub>b</sub>) ≥ (d + 1)·log((d + 1)/(1 + P))。证明是两次 Jensen：每组先用 −log Σp² ≤ H（碰撞熵不超过香农熵，等号当且仅当在支撑上均匀），再对 d + 1 组取平均。已冻结：</span><span class="en">The entropic uncertainty relation: if d + 1 distributions on d points have squared probabilities summing to 1 + P, then Σ<sub>b</sub> H(p<sub>b</sub>) ≥ (d + 1)·log((d + 1)/(1 + P)). The proof is Jensen twice: for each basis −log Σp² ≤ H (collision entropy never exceeds Shannon entropy, with equality exactly when the distribution is uniform on its support), then an average over the d + 1 bases. Frozen:</span> <code>CollisionEntropyUncertainty.collision_entropy_uncertainty</code> · <code>CollisionShannonComparison.collision_entropy_le_shannon_entropy</code> · <code>CollisionShannonComparison.collision_entropy_eq_shannon_entropy_iff_uniform_on_support</code></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">熵关系需要 d + 1 组互无偏基齐全。d 是素数幂时完整的组存在；d = 6 时连第四组是否存在都还不知道（见 <a href="../fourth-basis/">FOURTH//BASIS</a>）。</span><span class="en">The entropy relation needs a complete set of d + 1 mutually unbiased bases. Complete sets exist when d is a prime power; in d = 6 it is not even known whether a fourth basis exists (see <a href="../fourth-basis/">FOURTH//BASIS</a>).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Robertson（1929）证明 ΔA·ΔB ≥ ½|⟨[A, B]⟩|，Schrödinger（1930）加入协方差项。Maassen 与 Uffink（1988）给出两组基的熵和下界 −2 log c。Ivanovic（1992）对纯态证明 d + 1 组互无偏基的熵和 ≥ (d + 1) log((d + 1)/2)，即上面冻结界取 P = 1；Sánchez-Ruiz（1995）对偶数 d 加强了它。Wootters 与 Fields（1989）构造了素数幂维的完整互无偏基组。单轴扭转来自 Kitagawa 与 Ueda（1993）。</span><span class="en">Robertson (1929) proved ΔA·ΔB ≥ ½|⟨[A, B]⟩|, and Schrödinger (1930) added the covariance term. Maassen and Uffink (1988) bounded the entropy sum of two bases by −2 log c. Ivanovic (1992) proved for pure states that the entropy sum over d + 1 mutually unbiased bases is at least (d + 1) log((d + 1)/2), the frozen bound above at P = 1; Sánchez-Ruiz (1995) strengthened it for even d. Wootters and Fields (1989) constructed complete sets of unbiased bases in prime-power dimensions. One-axis twisting is due to Kitagawa and Ueda (1993).</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：量子比特模式下 |r| 从 1 到 0，自旋模式下扭转强度 μ，熵模式下混合度 w 或搜索进度" data-aria-en="Progress: |r| from 1 to 0 in the qubit mode, the twisting strength μ in the spin mode, the mixing w or the search progress in the entropy modes">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>R</kbd> 重新随机 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>R</kbd> reshuffle · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">两个可观测量 A、B 不对易时，它们的涨落不能同时任意小。教科书里的 Robertson 不等式 ΔA·ΔB ≥ ½|⟨[A, B]⟩| 只记了一笔账。本库冻结的是一个等式：ΔA²·ΔB² 恰好等于三笔之和——协方差 cov²、对易子项 c²、非负的 Gram 余项 G。页面把这三笔画成一本账，看不同的态把账记在哪一栏；后半页换一种记账方式，用 d + 1 组互无偏基上的熵。</p>
+      <ol>
+        <li><b>三笔账（已冻结）。</b>u = Aψ − ⟨A⟩ψ 与 v = Bψ − ⟨B⟩ψ 是两个“偏差向量”，‖u‖² = ΔA²，‖v‖² = ΔB²。复数 ⟨u, v⟩ 的实部是协方差 cov = ½⟨AB + BA⟩ − ⟨A⟩⟨B⟩，虚部是 c = ⟨[A, B]⟩/2i。Cauchy–Schwarz 的缺口 G = ‖u‖²‖v‖² − |⟨u, v⟩|² ≥ 0，于是 ΔA²ΔB² = cov² + c² + G（<code>RobertsonSchrodinger.robertson_schrodinger</code>）。丢掉 cov² 和 G 就是 Robertson 不等式，只丢 G 就是 Schrödinger 不等式。</li>
+        <li><b>量子比特。</b>纯态时 u 和 v 都垂直于 ψ，而二维空间里垂直于 ψ 的方向只有一个，所以 u、v 平行，G = 0：纯量子比特的 Robertson–Schrödinger 总是取等。混合态 ρ 可以写成 Hilbert–Schmidt 空间里的单位向量 √ρ，同一个冻结定理照样适用（这一步代入是页面的手工推导，不是 Lean 检查的）。对 A = a·σ、B = b·σ 和布洛赫向量 r，算出来 G = |a × b|²(1 − |r|²)：余项正好量出态有多混。冻结的混合态 Robertson 不等式（<code>MixedStateRobertson.mixed_state_robertson_uncertainty</code>）是这本账去掉 cov² 和 G 后的那一半。</li>
+        <li><b>自旋 j 与单轴扭转。</b>从沿 x 的自旋相干态出发，取 A = J<sub>y</sub>、B = J<sub>z</sub>：这时 c = ⟨J<sub>x</sub>⟩/2，cov = 0，G = 0，Robertson 取等。再加单轴扭转 e<sup>−iμJ<sub>z</sub>²/2</sup>（Kitagawa、Ueda，<a href="https://doi.org/10.1103/PhysRevA.47.5138" target="_blank" rel="noopener">Phys. Rev. A 47, 5138 (1993)</a>）：μ 小时态被挤成香蕉形，账从 c² 挪到 cov²；μ 再大，态不再像高斯，账挪进 G；j = 5、μ = π 时是两个相干态的叠加（猫态），c 与 cov 都是 0，整个 ΔJ<sub>y</sub>²ΔJ<sub>z</sub>² 都记在 G 上。球面上画的是 Husimi 分布 |⟨θ, φ|ψ⟩|²。</li>
+        <li><b>互无偏基上的熵（已冻结）。</b>两组基叫互无偏，是指一组里的任何向量在另一组里测，每个结果的概率都是 1/d。d 是素数时，计算基加上向量 ω<sup>bk² + mk</sup>/√d（b, m = 0, …, d − 1，ω = e<sup>2πi/d</sup>）就是完整的 d + 1 组（d = 2 时是三组泡利本征基；Wootters、Fields，<a href="https://doi.org/10.1016/0003-4916(89)90322-9" target="_blank" rel="noopener">Ann. Phys. 191, 363 (1989)</a>）。冻结定理一：所有组的概率平方和恰好是 1 + tr ρ²（碰撞守恒）。冻结定理二：于是熵和 Σ<sub>b</sub> H(p<sub>b</sub>) ≥ (d + 1) log((d + 1)/(1 + tr ρ²))。页面把一个随机纯态逐渐混成 I/d，三条曲线依次是下界、碰撞熵之和、香农熵之和；完全混合时三者相等，下界取等号。纯态时它就是 Ivanovic 的界（<a href="https://doi.org/10.1088/0305-4470/25/7/014" target="_blank" rel="noopener">J. Phys. A 25, L363 (1992)</a>）。</li>
+        <li><b>找最小熵和（数值，不是证明）。</b>对纯态随机局部搜索熵和的最小值：多次随机起点，每步随机扰动，变小就接受，否则缩小步长。d = 2 搜到 2 比特（例如 σ<sub>z</sub> 的本征态：0 + 1 + 1）；d = 3 搜到 4 比特，正好等于下界 4·log₂2——态 (|0⟩ − |1⟩)/√2 在四组基上都给出 (½, ½, 0)，两次 Jensen 都取等，这一点页面也直接核对；d = 5 搜到约 10.2524 比特，下界 9.5098；d = 7 约 17.3028，下界 16。</li>
+        <li><b>模型边界。</b>量子比特与自旋的量都是精确的有限维计算；最小熵和是数值搜索的结果，不排除更小的值；文献结果（Robertson、Schrödinger、Maassen–Uffink、Ivanovic、Sánchez-Ruiz）本库只形式化了上面标 LEAN 的形式。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/RobertsonSchrodinger.lean" target="_blank" rel="noopener">RobertsonSchrodinger.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/MixedStateRobertson.lean" target="_blank" rel="noopener">MixedStateRobertson.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurements/CompleteContextCollisionConservation.lean" target="_blank" rel="noopener">CompleteContextCollisionConservation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/CollisionConservation.lean" target="_blank" rel="noopener">CollisionConservation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionEntropyUncertainty.lean" target="_blank" rel="noopener">CollisionEntropyUncertainty.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionShannonComparison.lean" target="_blank" rel="noopener">CollisionShannonComparison.lean</a> · Robertson，<a href="https://doi.org/10.1103/PhysRev.34.163" target="_blank" rel="noopener">Phys. Rev. 34, 163 (1929)</a> · Maassen、Uffink，<a href="https://doi.org/10.1103/PhysRevLett.60.1103" target="_blank" rel="noopener">PRL 60, 1103 (1988)</a> · Sánchez-Ruiz，<a href="https://doi.org/10.1016/0375-9601(95)00219-S" target="_blank" rel="noopener">Phys. Lett. A 201, 125 (1995)</a> · Wehner、Winter 综述，<a href="https://doi.org/10.1088/1367-2630/12/2/025009" target="_blank" rel="noopener">New J. Phys. 12, 025009 (2010)</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">When two observables A and B do not commute, their fluctuations cannot both be made arbitrarily small. The textbook Robertson inequality ΔA·ΔB ≥ ½|⟨[A, B]⟩| books only one entry. What this library has frozen is an equality: ΔA²·ΔB² is exactly the sum of three entries, the covariance cov², the commutator term c² and a non-negative Gram remainder G. The page draws the three entries as a ledger and shows which column each state books its uncertainty in; the second half switches to another kind of bookkeeping, entropy over d + 1 mutually unbiased bases.</p>
+      <ol>
+        <li><b>Three entries (frozen).</b> u = Aψ − ⟨A⟩ψ and v = Bψ − ⟨B⟩ψ are two “deviation vectors”, with ‖u‖² = ΔA² and ‖v‖² = ΔB². The real part of the complex number ⟨u, v⟩ is the covariance cov = ½⟨AB + BA⟩ − ⟨A⟩⟨B⟩, its imaginary part is c = ⟨[A, B]⟩/2i. The Cauchy–Schwarz gap G = ‖u‖²‖v‖² − |⟨u, v⟩|² is ≥ 0, so ΔA²ΔB² = cov² + c² + G (<code>RobertsonSchrodinger.robertson_schrodinger</code>). Dropping cov² and G gives the Robertson inequality; dropping only G gives Schrödinger’s.</li>
+        <li><b>Qubits.</b> For a pure state u and v are both orthogonal to ψ, and in two dimensions only one direction is orthogonal to ψ, so u and v are parallel and G = 0: for a pure qubit Robertson–Schrödinger is always an equality. A mixed state ρ can be written as the unit vector √ρ in Hilbert–Schmidt space, and the same frozen theorem applies there (this substitution is a hand step on the page, not a Lean check). For A = a·σ, B = b·σ and Bloch vector r it gives G = |a × b|²(1 − |r|²): the remainder measures exactly how mixed the state is. The frozen mixed-state Robertson inequality (<code>MixedStateRobertson.mixed_state_robertson_uncertainty</code>) is the half of this ledger left after dropping cov² and G.</li>
+        <li><b>Spin j and one-axis twisting.</b> Start from the spin coherent state along x with A = J<sub>y</sub> and B = J<sub>z</sub>: then c = ⟨J<sub>x</sub>⟩/2, cov = 0, G = 0, and Robertson is an equality. Now apply one-axis twisting e<sup>−iμJ<sub>z</sub>²/2</sup> (Kitagawa and Ueda, <a href="https://doi.org/10.1103/PhysRevA.47.5138" target="_blank" rel="noopener">Phys. Rev. A 47, 5138 (1993)</a>): for small μ the state is squeezed into a banana and the balance moves from c² to cov²; for larger μ the state stops looking Gaussian and the balance moves into G; at j = 5 and μ = π it is a superposition of two coherent states (a cat state), c and cov are both 0, and all of ΔJ<sub>y</sub>²ΔJ<sub>z</sub>² is booked in G. The sphere shows the Husimi distribution |⟨θ, φ|ψ⟩|².</li>
+        <li><b>Entropy over unbiased bases (frozen).</b> Two bases are mutually unbiased when any vector of one, measured in the other, gives every outcome with probability 1/d. For prime d the computational basis together with the vectors ω<sup>bk² + mk</sup>/√d (b, m = 0, …, d − 1, ω = e<sup>2πi/d</sup>) is a complete set of d + 1 (for d = 2 the three Pauli eigenbases; Wootters and Fields, <a href="https://doi.org/10.1016/0003-4916(89)90322-9" target="_blank" rel="noopener">Ann. Phys. 191, 363 (1989)</a>). Frozen theorem one: the squared probabilities of all bases add up to exactly 1 + tr ρ² (collision conservation). Frozen theorem two: hence the entropy sum Σ<sub>b</sub> H(p<sub>b</sub>) ≥ (d + 1) log((d + 1)/(1 + tr ρ²)). The page mixes a random pure state gradually into I/d; the three curves are, from the bottom, the bound, the sum of collision entropies and the sum of Shannon entropies. At full mixing all three meet and the bound is attained. For pure states it is Ivanovic’s bound (<a href="https://doi.org/10.1088/0305-4470/25/7/014" target="_blank" rel="noopener">J. Phys. A 25, L363 (1992)</a>).</li>
+        <li><b>The least entropy sum (numerical, not a proof).</b> A random local search for the smallest entropy sum over pure states: several random starts, a random perturbation at each step, accepted if it lowers the sum, otherwise the step shrinks. In d = 2 it finds 2 bits (for example an eigenstate of σ<sub>z</sub>: 0 + 1 + 1); in d = 3 it finds 4 bits, exactly the bound 4·log₂2: the state (|0⟩ − |1⟩)/√2 gives (½, ½, 0) in all four bases, so both Jensen steps are equalities, and the page checks this state directly; in d = 5 it finds about 10.2524 bits against the bound 9.5098; in d = 7 about 17.3028 against 16.</li>
+        <li><b>Model limits.</b> The qubit and spin quantities are exact finite-dimensional computations; the least entropy sums come from a numerical search and smaller values are not excluded; of the literature results (Robertson, Schrödinger, Maassen–Uffink, Ivanovic, Sánchez-Ruiz) this library has formalized only the forms marked LEAN above.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/RobertsonSchrodinger.lean" target="_blank" rel="noopener">RobertsonSchrodinger.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/MixedStateRobertson.lean" target="_blank" rel="noopener">MixedStateRobertson.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Measurements/CompleteContextCollisionConservation.lean" target="_blank" rel="noopener">CompleteContextCollisionConservation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/Designs/CollisionConservation.lean" target="_blank" rel="noopener">CollisionConservation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionEntropyUncertainty.lean" target="_blank" rel="noopener">CollisionEntropyUncertainty.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/QuantumBounds/CollisionShannonComparison.lean" target="_blank" rel="noopener">CollisionShannonComparison.lean</a> · Robertson, <a href="https://doi.org/10.1103/PhysRev.34.163" target="_blank" rel="noopener">Phys. Rev. 34, 163 (1929)</a> · Maassen and Uffink, <a href="https://doi.org/10.1103/PhysRevLett.60.1103" target="_blank" rel="noopener">PRL 60, 1103 (1988)</a> · Sánchez-Ruiz, <a href="https://doi.org/10.1016/0375-9601(95)00219-S" target="_blank" rel="noopener">Phys. Lett. A 201, 125 (1995)</a> · Wehner and Winter’s survey, <a href="https://doi.org/10.1088/1367-2630/12/2/025009" target="_blank" rel="noopener">New J. Phys. 12, 025009 (2010)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

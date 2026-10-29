@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="HOFSTADTER//GAP · The mass gap of the π/2-flux Hofstadter model">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HOFSTADTER//GAP π/2 磁通 Hofstadter 模型 · 质量间隙</title>
+<meta name="description" content="四带 π/2 磁通 Hofstadter 模型的 Bloch 能带。Fabbri、Marcelli、Giuliani（2026）只给出数值证据的假设——质量 m 不为零时第三、四条能带在整个布里渊区上被费米能 μ = 2 隔开——本库已经证明：对 −2 ≤ m ≤ 2、m ≠ 0 有一致的间隙 m²/500。页面画出能带曲面、证明用的行列式证书与惯性计数、证明给出的界与实际间隙的对比，以及经典的 Hofstadter 蝴蝶。The Bloch bands of the four-band π/2-flux Hofstadter model. Fabbri, Marcelli and Giuliani (2026) supported by numerics only the assumption that for nonzero mass m the third and fourth bands are separated by the Fermi energy μ = 2 over the whole Brillouin zone; this library proves it, with a uniform gap m²/500 for −2 ≤ m ≤ 2, m ≠ 0. The page draws the band surfaces, the determinant certificate and inertia count used by the proof, the proved bound against the actual gap, and the classic Hofstadter butterfly.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="hofstadter-gap">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="HOFSTADTER//GAP">HOFSTADTER<b>//</b>GAP</h1>
+      <div class="tagline">
+        <span class="zh">π/2 磁通 Hofstadter 模型 · 质量间隙 · <em>m ≠ 0 时处处有间隙（本库已证）</em></span>
+        <span class="en">The π/2-flux Hofstadter model · the mass gap · <em>a gap everywhere for m ≠ 0 (proved here)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="sweep" aria-pressed="true"><span class="code">m: −2 → 2</span><span class="cn zh">扫过质量 · 间隙闭合又张开</span><span class="cn en">Sweep the mass · the gap closes and reopens</span></button>
+        <button class="preset" data-preset="cone" aria-pressed="false"><span class="code">m = 0</span><span class="cn zh">无质量 · 两带在 k<sub>F</sub> 相碰</span><span class="cn en">Massless · two bands touch at k<sub>F</sub></span></button>
+        <button class="preset" data-preset="top" aria-pressed="false"><span class="code">m = 2</span><span class="cn zh">最大质量 · λ₄(k<sub>F</sub>) = 2 + m</span><span class="cn en">Largest mass · λ₄(k<sub>F</sub>) = 2 + m</span></button>
+        <button class="preset" data-preset="harper" aria-pressed="false"><span class="code">m = −2</span><span class="cn zh">蝴蝶的 1/4 切片</span><span class="cn en">The 1/4 slice of the butterfly</span></button>
+        <button class="preset" data-preset="cert" aria-pressed="false"><span class="code">det = −4q</span><span class="cn zh">证书 · 一正三负</span><span class="cn en">The certificate · one up, three down</span></button>
+        <button class="preset" data-preset="floor" aria-pressed="false"><span class="code">q ≥ m²/2</span><span class="cn zh">行列式的地板</span><span class="cn en">The floor under the determinant</span></button>
+        <button class="preset" data-preset="bound" aria-pressed="false"><span class="code">δ = m²/500</span><span class="cn zh">证出的界 · 实际间隙</span><span class="cn en">The proved bound · the actual gap</span></button>
+        <button class="preset" data-preset="tiny" aria-pressed="false"><span class="code">m = 0.1</span><span class="cn zh">小质量 · 界很保守</span><span class="cn en">Small mass · a cautious bound</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">4 × 4 BLOCH</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="bands"><span class="zh">能带</span><span class="en">Bands</span></button>
+        <button class="chip" data-mode="cert"><span class="zh">证书</span><span class="en">Certificate</span></button>
+        <button class="chip" data-mode="bound"><span class="zh">界</span><span class="en">Bound</span></button>
+        <button class="chip" data-mode="butterfly"><span class="zh">蝴蝶</span><span class="en">Butterfly</span></button>
+      </div>
+      <div class="field" id="massField" hidden>
+        <label for="mm"><span class="zh">质量 m（d = 2 + m）</span><span class="en">Mass m (d = 2 + m)</span></label><output id="oM" for="mm">1.00</output>
+        <input type="range" id="mm" min="-2" max="2" step="0.05" value="1">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：布里渊区上的四条能带曲面与费米能平面、证明用的函数 q 的曲面、能带到 μ 的距离，或 Hofstadter 蝴蝶；拖动旋转，滚轮缩放" data-aria-en="3D view: the four band surfaces over the Brillouin zone with the Fermi-energy plane, the surface of the function q used by the proof, the distance of the bands from μ, or the Hofstadter butterfly; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="当前模型的主图" data-aria-en="Main chart of the current model"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="当前模型的辅助图" data-aria-en="Side chart of the current model"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">μ = 2</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">对 −2 ≤ m ≤ 2、m ≠ 0，存在 δ &gt; 0，使所有实动量 k 都满足 λ₃(k; m) ≤ μ − δ 且 λ₄(k; m) ≥ μ + δ，其中 μ = λ₃(π/4, π/4; 0) = 2；证明取 δ = m²/500。这回答了 Fabbri–Marcelli–Giuliani 只用数值支持的那条假设。已冻结：</span><span class="en">For −2 ≤ m ≤ 2 with m ≠ 0 there is δ &gt; 0 such that every real momentum k satisfies λ₃(k; m) ≤ μ − δ and λ₄(k; m) ≥ μ + δ, where μ = λ₃(π/4, π/4; 0) = 2; the proof takes δ = m²/500. This settles the assumption that Fabbri, Marcelli and Giuliani supported only numerically. Frozen:</span> <code>HalfFluxHofstadterMassGap.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">冻结证明里的几步：H(k; m) 是厄米矩阵；det(H − 2) = −4q，q = (y₁ − d)² + (y₂ − d)² + 2 − d²，y<sub>j</sub> = sin 2k<sub>j</sub>；m ≥ −2 时 q ≥ m²/2；H − 2 恰有一个正特征值、三个负特征值；Gershgorin 圆盘把 H − 2 的每个特征值的绝对值限制在 10 以内，于是 |λ − 2| ≥ 2m²/1000。已冻结：</span><span class="en">Steps inside the frozen proof: H(k; m) is Hermitian; det(H − 2) = −4q with q = (y₁ − d)² + (y₂ − d)² + 2 − d² and y<sub>j</sub> = sin 2k<sub>j</sub>; q ≥ m²/2 for m ≥ −2; H − 2 has exactly one positive and three negative eigenvalues; Gershgorin discs bound every eigenvalue of H − 2 by 10 in absolute value, hence |λ − 2| ≥ 2m²/1000. Frozen:</span> <code>HalfFluxHofstadterMassGap.bloch_isHermitian</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">结算卷宗里有论证、本库未形式化：m &gt; 0 时 λ₄(k<sub>F</sub>; m) = 2 + m，所以一致间隙不超过 m，不可能在 m → 0 时保持一致；同样的论证把结论推广到所有 m ≥ −2、m ≠ 0；在布里渊环面上，一致间隙等价于原文的严格极值写法。</span><span class="en">Argued in the settlement dossier and not formalized: for m &gt; 0, λ₄(k<sub>F</sub>; m) = 2 + m, so the uniform gap is at most m and cannot stay uniform as m → 0; the same argument extends the result to every m ≥ −2 with m ≠ 0; on the compact Brillouin torus the uniform gap is equivalent to the source’s strict-extremum wording.</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：能带由特征多项式现算；实际间隙在网格上取极值；m = −2 时四条能带与 Hofstadter 蝴蝶 α = 1/4 切片的带边一致（页面对比两边的数值）。</span><span class="en">Numbers computed on the page, not theorems: the bands come from the characteristic polynomial; the actual gap takes extremes over a grid; at m = −2 the four bands match the band edges of the α = 1/4 slice of the Hofstadter butterfly (the page compares both numerically).</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Harper（1955）的单带方程与 Hofstadter（1976）的蝴蝶：有理磁通 α = p/q 时能谱分成 q 条带；Chambers（1965）的关系把能带写成一个 q 次多项式落在 [−4, 4] 内的能量集合。Fabbri–Marcelli–Giuliani（2026）在拓扑相变处研究电导矩阵，四带 π/2 磁通模型是他们的例子。</span><span class="en">Harper’s single-band equation (1955) and Hofstadter’s butterfly (1976): at rational flux α = p/q the spectrum splits into q bands; Chambers’ relation (1965) writes the bands as the energies where a degree-q polynomial stays within [−4, 4]. Fabbri, Marcelli and Giuliani (2026) study the conductivity matrix at the topological phase transition, with the four-band π/2-flux model as their example.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：质量 m 从 −2 到 2，或证书模式下动量沿一条闭路走一圈" data-aria-en="Progress: the mass m from −2 to 2, or in the certificate mode the momentum going once around a closed loop">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">二维晶格上的电子穿过磁场时，每个格子围住的磁通让跳跃带上相位。磁通为 π/2（每个格子四分之一个磁通量子）时，一个元胞里有四个格点，能谱分成四条 Bloch 能带。Fabbri、Marcelli、Giuliani（2026）研究这个模型在拓扑相变处的电导，需要一条假设：质量 m 不为零时，第三、四条能带被费米能 μ 隔开。他们只给了数值证据，本库给出了证明。</p>
+      <ol>
+        <li><b>模型（原文）。</b>Bloch 哈密顿量是 4 × 4 厄米矩阵 H(k; m)，矩阵元含 e<sup>2ik₁</sup>、e<sup>2ik₂</sup>，所以动量的周期是 π；对角线上是 d = 2 + m 与 −d。四个特征值从小到大记作 λ₁ ≤ λ₂ ≤ λ₃ ≤ λ₄。在 k<sub>F</sub> = (π/4, π/4)、m = 0 处，特征多项式是 X(X + 4)(X − 2)²，所以第三、四条能带在这里相碰，费米能 μ = λ₃(k<sub>F</sub>; 0) = 2。</li>
+        <li><b>结论（已冻结）。</b>对 −2 ≤ m ≤ 2、m ≠ 0，存在 δ &gt; 0，使 λ₃(k; m) ≤ 2 − δ、λ₄(k; m) ≥ 2 + δ 对所有实动量成立；证明取 δ = m²/500。原文写的是布里渊区上的严格最小、最大值，结算卷宗说明两种写法在紧致环面上等价（这一步是论证，未形式化）。</li>
+        <li><b>证明的骨架（已冻结）。</b>设 K = H − 2，y<sub>j</sub> = sin 2k<sub>j</sub>。重新排列坐标后，K 合同于 diag(S, −2I₂)，S 是一个 2 × 2 的 Schur 块，由此得到 det K = −4q，q = (y₁ − d)² + (y₂ − d)² + 2 − d²。由于 y<sub>j</sub> ≤ 1、m ≥ −2，有 q ≥ m²/2，m ≠ 0 时 q &gt; 0。行列式为负只说明负特征值的个数是奇数；合同关系进一步给出惯性：K 恰有一个正、三个负特征值，所以 λ₃ &lt; 2 &lt; λ₄。最后用 Gershgorin 圆盘把每个 |λ − 2| 限制在 10 以内：|det K| ≥ 2m²，其他三个因子的乘积至多 1000，于是 |λ − 2| ≥ m²/500。</li>
+        <li><b>界与实际间隙（页面数值）。</b>m²/500 是证明里的“预算”，远小于实际间隙：m = 1 时实际间隙约 0.30，界只有 0.002。卷宗另外论证了上界：m &gt; 0 时 λ₄(k<sub>F</sub>) = 2 + m，所以间隙不超过 m。最优间隙和它在 m → 0 时的精确阶都没有确定。</li>
+        <li><b>蝴蝶（文献 + 页面数值）。</b>Harper 方程在有理磁通 α = p/q 时的能谱是 q 条带，按 α 画出来就是 Hofstadter 蝴蝶；Chambers 关系把能带写成 |P<sub>q</sub>(E)| ≤ 4 的能量集合。页面现算 q ≤ 20 的切片。m = −2（d = 0）时，本模型四条带的带边与 α = 1/4 切片一致：±2√2、±√(4 + 2√2)、±√(4 − 2√2)、0——这是页面上的数值对比，不是本库的定理。</li>
+        <li><b>边界。</b>本库证明的是间隙这一条假设；原文的电导定理还需要无质量时费米点的分类、其他能带的分离、锥形渐近等条件，这些都没有在这里形式化。页面上的能带、实际间隙和蝴蝶都是现算的数值。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fabbri-marcelli-giuliani-2026-half-flux-hofstadter-mass-gap.md" target="_blank" rel="noopener">问题卷宗：π/2 磁通 Hofstadter 模型的一致质量间隙</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/SpectralTopology/HalfFluxHofstadterMassGap.lean" target="_blank" rel="noopener">HalfFluxHofstadterMassGap.lean</a> · Fabbri、Marcelli、Giuliani，<a href="https://arxiv.org/abs/2609.03832" target="_blank" rel="noopener">arXiv:2609.03832（2026）</a> · Hofstadter，<a href="https://doi.org/10.1103/PhysRevB.14.2239" target="_blank" rel="noopener">Phys. Rev. B 14, 2239（1976）</a> · Harper，<a href="https://doi.org/10.1088/0370-1298/68/10/304" target="_blank" rel="noopener">Proc. Phys. Soc. A 68, 874（1955）</a> · Chambers，<a href="https://doi.org/10.1103/PhysRev.140.A135" target="_blank" rel="noopener">Phys. Rev. 140, A135（1965）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">When electrons on a two-dimensional lattice move through a magnetic field, the flux through each plaquette puts a phase on every hop. At flux π/2 (a quarter of a flux quantum per plaquette) a unit cell holds four sites and the spectrum splits into four Bloch bands. Fabbri, Marcelli and Giuliani (2026) study the conductivity of this model at the topological phase transition and need one assumption: for nonzero mass m, the third and fourth bands are separated by the Fermi energy μ. They gave numerical evidence only; this library gives a proof.</p>
+      <ol>
+        <li><b>The model (source).</b> The Bloch Hamiltonian is a 4 × 4 Hermitian matrix H(k; m) whose entries involve e<sup>2ik₁</sup> and e<sup>2ik₂</sup>, so momenta have period π; its diagonal carries d = 2 + m and −d. Its four eigenvalues in increasing order are λ₁ ≤ λ₂ ≤ λ₃ ≤ λ₄. At k<sub>F</sub> = (π/4, π/4) and m = 0 the characteristic polynomial is X(X + 4)(X − 2)², so the third and fourth bands touch there and the Fermi energy is μ = λ₃(k<sub>F</sub>; 0) = 2.</li>
+        <li><b>The result (frozen).</b> For −2 ≤ m ≤ 2 with m ≠ 0 there is δ &gt; 0 with λ₃(k; m) ≤ 2 − δ and λ₄(k; m) ≥ 2 + δ for every real momentum; the proof takes δ = m²/500. The source speaks of strict minima and maxima over the Brillouin zone; the settlement dossier explains that the two wordings agree on the compact torus (that step is argued, not formalized).</li>
+        <li><b>The skeleton of the proof (frozen).</b> Let K = H − 2 and y<sub>j</sub> = sin 2k<sub>j</sub>. After reordering coordinates, K is congruent to diag(S, −2I₂) with a 2 × 2 Schur block S, which gives det K = −4q with q = (y₁ − d)² + (y₂ − d)² + 2 − d². Since y<sub>j</sub> ≤ 1 and m ≥ −2, q ≥ m²/2, and q &gt; 0 when m ≠ 0. A negative determinant only says that the number of negative eigenvalues is odd; the congruence supplies the inertia: K has exactly one positive and three negative eigenvalues, so λ₃ &lt; 2 &lt; λ₄. Finally Gershgorin discs bound every |λ − 2| by 10: |det K| ≥ 2m² and the product of the other three factors is at most 1000, so |λ − 2| ≥ m²/500.</li>
+        <li><b>The bound and the actual gap (page numerics).</b> m²/500 is the proof’s budget and is far below the actual gap: at m = 1 the actual gap is about 0.30 while the bound is 0.002. The dossier also argues an upper bound: for m &gt; 0, λ₄(k<sub>F</sub>) = 2 + m, so the gap is at most m. The optimal gap and its exact order as m → 0 are not determined.</li>
+        <li><b>The butterfly (literature + page numerics).</b> At rational flux α = p/q, Harper’s equation has a spectrum of q bands; drawn against α it is Hofstadter’s butterfly. Chambers’ relation writes the bands as the energies with |P<sub>q</sub>(E)| ≤ 4. The page computes the slices with q ≤ 20. At m = −2 (d = 0) the band edges of the four bands of this model coincide with those of the α = 1/4 slice: ±2√2, ±√(4 + 2√2), ±√(4 − 2√2), 0. This is a numerical comparison on the page, not a theorem of this library.</li>
+        <li><b>Limits.</b> This library proves the gap assumption. The source’s conductivity theorem also needs the classification of the massless Fermi points, the separation of the other bands and the conical asymptotics, none of which is formalized here. The bands, the actual gap and the butterfly on the page are computed numbers.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fabbri-marcelli-giuliani-2026-half-flux-hofstadter-mass-gap.md" target="_blank" rel="noopener">Problem dossier: a uniform mass gap for the π/2-flux Hofstadter model</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/SpectralTopology/HalfFluxHofstadterMassGap.lean" target="_blank" rel="noopener">HalfFluxHofstadterMassGap.lean</a> · Fabbri, Marcelli, Giuliani, <a href="https://arxiv.org/abs/2609.03832" target="_blank" rel="noopener">arXiv:2609.03832 (2026)</a> · Hofstadter, <a href="https://doi.org/10.1103/PhysRevB.14.2239" target="_blank" rel="noopener">Phys. Rev. B 14, 2239 (1976)</a> · Harper, <a href="https://doi.org/10.1088/0370-1298/68/10/304" target="_blank" rel="noopener">Proc. Phys. Soc. A 68, 874 (1955)</a> · Chambers, <a href="https://doi.org/10.1103/PhysRev.140.A135" target="_blank" rel="noopener">Phys. Rev. 140, A135 (1965)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="DELAY//ERASER · Delayed-choice quantum eraser, hits first, labels later">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DELAY//ERASER 延迟选择量子擦除 · 先落点，后贴标签</title>
+<meta name="description" content="延迟选择量子擦除：信号光子先落在屏上，闲置光子后来才被选择测量路径或擦除路径。屏上的落点一个也不会移动，变的只是事后按符合计数贴上的标签。Delayed-choice quantum eraser: the signal photon lands first and its twin is measured later, for its path or with the path erased. No hit on the screen ever moves; only the labels attached afterwards by coincidence counting change.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="delay-eraser">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="DELAY//ERASER">DELAY<b>//</b>ERASER</h1>
+      <div class="tagline">
+        <span class="zh">延迟选择量子擦除 · 先落点，后贴标签 · <em>选择改变的是分拣，不是屏上的记录</em></span>
+        <span class="en">Delayed-choice quantum eraser · hits first, labels later · <em>the choice changes the sorting, not the record on the screen</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillPairs">PAIRS <strong>0</strong></span>
+      <span class="pill" id="pillD0">D0 <strong>--------</strong></span>
+      <span class="pill hot" id="pillLabels">LABELS <strong>--------</strong></span>
+      <span class="pill" id="pillCausal">Δ <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="kim" aria-pressed="true"><span class="code">KIM-2000</span><span class="cn zh">Kim 等 2000 · 随机分束</span><span class="cn en">Kim et al. 2000 · random split</span></button>
+        <button class="preset" data-preset="erase" aria-pressed="false"><span class="code">ERASE-ALL</span><span class="cn zh">全部擦除</span><span class="cn en">Erase every path</span></button>
+        <button class="preset" data-preset="path" aria-pressed="false"><span class="code">PATH-ALL</span><span class="cn zh">全部测路径</span><span class="cn en">Measure every path</span></button>
+        <button class="preset" data-preset="late" aria-pressed="false"><span class="code">LONG-DELAY</span><span class="cn zh">选择远在落点之后</span><span class="cn en">Choice long after the hit</span></button>
+        <button class="preset" data-preset="early" aria-pressed="false"><span class="code">EARLY</span><span class="cn zh">选择先于落点</span><span class="cn en">Choice before the hit</span></button>
+        <button class="preset" data-preset="flip" aria-pressed="false"><span class="code">MID-FLIGHT</span><span class="cn zh">飞行途中扳开关</span><span class="cn en">Flip the switch mid-flight</span></button>
+        <button class="preset" data-preset="phase" aria-pressed="false"><span class="code">PHASE-90</span><span class="cn zh">擦除相位 90°</span><span class="cn en">Eraser phase 90°</span></button>
+        <button class="preset" data-preset="partial" aria-pressed="false"><span class="code">PARTIAL</span><span class="cn zh">不完全擦除</span><span class="cn en">Partial erasure</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">闲置光子的去向</span><span class="en">Where the idler goes</span><span class="aside">BS<sub>A</sub> · BS<sub>B</sub></span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="由什么决定测路径还是擦除" data-aria-en="What decides between path and erasure">
+        <button class="chip" data-mode="bs" aria-pressed="true"><span class="zh">随机分束器</span><span class="en">Random beam splitter</span></button>
+        <button class="chip" data-mode="switch" aria-pressed="false"><span class="zh">实验者开关</span><span class="en">Experimenter’s switch</span></button>
+      </div>
+      <div class="field" id="fieldW">
+        <label for="route"><span class="zh">送去测路径的比例 w</span><span class="en">Fraction sent to path detectors w</span><small class="zh">其余送进擦除分束器</small><small class="en">the rest go to the eraser</small></label><output id="oRoute" for="route">0.50</output>
+        <input type="range" id="route" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div class="switchbox" id="switchBox" hidden>
+        <div class="chips" id="switchChips" role="group" aria-label="开关此刻的位置" data-aria-en="Switch position now">
+          <button class="chip" data-set="E" aria-pressed="true"><span class="zh">擦除 ERASE</span><span class="en">ERASE</span></button>
+          <button class="chip" data-set="P" aria-pressed="false"><span class="zh">测路径 PATH</span><span class="en">PATH</span></button>
+        </div>
+      </div>
+      <p class="note" id="routeNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">擦除分束器</span><span class="en">Eraser beam splitter</span><span class="aside">BS</span></h2>
+      <div class="field">
+        <label for="refl"><span class="zh">反射率 r</span><span class="en">Reflectivity r</span><small class="zh">0.5 = 完全擦除</small><small class="en">0.5 = full erasure</small></label><output id="oRefl" for="refl">0.50</output>
+        <input type="range" id="refl" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div class="field">
+        <label for="ephase"><span class="zh">擦除相位 φ</span><span class="en">Eraser phase φ</span><small class="zh">两臂光程差</small><small class="en">arm path difference</small></label><output id="oPhase" for="ephase">0°</output>
+        <input type="range" id="ephase" min="0" max="360" step="1" value="0">
+      </div>
+      <p class="note" id="eraserNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">选择的时刻</span><span class="en">When the choice happens</span><span class="aside">Δ</span></h2>
+      <div class="field">
+        <label for="delay"><span class="zh">选择晚于 D0 点击 Δ</span><span class="en">Choice after the D0 click Δ</span><small class="zh">负值 = 选择在先</small><small class="en">negative = choice first</small></label><output id="oDelay" for="delay">+8 ns</output>
+        <input type="range" id="delay" min="-40" max="400" step="1" value="8">
+      </div>
+      <p class="note" id="delayNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">双缝光源</span><span class="en">Two-slit source</span><span class="aside">A · B</span></h2>
+      <div class="field">
+        <label for="slitw"><span class="zh">衍射包络半宽 W</span><span class="en">Envelope half-width W</span><small class="zh">单缝衍射的第一个零点</small><small class="en">first zero of single-slit diffraction</small></label><output id="oSlitW" for="slitw">0.80</output>
+        <input type="range" id="slitw" min="0.4" max="1" step="0.01" value="0.8">
+      </div>
+      <div class="field">
+        <label for="sep"><span class="zh">缝距与缝宽之比 d/b</span><span class="en">Slit separation over width d/b</span></label><output id="oSep" for="sep">3.0</output>
+        <input type="range" id="sep" min="1.5" max="8" step="0.1" value="3">
+      </div>
+      <div class="field">
+        <label for="pairs"><span class="zh">光子对数 N</span><span class="en">Photon pairs N</span></label><output id="oPairs" for="pairs">1600</output>
+        <input type="range" id="pairs" min="200" max="4000" step="100" value="1600">
+      </div>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="延迟选择量子擦除装置的三维视图：拖动旋转，滚轮缩放，点击探测器只看它的符合计数，点击屏上落点查看那一对光子的时空图" data-aria-en="3D view of the delayed-choice eraser apparatus: drag to rotate, scroll to zoom, click a detector to see only its coincidences, click a hit on the screen to see that pair’s spacetime diagram">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">t = 0 ns</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+        <button class="chip" data-cam="screen" aria-pressed="false"><span class="zh">正对 D0 屏</span><span class="en">Face D0</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">符合分拣 D0 · R01–R04</span><span class="en">COINCIDENCE SORTING D0 · R01–R04</span></h2><span id="histMeta"></span></div>
+        <canvas id="hist" aria-label="D0 屏上的全部落点，以及按闲置光子探测器分拣后的四组符合计数" data-aria-en="All hits on the D0 screen and the four coincidence subsets sorted by the idler detector"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">时空图 · 一对光子</span><span class="en">SPACETIME · ONE PAIR</span></h2><span id="stMeta"></span></div>
+        <canvas id="spacetime" aria-label="一对光子的时空图：发射、D0 点击、选择、闲置光子点击与符合计数，以及光锥" data-aria-en="Spacetime diagram of one pair: emission, the D0 click, the choice, the idler click and the coincidence, with light cones"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="符合计数与读数" data-aria-en="Coincidences and readouts">
+    <section class="panel sec">
+      <h2><span class="zh">符合计数</span><span class="en">Coincidence counts</span><span class="aside">R0k</span></h2>
+      <div class="btable" id="detTable"></div>
+      <p class="note" id="detNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">D0 看得出选择吗</span><span class="en">Can D0 see the choice?</span><span class="aside">ρ<sub>s</sub></span></h2>
+      <dl class="ro">
+        <div class="c"><dt><span class="zh">D0 总体条纹可见度</span><span class="en">D0 fringe visibility, unsorted</span></dt><dd id="roV0">0.000</dd></div>
+        <div><dt><span class="zh">路径可分辨度 D</span><span class="en">Path distinguishability D</span></dt><dd id="roD">1.000</dd></div>
+        <div class="a"><dt><span class="zh">换一种选择，D0 分布最多变化</span><span class="en">Largest change of the D0 law under another choice</span></dt><dd id="roDiff">0</dd></div>
+        <div><dt><span class="zh">互信息 I(选择 : 落点)</span><span class="en">Mutual information I(choice : hit)</span></dt><dd id="roMI">0 bit</dd></div>
+      </dl>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">忽略记录寄存器，剩下的是各路径对角块之和，两路相干消失，已冻结：</span><span class="en">Ignoring the record register leaves the sum of the diagonal path blocks, so the coherence between the paths is gone; frozen:</span> <code>nonselective_recording_marginal</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">两条记录正交（重叠 0）时 D = 1、V = 0，且总有 D² + V² = 1，已冻结：</span><span class="en">Orthogonal records (overlap 0) give D = 1 and V = 0, and always D² + V² = 1; frozen:</span> <code>pure_record_distinguishability_coherence_complementarity</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">一侧的全部读数统计相同，当且仅当这一侧的约化态相同，已冻结：</span><span class="en">All local readout statistics on one side agree exactly when that side’s reduced states agree; frozen:</span> <code>local_observation_partial_trace_equivalence</code></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">分拣与互补</span><span class="en">Sorting and complementarity</span><span class="aside">K² + V²</span></h2>
+      <canvas class="plot plot-sq" id="comp" aria-label="每个探测器子系综的路径知识与条纹可见度，落在单位圆上" data-aria-en="Path knowledge and fringe visibility of each detector subset, lying on the unit circle"></canvas>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">按一个读数分拣出的子系综，其归一化条件态被唯一确定，已冻结：</span><span class="en">The sub-ensemble sorted by one readout has a uniquely forced normalized conditional state; frozen:</span> <code>selective_record_conditioning</code></span></div>
+    </section>
+  </aside>
+
+  <!-- clock rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau">0 <small>ns</small></span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0.3" aria-label="实验室时间" data-aria-en="Lab time">
+      <div class="sched" id="sched" aria-hidden="true"></div>
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 10 ns · <kbd>1</kbd>–<kbd>4</kbd> 只看 D1–D4 · <kbd>S</kbd> 扳开关 · <kbd>Esc</kbd> 取消选择</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> 10 ns · <kbd>1</kbd>–<kbd>4</kbd> only D1–D4 · <kbd>S</kbd> flip switch · <kbd>Esc</kbd> clear</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一对纠缠光子从双缝区域 A 或 B 之一产生。信号光子飞向屏 D0，几纳秒后落下一个点；它的孪生闲置光子绕过一段延迟线，才遇到决定命运的分束器：要么被送到只看路径的探测器 D3、D4，要么被送进擦除分束器，到达 D1、D2，从此再也分不出它来自 A 还是 B。符合计数器把每个 D0 落点与同一对的闲置探测器配上对，事后给落点贴上标签。</p>
+      <ol>
+        <li><b>实验（Kim 等，2000）。</b>本页的装置是 Y.-H. Kim、R. Yu、S. P. Kulik、Y. Shih、M. O. Scully 的延迟选择量子擦除实验的示意版本（<a href="https://doi.org/10.1103/PhysRevLett.84.1" target="_blank" rel="noopener">PRL 84, 1 (2000)</a>）。原实验中闲置光子的“选择”比 D0 点击晚约 8 ns，由被动分束器随机完成；本页另加“实验者开关”，让选择可以在光子飞行途中由人改变。综述见 Ma、Kofler、Zeilinger，<a href="https://doi.org/10.1103/RevModPhys.88.015005" target="_blank" rel="noopener">Rev. Mod. Phys. 88, 015005 (2016)</a>。</li>
+        <li><b>屏上的记录不会被改写（理论卷 §5.1–5.3）。</b>两条路径在闲置光子里留下正交的记录 |A⟩、|B⟩（重叠 κ = 0）。只看 D0，等于忽略这份记录：剩下的是两条路径各自的对角块之和，两路相干消失，屏上没有条纹。这一步有冻结定理 <code>nonselective_recording_marginal</code>；重叠为 0 时可分辨度 D = 1、可见度 V = 0，见 <code>pure_record_distinguishability_coherence_complementarity</code>。D0 分布与闲置光子后来遇到什么无关：本页用固定种子抽落点，改 w、r、φ、Δ、开关时，屏上的每个点一个也不动，D0 的档案哈希保持不变。</li>
+        <li><b>分拣出的条纹（§5.4）。</b>在擦除基上读闲置记录，按 D1 分拣出的子系综给出条纹，按 D2 分拣的给出反条纹：p(x | D1) ∝ 包络 × (1 + 2√(r(1−r)) cos(2πx/Λ − φ))，D2 符号相反。两者相加正好回到没有条纹的 D0 总体。按 D3、D4 分拣，得到的仍是没有条纹的单缝包络。按一个读数分拣出的子系综，其归一化条件态被唯一确定：<code>selective_record_conditioning</code>。</li>
+        <li><b>选择的时刻与光锥。</b>时空图把一对光子的五个事件画在一条直线坐标上：发射、D0 点击、闲置光子到达分束器（选择）、闲置光子点击、符合计数器收到两个电脉冲。选择与 D0 点击相距 2.7 m（9 光纳秒）：|Δ| &lt; 9 ns 时两者类空分离，先后取决于参考系；Δ &gt; 9 ns 时选择落在 D0 点击的未来光锥里；Δ &lt; −9 ns 时 D0 点击落在选择的未来光锥里——即便如此，D0 分布依然不变。标签只在符合计数器收到闲置光子的电脉冲之后才出现，这个脉冲不比光快。</li>
+        <li><b>为什么不能借此向过去发信号。</b>D0 一侧的每一种读数统计都由信号光子的约化态决定，反之亦然：<code>local_observation_partial_trace_equivalence</code>。闲置光子一侧的任何测量都满足 Σ<sub>k</sub> M<sub>k</sub><sup>†</sup>M<sub>k</sub> = I，所以不改变信号光子的约化态——这一步是本页对模型的直接计算，不是 Lean 定理。页面把“换一种选择时 D0 分布的最大变化”和“选择与落点的互信息”都算出来，结果恒为 0。条纹只存在于“落点 × 标签”的联合记录里，而标签要经由普通信道送来。</li>
+        <li><b>实验者开关。</b>开关模式下，扳动开关只影响此后才到达分束器的闲置光子。延迟足够长时，会有一批落点已经印在屏上、它们的孪生光子却还在延迟线里：它们按扳动之后的新设置分拣。屏上的点仍然不动；变的只有标签，所以标签哈希变了，D0 哈希不变。顺序概率与读取先后的关系见理论卷 §8.2。</li>
+        <li><b>不完全擦除与互补。</b>擦除分束器反射率 r ≠ ½ 时，D1、D2 只部分擦除路径：每个子系综的路径知识 K = |2r − 1| 与条纹可见度 V = 2√(r(1−r)) 满足 K² + V² = 1，落在右侧图的单位圆上；D3、D4 在 (1, 0)。这是两个振幅的直接计算，不是 Lean 定理。擦除相位 φ 把条纹整体平移 φ/2π 个周期。</li>
+        <li><b>模型边界。</b>远场振幅取单缝 sinc 包络乘以两缝的相位因子，屏坐标归一化到 [−1, 1]；探测器理想（效率 100%、无暗计数）；电缆按光速传信号（真实电缆约为光速的 2/3）；时间和距离是示意值，不是 Kim 实验装置的数值模拟。三维视图里飞行的光点只表示到达时刻，不表示光子沿确定路线前进；路径的选择只在符合计数里才有意义。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">波粒整体的关系全息表示 §5 §8</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/NonselectiveMarginalization.lean" target="_blank" rel="noopener">NonselectiveMarginalization.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Observer/Conditioning/SelectiveRecordConditioning.lean" target="_blank" rel="noopener">SelectiveRecordConditioning.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean" target="_blank" rel="noopener">RecordCoherenceComplementarity.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean" target="_blank" rel="noopener">LocalObservationPartialTraceEquivalence.lean</a> · Scully–Drühl <a href="https://doi.org/10.1103/PhysRevA.25.2208" target="_blank" rel="noopener">PRA 25, 2208 (1982)</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">An entangled photon pair is born in one of two slit regions, A or B. The signal photon flies to the screen D0 and lands a few nanoseconds later. Its twin, the idler, first runs through a delay line before it meets the beam splitter that decides its fate: either it is sent to D3 or D4, which only see the path, or it enters the eraser beam splitter and reaches D1 or D2, after which nobody can tell whether it came from A or B. The coincidence counter pairs each D0 hit with the idler detector of the same pair and labels the hit afterwards.</p>
+      <ol>
+        <li><b>The experiment (Kim et al., 2000).</b> The apparatus here is a schematic version of the delayed-choice quantum eraser of Y.-H. Kim, R. Yu, S. P. Kulik, Y. Shih and M. O. Scully (<a href="https://doi.org/10.1103/PhysRevLett.84.1" target="_blank" rel="noopener">PRL 84, 1 (2000)</a>). In the original experiment the idler’s “choice” came about 8 ns after the D0 click and was made at random by passive beam splitters; this page adds an “experimenter’s switch” so that the choice can be changed by hand while the photons are in flight. For a review see Ma, Kofler and Zeilinger, <a href="https://doi.org/10.1103/RevModPhys.88.015005" target="_blank" rel="noopener">Rev. Mod. Phys. 88, 015005 (2016)</a>.</li>
+        <li><b>The record on the screen is never rewritten (theory volume §5.1–5.3).</b> The two paths leave orthogonal records |A⟩ and |B⟩ in the idler (overlap κ = 0). Looking at D0 alone means ignoring this record: what remains is the sum of the diagonal blocks of the two paths, the coherence between them is gone, and the screen shows no fringes. This step is the frozen theorem <code>nonselective_recording_marginal</code>; with overlap 0 the distinguishability is D = 1 and the visibility V = 0, see <code>pure_record_distinguishability_coherence_complementarity</code>. The D0 distribution does not depend on what later happens to the idler: the page draws the hits from fixed seeds, and changing w, r, φ, Δ or the switch moves not a single point on the screen, so the D0 archive hash stays the same.</li>
+        <li><b>Fringes appear only after sorting (§5.4).</b> Reading the idler record in the eraser basis, the sub-ensemble sorted by D1 shows fringes and the one sorted by D2 shows anti-fringes: p(x | D1) ∝ envelope × (1 + 2√(r(1−r)) cos(2πx/Λ − φ)), with the opposite sign for D2. Together they add back to the fringe-free whole at D0. Sorting by D3 or D4 gives the single-slit envelope with no fringes. The sub-ensemble sorted by one readout has a uniquely forced normalized conditional state: <code>selective_record_conditioning</code>.</li>
+        <li><b>When the choice happens, and light cones.</b> The spacetime diagram puts five events of one pair on one line: the emission, the D0 click, the idler reaching the beam splitter (the choice), the idler click, and the coincidence counter receiving both electrical pulses. The choice is 2.7 m (9 light-nanoseconds) away from the D0 click. For |Δ| &lt; 9 ns the two events are spacelike separated and their order depends on the frame; for Δ &gt; 9 ns the choice lies in the future light cone of the D0 click; for Δ &lt; −9 ns the D0 click lies in the future light cone of the choice, and even then the D0 distribution is unchanged. A label appears only after the coincidence counter has received the idler’s pulse, which travels no faster than light.</li>
+        <li><b>Why this cannot send a signal into the past.</b> Every readout statistic on the D0 side is fixed by the signal photon’s reduced state, and vice versa: <code>local_observation_partial_trace_equivalence</code>. Any measurement on the idler side satisfies Σ<sub>k</sub> M<sub>k</sub><sup>†</sup>M<sub>k</sub> = I, so it leaves the signal’s reduced state unchanged; this step is a direct calculation for the model, not a Lean theorem. The page computes the largest change of the D0 distribution under another choice and the mutual information between the choice and the hit; both are always 0. The fringes exist only in the joint record “hit × label”, and the labels have to be sent over an ordinary channel.</li>
+        <li><b>The experimenter’s switch.</b> In switch mode, flipping the switch affects only the idlers that reach the beam splitter afterwards. With a long enough delay, a batch of hits is already printed on the screen while their twins are still in the delay line; they are sorted by the setting chosen after the flip. The points on the screen still do not move; only the labels change, so the label hash changes and the D0 hash does not. How sequential probabilities relate to the order of reading is in §8.2 of the theory volume.</li>
+        <li><b>Partial erasure and complementarity.</b> With eraser reflectivity r ≠ ½, D1 and D2 erase the path only partly. In each sub-ensemble the path knowledge K = |2r − 1| and the fringe visibility V = 2√(r(1−r)) satisfy K² + V² = 1 and lie on the unit circle in the plot on the right; D3 and D4 sit at (1, 0). This is a direct two-amplitude calculation, not a Lean theorem. The eraser phase φ shifts the fringes by φ/2π of a period.</li>
+        <li><b>Model limits.</b> The far-field amplitudes are a single-slit sinc envelope times the two slits’ phase factors, with the screen coordinate normalized to [−1, 1]; the detectors are ideal (100% efficiency, no dark counts); cables carry signals at the speed of light (real cables run at about 2/3 of it); the times and distances are schematic, not a numerical simulation of Kim’s apparatus. The moving dots in the 3D view show arrival times only, not photons following definite routes; which path was taken has meaning only in the coincidence record.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources (the theory volume is in Chinese): <a href="https://github.com/the-omega-institute/trureturing/blob/dev/docs/develop/theory/RECURSIVE_RELATIONAL_OBSERVATION_WAVE_PARTICLE_EVENTS.md" target="_blank" rel="noopener">Relational holographic representation of the wave–particle whole §5 §8</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Decoherence/NonselectiveMarginalization.lean" target="_blank" rel="noopener">NonselectiveMarginalization.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Observer/Conditioning/SelectiveRecordConditioning.lean" target="_blank" rel="noopener">SelectiveRecordConditioning.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/PureState/RecordCoherenceComplementarity.lean" target="_blank" rel="noopener">RecordCoherenceComplementarity.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Quantum/Entanglement/LocalObservationPartialTraceEquivalence.lean" target="_blank" rel="noopener">LocalObservationPartialTraceEquivalence.lean</a> · Scully–Drühl <a href="https://doi.org/10.1103/PhysRevA.25.2208" target="_blank" rel="noopener">PRA 25, 2208 (1982)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

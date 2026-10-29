@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="IMITATE//CYCLE · Imitation and best response: a cycle that never settles">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IMITATE//CYCLE 模仿与最佳回应 · 一个永不停下的循环</title>
+<meta name="description" content="网络上的协调博弈：一部分人模仿收益最高的邻居，另一部分人做最佳回应。Hasheminejad 与 Ramazi（2023）证明了几类网络上的混合群体总会到达均衡，并留下一般图的问题。本库给出反例：四个人、一个最佳回应者，在一个每人都无限次被激活的排程下，状态每 8 步循环一次，永远到不了均衡。页面画出这个网络、16 个状态构成的四维立方体与其中的 8 步环、时空图，以及随机激活下的对比。Coordination games on a network: some agents imitate their best-earning neighbour, the others play a best response. Hasheminejad and Ramazi (2023) proved that such mixed populations equilibrate on several network classes and left general graphs open. This library gives a counterexample: four agents, one best responder, and a schedule activating everyone infinitely often under which the state cycles every 8 steps and never reaches an equilibrium. The page draws the network, the four-dimensional cube of the 16 states with the 8-cycle inside it, a space-time chart, and a comparison with random activation.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="imitate-cycle">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="IMITATE//CYCLE">IMITATE<b>//</b>CYCLE</h1>
+      <div class="tagline">
+        <span class="zh">模仿与最佳回应 · <em>一个永不停下的循环（已冻结）</em></span>
+        <span class="en">Imitation and best response · <em>a cycle that never settles (frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="cycle" aria-pressed="true"><span class="code">2, 0, 3, 1, …</span><span class="cn zh">反例 · 每 8 步一个循环</span><span class="cn en">The counterexample · a cycle of 8</span></button>
+        <button class="preset" data-preset="space" aria-pressed="false"><span class="code">2⁴ = 16</span><span class="cn zh">状态空间里的 8 步环</span><span class="cn en">The 8-cycle in the state space</span></button>
+        <button class="preset" data-preset="moves" aria-pressed="false"><span class="code">AAAA · BBBB</span><span class="cn zh">只有两个均衡</span><span class="cn en">Only two equilibria</span></button>
+        <button class="preset" data-preset="random" aria-pressed="false"><span class="code">random</span><span class="cn zh">随机激活 · 很快停下</span><span class="cn en">Random activation · settles fast</span></button>
+        <button class="preset" data-preset="imit" aria-pressed="false"><span class="code">I I I I</span><span class="cn zh">全员模仿 · 第 6 步停下</span><span class="cn en">All imitate · settles at step 6</span></button>
+        <button class="preset" data-preset="best" aria-pressed="false"><span class="code">R R R R</span><span class="cn zh">全员最佳回应 · 也停下</span><span class="cn en">All best-respond · settles too</span></button>
+        <button class="preset" data-preset="swap" aria-pressed="false"><span class="code">R I I I</span><span class="cn zh">换一个人做最佳回应</span><span class="cn en">A different best responder</span></button>
+        <button class="preset" data-preset="hist" aria-pressed="false"><span class="code">2000 runs</span><span class="cn zh">随机激活的停下时间</span><span class="cn en">When random activation settles</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">K₄ − {0, 2}</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="视图" data-aria-en="View">
+        <button class="chip" data-mode="net"><span class="zh">网络</span><span class="en">Network</span></button>
+        <button class="chip" data-mode="space"><span class="zh">状态空间</span><span class="en">State space</span></button>
+      </div>
+      <div class="field" id="roleField">
+        <span class="lbl"><span class="zh">每个人的规则（点按切换：I = 模仿，R = 最佳回应）</span><span class="en">Each agent’s rule (click to toggle: I = imitate, R = best response)</span></span>
+        <div class="chips" id="roleChips" role="group" aria-label="规则" data-aria-en="Rules">
+          <button class="chip" data-agent="0">0 · I</button>
+          <button class="chip" data-agent="1">1 · R</button>
+          <button class="chip" data-agent="2">2 · I</button>
+          <button class="chip" data-agent="3">3 · I</button>
+        </div>
+      </div>
+      <div class="field" id="schedField">
+        <span class="lbl"><span class="zh">激活排程</span><span class="en">Activation schedule</span></span>
+        <div class="chips" id="schedChips" role="group" aria-label="排程" data-aria-en="Schedule">
+          <button class="chip" data-sched="witness"><span class="zh">2, 0, 3, 1 循环</span><span class="en">2, 0, 3, 1 repeated</span></button>
+          <button class="chip" data-sched="random"><span class="zh">随机 ↻</span><span class="en">Random ↻</span></button>
+        </div>
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：四个人组成的网络（颜色 = 策略，柱高 = 效用），或 16 个状态构成的四维立方体投影与轨迹；拖动旋转，滚轮缩放" data-aria-en="3D view: the network of four agents (colour = strategy, column height = utility), or the projected four-dimensional cube of the 16 states with the trajectory; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="时空图：四个人的策略随时间变化" data-aria-en="Space-time chart: the four strategies over time"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="收益表或随机激活的停下时间分布" data-aria-en="The payoff tables or the distribution of settling times under random activation"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">A · B</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="w"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div class="a"><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">Hasheminejad 与 Ramazi（2023）问：在一般的有限无向图上，混合了模仿者与最佳回应者的协调博弈，是否在任何“每人无限次被激活”的排程下都会到达均衡？答案是否定的。反例：完全图 K₄ 去掉 0–2 这条边，智能体 1 做最佳回应，0、2、3 模仿；收益 (AA, AB, BA, BB) 依次为 (1, 0, 0, 4)、(3, 2, 2, 3)、(4, 1, 0, 4)、(4, 3, 3, 4)，每人都满足协调条件；从 BABB 出发、排程 2, 0, 3, 1 循环，状态每 8 步回到原处，永远不是均衡。已冻结：</span><span class="en">Hasheminejad and Ramazi (2023) ask whether, on a general finite undirected graph, a coordination game mixing imitators and best responders reaches an equilibrium under every schedule that activates each agent infinitely often. The answer is no. Counterexample: the complete graph K₄ without the edge 0–2, agent 1 a best responder and agents 0, 2, 3 imitators; the payoffs (AA, AB, BA, BB) are (1, 0, 0, 4), (3, 2, 2, 3), (4, 1, 0, 4) and (4, 3, 3, 4), each satisfying the coordination condition; from BABB under the schedule 2, 0, 3, 1 repeated, the state returns every 8 steps and is never an equilibrium. Frozen:</span> <code>MixedImitationBestResponseCycle.result</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">卷宗论证、未形式化：图里有三角形，最佳回应者按自己的收益比较翻转，三个模仿者把由此产生的局部最高收益一站一站传下去；在这个排程下八个状态 BABB → BABA → BBBA → BBAA → ABAA → ABAB → AAAB → AABB 轮流出现。协调条件和“无限次激活”给不出一般图上共同下降的势函数。</span><span class="en">Argued in the dossier, not formalized: the graph contains triangles; the best responder switches on its own payoff comparison while the three imitators relay the resulting local maxima; under this schedule the eight states BABB → BABA → BBBA → BBAA → ABAA → ABAB → AAAB → AABB come round in turn. The coordination condition and infinite activation do not provide a common decreasing potential on general graphs.</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：稠密树是否在每个排程下都到达均衡；混合群体是否存在势函数；这个网络在别的排程下会怎样（页面只算随机排程）。</span><span class="en">Open: whether dense trees equilibrate under every schedule; whether a potential function exists for mixed populations; what other schedules do on this network (the page only computes random ones).</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：16 个状态里只有 AAAA 与 BBBB 是均衡（卷宗也有同样的穷举）；在 2, 0, 3, 1 排程下，16 种规则分配里只有反例那一种（I R I I）循环，其余 15 种都到达均衡；随机激活下 2000 次模拟全部到达均衡。</span><span class="en">Numbers computed on the page, not theorems: among the 16 states only AAAA and BBBB are equilibria (the dossier records the same enumeration); under the schedule 2, 0, 3, 1, only the counterexample’s assignment of rules (I R I I) cycles among all 16 assignments, the other 15 reach an equilibrium; under random activation all 2000 simulated runs reach an equilibrium.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Hasheminejad 与 Ramazi（2023）在线形图、环、星形网络与稀疏树上证明了混合群体会到达均衡，并提出一般图的问题；全员模仿或全员最佳回应的协调群体有势函数，总会停下。Sakhaei、Maleki、Ramazi（2024）研究随机激活下的几乎必然均衡。</span><span class="en">Hasheminejad and Ramazi (2023) prove that mixed populations equilibrate on linear graphs, rings, starlike networks and sparse trees, and pose the general-graph question; coordinating populations of pure imitators or pure best responders have potential functions and always settle. Sakhaei, Maleki and Ramazi (2024) study almost-sure equilibration under random activation.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：激活的步数" data-aria-en="Progress: the activation step">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">网络上每个人在 A、B 两个策略里选一个，与每个邻居各玩一次协调博弈，收益加起来就是他的效用。被激活时，模仿者看邻居们谁的效用最高，抄他的策略；最佳回应者比较自己选 A 和选 B 的效用，选高的那个。只有模仿者、或只有最佳回应者时，群体总会停在均衡；混在一起时，原文在几类网络上证明了同样的结论，一般图留作问题。本库给出了一个四人反例。</p>
+      <ol>
+        <li><b>规则（原文，形式化逐字保留）。</b>效用 u<sub>i</sub> = Σ<sub>j 是邻居</sub> pay<sub>i</sub>(x<sub>i</sub>, x<sub>j</sub>)。模仿者：若邻居中效用最高的人只用 A（或只用 B），就改用它；两种策略都有最高者、或没有邻居时保持不变。最佳回应者：比较把自己改成 A 与改成 B 后的效用，取严格更高的那个，相等时保持。协调条件：每个人都满足 max{pay(B, A), pay(A, B)} &lt; min{pay(A, A), pay(B, B)}。均衡指在任何激活下都不再变化的状态。</li>
+        <li><b>反例（已冻结）。</b>四个人，K₄ 去掉 0–2 边；智能体 1 最佳回应，其余模仿；收益见右侧。从 BABB 出发，排程 2, 0, 3, 1 不断重复：前两次激活不改变状态，此后每一步都有人改策略，8 步回到 BABB。排程是持续的（每人每 4 步被激活一次），而轨迹永远不经过均衡。</li>
+        <li><b>只有两个均衡（页面数值）。</b>页面检查全部 16 个状态，只有 AAAA 与 BBBB 在每个人被激活时都不变；8 步环上的状态都至少有一个人会改。</li>
+        <li><b>混合角色缺一不可（页面数值）。</b>同一个排程下，把规则换成全员模仿、全员最佳回应或其他 14 种组合，轨迹都会停在均衡；只有反例那一种组合循环。</li>
+        <li><b>随机激活（页面数值）。</b>每一步随机激活一个人，2000 次模拟全部很快停在 AAAA 或 BBBB。反例依赖一个精心挑选的排程，这与原文引用的随机激活几乎必然均衡的结果并不矛盾。</li>
+        <li><b>边界。</b>原文在线形图、环、星形网络与稀疏树上的正面结论不受影响；稠密树、势函数的存在、这个网络在其他排程下的行为都没有结论。页面上的穷举与模拟都是现算的数值。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/hasheminejad-ramazi-2023-mixed-imitation-best-response-nonequilibration.md" target="_blank" rel="noopener">问题卷宗：混合模仿与最佳回应在一般图上不一定到达均衡</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/DecisionValue/MixedImitationBestResponseCycle.lean" target="_blank" rel="noopener">MixedImitationBestResponseCycle.lean</a> · Hasheminejad、Ramazi，<a href="https://doi.org/10.1109/LCSYS.2023.3292049" target="_blank" rel="noopener">IEEE Control Systems Letters 7, 3078（2023）</a> · Sakhaei、Maleki、Ramazi，<a href="https://doi.org/10.1109/TAC.2023.3343820" target="_blank" rel="noopener">IEEE Trans. Automatic Control（2024）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Each agent on a network picks one of two strategies, A or B, and plays a coordination game once with each neighbour; the payoffs add up to its utility. When activated, an imitator looks for the best-earning neighbours and copies their strategy; a best responder compares its own utility with A and with B and takes the higher. Populations of only imitators or only best responders always settle in an equilibrium; for mixed populations the source proves the same on several network classes and leaves general graphs open. This library gives a four-agent counterexample.</p>
+      <ol>
+        <li><b>The rules (source, kept verbatim in the formalization).</b> Utility u<sub>i</sub> = Σ<sub>j a neighbour</sub> pay<sub>i</sub>(x<sub>i</sub>, x<sub>j</sub>). An imitator switches to A (or B) if the best-earning neighbours use only that strategy, and keeps its strategy when both strategies are among the best or it has no neighbours. A best responder compares its utility after switching to A and to B, takes the strictly higher one, and keeps its strategy on a tie. The coordination condition: every agent has max{pay(B, A), pay(A, B)} &lt; min{pay(A, A), pay(B, B)}. An equilibrium is a state that no activation ever changes.</li>
+        <li><b>The counterexample (frozen).</b> Four agents on K₄ without the edge 0–2; agent 1 best-responds, the others imitate; the payoffs are on the right. From BABB with the schedule 2, 0, 3, 1 repeated, the first two activations change nothing, after that every step changes someone, and after 8 steps the state is BABB again. The schedule is persistent (everyone is activated every 4 steps), yet the trajectory never passes an equilibrium.</li>
+        <li><b>Only two equilibria (page numerics).</b> The page checks all 16 states: only AAAA and BBBB stay unchanged whoever is activated; every state on the 8-cycle has someone who would change.</li>
+        <li><b>The mixed roles matter (page numerics).</b> Under the same schedule, all imitators, all best responders, or any of the other 14 assignments of rules settle in an equilibrium; only the counterexample’s assignment cycles.</li>
+        <li><b>Random activation (page numerics).</b> Activating a random agent at every step, all 2000 simulated runs quickly settle in AAAA or BBBB. The counterexample relies on a carefully chosen schedule, which is consistent with the almost-sure equilibration under random activation cited by the source.</li>
+        <li><b>Limits.</b> The source’s positive results on linear graphs, rings, starlike networks and sparse trees stand; dense trees, the existence of a potential function, and the behaviour of this network under other schedules are not settled. The enumerations and simulations on the page are computed numbers.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/hasheminejad-ramazi-2023-mixed-imitation-best-response-nonequilibration.md" target="_blank" rel="noopener">Problem dossier: mixed imitation and best response need not equilibrate on general graphs</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/ConceptDynamics/DecisionValue/MixedImitationBestResponseCycle.lean" target="_blank" rel="noopener">MixedImitationBestResponseCycle.lean</a> · Hasheminejad, Ramazi, <a href="https://doi.org/10.1109/LCSYS.2023.3292049" target="_blank" rel="noopener">IEEE Control Systems Letters 7, 3078 (2023)</a> · Sakhaei, Maleki, Ramazi, <a href="https://doi.org/10.1109/TAC.2023.3343820" target="_blank" rel="noopener">IEEE Trans. Automatic Control (2024)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

@@ -600,6 +600,8 @@ def build_basic_site(bundle_directory: str | Path, output_directory: str | Path)
     verified = verify_bundle(bundle_directory)
     graph = project_basic_dag(bundle_directory, verified)
     shutil.copytree(ROOT / "site", destination)
+    from .visualize import mount_visualize
+    mount_visualize(destination)
     data = destination / "data"
     data.mkdir(exist_ok=True)
     # Carry the exact verified export to the resolution gate; never reconstruct it from labels.

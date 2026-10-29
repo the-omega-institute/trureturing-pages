@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="LEE-YANG//TREE · The unit circle on trees">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LEE-YANG//TREE 树上的单位圆 · 何时守住、何时破开</title>
+<meta name="description" content="树上 Ising 型多项式的根与单位圆。Fiol、Martínez-Montoya、Rios Fukelman（2020）猜想：任何树、任何正的分法权重，根都在单位圆上。本库用三点路径与联合权重 W₃₁ 给出反例，又在原文的物理权重下找到九点树的反例；但把两条边总数取 3 的所有放法加起来，对任何树根都回到单位圆上——这两件事都已冻结。页面在复平面上放大画出根离开圆的距离。The roots of Ising-type polynomials on trees and the unit circle. Fiol, Martínez-Montoya and Rios Fukelman (2020) conjectured that for every tree and any positive split weights the roots lie on the unit circle. This library refutes it with a three-vertex path and joint weights W₃₁, and also with a nine-vertex tree under the source’s physical weights; yet summing over all placements of two edges with total three brings every root back to the circle on every tree. Both are frozen. The page draws the roots in the complex plane, magnifying how far they leave the circle.">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../../assets/shell.js"></script>
+</head>
+<body data-viz-id="lee-yang-tree">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../../"><span class="zh">◂ 索引</span><span class="en">◂ Index</span></a>
+      <h1 class="logo" data-text="LEE-YANG//TREE">LEE-YANG<b>//</b>TREE</h1>
+      <div class="tagline">
+        <span class="zh">树上的单位圆 · <em>混合会破，求和会补（都已冻结）</em></span>
+        <span class="en">The unit circle on trees · <em>mixing breaks it, summing restores it (both frozen)</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill" id="pillA">— <strong>—</strong></span>
+      <span class="pill" id="pillB">— <strong>—</strong></span>
+      <span class="pill hot" id="pillC">— <strong>—</strong></span>
+      <span class="pill" id="pillD">— <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <!-- control deck -->
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiment</span><span class="aside">PRESETS</span></h2>
+      <div class="presets" id="presets">
+        <button class="preset" data-preset="w31" aria-pressed="true"><span class="code">W₃₁ · τ = −1</span><span class="cn zh">猜想 1 的反例</span><span class="cn en">The counterexample to Conjecture 1</span></button>
+        <button class="preset" data-preset="sweep" aria-pressed="false"><span class="code">M: 1 → 80</span><span class="cn zh">权重 M 增大 · 在 31 离开圆</span><span class="cn en">Raise the weight M · off the circle at 31</span></button>
+        <button class="preset" data-preset="lone" aria-pressed="false"><span class="code">c = 1</span><span class="cn zh">只抬一格权重 · 不离开</span><span class="cn en">Raise one weight only · stays on</span></button>
+        <button class="preset" data-preset="interior" aria-pressed="false"><span class="code">τ = −0.95</span><span class="cn zh">τ 在区间内部也会破</span><span class="cn en">It breaks inside the τ range too</span></button>
+        <button class="preset" data-preset="e8" aria-pressed="false"><span class="code">V = 9 · n ≡ 3</span><span class="cn zh">物理权重的反例 · 放大才看得见</span><span class="cn en">Physical weights fail · visible only magnified</span></button>
+        <button class="preset" data-preset="hub4" aria-pressed="false"><span class="code">V = 11 · n ≡ 3</span><span class="cn zh">再加一片叶子 · 又回到圆上</span><span class="cn en">One more leaf each · back on the circle</span></button>
+        <button class="preset" data-preset="pair" aria-pressed="false"><span class="code">Σ 28</span><span class="cn zh">配对系数 · 根全在圆上</span><span class="cn en">The pair coefficient · every root on the circle</span></button>
+        <button class="preset" data-preset="hub5" aria-pressed="false"><span class="code">Σ 66</span><span class="cn zh">有一种放法离圆 · 和仍在圆上</span><span class="cn en">One placement leaves · the sum stays on</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">模型</span><span class="en">Model</span><span class="aside">P(τ, x)</span></h2>
+      <div class="chips" id="modeChips" role="group" aria-label="模型" data-aria-en="Model">
+        <button class="chip" data-mode="mix"><span class="zh">联合权重</span><span class="en">Joint weights</span></button>
+        <button class="chip" data-mode="fixed"><span class="zh">物理 · 固定总数</span><span class="en">Physical · fixed totals</span></button>
+        <button class="chip" data-mode="sum"><span class="zh">物理 · 配对求和</span><span class="en">Physical · pair sum</span></button>
+      </div>
+      <div class="field" id="cField" hidden>
+        <label for="cc"><span class="zh">分法 (2, 2) 的权重 c</span><span class="en">Weight c of split (2, 2)</span></label><output id="oC" for="cc">10</output>
+        <input type="range" id="cc" min="1" max="40" step="1" value="10">
+      </div>
+      <div class="field" id="tauField" hidden>
+        <label for="tt"><span class="zh">反向边的因子 τ</span><span class="en">Factor τ per opposite edge</span></label><output id="oT" for="tt">−1.00</output>
+        <input type="range" id="tt" min="-1" max="1" step="0.05" value="-1">
+      </div>
+      <div class="field" id="treeField" hidden>
+        <span class="lbl"><span class="zh">树</span><span class="en">Tree</span></span>
+        <div class="chips" id="treeChips" role="group" aria-label="树" data-aria-en="Tree">
+          <button class="chip" data-tree="hub"><span class="zh">双中心</span><span class="en">Double hub</span></button>
+          <button class="chip" data-tree="path"><span class="zh">路径</span><span class="en">Path</span></button>
+          <button class="chip" data-tree="star"><span class="zh">星</span><span class="en">Star</span></button>
+          <button class="chip" data-tree="spider"><span class="zh">蜘蛛</span><span class="en">Spider</span></button>
+          <button class="chip" data-tree="random"><span class="zh">随机 ↻</span><span class="en">Random ↻</span></button>
+        </div>
+      </div>
+      <div class="field" id="sizeField" hidden>
+        <label for="ee"><span class="zh">边数 E</span><span class="en">Edges E</span></label><output id="oE" for="ee">8</output>
+        <input type="range" id="ee" min="2" max="12" step="1" value="8">
+      </div>
+      <div class="field" id="totField" hidden>
+        <span class="lbl"><span class="zh">边总数（点下方树图的边可逐条改）</span><span class="en">Edge totals (click an edge of the tree chart below to change it)</span></span>
+        <div class="chips" id="totChips" role="group" aria-label="边总数" data-aria-en="Edge totals">
+          <button class="chip" data-tot="2"><span class="zh">全部 2</span><span class="en">All 2</span></button>
+          <button class="chip" data-tot="3"><span class="zh">全部 3</span><span class="en">All 3</span></button>
+          <button class="chip" data-tot="4"><span class="zh">全部 4</span><span class="en">All 4</span></button>
+        </div>
+      </div>
+      <div class="field" id="zoomField" hidden>
+        <label for="zz"><span class="zh">径向放大 ×Z（离圆的距离乘 Z）</span><span class="en">Radial magnification ×Z (distance from the circle times Z)</span></label><output id="oZ" for="zz">×20</output>
+        <input type="range" id="zz" min="0" max="3" step="0.05" value="1.3">
+      </div>
+      <p class="note" id="modeNote"></p>
+    </section>
+  </aside>
+
+  <!-- stage -->
+  <main class="center">
+    <div class="stage" id="stage" aria-label="三维视图：复平面上的单位圆与多项式的根，离圆的距离按 Z 倍放大，重根竖直叠起；拖动旋转，滚轮缩放" data-aria-en="3D view: the unit circle in the complex plane with the roots of the polynomial, the distance from the circle magnified Z times, repeated roots stacked vertically; drag to rotate, scroll to zoom">
+      <canvas class="gl" id="gl"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig">—</span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="camChips" role="group" aria-label="视角" data-aria-en="View">
+        <button class="chip" data-cam="iso" aria-pressed="true"><span class="zh">斜视 ISO</span><span class="en">ISO</span></button>
+        <button class="chip" data-cam="front" aria-pressed="false"><span class="zh">正视</span><span class="en">Front</span></button>
+        <button class="chip" data-cam="top" aria-pressed="false"><span class="zh">俯视</span><span class="en">Top</span></button>
+      </div>
+      <div id="tags"></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="c1Title"></h2><span id="c1Meta"></span></div>
+        <canvas id="c1" aria-label="树、边总数与权重" data-aria-en="The tree, its edge totals and weights"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="c2Title"></h2><span id="c2Meta"></span></div>
+        <canvas id="c2" aria-label="y = x + 1/x 平面：单位圆上的根落在区间 [−2, 2] 上" data-aria-en="The y = x + 1/x plane: roots on the unit circle land on the interval [−2, 2]"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <!-- readouts -->
+  <aside class="col side" aria-label="读数" data-aria-en="Readouts">
+    <section class="panel sec">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">|x| = 1 ?</span></h2>
+      <dl class="ro">
+        <div class="c"><dt id="ro1L"></dt><dd id="ro1">—</dd></div>
+        <div class="m"><dt id="ro2L"></dt><dd id="ro2">—</dd></div>
+        <div class="a"><dt id="ro3L"></dt><dd id="ro3">—</dd></div>
+        <div><dt id="ro4L"></dt><dd id="ro4">—</dd></div>
+        <div class="w"><dt id="ro5L"></dt><dd id="ro5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">猜想 1（Fiol、Martínez-Montoya、Rios Fukelman 2020）：任何树、任何边总数、任何正的分法权重、−1 ≤ τ ≤ 1，多项式 P(τ, x) 的根都在单位圆上。三点路径、边总数 (4, 4)、τ = −1、联合权重 W₃₁ 是反例：P = 48 − 6x + 8x² − 62x³ + 24x⁴ − 62x⁵ + 8x⁶ − 6x⁷ + 48x⁸ = 2(x − 1)²x³q(x + 1/x)，三次式 q 的判别式是 −16404，所以有一个非实的 y，对应的 x 不在圆上。已冻结：</span><span class="en">Conjecture 1 (Fiol, Martínez-Montoya, Rios Fukelman 2020): for every tree, all edge totals, any positive split weights and −1 ≤ τ ≤ 1, the polynomial P(τ, x) has all its roots on the unit circle. The three-vertex path with totals (4, 4), τ = −1 and joint weights W₃₁ is a counterexample: P = 48 − 6x + 8x² − 62x³ + 24x⁴ − 62x⁵ + 8x⁶ − 6x⁷ + 48x⁸ = 2(x − 1)²x³q(x + 1/x), and the cubic q has discriminant −16404, so some y is not real and the matching x is off the circle. Frozen:</span> <code>QuiverTreeIsingRefutation.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">换成原文 (2.19) 的物理权重（每条边的二项式系数乘上所有顶点的因子），猜想同样不成立：九个顶点、八条边的双中心树（中心连两个枢纽，每个枢纽挂三片叶子），每条边总数 3，τ = −1，有一个根在圆内、它的倒数在圆外。已冻结：</span><span class="en">With the source’s physical weights from (2.19) instead (a binomial coefficient per edge times a factor at every vertex) the conjecture still fails: on the double-hub tree with nine vertices and eight edges (a centre joined to two hubs, three leaves on each hub), every edge total 3 and τ = −1, there is a root inside the circle and its reciprocal outside. Frozen:</span> <code>QuiverTreePhysicalE8.result</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">但把“两条边总数 3、其余边总数 2”的所有放法加起来（自由能展开里 Z₅²Z₃<sup>E−2</sup> 的系数），对任何至少两条边的有限树，得到的 2E + 2 次多项式根都在单位圆上；x = 1 的重数恰好是奇度顶点数，0 和 −1 都不是根。已冻结：</span><span class="en">Yet summing over every placement of two edges with total 3 and the rest with total 2 (the coefficient of Z₅²Z₃<sup>E−2</sup> in the free-energy expansion), every finite tree with at least two edges gives a polynomial of degree 2E + 2 with all its roots on the unit circle; the multiplicity of x = 1 is exactly the number of odd-degree vertices, and neither 0 nor −1 is a root. Frozen:</span> <code>TreePairTheorem.complete_named_tree_pair</code></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">双中心树（每个枢纽 m 片叶子）的这个系数有闭式 200·12<sup>2m</sup>·(1 − x)<sup>h</sup>Q<sub>m+1</sub>(x)，并有完整的根分类：次数 4m + 6；x = 1 的重数 h 是 2m + 2（m 偶）或 2m（m 奇）；其余根都是单根、都在圆上；±i 是根当且仅当 m ≡ 1 (mod 4)。自旋求和与原文公式相等。已冻结：</span><span class="en">For the double-hub tree with m leaves on each hub the same coefficient has the closed form 200·12<sup>2m</sup>·(1 − x)<sup>h</sup>Q<sub>m+1</sub>(x) and a complete root classification: degree 4m + 6; the multiplicity h of x = 1 is 2m + 2 (m even) or 2m (m odd); every other root is simple and on the circle; ±i are roots exactly when m ≡ 1 (mod 4). The spin sum equals the source formula. Frozen:</span> <code>FiolDoubleHubCoefficient.actual_coefficient_identity</code> · <code>FiolDoubleHubPhysical.physical_root_classification</code> · <code>FiolDoubleHubPhysical.spin_coefficient_eq_source</code></span></div>
+      <div class="lean theory"><span class="ok">ARGUED</span><span><span class="zh">结算卷宗里有论证、本库未形式化：τ = −1 时单个分法的多项式是 (1 − x<sup>a</sup>)(1 + x<sup>b</sup>)(1 − x<sup>c</sup>)，根都是单位根，离开圆只能来自不同质量配置的混合；把 W₃₁ 中 (3, 3) 的权重换成任意 M ≥ 31，根都离开圆；τ = −19/20、M = 60 时 400P = x⁴R(x + 1/x)，R 的判别式为负，根也离开圆；两条边的物理多项式在 min(a, b) = 2 时根都在圆上（用 Lalín–Smyth 的自反完成定理）。</span><span class="en">Argued in the settlement dossier and not formalized: at τ = −1 the polynomial of a single split is (1 − x<sup>a</sup>)(1 + x<sup>b</sup>)(1 − x<sup>c</sup>), whose roots are all roots of unity, so leaving the circle can only come from mixing configurations with different masses; replacing the (3, 3) weight of W₃₁ by any M ≥ 31 sends roots off the circle; at τ = −19/20 and M = 60, 400P = x⁴R(x + 1/x) with R of negative discriminant, so roots leave there too; the physical two-edge polynomial with min(a, b) = 2 has all its roots on the circle (using Lalín and Smyth’s reciprocal completion theorem).</span></span></div>
+      <div class="lean open"><span class="ok">OPEN</span><span><span class="zh">未决：边权为乘积形式 ρ(k) = u₁(k₁)u₂(k₂)⋯ 时的猜想 1；物理权重下其他总数组合、其他树、两条边总数都 ≥ 3 的情形、对所有树求和的版本、τ 取其他值的版本，以及原文的猜想 2。</span><span class="en">Open: Conjecture 1 for product weights ρ(k) = u₁(k₁)u₂(k₂)⋯; under physical weights, other total multisets, other trees, two edges both with total ≥ 3, the version summed over all trees, other values of τ, and the source’s Conjecture 2.</span></span></div>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面数值，不是定理：根由精确整数多项式的无平方分解加 Aberth 迭代求出；c = 10 时 M = 30 仍在圆上，M = 31 起离开；c = 1 时 M 到 80 都在圆上；九点树的 256 种 {2, 3} 总数分配里只有全 3 那一种离圆；m = 5 的双中心树上，两条中心边取 3 的那一种放法单独离圆，按页面顺序从第二个部分和起都在圆上，全部加完的和也在圆上；两条边的物理多项式在 a, b ≤ 5 时都在圆上。</span><span class="en">Numbers computed on the page, not theorems: roots come from a squarefree factorization of the exact integer polynomial followed by Aberth iteration; with c = 10, M = 30 is still on the circle and M = 31 leaves; with c = 1 every M up to 80 stays on; among the 256 assignments of totals {2, 3} to the nine-vertex tree only the all-3 one leaves the circle; on the double hub with m = 5 the placement with both central edges at total 3 leaves the circle on its own, every partial sum in the page’s order from the second on is on the circle, and so is the full sum; the physical two-edge polynomial stays on the circle for a, b ≤ 5.</span></span></div>
+    </section>
+
+    <section class="panel sec">
+      <h2><span class="zh">文献结果</span><span class="en">Literature results</span><span class="aside">LIT</span></h2>
+      <div class="lean lit"><span class="ok">LIT</span><span><span class="zh">Lee 与 Yang（1952）的单位圆定理：铁磁 Ising 模型的配分函数作为外场逸度的多项式，零点都在单位圆上。Fiol、Martínez-Montoya、Rios Fukelman（2020）在 N = 2 超共形箭图理论的平面极限里得到树上的这类多项式，证明了单条边的情形，提出了猜想 1 和 2。Lalín 与 Smyth（2013）给出自反多项式的零点全在单位圆上的判据。</span><span class="en">Lee and Yang’s circle theorem (1952): the partition function of a ferromagnetic Ising model, as a polynomial in the fugacity of the external field, has all its zeros on the unit circle. Fiol, Martínez-Montoya and Rios Fukelman (2020) meet such polynomials on trees in the planar limit of N = 2 superconformal quiver theories, prove the one-edge case and state Conjectures 1 and 2. Lalín and Smyth (2013) give criteria for a self-inversive polynomial to have all its zeros on the unit circle.</span></span></div>
+      <p class="note" id="litNote"></p>
+    </section>
+  </aside>
+
+  <!-- time rail -->
+  <footer class="rail">
+    <div class="transport">
+      <button class="tbtn" id="rev" aria-label="倒放" data-aria-en="Reverse">◀◀</button>
+      <button class="tbtn" id="play" aria-label="播放/暂停" data-aria-en="Play / pause" aria-pressed="true">❚❚</button>
+      <div class="chips" id="speedChips" role="group" aria-label="速度" data-aria-en="Speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button>
+        <button class="chip" data-speed="1" aria-pressed="true">1×</button>
+        <button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="tau" id="clock">0</span>
+      <input type="range" id="now" min="0" max="1" step="0.0005" value="0" aria-label="进度：联合权重模式下是权重 M，固定总数模式下是放大倍数，配对求和模式下是已加入的放法数" data-aria-en="Progress: the weight M in the joint-weight mode, the magnification in the fixed-total mode, the number of placements summed in the pair-sum mode">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="keys">
+      <span class="zh"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>E</kbd> 跳到末尾</span>
+      <span class="en"><kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> nudge · <kbd>E</kbd> jump to the end</span><br>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">Lee 与 Yang 证明：铁磁 Ising 模型的配分函数，作为外场逸度 x 的多项式，零点都在单位圆 |x| = 1 上。Fiol、Martínez-Montoya、Rios Fukelman 在超共形箭图理论的平面极限里遇到树上的一族这样的多项式，猜想它们也有这个性质。本库发现：把不同的分法按任意正权重混在一起，根会离开圆；但把物理展开里同一系数的所有放法加起来，根又全部回到圆上。</p>
+      <ol>
+        <li><b>多项式（原文）。</b>给树的每条边一个正整数总数 n<sub>i</sub>，再把它拆成 k<sub>i</sub> + (n<sub>i</sub> − k<sub>i</sub>)（1 ≤ k<sub>i</sub> ≤ n<sub>i</sub> − 1），两部分分给边的两个端点；顶点的“质量” m<sub>v</sub> 是它收到的整数之和。每个顶点取自旋上或下，一个状态贡献 τ<sup>e±</sup> x<sup>Σ 向上的 m<sub>v</sub></sup>，e<sub>±</sub> 是两端自旋相反的边数。对所有状态求和，再按正权重 ρ(k) 对所有分法求和，得到 P(τ, x)。翻转全部自旋把 x<sup>j</sup> 换成 x<sup>N−j</sup>，所以 P 是自反的。</li>
+        <li><b>猜想 1 与反例（已冻结）。</b>猜想说根都在单位圆上。三点路径 0 → 1 ← 2、总数 (4, 4)、τ = −1，九种分法的联合权重取 W₃₁：对角线 (1, 10, 31)，其余 1。结果 P = 2(x − 1)²x³q(y)，y = x + 1/x，q(y) = 24y³ + 45y² − 2y − 26，判别式 −16404 &lt; 0，所以 q 有非实根 w；x² − wx + 1 = 0 的根 x 若在圆上，w = x + x̄ 就是实数，矛盾。</li>
+        <li><b>为什么会破（卷宗论证）。</b>τ = −1 时自旋和按顶点分解：∏<sub>v</sub>(1 + (−1)<sup>deg v</sup>x<sup>m<sub>v</sub></sup>)。单个分法的根都是单位根，在圆上；不同分法的顶点质量不同，正系数相加不保持这个性质。把 (3, 3) 的权重换成 M，M ≥ 31 都会离开（散文证明），页面数值显示 M = 30 还在圆上。</li>
+        <li><b>物理权重（已冻结）。</b>原文 (2.19) 的物理权重是每条边的二项式系数 C(2n, 2k) 乘上每个顶点的阶乘比与端点因子（2k)!/((k − 1)!k!)。这些权重也不能救回猜想：九点双中心树、每条边总数 3、τ = −1 时，Lean 把多项式约化成 (1 − x)⁶x⁹F(y)，证明 F 在 y ≥ 16/9 上为正、却不能完全分解成实一次因子，于是有一个根在圆内、它的倒数在圆外。离圆的距离只有约 0.002，页面要放大几百倍才看得见。</li>
+        <li><b>配对系数（已冻结）。</b>原文真正需要的是自由能展开的系数：对一个固定的总数多重集，把它在边上的所有放法加起来。对“两条边总数 3、其余 2”这个多重集，本库对任何有限树证明了：系数是 2E + 2 次自反多项式，根全部在圆上，x = 1 的重数等于奇度顶点数。双中心树还有完整的根分类。页面显示单个放法可以离圆（m = 5 时两条中心边取 3 的那一种），再加入别的放法，根又回到圆上；全部加完正是冻结定理覆盖的系数。</li>
+        <li><b>读图。</b>三维视图是复平面：单位圆在中央，根离圆的距离乘以放大倍数 Z 后画出（|x| = 1 ± d 画在 1 ± Zd），重根竖直叠起。右下的 y 平面把每个根 x 映到 y = x + 1/x：x 在单位圆上当且仅当 y 是 [−2, 2] 里的实数，所以“离圆”就是“y 离开区间”。</li>
+        <li><b>边界。</b>乘积形式权重的猜想 1、物理权重下的大多数总数组合与树、对所有树求和的版本都还没有结论。页面上的根、离圆距离与各种扫描都是现算的数值。</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">原文：<a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fiol-martinezmontoya-riosfukelman-2020-tree-lee-yang.md" target="_blank" rel="noopener">问题卷宗：树上的 Lee–Yang 猜想</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreeIsingRefutation.lean" target="_blank" rel="noopener">QuiverTreeIsingRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreePhysicalE8.lean" target="_blank" rel="noopener">QuiverTreePhysicalE8.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/TreePairTheorem.lean" target="_blank" rel="noopener">TreePairTheorem.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubPhysical.lean" target="_blank" rel="noopener">FiolDoubleHubPhysical.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubCoefficient.lean" target="_blank" rel="noopener">FiolDoubleHubCoefficient.lean</a> · Fiol、Martínez-Montoya、Rios Fukelman，<a href="https://doi.org/10.1007/JHEP08(2020)161" target="_blank" rel="noopener">JHEP 08（2020）161</a> · Lee、Yang，<a href="https://doi.org/10.1103/PhysRev.87.410" target="_blank" rel="noopener">Phys. Rev. 87, 410（1952）</a> · Lalín、Smyth，<a href="https://doi.org/10.1007/s10474-012-0225-4" target="_blank" rel="noopener">Acta Math. Hungar. 138, 85（2013）</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Lee and Yang proved that the partition function of a ferromagnetic Ising model, as a polynomial in the fugacity x of the external field, has all its zeros on the unit circle |x| = 1. Fiol, Martínez-Montoya and Rios Fukelman met a family of such polynomials on trees in the planar limit of superconformal quiver theories and conjectured the same property. This library finds that mixing different splits with arbitrary positive weights pushes roots off the circle, while summing all placements of one coefficient of the physical expansion brings every root back onto it.</p>
+      <ol>
+        <li><b>The polynomial (source).</b> Give each edge of a tree a positive integer total n<sub>i</sub> and split it as k<sub>i</sub> + (n<sub>i</sub> − k<sub>i</sub>) with 1 ≤ k<sub>i</sub> ≤ n<sub>i</sub> − 1, the two parts going to the two endpoints; the “mass” m<sub>v</sub> of a vertex is the sum of the integers it receives. Each vertex has spin up or down, and a state contributes τ<sup>e±</sup> x<sup>Σ m<sub>v</sub> over up vertices</sup>, where e<sub>±</sub> counts edges with opposite spins. Summing over states, then over splits with positive weights ρ(k), gives P(τ, x). Flipping every spin turns x<sup>j</sup> into x<sup>N−j</sup>, so P is self-reciprocal.</li>
+        <li><b>Conjecture 1 and the counterexample (frozen).</b> The conjecture says that all roots lie on the unit circle. Take the three-vertex path 0 → 1 ← 2 with totals (4, 4) and τ = −1, and give the nine splits the joint weights W₃₁: diagonal (1, 10, 31), all other entries 1. Then P = 2(x − 1)²x³q(y) with y = x + 1/x and q(y) = 24y³ + 45y² − 2y − 26, whose discriminant is −16404 &lt; 0, so q has a nonreal root w. A root x of x² − wx + 1 = 0 on the circle would make w = x + x̄ real, a contradiction.</li>
+        <li><b>Why it breaks (argued in the dossier).</b> At τ = −1 the spin sum factors over vertices as ∏<sub>v</sub>(1 + (−1)<sup>deg v</sup>x<sup>m<sub>v</sub></sup>). Each single split has only roots of unity, on the circle; different splits carry different vertex masses, and adding them with positive coefficients does not preserve the property. Replacing the (3, 3) weight by M, every M ≥ 31 leaves the circle (a prose proof), and the page finds M = 30 still on it.</li>
+        <li><b>Physical weights (frozen).</b> The physical weights of the source’s (2.19) multiply a binomial coefficient C(2n, 2k) per edge by a factorial ratio and endpoint factors (2k)!/((k − 1)!k!) at every vertex. They do not rescue the conjecture: on the nine-vertex double hub with every total 3 and τ = −1, Lean reduces the polynomial to (1 − x)⁶x⁹F(y), shows that F is positive for y ≥ 16/9 yet does not split into real linear factors, so one root lies inside the circle and its reciprocal outside. The distance from the circle is only about 0.002; the page must magnify it a few hundred times to show it.</li>
+        <li><b>The pair coefficient (frozen).</b> What the source actually needs are coefficients of the free-energy expansion: for one fixed multiset of totals, the sum over all its placements on the edges. For the multiset “two edges with total 3, the rest with total 2”, this library proves for every finite tree that the coefficient is a self-reciprocal polynomial of degree 2E + 2 with all its roots on the circle, and that x = 1 has multiplicity equal to the number of odd-degree vertices. The double hub also has a complete root classification. The page shows that a single placement can leave the circle (with m = 5, the one with both central edges at total 3); once other placements are added the roots are back on it, and the full sum is exactly the coefficient the frozen theorem covers.</li>
+        <li><b>Reading the picture.</b> The 3D view is the complex plane: the unit circle sits in the middle, the distance of each root from it is multiplied by the magnification Z (|x| = 1 ± d is drawn at 1 ± Zd), and repeated roots are stacked vertically. The y-plane at the lower right maps each root x to y = x + 1/x: x lies on the unit circle exactly when y is a real number in [−2, 2], so “off the circle” means “off the interval”.</li>
+        <li><b>Limits.</b> Conjecture 1 for product weights, most total multisets and trees under physical weights, and the version summed over all trees remain unsettled. The roots, distances and scans on the page are computed numbers.</li>
+      </ol>
+      <p class="lede" style="margin-top:14px">Sources: <a href="https://github.com/the-omega-institute/trureturing/blob/dev/Problems/fiol-martinezmontoya-riosfukelman-2020-tree-lee-yang.md" target="_blank" rel="noopener">Problem dossier: the Lee–Yang conjecture on trees</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreeIsingRefutation.lean" target="_blank" rel="noopener">QuiverTreeIsingRefutation.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/QuiverTreePhysicalE8.lean" target="_blank" rel="noopener">QuiverTreePhysicalE8.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/TreePairTheorem.lean" target="_blank" rel="noopener">TreePairTheorem.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubPhysical.lean" target="_blank" rel="noopener">FiolDoubleHubPhysical.lean</a> · <a href="https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Zeros/LeeYang/FiolDoubleHubCoefficient.lean" target="_blank" rel="noopener">FiolDoubleHubCoefficient.lean</a> · Fiol, Martínez-Montoya, Rios Fukelman, <a href="https://doi.org/10.1007/JHEP08(2020)161" target="_blank" rel="noopener">JHEP 08 (2020) 161</a> · Lee, Yang, <a href="https://doi.org/10.1103/PhysRev.87.410" target="_blank" rel="noopener">Phys. Rev. 87, 410 (1952)</a> · Lalín, Smyth, <a href="https://doi.org/10.1007/s10474-012-0225-4" target="_blank" rel="noopener">Acta Math. Hungar. 138, 85 (2013)</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/vendor/three.r128.min.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
