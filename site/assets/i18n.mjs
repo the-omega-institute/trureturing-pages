@@ -109,5 +109,13 @@ function install() {
 }
 if (typeof document !== 'undefined') {
   await ready;
+  if (locale !== 'en' && document.title) {
+    // Page titles live in <head>, outside the body tree translated below.
+    // Preserve the site suffix while localizing the human-facing title.
+    const separator = document.title.indexOf(' | ');
+    const heading = separator < 0 ? document.title : document.title.slice(0, separator);
+    const suffix = separator < 0 ? '' : document.title.slice(separator);
+    document.title = t(heading) + suffix;
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true }); else install();
 }
