@@ -37,10 +37,10 @@
       "locator": "§2.2 · arXiv:2207.01224v2, p. 6",
       "quote_kind": "verbatim",
       "zh-CN": {
-        "headline": "含噪投票模型：重复事件的方差不可能次线性增长",
-        "quote": "Var(ζ₁ + … + ζ_t) 能否次线性增长？我们没有答案。",
+        "headline": "含噪投票模型：重复观测的方差不可能是次线性的",
+        "quote": "Var(ζ₁ + … + ζ_t) 能否是次线性的？我们尚无答案。",
         "answer": "不能",
-        "scope": "适用于同步含噪投票模型：连通局部有限简单图、每个顶点均有邻居、独立公平意见、噪声 0 < ε < 1，且观察时滞为正。"
+        "scope": "适用于同步含噪投票动力学：图连通、局部有限且为简单图，每个顶点都有邻居；意见独立且等概率，噪声 0 < ε < 1，观测时滞为正。"
       }
     },
     {
@@ -57,10 +57,10 @@
       "locator": "Conclusion · arXiv:2405.08939v1",
       "quote_kind": "verbatim",
       "zh-CN": {
-        "headline": "完全对称的局域三角网络模型突破 1/4",
+        "headline": "完全对称的局域三角网络模型超过 1/4",
         "quote": "开放问题：是否存在三角网络中的局域且完全对称的分布 p(A,B,C)，使 p(A=B=C) > 1/4？",
-        "answer": "能：41/144",
-        "scope": "每方四种输出、相互独立的局域三角网络源，并满足参与方置换和共同输出重标记对称性。该构造推翻普遍的 1/4 上界。"
+        "answer": "是：41/144",
+        "scope": "四方各有四种输出；局域三角网络的三个源相互独立，并满足参与方置换及联合输出重标记对称性。该构造反驳统一的 1/4 上界。"
       }
     },
     {
@@ -77,9 +77,9 @@
       "locator": "§7 · arXiv:0904.0704v2",
       "quote_kind": "verbatim",
       "zh-CN": {
-        "headline": "Hiai、Mosonyi 与 Hayashi 的主要开放问题：ψ 可以不可微",
-        "quote": "本文的主要开放问题是证明情况确实如此。",
-        "answer": "不能：s = ½ 处出现尖点",
+        "headline": "Hiai、Mosonyi 与 Hayashi 的主要开放问题：ψ 未必可微",
+        "quote": "本文的主要开放问题是证明这种情况确实成立。",
+        "answer": "否：s = ½ 处有尖点",
         "scope": "在有限群、忠实态及所声明的渐近收敛前提下给出反例；回答的是 ψ 在 (0, 1) 上的可微性问题。"
       }
     },
@@ -99,7 +99,7 @@
       "zh-CN": {
         "headline": "每个 d ≥ 5 的 Torpedo Game 都存在完美经典策略",
         "quote": "猜想：θ^C_{d≥5} = 1。",
-        "answer": "对所有 d ≥ 5 成立",
+        "answer": "已证明对所有 d ≥ 5 成立",
         "scope": "对每个整数 d ≥ 5，d 维 Torpedo Game 的经典策略胜率均可达到 1；原文验证的范围为 5 ≤ d ≤ 23。"
       }
     },
@@ -118,7 +118,7 @@
       "quote_kind": "paraphrase",
       "source_excerpt": "There is an experiment on pairs of Bell singlets, of the $2\\times4\\times4$ type, more than twice as strong as CHSH, and involving joint measurements on the pairs.",
       "zh-CN": {
-        "headline": "两对单态的统计强度超过 CHSH 的两倍",
+        "headline": "两对 Bell 单态的统计强度超过 CHSH 的两倍",
         "quote": "是否存在使用两对 Bell 单态的 2×4×4 型联合测量实验，其统计强度超过 CHSH 的两倍？",
         "answer": "是",
         "scope": "“统计强度”指以比特计的 KL 散度，采用原文定义的均匀、乘积及相关测量设置分布。"
@@ -140,7 +140,7 @@
       "zh-CN": {
         "headline": "时空密度矩阵不满足 Schatten 次可加性",
         "quote": "猜想 1：对有限维 H_A ⊗ H_B 上的任意 T_AB 以及 p > 1，有 1 + ||T_AB||_p ≥ ||Tr_A T_AB||_p + ||Tr_B T_AB||_p。",
-        "answer": "不成立：p = 2 的反例",
+        "answer": "否：p = 2 时存在反例",
         "scope": "一个 Schatten 指数 p = 2 的三量子比特反例推翻时空密度矩阵的猜想 1。"
       }
     },
@@ -160,7 +160,7 @@
       "zh-CN": {
         "headline": "Purify-and-clone 在 m > n 时并非总是最优",
         "quote": "该信道在 m ≤ n 时最优（见参考文献 [S2]），我们猜想它在 m > n 时也最优。",
-        "answer": "不成立，d = 2 即有反例",
+        "answer": "否，d = 2 已有反例",
         "scope": "反例取 n = 1、m = 2、d = r = 2，采用单站点最坏情形平方不保真度的解读。"
       }
     },
@@ -198,7 +198,7 @@
       "locator": "Conjecture 23 · equation (10.10)",
       "quote_kind": "verbatim",
       "zh-CN": {
-        "headline": "Koutschan、Krattenthaler 与 Schlosser 的等式 (10.10) 得证",
+        "headline": "Koutschan、Krattenthaler 与 Schlosser 的等式 (10.10) 已证明",
         "quote": "此外，我们猜想以下恒等式对所有 n ≥ 3 成立：",
         "answer": "(10.10) 对所有 n ≥ 3 成立",
         "scope": "本条证明所有 n ≥ 3 时等式 (10.10) 的完整等式链；猜想 23 中的其他等式属于独立成果。"
@@ -218,8 +218,8 @@
       "locator": "p. 2",
       "quote_kind": "verbatim",
       "zh-CN": {
-        "headline": "Mahler 找到的 0/1 数字平方并不唯一",
-        "quote": "实际上，他找到的唯一非平凡解是 7^3 + 7^2 + 7 + 1 = 20^2，也许没有其他解了",
+        "headline": "Mahler 发现的 0/1 数字平方并非唯一",
+        "quote": "他找到的唯一非平凡解是 7^3 + 7^2 + 7 + 1 = 20^2，也许没有其他解",
         "answer": "521² = 111101₁₂",
         "scope": "反驳的是 Erdős 记述的非平凡互素 0/1 数字平方唯一性推测，并非 Mahler 关于固定底数的有限性猜想。"
       }
@@ -239,10 +239,10 @@
       "quote_kind": "paraphrase",
       "source_excerpt": "For any channel $\\mathcal E: C \\rightarrow C'$ with local contraction ratio $\\eta_{1,C}:=\\sup_{\\rho_C,\\rho'_C}\\frac{\\lVert\\mathcal E_C[\\rho_{C}]-\\mathcal E_C[\\rho'_{C}]\\rVert_1 }{\\lVert\\rho_{C}-\\rho'_{C}\\rVert_1} <1$ There exists a global constant $\\eta < 1$ such that for any tripartite system $ABC$ and any state $\\rho_{ABC}$, it holds that $I_1(A:C'|B)_{\\mathcal E(\\rho)} \\le \\eta I_1(A:C|B)_\\rho$.",
       "zh-CN": {
-        "headline": "迹范数条件互信息不存在所猜想的统一收缩",
+        "headline": "迹范数条件互信息不存在统一收缩",
         "quote": "局部严格收缩的信道是否也会统一收缩迹范数条件互信息？",
-        "answer": "不存在这样的 η",
-        "scope": "一个局部迹范数收缩率至多为 1/√2 的量子比特信道，推翻迹范数条件互信息的统一收缩断言。"
+        "answer": "不存在满足条件的统一收缩常数 η",
+        "scope": "一个局部迹范数收缩率不超过 1/√2 的量子比特信道，反驳了关于迹范数条件互信息的统一收缩断言。"
       }
     }
   ],

@@ -113,6 +113,17 @@ class EditorialPinTests(unittest.TestCase):
         for pin in pins['pins']:
             self.assertTrue(pin.get('quote') and pin.get('quote_by') and pin.get('answer') and pin.get('venue'))
 
+    def test_released_locale_contains_every_visible_pin_translation(self):
+        locale = json.loads((Path(__file__).resolve().parents[1] / 'site/assets/locales/zh-CN.json').read_text())
+        pins = load_pins(PINS_PATH)['pins']
+        for pin in pins:
+            for key in ('headline', 'quote', 'answer', 'scope'):
+                self.assertEqual(locale.get(pin[key]), pin['zh-CN'][key], (pin['id'], key))
+            if pin.get('quote_kind') == 'verbatim':
+                quoted = '“' + pin['quote'] + '”'
+                self.assertEqual(locale.get(quoted), '“' + pin['zh-CN']['quote'] + '”', (pin['id'], 'quoted'))
+        self.assertEqual(locale['Source excerpt'], '原文摘录（中文译文）')
+
 
 if __name__ == '__main__':
     unittest.main()

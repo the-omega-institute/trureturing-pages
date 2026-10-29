@@ -24,6 +24,7 @@ class ReadingPreviewTransportTests(unittest.TestCase):
         self.assertEqual(sha256(raw).hexdigest(), sha256(artifact).hexdigest())
         self.assertEqual(transferred, len(transport))
         self.assertEqual(request.call_args.args[0].get_header('Accept-encoding'), 'gzip')
+        self.assertEqual(request.call_args.args[0].get_header('User-agent'), 'trureturing-pages-preview/1.0')
 
     def test_http_decoding_preserves_a_gzip_artifacts_own_compression(self):
         artifact = gzip.compress(b'{"immutable":"snapshot"}')

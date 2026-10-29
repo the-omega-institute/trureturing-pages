@@ -26,7 +26,14 @@ def download(path):
     expanded-file bound. A .gz artifact can itself have HTTP gzip encoding;
     decoding the transport must preserve that artifact's own compression.
     """
-    request=Request(urljoin(BASE,path),headers={'Accept-Encoding':'gzip'})
+    # The Pages custom-domain redirect is served through a CDN that rejects
+    # Python's default ``Python-urllib`` user agent. Identify this bounded
+    # read-only preview client explicitly so immutable public artifacts remain
+    # fetchable after the redirect.
+    request=Request(urljoin(BASE,path),headers={
+        'Accept-Encoding': 'gzip',
+        'User-Agent': 'trureturing-pages-preview/1.0',
+    })
     with urlopen(request,timeout=60) as response:
         raw=response.read(MAX_TRANSFER_BYTES+1)
         encoding=response.headers.get('Content-Encoding','identity').strip().lower()
