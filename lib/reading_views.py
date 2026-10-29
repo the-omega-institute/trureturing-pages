@@ -451,7 +451,7 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
     body = ('<main class="site-main research-news research-story-page"><header class="news-heading">'
             '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p>'
             '<h1>Research highlights</h1><p class="news-lede">The questions we resolve. The ideas they make possible.</p>'
-            f'<p class="research-intro-note"><strong>{data["proved"]:,} <span>proofs</span> · {data["refuted"]:,} <span>refutations</span></strong> Each result links a question from the literature to its precise formal statement and released Lean evidence.</p>'
+            f'<p class="research-intro-note"><strong>{data["proved"]:,} <span>proofs</span> · {data["refuted"]:,} <span>refutations</span>.</strong> Each result links a question from the literature to its precise formal statement and released Lean evidence.</p>'
             '<nav class="news-links" aria-label="Research destinations">'
             '<a href="conjectures.html#results">See all conjectures ↗</a></nav></div>'
             f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><p>Questions from the literature.<br>Answers checked by Lean.</p><a href="evolution.html">Explore the release history ↗</a></div></header>'

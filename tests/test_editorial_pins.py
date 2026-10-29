@@ -119,7 +119,10 @@ class EditorialPinTests(unittest.TestCase):
         for pin in pins:
             for key in ('headline', 'quote', 'answer', 'scope'):
                 self.assertEqual(locale.get(pin[key]), pin['zh-CN'][key], (pin['id'], key))
-        self.assertEqual(locale['Source excerpt'], '原文引述 · 中文译文')
+            if pin.get('quote_kind') == 'verbatim':
+                quoted = '“' + pin['quote'] + '”'
+                self.assertEqual(locale.get(quoted), '“' + pin['zh-CN']['quote'] + '”', (pin['id'], 'quoted'))
+        self.assertEqual(locale['Source excerpt'], '原文摘录（中文译文）')
 
 
 if __name__ == '__main__':
