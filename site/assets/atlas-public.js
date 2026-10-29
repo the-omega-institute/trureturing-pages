@@ -1,3 +1,5 @@
+import { theoryModel, theoryLayout } from "./atlas-theory-core.mjs";
+import { t } from "./i18n.mjs";
 import {
   FAMILIES,
   createPublicModel,
@@ -45,7 +47,10 @@ const state = {
   renderer: null,
   family: null,
   selected: null,
-  mode: "dependency",
+  mode: "theory",
+  theory: null,
+  route: null,
+  theoryPositions: null,
   tab: "overview",
   neighbors: new Set(),
   hover: null,
@@ -112,6 +117,10 @@ function color(node) {
     return ROLE_COLORS[
       focusRole(node.id, state.selected, state.related, state.model)
     ];
+  if (state.mode === "theory") {
+    const routes = state.theory.routes.filter(route => route.members.has(node.id));
+    return routes.length > 1 ? "#ffffff" : routes[0]?.color || "#9baeb8";
+  }
   if (state.showChanges && state.changes?.added.has(node.id)) return "#9aefc0";
   if (state.showChanges && state.changes?.changed.has(node.id))
     return "#efb27e";
@@ -149,11 +158,16 @@ function edgeColor(edge) {
       ? "#cbaa65"
       : "#61b3a5";
   }
+  if (state.mode === "theory") {
+    const route = state.theory.routes.find(r => r.members.has(from) && r.members.has(to));
+    return route?.color || "#b9d3d2";
+  }
   const a = state.model.byId.get(from),
     b = state.model.byId.get(to);
   return a.family === b.family ? familyFor(a).color : "#71818b";
 }
 function edgeWidth(edge) {
+  if (state.mode === "theory" && !state.selected) return 1.7;
   if (state.selected)
     return state.related?.edgeIds.has(edge.relationId)
       ? edge.category === "proof"
@@ -167,6 +181,7 @@ function edgeWidth(edge) {
       : 0.16;
 }
 function nodeSize(node) {
+  if (state.mode === "theory" && !state.selected) return 28;
   if (state.mode === "dependency" && state.architecture.metrics.has(node.id)) {
     const value = state.architecture.metrics.get(node.id)[state.metric];
     return (
@@ -193,7 +208,8 @@ function syncUrl() {
   const params = new URLSearchParams();
   if (state.family) params.set("family", state.family);
   if (state.selected) params.set("node", state.selected);
-  if (state.mode !== "dependency") params.set("mode", state.mode);
+  if (state.mode !== "theory") params.set("mode", state.mode);
+  if (state.mode === "theory" && state.route) params.set("route", state.route);
   if (state.bundle) params.set("bundle", state.bundle);
   if (state.mode === "frontier" && state.problem)
     params.set("problem", state.problem);
@@ -216,13 +232,17 @@ function setMode(mode) {
     state.problem = null;
   }
   state.mode = mode;
+  state.family = null;
+  state.route = null;
   if (mode === "frontier") ensureResearch();
   state.bundle = null;
   state.changesPanel = false;
   state.positions =
-    mode === "dependency"
-      ? state.architecturePositions
-      : state.structurePositions;
+    mode === "theory"
+      ? state.theoryPositions
+      : mode === "dependency"
+        ? state.architecturePositions
+        : state.structurePositions;
   stopRotation();
   renderGraph();
   renderWiki();
@@ -260,7 +280,7 @@ function selectNode(id) {
       : "overview";
   if (!wasVisible) {
     state.family = node.family;
-    if (state.mode !== "dependency") {
+    if (!["dependency", "theory"].includes(state.mode)) {
       state.mode = "structure";
       state.positions = state.structurePositions;
     }
@@ -282,6 +302,7 @@ function rememberView() {
     selected: state.selected,
     problem: state.problem,
     mode: state.mode,
+    route: state.route,
     tab: state.tab,
     context: state.context,
     depth: state.depth,
@@ -300,9 +321,11 @@ function previousView() {
   const { camera, target, ...settings } = previous;
   Object.assign(state, settings);
   state.positions =
-    state.mode === "dependency"
-      ? state.architecturePositions
-      : state.structurePositions;
+    state.mode === "theory"
+      ? state.theoryPositions
+      : state.mode === "dependency"
+        ? state.architecturePositions
+        : state.structurePositions;
   stopRotation();
   renderGraph();
   renderWiki();
@@ -364,8 +387,10 @@ function arrowLength(edge) {
     (endpoint(edge.source) === state.selected ||
       endpoint(edge.target) === state.selected)
     ? 5
-    : state.mode === "dependency"
-      ? 2.4
+    : state.mode === "theory"
+      ? 7
+      : state.mode === "dependency"
+        ? 2.4
       : 0;
 }
 function particles(edge) {
@@ -382,6 +407,8 @@ function renderGraph() {
     "architecture-mode",
     state.mode === "dependency",
   );
+  document.body.classList.toggle("theory-mode", state.mode === "theory");
+  $("#theory-guide").hidden = state.mode !== "theory" || Boolean(state.selected || state.route);
   const view = viewFor(state.model, state);
   state.related = view.related;
   state.neighbors = view.related?.ids || new Set();
@@ -395,6 +422,7 @@ function renderGraph() {
   });
   state.renderer
     .nodeColor(color)
+    .linkOpacity(state.mode === "theory" ? 0.75 : 0.36)
     .nodeVal(nodeSize)
     .linkColor(edgeColor)
     .linkWidth(edgeWidth)
@@ -413,7 +441,8 @@ function renderGraph() {
     .forEach((b) =>
       b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)),
     );
-  $("#back-to-all").hidden = !state.family && !state.selected;
+  $("#back-to-all").hidden = !state.family && !state.selected && !state.route;
+  $("#back-to-all").replaceChildren(icon("arrow-left"), document.createTextNode(state.mode === "theory" ? t("Theory overview") : t("All concepts")));
   $("#architecture-controls").hidden = state.mode !== "dependency";
   $("#research-edge-key").hidden = state.mode !== "frontier";
   const family = FAMILIES.find((f) => f.id === state.family);
@@ -433,6 +462,8 @@ function renderGraph() {
         : "No released research foundations";
   if (state.mode === "frontier" && !state.research && !state.researchError)
     $("#view-caption").textContent = "Loading research catalog...";
+  if (state.mode === "theory")
+    $("#view-caption").textContent = t("{0} of {1} modules · prerequisite → dependent", format(view.nodes.length), format(state.model.nodes.length));
   if (state.mode === "dependency")
     $("#view-caption").textContent =
       `${METRICS[state.metric]} / module dependencies / ${format(view.nodes.length)} nodes`;
@@ -600,7 +631,7 @@ function frameNodes(nodes, minimumSpan = 0, anchor = null) {
   const bottomInset = compact ? 28 : 70;
   const availableHeight = Math.max(100, height - topInset - bottomInset);
   const span = Math.max(
-    ((anchor ? 2 * Math.max(anchor.x - x0, x1 - anchor.x) : x1 - x0) + 140) /
+    ((anchor ? 2 * Math.max(anchor.x - x0, x1 - anchor.x) : x1 - x0) + (state.mode === "theory" ? 320 : 140)) /
       (width / height),
     (((anchor ? 2 * Math.max(anchor.y - y0, y1 - anchor.y) : y1 - y0) + 90) *
       height) /
@@ -640,7 +671,7 @@ function zoom(multiplier) {
 function buildLabels() {
   $("#family-labels").replaceChildren();
   familyLabels = [];
-  for (const family of state.mode === "dependency"
+  for (const family of ["dependency", "theory"].includes(state.mode)
     ? []
     : state.model.families) {
     const nodes = currentNodes.filter((n) => n.family === family.id);
@@ -686,6 +717,8 @@ function updateLabels() {
         );
       })
       .slice(0, 10);
+  else if (state.mode === "theory")
+    candidates = currentNodes;
   else if (state.mode === "dependency")
     candidates = rankedNodes(
       currentNodes,
@@ -731,7 +764,7 @@ function positionLabels() {
   const graphBounds = $("#graph").getBoundingClientRect();
   const occupied = [
     ...document.querySelectorAll(
-      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom, .selection-summary",
+      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom, .selection-summary, .theory-guide",
     ),
   ]
     .filter((item) => !item.hidden && getComputedStyle(item).display !== "none")
@@ -794,7 +827,7 @@ function positionLabels() {
     if (visible && anchored) occupied.push(box);
   };
   nodeLabels.forEach(({ label, node }) =>
-    project(label, state.positions[node.id], true),
+    project(label, state.positions[node.id], true, state.mode === "theory"),
   );
   sceneLabels
     .filter((item) => item.type === "research")
@@ -995,6 +1028,11 @@ function renderWiki() {
   }
   if (state.bundle && !state.selected) {
     renderBundle(root);
+    icons();
+    return;
+  }
+  if (!state.selected && state.mode === "theory") {
+    renderTheory(root);
     icons();
     return;
   }
@@ -1368,6 +1406,14 @@ function renderArticle(root) {
     el("p", "", node.repo_path || node.id),
     el("p", "", state.graph.source_snapshot.truth_release_digest),
   );
+  const source = state.graph.source_snapshot;
+  if (/^[\w.-]+\/[\w.-]+$/.test(source.source_repo || "") &&
+      /^[a-f0-9]{40}$/.test(source.source_commit || "") &&
+      node.repo_path?.endsWith(".lean") && !node.repo_path.split("/").includes("..")) {
+    const link = el("a", "research-link", t("Lean source at this release"));
+    link.href = `https://github.com/${source.source_repo}/blob/${source.source_commit}/${node.repo_path.split("/").map(encodeURIComponent).join("/")}`;
+    audit.append(link);
+  }
   root.append(audit);
   for (const slug of state.research?.byNode.get(node.id) || []) {
     const problem = state.research.problems.get(slug);
@@ -1408,6 +1454,7 @@ async function load() {
   state.model = createPublicModel(state.graph);
   state.architecture = analyzeArchitecture(state.graph);
   state.scaffold = structuralScaffold(state.model, state.architecture);
+  state.theory = theoryModel(state.model, state.architecture);
   state.bundles = relationBundles(state.model);
   state.history = [snapshotFromGraph(state.graph, state.graphDigest)];
   if (!state.model.nodes.length)
@@ -1443,12 +1490,13 @@ async function load() {
     state.positions,
     state.architecture,
   );
+  state.theoryPositions = theoryLayout(state.theory, state.architecturePositions, window.dagre);
   $("#release-state").textContent = "Verified release";
   $("#release-state").classList.add("is-ready");
   $("#release-note").textContent =
     state.graph.source_snapshot.truth_release_digest;
   $("#atlas-counts").textContent =
-    `${format(state.model.nodes.length)} concepts / ${state.model.families.length} families / ${format(state.model.edges.length)} proof connections`;
+    t("{0} modules · {1} dependencies · one evolving structure", format(state.model.nodes.length), format(state.model.edges.length));
   state.renderer = window
     .ForceGraph3D({
       controlType: "orbit",
@@ -1512,9 +1560,10 @@ async function load() {
   });
   const initial = new URLSearchParams(location.hash.slice(1));
   if (FAMILIES.some((f) => f.id === initial.get("family")))
-    state.family = initial.get("family");
-  if (["structure", "dependency", "frontier"].includes(initial.get("mode")))
+    { state.family = initial.get("family"); state.mode = "structure"; }
+  if (["theory", "structure", "dependency", "frontier"].includes(initial.get("mode")))
     state.mode = initial.get("mode");
+  if (state.theory.routes.some(r => r.id === initial.get("route"))) state.route = initial.get("route");
   if (
     state.mode === "structure" &&
     state.bundles.some((b) => b.key === initial.get("bundle"))
@@ -1529,9 +1578,11 @@ async function load() {
     state.metric = initial.get("metric");
   $("#architecture-metric").value = state.metric;
   state.positions =
-    state.mode === "dependency"
-      ? state.architecturePositions
-      : state.structurePositions;
+    state.mode === "theory"
+      ? state.theoryPositions
+      : state.mode === "dependency"
+        ? state.architecturePositions
+        : state.structurePositions;
   if (["1", "2", "all"].includes(initial.get("depth")))
     state.depth = initial.get("depth");
   state.context = initial.get("context") !== "0";
@@ -1583,6 +1634,7 @@ async function load() {
     selected: state.selected,
     family: state.family,
     mode: state.mode,
+    theory: { nodes: state.theory.nodes.length, edges: state.theory.edges.length, routes: state.theory.routes.map(r => ({id: r.id, ids: r.ids})), unavailable: state.theory.unavailable, route: state.route },
     problem: state.problem,
     researchQuestions: state.research?.problems.size || 0,
     researchAnchors: state.research?.byNode.size || 0,
@@ -1780,6 +1832,55 @@ function renderChanges(root) {
   root.append(evolution, library);
 }
 
+function selectTheoryRoute(id) {
+  rememberView();
+  state.route = id;
+  state.selected = null;
+  state.family = null;
+  state.bundle = null;
+  state.changesPanel = false;
+  state.mode = "theory";
+  state.positions = state.theoryPositions;
+  stopRotation();
+  renderGraph();
+  renderWiki();
+  frameNodes(currentNodes);
+}
+function renderTheory(root) {
+  const route = state.theory.routes.find(r => r.id === state.route);
+  root.append(
+    el("p", "eyebrow", t("THEORY IN DEVELOPMENT")),
+    el("h2", "", t(route?.title || "How the theory grows.")),
+    el("p", "wiki-intro", t(route?.summary || "Start with a readout. Follow the constructions it supports, the bridges it shares, and the consequences that follow.")),
+  );
+  if (route) {
+    root.append(el("p", "theory-question", t(route.question)));
+    const list = el("ol", "theory-steps");
+    for (const id of route.ids) {
+      const li = el("li");
+      li.append(nodeButton(state.model.byId.get(id)));
+      list.append(li);
+    }
+    root.append(list, action(t("All theory routes"), "research-link", () => selectTheoryRoute(null)));
+  } else {
+    root.append(el("h3", "section-label spaced", t("FOLLOW A DEVELOPMENT")));
+    const routes = el("div", "theory-routes");
+    state.theory.routes.forEach((item, index) => {
+      const button = action("", "theory-route", () => selectTheoryRoute(item.id));
+      button.style.setProperty("--route-color", item.color);
+      button.append(el("small", "", String(index + 1).padStart(2, "0")), el("strong", "", t(item.title)), el("span", "", t(item.question)), el("em", "", t("{0} modules · trace this route →", item.ids.length)));
+      routes.append(button);
+    });
+    root.append(routes);
+    if (!state.theory.routes.length) root.append(el("p", "wiki-intro", t("This release shows a dependency overview. The selected reading routes are not yet available.")));
+  }
+  root.append(el("p", "theory-scope", t("A reading map of {0} selected modules. Each arrow is a published module import; this view retains the intermediate steps.", currentNodes.length)));
+  root.append(action(t("Explore all {0} modules →", format(state.model.nodes.length)), "research-link", () => setMode("dependency")));
+  const evolution = el("a", "research-link", t("See how the structure evolved →"));
+  evolution.href = "evolution.html";
+  root.append(evolution, el("p", "architecture-provenance", t("Arrows show published module dependencies. Reading routes are editorial; roots may import external Mathlib.")));
+}
+
 function renderArchitectureOverview(root) {
   root.append(
     el("p", "eyebrow", "ARCHITECTURE / CURRENT RELEASE"),
@@ -1964,10 +2065,15 @@ document
   );
 $("#zoom-in").addEventListener("click", () => zoom(0.76));
 $("#zoom-out").addEventListener("click", () => zoom(1.3));
-$("#reset-camera").addEventListener("click", () => setFamily(null));
-$("#back-to-all").addEventListener("click", () => setFamily(null));
+function returnToOverview() {
+  if (state.mode === "theory") { state.selected = null; selectTheoryRoute(null); }
+  else if (state.mode === "dependency") { state.selected = null; setMode("dependency"); }
+  else setFamily(null);
+}
+$("#reset-camera").addEventListener("click", returnToOverview);
+$("#back-to-all").addEventListener("click", returnToOverview);
 $("#close-wiki").addEventListener("click", () =>
-  state.selected ? setFamily(state.family) : setFamily(null),
+  ["theory", "dependency"].includes(state.mode) ? returnToOverview() : state.selected ? setFamily(state.family) : setFamily(null),
 );
 $("#rotate-camera").addEventListener("click", () => {
   if (!state.renderer) return;

@@ -1,12 +1,30 @@
 # Public Mathematical Atlas
 
-`site/atlas.html` is the public 3D DAG and concept Wiki. It opens in
-Dependencies, a view of the same released module graph weighted by recorded
-module-import reach, direct reuse, or source-domain coverage. Structure remains
-available for the original concept-family view, and Open questions remains the
-research overlay. `atlas-explorer.html` is a compatibility alias. `site/dag.html`
-remains the research workspace, including the original Topology Atlas, comparison,
-and CMA integrations. The overview page now links to the public Atlas.
+`site/atlas.html` is the public 3D DAG and concept Wiki. It opens in **Theory**,
+a reading map of the released theory's development. Four editorial routes trace
+concept readouts to acquisition, records to measurement, information loss to
+prediction, and digit names to arithmetic structure. Each route resolves all
+waypoints through actual directed module imports, retaining every intermediate
+module. Additional actual import paths show shared constructions between the
+routes. An unavailable route is omitted, never connected by an inferred arrow.
+Older releases without any complete named route show a labelled dependency
+selection instead.
+
+The diagram uses the vendored Dagre layout for horizontal placement and local
+longest-path depth for vertical placement. Independent roots share a row; every
+import points downward. Coordinates and route colors describe this reading map,
+not subject membership or mathematical importance. The selected-module count is
+always visible. Selecting a module retains access to its complete proof lineage,
+Blueprint explanation and revision-pinned Lean source. Search covers the entire
+released corpus. Route URLs preserve their selection, and Previous view restores
+the camera and route.
+
+**Dependencies** provides the complete released module DAG and its support
+metrics. **Structure** retains the concept-family view; **Open questions** provides
+the research overlay. Existing explicit mode and family links keep their meaning.
+`atlas-explorer.html` is a compatibility alias. `site/dag.html` remains the advanced
+research workspace, including Topology Atlas, comparison and CMA integrations.
+No upstream graph, publication artifact or verification contract changes.
 
 Dependencies now provides an architecture view weighted by downstream support,
 direct reuse, or source-domain coverage. Node inspection exposes domain-specific
@@ -186,6 +204,7 @@ Browser verification requires `playwright`, `pngjs`, and a local Chrome binary.
 With those packages available to Node and the preview server running:
 
 ```bash
+node tests/browser/atlas-theory.cjs
 node tests/browser/atlas-public.cjs
 node tests/browser/atlas-research.cjs
 node tests/browser/atlas-startup.cjs
