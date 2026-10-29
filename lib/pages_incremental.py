@@ -55,7 +55,8 @@ def inputs(root=ROOT):
             presentation = (path.suffix in MEDIA or path.parent == Path('site') and path.suffix == '.html'
                             or name.startswith(('site/assets/locales/', 'site/assets/open-math/'))
                             or path.suffix in {'.js', '.mjs'} and name not in modules)
-            if not presentation:
+            # The Visualize adapter is also copied into a generated mount path.
+            if not presentation or name == 'site/assets/visualize-bridge.js':
                 build[name] = source[path.relative_to('site').as_posix()]
         elif name.startswith(BUILD_ROOTS) or name in BUILD_FILES:
             build[name] = sha(root / name)

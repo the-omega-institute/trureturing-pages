@@ -97,6 +97,7 @@ class GeneratedReuseTests(unittest.TestCase):
         self.write('site/open-math.html', '<html>deck one</html>')
         self.write('site/assets/deck.css', 'body { color: black }')
         self.write('site/assets/deck.mjs', 'export const version = 1;')
+        self.write('site/assets/visualize-bridge.js', '// Pages language adapter')
         self.write('site/assets/old.svg', '<svg/>')
         self.write('site/version-status.html', 'status template')
         self.write('site/assets/research-catalog.json', '{}')
@@ -178,7 +179,7 @@ class GeneratedReuseTests(unittest.TestCase):
     def test_generation_inputs_and_transitive_layout_dependencies_invalidate_cache(self):
         for name in ('lib/generator.py', 'site/assets/research-catalog.json',
                      'site/assets/vendor/math.mjs', 'tools/layout.mjs',
-                     'vendor/visualize/site/assets/shell.js'):
+                     'vendor/visualize/site/assets/shell.js', 'site/assets/visualize-bridge.js'):
             path = self.repo / name
             original = path.read_text()
             with self.subTest(name=name):
