@@ -2368,5 +2368,8 @@
   "{0} modules · {1} dependencies · prerequisite → dependent": "{0} 个模块 · {1} 条依赖 · 前提 → 后继",
   "Laying out the complete dependency DAG": "正在布局完整依赖 DAG",
   "Every module and dependency in this connected component. Follow the branches, shared prerequisites and joins in the graph.": "显示这一连通部分内的每个模块与每条依赖。沿图中的分叉、共同前提与汇合继续探索。",
-  "Visualize": "可视化"
+  "Visualize": "可视化",
+  "Loading concept details…": "正在加载模块详情…",
+  "Concept details could not load.": "模块详情加载失败。",
+  "Retry concept details": "重试加载模块详情"
 }

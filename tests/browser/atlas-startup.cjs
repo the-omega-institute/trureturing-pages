@@ -95,7 +95,7 @@ const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8766";
       await cached.request.get(`${root}/data/atlas-startup.v1.json`)
     ).json();
     const invalid = await browser.newPage();
-    await invalid.route(`**/${index.layout.path}`, (route) =>
+    await invalid.route(`**/${(index.fast?.layout || index.layout).path}`, (route) =>
       route.fulfill({
         body: "corrupt",
         contentType: "application/octet-stream",

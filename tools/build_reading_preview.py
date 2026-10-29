@@ -106,6 +106,9 @@ def build(output):
         if startup.get(key)!=manifest.get(key):raise ValueError('Startup binding mismatch')
     for key in ('graph','layout'):
         entry=startup[key];acquire(entry['path'],entry['digest'])
+    if fast:=startup.get('fast'):
+        for entry in [fast['graph'],fast['layout'],*fast['details']]:
+            acquire(entry['path'],entry['digest'])
     report={'source':'published-pages-data','truth_release_digest':current['truth_release_digest'],
         'atlas_graph_digest':current['atlas_graph_digest'],'source_commit':current['source_commit'],
         'snapshot_count':len(snapshots),'architecture_count':len(architecture['entries']),
