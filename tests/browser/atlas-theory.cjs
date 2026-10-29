@@ -15,6 +15,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   try {
     const page = await browser.newPage({ reducedMotion: "reduce", viewport: { width: 1512, height: 982 } });
+    page.setDefaultTimeout(30000);
     const errors = [];
     page.on("pageerror", e => errors.push(e.message));
     const index = await (await page.request.get(new URL("data/atlas-startup.v1.json", base).href)).json();
@@ -52,10 +53,36 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     assert.equal(initial.theory.components, theory.components.length);
     assert.equal(initial.theory.largestComponent, theory.components[0].ids.length);
     assert.equal(initial.theory.isolated, theory.isolated);
+    const assertPresentation = async target => {
+      const facts = await target.locator(".dag-facts").evaluate(node => ({
+        display: getComputedStyle(node).display,
+        cells: [...node.children].map(item => ({ x: item.getBoundingClientRect().x, y: item.getBoundingClientRect().y })),
+        values: [...node.querySelectorAll("dd")].map(item => item.textContent.replaceAll(",", "")),
+        semanticOrder: [...node.children].every(item => item.firstElementChild.tagName === "DT"),
+      }));
+      assert.equal(facts.display, "grid");
+      assert.equal(facts.cells[0].y, facts.cells[1].y);
+      assert.ok(facts.cells[1].x > facts.cells[0].x, "Statistics remain in two columns");
+      assert.deepEqual(facts.values, [model.nodes.length, model.edges.length, theory.components.length, theory.maxDepth].map(String));
+      assert.ok(facts.semanticOrder, "Each statistic's term precedes its definition");
+      const label = target.locator(".dag-isolated-label");
+      assert.ok((await label.textContent()).includes(theory.isolated.toLocaleString("en-US")), "Grid annotation retains its count when collision handling hides it on a narrow viewport");
+      assert.ok((await target.locator(".dag-connectivity").innerText()).includes((theory.components.length - theory.isolated).toLocaleString("en-US")));
+    };
+    await assertPresentation(page);
+    assert.equal(await page.locator(".dag-isolated-label").evaluate(node => getComputedStyle(node).visibility), "visible");
     assert.equal(await page.locator(".theory-route").count(), 0);
     assert.equal(await page.locator(".family-label:visible").count(), 0);
     for (const edge of model.edges) assert.ok(initial.positions[edge.source].y > initial.positions[edge.target].y);
     await page.screenshot({ timeout: 30000, path: path.join(output, "full-dag-desktop.png") });
+    const overviewCamera = initial.camera;
+    await page.getByRole("button", { name: "Locate unconnected modules →", exact: true }).click();
+    await assertFull();
+    const isolatedCamera = await page.evaluate(() => window.atlasDiagnostics().camera);
+    assert.notDeepEqual(isolatedCamera, overviewCamera, "Locating the grid moves the camera while retaining the complete graph");
+    await page.screenshot({ timeout: 30000, path: path.join(output, "unconnected-modules.png") });
+    await page.getByRole("button", { name: "Previous view", exact: true }).click();
+    await assertFull();
 
     await page.getByRole("button", { name: /^Focus the largest connected component/ }).click();
     const component = await page.evaluate(() => window.atlasDiagnostics({ includeGraph: true }));
@@ -106,6 +133,8 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     assert.ok((await zh.evaluate(() => window.atlasDiagnostics().nodes)) >= model.nodes.length, "Legacy route links locate a node in the complete graph");
     await zh.screenshot({ timeout: 30000, path: path.join(output, "full-dag-chinese-module.png") });
     await zh.locator("#back-to-all").click();
+    await assertPresentation(zh);
+    assert.match(await zh.locator(".dag-isolated-label").innerText(), /无图内连线/);
     await zh.screenshot({ timeout: 30000, path: path.join(output, "full-dag-chinese.png") });
 
     console.log("PASS: Chinese and legacy route links retain the complete graph");
@@ -116,6 +145,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     await mobile.waitForFunction(() => window.atlasDiagnostics, null, { timeout: 60000 });
     assert.equal(await mobile.evaluate(() => window.atlasDiagnostics().nodes), model.nodes.length);
     assert.equal(await mobile.evaluate(() => window.atlasDiagnostics().visibleEdges), model.edges.length);
+    await assertPresentation(mobile);
     assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await mobile.screenshot({ timeout: 30000, path: path.join(output, "full-dag-mobile.png"), fullPage: true });
     await mobile.locator("#wiki-content .concept-row").first().click();
@@ -126,5 +156,5 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     const receipt = { nodes: initial.nodes, edges: initial.edges, visibleEdges: initial.visibleEdges, theory: initial.theory, startup: initial.startup, exactNodeAndEdgeMatch: true, errors };
     fs.writeFileSync(path.join(output, "receipt.json"), JSON.stringify(receipt, null, 2));
     console.log(JSON.stringify(receipt));
-  } finally { await browser.close(); }
-})().catch(e => { console.error(e); process.exit(1); });
+  } finally { await Promise.race([browser.close(), new Promise(resolve => setTimeout(resolve, 2000))]); }
+})().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); });
