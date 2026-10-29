@@ -92,16 +92,33 @@
   text-decoration: none;
 }
 .site-themed .brand:not(:has(.brand-mark))::before {
-  content: "t.";
-  display: grid;
-  place-items: center;
-  width: 27px;
-  height: 27px;
-  border: 1px solid #7c8c8e;
-  color: #a5e5d7;
-  font:
-    24px/1 Georgia,
-    serif;
+  content: "";
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  background: url("./brand-mark.svg") center / contain no-repeat;
+}
+.site-themed .brand-mark {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border: 0;
+}
+.atlas-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 12px;
+}
+.atlas-title .atlas-logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+}
+.atlas-heading .atlas-title h1 {
+  margin: 0;
 }
 .site-themed :is(.site-header, .knowledge-header, .atlas-header) nav {
   grid-column: 2;
@@ -512,9 +529,23 @@
     gap: 7px;
   }
   .site-themed .brand:not(:has(.brand-mark))::before {
-    width: 24px;
-    height: 24px;
-    font-size: 21px;
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+  .site-themed .brand-mark {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+  .atlas-title {
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+  .atlas-title .atlas-logo {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
   }
   .site-themed :is(.site-header, .knowledge-header, .atlas-header) nav {
     grid-column: 1 / -1;
