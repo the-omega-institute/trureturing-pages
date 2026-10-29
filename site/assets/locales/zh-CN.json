@@ -1459,6 +1459,7 @@
   "Relabeling changes no distinctions. The rate stays the same.": "重命名没有新增区分，逃逸率保持不变。",
   "One pair is separated. One unresolved pair remains.": "一对状态被区分，仍有一对尚未区分。",
   "+": "+",
+  ".": "。",
   "↶": "↶",
   "The collaboration proposal ↗": "查看合作方案 ↗",
   "Real research collaborations, a rigorous harness and an open contribution workflow. Explore our proposal for SAIR’s Open Math Model initiative.": "真实研究合作、严格的 harness 与开放贡献流程。了解我们面向 SAIR Open Math Model 的合作提案。",
