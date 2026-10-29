@@ -100,7 +100,7 @@ const route = path => root + path;
     await bp.locator('.site-language select').selectOption('en');await bp.waitForURL('**lang=en');await bp.locator('.mm-heading').waitFor();
     assert.equal(await bp.locator('html').getAttribute('lang'),'en');await blocked.close();
     const failure=await browser.newContext(),fp=await failure.newPage();
-    await fp.route('**/assets/locales/zh-CN.json',r=>r.fulfill({status:503,body:'unavailable'}));
+    await fp.route('**/assets/locales/zh-CN.json*',r=>r.fulfill({status:503,body:'unavailable'}));
     await fp.goto(route('millennium.html?problem=navier-stokes&lang=zh-CN'));await fp.locator('.mm-heading').waitFor();
     assert.equal(await fp.locator('html').getAttribute('lang'),'en');assert.match(await fp.locator('.language-warning').innerText(),/Translation unavailable/);
     await fp.route('**/assets/millennium-data.json',r=>r.fulfill({status:503,body:'unavailable'}));

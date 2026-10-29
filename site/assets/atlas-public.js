@@ -1,5 +1,5 @@
 import { theoryModel, documentPositions, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=connected-dag-v3";
-import { t } from "./i18n.mjs";
+import { t } from "./i18n.mjs?v=dag-presentation-v1";
 import {
   FAMILIES,
   createPublicModel,
@@ -48,6 +48,7 @@ const state = {
   selected: null,
   mode: "theory",
   theory: null,
+  isolatedNodes: [],
   component: null,
   theoryPositions: null,
   tab: "overview",
@@ -700,6 +701,19 @@ function buildLabels() {
     $("#family-labels").append(label);
     familyLabels.push({ label, point });
   }
+  if (["theory", "dependency"].includes(state.mode) && !state.component && !state.selected && state.isolatedNodes.length) {
+    const points = state.isolatedNodes.map(n => state.positions[n.id]);
+    const point = {
+      x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
+      y: Math.max(...points.map(p => p.y)) + 30,
+      z: points.reduce((sum, p) => sum + p.z, 0) / points.length,
+    };
+    const label = action("", "dag-isolated-label", focusIsolated);
+    label.append(el("strong", "", t("Unconnected modules · {0}", format(points.length))),
+      el("small", "", t("No imports within this graph")));
+    $("#family-labels").append(label);
+    familyLabels.push({ label, point, keepInside: true });
+  }
   updateLabels();
 }
 function updateLabels() {
@@ -835,6 +849,10 @@ function positionLabels() {
     label.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
     if (visible && anchored) occupied.push(box);
   };
+  familyLabels.forEach(({ label, point, keepInside }) => {
+    label.hidden = Boolean(state.selected);
+    if (!state.selected) project(label, point, false, keepInside);
+  });
   nodeLabels.forEach(({ label, node }) =>
     project(label, state.positions[node.id], true, state.mode === "theory"),
   );
@@ -844,10 +862,6 @@ function positionLabels() {
       label.hidden = state.mode !== "frontier";
       if (!label.hidden) project(label, point, true, true);
     });
-  familyLabels.forEach(({ label, point }) => {
-    label.hidden = Boolean(state.selected);
-    if (!state.selected) project(label, point);
-  });
   sceneLabels
     .filter((item) => item.type === "bundle")
     .forEach(({ label, point }) => {
@@ -1474,6 +1488,7 @@ async function load() {
   state.architecture = analyzeArchitecture(state.graph);
   state.scaffold = structuralScaffold(state.model, state.architecture);
   state.theory = theoryModel(state.model, state.architecture);
+  state.isolatedNodes = state.model.nodes.filter(n => !state.theory.componentByNode.get(n.id).edgeCount);
   state.bundles = relationBundles(state.model);
   if (!state.model.nodes.length)
     throw new Error("This release has no mathematical concepts.");
@@ -1885,23 +1900,36 @@ function selectComponent(id) {
   stopRotation();
   renderGraph(); renderWiki(); frameNodes(currentNodes);
 }
+function focusIsolated() {
+  rememberView();
+  stopRotation();
+  frameNodes(state.isolatedNodes);
+}
 function renderTheory(root) {
   const group = state.theory.components.find(c => c.id === state.component);
   root.append(el("p", "eyebrow", t("THE PUBLISHED DEPENDENCY DAG")),
-    el("h2", "", t(group ? "A connected part of the theory." : "The actual connected structure.")),
+    el("h2", "", t(group ? "A connected part of the theory." : "Published module dependencies.")),
     el("p", "wiki-intro", t(group ? "Every module and dependency in this connected component. Follow the branches, shared prerequisites and joins in the graph." : "Every released module and every published dependency. Follow the branches, shared prerequisites and joins in the graph.")));
   const facts = el("dl", "dag-facts");
   for (const [value, label] of [[currentNodes.length, "Modules"], [state.renderer.graphData().links.length, "Dependencies"], [group ? 1 : state.theory.components.length, "Connected components"], [group ? Math.max(...currentNodes.map(n => state.architecture.metrics.get(n.id).depth)) : state.theory.maxDepth, "Maximum dependency depth"]]) {
-    const item = el("div"); item.append(el("dd", "", format(value)), el("dt", "", t(label))); facts.append(item);
+    const item = el("div"); item.append(el("dt", "", t(label)), el("dd", "", format(value))); facts.append(item);
   }
-  root.append(facts, el("p", "theory-scope", t("Arrows point from prerequisite to dependent. Position follows the real dependencies; color indicates dependency depth.")));
+  root.append(facts);
+  if (!group) {
+    const scope = el("div", "dag-connectivity");
+    scope.append(el("p", "", t("{0} components with imports · {1} unconnected modules", format(state.theory.components.length - state.theory.isolated), format(state.theory.isolated))),
+      el("p", "", t("Each unconnected module counts as one component. The separate grid holds these modules; its rows and columns carry no mathematical meaning.")));
+    if (state.isolatedNodes.length) scope.append(action(t("Locate unconnected modules →"), "research-link", focusIsolated));
+    root.append(scope);
+  }
+  root.append(el("p", "theory-scope", t("Arrows point from prerequisite to dependent. Position follows the real dependencies; color indicates dependency depth.")));
   if (group) root.append(action(t("Return to the whole DAG"), "research-link", () => selectComponent(null)));
   else root.append(action(t("Focus the largest connected component · {0} modules", format(state.theory.components[0].ids.length)), "research-link", () => selectComponent(state.theory.components[0].id)));
   root.append(el("h3", "section-label spaced", t("SHARED PREREQUISITES")));
   rankedNodes(currentNodes, state.architecture, "reach").slice(0, 8).forEach(node => root.append(nodeButton(node, t("{0} downstream modules · {1} direct dependents", state.architecture.metrics.get(node.id).reach, state.architecture.metrics.get(node.id).direct))));
   const components = el("details", "dag-components"); components.append(el("summary", "", t("Browse connected components")));
   state.theory.components.filter(c => c.edgeCount).forEach((c, index) => components.append(action(t("Component {0} · {1} modules · {2} dependencies", index + 1, c.ids.length, c.edgeCount), "dag-component", () => selectComponent(c.id))));
-  root.append(components, el("p", "theory-scope", t("{0} modules have no dependency edge within this published graph. They remain visible as separate nodes.", format(state.theory.isolated))));
+  root.append(components);
   const evolution = el("a", "research-link", t("See how the structure evolved →")); evolution.href = "evolution.html";
   root.append(evolution, el("p", "architecture-provenance", t("Edges record module imports. External Mathlib dependencies are outside this graph. Depth spacing is compressed to keep long chains visible.")));
 }

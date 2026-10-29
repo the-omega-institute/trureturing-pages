@@ -2371,5 +2371,11 @@
   "Visualize": "可视化",
   "Loading concept details…": "正在加载模块详情…",
   "Concept details could not load.": "模块详情加载失败。",
-  "Retry concept details": "重试加载模块详情"
+  "Retry concept details": "重试加载模块详情",
+  "Published module dependencies.": "已发布的模块依赖结构。",
+  "Unconnected modules · {0}": "无图内连线的模块 · {0}",
+  "No imports within this graph": "本图内没有导入依赖",
+  "{0} components with imports · {1} unconnected modules": "{0} 个有依赖连线的连通分量 · {1} 个无图内连线的模块",
+  "Each unconnected module counts as one component. The separate grid holds these modules; its rows and columns carry no mathematical meaning.": "每个无连线模块各计一个连通分量。单独的点阵用于摆放这些模块，行列没有数学含义。",
+  "Locate unconnected modules →": "定位无图内连线的模块 →"
 }
