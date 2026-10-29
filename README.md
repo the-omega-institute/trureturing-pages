@@ -30,6 +30,12 @@ python3 -m venv /tmp/pages-venv
 
 Open `http://127.0.0.1:8765/atlas.html`. See [Public Atlas](docs/PUBLIC_ATLAS.md)
 for the visualization decisions, local-data boundary, and verification commands.
+First paint uses a compact, digest-addressed read model containing every node
+and relation, plus precomputed coordinates rounded to 0.001 world units. Full
+node records load in verified shards when selected. The generator verifies the
+canonical graph before producing these artifacts; the canonical archive remains
+available and older startup indexes still work. Article shards and release
+history are outside the initial loading path.
 The preview generates the Library and all concept Wiki pages locally, including
 complete relationship maps and the shared site theme. Open
 `http://127.0.0.1:8765/knowledge/` to browse them.

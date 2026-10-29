@@ -1,5 +1,6 @@
 import { verifyGraph } from "./atlas-public-core.mjs";
 import { sha256 } from "./architecture-core.mjs";
+import { validateView, validateDetails, detailShard, DETAIL_SHARDS } from "./atlas-startup-view.mjs?v=fast-startup-v1";
 
 export const STARTUP_SCHEMA = "pages-atlas-startup.v1";
 export const LAYOUT_SCHEMA = "pages-public-layout.v1";
@@ -15,7 +16,9 @@ export function validateStartup(index, manifest) {
     !PROFILES.includes(index.layout_profile)
   )
     throw new Error("Startup artifacts do not bind the current Atlas.");
-  for (const entry of [index.graph, index.layout]) {
+  if (index.fast && (!Array.isArray(index.fast.details) || index.fast.details.length !== DETAIL_SHARDS))
+    throw new Error("Invalid Atlas concept detail index.");
+  for (const entry of [index.graph, index.layout, ...(index.fast ? [index.fast.graph, index.fast.layout, ...index.fast.details] : [])]) {
     if (
       !DIGEST.test(entry?.digest) ||
       entry.path !== `data/atlas-startup/${entry.digest.slice(7)}.json.gz`
@@ -116,19 +119,34 @@ export async function loadStartup(base) {
   if (!indexResponse.ok)
     throw new Error(`Atlas startup index HTTP ${indexResponse.status}`);
   const index = validateStartup(await indexResponse.json(), manifest);
+  const fast = index.fast;
   const [graphText, layoutText] = await Promise.all([
-    artifactText(base, index.graph),
-    artifactText(base, index.layout),
+    artifactText(base, fast?.graph || index.graph),
+    artifactText(base, fast?.layout || index.layout),
   ]);
-  const graph = await verifyGraph(graphText, manifest, sha256);
+  const graph = fast ? validateView(JSON.parse(graphText), manifest) : await verifyGraph(graphText, manifest, sha256);
   const layout = JSON.parse(layoutText);
   if (layout.layout_profile !== index.layout_profile) throw new Error("Layout profile disagrees with its startup index.");
   const positions = validateLayout(layout, graph, manifest);
+  const detailCache = new Map();
+  const loadDetails = fast ? async id => {
+    const shard = detailShard(id);
+    if (!detailCache.has(shard)) {
+      const task = artifactText(base, fast.details[shard])
+        .then(text => validateDetails(JSON.parse(text), manifest, graph, shard))
+        .catch(error => { detailCache.delete(shard); throw error; });
+      detailCache.set(shard, task);
+    }
+    const node = (await detailCache.get(shard)).get(id);
+    if (!node) throw new Error("Concept is absent from the published details.");
+    return node;
+  } : null;
   return {
     graph,
     manifest,
     positions,
     dependencyPositions: layout.layout_profile === LAYOUT_PROFILE ? layout.dependency_positions : null,
-    timing: { source: "precomputed", dataReadyMs: performance.now() - started },
+    loadDetails,
+    timing: { source: "precomputed", compact: Boolean(fast), dataReadyMs: performance.now() - started },
   };
 }

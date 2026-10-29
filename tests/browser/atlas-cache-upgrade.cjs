@@ -32,7 +32,7 @@ fs.mkdirSync(output, {recursive:true});
    assert.equal(d.mode,'theory');assert.equal(d.nodes,11237);assert.equal(d.edges,14799);assert.equal(d.visible,14799);
    assert.equal(await page.locator('#loading.is-error').count(),0);
    assert.deepEqual(errors,[]);
-   assert.ok(requests.some(r=>r.name==='atlas-public.js'&&r.version==='connected-dag-v3'));
+   assert.ok(requests.some(r=>r.name==='atlas-public.js'&&r.version==='fast-startup-v1'));
    assert.ok(requests.some(r=>r.name==='atlas-theory-core.mjs'&&r.version==='connected-dag-v3'));
    fs.writeFileSync(path.join(output,mixed+'.json'),JSON.stringify({mixed,...d,errors,requests},null,2));
    if(mixed==='all-old')await page.screenshot({path:path.join(output,'upgraded-dag.png'),timeout:30000});

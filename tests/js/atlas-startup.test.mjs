@@ -12,8 +12,12 @@ import {
 } from "../../site/assets/atlas-startup.mjs";
 import {
   computeLayout,
-  createPublicModel,
+  createPublicModel, searchNodes, title,
 } from "../../site/assets/atlas-public-core.mjs";
+
+import { startupView, validateView, validateDetails, DETAIL_SCHEMA, detailShard } from "../../site/assets/atlas-startup-view.mjs";
+import { analyzeArchitecture } from "../../site/assets/architecture-core.mjs";
+import { theoryModel } from "../../site/assets/atlas-theory-core.mjs";
 
 const hash = (text) =>
   "sha256:" + createHash("sha256").update(text).digest("hex");
@@ -56,6 +60,7 @@ test("published startup preserves exact graph bytes and layout, validates all no
   const layout = JSON.parse(
     gunzipSync(await readFile(join(root, index.layout.path))),
   );
+  const fastLayout = JSON.parse(gunzipSync(await readFile(join(root, index.fast.layout.path))));
   assert.deepEqual(layout.positions, computeLayout(createPublicModel(graph)));
   for (const positions of [
     { A: layout.positions.A },
@@ -85,7 +90,7 @@ test("published startup preserves exact graph bytes and layout, validates all no
   const legacyDigest = hash(legacyBytes);
   const legacyPath = `data/atlas-startup/${legacyDigest.slice(7)}.json.gz`;
   await writeFile(join(root, legacyPath), legacyBytes);
-  const legacyIndex = { ...index, layout_profile: legacyLayout.layout_profile,
+  const legacyIndex = { ...index, fast: undefined, layout_profile: legacyLayout.layout_profile,
     layout: { path: legacyPath, digest: legacyDigest, bytes: legacyBytes.length } };
   const requests = [];
   let mode = "valid";
@@ -108,9 +113,12 @@ test("published startup preserves exact graph bytes and layout, validates all no
   });
   const result = await loadStartup("https://example.test/");
   assert.deepEqual(result.graph, graph);
-  assert.deepEqual(result.positions, layout.positions);
+  assert.deepEqual(result.positions, fastLayout.positions);
   assert.equal(result.timing.source, "precomputed");
-  assert.deepEqual(result.dependencyPositions, layout.dependency_positions);
+  assert.deepEqual(result.dependencyPositions, fastLayout.dependency_positions);
+  assert.equal(result.timing.compact, true);
+  assert.deepEqual(await result.loadDetails("A"), graph.nodes[0]);
+  assert.ok(!requests.some(r => r.path === index.graph.path), "The canonical archive stays off the first-paint path");
   mode = "profile-mismatch";
   await assert.rejects(loadStartup("https://example.test/"), /profile disagrees/);
   mode = "v2";
@@ -123,4 +131,54 @@ test("published startup preserves exact graph bytes and layout, validates all no
   const legacy = await loadStartup("https://example.test/");
   assert.equal(legacy.positions, null);
   assert.deepEqual(legacy.graph, graph);
+});
+
+
+const viewManifest = { atlas_graph_digest: "sha256:" + "a".repeat(64), truth_release_digest: "sha256:" + "b".repeat(64),
+  source_commit: "c".repeat(40), counts: { nodes: 3, edges: 3 } };
+const viewGraph = { source_snapshot: { source_commit: viewManifest.source_commit, truth_release_digest: viewManifest.truth_release_digest },
+  nodes: [
+    { id: "A", kind: "truth", domain: "Quantum", human_title: "Shared foundation", human_abstract: "A searchable description", human_theorem: "An authored theorem", knowledge_page: "knowledge/node/abc/", out_degree: 1, true_depth: 0, descendant_count: 1 },
+    { id: "B", kind: "truth", domain: "Observer", human_title: "Consequence", out_degree: 0, true_depth: 1, descendant_count: 0 },
+    { id: "doc", kind: "blueprint", human_title: "Authored explanation", blueprint_path: "Blueprint/A.md" },
+  ], edges: [
+    { source: "A", target: "B", layer: "truth-dependency", authority: "certified", extra_archive_metadata: "large" },
+    { source: "doc", target: "A", layer: "blueprint-truth-anchor" },
+    { source: "A", target: "doc", layer: "intuition-candidate", status: "advisory" },
+  ], clusters: ["archive-only metadata"] };
+
+test("compact first paint retains every node, relation, category, search result and DAG metric", () => {
+  const view = startupView(viewGraph, viewManifest), compact = validateView(view, viewManifest);
+  assert.deepEqual(compact.nodes.map(n => n.id), viewGraph.nodes.map(n => n.id));
+  assert.deepEqual(compact.edges.map(e => [e.source, e.target, e.layer, e.status]), viewGraph.edges.map(e => [e.source, e.target, e.layer, e.status]));
+  const fullModel = createPublicModel(viewGraph), compactModel = createPublicModel(compact);
+  assert.deepEqual(compactModel.relationships.edges.map(e => e.category), ["proof", "document", "advisory"]);
+  for (const query of ["foundation", "searchable", "B"]) {
+    assert.deepEqual(searchNodes(compactModel, query).map(n => [n.id, title(n)]), searchNodes(fullModel, query).map(n => [n.id, title(n)]));
+  }
+  const full = analyzeArchitecture(viewGraph), fast = analyzeArchitecture(compact);
+  assert.deepEqual(fast, full);
+  const topology = theory => ({
+    ids: theory.nodes.map(n => n.id), pairs: theory.edges.map(e => [e.source, e.target]),
+    components: theory.components, isolated: theory.isolated, roots: theory.roots, maxDepth: theory.maxDepth,
+  });
+  assert.deepEqual(topology(theoryModel(compactModel, fast)), topology(theoryModel(fullModel, full)));
+  assert.equal(compact.nodes[0].human_theorem, undefined);
+  assert.equal(compact.clusters, undefined);
+});
+
+test("lazy details restore the exact source record and reject mixed releases, altered summaries and missing nodes", () => {
+  const compact = validateView(startupView(viewGraph, viewManifest), viewManifest), shard = detailShard("A");
+  const nodes = viewGraph.nodes.filter(n => detailShard(n.id) === shard);
+  const details = { schema_version: DETAIL_SCHEMA, atlas_graph_digest: viewManifest.atlas_graph_digest,
+    truth_release_digest: viewManifest.truth_release_digest, nodes };
+  assert.deepEqual(validateDetails(details, viewManifest, compact, shard).get("A"), viewGraph.nodes[0]);
+  assert.throws(() => validateDetails({ ...details, truth_release_digest: "other" }, viewManifest, compact, shard), /bind/);
+  assert.throws(() => validateDetails({ ...details, nodes: [] }, viewManifest, compact, shard), /Incomplete/);
+  assert.throws(() => validateDetails({ ...details, nodes: nodes.map(n => ({ ...n, human_title: "changed" })) }, viewManifest, compact, shard), /disagree/);
+  for (const view of [
+    { ...startupView(viewGraph, viewManifest), atlas_graph_digest: "other" },
+    { ...startupView(viewGraph, viewManifest), nodes: [viewGraph.nodes[0]] },
+    { ...startupView(viewGraph, viewManifest), edges: [[99, 1, "dependency", null], ...startupView(viewGraph, viewManifest).edges.slice(1)] },
+  ]) assert.throws(() => validateView(view, viewManifest), /bind|identity/);
 });

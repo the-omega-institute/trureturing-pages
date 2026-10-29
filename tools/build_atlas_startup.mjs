@@ -16,6 +16,7 @@ import {
 } from "../site/assets/atlas-startup.mjs";
 import { analyzeArchitecture } from "../site/assets/architecture-core.mjs";
 import { theoryModel, theoryLayout, documentPositions } from "../site/assets/atlas-theory-core.mjs";
+import { startupView, validateView, DETAIL_SCHEMA, DETAIL_SHARDS, detailShard } from "../site/assets/atlas-startup-view.mjs";
 
 const digest = (raw) =>
   "sha256:" + createHash("sha256").update(raw).digest("hex");
@@ -48,6 +49,22 @@ export async function buildStartup(graphPath, manifestPath, output) {
     truth_release_digest: manifest.truth_release_digest,
     graph: await artifact(raw),
     layout: await artifact(JSON.stringify(layout)),
+  };
+  const view = startupView(graph, manifest);
+  validateView(view, manifest);
+  const rounded = positions => Object.fromEntries(Object.entries(positions).map(([id, point]) => [id,
+    Object.fromEntries(["x", "y", "z"].map(axis => [axis, Math.round(point[axis] * 1000) / 1000]))]));
+  const fastLayout = { ...layout, positions: rounded(layout.positions), dependency_positions: rounded(layout.dependency_positions) };
+  validateLayout(fastLayout, graph, manifest);
+  const shards = Array.from({ length: DETAIL_SHARDS }, () => []);
+  for (const node of graph.nodes) shards[detailShard(node.id)].push(node);
+  index.fast = {
+    graph: await artifact(JSON.stringify(view)),
+    layout: await artifact(JSON.stringify(fastLayout)),
+    details: await Promise.all(shards.map(nodes => artifact(JSON.stringify({
+      schema_version: DETAIL_SCHEMA, atlas_graph_digest: manifest.atlas_graph_digest,
+      truth_release_digest: manifest.truth_release_digest, nodes,
+    })))),
   };
   await writeFile(
     join(output, "data/atlas-startup.v1.json"),

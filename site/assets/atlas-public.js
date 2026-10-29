@@ -25,7 +25,7 @@ import {
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
 import { appendRecentResults } from "./atlas-results.mjs";
-import { loadStartup } from "./atlas-startup.mjs?v=connected-dag-v3";
+import { loadStartup } from "./atlas-startup.mjs?v=fast-startup-v1";
 import {
   structuralScaffold,
   focusRole,
@@ -68,6 +68,11 @@ const state = {
   researchError: null,
   problem: null,
   startup: null,
+  loadDetails: null,
+  detailReady: new Set(),
+  detailLoading: new Set(),
+  detailErrors: new Map(),
+  lensIndex: null,
   scaffold: null,
   viewHistory: [],
   bundle: null,
@@ -1163,6 +1168,14 @@ function renderWiki() {
 }
 function renderArticle(root) {
   const node = state.model.byId.get(state.selected);
+  if (state.loadDetails && !state.detailReady.has(node.id)) {
+    root.append(el("h2", "article-title", title(node)));
+    const error = state.detailErrors.get(node.id);
+    root.append(el("p", "wiki-intro", error ? "Concept details could not load." : "Loading concept details…"));
+    if (error) root.append(action("Retry concept details", "research-link", () => { state.detailErrors.delete(node.id); ensureNodeDetails(node.id); renderWiki(); }));
+    else ensureNodeDetails(node.id);
+    return;
+  }
   if (state.mode === "frontier") {
     root.append(
       action("Research questions", "article-family", () =>
@@ -1175,6 +1188,7 @@ function renderArticle(root) {
     state.graph,
     node.id,
     1,
+    state.lensIndex ||= window.TrureturingConceptLensCore.createIndex(state.graph),
   );
   const back = action(family.name, "article-family", () =>
     setFamily(family.id),
@@ -1455,12 +1469,12 @@ async function load() {
   state.graph = startup.graph;
   state.graphDigest = manifest.atlas_graph_digest;
   state.startup = startup.timing;
+  state.loadDetails = startup.loadDetails;
   state.model = createPublicModel(state.graph);
   state.architecture = analyzeArchitecture(state.graph);
   state.scaffold = structuralScaffold(state.model, state.architecture);
   state.theory = theoryModel(state.model, state.architecture);
   state.bundles = relationBundles(state.model);
-  state.history = [snapshotFromGraph(state.graph, state.graphDigest)];
   if (!state.model.nodes.length)
     throw new Error("This release has no mathematical concepts.");
   $("#loading-message").textContent = "Assembling the concept families";
@@ -1721,6 +1735,19 @@ async function load() {
 }
 
 let researchPromise = null, changesPromise = null, historyPromise = null;
+function ensureNodeDetails(id) {
+  if (state.detailLoading.has(id) || state.detailReady.has(id)) return;
+  state.detailLoading.add(id);
+  state.loadDetails(id).then(node => {
+    Object.assign(state.graph.nodes.find(n => n.id === id), node);
+    Object.assign(state.model.byId.get(id), node);
+    state.detailReady.add(id);
+  }).catch(error => state.detailErrors.set(id, error.message))
+    .finally(() => {
+      state.detailLoading.delete(id);
+      if (state.selected === id) renderWiki();
+    });
+}
 function ensureResearch() {
   if (state.research) return Promise.resolve(state.research);
   if (researchPromise) return researchPromise;
@@ -1747,6 +1774,7 @@ function ensureResearch() {
 function ensureHistory() {
   if (state.historyLoaded) return Promise.resolve(state.history);
   if (historyPromise) return historyPromise;
+  if (!state.history.length) state.history = [snapshotFromGraph(state.graph, state.graphDigest)];
   historyPromise = loadHistory(new URL("./", location.href),
     state.graph.source_snapshot.truth_release_digest, state.graphDigest)
     .then(snapshots => { if (snapshots.length) state.history = snapshots; state.historyLoaded = true; state.historyError = null; return state.history; })
