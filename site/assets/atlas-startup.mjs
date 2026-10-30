@@ -1,14 +1,38 @@
-import { verifyGraph } from "./atlas-public-core.mjs";
-import { sha256, analyzeArchitecture } from "./architecture-core.mjs?v=lean-admission-v1";
-import { applyAdmission, admissionFromEvidence, supportedLean } from "./atlas-admission.mjs?v=lean-admission-v1";
-import { validateView, validateDetails, detailShard, DETAIL_SHARDS } from "./atlas-startup-view.mjs?v=lean-admission-v1";
+import { verifyGraph } from "./atlas-public-core.mjs?v=lean-admission-v2";
+import { sha256, analyzeArchitecture } from "./architecture-core.mjs?v=lean-admission-v2";
+import { applyAdmission, admissionFromEvidence, supportedLean } from "./atlas-admission.mjs?v=lean-admission-v2";
+import { validateView, validateDetails, detailShard, DETAIL_SHARDS } from "./atlas-startup-view.mjs?v=lean-admission-v2";
 
 export const STARTUP_SCHEMA = "pages-atlas-startup.v1";
 export const LAYOUT_SCHEMA = "pages-public-layout.v1";
+const COMPACT_LAYOUT_SCHEMA = "pages-public-layout-indexed.v1";
 export const LAYOUT_PROFILE = "atlas-evidenced-dag-v4";
 const CONNECTED_PROFILES = [LAYOUT_PROFILE, "atlas-connected-dag-v3"];
 const PROFILES = [...CONNECTED_PROFILES, "atlas-dependency-scaffold-v2"];
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
+
+// Index coordinates by the complete, digest-bound source node order rather
+// than repeating long module paths twice. Rounding remains exactly 1e-3.
+export function compactLayout(layout, graph, nodeOrderDigest) {
+  const pack = positions => graph.nodes.map(node => ["x", "y", "z"].map(axis => Math.round(positions[node.id][axis] * 1000)));
+  return { ...layout, schema_version: COMPACT_LAYOUT_SCHEMA, node_order_digest: nodeOrderDigest,
+    positions: pack(layout.positions), dependency_positions: pack(layout.dependency_positions) };
+}
+
+export async function expandLayout(layout, graph) {
+  if (layout.schema_version !== COMPACT_LAYOUT_SCHEMA) return layout;
+  if (layout.node_order_digest !== await sha256(JSON.stringify(graph.nodes.map(n => n.id))))
+    throw new Error("Indexed layout disagrees with the source node order.");
+  const unpack = rows => {
+    if (!Array.isArray(rows) || rows.length !== graph.nodes.length || rows.some(row =>
+      !Array.isArray(row) || row.length !== 3 || row.some(n => !Number.isSafeInteger(n))))
+      throw new Error("Indexed layout does not cover this Atlas.");
+    return Object.fromEntries(rows.map((row, i) => [graph.nodes[i].id,
+      Object.fromEntries(["x", "y", "z"].map((axis, j) => [axis, row[j] / 1000]))]));
+  };
+  return { ...layout, schema_version: LAYOUT_SCHEMA,
+    positions: unpack(layout.positions), dependency_positions: unpack(layout.dependency_positions) };
+}
 
 export function validateStartup(index, manifest) {
   if (
@@ -95,7 +119,7 @@ export async function loadStartup(base) {
     fetch(new URL("data/pages-atlas-manifest.v1.json", base), {
       cache: "no-cache",
     }),
-    fetch(new URL("data/atlas-startup.v1.json?v=lean-admission-v1", base), { cache: "no-cache" }),
+    fetch(new URL("data/atlas-startup.v1.json?v=lean-admission-v2", base), { cache: "no-cache" }),
   ]);
   if (!manifestResponse.ok)
     throw new Error(`Atlas manifest HTTP ${manifestResponse.status}`);
@@ -138,7 +162,7 @@ export async function loadStartup(base) {
   // validation runs before admission in either startup path.
   analyzeArchitecture(graph);
   if (!fast) graph = applyAdmission(graph, manifest, admissionText ? JSON.parse(admissionText) : admissionFromEvidence(graph, manifest));
-  const layout = JSON.parse(layoutText);
+  const layout = await expandLayout(JSON.parse(layoutText), graph);
   if (layout.layout_profile !== index.layout_profile) throw new Error("Layout profile disagrees with its startup index.");
   const positions = validateLayout(layout, graph, manifest);
   const detailCache = new Map();

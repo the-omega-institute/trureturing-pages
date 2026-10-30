@@ -13,6 +13,7 @@ import {
   LAYOUT_SCHEMA,
   LAYOUT_PROFILE,
   validateLayout,
+  compactLayout, expandLayout,
 } from "../site/assets/atlas-startup.mjs";
 import { analyzeArchitecture, mathematicalArchitecture } from "../site/assets/architecture-core.mjs";
 import { admissionFromEvidence, applyAdmission } from "../site/assets/atlas-admission.mjs";
@@ -61,10 +62,8 @@ export async function buildStartup(graphPath, manifestPath, output) {
   };
   const view = startupView(graph, manifest);
   validateView(view, manifest);
-  const rounded = positions => Object.fromEntries(Object.entries(positions).map(([id, point]) => [id,
-    Object.fromEntries(["x", "y", "z"].map(axis => [axis, Math.round(point[axis] * 1000) / 1000]))]));
-  const fastLayout = { ...layout, positions: rounded(layout.positions), dependency_positions: rounded(layout.dependency_positions) };
-  validateLayout(fastLayout, graph, manifest);
+  const fastLayout = compactLayout(layout, graph, digest(JSON.stringify(graph.nodes.map(n => n.id))));
+  validateLayout(await expandLayout(fastLayout, graph), graph, manifest);
   const shards = Array.from({ length: DETAIL_SHARDS }, () => []);
   for (const node of graph.nodes) shards[detailShard(node.id)].push(node);
   index.fast = {

@@ -140,10 +140,15 @@ the release's source catalog and must not be inferred by topology metrics.
 ## Startup performance
 
 `tools/build_atlas_startup.mjs` precomputes Structure and admitted DAG positions.
-The current profile is `atlas-evidenced-dag-v4`. A v2 compact startup view carries
+The current profile is `atlas-evidenced-dag-v4`. A v3 compact startup view carries
 all source node identities, relation tuples and certified topology counters,
-together with bounded admission summaries. Full node records and exact declaration
-receipts load from digest-addressed shards on selection. Failed shards are retryable
+together with bounded admission summaries. It groups the exact source/frozen hash
+bytes and stores node fields in rows; no admission field is replaced by a label.
+Nonmathematical explanatory prose stays in the lazy details. Coordinates use
+integer thousandths indexed by a digest of the complete source node order, checked
+before the usual layout coverage and import-direction validation. The preceding
+evidenced v2 view and object-based layouts remain readable. Full node records and
+exact declaration receipts load from digest-addressed shards on selection. Failed shards are retryable
 and successful shards are reused. No full graph, export or report download delays
 first paint. The original graph bytes remain in the immutable canonical archive.
 
@@ -154,7 +159,7 @@ admission summary. Layout coordinates cover the complete source identity set whi
 downward direction is checked for imports actually rendered by the new profile.
 
 Changed entry, model, architecture, layout, startup, compact-view, locale and style
-interfaces use the coordinated `?v=lean-admission-v1` cache coordinate. The cache
+interfaces use the coordinated `?v=lean-admission-v2` cache coordinate. The cache
 upgrade browser check supplies stale preceding-release modules and requires current
 admission and counts. The legacy archive path remains available; absent declaration
 evidence reports an unavailable mathematical view rather than claiming an empty DAG
@@ -163,7 +168,7 @@ is a successful projection.
 Research and history load after the graph becomes interactive. Research has an
 explicit pending state; slow or failed research cannot delay the main Atlas.
 An older deployment without the startup index retains the verified graph and
-worker-layout path. A legacy v2 startup also computes the complete connected DAG
+worker-layout path. A legacy scaffold v2 layout also computes the complete connected DAG
 in `atlas-dag-worker.mjs`, keeping simulation off the main browser thread. Invalid artifacts do not silently use unverified positions.
 Changes to public layout semantics must increment `LAYOUT_PROFILE` in
 `site/assets/atlas-startup.mjs`; the deploy step regenerates artifacts for every
@@ -280,7 +285,7 @@ The archived canonical Atlas digest remains
   entries have no published declarations (including the `Trureturing` umbrella).
   Their excluded identities remain recorded; no transitive replacement edges
   are invented when a module is excluded.
-- First-paint compressed graph plus layout total 3,127,375 bytes. Declaration
+- First-paint compressed graph plus layout total 2,084,486 bytes. Declaration
   details remain lazy; the 7,562,043-byte canonical archive stays off startup.
 
 These are measurements for this publication, not claims about newer research
@@ -288,3 +293,29 @@ revisions or a deployment of this implementation. Exact theorem-use edges and
 source line spans are absent from the published contract. Revision-pinned file
 links, full declaration identities, statement IDs, source hashes and axiom receipts
 are available and are presented at their actual granularity.
+
+A controlled Chrome comparison rebuilt `fb950db` and the candidate from these
+same publication bytes. Text used gzip delivery and content-addressed gzip
+artifacts were sent unchanged. Each link profile had three cold runs per variant,
+in alternating order, with fresh browser contexts, a 1512 × 982 viewport and no CPU
+throttling. The baseline graph/layout total was 2,151,778 compressed bytes; the
+first evidenced implementation was 3,127,375 bytes. The current encoding is
+2,084,486 bytes, preserving the admitted records, relations and rounded coordinates.
+
+| Link / implementation | Data ready (s) | Renderer ready (s) | Search results usable (s) | Selected article loaded (s) |
+| --- | ---: | ---: | ---: | ---: |
+| 10 Mbps, 80 ms / baseline | 2.02 | 3.00 | 6.34 | 12.29 |
+| 10 Mbps, 80 ms / current | 2.12 | 3.13 | 6.69 | 13.32 |
+| 4 Mbps, 150 ms / baseline | 4.76 | 6.70 | 10.16 | 16.39 |
+| 4 Mbps, 150 ms / current | 4.78 | 6.69 | 10.06 | 16.03 |
+
+Values are medians. Data readiness starts at the loader call; the other columns
+start at navigation. Renderer readiness means the application has constructed its
+scene, with no layout worker; it does not measure GPU completion. The interaction
+checks search for `TailBounds`, select the exact published module and wait for its
+lazy article. They include browser automation and WebGL scheduling costs.
+One warm observation per profile transferred zero immutable artifact bytes;
+current renderer readiness was 1.42–1.56 seconds, versus 1.15–1.20 seconds for the
+baseline. Evidence decoding and full source-topology validation still have a CPU
+cost. These local emulated-link results do not establish production latency or
+performance on a mobile CPU; separate narrow-viewport checks cover mobile behavior.

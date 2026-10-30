@@ -8,10 +8,10 @@ import {
   forceZ,
 } from "./vendor/d3-force-3d.mjs";
 import "./graph-relations.js";
-import { mathematicalArchitecture } from "./architecture-core.mjs?v=lean-admission-v1";
+import { mathematicalArchitecture } from "./architecture-core.mjs?v=lean-admission-v2";
 import { researchScope } from "./atlas-research-core.mjs";
 import { structuralScaffold } from "./atlas-visual-core.mjs";
-import { supportedLean, ADMISSION_SCHEMA } from "./atlas-admission.mjs?v=lean-admission-v1";
+import { supportedLean, ADMISSION_SCHEMA } from "./atlas-admission.mjs?v=lean-admission-v2";
 const Relations = globalThis.TrureturingRelations;
 
 // Editorial navigation only. Upstream topology and proof authority remain intact.

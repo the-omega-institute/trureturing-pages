@@ -1,6 +1,6 @@
-import { createPublicModel } from './atlas-public-core.mjs?v=lean-admission-v1';
-import { analyzeArchitecture, mathematicalArchitecture } from './architecture-core.mjs?v=lean-admission-v1';
-import { theoryModel, theoryLayout } from './atlas-theory-core.mjs?v=lean-admission-v1';
+import { createPublicModel } from './atlas-public-core.mjs?v=lean-admission-v2';
+import { analyzeArchitecture, mathematicalArchitecture } from './architecture-core.mjs?v=lean-admission-v2';
+import { theoryModel, theoryLayout } from './atlas-theory-core.mjs?v=lean-admission-v2';
 self.onmessage = ({data}) => {
   try {
     analyzeArchitecture(data);

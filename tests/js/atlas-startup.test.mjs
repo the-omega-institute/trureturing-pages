@@ -10,6 +10,7 @@ import { buildStartup } from "../../tools/build_atlas_startup.mjs";
 import {
   loadStartup,
   validateLayout,
+  expandLayout,
 } from "../../site/assets/atlas-startup.mjs";
 import {
   computeLayout,
@@ -63,7 +64,11 @@ test("published startup preserves exact graph bytes and layout, validates all no
     gunzipSync(await readFile(join(root, index.layout.path))),
   );
   const admittedGraph = validateView(JSON.parse(gunzipSync(await readFile(join(root, index.fast.graph.path)))), manifest);
-  const fastLayout = JSON.parse(gunzipSync(await readFile(join(root, index.fast.layout.path))));
+  const packedLayout = JSON.parse(gunzipSync(await readFile(join(root, index.fast.layout.path))));
+  const fastLayout = await expandLayout(packedLayout, admittedGraph);
+  await assert.rejects(expandLayout(packedLayout, { ...admittedGraph, nodes: admittedGraph.nodes.slice().reverse() }), /source node order/);
+  await assert.rejects(expandLayout({ ...packedLayout, positions: packedLayout.positions.slice(1) }, admittedGraph), /cover/);
+  await assert.rejects(expandLayout({ ...packedLayout, positions: [[0.5, 0, 0], ...packedLayout.positions.slice(1)] }, admittedGraph), /cover/);
   assert.deepEqual(layout.positions, computeLayout(createPublicModel(admittedGraph)));
   for (const positions of [
     { A: layout.positions.A },
@@ -170,6 +175,24 @@ test("compact first paint retains every node, relation, category, search result 
   assert.deepEqual(topology(theoryModel(compactModel, fast)), topology(theoryModel(fullModel, full)));
   assert.equal(compact.nodes[0].human_theorem, undefined);
   assert.equal(compact.clusters, undefined);
+});
+
+test("packed startup preserves exact Lean identities and accepts the previous evidenced view", () => {
+  const view = startupView(viewGraph, viewManifest), compact = validateView(view, viewManifest);
+  for (const node of viewGraph.nodes.filter(n => n.kind === "truth"))
+    assert.deepEqual(compact.nodes.find(n => n.id === node.id).lean, node.lean);
+  const legacy = { ...view, schema_version: "pages-atlas-startup-view.v2", nodes: viewGraph.nodes };
+  assert.deepEqual(createPublicModel(validateView(legacy, viewManifest)).nodes.map(n => n.id), createPublicModel(compact).nodes.map(n => n.id));
+  for (const lean_hashes of [view.lean_hashes.slice(0, -4), view.lean_hashes + "AAAA", "!invalid!"])
+    assert.throws(() => validateView({ ...view, lean_hashes }, viewManifest), /Lean identities/);
+  // Reconstructed file paths and titles must remain exact, including exceptions.
+  const source = { ...viewGraph, nodes: viewGraph.nodes.map(n => ({ ...n,
+    title: n.id.replaceAll("/", "."), status: "Closed", state: "closed", human_abstract: null,
+  })) };
+  const roundtrip = validateView(startupView(source, viewManifest), viewManifest);
+  for (const node of source.nodes.filter(n => n.kind === "truth"))
+    for (const key of ["title", "state", "repo_path", "human_abstract"])
+      assert.equal(roundtrip.nodes.find(n => n.id === node.id)[key], node[key]);
 });
 
 test("lazy details restore the exact source record and reject mixed releases, altered summaries and missing nodes", () => {

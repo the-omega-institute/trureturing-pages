@@ -24,7 +24,8 @@ fs.mkdirSync(output, {recursive:true});
   ]));
   for (const name of ['atlas-public.css', 'i18n.mjs', 'locales/zh-CN.json'])
    old.set(path.posix.basename(name),execFileSync('git',['show',`fb950db:site/assets/${name}`],{encoding:'utf8'}));
-  for (const mixed of ['old-entry','old-model','old-layout','old-startup','old-style','old-locale','old-view','old-architecture','old-index','all-old']) {
+  const previous = new Map([...old.keys()].map(name => [name, execFileSync('git',['show',`1ea119d:site/assets/${name === 'zh-CN.json' ? 'locales/' : ''}${name}`],{encoding:'utf8'})]));
+  for (const mixed of ['previous-admission-all','old-entry','old-model','old-layout','old-startup','old-style','old-locale','old-view','old-architecture','old-index','all-old']) {
    const page = await browser.newPage({reducedMotion:'reduce',viewport:{width:1512,height:982}});
    const errors=[],requests=[];
    page.on('pageerror', e=>errors.push(e.message));
@@ -32,16 +33,17 @@ fs.mkdirSync(output, {recursive:true});
    await page.route('**/data/atlas-startup.v1.json*', async route => {
     const url = new URL(route.request().url());
     requests.push({name:'startup-index',version:url.searchParams.get('v')});
-    if (['old-index','all-old'].includes(mixed) && url.searchParams.get('v') !== 'lean-admission-v1')
+    if (['old-index','all-old','previous-admission-all'].includes(mixed) && url.searchParams.get('v') !== 'lean-admission-v2')
      return route.fulfill({json:{schema_version:'stale-unversioned-index'}});
     return route.continue();
    });
    await page.route('**/assets/**', async route=>{
     const url=new URL(route.request().url()),name=path.posix.basename(url.pathname);
+    const versions = mixed === 'previous-admission-all' ? previous : old;
     if(old.has(name)) requests.push({name,version:url.searchParams.get('v')});
-    const stale = mixed==='all-old' || ({'old-entry':'atlas-public.js','old-model':'atlas-public-core.mjs','old-layout':'atlas-theory-core.mjs','old-startup':'atlas-startup.mjs','old-style':'atlas-public.css','old-locale':'zh-CN.json','old-view':'atlas-startup-view.mjs','old-architecture':'architecture-core.mjs'})[mixed]===name;
-    if(stale && old.has(name) && url.searchParams.get('v') !== 'lean-admission-v1')
-     await route.fulfill({contentType:name.endsWith('.css')?'text/css':name.endsWith('.json')?'application/json':'application/javascript',body:old.get(name)});
+    const stale = ['all-old','previous-admission-all'].includes(mixed) || ({'old-entry':'atlas-public.js','old-model':'atlas-public-core.mjs','old-layout':'atlas-theory-core.mjs','old-startup':'atlas-startup.mjs','old-style':'atlas-public.css','old-locale':'zh-CN.json','old-view':'atlas-startup-view.mjs','old-architecture':'architecture-core.mjs'})[mixed]===name;
+    if(stale && old.has(name) && url.searchParams.get('v') !== 'lean-admission-v2')
+     await route.fulfill({contentType:name.endsWith('.css')?'text/css':name.endsWith('.json')?'application/json':'application/javascript',body:versions.get(name)});
     else await route.continue();
    });
    const lang=['old-locale','all-old'].includes(mixed)?'zh-CN':'en';
@@ -51,10 +53,10 @@ fs.mkdirSync(output, {recursive:true});
    assert.equal(d.mode,'theory');assert.equal(d.nodes,expected.nodes.length);assert.equal(d.edges,expectedEdges);assert.equal(d.visible,expectedEdges);
    assert.equal(await page.locator('#loading.is-error').count(),0);
    assert.deepEqual(errors,[]);
-   assert.ok(requests.some(r=>r.name==='atlas-public.js'&&r.version==='lean-admission-v1'));
-   assert.ok(requests.some(r=>r.name==='atlas-theory-core.mjs'&&r.version==='lean-admission-v1'));
-   assert.ok(requests.some(r=>r.name==='atlas-public.css'&&r.version==='lean-admission-v1'));
-   assert.ok(requests.some(r=>r.name==='startup-index'&&r.version==='lean-admission-v1'));
+   assert.ok(requests.some(r=>r.name==='atlas-public.js'&&r.version==='lean-admission-v2'));
+   assert.ok(requests.some(r=>r.name==='atlas-theory-core.mjs'&&r.version==='lean-admission-v2'));
+   assert.ok(requests.some(r=>r.name==='atlas-public.css'&&r.version==='lean-admission-v2'));
+   assert.ok(requests.some(r=>r.name==='startup-index'&&r.version==='lean-admission-v2'));
    assert.equal(await page.locator('.dag-facts').evaluate(node=>getComputedStyle(node).display),'grid');
    if(lang==='zh-CN')assert.match(await page.locator('.dag-isolated-label').innerText(),/无图内连线/);
    fs.writeFileSync(path.join(output,mixed+'.json'),JSON.stringify({mixed,...d,errors,requests},null,2));
