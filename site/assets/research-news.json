@@ -1,7 +1,65 @@
 {
   "schema_version": "pages-research-news.v1",
-  "reviewed": "2026-10-16",
+  "reviewed": "2026-10-30",
   "publications": [
+    {
+      "id": "insertion-degree-descent",
+      "title": "Block-exchange descent for insertion: commuting projections and minimum masks",
+      "authors": "Haobo Ma, Wenlin Zhang, Charles E. Hughes",
+      "date": "2026-10-29",
+      "venue": "arXiv:2610.39941",
+      "status": "Preprint / cs.FL, math.CO",
+      "url": "https://arxiv.org/abs/2610.39941",
+      "image": "assets/publications/insertion-degree-descent.jpg",
+      "summary": "A block exchange from a minimum insertion mask of degree r has minimum degree exactly r − 1 among masks with commuting source projections. The paper proves exact descent for unary sources, repairs an infinite periodic degree-three family, and establishes a separate no-gap theorem for minimum iteration depths of arbitrary languages.",
+      "highlight": "Exact commuting-mask descent; iteration-depth no-gap theorem formalized in Lean",
+      "qualification": "General block-exchange descent and the Singleton No-Gap problem remain open.",
+      "evidence": "Title, authors, submission date and scope checked against arXiv:2610.39941v1, submitted 29 October 2026, and its PDF. Computer-assisted first-mask descent covers combined length seventeen over every alphabet; degree-three first-mask descent and repair cover length thirty. The paper cites HughesIterationDepthNoGap.lean at revision 16f6e1a0d882 for the iteration-depth theorem over arbitrary languages and alphabets. The computational supplement is public as release v1.0. Pages does not replay the computations or Lean build.",
+      "links": [
+        {
+          "label": "Code & verification",
+          "url": "https://github.com/the-omega-institute/insertion-degree-descent/releases/tag/v1.0"
+        }
+      ]
+    },
+    {
+      "id": "residue-sums",
+      "title": "Residue Sums Modulo Products of Two Distinct Odd Primes",
+      "authors": "Haobo Ma, Mircea Merca, Wenlin Zhang",
+      "date": "2026-10-21",
+      "venue": "arXiv:2610.29608",
+      "status": "Preprint / math.NT",
+      "url": "https://arxiv.org/abs/2610.29608",
+      "image": "assets/publications/residue-sums.jpg",
+      "summary": "When does the sum of residues in a multiplicative period modulo pq equal pqk/2? For distinct odd primes p and q and even period length k, character-sum criteria give index-four classifications and an infinite index-six family. A reproducible census of 75,090 eligible cyclic subgroups distinguishes balance of a subgroup from balance of all its cosets.",
+      "highlight": "Index-four balance criteria and an infinite index-six cancellation family",
+      "evidence": "Title, authors, submission date and scope checked against arXiv:2610.29608v1, submitted 21 October 2026, and its PDF. The census covers pq ≤ 10000 and finds 101 mixed index-four subgroups centered themselves but not on every coset. The paper cites Lean formalizations only for the counterexample (a, m) = (2, 15) to Merca’s Conjecture 1 and the distinct prime-modulus lifted identity in Conjecture 2; these do not constitute a formalization of all structural results. The public residue-sums-pq-data repository contains the data package and provenance. Pages does not replay those checks.",
+      "links": [
+        {
+          "label": "Code & verification",
+          "url": "https://github.com/the-omega-institute/residue-sums-pq-data"
+        }
+      ]
+    },
+    {
+      "id": "petersen-zero-forcing",
+      "title": "Sharp zero forcing numbers for the generalized Petersen graphs P(n,3) and P(n,4)",
+      "authors": "Arnav Krishnan, Haobo Ma, Wenlin Zhang",
+      "date": "2026-10-16",
+      "venue": "arXiv:2610.24059",
+      "status": "Preprint / math.CO",
+      "url": "https://arxiv.org/abs/2610.24059",
+      "image": "assets/publications/petersen-zero-forcing.jpg",
+      "summary": "The zero forcing numbers are Z(P(n,3)) = 8 for every n ≥ 13 and Z(P(n,4)) = 10 for every n ≥ 18. Both thresholds are sharp, and the paper gives exact values for all smaller admissible n. The first equality proves Krishnan’s Conjecture 5.",
+      "highlight": "Sharp thresholds 13 and 18; k = 3 formalized in Lean, k = 4 checked with DRAT certificates",
+      "evidence": "Title, authors, first submission date and scope checked against arXiv:2610.24059v1, submitted 16 October 2026, and its PDF. The k = 3 stabilization theorem is formalized in Lean 4 at upstream revision 7ee4c64c. The k = 4 proof combines a mathematical reduction with 89 boundary formulas, 11 fort formulas, independently checked DRAT certificates and explicit forcing sequences. Its Lean formalization remains incomplete. The public v2-full release includes the complete certificate archive. Pages does not replay either verification pipeline.",
+      "links": [
+        {
+          "label": "Code & verification",
+          "url": "https://github.com/the-omega-institute/petersen-zero-forcing/releases/tag/v2-full"
+        }
+      ]
+    },
     {
       "id": "klein-four-ca",
       "title": "Generation by lazy and invertible cellular automata over the Klein four-group",
@@ -105,6 +163,19 @@
           "url": "https://github.com/the-omega-institute/subquorum-colorings"
         }
       ]
+    },
+    {
+      "id": "generalized-fidelity",
+      "title": "Generalized Fidelity, the Data Processing Inequality, and Convexity",
+      "authors": "Haobo Ma, Reza Rajaei, Wenlin Zhang",
+      "date": "2026-09-09",
+      "venue": "arXiv:2609.09753 / v3 updated 20 October 2026",
+      "status": "Preprint / quant-ph",
+      "url": "https://arxiv.org/abs/2609.09753",
+      "image": "assets/publications/generalized-fidelity.jpg",
+      "summary": "The generalized Bures–Wasserstein distance induced by generalized fidelity fails the data processing inequality in every dimension n ≥ 2; neither the distance nor its square is convex in one state with the other state and reference fixed. The paper gives three sufficient conditions for data processing in dimension two and an exact criterion for generalized fidelity to reduce to Uhlmann fidelity.",
+      "highlight": "Failure of data processing and convexity in every dimension n ≥ 2",
+      "evidence": "Title, authors, first submission date (9 September 2026) and scope checked against the arXiv record and arXiv:2609.09753v3, updated 20 October 2026. The PDF states the dimension-independent failures, three sufficient conditions in dimension two, and a necessary and sufficient condition for equality with Uhlmann fidelity. The revision date is distinct from the first publication date."
     },
     {
       "id": "eqt2",
