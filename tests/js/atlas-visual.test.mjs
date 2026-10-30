@@ -1,7 +1,8 @@
+import { withEvidence } from "./atlas-evidence-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  createPublicModel,
+  createPublicModel as sourcePublicModel,
   viewFor,
 } from "../../site/assets/atlas-public-core.mjs";
 import { analyzeArchitecture } from "../../site/assets/architecture-core.mjs";
@@ -11,6 +12,8 @@ import {
   focusRole,
   researchMarkers,
 } from "../../site/assets/atlas-visual-core.mjs";
+
+const createPublicModel = graph => sourcePublicModel(withEvidence(graph));
 
 const graph = {
   nodes: [
@@ -69,13 +72,13 @@ test("connection bundles preserve exact directed membership and never aggregate 
   );
   assert.equal(bundles[0].ids.has("F"), false);
 });
-test("local focus distinguishes prerequisite, consequence, document and affinity without mutating coordinates or facts", () => {
+test("local focus follows module imports and excludes document and affinity expansion", () => {
   const model = createPublicModel(graph);
   const related = viewFor(model, { selected: "B" }).related;
   assert.equal(focusRole("A", "B", related, model), "upstream");
   assert.equal(focusRole("D", "B", related, model), "downstream");
-  assert.equal(focusRole("doc", "B", related, model), "document");
-  assert.equal(focusRole("F", "B", related, model), "affinity");
+  assert.equal(focusRole("doc", "B", related, model), "context");
+  assert.equal(focusRole("F", "B", related, model), "context");
   assert.equal(focusRole("B", "B", related, model), "selected");
 });
 test("research targets remain a separate authored overlay and keep their stable positions when scoped", () => {

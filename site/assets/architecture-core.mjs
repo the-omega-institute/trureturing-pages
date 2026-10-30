@@ -11,7 +11,7 @@ const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const endpoint = (value) => (typeof value === "object" ? value.id : value);
 
 // Reuse the published Topology counters; domain distributions are a Pages summary.
-export function analyzeArchitecture(graph) {
+export function analyzeArchitecture(graph, { validatePublished = true } = {}) {
   const nodes = graph.nodes
     .filter((n) => n.kind === "truth")
     .slice()
@@ -67,7 +67,7 @@ export function analyzeArchitecture(graph) {
       ["out_degree", direct],
       ["true_depth", depth],
     ]) {
-      if (node[field] !== undefined && node[field] !== expected)
+      if (validatePublished && node[field] !== undefined && node[field] !== expected)
         throw new Error(
           `Published Topology ${field} disagrees with dependency graph: ${node.id}`,
         );
@@ -97,6 +97,12 @@ export function analyzeArchitecture(graph) {
     nodeCount: nodes.length,
     domainCount: new Set(nodes.map((n) => n.domain || "Unclassified")).size,
   };
+}
+
+// Filtered-view counters are independent of the full certified source counters.
+// Call analyzeArchitecture(sourceGraph) before this view-specific recomputation.
+export function mathematicalArchitecture(model) {
+  return analyzeArchitecture({ nodes: model.nodes, edges: model.edges }, { validatePublished: false });
 }
 
 export function rankedNodes(nodes, architecture, metric = "reach") {

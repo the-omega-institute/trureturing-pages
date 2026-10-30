@@ -1457,6 +1457,12 @@ button.research-link {
 .dag-components { border-top: 1px solid #2a383e; margin-top: 25px; padding-top: 20px; font-size: 11px; }
 .dag-components summary { cursor: pointer; color: #c0d2d3; }
 .dag-component { display: block; width: 100%; background: none; border: 0; border-bottom: 1px solid #243238; padding: 13px 0; text-align: left; font-size: 11px; line-height: 1.6; }
+.dag-component strong, .dag-component small { display: block; overflow-wrap: anywhere; }
+.dag-component small { color: #8ca1a9; margin-top: 4px; }
+.dag-admission { font-size: 11px; line-height: 1.7; color: #9cafb6; }
+.article-audit p, .declaration-receipts code { overflow-wrap: anywhere; }
+.declaration-receipts li { padding: 8px 0; }
+.dag-import-join { margin: 20px 0; font-size: 12px; }
 .theory-mode .node-label { max-width: 190px; font-size: 9px; line-height: 1.45; background: #10191fe8; border-color: #385052; }
 .theory-mode .back-to-all { top: 185px; }
 @media (max-width: 1150px) and (min-width: 701px) { .theory-guide { top: 190px; font-size: 7px; gap: 8px; } }

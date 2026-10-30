@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#090c10" />
     <link rel="icon" type="image/svg+xml" href="assets/brand-mark.svg" />
     <title>trureturing | Mathematical Atlas</title>
-    <link rel="stylesheet" href="assets/atlas-public.css?v=dag-presentation-v1" />
+    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2" />
     <link rel="stylesheet" href="assets/relation-map.css" />
     <link rel="stylesheet" href="assets/architecture.css" />
     <link rel="stylesheet" href="assets/site-theme.css?v=tt-brand-v1" />
@@ -15,8 +15,8 @@
     <script defer src="assets/concept-lens-core.js"></script>
     <script defer src="assets/vendor/d3.min.js"></script>
     <script defer src="assets/relation-map.js"></script>
-    <script type="module" src="assets/atlas-public.js?v=dag-presentation-v1"></script>
-    <script type="module" src="assets/i18n.mjs?v=dag-presentation-v1"></script>
+    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2"></script>
+    <script type="module" src="assets/i18n.mjs?v=lean-admission-v2"></script>
 </head>
   <body class="site-themed">
     <header class="atlas-header">
@@ -200,7 +200,7 @@
             title="Release observations"
           ></a>
           <div class="edge-key">
-            <span class="key-line"></span>Proof dependency
+            <span class="key-line"></span>Module import
             <span data-edge-key="affinity" hidden
               ><i class="key-line" style="background: #d7a0ca"></i
               >Affinity</span
@@ -231,10 +231,7 @@
         <div id="map-note" class="map-note" hidden>
           <strong>About this map</strong>
           <p>
-            The default DAG retains every released mathematical module and every published dependency edge. Position follows actual graph connections and dependency depth. Arrows run from prerequisite to dependent. Roots may still import external Mathlib. In Structure, colors group concepts into editorial topic families. Position
-            reflects topic grouping and proof connections, not a mathematical
-            measure of similarity. Proof dependencies, structural affinity and
-            document links retain their distinct authority and colors.
+            The mathematical DAG includes published modules with checked declarations and their module imports. Selecting a module preserves this admission rule. Arrows run from prerequisite to dependent; they do not assert theorem use. External Mathlib imports are outside the graph. Structure groups admitted modules into editorial topic families. Blueprint explanations remain available in the Wiki. Source publication bytes and certified topology remain separate from filtered-view statistics.
           </p>
           <p id="release-note"></p>
           <button id="close-note">Close</button>

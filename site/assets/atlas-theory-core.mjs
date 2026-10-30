@@ -7,21 +7,33 @@ function hash(value) {
   return n >>> 0;
 }
 
-// Every published mathematical node and proof dependency belongs to the model.
+const label = node => node.human_title || (node.repo_path || node.id).split('/').pop().replace(/\.lean$/, '').replace(/([a-z])([A-Z])/g, '$1 $2');
+// Only admitted modules and real imports belong to the mathematical model.
 // Components describe actual connectivity, independently of editorial subjects.
 export function theoryModel(model, architecture) {
+  const admitted = new Set(model.nodes.map(n => n.id));
   const seen = new Set(), components = [], componentByNode = new Map();
   for (const node of model.nodes) {
     if (seen.has(node.id)) continue;
     const ids = [node.id]; seen.add(node.id);
     for (let i = 0; i < ids.length; i++) {
       for (const next of [...architecture.parents.get(ids[i]), ...architecture.children.get(ids[i])]) {
-        if (seen.has(next)) continue;
+        if (!admitted.has(next) || seen.has(next)) continue;
         seen.add(next); ids.push(next);
       }
     }
     ids.sort(compare);
     const component = { id: ids[0], ids, members: new Set(ids), edgeCount: 0 };
+    const domains = new Map();
+    for (const id of ids) {
+      const domain = model.byId.get(id).domain || 'Unclassified';
+      domains.set(domain, (domains.get(domain) || 0) + 1);
+    }
+    component.domains = [...domains].sort((a, b) => b[1] - a[1] || compare(a[0], b[0]));
+    component.anchor = ids.slice().sort((a, b) => architecture.metrics.get(b).reach - architecture.metrics.get(a).reach || compare(a, b))[0];
+    component.label = `${component.domains.slice(0, 2).map(([d]) => d.replace(/([a-z])([A-Z])/g, '$1 $2')).join(' · ')} / ${label(model.byId.get(component.anchor))}`;
+    component.joins = ids.filter(id => architecture.parents.get(id).size > 1)
+      .sort((a, b) => architecture.parents.get(b).size - architecture.parents.get(a).size || compare(a, b));
     components.push(component);
     for (const id of ids) componentByNode.set(id, component);
   }
@@ -33,6 +45,19 @@ export function theoryModel(model, architecture) {
     roots: model.nodes.filter(n => !architecture.parents.get(n.id).size).length,
     maxDepth: Math.max(0, ...model.nodes.map(n => architecture.metrics.get(n.id).depth)),
   };
+}
+
+// Directed breadth-first search: every adjacent pair is an existing module import.
+export function directedPath(architecture, from, to) {
+  if (!architecture.children.has(from) || !architecture.children.has(to)) return null;
+  const previous = new Map([[from, null]]), queue = [from];
+  for (let i = 0; i < queue.length && !previous.has(to); i++)
+    for (const next of architecture.children.get(queue[i]))
+      if (!previous.has(next)) { previous.set(next, queue[i]); queue.push(next); }
+  if (!previous.has(to)) return null;
+  const path = [];
+  for (let next = to; next !== null; next = previous.get(next)) path.unshift(next);
+  return path;
 }
 
 // Layout uses only directed dependencies and their connected components.

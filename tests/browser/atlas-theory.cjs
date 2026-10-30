@@ -10,7 +10,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
 
 (async () => {
   const { createPublicModel } = await import("../../site/assets/atlas-public-core.mjs");
-  const { analyzeArchitecture } = await import("../../site/assets/architecture-core.mjs");
+  const { mathematicalArchitecture } = await import("../../site/assets/architecture-core.mjs");
   const { theoryModel, LEGACY_ROUTE_ANCHORS } = await import("../../site/assets/atlas-theory-core.mjs");
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   try {
@@ -21,8 +21,11 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     const index = await (await page.request.get(new URL("data/atlas-startup.v1.json", base).href)).json();
     const response = await page.request.get(new URL(index.graph.path, base).href);
     const graph = JSON.parse(gunzipSync(await response.body()));
-    const model = createPublicModel(graph);
-    const theory = theoryModel(model, analyzeArchitecture(graph));
+    const { applyAdmission } = await import("../../site/assets/atlas-admission.mjs");
+    const manifest = await (await page.request.get(new URL("data/pages-atlas-manifest.v1.json", base).href)).json();
+    const admission = JSON.parse(gunzipSync(await (await page.request.get(new URL(index.admission.path, base).href)).body()));
+    const model = createPublicModel(applyAdmission(graph, manifest, admission));
+    const theory = theoryModel(model, mathematicalArchitecture(model));
     const expectedNodes = model.nodes.map(n => n.id).sort();
     const expectedEdges = pairs(model.edges.map(e => [e.source, e.target]));
     await page.addInitScript(() => {
@@ -102,7 +105,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     const selectedIds = new Set(selected.nodeIds), selectedEdges = new Set(pairs(selected.edgePairs));
     assert.ok(expectedNodes.every(id => selectedIds.has(id)), "Selecting a module keeps the full mathematical context");
     assert.ok(expectedEdges.every(pair => selectedEdges.has(pair)));
-    await page.locator(".article-audit summary").click();
+    await page.locator(".article-audit > summary").click();
     const sourceLink = await page.getByRole("link", { name: "Lean source at this release", exact: true }).getAttribute("href");
     assert.match(sourceLink, /github\.com\/the-omega-institute\/trureturing\/blob\/[a-f0-9]{40}\/.*\.lean$/);
     await page.screenshot({ timeout: 30000, path: path.join(output, "module-dependencies.png") });

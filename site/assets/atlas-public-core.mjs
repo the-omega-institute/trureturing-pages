@@ -8,9 +8,10 @@ import {
   forceZ,
 } from "./vendor/d3-force-3d.mjs";
 import "./graph-relations.js";
-import { analyzeArchitecture } from "./architecture-core.mjs";
+import { mathematicalArchitecture } from "./architecture-core.mjs?v=lean-admission-v2";
 import { researchScope } from "./atlas-research-core.mjs";
 import { structuralScaffold } from "./atlas-visual-core.mjs";
+import { supportedLean, ADMISSION_SCHEMA } from "./atlas-admission.mjs?v=lean-admission-v2";
 const Relations = globalThis.TrureturingRelations;
 
 // Editorial navigation only. Upstream topology and proof authority remain intact.
@@ -160,10 +161,13 @@ export function createPublicModel(graph) {
   const allNodes = graph.nodes
     .map((n) => ({ ...n, family: familyFor(n).id }))
     .sort((a, b) => a.id.localeCompare(b.id, "en"));
-  const nodes = allNodes.filter((n) => n.kind === "truth");
+  const nodes = graph.math_admission?.schema_version === ADMISSION_SCHEMA ? allNodes.filter(supportedLean) : [];
+  const admitted = new Set(nodes.map(n => n.id));
   const relationships = Relations.createIndex({
-    nodes: allNodes,
-    edges: graph.edges,
+    nodes,
+    edges: graph.edges.filter(e => admitted.has(endpoint(e.source)) && admitted.has(endpoint(e.target)) &&
+      ["truth-dependency", "module-import", "frozen-prerequisite", "dependency"].includes(e.layer || "dependency") &&
+      !["advisory", "proposed"].includes(e.status)),
   });
   const { byId, parents, children } = relationships;
   const edges = relationships.edges.filter(
@@ -185,6 +189,7 @@ export function createPublicModel(graph) {
     children,
     families,
     relationships,
+    admission: graph.math_admission || { coverage: "unavailable", admitted: 0, excluded: allNodes.filter(n => n.kind === "truth").length },
   };
 }
 
@@ -229,7 +234,7 @@ export function viewFor(
     });
     const retained = new Set(context ? nodes.map((n) => n.id) : []);
     related.ids.forEach((id) => retained.add(id));
-    nodes = model.allNodes.filter((n) => retained.has(n.id));
+    nodes = model.nodes.filter((n) => retained.has(n.id));
   }
   const ids = new Set(nodes.map((n) => n.id));
   return {
@@ -279,10 +284,7 @@ export function searchNodes(model, query, limit = 8) {
 
 export function computeLayout(model, progress = () => {}) {
   const positions = {};
-  const architecture = analyzeArchitecture({
-    nodes: model.nodes,
-    edges: model.edges,
-  });
+  const architecture = mathematicalArchitecture(model);
   const scaffold = structuralScaffold(model, architecture);
   for (const [familyIndex, family] of model.families.entries()) {
     const members = family.nodes.map((n) => ({
@@ -396,10 +398,7 @@ export function computeLayout(model, progress = () => {}) {
 export function architectureLayout(
   model,
   positions,
-  architecture = analyzeArchitecture({
-    nodes: model.nodes,
-    edges: model.edges,
-  }),
+  architecture = mathematicalArchitecture(model),
 ) {
   const result = {};
   for (const node of model.nodes) {
@@ -438,6 +437,8 @@ export async function verifyGraph(graphText, manifest, digest) {
     manifest.truth_release_digest
   )
     throw new Error("Graph and manifest refer to different releases.");
+  if (["source_commit", "source_tree"].some(k => manifest[k] && graph.source_snapshot[k] !== manifest[k]))
+    throw new Error("Graph and manifest refer to different source identities.");
   if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges))
     throw new Error("Published graph is incomplete.");
   const ids = new Set();

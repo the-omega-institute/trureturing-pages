@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
-import { resolve, join } from "node:path";
+import { resolve, join, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   createPublicModel,
@@ -13,8 +13,10 @@ import {
   LAYOUT_SCHEMA,
   LAYOUT_PROFILE,
   validateLayout,
+  compactLayout, expandLayout,
 } from "../site/assets/atlas-startup.mjs";
-import { analyzeArchitecture } from "../site/assets/architecture-core.mjs";
+import { analyzeArchitecture, mathematicalArchitecture } from "../site/assets/architecture-core.mjs";
+import { admissionFromEvidence, applyAdmission } from "../site/assets/atlas-admission.mjs";
 import { theoryModel, theoryLayout, documentPositions } from "../site/assets/atlas-theory-core.mjs";
 import { startupView, validateView, DETAIL_SCHEMA, DETAIL_SHARDS, detailShard } from "../site/assets/atlas-startup-view.mjs";
 
@@ -23,8 +25,15 @@ const digest = (raw) =>
 export async function buildStartup(graphPath, manifestPath, output) {
   const raw = await readFile(graphPath, "utf8");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-  const graph = await verifyGraph(raw, manifest, digest);
-  const model = createPublicModel(graph), architecture = analyzeArchitecture(graph);
+  const sourceGraph = await verifyGraph(raw, manifest, digest);
+  // Validate every published Topology counter before deriving the admitted view.
+  analyzeArchitecture(sourceGraph);
+  let evidence;
+  try { evidence = JSON.parse(await readFile(join(dirname(graphPath), "atlas-lean-evidence.v1.json"), "utf8")); }
+  catch (error) { if (error.code !== "ENOENT") throw error; }
+  const admission = admissionFromEvidence(sourceGraph, manifest, evidence);
+  const graph = applyAdmission(sourceGraph, manifest, admission, evidence);
+  const model = createPublicModel(graph), architecture = mathematicalArchitecture(model);
   const layout = {
     schema_version: LAYOUT_SCHEMA,
     layout_profile: LAYOUT_PROFILE,
@@ -49,13 +58,12 @@ export async function buildStartup(graphPath, manifestPath, output) {
     truth_release_digest: manifest.truth_release_digest,
     graph: await artifact(raw),
     layout: await artifact(JSON.stringify(layout)),
+    admission: await artifact(JSON.stringify(admission)),
   };
   const view = startupView(graph, manifest);
   validateView(view, manifest);
-  const rounded = positions => Object.fromEntries(Object.entries(positions).map(([id, point]) => [id,
-    Object.fromEntries(["x", "y", "z"].map(axis => [axis, Math.round(point[axis] * 1000) / 1000]))]));
-  const fastLayout = { ...layout, positions: rounded(layout.positions), dependency_positions: rounded(layout.dependency_positions) };
-  validateLayout(fastLayout, graph, manifest);
+  const fastLayout = compactLayout(layout, graph, digest(JSON.stringify(graph.nodes.map(n => n.id))));
+  validateLayout(await expandLayout(fastLayout, graph), graph, manifest);
   const shards = Array.from({ length: DETAIL_SHARDS }, () => []);
   for (const node of graph.nodes) shards[detailShard(node.id)].push(node);
   index.fast = {
@@ -66,10 +74,12 @@ export async function buildStartup(graphPath, manifestPath, output) {
       truth_release_digest: manifest.truth_release_digest, nodes,
     })))),
   };
+  index.details = index.fast.details;
   await writeFile(
     join(output, "data/atlas-startup.v1.json"),
     JSON.stringify(index, null, 2) + "\n",
   );
+  await writeFile(join(output, "data/atlas-admission.v1.json"), JSON.stringify(admission));
   return index;
 }
 

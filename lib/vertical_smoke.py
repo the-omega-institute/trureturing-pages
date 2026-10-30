@@ -606,6 +606,8 @@ def build_basic_site(bundle_directory: str | Path, output_directory: str | Path)
     data.mkdir(exist_ok=True)
     # Carry the exact verified export to the resolution gate; never reconstruct it from labels.
     shutil.copyfile(Path(bundle_directory) / "truth-export.v1.json", data / "truth-export.v1.json")
+    from .atlas_admission import write_evidence
+    write_evidence(bundle_directory, data / "atlas-lean-evidence.v1.json", verified)
     encoded = json.dumps(graph, indent=2, ensure_ascii=False) + "\n"
     (data / "basic-truth-graph.v1.json").write_text(encoded, encoding="utf-8")
     (data / "truth-graph.v1.json").write_text(encoded, encoding="utf-8")

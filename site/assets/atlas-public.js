@@ -1,23 +1,22 @@
-import { theoryModel, documentPositions, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=connected-dag-v3";
-import { t } from "./i18n.mjs?v=dag-presentation-v1";
+import { theoryModel, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=lean-admission-v2";
+import { t } from "./i18n.mjs?v=lean-admission-v2";
 import {
   FAMILIES,
   createPublicModel,
   endpoint,
   familyFor,
-  isOpen,
   neighborhood,
   searchNodes,
   title,
   viewFor,
-} from "./atlas-public-core.mjs?v=connected-dag-v3";
+} from "./atlas-public-core.mjs?v=lean-admission-v2";
 import {
   METRICS,
-  analyzeArchitecture,
+  mathematicalArchitecture,
   rankedNodes,
   snapshotFromGraph,
   loadHistory,
-} from "./architecture-core.mjs";
+} from "./architecture-core.mjs?v=lean-admission-v2";
 import {
   metricFacts,
   domainDistribution,
@@ -25,7 +24,7 @@ import {
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
 import { appendRecentResults } from "./atlas-results.mjs";
-import { loadStartup } from "./atlas-startup.mjs?v=fast-startup-v1";
+import { loadStartup } from "./atlas-startup.mjs?v=lean-admission-v2";
 import {
   structuralScaffold,
   focusRole,
@@ -274,7 +273,12 @@ function setFamily(id) {
   frameNodes(currentNodes);
 }
 function selectNode(id) {
-  if (!state.model?.byId.has(id)) return;
+  if (!state.model?.byId.has(id)) {
+    state.admissionNotice = "This module has no supported published declaration evidence and is outside the mathematical view.";
+    renderWiki();
+    return;
+  }
+  state.admissionNotice = null;
   rememberView();
   state.bundle = null;
   const node = state.model.byId.get(id);
@@ -559,7 +563,7 @@ function rebuildScene(edges = viewFor(state.model, state).edges) {
     );
     label.dataset.sceneKind = item.type;
     label.dataset.sceneKey = item.key;
-    label.title = `${item.title}: ${item.count} ${isResearch ? "released foundations" : "proof dependencies"}`;
+    label.title = `${item.title}: ${item.count} ${isResearch ? "released foundations" : "module imports"}`;
     if (isResearch)
       label.append(el("small", "", "Research target / proposed route"));
     label.setAttribute("aria-label", label.title);
@@ -598,7 +602,7 @@ function renderBundle(root) {
     el(
       "p",
       "wiki-intro",
-      `to ${to.name} / ${bundle.edges.length} proof dependencies`,
+      `to ${to.name} / ${bundle.edges.length} module imports`,
     ),
   );
   const list = el("div", "bundle-relations");
@@ -1034,6 +1038,10 @@ function renderWiki() {
   wikiMap = null;
   const root = $("#wiki-content");
   root.replaceChildren();
+  if (state.admissionNotice) {
+    const notice = el("p", "admission-notice", t(state.admissionNotice));
+    notice.setAttribute("role", "status"); root.append(notice);
+  }
   $("#close-wiki").hidden = !state.selected && !state.family;
   $("#wiki").classList.toggle(
     "has-selection",
@@ -1167,7 +1175,7 @@ function renderWiki() {
         const copy = el("span");
         copy.append(
           el("strong", "", `${from.name} to ${to.name}`),
-          el("small", "", `${bundle.edges.length} proof dependencies`),
+          el("small", "", `${bundle.edges.length} module imports`),
         );
         button.append(copy, icon("arrow-up-right"));
         (index < 4 ? root : more).append(button);
@@ -1210,16 +1218,11 @@ function renderArticle(root) {
   back.style.color = family.color;
   root.append(back, el("h2", "article-title", title(node)));
   const meta = el("div", "article-meta");
-  const closed = String(node.state || node.status).toLowerCase() === "closed";
   meta.append(
     el(
       "span",
-      closed ? "status-closed" : "status-open",
-      isOpen(node)
-        ? "Open module"
-        : closed
-          ? "Proven"
-          : node.status || node.state || "Unspecified",
+      "status-closed",
+      t(node.lean.theorem_count ? "Verified declarations" : "Verified definitions"),
     ),
     el(
       "span",
@@ -1288,11 +1291,7 @@ function renderArticle(root) {
   contextLabel.prepend(contextInput);
   relationshipControls.append(contextLabel);
   for (const [category, name] of [
-    ["proof", "Proof"],
-    ["affinity", "Affinity"],
-    ["document", "Documents"],
-    ["advisory", "Advisory"],
-    ["authored", "Authored"],
+    ["proof", "Module imports"],
   ]) {
     if (
       ["advisory", "authored"].includes(category) &&
@@ -1350,8 +1349,6 @@ function renderArticle(root) {
       ),
     );
     root.append(facts);
-    const usefulFacts = model.facts.slice(0, 2);
-    usefulFacts.forEach((f) => root.append(el("p", "structural-fact", f.text)));
     if (model.documents.length) {
       root.append(el("h3", "section-label spaced", "FURTHER READING"));
       for (const document of model.documents.slice(0, 5)) {
@@ -1377,9 +1374,7 @@ function renderArticle(root) {
     });
     const key = el("div", "relationship-key");
     for (const [name, category] of [
-      ["Proof", "proof"],
-      ["Affinity", "affinity"],
-      ["Document", "document"],
+      ["Module imports", "proof"],
     ]) {
       const item = el("span", "", name);
       item.prepend(el("i", category));
@@ -1438,6 +1433,26 @@ function renderArticle(root) {
     el("p", "", node.repo_path || node.id),
     el("p", "", state.graph.source_snapshot.truth_release_digest),
   );
+  audit.append(el("p", "", t("{0} checked declarations · {1} theorems", node.lean.declaration_count, node.lean.theorem_count)),
+    el("p", "", t(node.lean.freeze_status === "frozen" ? "Frozen in this publication" : "Proven; awaiting freezing")),
+    el("p", "", t("Module axiom union: {0}", node.lean.node_axiom_closure.join(", ") || "∅")),
+    el("p", "", t("Lean source hash: {0}", node.lean.source_sha256)));
+  if (node.lean_declarations) {
+    const declarations = el("details", "declaration-receipts");
+    declarations.append(el("summary", "", t("Inspect declaration identities and axioms")));
+    declarations.addEventListener("toggle", () => {
+      if (!declarations.open || declarations.querySelector("ol")) return;
+      const list = el("ol");
+      for (const decl of node.lean_declarations) {
+        const row = el("li");
+        row.append(el("code", "", decl.name), el("p", "", `${decl.kind} · ${decl.statement_id}`),
+          el("p", "", t("Declaration axioms: {0}", decl.axioms.join(", ") || "∅")));
+        list.append(row);
+      }
+      declarations.append(list);
+    });
+    audit.append(declarations);
+  }
   const source = state.graph.source_snapshot;
   if (/^[\w.-]+\/[\w.-]+$/.test(source.source_repo || "") &&
       /^[a-f0-9]{40}$/.test(source.source_commit || "") &&
@@ -1485,13 +1500,14 @@ async function load() {
   state.startup = startup.timing;
   state.loadDetails = startup.loadDetails;
   state.model = createPublicModel(state.graph);
-  state.architecture = analyzeArchitecture(state.graph);
+  // loadStartup has already validated the complete published topology.
+  state.architecture = mathematicalArchitecture(state.model);
   state.scaffold = structuralScaffold(state.model, state.architecture);
   state.theory = theoryModel(state.model, state.architecture);
   state.isolatedNodes = state.model.nodes.filter(n => !state.theory.componentByNode.get(n.id).edgeCount);
   state.bundles = relationBundles(state.model);
   if (!state.model.nodes.length)
-    throw new Error("This release has no mathematical concepts.");
+    throw new Error("Published declaration evidence is unavailable for this mathematical view. The complete source release remains available in the advanced workspace.");
   $("#loading-message").textContent = "Assembling the concept families";
   state.positions =
     startup.positions ||
@@ -1519,7 +1535,7 @@ async function load() {
     }));
   state.structurePositions = state.positions;
   const dependencyPositions = startup.dependencyPositions || await new Promise((resolve, reject) => {
-    const worker = new Worker(new URL("./atlas-dag-worker.mjs?v=connected-dag-v3", import.meta.url), { type: "module" });
+    const worker = new Worker(new URL("./atlas-dag-worker.mjs?v=lean-admission-v2", import.meta.url), { type: "module" });
     $("#loading-message").textContent = t("Laying out the complete dependency DAG");
     worker.onmessage = ({data}) => { worker.terminate(); data.error ? reject(new Error(data.error)) : resolve(data.positions); };
     worker.onerror = () => { worker.terminate(); reject(new Error("Dependency layout worker failed.")); };
@@ -1676,6 +1692,7 @@ async function load() {
     family: state.family,
     mode: state.mode,
     theory: { nodes: state.theory.nodes.length, edges: state.theory.edges.length, components: state.theory.components.length, largestComponent: state.theory.components[0]?.ids.length || 0, isolated: state.theory.isolated, roots: state.theory.roots, maxDepth: state.theory.maxDepth, component: state.component },
+    admission: state.model.admission,
     visibleEdges: state.renderer.graphData().links.filter(linkVisible).length,
     problem: state.problem,
     researchQuestions: state.research?.problems.size || 0,
@@ -1729,7 +1746,7 @@ async function load() {
           const tooltip = $("#scene-tooltip");
           tooltip.hidden = !item;
           if (!item) return;
-          tooltip.textContent = `${item.title} / ${item.count} ${item.type === "research" ? "released foundations / research association" : "proof dependencies"}`;
+          tooltip.textContent = `${item.title} / ${item.count} ${item.type === "research" ? "released foundations / research association" : "module imports"}`;
           const rect = $("#graph").getBoundingClientRect();
           tooltip.style.left = `${Math.min(Math.max(16, event.clientX - rect.x + 12), rect.width - 296)}px`;
           tooltip.style.top = `${Math.min(event.clientY - rect.y + 16, rect.height - 110)}px`;
@@ -1831,12 +1848,12 @@ function renderReleaseDiscover() {
     ? `+${changes.added.size} ${changes.added.size === 1 ? "concept" : "concepts"}`
     : changes.changed.size
       ? `${changes.changed.size} updated`
-      : `+${changes.edgesAdded.size} proof ${changes.edgesAdded.size === 1 ? "connection" : "connections"}`;
+      : `+${changes.edgesAdded.size} import ${changes.edgesAdded.size === 1 ? "connection" : "connections"}`;
   const links = $("#release-discover-links");
   links.hidden = !changes.edgesKnown || !changes.edgesAdded.size ||
     !(changes.added.size || changes.changed.size);
   if (!links.hidden)
-    links.textContent = `+${changes.edgesAdded.size} proof ${changes.edgesAdded.size === 1 ? "connection" : "connections"}`;
+    links.textContent = `+${changes.edgesAdded.size} import ${changes.edgesAdded.size === 1 ? "connection" : "connections"}`;
   const root = $("#release-discover-topics");
   root.replaceChildren();
   for (const topic of topics) {
@@ -1908,13 +1925,14 @@ function focusIsolated() {
 function renderTheory(root) {
   const group = state.theory.components.find(c => c.id === state.component);
   root.append(el("p", "eyebrow", t("THE PUBLISHED DEPENDENCY DAG")),
-    el("h2", "", t(group ? "A connected part of the theory." : "Published module dependencies.")),
-    el("p", "wiki-intro", t(group ? "Every module and dependency in this connected component. Follow the branches, shared prerequisites and joins in the graph." : "Every released module and every published dependency. Follow the branches, shared prerequisites and joins in the graph.")));
+    el("h2", "", group ? group.label : t("Published module dependencies.")),
+    el("p", "wiki-intro", t("Published modules with checked declarations and their module imports. Follow branches, shared prerequisites and joins.")));
   const facts = el("dl", "dag-facts");
   for (const [value, label] of [[currentNodes.length, "Modules"], [state.renderer.graphData().links.length, "Dependencies"], [group ? 1 : state.theory.components.length, "Connected components"], [group ? Math.max(...currentNodes.map(n => state.architecture.metrics.get(n.id).depth)) : state.theory.maxDepth, "Maximum dependency depth"]]) {
     const item = el("div"); item.append(el("dt", "", t(label)), el("dd", "", format(value))); facts.append(item);
   }
   root.append(facts);
+  root.append(el("p", "dag-admission", t("Mathematical view: {0} admitted · {1} excluded from {2} source modules. Certified source statistics describe the complete publication.", format(state.model.admission.admitted), format(state.model.admission.excluded), format(state.model.admission.source_truth_nodes))));
   if (!group) {
     const scope = el("div", "dag-connectivity");
     scope.append(el("p", "", t("{0} components with imports · {1} unconnected modules", format(state.theory.components.length - state.theory.isolated), format(state.theory.isolated))),
@@ -1928,8 +1946,18 @@ function renderTheory(root) {
   root.append(el("h3", "section-label spaced", t("SHARED PREREQUISITES")));
   rankedNodes(currentNodes, state.architecture, "reach").slice(0, 8).forEach(node => root.append(nodeButton(node, t("{0} downstream modules · {1} direct dependents", state.architecture.metrics.get(node.id).reach, state.architecture.metrics.get(node.id).direct))));
   const components = el("details", "dag-components"); components.append(el("summary", "", t("Browse connected components")));
-  state.theory.components.filter(c => c.edgeCount).forEach((c, index) => components.append(action(t("Component {0} · {1} modules · {2} dependencies", index + 1, c.ids.length, c.edgeCount), "dag-component", () => selectComponent(c.id))));
+  state.theory.components.filter(c => c.edgeCount).forEach(c => {
+    const button = action("", "dag-component", () => selectComponent(c.id));
+    button.append(el("strong", "", c.label), el("small", "", t("{0} modules · {1} imports · {2} joins", c.ids.length, c.edgeCount, c.joins.length)));
+    components.append(button);
+  });
   root.append(components);
+  const joins = (group ? group.joins : state.theory.components.flatMap(c => c.joins)).slice(0, 8);
+  if (joins.length) {
+    root.append(el("h3", "section-label spaced", t("IMPORT JOINS")),
+      el("p", "wiki-intro", t("These modules import multiple prerequisites. Open Architecture to inspect their directed import paths.")));
+    joins.forEach(id => root.append(nodeButton(state.model.byId.get(id), t("{0} direct prerequisites", state.architecture.parents.get(id).size))));
+  }
   const evolution = el("a", "research-link", t("See how the structure evolved →")); evolution.href = "evolution.html";
   root.append(evolution, el("p", "architecture-provenance", t("Edges record module imports. External Mathlib dependencies are outside this graph. Depth spacing is compressed to keep long chains visible.")));
 }
@@ -1987,7 +2015,7 @@ function renderArchitectureOverview(root) {
     el(
       "p",
       "architecture-provenance",
-      "Module-import graph / Topology counters / domain coverage summarized from released dependencies",
+      "Admitted module-import graph / recomputed view metrics / domain coverage from rendered imports",
     ),
   );
 }
@@ -1995,6 +2023,15 @@ function renderArchitectureOverview(root) {
 function renderArchitectureNode(root, node) {
   const metrics = state.architecture.metrics.get(node.id);
   metricFacts(root, metrics);
+  root.querySelector(".architecture-share").textContent = t("{0}% of admitted modules downstream", (metrics.share * 100).toFixed(2));
+  root.append(el("p", "architecture-provenance", t("Metrics and paths describe the admitted module-import view.")));
+  const prerequisites = [...state.architecture.parents.get(node.id)];
+  if (prerequisites.length) {
+    const imports = el("details", "dag-import-join");
+    imports.append(el("summary", "", t("Direct prerequisites · {0}", prerequisites.length)));
+    prerequisites.forEach(id => imports.append(nodeButton(state.model.byId.get(id))));
+    root.append(imports);
+  }
   const pathHost = el("div", "architecture-paths");
   domainDistribution(root, metrics, (domain) => {
     pathHost.replaceChildren(el("h3", "section-label", domain));
@@ -2006,17 +2043,8 @@ function renderArchitectureNode(root, node) {
       details.append(el("summary", "", title(state.model.byId.get(id))));
       details.addEventListener("toggle", () => {
         if (!details.open || details.querySelector("ol")) return;
-        const previous = new Map([[node.id, null]]),
-          queue = [node.id];
-        for (let i = 0; i < queue.length && !previous.has(id); i++)
-          for (const next of state.architecture.children.get(queue[i]))
-            if (!previous.has(next)) {
-              previous.set(next, queue[i]);
-              queue.push(next);
-            }
-        const path = [];
-        for (let next = id; next !== null; next = previous.get(next))
-          path.unshift(next);
+        const path = directedPath(state.architecture, node.id, id);
+        if (!path) return;
         const list = el("ol");
         for (const key of path) {
           const row = el("li");

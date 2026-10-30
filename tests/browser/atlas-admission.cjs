@@ -1,0 +1,105 @@
+const { chromium } = require("playwright");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const { gunzipSync } = require("node:zlib");
+const root = process.env.ATLAS_ORIGIN || "http://127.0.0.1:8765";
+const output = process.env.ATLAS_OUTPUT || "artifacts/atlas-admission";
+fs.mkdirSync(output, { recursive: true });
+
+(async () => {
+  const { validateView } = await import("../../site/assets/atlas-startup-view.mjs");
+  const { createPublicModel, title } = await import("../../site/assets/atlas-public-core.mjs");
+  const { mathematicalArchitecture } = await import("../../site/assets/architecture-core.mjs");
+  const { theoryModel, directedPath } = await import("../../site/assets/atlas-theory-core.mjs");
+  const browser = await chromium.launch({ channel: "chrome", headless: true });
+  try {
+    const page = await browser.newPage({ reducedMotion: "reduce", viewport: { width: 1512, height: 982 } });
+    page.setDefaultTimeout(30000);
+    const errors = [], requests = [];
+    page.on("pageerror", e => errors.push(e.message));
+    page.on("request", r => requests.push(new URL(r.url()).pathname));
+    const index = await (await page.request.get(root + "/data/atlas-startup.v1.json")).json();
+    const manifest = await (await page.request.get(root + "/data/pages-atlas-manifest.v1.json")).json();
+    const graph = validateView(JSON.parse(gunzipSync(await (await page.request.get(root + "/" + index.fast.graph.path)).body())), manifest);
+    const model = createPublicModel(graph), architecture = mathematicalArchitecture(model), theory = theoryModel(model, architecture);
+    const forbidden = new Set(graph.nodes.filter(n => !model.byId.has(n.id)).map(n => n.id));
+    const assertAdmitted = async () => {
+      const d = await page.evaluate(() => window.atlasDiagnostics({ includeGraph: true }));
+      assert.ok(d.nodeIds.every(id => model.byId.has(id)));
+      assert.ok(d.edgePairs.every(([a,b]) => model.children.get(a)?.has(b)));
+      return d;
+    };
+    await page.goto(root + "/atlas.html?lang=en");
+    await page.waitForFunction(() => window.atlasDiagnostics);
+    const initial = await assertAdmitted();
+    assert.equal(initial.nodes, model.nodes.length);
+    assert.equal(initial.edges, model.edges.length);
+    assert.ok(!requests.includes("/" + index.graph.path));
+    assert.ok(!requests.some(p => /truth-export|raw-lean-report|atlas-lean-evidence/.test(p)));
+    assert.ok(!requests.some(p => index.fast.details.some(e => p === "/" + e.path)));
+    await page.locator(".dag-components > summary").click();
+    assert.equal(await page.locator(".dag-component strong").first().innerText(), theory.components[0].label);
+    await page.getByRole("button", { name: "Structure", exact: true }).click();
+    await assertAdmitted();
+    await page.locator(".family-row").first().click();
+    await assertAdmitted();
+    await page.getByRole("button", { name: "Full DAG", exact: true }).click();
+    const choose = async id => {
+      await page.getByLabel("Find a concept", { exact: true }).fill(id);
+      await page.locator("#search-results button").first().click();
+      await page.locator(".wiki-tabs").waitFor();
+      await page.getByRole("tab", { name: "Overview", exact: true }).click();
+      await page.locator(".article-copy").waitFor();
+      assert.equal((await assertAdmitted()).selected, id);
+    };
+    const unfrozen = model.nodes.find(n => n.lean.freeze_status === "proven-not-yet-frozen");
+    const definition = model.nodes.find(n => n.lean.theorem_count === 0);
+    assert.ok(unfrozen && definition);
+    await choose(unfrozen.id);
+    await page.locator(".article-audit > summary").click();
+    assert.ok((await page.locator(".article-audit").innerText()).includes("Proven; awaiting freezing"));
+    await page.locator(".declaration-receipts > summary").click();
+    assert.equal(await page.locator(".declaration-receipts li").count(), unfrozen.lean.declaration_count);
+    const displayedNames = await page.locator(".declaration-receipts li > code").allTextContents();
+    assert.ok(displayedNames.every(n => n.includes(".")));
+    await choose(definition.id);
+    assert.ok((await page.locator(".article-meta").innerText()).includes("Verified definitions"));
+    await page.getByRole("button", { name: "Return to all concepts", exact: true }).click();
+    await page.getByRole("button", { name: "Dependencies", exact: true }).click();
+    const join = model.nodes.find(n => model.parents.get(n.id).size > 1);
+    await choose(join.id);
+    await page.getByRole("tab", { name: "Architecture", exact: true }).click();
+    await page.locator(".dag-import-join > summary").click();
+    const joinNames = await page.locator(".dag-import-join .concept-row strong").allTextContents();
+    assert.deepEqual(joinNames.sort(), [...model.parents.get(join.id)].map(id => title(model.byId.get(id))).sort());
+    const pathRoot = model.nodes.find(n => architecture.metrics.get(n.id).reach > 0 && architecture.metrics.get(n.id).reach < 10);
+    await choose(pathRoot.id);
+    await page.getByRole("tab", { name: "Architecture", exact: true }).click();
+    await page.locator(".architecture-domain").first().click();
+    await page.locator(".architecture-paths details > summary").first().click();
+    const pathNames = await page.locator(".architecture-paths details[open] ol button").allTextContents();
+    assert.ok(pathNames.length >= 2);
+    const target = [...architecture.descendants.get(pathRoot.id)].find(id => title(model.byId.get(id)) === pathNames.at(-1));
+    assert.ok(target);
+    assert.deepEqual(directedPath(architecture,pathRoot.id,target).map(id => title(model.byId.get(id))), pathNames);
+    await page.screenshot({ path: output + "/directed-import-path.png", timeout: 30000 });
+    const rejected = graph.nodes.find(n => n.kind === "truth" && n.state === "open");
+    await page.goto(root + "/atlas.html?lang=en#node=" + encodeURIComponent(rejected.id));
+    await page.reload();
+    await page.waitForFunction(() => window.atlasDiagnostics);
+    await page.locator(".admission-notice").waitFor();
+    const excluded = await assertAdmitted();
+    assert.equal(excluded.selected, null);
+    assert.equal(excluded.nodes, model.nodes.length);
+    await page.getByLabel("Find a concept", { exact: true }).fill(rejected.id);
+    await page.locator("#search-results .no-results").waitFor();
+    await page.screenshot({ path: output + "/excluded-direct-link.png", timeout: 30000 });
+    assert.deepEqual(errors, []);
+    const receipt = { source: graph.math_admission, nodes: model.nodes.length, edges: model.edges.length,
+      forbiddenNodes: forbidden.size, unfrozen: unfrozen.id, definition: definition.id,
+      declarationNames: displayedNames, join: join.id, joinNames, pathNames, excludedDirectLink: rejected.id,
+      noSourceOrReceiptDownloadsBeforeReady: true, modesAndSelectionAdmitted: true, errors };
+    fs.writeFileSync(output + "/receipt.json", JSON.stringify(receipt, null, 2));
+    console.log(JSON.stringify(receipt));
+  } finally { await Promise.race([browser.close(), new Promise(resolve => setTimeout(resolve, 2000))]); }
+})().then(() => process.exit(0)).catch(error => { console.error(error); process.exit(1); });
