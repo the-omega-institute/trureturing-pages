@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="assets/brand-mark.svg" />
     <title>trureturing | Mathematical Atlas</title>
     <meta name="description" content="Human–AI research, connected through a growing mathematical library. Explore Lean-checked proofs, their dependencies and the questions they open." />
-    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2&amp;intro=2" />
+    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2&amp;intro=3" />
     <link rel="stylesheet" href="assets/relation-map.css" />
     <link rel="stylesheet" href="assets/architecture.css" />
     <link rel="stylesheet" href="assets/site-theme.css?v=tt-brand-v1" />
@@ -16,7 +16,7 @@
     <script defer src="assets/concept-lens-core.js"></script>
     <script defer src="assets/vendor/d3.min.js"></script>
     <script defer src="assets/relation-map.js"></script>
-    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2&amp;intro=2"></script>
+    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2&amp;intro=3"></script>
     <script type="module" src="assets/i18n.mjs?v=lean-admission-v2"></script>
 </head>
   <body class="site-themed">
@@ -28,9 +28,9 @@
         ><span class="product-name">ATLAS</span></a
       >
       <nav aria-label="Primary navigation">
-        <a href="atlas.html" aria-current="page">Explore</a><a href="visualize/">Visualize</a
-        ><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a
-        ><a href="evolution.html">Evolution</a>
+        <a href="atlas.html" aria-current="page">Explore</a><a href="research.html">Research</a><a href="conjectures.html">Conjectures</a><a href="knowledge/">Library</a
+        ><a href="evolution.html">Evolution</a><a href="visualize/">Visualize</a
+        >
       <a href="contribute.html">Contribute</a></nav>
       <span class="release-state" id="release-state">Connecting</span>
     </header>
@@ -43,12 +43,12 @@
         <div class="atlas-heading">
           <p class="eyebrow">THE OMEGA INSTITUTE</p>
           <div class="atlas-title"><img class="atlas-logo" src="assets/brand-mark.svg" width="48" height="48" alt="" /><h1>Mathematical Atlas<span>.</span></h1></div>
-          <p class="atlas-purpose">Human–AI research. Mathematics we can build on.</p>
+          <p class="atlas-purpose">A map of our shared mathematical library.</p>
           <p class="atlas-counts" id="atlas-counts">
             Loading published mathematics
           </p>
           <div id="theory-guide" class="theory-guide" hidden>
-            <span>PREREQUISITES</span><i data-lucide="arrow-down"></i><span>BRANCHES &amp; JOINS</span><i data-lucide="arrow-down"></i><span>CONSEQUENCES</span>
+            <span>Each dot is a Lean module. Select one to explore its mathematics.</span>
           </div>
         </div>
         <form class="search" id="concept-search" role="search">
@@ -252,10 +252,27 @@
           </button>
         </div>
         <div id="wiki-content" class="wiki-content atlas-overview" aria-live="polite">
-          <h2 class="atlas-project-title"><span>Mathematics,</span><span>built to grow.</span></h2>
-          <p class="atlas-project-intro">Human questions and AI exploration, grounded in Lean proofs. Each result becomes a foundation for the next.</p>
-          <a class="atlas-project-link" href="research.html">See research results <span aria-hidden="true">↗</span></a>
-          <div class="wiki-divider"></div>
+          <div class="atlas-introduction">
+            <h2 class="atlas-project-title"><span>Mathematics,</span><span>built to grow.</span></h2>
+            <p class="atlas-project-intro">We bring people and AI together to research mathematical questions, check proofs in Lean, and grow a shared library of results.</p>
+            <a class="atlas-project-link" href="research.html">See research results <span aria-hidden="true">↗</span></a>
+            <section class="atlas-explore" aria-labelledby="atlas-explanation-title">
+              <h3 id="atlas-explanation-title">What is Atlas?</h3>
+              <p>Atlas is a map of that library. Each point is a Lean module of definitions and proofs. Arrows show module imports, from prerequisite to dependent.</p>
+              <div class="atlas-connection-key"><span>Prerequisite module</span><span class="atlas-connection-arrow" aria-hidden="true">→</span><span>Dependent module</span></div>
+              <p class="atlas-interaction-hint">Select a point to read the mathematics, inspect its proof and follow its connections.</p>
+            </section>
+            <section class="atlas-research-loop" aria-labelledby="atlas-loop-title">
+              <h3 id="atlas-loop-title">An endless loop for truth</h3>
+              <ol class="atlas-loop-steps">
+                <li><span class="atlas-step-number" aria-hidden="true">01</span><span>Ask a question</span></li>
+                <li><span class="atlas-step-number" aria-hidden="true">02</span><span>Explore with AI</span></li>
+                <li><span class="atlas-step-number" aria-hidden="true">03</span><span>Check with Lean</span></li>
+                <li><span class="atlas-step-number" aria-hidden="true">04</span><span>Share and build on it</span></li>
+              </ol>
+              <p class="atlas-loop-return"><span aria-hidden="true">↻</span><span>Every result becomes a starting point for new questions.</span></p>
+            </section>
+          </div>
           <p class="muted">Loading concept families...</p>
         </div>
       </aside>

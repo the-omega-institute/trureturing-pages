@@ -108,6 +108,8 @@ const action = (label, className, handler) => {
 };
 const icons = () => window.lucide?.createIcons();
 const format = (n) => n.toLocaleString("en-US");
+// Reuse the introduction that is readable while the graph loads.
+const atlasIntroduction = document.querySelector(".atlas-introduction").cloneNode(true);
 let currentNodes = [];
 let familyLabels = [];
 let nodeLabels = [];
@@ -1933,22 +1935,13 @@ function renderTheory(root) {
       el("h2", "", group.label),
       el("p", "wiki-intro", t("Published modules with checked declarations and their module imports. Follow branches, shared prerequisites and joins.")));
   } else {
-    const heading = el("h2", "atlas-project-title");
-    heading.append(el("span", "", t("Mathematics,")), el("span", "", t("built to grow.")));
-    root.append(heading,
-      el("p", "atlas-project-intro", t("Human questions and AI exploration, grounded in Lean proofs. Each result becomes a foundation for the next.")));
-    const results = el("a", "atlas-project-link", t("See research results"));
-    results.href = "research.html";
-    results.append(icon("arrow-up-right"));
-    const guide = el("div", "atlas-explore");
-    guide.append(el("h3", "", t("Explore the atlas")),
-      el("p", "", t("Select a node to read the mathematics and follow its dependencies.")));
+    root.append(atlasIntroduction.cloneNode(true));
     graphDetails = el("details", "atlas-details");
     graphDetails.append(el("summary", "", t("About this graph")),
       el("p", "wiki-intro", t("Nodes are Lean modules. Arrows record imports, from prerequisite to dependent.")));
     connections = el("details", "atlas-details");
     connections.append(el("summary", "", t("Explore connections")));
-    root.append(results, guide, graphDetails, connections);
+    root.append(graphDetails, connections);
   }
   const facts = el("dl", "dag-facts");
   for (const [value, label] of [[currentNodes.length, "Modules"], [state.renderer.graphData().links.length, "Dependencies"], [group ? 1 : state.theory.components.length, "Connected components"], [group ? Math.max(...currentNodes.map(n => state.architecture.metrics.get(n.id).depth)) : state.theory.maxDepth, "Maximum dependency depth"]]) {
