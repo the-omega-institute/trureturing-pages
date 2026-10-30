@@ -152,7 +152,7 @@ svg.lucide {
 }
 .atlas-app {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 355px;
+  grid-template-columns: minmax(0, 7fr) minmax(340px, 3fr);
   height: calc(100dvh - var(--atlas-header-height, 64px));
   min-height: 420px;
 }
@@ -719,9 +719,19 @@ svg.lucide {
   font-size: 13px;
   font-weight: 500;
 }
-.atlas-explore { margin: 30px 0 24px; padding-top: 24px; border-top: 1px solid var(--line); }
-.atlas-explore h3 { margin: 0 0 10px; font-size: 13px; font-weight: 500; }
-.atlas-explore p { margin: 0; color: #a7b6bd; font-size: 13px; line-height: 1.7; }
+.atlas-explore, .atlas-research-loop { margin: 25px 0; padding-top: 22px; border-top: 1px solid var(--line); }
+.atlas-explore h3, .atlas-research-loop h3 { margin: 0 0 10px; font-size: 15px; line-height: 1.4; font-weight: 500; }
+.atlas-explore p, .atlas-research-loop p { margin: 0; color: #a7b6bd; font-size: 13px; line-height: 1.7; }
+.atlas-connection-key { display: flex; align-items: center; gap: 12px; margin: 13px 0; color: #b3dfd2; font-size: 11px; line-height: 1.5; }
+.atlas-connection-key > span:not(.atlas-connection-arrow) { display: flex; align-items: center; gap: 7px; }
+.atlas-connection-key > span:not(.atlas-connection-arrow)::before { content: ""; width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: currentColor; }
+.atlas-connection-arrow { color: #749e9c; font-size: 20px; }
+.atlas-explore .atlas-interaction-hint { color: #91a5ad; font-size: 12px; }
+.atlas-loop-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; list-style: none; padding: 0; margin: 14px 0; }
+.atlas-loop-steps li { display: flex; align-items: baseline; gap: 9px; padding: 9px 0; border-bottom: 1px solid #243238; font-size: 12px; line-height: 1.5; color: #c0d2d3; }
+.atlas-step-number { font: 10px ui-monospace, monospace; color: #7fa99d; }
+.atlas-research-loop .atlas-loop-return { display: flex; align-items: baseline; gap: 9px; color: #a8d9cd; font-size: 12px; }
+.atlas-loop-return > span:first-child { font-size: 17px; }
 .atlas-details { border-top: 1px solid var(--line); }
 .atlas-details > summary {
   display: flex;
@@ -1170,9 +1180,6 @@ button.research-link {
   color: #6ad7c8;
 }
 @media (min-width: 1700px) {
-  .atlas-app {
-    grid-template-columns: minmax(0, 1fr) 390px;
-  }
   .wiki-content {
     padding: 34px 30px;
   }
@@ -1192,7 +1199,7 @@ button.research-link {
     top: 143px;
   }
   .atlas-app {
-    grid-template-columns: minmax(0, 1fr) 315px;
+    grid-template-columns: minmax(0, 7fr) minmax(315px, 3fr);
   }
   .atlas-heading {
     left: 22px;
@@ -1495,7 +1502,7 @@ button.research-link {
 }
 
 /* Full released DAG, with connectivity-based layout and complete edge rendering. */
-.theory-guide { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: #9ab3b2; font: 8px ui-monospace, monospace; pointer-events: none; }
+.theory-guide { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: #9ab3b2; font-size: 11px; line-height: 1.6; pointer-events: none; }
 .theory-guide svg { width: 12px; height: 12px; }
 .dag-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 24px 0 16px; }
 .dag-facts > div { display: flex; flex-direction: column; min-width: 0; padding: 12px; background: #152026; border: 1px solid #293b44; border-radius: 4px; }
@@ -1521,15 +1528,18 @@ button.research-link {
 .dag-import-join { margin: 20px 0; font-size: 12px; }
 .theory-mode .node-label { max-width: 190px; font-size: 9px; line-height: 1.45; background: #10191fe8; border-color: #385052; }
 .theory-mode .back-to-all { top: 185px; }
-@media (max-width: 1150px) and (min-width: 701px) { .theory-guide { font-size: 7px; gap: 8px; } }
+@media (max-width: 1150px) and (min-width: 701px) { .theory-guide { font-size: 10px; gap: 8px; } }
 @media (max-width: 900px) and (min-width: 701px) { .theory-mode .back-to-all { top: 285px; } }
-@media (max-width: 700px) { .theory-guide { gap: 8px; font-size: 6px; } .theory-mode .node-label { max-width: 145px; font-size: 8px; } .segmented button { padding: 0 10px; } .theory-mode .back-to-all { top: 248px; } }
+@media (max-width: 700px) { .theory-guide { gap: 8px; font-size: 10px; } .theory-mode .node-label { max-width: 145px; font-size: 8px; } .segmented button { padding: 0 10px; } .theory-mode .back-to-all { top: 248px; } }
 @media (max-width: 700px) { .concept-open.theory-mode .back-to-all { top: 60px; } }
 @media (max-width: 380px) {
   .atlas-heading .atlas-title h1 { font-size: 22px; }
   .atlas-purpose { font-size: 12px; }
   .search { top: 196px; }
   .view-controls { top: 243px; }
+  .graph-tools { flex-direction: row; }
+  .graph-tools > span { width: 1px; height: 19px; margin: 5px 3px; }
+  .release-discover { bottom: 112px; }
   .theory-mode .back-to-all { top: 284px; }
   .concept-open.theory-mode .back-to-all { top: 60px; }
 }

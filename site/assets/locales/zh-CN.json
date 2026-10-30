@@ -2446,5 +2446,22 @@
   "/ Preprint / quant-ph": "/ 预印本 / 量子物理",
   "Read article": "阅读论文",
   "Code & verification": "代码与验证",
-  "Source & evidence": "来源与证据"
+  "Source & evidence": "来源与证据",
+  "Mathematical Atlas": "数学图谱",
+  "A map of our shared mathematical library.": "共享数学知识库的地图。",
+  "Each dot is a Lean module. Select one to explore its mathematics.": "每个点是一个 Lean 模块。点击它，探索其中的数学内容。",
+  "What is Atlas?": "Atlas 是什么？",
+  "Atlas is a map of that library. Each point is a Lean module of definitions and proofs. Arrows show module imports, from prerequisite to dependent.": "Atlas 意为“地图集”，这里展示的是数学知识库的地图。每个点是包含定义与证明的 Lean 模块；箭头记录模块导入关系，从前提指向依赖它的模块。",
+  "Prerequisite module": "前置模块",
+  "Select a point to read the mathematics, inspect its proof and follow its connections.": "点击一个点，阅读数学内容、查看证明，再沿着联系继续探索。",
+  "An endless loop for truth": "持续求真的研究循环",
+  "Ask a question": "提出问题",
+  "Explore with AI": "与 AI 一起探索",
+  "Check with Lean": "用 Lean 检验",
+  "Share and build on it": "共享成果，继续研究",
+  "Every result becomes a starting point for new questions.": "每个结果，都是下一个问题的起点。",
+  "Find a concept": "查找数学概念",
+  "Search concepts": "搜索数学概念",
+  "Structure": "结构",
+  "We bring people and AI together to research mathematical questions, check proofs in Lean, and grow a shared library of results.": "我们从人提出的数学问题出发，与 AI 一起研究，用 Lean 检验形式化证明，再把成果汇入持续生长的共享数学知识库。"
 }
