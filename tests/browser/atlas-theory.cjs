@@ -57,6 +57,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     assert.equal(initial.theory.largestComponent, theory.components[0].ids.length);
     assert.equal(initial.theory.isolated, theory.isolated);
     const assertPresentation = async target => {
+      await target.locator(".atlas-details > summary").first().click();
       const facts = await target.locator(".dag-facts").evaluate(node => ({
         display: getComputedStyle(node).display,
         cells: [...node.children].map(item => ({ x: item.getBoundingClientRect().x, y: item.getBoundingClientRect().y })),
@@ -87,6 +88,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     await page.getByRole("button", { name: "Previous view", exact: true }).click();
     await assertFull();
 
+    await page.locator(".atlas-details > summary").nth(1).click();
     await page.getByRole("button", { name: /^Focus the largest connected component/ }).click();
     const component = await page.evaluate(() => window.atlasDiagnostics({ includeGraph: true }));
     assert.deepEqual(component.nodeIds.sort(), theory.components[0].ids);
@@ -95,10 +97,12 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     await page.screenshot({ timeout: 30000, path: path.join(output, "largest-component.png") });
     await page.getByRole("button", { name: "Previous view", exact: true }).click();
     await assertFull();
+    await page.locator(".atlas-details > summary").nth(1).click();
     await page.getByRole("button", { name: /^Focus the largest connected component/ }).click();
     await page.getByRole("button", { name: "Return to the whole DAG", exact: true }).click();
     await assertFull();
 
+    await page.locator(".atlas-details > summary").nth(1).click();
     await page.locator("#wiki-content .concept-row").first().click();
     assert.ok(await page.locator(".article-copy").innerText());
     const selected = await page.evaluate(() => window.atlasDiagnostics({ includeGraph: true }));
@@ -151,6 +155,7 @@ const pairs = edges => edges.map(e => JSON.stringify(e)).sort();
     await assertPresentation(mobile);
     assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await mobile.screenshot({ timeout: 30000, path: path.join(output, "full-dag-mobile.png"), fullPage: true });
+    await mobile.locator(".atlas-details > summary").nth(1).click();
     await mobile.locator("#wiki-content .concept-row").first().click();
     assert.ok(await mobile.locator("#wiki").evaluate(node => node.classList.contains("has-selection")));
     await mobile.getByRole("button", { name: "Previous view", exact: true }).click();

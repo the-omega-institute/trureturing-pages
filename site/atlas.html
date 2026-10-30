@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="assets/brand-mark.svg" />
     <title>trureturing | Mathematical Atlas</title>
     <meta name="description" content="Human–AI research, connected through a growing mathematical library. Explore Lean-checked proofs, their dependencies and the questions they open." />
-    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2&amp;intro=1" />
+    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2&amp;intro=2" />
     <link rel="stylesheet" href="assets/relation-map.css" />
     <link rel="stylesheet" href="assets/architecture.css" />
     <link rel="stylesheet" href="assets/site-theme.css?v=tt-brand-v1" />
@@ -16,7 +16,7 @@
     <script defer src="assets/concept-lens-core.js"></script>
     <script defer src="assets/vendor/d3.min.js"></script>
     <script defer src="assets/relation-map.js"></script>
-    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2&amp;intro=1"></script>
+    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2&amp;intro=2"></script>
     <script type="module" src="assets/i18n.mjs?v=lean-admission-v2"></script>
 </head>
   <body class="site-themed">
@@ -240,7 +240,7 @@
       </section>
       <aside class="wiki" id="wiki" aria-label="Concept wiki">
         <div class="wiki-bar">
-          <span><i data-lucide="book-open"></i>CONCEPT WIKI</span
+          <span><i data-lucide="book-open"></i><span id="wiki-panel-label">ABOUT TRURETURING</span></span
           ><button
             class="icon-button"
             id="close-wiki"
@@ -251,11 +251,10 @@
             <i data-lucide="x"></i>
           </button>
         </div>
-        <div id="wiki-content" class="wiki-content" aria-live="polite">
-          <p class="eyebrow">THE PROJECT</p>
-          <h2>Shared mathematics, built to grow.</h2>
-          <p class="wiki-intro">We bring human questions and AI exploration into a shared mathematical library. Lean checks the proofs, so each result can support the next question.</p>
-          <a class="research-link" href="research.html">See research results →</a>
+        <div id="wiki-content" class="wiki-content atlas-overview" aria-live="polite">
+          <h2 class="atlas-project-title"><span>Mathematics,</span><span>built to grow.</span></h2>
+          <p class="atlas-project-intro">Human questions and AI exploration, grounded in Lean proofs. Each result becomes a foundation for the next.</p>
+          <a class="atlas-project-link" href="research.html">See research results <span aria-hidden="true">↗</span></a>
           <div class="wiki-divider"></div>
           <p class="muted">Loading concept families...</p>
         </div>
