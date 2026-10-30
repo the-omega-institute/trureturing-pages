@@ -1,6 +1,7 @@
 // A presentation read model of the verified release. Every node and relation
 // retains its identity and order; full node records are fetched only on demand.
-export const VIEW_SCHEMA = "pages-atlas-startup-view.v1";
+import { applyAdmission } from "./atlas-admission.mjs?v=lean-admission-v1";
+export const VIEW_SCHEMA = "pages-atlas-startup-view.v2";
 export const DETAIL_SCHEMA = "pages-atlas-node-details.v1";
 export const DETAIL_SHARDS = 64;
 const FIELDS = [
@@ -8,6 +9,7 @@ const FIELDS = [
   "status", "state", "repo_path", "structure_source", "structural_role",
   "out_degree", "true_depth", "descendant_count", "descendant_cost",
   "dependency_betweenness",
+  "lean",
 ];
 export function detailShard(id) {
   let value = 2166136261;
@@ -22,6 +24,7 @@ export function startupView(graph, manifest) {
     atlas_graph_digest: manifest.atlas_graph_digest,
     truth_release_digest: manifest.truth_release_digest,
     source_snapshot: graph.source_snapshot,
+    math_admission: graph.math_admission,
     nodes: graph.nodes.map(node => Object.fromEntries(FIELDS.filter(k => Object.hasOwn(node, k)).map(k => [k, node[k]]))),
     edges: graph.edges.map(edge => [endpoint(edge.source), endpoint(edge.target), edge.layer || "dependency", edge.status ?? null]),
   };
@@ -32,6 +35,7 @@ export function validateView(view, manifest) {
       view.truth_release_digest !== manifest.truth_release_digest ||
       view.source_snapshot?.truth_release_digest !== manifest.truth_release_digest ||
       (manifest.source_commit && view.source_snapshot.source_commit !== manifest.source_commit) ||
+      (manifest.source_tree && view.source_snapshot.source_tree !== manifest.source_tree) ||
       !Array.isArray(view.nodes) || !Array.isArray(view.edges) ||
       (manifest.counts && (view.nodes.length !== manifest.counts.nodes || view.edges.length !== manifest.counts.edges ||
         (manifest.counts.truth_nodes !== undefined && view.nodes.filter(n => n.kind === "truth").length !== manifest.counts.truth_nodes))))
@@ -51,7 +55,12 @@ export function validateView(view, manifest) {
     return { source: view.nodes[row[0]].id, target: view.nodes[row[1]].id,
       layer: row[2], ...(row[3] === null ? {} : { status: row[3] }) };
   });
-  return { source_snapshot: view.source_snapshot, nodes: view.nodes, edges };
+  const graph = { source_snapshot: view.source_snapshot, nodes: view.nodes, edges };
+  const admitted = applyAdmission(graph, manifest, { ...view.math_admission,
+    nodes: view.nodes.filter(n => n.kind === "truth").map(n => ({ id: n.id, repo_path: n.repo_path, lean: n.lean })) });
+  if (["admitted", "excluded", "source_truth_nodes"].some(k => admitted.math_admission[k] !== view.math_admission[k]))
+    throw new Error("Startup admission counts disagree with its records.");
+  return admitted;
 }
 export function validateDetails(details, manifest, graph, shard) {
   if (details.schema_version !== DETAIL_SCHEMA ||
@@ -63,7 +72,7 @@ export function validateDetails(details, manifest, graph, shard) {
   const result = new Map();
   for (const node of details.nodes) {
     const original = expected.get(node.id);
-    if (!original || result.has(node.id) || FIELDS.some(key => Object.hasOwn(original, key) && node[key] !== original[key]))
+    if (!original || result.has(node.id) || FIELDS.some(key => Object.hasOwn(original, key) && JSON.stringify(node[key]) !== JSON.stringify(original[key])))
       throw new Error("Concept details disagree with the startup view.");
     result.set(node.id, node);
   }

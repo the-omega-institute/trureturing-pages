@@ -1,33 +1,35 @@
 # Public Mathematical Atlas
 
-`site/atlas.html` is the public 3D DAG and concept Wiki. It opens in **Full DAG**:
-every released mathematical module and every published proof dependency, including
-all cross-parent and shortcut imports. The default view does not select editorial
-routes, filter subjects, reduce dependencies to a tree, or hide edges in bundles.
+`site/atlas.html` is the public 3D module-import DAG and concept Wiki. It opens
+in **Full DAG**, showing every admitted module and every published import between
+admitted endpoints, including cross-parent and shortcut imports. Admission uses
+source-bound declaration and axiom evidence from the existing verified export and
+report, as described in [Truth consumption](TRUTH_RELEASE_CONSUMPTION.md).
+Proven-but-not-yet-frozen modules and verified definitions are eligible. Closed
+labels and Lean filenames alone are insufficient.
 
-The deterministic layout uses actual weak connected components and all import
-edges. Roots share a vertical level and every dependency points downward, from
-prerequisite to dependent. Square-root spacing compresses long dependency chains;
-x/z positions are relaxed by actual connections, independently of subject labels.
-Smaller components are packed beside the largest; modules with no local dependency
-edge remain visible as separate nodes. Color indicates dependency depth, with
-shared prerequisites emphasized by downstream reach. These display coordinates
-do not replace the certified Topology conformation.
+The layout uses weak connected components and actual directed imports. Arrows
+point from prerequisite to dependent, with dependency depth compressed vertically.
+Component names combine their leading domains and a representative module; names
+are editorial descriptions of real components, not additional graph connections.
+Readers can inspect modules with multiple direct prerequisites and follow genuine
+directed import paths through Architecture. These are module-level dependencies;
+the publication does not establish declaration-to-declaration theorem use.
 
-The sidebar reports the full module/edge counts, component count and maximum
-depth. Readers can focus a real connected component, then return to the entire
-DAG. Selecting a module exposes its complete proof lineage, Blueprint explanation
-and revision-pinned Lean source. Search covers the entire released corpus.
-Previous view restores the camera and component. Older `#route=` URLs locate their
-starting module within the full graph; they no longer restrict it to a route.
+The sidebar reports statistics for the admitted induced view and states how many
+source modules are excluded. The complete source graph, its digest and certified
+Topology counters remain intact and are checked before filtered metrics are
+recomputed. Search, selection, direct links, family, frontier, component and theory
+views share the same admission rule. Selection exposes explanatory Blueprint prose
+and revision-pinned Lean sources in the Wiki without inserting documents,
+affinities or unfinished records into the mathematical DAG.
 
-**Dependencies** uses the same complete layout with support metrics and inspection.
-**Structure** retains the concept-family view; **Open questions** provides the
-research overlay. Existing explicit mode and family links keep their meaning.
-`atlas-explorer.html` is a compatibility alias. `site/dag.html` remains the advanced
-research workspace, including Topology Atlas, comparison and CMA integrations.
-Edges here record published module imports, not theorem-use counts. External
-Mathlib imports are outside this graph. Upstream artifacts remain unchanged.
+**Dependencies** inspects the admitted graph and its support metrics.
+**Structure** groups admitted modules into editorial concept families;
+**Open questions** adds source-authored research associations separately.
+`atlas-explorer.html` remains an alias. `site/dag.html` retains the advanced
+source workspace. Branding, same-domain `/visualize/`, navigation, English/Chinese
+localization and mobile selection continue to use the existing site interfaces.
 
 Node inspection exposes domain-specific dependency paths and verified release
 observations. `site/evolution.html` is the full evolution workspace. See
@@ -50,7 +52,7 @@ or stretching the coordinate axes cannot resolve that information problem.
 
 ## Presentation decisions
 
-The Structure view groups mathematical nodes into eight editorial concept families.
+The Structure view groups mathematical nodes into nine editorial concept families.
 The mapping uses the existing `domain` field. Within a family, repository
 subtopics provide anchors and real dependency edges pull connected concepts
 together using vendored `d3-force-3d`. The deterministic simulation runs in a Web
@@ -63,22 +65,12 @@ downstream support. Depth and curved local targets give each family an internal
 skeleton. Secondary parents and all original relations remain available; the
 display skeleton does not change mathematical provenance.
 
-The Dependencies view shows mathematical nodes and certified dependencies. Selecting a
-concept adds its documents and structural connections. Proof, affinity, document,
-advisory, and authored relationships remain separately classified; topic membership
-never creates a proof edge. Source graph bytes and the release binding are checked
-against `pages-atlas-manifest.v1` before display.
-
-Three.js, through `3d-force-graph`, renders the structure. The user can orbit,
-zoom, drag nodes, search across families, enter a family, and inspect the full
-proof lineage and its associated concepts/documents. The default retains surrounding
-context. Direct, two-hop, and full-lineage ranges and relationship-type filters
-allow focused exploration without a fixed node-count cap. Full lineage traverses
-all proof ancestors and descendants, then adds non-proof relations incident to
-that lineage; it does not recursively expand similarity across the entire corpus.
-Scope, types, and context are retained in shareable URLs.
-Dragging records a temporary display offset. Filtering and
-selection preserve the other coordinates. No simulation runs on node selection.
+The mathematical views show only admitted modules and module imports. The
+source archive still distinguishes proof, affinity, document, advisory and authored
+relations for advanced tools and explanation. The mathematical selection controls
+provide direct, two-hop or full import lineage and optional surrounding admitted
+context. Full lineage follows ancestors and descendants without adding non-import
+relations. Scope, range and context remain shareable through URLs.
 
 The right-hand Wiki reuses the existing Concept Lens core for authored summaries,
 theorems, facts, documents, and provenance. Connections distinguish prerequisites
@@ -88,8 +80,8 @@ path in the public experience; each concept links to related Research dossiers.
 The advanced console remains available at `dag.html`. See
 [Living knowledge](LIVING_KNOWLEDGE.md) for the four-view information architecture.
 
-Selection colors distinguish the selected concept, upstream foundations,
-downstream consequences, documents and affinity. The camera frames nearby direct
+Selection colors distinguish the selected module, its imported prerequisites and
+downstream modules. The camera frames nearby direct
 neighbors around the selected concept; this framing does not truncate the full
 relationship set. Previous view restores the exact camera and exploration state,
 including on mobile. Adaptive landmark labels prioritize selected concepts and
@@ -130,8 +122,8 @@ prerequisites. Selecting a concept still exposes its complete relationships.
 
 Module `state=open` means an unfinished module. It does not establish a
 mathematical open problem: the release also contains engineering frontier
-modules such as PaperGenerator and ValuesProducer. These remain in the full
-Atlas and Library but are not research targets merely because of their state.
+modules such as PaperGenerator and ValuesProducer. These remain in the source archive and advanced workspace; they are excluded
+from the mathematical Atlas unless supported by the published proven catalog.
 Gold nodes denote research anchors; a closed foundation can support an open
 research question. A missing, corrupt or mismatched catalog reports unavailable
 research and never falls back to guessing from module status.
@@ -147,22 +139,26 @@ the release's source catalog and must not be inferred by topology metrics.
 
 ## Startup performance
 
-`tools/build_atlas_startup.mjs` precomputes both the Structure positions and the
-complete connected DAG positions during each Pages deployment. The current
-profile is `atlas-connected-dag-v3`. It publishes `data/atlas-startup.v1.json` and
-digest-addressed gzip artifacts containing the original graph bytes and all
-node positions. The browser revalidates the small mutable manifest and startup
-index, then reuses immutable graph/layout bytes from its HTTP cache. Compressed
-artifact hashes, the original graph hash, release binding, layout profile and
-complete finite node coordinates and downward import direction are checked before
-rendering. No graph nodes,
-relationship categories or Wiki content are removed for this optimization.
+`tools/build_atlas_startup.mjs` precomputes Structure and admitted DAG positions.
+The current profile is `atlas-evidenced-dag-v4`. A v2 compact startup view carries
+all source node identities, relation tuples and certified topology counters,
+together with bounded admission summaries. Full node records and exact declaration
+receipts load from digest-addressed shards on selection. Failed shards are retryable
+and successful shards are reused. No full graph, export or report download delays
+first paint. The original graph bytes remain in the immutable canonical archive.
 
-The Atlas entry script and its model/layout/startup imports use the same
-`?v=connected-dag-v3` cache coordinate. Change that coordinate together when their
-interfaces change: a cached caller must not import an incompatible fresh layout
-module. `tests/browser/atlas-cache-upgrade.cjs` exercises previous-release module
-responses independently and together while requiring the entire current DAG.
+The mutable manifest and startup index revalidate; compressed artifacts use
+content-addressed cache URLs. Compact and full startup both validate the complete
+source topology before deriving the admitted view. Full startup applies the same
+admission summary. Layout coordinates cover the complete source identity set while
+downward direction is checked for imports actually rendered by the new profile.
+
+Changed entry, model, architecture, layout, startup, compact-view, locale and style
+interfaces use the coordinated `?v=lean-admission-v1` cache coordinate. The cache
+upgrade browser check supplies stale preceding-release modules and requires current
+admission and counts. The legacy archive path remains available; absent declaration
+evidence reports an unavailable mathematical view rather than claiming an empty DAG
+is a successful projection.
 
 Research and history load after the graph becomes interactive. Research has an
 explicit pending state; slow or failed research cannot delay the main Atlas.
@@ -191,7 +187,7 @@ navigation readiness, layout-worker duration and resource transfer sizes.
 ## Local preview
 
 ```bash
-python3 tools/serve_atlas.py --port 8765
+python3 tools/serve_atlas.py --port 8765 --cache artifacts/atlas-preview-current --bundle /path/to/verified-bundle
 ```
 
 Open `http://127.0.0.1:8765/atlas.html`. The server caches the current public
@@ -201,9 +197,11 @@ data. The server also generates the Library and current/immutable Wiki pages fro
 the verified release, so concept navigation stays on the local preview. The original view is available at
 `http://127.0.0.1:8765/dag.html` for comparison.
 
-To refresh the preview release, remove only the cached
-`artifacts/atlas-preview/data/` directory and restart the server. If port 8765 is
-occupied, pass a different `--port`.
+Use a separate `--cache` directory for another release; existing previews and
+caches remain untouched. `--bundle` must match the cached Atlas source and release
+identity. `--prepared` serves an already verified prepared cache. If port 8765 is
+occupied, pass another `--port`. Without compatible declaration evidence the
+preview explicitly reports the missing capability.
 
 ## Verification
 
@@ -250,7 +248,7 @@ esbuild tools/three-atlas-entry.mjs --bundle --format=esm --minify \
 ## Remaining design work
 
 This is a first public presentation, not a replacement for upstream topology.
-The eight families and fallback classification should be reviewed by a domain
+The nine families and fallback classification should be reviewed by a domain
 expert before being treated as a lasting navigation taxonomy. Cross-family
 screen distance is currently editorial, while within-family placement combines
 topic anchors with proof connectivity. A future similarity map needs an explicit
@@ -262,3 +260,31 @@ need a reviewed exposition layer; a rendering change alone cannot supply them.
 The current display emphasizes topic groups and readable navigation. More
 protein-like folds should be evaluated against whether users can locate a topic
 and correctly identify its dependencies, rather than against visual novelty.
+
+## Verified publication coverage (2026-10-30)
+
+This implementation was checked against the actual published Pages bundle for
+source `3e7dac4c8cd1a8d96a48fd980f353ef96bf83239`, tree
+`6a6a3d2fc9e8ae4f0c30b290b76ac6a2d9adbdcb`, release
+`sha256:b4cd607f016d82772da6566c086286493f33e19defa96e6eab84fd015554bd2c`.
+The archived canonical Atlas digest remains
+`sha256:c3010a84326c983dc836284a89f9f760204132d6716e8b7a52296389b262525b`.
+
+- The complete source topology has 11,237 truth modules and 14,799 import edges.
+- The admitted view has 11,218 modules and 14,723 induced import edges, with
+  1,679 weak components, 1,306 isolated modules and maximum depth 69.
+- It retains 10,810 frozen and 408 proven-but-not-yet-frozen modules, including
+  198 modules with verified declarations but no theorem declarations.
+- It carries 230,545 exact declaration receipts, including 121,550 theorems.
+- Eleven Open frontier records lack proven-catalog membership. Eight catalog
+  entries have no published declarations (including the `Trureturing` umbrella).
+  Their excluded identities remain recorded; no transitive replacement edges
+  are invented when a module is excluded.
+- First-paint compressed graph plus layout total 3,127,375 bytes. Declaration
+  details remain lazy; the 7,562,043-byte canonical archive stays off startup.
+
+These are measurements for this publication, not claims about newer research
+revisions or a deployment of this implementation. Exact theorem-use edges and
+source line spans are absent from the published contract. Revision-pinned file
+links, full declaration identities, statement IDs, source hashes and axiom receipts
+are available and are presented at their actual granularity.

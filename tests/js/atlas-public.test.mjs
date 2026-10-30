@@ -1,8 +1,9 @@
+import { withEvidence } from "./atlas-evidence-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import {
-  createPublicModel,
+  createPublicModel as sourcePublicModel,
   computeLayout,
   familyFor,
   searchNodes,
@@ -12,6 +13,8 @@ import {
 import { researchIndex } from "../../site/assets/atlas-research-core.mjs";
 import { analyzeArchitecture } from "../../site/assets/architecture-core.mjs";
 import { theoryModel, theoryLayout } from "../../site/assets/atlas-theory-core.mjs";
+
+const createPublicModel = graph => sourcePublicModel(withEvidence(graph));
 
 test("the default DAG retains every module and import, including independent components and isolated nodes", () => {
   const graph = {
@@ -107,12 +110,12 @@ test("editorial families give discrete and arithmetic domains mathematical homes
     assert.equal(familyFor({ domain }).id, "numbers");
   assert.equal(familyFor({ domain: "UnmappedFutureDomain" }).id, "foundations");
 });
-test("focus retains proof lineage, affinities and documents across a family filter", () => {
+test("focus retains admitted import lineage across a family filter", () => {
   const model = createPublicModel(graph);
   const view = viewFor(model, { family: "observers", selected: "B" });
   assert.deepEqual(
     view.nodes.map((n) => n.id),
-    ["A", "B", "C", "doc"],
+    ["A", "B"],
   );
   assert.equal(view.edges[0].source, "A");
   assert.equal(view.edges[0].target, "B");
@@ -186,8 +189,8 @@ test("research shows closed foundations and transitive proof prerequisites, not 
   );
   const focus = viewFor(model, { mode: "frontier", research, selected: "B" });
   assert.ok(
-    focus.nodes.some((n) => n.id === "doc"),
-    "Explicit selection keeps document and affinity relationships",
+    !focus.nodes.some((n) => n.id === "doc"),
+    "Explicit selection cannot introduce document or affinity nodes",
   );
   for (const invalid of [
     { ...snapshot, truth_release_digest: "another" },
@@ -287,6 +290,7 @@ test("published graph bytes, release binding, and edge closure are verified", as
     atlas_graph_digest: await digest(text),
   };
   assert.deepEqual(await verifyGraph(text, manifest, digest), graph);
+  await assert.rejects(verifyGraph(text, {...manifest,source_commit:"a".repeat(40)},digest), /different source identities/);
   await assert.rejects(verifyGraph(text + " ", manifest, digest), /digest/);
   await assert.rejects(
     verifyGraph(text, { ...manifest, truth_release_digest: "other" }, digest),

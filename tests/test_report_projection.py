@@ -28,6 +28,8 @@ class ReportProjectionTests(unittest.TestCase):
         reports.mkdir()
         for name in publication.REPORT_FILES:
             (reports / name).write_bytes(b'original published report')
+        report_bytes = b'{"schema":"stratalint-raw-lean-report-v3","modules":[]}'
+        (reports / 'raw-lean-report.json').write_bytes(report_bytes)
         (reports / 'scribe-resources.zip').write_bytes(b'published pack')
         project = root / 'tools/StrataLint.Scribe/StrataLint.Scribe.csproj'
         project.parent.mkdir(parents=True)
@@ -72,7 +74,8 @@ class ReportProjectionTests(unittest.TestCase):
             manifest = json.loads((bundle / 'release-manifest.v1.json').read_text())
             self.assertEqual(manifest['schema'], publication.PROJECTION_CONTRACT)
             self.assertEqual(manifest['producer']['package_commit'], C)
-            self.assertEqual((bundle / 'raw-lean-report.json').read_bytes(), b'original published report')
+            self.assertEqual((bundle / 'raw-lean-report.json').read_bytes(),
+                             b'{"schema":"stratalint-raw-lean-report-v3","modules":[]}')
             self.assertNotIn('blueprint_index', manifest['artifacts'])
             verified = vertical_smoke.verify_bundle(bundle)
             self.assertEqual(publication.publication_metadata(selected, bundle)['release_digest'], verified['release_digest'])

@@ -1,3 +1,4 @@
+import { fixtureEvidence, withEvidence, fixtureDigest } from "./atlas-evidence-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
@@ -22,10 +23,10 @@ import { theoryModel } from "../../site/assets/atlas-theory-core.mjs";
 const hash = (text) =>
   "sha256:" + createHash("sha256").update(text).digest("hex");
 const graph = {
-  source_snapshot: { truth_release_digest: hash("release") },
+  source_snapshot: { truth_release_digest: hash("release"), truth_graph_sha256: fixtureDigest },
   nodes: [
-    { id: "A", kind: "truth", domain: "Quantum" },
-    { id: "B", kind: "truth", domain: "Quantum" },
+    { id: "A", repo_path: "A.lean", kind: "truth", domain: "Quantum" },
+    { id: "B", repo_path: "B.lean", kind: "truth", domain: "Quantum" },
     { id: "doc", kind: "blueprint" },
   ],
   edges: [
@@ -44,6 +45,7 @@ test("published startup preserves exact graph bytes and layout, validates all no
     atlas_graph_digest: hash(text),
   };
   await writeFile(join(root, "graph.json"), text);
+  await writeFile(join(root, "atlas-lean-evidence.v1.json"), JSON.stringify(fixtureEvidence(graph)));
   await writeFile(join(root, "manifest.json"), JSON.stringify(manifest));
   const build = () =>
     buildStartup(join(root, "graph.json"), join(root, "manifest.json"), root);
@@ -60,8 +62,9 @@ test("published startup preserves exact graph bytes and layout, validates all no
   const layout = JSON.parse(
     gunzipSync(await readFile(join(root, index.layout.path))),
   );
+  const admittedGraph = validateView(JSON.parse(gunzipSync(await readFile(join(root, index.fast.graph.path)))), manifest);
   const fastLayout = JSON.parse(gunzipSync(await readFile(join(root, index.fast.layout.path))));
-  assert.deepEqual(layout.positions, computeLayout(createPublicModel(graph)));
+  assert.deepEqual(layout.positions, computeLayout(createPublicModel(admittedGraph)));
   for (const positions of [
     { A: layout.positions.A },
     { ...layout.positions, extra: { x: 0, y: 0, z: 0 } },
@@ -83,7 +86,7 @@ test("published startup preserves exact graph bytes and layout, validates all no
   }
   assert.throws(() => validateLayout({ ...layout, dependency_positions: {
     ...layout.dependency_positions, B: { x: 0, y: layout.dependency_positions.A.y, z: 0 },
-  } }, graph, manifest), /reverses a published import/);
+  } }, admittedGraph, manifest), /reverses a published import/);
   const legacyLayout = { ...layout, layout_profile: "atlas-dependency-scaffold-v2", dependency_positions: undefined };
   assert.deepEqual(validateLayout(legacyLayout, graph, manifest), layout.positions);
   const legacyBytes = gzipSync(JSON.stringify(legacyLayout));
@@ -108,16 +111,17 @@ test("published startup preserves exact graph bytes and layout, validates all no
         ? new Response("", { status: 404 })
         : Response.json(mode === "v2" ? legacyIndex : mode === "profile-mismatch" ? { ...index, layout_profile: legacyLayout.layout_profile } : index);
     if (path === "data/pages-atlas-view.v1.json") return new Response(text);
+    if (path === "data/atlas-admission.v1.json") return new Response(await readFile(join(root, path)));
     if (mode === "corrupt") return new Response("corrupt");
     return new Response(await readFile(join(root, path)));
   });
   const result = await loadStartup("https://example.test/");
-  assert.deepEqual(result.graph, graph);
+  assert.deepEqual(result.graph, admittedGraph);
   assert.deepEqual(result.positions, fastLayout.positions);
   assert.equal(result.timing.source, "precomputed");
   assert.deepEqual(result.dependencyPositions, fastLayout.dependency_positions);
   assert.equal(result.timing.compact, true);
-  assert.deepEqual(await result.loadDetails("A"), graph.nodes[0]);
+  assert.deepEqual(await result.loadDetails("A"), admittedGraph.nodes[0]);
   assert.ok(!requests.some(r => r.path === index.graph.path), "The canonical archive stays off the first-paint path");
   mode = "profile-mismatch";
   await assert.rejects(loadStartup("https://example.test/"), /profile disagrees/);
@@ -130,13 +134,13 @@ test("published startup preserves exact graph bytes and layout, validates all no
   mode = "legacy";
   const legacy = await loadStartup("https://example.test/");
   assert.equal(legacy.positions, null);
-  assert.deepEqual(legacy.graph, graph);
+  assert.deepEqual(legacy.graph, admittedGraph);
 });
 
 
 const viewManifest = { atlas_graph_digest: "sha256:" + "a".repeat(64), truth_release_digest: "sha256:" + "b".repeat(64),
   source_commit: "c".repeat(40), counts: { nodes: 3, edges: 3 } };
-const viewGraph = { source_snapshot: { source_commit: viewManifest.source_commit, truth_release_digest: viewManifest.truth_release_digest },
+const viewGraph = withEvidence({ source_snapshot: { source_commit: viewManifest.source_commit, truth_release_digest: viewManifest.truth_release_digest },
   nodes: [
     { id: "A", kind: "truth", domain: "Quantum", human_title: "Shared foundation", human_abstract: "A searchable description", human_theorem: "An authored theorem", knowledge_page: "knowledge/node/abc/", out_degree: 1, true_depth: 0, descendant_count: 1 },
     { id: "B", kind: "truth", domain: "Observer", human_title: "Consequence", out_degree: 0, true_depth: 1, descendant_count: 0 },
@@ -145,14 +149,15 @@ const viewGraph = { source_snapshot: { source_commit: viewManifest.source_commit
     { source: "A", target: "B", layer: "truth-dependency", authority: "certified", extra_archive_metadata: "large" },
     { source: "doc", target: "A", layer: "blueprint-truth-anchor" },
     { source: "A", target: "doc", layer: "intuition-candidate", status: "advisory" },
-  ], clusters: ["archive-only metadata"] };
+  ], clusters: ["archive-only metadata"] });
+viewGraph.math_admission.atlas_graph_digest = viewManifest.atlas_graph_digest;
 
 test("compact first paint retains every node, relation, category, search result and DAG metric", () => {
   const view = startupView(viewGraph, viewManifest), compact = validateView(view, viewManifest);
   assert.deepEqual(compact.nodes.map(n => n.id), viewGraph.nodes.map(n => n.id));
   assert.deepEqual(compact.edges.map(e => [e.source, e.target, e.layer, e.status]), viewGraph.edges.map(e => [e.source, e.target, e.layer, e.status]));
   const fullModel = createPublicModel(viewGraph), compactModel = createPublicModel(compact);
-  assert.deepEqual(compactModel.relationships.edges.map(e => e.category), ["proof", "document", "advisory"]);
+  assert.deepEqual(compactModel.relationships.edges.map(e => e.category), ["proof"]);
   for (const query of ["foundation", "searchable", "B"]) {
     assert.deepEqual(searchNodes(compactModel, query).map(n => [n.id, title(n)]), searchNodes(fullModel, query).map(n => [n.id, title(n)]));
   }

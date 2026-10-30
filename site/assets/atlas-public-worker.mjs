@@ -1,4 +1,4 @@
-import { createPublicModel, computeLayout } from "./atlas-public-core.mjs";
+import { createPublicModel, computeLayout } from "./atlas-public-core.mjs?v=lean-admission-v1";
 self.onmessage = ({ data }) => {
   try {
     const positions = computeLayout(createPublicModel(data), (value) =>

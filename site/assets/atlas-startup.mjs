@@ -1,11 +1,13 @@
 import { verifyGraph } from "./atlas-public-core.mjs";
-import { sha256 } from "./architecture-core.mjs";
-import { validateView, validateDetails, detailShard, DETAIL_SHARDS } from "./atlas-startup-view.mjs?v=fast-startup-v1";
+import { sha256, analyzeArchitecture } from "./architecture-core.mjs?v=lean-admission-v1";
+import { applyAdmission, admissionFromEvidence, supportedLean } from "./atlas-admission.mjs?v=lean-admission-v1";
+import { validateView, validateDetails, detailShard, DETAIL_SHARDS } from "./atlas-startup-view.mjs?v=lean-admission-v1";
 
 export const STARTUP_SCHEMA = "pages-atlas-startup.v1";
 export const LAYOUT_SCHEMA = "pages-public-layout.v1";
-export const LAYOUT_PROFILE = "atlas-connected-dag-v3";
-const PROFILES = [LAYOUT_PROFILE, "atlas-dependency-scaffold-v2"];
+export const LAYOUT_PROFILE = "atlas-evidenced-dag-v4";
+const CONNECTED_PROFILES = [LAYOUT_PROFILE, "atlas-connected-dag-v3"];
+const PROFILES = [...CONNECTED_PROFILES, "atlas-dependency-scaffold-v2"];
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 
 export function validateStartup(index, manifest) {
@@ -18,7 +20,9 @@ export function validateStartup(index, manifest) {
     throw new Error("Startup artifacts do not bind the current Atlas.");
   if (index.fast && (!Array.isArray(index.fast.details) || index.fast.details.length !== DETAIL_SHARDS))
     throw new Error("Invalid Atlas concept detail index.");
-  for (const entry of [index.graph, index.layout, ...(index.fast ? [index.fast.graph, index.fast.layout, ...index.fast.details] : [])]) {
+  if (index.details && (!Array.isArray(index.details) || index.details.length !== DETAIL_SHARDS))
+    throw new Error("Invalid Atlas concept detail index.");
+  for (const entry of [index.graph, index.layout, ...(index.admission ? [index.admission] : []), ...(index.details || []), ...(index.fast ? [index.fast.graph, index.fast.layout, ...index.fast.details] : [])]) {
     if (
       !DIGEST.test(entry?.digest) ||
       entry.path !== `data/atlas-startup/${entry.digest.slice(7)}.json.gz`
@@ -49,13 +53,13 @@ export function validateLayout(layout, graph, manifest) {
     })
   )
     throw new Error("Precomputed layout does not cover this Atlas.");
-  if (layout.layout_profile === LAYOUT_PROFILE) {
+  if (CONNECTED_PROFILES.includes(layout.layout_profile)) {
     const points = layout.dependency_positions;
     if (!points || Array.isArray(points) || Object.keys(points).length !== graph.nodes.length ||
         graph.nodes.some(n => !Object.hasOwn(points, n.id) || !points[n.id] ||
           ![points[n.id].x, points[n.id].y, points[n.id].z].every(v => Number.isFinite(v) && Math.abs(v) < 1e7)))
       throw new Error("Dependency layout does not cover this Atlas.");
-    const truthIds = new Set(graph.nodes.filter(n => n.kind === "truth").map(n => n.id));
+    const truthIds = new Set(graph.nodes.filter(n => layout.layout_profile === LAYOUT_PROFILE ? supportedLean(n) : n.kind === "truth").map(n => n.id));
     const endpoint = value => typeof value === "object" ? value.id : value;
     if (graph.edges.some(e => truthIds.has(endpoint(e.source)) && truthIds.has(endpoint(e.target)) && ["truth-dependency", "module-import", "frozen-prerequisite", "dependency"].includes(e.layer || "dependency") &&
         !["advisory", "proposed"].includes(e.status) && points[endpoint(e.source)].y <= points[endpoint(e.target)].y))
@@ -91,7 +95,7 @@ export async function loadStartup(base) {
     fetch(new URL("data/pages-atlas-manifest.v1.json", base), {
       cache: "no-cache",
     }),
-    fetch(new URL("data/atlas-startup.v1.json", base), { cache: "no-cache" }),
+    fetch(new URL("data/atlas-startup.v1.json?v=lean-admission-v1", base), { cache: "no-cache" }),
   ]);
   if (!manifestResponse.ok)
     throw new Error(`Atlas manifest HTTP ${manifestResponse.status}`);
@@ -105,7 +109,11 @@ export async function loadStartup(base) {
       { cache: "no-cache" },
     );
     if (!response.ok) throw new Error(`Atlas graph HTTP ${response.status}`);
-    const graph = await verifyGraph(await response.text(), manifest, sha256);
+    const sourceGraph = await verifyGraph(await response.text(), manifest, sha256);
+    analyzeArchitecture(sourceGraph);
+    const admissionResponse = await fetch(new URL("data/atlas-admission.v1.json", base), { cache: "no-cache" });
+    const admission = admissionResponse.ok ? await admissionResponse.json() : admissionFromEvidence(sourceGraph, manifest);
+    const graph = applyAdmission(sourceGraph, manifest, admission);
     return {
       graph,
       manifest,
@@ -120,19 +128,25 @@ export async function loadStartup(base) {
     throw new Error(`Atlas startup index HTTP ${indexResponse.status}`);
   const index = validateStartup(await indexResponse.json(), manifest);
   const fast = index.fast;
-  const [graphText, layoutText] = await Promise.all([
+  const [graphText, layoutText, admissionText] = await Promise.all([
     artifactText(base, fast?.graph || index.graph),
     artifactText(base, fast?.layout || index.layout),
+    !fast && index.admission ? artifactText(base, index.admission) : null,
   ]);
-  const graph = fast ? validateView(JSON.parse(graphText), manifest) : await verifyGraph(graphText, manifest, sha256);
+  let graph = fast ? validateView(JSON.parse(graphText), manifest) : await verifyGraph(graphText, manifest, sha256);
+  // The compact view retains all source topology fields, so the same full
+  // validation runs before admission in either startup path.
+  analyzeArchitecture(graph);
+  if (!fast) graph = applyAdmission(graph, manifest, admissionText ? JSON.parse(admissionText) : admissionFromEvidence(graph, manifest));
   const layout = JSON.parse(layoutText);
   if (layout.layout_profile !== index.layout_profile) throw new Error("Layout profile disagrees with its startup index.");
   const positions = validateLayout(layout, graph, manifest);
   const detailCache = new Map();
-  const loadDetails = fast ? async id => {
+  const detailIndex = fast?.details || index.details;
+  const loadDetails = detailIndex ? async id => {
     const shard = detailShard(id);
     if (!detailCache.has(shard)) {
-      const task = artifactText(base, fast.details[shard])
+      const task = artifactText(base, detailIndex[shard])
         .then(text => validateDetails(JSON.parse(text), manifest, graph, shard))
         .catch(error => { detailCache.delete(shard); throw error; });
       detailCache.set(shard, task);
@@ -145,7 +159,7 @@ export async function loadStartup(base) {
     graph,
     manifest,
     positions,
-    dependencyPositions: layout.layout_profile === LAYOUT_PROFILE ? layout.dependency_positions : null,
+    dependencyPositions: CONNECTED_PROFILES.includes(layout.layout_profile) ? layout.dependency_positions : null,
     loadDetails,
     timing: { source: "precomputed", compact: Boolean(fast), dataReadyMs: performance.now() - started },
   };
