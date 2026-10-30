@@ -9,7 +9,6 @@
   "Explore the atlas": "探索数学图谱",
   "Select a node to read the mathematics and follow its dependencies.": "点击节点，阅读数学内容，沿着依赖关系继续探索。",
   "About this graph": "图谱说明与统计",
-  "Explore connections": "探索知识之间的联系",
   "Nodes are Lean modules. Arrows record imports, from prerequisite to dependent.": "节点代表 Lean 模块，箭头记录模块导入关系，从前提指向依赖它的模块。",
   "Human–AI research. Mathematics we can build on.": "人类与 AI 共同研究，让数学知识持续生长。",
   "THE PROJECT": "我们的项目",
