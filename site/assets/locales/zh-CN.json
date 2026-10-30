@@ -1,4 +1,11 @@
 {
+  "Human–AI research. Mathematics we can build on.": "人类与 AI 共同研究，让数学知识持续生长。",
+  "THE PROJECT": "我们的项目",
+  "Shared mathematics, built to grow.": "共同构建，持续生长的数学知识。",
+  "We bring human questions and AI exploration into a shared mathematical library. Lean checks the proofs, so each result can support the next question.": "从人类提出的问题出发，与 AI 一起探索，将成果汇入共享的数学知识库。用 Lean 检验数学证明，让每个结果成为下一步研究的基础。",
+  "See research results →": "查看研究成果 →",
+  "READ THE MAP": "从这里读图",
+  "Each node is a Lean module; each arrow records an import, from prerequisite to dependent. Select a node to read its mathematics, inspect its sources and follow its connections.": "每个节点是一个 Lean 模块，箭头表示模块之间的导入关系，从前提指向依赖它的模块。点击节点，阅读数学内容、查看来源，并沿着联系继续探索。",
   "RH atlas / 93 specifications and coverage gaps": "RH 图谱 / 93 个规格与覆盖缺口",
   "Riemann Hypothesis": "黎曼猜想",
   "Reuse xiReading, entire analyticity and the functional equation. Source is located in a dev snapshot; the axiom closure has not been rechecked here.": "复用 xiReading、整性与函数方程。已定位到 dev 快照源码；没有在此重新核验公理闭包。",

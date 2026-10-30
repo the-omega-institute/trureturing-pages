@@ -1924,9 +1924,20 @@ function focusIsolated() {
 }
 function renderTheory(root) {
   const group = state.theory.components.find(c => c.id === state.component);
-  root.append(el("p", "eyebrow", t("THE PUBLISHED DEPENDENCY DAG")),
-    el("h2", "", group ? group.label : t("Published module dependencies.")),
-    el("p", "wiki-intro", t("Published modules with checked declarations and their module imports. Follow branches, shared prerequisites and joins.")));
+  if (group) {
+    root.append(el("p", "eyebrow", t("THE PUBLISHED DEPENDENCY DAG")),
+      el("h2", "", group.label),
+      el("p", "wiki-intro", t("Published modules with checked declarations and their module imports. Follow branches, shared prerequisites and joins.")));
+  } else {
+    root.append(el("p", "eyebrow", t("THE PROJECT")),
+      el("h2", "", t("Shared mathematics, built to grow.")),
+      el("p", "wiki-intro", t("We bring human questions and AI exploration into a shared mathematical library. Lean checks the proofs, so each result can support the next question.")));
+    const results = el("a", "research-link", t("See research results →"));
+    results.href = "research.html";
+    root.append(results,
+      el("h3", "section-label spaced", t("READ THE MAP")),
+      el("p", "wiki-intro", t("Each node is a Lean module; each arrow records an import, from prerequisite to dependent. Select a node to read its mathematics, inspect its sources and follow its connections.")));
+  }
   const facts = el("dl", "dag-facts");
   for (const [value, label] of [[currentNodes.length, "Modules"], [state.renderer.graphData().links.length, "Dependencies"], [group ? 1 : state.theory.components.length, "Connected components"], [group ? Math.max(...currentNodes.map(n => state.architecture.metrics.get(n.id).depth)) : state.theory.maxDepth, "Maximum dependency depth"]]) {
     const item = el("div"); item.append(el("dt", "", t(label)), el("dd", "", format(value))); facts.append(item);

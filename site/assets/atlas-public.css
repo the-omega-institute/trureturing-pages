@@ -210,6 +210,13 @@ svg.lucide {
   line-height: 1.6;
   margin: 0;
 }
+.atlas-purpose {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  text-wrap: balance;
+}
 .search {
   position: absolute;
   top: 30px;
@@ -1189,7 +1196,7 @@ button.research-link {
 }
 @media (max-width: 900px) {
   .release-discover {
-    top: 245px;
+    top: 285px;
     right: 20px;
     width: min(278px, calc(100% - 90px));
   }
@@ -1203,17 +1210,17 @@ button.research-link {
     grid-template-columns: minmax(0, 1fr) 290px;
   }
   .search {
-    top: 145px;
+    top: 185px;
     width: calc(100% - 40px);
     right: 20px;
   }
   .view-controls {
-    top: 197px;
+    top: 237px;
     left: 20px;
     right: auto;
   }
   .atlas-heading {
-    max-width: none;
+    max-width: calc(100% - 44px);
     top: 20px;
   }
   .atlas-heading h1 {
@@ -1295,14 +1302,14 @@ button.research-link {
     font-size: 8px;
   }
   .search {
-    top: 122px;
+    top: 160px;
     height: 37px;
     right: 19px;
     left: 19px;
     width: auto;
   }
   .view-controls {
-    top: 169px;
+    top: 207px;
     left: 19px;
   }
   .segmented button {
@@ -1439,7 +1446,7 @@ button.research-link {
 }
 
 /* Full released DAG, with connectivity-based layout and complete edge rendering. */
-.theory-guide { position: absolute; top: 154px; left: 30px; display: flex; align-items: center; gap: 12px; color: #9ab3b2; font: 8px ui-monospace, monospace; pointer-events: none; }
+.theory-guide { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: #9ab3b2; font: 8px ui-monospace, monospace; pointer-events: none; }
 .theory-guide svg { width: 12px; height: 12px; }
 .dag-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 24px 0 16px; }
 .dag-facts > div { display: flex; flex-direction: column; min-width: 0; padding: 12px; background: #152026; border: 1px solid #293b44; border-radius: 4px; }
@@ -1465,5 +1472,7 @@ button.research-link {
 .dag-import-join { margin: 20px 0; font-size: 12px; }
 .theory-mode .node-label { max-width: 190px; font-size: 9px; line-height: 1.45; background: #10191fe8; border-color: #385052; }
 .theory-mode .back-to-all { top: 185px; }
-@media (max-width: 1150px) and (min-width: 701px) { .theory-guide { top: 190px; font-size: 7px; gap: 8px; } }
-@media (max-width: 700px) { .theory-guide { top: 210px; left: 19px; gap: 8px; font-size: 6px; } .theory-mode .node-label { max-width: 145px; font-size: 8px; } .segmented button { padding: 0 10px; } .theory-mode .back-to-all { top: 210px; } }
+@media (max-width: 1150px) and (min-width: 701px) { .theory-guide { font-size: 7px; gap: 8px; } }
+@media (max-width: 900px) and (min-width: 701px) { .theory-mode .back-to-all { top: 285px; } }
+@media (max-width: 700px) { .theory-guide { gap: 8px; font-size: 6px; } .theory-mode .node-label { max-width: 145px; font-size: 8px; } .segmented button { padding: 0 10px; } .theory-mode .back-to-all { top: 248px; } }
+@media (max-width: 700px) { .concept-open.theory-mode .back-to-all { top: 60px; } }

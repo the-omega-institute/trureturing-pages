@@ -6,7 +6,8 @@
     <meta name="theme-color" content="#090c10" />
     <link rel="icon" type="image/svg+xml" href="assets/brand-mark.svg" />
     <title>trureturing | Mathematical Atlas</title>
-    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2" />
+    <meta name="description" content="Human–AI research, connected through a growing mathematical library. Explore Lean-checked proofs, their dependencies and the questions they open." />
+    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2&amp;intro=1" />
     <link rel="stylesheet" href="assets/relation-map.css" />
     <link rel="stylesheet" href="assets/architecture.css" />
     <link rel="stylesheet" href="assets/site-theme.css?v=tt-brand-v1" />
@@ -15,7 +16,7 @@
     <script defer src="assets/concept-lens-core.js"></script>
     <script defer src="assets/vendor/d3.min.js"></script>
     <script defer src="assets/relation-map.js"></script>
-    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2"></script>
+    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2&amp;intro=1"></script>
     <script type="module" src="assets/i18n.mjs?v=lean-admission-v2"></script>
 </head>
   <body class="site-themed">
@@ -42,9 +43,13 @@
         <div class="atlas-heading">
           <p class="eyebrow">THE OMEGA INSTITUTE</p>
           <div class="atlas-title"><img class="atlas-logo" src="assets/brand-mark.svg" width="48" height="48" alt="" /><h1>Mathematical Atlas<span>.</span></h1></div>
+          <p class="atlas-purpose">Human–AI research. Mathematics we can build on.</p>
           <p class="atlas-counts" id="atlas-counts">
             Loading published mathematics
           </p>
+          <div id="theory-guide" class="theory-guide" hidden>
+            <span>PREREQUISITES</span><i data-lucide="arrow-down"></i><span>BRANCHES &amp; JOINS</span><i data-lucide="arrow-down"></i><span>CONSEQUENCES</span>
+          </div>
         </div>
         <form class="search" id="concept-search" role="search">
           <i data-lucide="search"></i
@@ -97,9 +102,6 @@
             <button id="release-discover-all" class="release-discover-all" type="button">All changes <i data-lucide="arrow-right"></i></button>
           </div>
         </section>
-        <div id="theory-guide" class="theory-guide" hidden>
-          <span>PREREQUISITES</span><i data-lucide="arrow-down"></i><span>BRANCHES &amp; JOINS</span><i data-lucide="arrow-down"></i><span>CONSEQUENCES</span>
-        </div>
         <div
           id="family-labels"
           class="family-labels"
@@ -250,8 +252,10 @@
           </button>
         </div>
         <div id="wiki-content" class="wiki-content" aria-live="polite">
-          <p class="eyebrow">THE COLLECTION</p>
-          <h2>A connected body<br />of mathematics.</h2>
+          <p class="eyebrow">THE PROJECT</p>
+          <h2>Shared mathematics, built to grow.</h2>
+          <p class="wiki-intro">We bring human questions and AI exploration into a shared mathematical library. Lean checks the proofs, so each result can support the next question.</p>
+          <a class="research-link" href="research.html">See research results →</a>
           <div class="wiki-divider"></div>
           <p class="muted">Loading concept families...</p>
         </div>
