@@ -692,6 +692,55 @@ svg.lucide {
   color: #92a0a6;
   margin: 0;
 }
+.wiki .atlas-project-title {
+  margin: 4px 0 20px;
+  font-size: clamp(27px, 2.3vw, 32px);
+  font-weight: 500;
+  line-height: 1.16;
+  letter-spacing: -.025em;
+}
+.atlas-project-title span { display: block; letter-spacing: inherit; }
+.atlas-project-title span:last-child { color: #a8d9cd; }
+.atlas-project-intro {
+  margin: 0;
+  color: #a7b6bd;
+  font-size: 14px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.wiki .atlas-project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 22px;
+  padding: 10px 0;
+  border-bottom: 1px solid #45685f;
+  color: #b3f2dc;
+  font-size: 13px;
+  font-weight: 500;
+}
+.atlas-explore { margin: 30px 0 24px; padding-top: 24px; border-top: 1px solid var(--line); }
+.atlas-explore h3 { margin: 0 0 10px; font-size: 13px; font-weight: 500; }
+.atlas-explore p { margin: 0; color: #a7b6bd; font-size: 13px; line-height: 1.7; }
+.atlas-details { border-top: 1px solid var(--line); }
+.atlas-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 17px 0;
+  color: #b5c7ca;
+  font-size: 12px;
+  line-height: 1.5;
+  list-style: none;
+  cursor: pointer;
+}
+.atlas-details > summary::-webkit-details-marker { display: none; }
+.atlas-details > summary::after { content: "+"; color: #86b9ad; font-size: 18px; font-weight: 400; }
+.atlas-details[open] > summary::after { content: "−"; }
+.atlas-details[open] { padding-bottom: 22px; }
+.atlas-details + .atlas-details { border-bottom: 1px solid var(--line); }
+.atlas-overview > .research-link { margin-top: 24px; }
 .wiki-divider {
   height: 1px;
   background: var(--line);

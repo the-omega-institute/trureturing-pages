@@ -1038,6 +1038,9 @@ function renderWiki() {
   wikiMap = null;
   const root = $("#wiki-content");
   root.replaceChildren();
+  const overview = state.mode === "theory" && !state.selected && !state.component && !state.changesPanel && !state.bundle;
+  root.classList.toggle("atlas-overview", overview);
+  $("#wiki-panel-label").textContent = t(overview ? "ABOUT TRURETURING" : "CONCEPT WIKI");
   if (state.admissionNotice) {
     const notice = el("p", "admission-notice", t(state.admissionNotice));
     notice.setAttribute("role", "status"); root.append(notice);
@@ -1924,53 +1927,63 @@ function focusIsolated() {
 }
 function renderTheory(root) {
   const group = state.theory.components.find(c => c.id === state.component);
+  let graphDetails = root, connections = root;
   if (group) {
     root.append(el("p", "eyebrow", t("THE PUBLISHED DEPENDENCY DAG")),
       el("h2", "", group.label),
       el("p", "wiki-intro", t("Published modules with checked declarations and their module imports. Follow branches, shared prerequisites and joins.")));
   } else {
-    root.append(el("p", "eyebrow", t("THE PROJECT")),
-      el("h2", "", t("Shared mathematics, built to grow.")),
-      el("p", "wiki-intro", t("We bring human questions and AI exploration into a shared mathematical library. Lean checks the proofs, so each result can support the next question.")));
-    const results = el("a", "research-link", t("See research results →"));
+    const heading = el("h2", "atlas-project-title");
+    heading.append(el("span", "", t("Mathematics,")), el("span", "", t("built to grow.")));
+    root.append(heading,
+      el("p", "atlas-project-intro", t("Human questions and AI exploration, grounded in Lean proofs. Each result becomes a foundation for the next.")));
+    const results = el("a", "atlas-project-link", t("See research results"));
     results.href = "research.html";
-    root.append(results,
-      el("h3", "section-label spaced", t("READ THE MAP")),
-      el("p", "wiki-intro", t("Each node is a Lean module; each arrow records an import, from prerequisite to dependent. Select a node to read its mathematics, inspect its sources and follow its connections.")));
+    results.append(icon("arrow-up-right"));
+    const guide = el("div", "atlas-explore");
+    guide.append(el("h3", "", t("Explore the atlas")),
+      el("p", "", t("Select a node to read the mathematics and follow its dependencies.")));
+    graphDetails = el("details", "atlas-details");
+    graphDetails.append(el("summary", "", t("About this graph")),
+      el("p", "wiki-intro", t("Nodes are Lean modules. Arrows record imports, from prerequisite to dependent.")));
+    connections = el("details", "atlas-details");
+    connections.append(el("summary", "", t("Explore connections")));
+    root.append(results, guide, graphDetails, connections);
   }
   const facts = el("dl", "dag-facts");
   for (const [value, label] of [[currentNodes.length, "Modules"], [state.renderer.graphData().links.length, "Dependencies"], [group ? 1 : state.theory.components.length, "Connected components"], [group ? Math.max(...currentNodes.map(n => state.architecture.metrics.get(n.id).depth)) : state.theory.maxDepth, "Maximum dependency depth"]]) {
     const item = el("div"); item.append(el("dt", "", t(label)), el("dd", "", format(value))); facts.append(item);
   }
-  root.append(facts);
-  root.append(el("p", "dag-admission", t("Mathematical view: {0} admitted · {1} excluded from {2} source modules. Certified source statistics describe the complete publication.", format(state.model.admission.admitted), format(state.model.admission.excluded), format(state.model.admission.source_truth_nodes))));
+  graphDetails.append(facts);
+  graphDetails.append(el("p", "dag-admission", t("Mathematical view: {0} admitted · {1} excluded from {2} source modules. Certified source statistics describe the complete publication.", format(state.model.admission.admitted), format(state.model.admission.excluded), format(state.model.admission.source_truth_nodes))));
   if (!group) {
     const scope = el("div", "dag-connectivity");
     scope.append(el("p", "", t("{0} components with imports · {1} unconnected modules", format(state.theory.components.length - state.theory.isolated), format(state.theory.isolated))),
       el("p", "", t("Each unconnected module counts as one component. The separate grid holds these modules; its rows and columns carry no mathematical meaning.")));
     if (state.isolatedNodes.length) scope.append(action(t("Locate unconnected modules →"), "research-link", focusIsolated));
-    root.append(scope);
+    graphDetails.append(scope);
   }
-  root.append(el("p", "theory-scope", t("Arrows point from prerequisite to dependent. Position follows the real dependencies; color indicates dependency depth.")));
+  graphDetails.append(el("p", "theory-scope", t("Arrows point from prerequisite to dependent. Position follows the real dependencies; color indicates dependency depth.")));
   if (group) root.append(action(t("Return to the whole DAG"), "research-link", () => selectComponent(null)));
-  else root.append(action(t("Focus the largest connected component · {0} modules", format(state.theory.components[0].ids.length)), "research-link", () => selectComponent(state.theory.components[0].id)));
-  root.append(el("h3", "section-label spaced", t("SHARED PREREQUISITES")));
-  rankedNodes(currentNodes, state.architecture, "reach").slice(0, 8).forEach(node => root.append(nodeButton(node, t("{0} downstream modules · {1} direct dependents", state.architecture.metrics.get(node.id).reach, state.architecture.metrics.get(node.id).direct))));
+  else connections.append(action(t("Focus the largest connected component · {0} modules", format(state.theory.components[0].ids.length)), "research-link", () => selectComponent(state.theory.components[0].id)));
+  connections.append(el("h3", "section-label spaced", t("SHARED PREREQUISITES")));
+  rankedNodes(currentNodes, state.architecture, "reach").slice(0, 8).forEach(node => connections.append(nodeButton(node, t("{0} downstream modules · {1} direct dependents", state.architecture.metrics.get(node.id).reach, state.architecture.metrics.get(node.id).direct))));
   const components = el("details", "dag-components"); components.append(el("summary", "", t("Browse connected components")));
   state.theory.components.filter(c => c.edgeCount).forEach(c => {
     const button = action("", "dag-component", () => selectComponent(c.id));
     button.append(el("strong", "", c.label), el("small", "", t("{0} modules · {1} imports · {2} joins", c.ids.length, c.edgeCount, c.joins.length)));
     components.append(button);
   });
-  root.append(components);
+  connections.append(components);
   const joins = (group ? group.joins : state.theory.components.flatMap(c => c.joins)).slice(0, 8);
   if (joins.length) {
-    root.append(el("h3", "section-label spaced", t("IMPORT JOINS")),
+    connections.append(el("h3", "section-label spaced", t("IMPORT JOINS")),
       el("p", "wiki-intro", t("These modules import multiple prerequisites. Open Architecture to inspect their directed import paths.")));
-    joins.forEach(id => root.append(nodeButton(state.model.byId.get(id), t("{0} direct prerequisites", state.architecture.parents.get(id).size))));
+    joins.forEach(id => connections.append(nodeButton(state.model.byId.get(id), t("{0} direct prerequisites", state.architecture.parents.get(id).size))));
   }
   const evolution = el("a", "research-link", t("See how the structure evolved →")); evolution.href = "evolution.html";
-  root.append(evolution, el("p", "architecture-provenance", t("Edges record module imports. External Mathlib dependencies are outside this graph. Depth spacing is compressed to keep long chains visible.")));
+  root.append(evolution);
+  graphDetails.append(el("p", "architecture-provenance", t("Edges record module imports. External Mathlib dependencies are outside this graph. Depth spacing is compressed to keep long chains visible.")));
 }
 
 function renderArchitectureOverview(root) {
