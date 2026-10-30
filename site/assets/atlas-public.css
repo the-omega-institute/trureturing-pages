@@ -1476,3 +1476,11 @@ button.research-link {
 @media (max-width: 900px) and (min-width: 701px) { .theory-mode .back-to-all { top: 285px; } }
 @media (max-width: 700px) { .theory-guide { gap: 8px; font-size: 6px; } .theory-mode .node-label { max-width: 145px; font-size: 8px; } .segmented button { padding: 0 10px; } .theory-mode .back-to-all { top: 248px; } }
 @media (max-width: 700px) { .concept-open.theory-mode .back-to-all { top: 60px; } }
+@media (max-width: 380px) {
+  .atlas-heading .atlas-title h1 { font-size: 22px; }
+  .atlas-purpose { font-size: 12px; }
+  .search { top: 196px; }
+  .view-controls { top: 243px; }
+  .theory-mode .back-to-all { top: 284px; }
+  .concept-open.theory-mode .back-to-all { top: 60px; }
+}
