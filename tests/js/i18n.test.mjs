@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { chooseLocale, languageURL, localizeData, t } from '../../site/assets/i18n.mjs';
+import {pageURL} from '../../site/assets/page-urls.mjs';
 const root = 'https://the-omega-institute.github.io/trureturing-pages/';
 test('English is the default; explicit supported locale overrides storage', () => {
   assert.equal(chooseLocale(root), 'en');
@@ -15,7 +16,28 @@ test('language navigation retains graph, release, search and hash coordinates', 
   assert.equal(u.searchParams.get('q'), '5040');
   assert.equal(u.searchParams.get('lang'), 'zh-CN');
   assert.equal(u.hash, '#details');
+  assert.equal(u.pathname, '/trureturing-pages/millennium');
   assert.equal(new URL(languageURL(root + 'knowledge/node/abc/?snapshot=sha256:123#proof', 'zh-CN', root)).searchParams.get('snapshot'), 'sha256:123');
+});
+test('clean page URLs work at a custom domain and project prefix without changing coordinates', () => {
+  for (const scope of ['https://www.trureturing.org/', root]) {
+    for (const name of ['atlas', 'research', 'conjectures', 'evolution', 'library-version', 'open-math']) {
+      const old = scope + name + '.html?lang=zh-CN&snapshot=sha256%3A123#node=D5%2FS3%2FExample';
+      const clean = scope + name + '?lang=zh-CN&snapshot=sha256%3A123#node=D5%2FS3%2FExample';
+      assert.equal(pageURL(old, scope), clean);
+      assert.equal(pageURL(clean, scope), clean);
+      assert.equal(new URL(languageURL(clean, 'en', scope)).searchParams.get('snapshot'), 'sha256:123');
+    }
+    assert.equal(pageURL(scope + 'index.html?lang=en#proof', scope), scope + '?lang=en#proof');
+    for (const path of ['auth/callback.html?code=opaque&state=opaque', 'assets/example.html',
+        'visualize/assets/example.html', 'data/report.json', 'proofs/source.lean',
+        'api/v1/', 'unknown.html', 'research/a-paper/', 'knowledge/node/abc/']) {
+      assert.equal(pageURL(scope + path, scope), scope + path);
+    }
+  }
+  assert.equal(pageURL('https://external.org/research.html', root), 'https://external.org/research.html');
+  assert.equal(pageURL('https://the-omega-institute.github.io/other/research.html', root), 'https://the-omega-institute.github.io/other/research.html');
+  assert.equal(languageURL(root + 'auth/callback.html?state=opaque', 'en', root), root + 'auth/callback.html?state=opaque');
 });
 test('external sources, neighbouring projects, APIs and evidence downloads are untouched', () => {
   for (const href of ['https://github.com/the-omega-institute/trureturing', 'https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html', root+'api/v1/', root+'assets/millennium-data.json', root+'proofs/result.lean', root+'assets/example.html']) assert.equal(languageURL(href, 'zh-CN', root), href);

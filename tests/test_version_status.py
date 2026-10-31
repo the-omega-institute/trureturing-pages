@@ -235,7 +235,7 @@ class VersionStatusTests(unittest.TestCase):
         from lib.knowledge_pages import site_header
         # Diagnostics remain under Evolution, not a sixth primary destination.
         header = site_header("../../")
-        self.assertIn('href="../../evolution.html"', header)
+        self.assertIn('href="../../evolution"', header)
         self.assertNotIn('href="../../version-status.html"', header)
         evolution = (ROOT / "site/evolution.html").read_text()
         self.assertIn('id="publication-status"', evolution)

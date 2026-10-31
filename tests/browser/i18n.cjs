@@ -78,7 +78,7 @@ const route = path => root + path;
     const navier=page.locator('.mm-entry-cards a[href*="navier-stokes"]');
     assert.equal(new URL(await navier.getAttribute('href'), page.url()).searchParams.get('lang'),'zh-CN');
     await navier.click();await page.locator('.mm-heading').waitFor();assert.match(await page.locator('.mm-heading h1').innerText(),/纳维/);
-    await page.locator('body > header nav a[href*="research.html"]').click();await page.locator('.site-language select').waitFor();
+    await page.locator('body > header nav a[href*="research"]').click();await page.locator('.site-language select').waitFor();
     assert.equal(new URL(page.url()).searchParams.get('lang'),'zh-CN');
     assert.equal(await page.locator('body > header nav [aria-current="page"]').innerText(),'研究动态');
     // A language preference survives direct navigation without a lang parameter.
@@ -108,7 +108,7 @@ const route = path => root + path;
     assert.match(await fp.locator('#mm-app').innerText(),/Research map unavailable/);await failure.close();
     assert.deepEqual(errors,[]);
     // Follow distinct owned HTML destinations collected from real, dynamic rendered anchors.
-    const destinations=[...new Set([...links].map(h=>{const u=new URL(h);return /\.html$|\/$/.test(u.pathname)&&!u.pathname.includes('/api/v1/')?u.origin+u.pathname:null;}).filter(Boolean))];
+    const destinations=[...new Set([...links].map(h=>{const u=new URL(h);return (!/\.[^/]+$/.test(u.pathname) || /\.html$/.test(u.pathname))&&!u.pathname.includes('/api/v1/')?u.origin+u.pathname:null;}).filter(Boolean))];
     const bad=[];
     for(let i=0;i<destinations.length;i+=12)await Promise.all(destinations.slice(i,i+12).map(async href=>{const r=await context.request.get(href);if(r.status()!==200)bad.push([href,r.status()]);}));
     assert.deepEqual(bad,[]);

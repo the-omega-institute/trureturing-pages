@@ -1,4 +1,5 @@
 /** Site interface localization. Research sources, proofs and user notes are originals. */
+import {pageURL, isPageURL} from './page-urls.mjs';
 export const LOCALES = Object.freeze({ en: 'English', 'zh-CN': '中文' });
 const STORAGE_KEY = 'trureturing.language.v1';
 const base = new URL('../', import.meta.url);
@@ -28,11 +29,11 @@ export function localizeData(value, field = '') {
   return value;
 }
 export function languageURL(href, language, root = base.href) {
-  const scope = new URL(root), url = new URL(href, scope);
-  if (!Object.hasOwn(LOCALES, language) || url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)
-      || !(/\/$/.test(url.pathname) || /\.html$/.test(url.pathname)) || /\/(assets|proofs)\//.test(url.pathname) || /\/api\/v\d+(?:\/|$)/.test(url.pathname)) return url.href;
-  url.searchParams.set('lang', language);
-  return url.href;
+  const url = new URL(href, root);
+  if (!Object.hasOwn(LOCALES, language) || !isPageURL(url.href, root)) return url.href;
+  const destination = new URL(pageURL(url.href, root));
+  destination.searchParams.set('lang', language);
+  return destination.href;
 }
 let loadFailed = false;
 export const ready = (async () => {
@@ -108,6 +109,8 @@ function install() {
   }, true);
 }
 if (typeof document !== 'undefined') {
+  const clean = pageURL(location.href);
+  if (clean !== location.href) history.replaceState(history.state, '', clean);
   await ready;
   if (locale !== 'en' && document.title) {
     // Page titles live in <head>, outside the body tree translated below.
