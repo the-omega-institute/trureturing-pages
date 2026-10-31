@@ -26,6 +26,12 @@ claiming a publication. API and identity errors still fail closed.
 
 The consumer verifies the cache manifest, asset inventory, per-part and whole
 archive SHA-256, then extracts only the checked report and its four sidecars.
+Each extracted report member is bounded at 2 GiB. This accommodates the
+required published v4 `raw-lean-report.json.materials.zip` member while
+keeping a finite per-member limit inside the 16 GiB compressed and 64 GiB
+expanded archive bounds. Extra producer cache members, including the optional
+`.reuse.json` and report logs, are ignored after the required five-member set
+is complete.
 It checks out the exact source/tree and builds that source's .NET exporter with
 locked dependencies. It never runs Lean or reconstructs formal evidence.
 

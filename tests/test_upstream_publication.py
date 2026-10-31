@@ -69,6 +69,14 @@ def report_archive(extra=None, omit=None):
 
 
 class SourcePublicationTests(unittest.TestCase):
+    def test_published_v4_report_material_member_fits_bounded_consumer_limit(self):
+        # Receipt from the real ci-41104833528-1 archive.  Its report material
+        # member is larger than the former 1 GiB cap but remains below the
+        # bounded 2 GiB limit used by acquire_report.
+        observed_material_bytes = 1_240_698_590
+        self.assertGreater(observed_material_bytes, 1024 ** 3)
+        self.assertLessEqual(observed_material_bytes, publication.REPORT_LIMIT)
+
     def test_newest_source_wins_over_late_rerun_and_excludes_noncanonical_runs(self):
         client = GitHub(); client.is_ancestor = lambda a, b: a <= b
         invalid = run(C); invalid['path'] = '.github/workflows/test.yml'
@@ -318,6 +326,15 @@ class SourcePublicationTests(unittest.TestCase):
         manifest['parts'][0]['sha256'] = 'f'*64
         with tempfile.TemporaryDirectory() as temp, patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
             with self.assertRaisesRegex(ValueError, 'part size or digest'): publication.acquire_report({'report_release_tag': TAG, 'report_manifest': manifest}, temp)
+
+    def test_stream_retains_finite_report_member_bound(self):
+        raw, _ = report_archive()
+        manifest, _, _ = transport(raw)
+        with tempfile.TemporaryDirectory() as temp, patch.object(publication, 'REPORT_LIMIT', 1), \
+             patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+            with self.assertRaisesRegex(ValueError, 'invalid or duplicate report member'):
+                publication.acquire_report({'report_release_tag': TAG, 'report_manifest': manifest}, temp)
+            self.assertEqual(list(Path(temp).iterdir()), [])
 
     def test_projection_builds_only_exporter_and_preserves_upstream_identity(self):
         selection = {'source_commit': B, 'source_tree': A, 'required_checks': list(publication.EXPORT_CHECKS), 'produced_at': '2026-10-02T00:00:00Z'}
