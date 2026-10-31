@@ -45,7 +45,12 @@ REPORT = ".lake/build/stratalint/raw-lean-report.json"
 REPORT_FILES = tuple("raw-lean-report.json" + suffix for suffix in
                      ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip"))
 CACHE_LIMIT = 16 * 1024 ** 3
-REPORT_LIMIT = 1024 ** 3
+# The published report material archive is one required tar member.  The
+# current v4 producer emits a 1.16 GiB materials.zip, so a 1 GiB member cap
+# rejects a valid report before its sidecar hashes can be checked.  Keep a
+# finite per-member bound while retaining the 16 GiB compressed archive and
+# 64 GiB expanded archive limits below.
+REPORT_LIMIT = 2 * 1024 ** 3
 SCRIBE_LIMIT = 256 * 1024 ** 2
 OUTCOME_PATH = "data/upstream-publication-outcome.v1.json"
 OUTCOME_BRANCH = "pages-sync-status"
