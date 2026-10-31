@@ -2475,5 +2475,15 @@
   "WHY SO MANY STARTING POINTS?": "为什么起点这么多？",
   "A depth-zero module has no prerequisites inside this view. It can still use Mathlib, whose shared foundations are outside the map. These starting points are not foundational axioms.": "深度为 0 只表示模块在当前图内没有前置模块。它仍可能使用图外的 Mathlib 共同基础，因此这些起点不等于最基本的公理。",
   "The graph branches and merges: a module can import several others. It records code organization, not a minimal set of principles from which all mathematics is derived.": "模块可以同时导入多个前置模块，所以图中既有分支，也有汇合。这里记录的是代码组织关系，并不表示推导全部数学所需的最小原理集合。",
-  "Arrows point from prerequisite to dependent. Position follows the real dependencies; colors show import depth and shared prerequisites.": "箭头从前提指向依赖它的模块，位置由实际依赖组织，颜色表示导入深度并突出共享前提。"
+  "Arrows point from prerequisite to dependent. Position follows the real dependencies; colors show import depth and shared prerequisites.": "箭头从前提指向依赖它的模块，位置由实际依赖组织，颜色表示导入深度并突出共享前提。",
+  "Showing this module in the full graph": "正在整张图中查看此模块",
+  "Showing direct prerequisites and dependents": "正在查看直接前置模块与直接后继模块",
+  "Keep full graph context": "保留整张图作为背景",
+  "Start with shared structures": "从共享结构开始",
+  "These are the modules reused by the largest number of later modules. Select one to see its direct neighborhood.": "这些模块被最多的后续模块复用。点击其中一个，先查看它的直接邻域。",
+  "Relationships shown": "显示的关系范围",
+  "Direct": "直接关系",
+  "Two hops": "两跳关系",
+  "Full lineage": "完整谱系",
+  "Module imports": "模块导入"
 }
