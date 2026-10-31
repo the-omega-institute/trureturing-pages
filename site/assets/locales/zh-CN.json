@@ -2485,5 +2485,20 @@
   "Direct": "直接关系",
   "Two hops": "两跳关系",
   "Full lineage": "完整谱系",
-  "Module imports": "模块导入"
+  "Branches share a color · larger nodes support more mathematics · imports flow downward": "同色表示依赖分支 · 大节点代表高复用 · 依赖由上向下延伸",
+  "Fit entire graph": "查看完整全图",
+  "Camera · {0} modules": "镜头聚焦 · {0} 个模块",
+  "Full graph · {0} modules": "完整全图 · {0} 个模块",
+  "{0} downstream · depth {1}": "支撑 {0} 个后续模块 · 深度 {1}",
+  "READING THE GRAPH": "如何读这张图",
+  "Color follows connected import branches": "颜色：按导入关系展开的分支",
+  "Larger nodes support more downstream modules": "大小：被更多后续模块复用",
+  "Brighter lines trace the shared dependency backbone": "亮线：高复用依赖的主干",
+  "Imports flow downward through dependency depth. Branch colors organize connected modules; all cross-branch imports remain visible. Select a module to highlight prerequisites in gold and dependents in mint.": "依赖沿层级自上而下延伸。同色用于组织有导入联系的模块，跨分支的导入全部保留。点击模块后，金色显示前置依赖，薄荷绿显示后继模块。",
+  "The opening camera frames the main connected structure. Fit entire graph includes the smaller components and unconnected modules; every module and import is loaded throughout.": "初始镜头聚焦最大连通结构。「查看完整全图」可同时看到较小的连通分量与独立模块；所有模块和依赖始终完整加载。",
+  "Module import · click to open dependent": "模块导入 · 点击查看后继模块",
+  "Dependency backbone": "依赖主干",
+  "Reused module": "高复用模块",
+  "Prerequisite → dependent": "前置模块 → 后继模块",
+  "Separate connected structures · {0}": "其他连通结构 · {0} 个"
 }

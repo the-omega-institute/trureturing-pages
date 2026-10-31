@@ -12,7 +12,7 @@ import {
 } from "../../site/assets/atlas-public-core.mjs";
 import { researchIndex } from "../../site/assets/atlas-research-core.mjs";
 import { analyzeArchitecture } from "../../site/assets/architecture-core.mjs";
-import { theoryModel, theoryLayout } from "../../site/assets/atlas-theory-core.mjs";
+import { theoryModel, theoryLayout, dependencyBranches } from "../../site/assets/atlas-theory-core.mjs";
 
 const createPublicModel = graph => sourcePublicModel(withEvidence(graph));
 
@@ -51,6 +51,41 @@ test("full DAG coordinates follow imports and do not change when editorial subje
   for (const e of graph.edges) assert.ok(positions[e.source].y > positions[e.target].y);
   const changed = createPublicModel({...graph,nodes:graph.nodes.map(n => ({...n,domain:"Arith"}))});
   assert.deepEqual(theoryLayout(theoryModel(changed,architecture),architecture),positions);
+});
+
+test("spatial branches cover connected modules and preserve joins, shortcuts and directed depth", () => {
+  const nodes = [], edges = [];
+  for (let branch = 0; branch < 12; branch++) {
+    for (let depth = 0; depth < 44; depth++) {
+      const id = `branch-${branch}-${depth}`;
+      nodes.push({ id, kind: "truth", domain: "Test" });
+      if (depth) edges.push({ source: `branch-${branch}-${depth - 1}`, target: id, layer: "truth-dependency" });
+    }
+    if (branch) edges.push({ source: `branch-${branch}-40`, target: "branch-0-43", layer: "truth-dependency" });
+    edges.push({ source: `branch-${branch}-0`, target: `branch-${branch}-30`, layer: "truth-dependency" });
+  }
+  nodes.push({id: "independent", kind: "truth"});
+  const model = createPublicModel({nodes, edges}), architecture = analyzeArchitecture({nodes, edges});
+  const theory = theoryModel(model, architecture), branches = dependencyBranches(theory, architecture);
+  assert.equal(branches.groups.length, 12);
+  assert.equal(branches.byNode.size, nodes.length - 1);
+  const members = branches.groups.flatMap(group => group.ids);
+  assert.equal(new Set(members).size, members.length, "Branch drawing basins never duplicate modules");
+  for (const group of branches.groups) {
+    assert.ok(group.ids.includes(group.anchor));
+    for (const id of group.ids) assert.equal(branches.byNode.get(id), group);
+  }
+  const imports = new Set(edges.map(e => JSON.stringify([e.source, e.target])));
+  for (const [target, source] of branches.primary) assert.ok(imports.has(JSON.stringify([source, target])));
+  assert.ok(branches.spine.size > 20);
+  for (const pair of branches.spine) assert.ok(imports.has(pair), "The drawing backbone only highlights real imports");
+  const before = JSON.stringify(model.edges), positions = theoryLayout(theory, architecture);
+  assert.equal(JSON.stringify(model.edges), before);
+  assert.equal(Object.keys(positions).length, nodes.length);
+  for (const point of Object.values(positions)) assert.ok(Object.values(point).every(Number.isFinite));
+  for (const edge of edges) assert.ok(positions[edge.source].y > positions[edge.target].y);
+  assert.deepEqual(theoryLayout(theory, architecture), positions);
+  assert.equal(viewFor(model, {mode: "theory", theory}).edges.length, edges.length);
 });
 
 const graph = {
