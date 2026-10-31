@@ -1,5 +1,5 @@
-import { theoryModel, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=lean-admission-v2";
-import { t } from "./i18n.mjs?v=lean-admission-v2";
+import { theoryModel, dependencyBranches, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=spatial-v1";
+import { t } from "./i18n.mjs?v=spatial-v1";
 import {
   FAMILIES,
   createPublicModel,
@@ -24,7 +24,7 @@ import {
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
 import { appendRecentResults } from "./atlas-results.mjs";
-import { loadStartup } from "./atlas-startup.mjs?v=lean-admission-v2";
+import { loadStartup } from "./atlas-startup.mjs?v=spatial-v1";
 import {
   structuralScaffold,
   focusRole,
@@ -47,6 +47,7 @@ const state = {
   selected: null,
   mode: "theory",
   theory: null,
+  branches: null,
   isolatedNodes: [],
   component: null,
   theoryPositions: null,
@@ -54,6 +55,7 @@ const state = {
   neighbors: new Set(),
   hover: null,
   rotating: false,
+  cameraNodes: null,
   // A click starts with a readable local neighborhood. Full lineage and the
   // complete graph remain available through the relationship controls.
   depth: "1",
@@ -134,6 +136,7 @@ function color(node) {
     const metrics = state.architecture.metrics.get(node.id);
     if (!metrics) return "#82b5e0";
     if (!metrics.direct && !state.architecture.parents.get(node.id).size) return ISOLATED_COLOR;
+    if (state.mode === "theory") return state.branches.byNode.get(node.id)?.color || ISOLATED_COLOR;
     if (metrics.reach > 200) return REUSE_COLOR;
     return DEPTH_COLORS[Math.min(3, Math.floor(Math.sqrt(metrics.depth)))];
   }
@@ -171,18 +174,21 @@ function edgeColor(edge) {
       ? "#cbaa65"
       : "#61b3a5";
   }
-  if (["theory", "dependency"].includes(state.mode))
-    return state.architecture.metrics.get(from)?.reach > 100 ? "#82b9b1" : "#6d8490";
+  if (state.hover && (from === state.hover || to === state.hover)) return to === state.hover ? "#f4cb7d" : "#8ff2da";
+  if (state.mode === "theory") return state.branches.spine.has(JSON.stringify([from, to]))
+    ? state.branches.byNode.get(from)?.color || "#8ed8e5" : "rgba(68, 113, 144, 0.38)";
+  if (state.mode === "dependency") return state.architecture.metrics.get(from)?.reach > 100 ? "#82b9b1" : "#6d8490";
   const a = state.model.byId.get(from),
     b = state.model.byId.get(to);
   return a.family === b.family ? familyFor(a).color : "#71818b";
 }
 function edgeWidth(edge) {
-  if (state.mode === "theory" && !state.selected) return 0.65;
+  if (state.hover && (endpoint(edge.source) === state.hover || endpoint(edge.target) === state.hover)) return 2;
+  if (state.mode === "theory" && !state.selected) return state.branches.spine.has(JSON.stringify([endpoint(edge.source), endpoint(edge.target)])) ? 1.35 : 0.32;
   if (state.selected)
     return state.related?.edgeIds.has(edge.relationId)
       ? edge.category === "proof"
-        ? 0.95
+        ? 1.6
         : 0.48
       : 0.1;
   return state.mode === "dependency"
@@ -192,7 +198,7 @@ function edgeWidth(edge) {
       : 0.16;
 }
 function nodeSize(node) {
-  if (state.mode === "theory" && !state.selected) return 3 + Math.min(55, Math.log2(1 + state.architecture.metrics.get(node.id).reach) ** 2);
+  if (state.mode === "theory" && !state.selected) return 3 + Math.min(120, Math.log2(1 + state.architecture.metrics.get(node.id).reach) ** 2 * 1.6);
   if (state.mode === "dependency" && state.architecture.metrics.has(node.id)) {
     const value = state.architecture.metrics.get(node.id)[state.metric];
     return (
@@ -260,7 +266,7 @@ function setMode(mode) {
   frameNodes(
     state.selected
       ? [...state.neighbors].map((id) => state.model.byId.get(id))
-      : currentNodes,
+      : overviewNodes(),
   );
 }
 function setFamily(id) {
@@ -326,6 +332,7 @@ function rememberView() {
     bundle: state.bundle,
     changesPanel: state.changesPanel,
     types: [...state.types],
+    cameraNodes: state.cameraNodes,
     camera: state.renderer.camera().position.clone(),
     target: state.renderer.controls().target.clone(),
   });
@@ -350,22 +357,9 @@ function previousView() {
   $("#previous-view").disabled = !state.viewHistory.length;
 }
 function focusSelection() {
-  const origin = state.positions[state.selected];
-  const distance = (id) => {
-    const p = state.positions[id];
-    return (
-      (p.x - origin.x) ** 2 + (p.y - origin.y) ** 2 + (p.z - origin.z) ** 2
-    );
-  };
   const direct = [...neighborhood(state.model, state.selected)]
-    .filter((id) => state.neighbors.has(id))
-    .sort((a, b) => distance(a) - distance(b))
-    .slice(0, 12);
-  frameNodes(
-    [state.selected, ...direct].map((id) => state.model.byId.get(id)),
-    290,
-    origin,
-  );
+    .filter(id => state.neighbors.has(id));
+  frameNodes([state.selected, ...direct].map(id => state.model.byId.get(id)), 290);
 }
 function renderSelectionSummary() {
   const root = $("#selection-summary");
@@ -407,18 +401,20 @@ function arrowLength(edge) {
     (endpoint(edge.source) === state.selected ||
       endpoint(edge.target) === state.selected)
     ? 5
+    : state.hover && [endpoint(edge.source), endpoint(edge.target)].includes(state.hover)
+      ? 5
     : state.mode === "theory"
-      ? 3
+      ? state.branches.spine.has(JSON.stringify([endpoint(edge.source), endpoint(edge.target)])) ? 4 : 1.8
       : state.mode === "dependency"
         ? 2.4
       : 0;
 }
 function particles(edge) {
   return !reducedMotion &&
-    state.selected &&
+    (state.selected || state.hover) &&
     edge.category === "proof" &&
-    (endpoint(edge.source) === state.selected ||
-      endpoint(edge.target) === state.selected)
+    (endpoint(edge.source) === (state.selected || state.hover) ||
+      endpoint(edge.target) === (state.selected || state.hover))
     ? 2
     : 0;
 }
@@ -429,6 +425,8 @@ function renderGraph() {
   );
   document.body.classList.toggle("theory-mode", state.mode === "theory");
   $("#theory-guide").hidden = state.mode !== "theory" || Boolean(state.selected || state.component);
+  $("#dag-navigation").hidden = state.mode !== "theory" || Boolean(state.selected);
+  if (state.mode === "theory") renderCameraScope();
   const view = viewFor(state.model, state);
   state.related = view.related;
   state.neighbors = view.related?.ids || new Set();
@@ -441,8 +439,9 @@ function renderGraph() {
     links: view.edges.map((e) => ({ ...e })),
   });
   state.renderer
+    .nodeRelSize(state.mode === "theory" ? 1.7 : 1.35)
     .nodeColor(color)
-    .linkOpacity(state.mode === "theory" ? 0.62 : 0.36)
+    .linkOpacity(state.selected ? 0.85 : state.mode === "theory" ? 0.72 : 0.36)
     .nodeVal(nodeSize)
     .linkColor(edgeColor)
     .linkWidth(edgeWidth)
@@ -562,6 +561,11 @@ function rebuildScene(edges = viewFor(state.model, state).edges) {
   state.layers.rebuildFocus(
     state.selected ? state.positions[state.selected] : null,
   );
+  const visibleIds = new Set(currentNodes.map(n => n.id));
+  state.layers.rebuildLandmarks(state.mode === "theory" && !state.selected
+    ? state.branches.groups.filter(g => g.ids.length >= 80 && visibleIds.has(g.anchor)).slice(0, 12).map(g => ({
+      position: state.positions[g.anchor], color: g.color, radius: Math.cbrt(nodeSize(state.model.byId.get(g.anchor))) * 1.7 + 4,
+    })) : []);
   $("#scene-labels").replaceChildren();
   sceneLabels = descriptors.map((item) => {
     const isResearch = item.type === "research";
@@ -626,8 +630,22 @@ function renderBundle(root) {
   }
   root.append(list);
 }
+function renderCameraScope() {
+  const count = state.cameraNodes ?? state.theory.components[0].ids.length;
+  const all = count === state.theory.nodes.length;
+  $("#camera-scope").textContent = all ? t("Full graph · {0} modules", format(count)) : t("Camera · {0} modules", format(count));
+  $("#fit-all").hidden = all || Boolean(state.component);
+}
+function overviewNodes() {
+  return state.mode === "theory" && !state.component
+    ? state.theory.components[0].ids.map(id => state.model.byId.get(id)) : currentNodes;
+}
 function frameNodes(nodes, minimumSpan = 0, anchor = null) {
   if (!nodes.length) return;
+  if (state.mode === "theory" && !state.selected) {
+    state.cameraNodes = nodes.length;
+    renderCameraScope();
+  }
   const points = nodes.map((n) => state.positions[n.id]);
   if (state.mode === "frontier" && !state.selected)
     points.push(
@@ -669,7 +687,7 @@ function frameNodes(nodes, minimumSpan = 0, anchor = null) {
   };
   state.renderer.cameraPosition(
     state.mode === "theory" || state.mode === "dependency"
-      ? { x: center.x + distance * 0.08, y: center.y + distance * 0.25, z: center.z + distance }
+      ? { x: center.x + distance * 0.10, y: center.y + distance * 0.10, z: center.z + distance }
       : { x: center.x, y: center.y, z: center.z + distance },
     center,
     reducedMotion ? 0 : 650,
@@ -714,11 +732,23 @@ function buildLabels() {
     $("#family-labels").append(label);
     familyLabels.push({ label, point });
   }
+  if (state.mode === "theory" && !state.component && !state.selected) {
+    const separate = state.theory.components.slice(1).filter(c => c.edgeCount);
+    if (separate.length) {
+      const nodes = separate.flatMap(c => c.ids.map(id => state.model.byId.get(id)));
+      const label = action(t("Separate connected structures · {0}", separate.length), "dag-isolated-label", () => {
+        rememberView(); stopRotation(); frameNodes(nodes);
+      });
+      const points = nodes.map(n => state.positions[n.id]);
+      const point = { x: points.reduce((sum,p) => sum+p.x,0) / points.length, y: 55, z: points.reduce((sum,p) => sum+p.z,0) / points.length };
+      $("#family-labels").append(label); familyLabels.push({label,point,keepInside:true});
+    }
+  }
   if (["theory", "dependency"].includes(state.mode) && !state.component && !state.selected && state.isolatedNodes.length) {
     const points = state.isolatedNodes.map(n => state.positions[n.id]);
     const point = {
       x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
-      y: Math.max(...points.map(p => p.y)) + 30,
+      y: Math.max(...points.map(p => p.y)) + 38,
       z: points.reduce((sum, p) => sum + p.z, 0) / points.length,
     };
     const label = action("", "dag-isolated-label", focusIsolated);
@@ -731,8 +761,11 @@ function buildLabels() {
 }
 function updateLabels() {
   $("#node-labels").replaceChildren();
+  $("#label-leaders").replaceChildren();
   nodeLabels = [];
   let candidates = [];
+  const labelWidth = $("#graph").clientWidth;
+  const narrow = labelWidth < 450, medium = labelWidth < 760;
   if (state.selected)
     candidates = [...state.neighbors]
       .map((id) => state.model.byId.get(id))
@@ -752,9 +785,18 @@ function updateLabels() {
           state.scaffold.score(b.id) - state.scaffold.score(a.id)
         );
       })
-      .slice(0, 10);
-  else if (state.mode === "theory")
-    candidates = rankedNodes(currentNodes, state.architecture, "reach").slice(0, 12);
+      .slice(0, narrow ? 4 : medium ? 6 : 10);
+  else if (state.mode === "theory") {
+    const visible = new Set(currentNodes.map(n => n.id));
+    candidates = state.branches.groups.filter(g => g.ids.length >= 80 && visible.has(g.anchor))
+      .filter((g, index) => index % 2 === 0).slice(0, narrow ? 2 : medium ? 3 : 6).map(g => state.model.byId.get(g.anchor));
+    for (const low of narrow ? [5, 20] : medium ? [2, 15, 35] : [2, 7, 15, 25, 40]) {
+      const landmark = rankedNodes(currentNodes.filter(n => {
+        const d = state.architecture.metrics.get(n.id).depth; return d >= low && d < low + 6;
+      }), state.architecture, "reach")[0];
+      if (landmark && !candidates.some(n => n.id === landmark.id)) candidates.push(landmark);
+    }
+  }
   else if (state.mode === "dependency")
     candidates = rankedNodes(
       currentNodes,
@@ -781,15 +823,19 @@ function updateLabels() {
   if (state.hover && !candidates.some((n) => n.id === state.hover))
     candidates.unshift(state.model.byId.get(state.hover));
   for (const node of candidates.filter(Boolean)) {
-    const label = action(
-      title(node),
-      `node-label${node.id === state.selected ? " is-selected" : ""}`,
-      () => selectNode(node.id),
-    );
+    const label = action("", `node-label${node.id === state.selected ? " is-selected" : ""}`, () => selectNode(node.id));
+    label.append(el("strong", "", title(node)));
+    const metrics = state.architecture.metrics.get(node.id);
+    if (metrics && ["theory", "dependency"].includes(state.mode))
+      label.append(el("small", "", t("{0} downstream · depth {1}", format(metrics.reach), metrics.depth)));
     label.title = title(node);
-    if (state.selected) label.style.setProperty("--node-accent", color(node));
+    label.dataset.nodeId = node.id;
+    label.style.setProperty("--node-accent", color(node));
+    const leader = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    leader.setAttribute("stroke", color(node));
+    $("#label-leaders").append(leader);
     $("#node-labels").append(label);
-    nodeLabels.push({ label, node });
+    nodeLabels.push({ label, node, leader });
   }
   positionLabels();
 }
@@ -800,7 +846,7 @@ function positionLabels() {
   const graphBounds = $("#graph").getBoundingClientRect();
   const occupied = [
     ...document.querySelectorAll(
-      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom, .selection-summary, .theory-guide",
+      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom, .selection-summary, .theory-guide, .dag-navigation",
     ),
   ]
     .filter((item) => !item.hidden && getComputedStyle(item).display !== "none")
@@ -813,7 +859,7 @@ function positionLabels() {
         h: r.height,
       };
     });
-  const project = (label, p, isNode = false, keepInside = false) => {
+  const project = (label, p, isNode = false, keepInside = false, leader = null) => {
     const screen = state.renderer.graph2ScreenCoords(p.x, p.y, p.z);
     const camera = state.renderer.camera();
     const direction = camera.getWorldDirection(camera.position.clone());
@@ -824,7 +870,7 @@ function positionLabels() {
       0;
     const labelWidth = label.offsetWidth,
       labelHeight = label.offsetHeight;
-    const x = keepInside
+    let x = keepInside
         ? Math.max(
             16,
             Math.min(screen.x - labelWidth / 2, width - labelWidth - 16),
@@ -835,23 +881,29 @@ function positionLabels() {
           ? screen.y - labelHeight - 12
           : screen.y + (isNode ? 12 : -labelHeight);
     const box = { x, y, w: labelWidth, h: labelHeight };
-    const collides = occupied.some(
-      (b) =>
-        x < b.x + b.w + 8 &&
-        x + box.w + 8 > b.x &&
-        y < b.y + b.h + 6 &&
-        y + box.h + 6 > b.y,
-    );
+    const overlaps = box => occupied.some(b => box.x < b.x + b.w + 8 && box.x + box.w + 8 > b.x && box.y < b.y + b.h + 6 && box.y + box.h + 6 > b.y);
     const compact =
       window.innerWidth <= 700 && Boolean(state.selected || state.family);
     const topInset = compact ? 85 : window.innerWidth <= 900 ? 200 : 142;
+    if (leader) {
+      // Keep labels close to their real node, then search nearby free space.
+      // Every displaced label has a leader ending at the projected module.
+      const options = [];
+      for (const radius of [16, 48, 88, 132, 180]) {
+        for (const [dx, dy] of [[radius, -labelHeight / 2], [-labelWidth - radius, -labelHeight / 2], [-labelWidth / 2, radius], [-labelWidth / 2, -labelHeight - radius], [radius, radius], [-labelWidth - radius, -labelHeight - radius]])
+          options.push({ x: screen.x + dx, y: screen.y + dy, w: labelWidth, h: labelHeight });
+      }
+      const free = options.find(b => b.x >= 16 && b.x + b.w <= width - 16 && b.y > topInset && b.y + b.h < height - (compact ? 12 : 65) && !overlaps(b));
+      if (free) Object.assign(box, free);
+      x = box.x; y = box.y;
+    }
     const visible =
       front &&
       x >= 16 &&
       x + box.w <= width - 16 &&
       y > topInset &&
       y + box.h < height - (compact ? 12 : 65) &&
-      !collides;
+      !overlaps(box);
     const anchored =
       !keepInside ||
       (screen.x >= 8 &&
@@ -860,14 +912,20 @@ function positionLabels() {
         screen.y < height - 12);
     label.style.visibility = visible && anchored ? "visible" : "hidden";
     label.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+    if (leader) {
+      leader.style.visibility = visible && anchored ? "visible" : "hidden";
+      const endX = Math.max(x, Math.min(screen.x, x + box.w));
+      const endY = Math.max(y, Math.min(screen.y, y + box.h));
+      leader.setAttribute("d", `M ${screen.x.toFixed(1)} ${screen.y.toFixed(1)} L ${((screen.x + endX) / 2).toFixed(1)} ${endY.toFixed(1)} L ${endX.toFixed(1)} ${endY.toFixed(1)}`);
+    }
     if (visible && anchored) occupied.push(box);
   };
   familyLabels.forEach(({ label, point, keepInside }) => {
     label.hidden = Boolean(state.selected);
     if (!state.selected) project(label, point, false, keepInside);
   });
-  nodeLabels.forEach(({ label, node }) =>
-    project(label, state.positions[node.id], true, state.mode === "theory"),
+  nodeLabels.forEach(({ label, node, leader }) =>
+    project(label, state.positions[node.id], true, state.mode === "theory", leader),
   );
   sceneLabels
     .filter((item) => item.type === "research")
@@ -1516,6 +1574,7 @@ async function load() {
   state.architecture = mathematicalArchitecture(state.model);
   state.scaffold = structuralScaffold(state.model, state.architecture);
   state.theory = theoryModel(state.model, state.architecture);
+  state.branches = dependencyBranches(state.theory, state.architecture);
   state.isolatedNodes = state.model.nodes.filter(n => !state.theory.componentByNode.get(n.id).edgeCount);
   state.bundles = relationBundles(state.model);
   if (!state.model.nodes.length)
@@ -1547,7 +1606,7 @@ async function load() {
     }));
   state.structurePositions = state.positions;
   const dependencyPositions = startup.dependencyPositions || await new Promise((resolve, reject) => {
-    const worker = new Worker(new URL("./atlas-dag-worker.mjs?v=lean-admission-v2", import.meta.url), { type: "module" });
+    const worker = new Worker(new URL("./atlas-dag-worker.mjs?v=spatial-v1", import.meta.url), { type: "module" });
     $("#loading-message").textContent = t("Laying out the complete dependency DAG");
     worker.onmessage = ({data}) => { worker.terminate(); data.error ? reject(new Error(data.error)) : resolve(data.positions); };
     worker.onerror = () => { worker.terminate(); reject(new Error("Dependency layout worker failed.")); };
@@ -1573,7 +1632,7 @@ async function load() {
     .backgroundColor("#090c10")
     .showNavInfo(false)
     .nodeLabel(() => "")
-    .nodeRelSize(1.35)
+    .nodeRelSize(1.7)
     .nodeResolution(10)
     .nodeOpacity(0.94)
     .linkOpacity(0.36)
@@ -1589,8 +1648,21 @@ async function load() {
     .onNodeHover((node) => {
       state.hover = node?.id || null;
       $("#graph").style.cursor = node ? "pointer" : "grab";
+      state.renderer.linkColor(edgeColor).linkWidth(edgeWidth).linkDirectionalArrowLength(arrowLength).linkDirectionalParticles(particles);
       updateLabels();
     })
+    .linkLabel(edge => {
+      if (!["theory", "dependency"].includes(state.mode)) return "";
+      const hint = el("div", "import-tooltip");
+      hint.dataset.source = endpoint(edge.source);
+      hint.dataset.target = endpoint(edge.target);
+      hint.append(el("strong", "", title(state.model.byId.get(endpoint(edge.source)))),
+        el("span", "", `→ ${title(state.model.byId.get(endpoint(edge.target)))}`),
+        el("small", "", t("Module import · click to open dependent")));
+      return hint.outerHTML;
+    })
+    .onLinkHover(edge => { $("#graph").style.cursor = edge ? "pointer" : state.hover ? "pointer" : "grab"; })
+    .onLinkClick(edge => { if (["theory", "dependency"].includes(state.mode)) selectNode(endpoint(edge.target)); })
     .onNodeDrag(() => {
       state.dragging = true;
       state.layers?.setDragging(true);
@@ -1608,7 +1680,7 @@ async function load() {
       buildLabels();
     })
     .onBackgroundClick(() => {
-      if (state.selected) setFamily(state.family);
+      if (state.selected) returnToOverview();
     });
   state.renderer.renderer().setPixelRatio(Math.min(window.devicePixelRatio, 2));
   const controls = state.renderer.controls();
@@ -1680,7 +1752,7 @@ async function load() {
   $("#loading").hidden = true;
   state.startup.readyMs = performance.now();
   requestAnimationFrame(() => {
-    frameNodes(currentNodes);
+    frameNodes(overviewNodes());
     const initialNode = initial.get("node") || LEGACY_ROUTE_ANCHORS[initial.get("route")];
     if (initialNode) selectNode(initialNode);
   });
@@ -1715,7 +1787,7 @@ async function load() {
       ...state.layers?.diagnostics(),
       error: state.layerError,
       bundle: state.bundle,
-      spineEdges: state.scaffold.spine.size,
+      spineEdges: state.mode === "theory" ? state.branches.spine.size : state.scaffold.spine.size,
       lod: state.lod,
     },
     changes: state.changes
@@ -1747,7 +1819,7 @@ async function load() {
     ),
     camera: state.renderer.camera().position.toArray(),
   });
-  import("./atlas-scene.mjs")
+  import("./atlas-scene.mjs?v=spatial-v1")
     .then(({ createAtlasScene }) => {
       state.layers = createAtlasScene(state.renderer, $("#graph"), {
         select(item) {
@@ -1927,7 +1999,7 @@ function selectComponent(id) {
   state.mode = "theory";
   state.positions = state.theoryPositions;
   stopRotation();
-  renderGraph(); renderWiki(); frameNodes(currentNodes);
+  renderGraph(); renderWiki(); frameNodes(overviewNodes());
 }
 function focusIsolated() {
   rememberView();
@@ -1942,23 +2014,27 @@ function renderTheory(root) {
       el("h2", "", group.label),
       el("p", "wiki-intro", t("Published modules with checked declarations and their module imports. Follow branches, shared prerequisites and joins.")));
   } else {
-    root.append(atlasIntroduction.cloneNode(true));
+    const introduction = atlasIntroduction.cloneNode(true);
+    const explanation = introduction.querySelector(".atlas-explore");
+    const researchLoop = introduction.querySelector(".atlas-research-loop");
+    explanation.remove(); researchLoop.remove();
+    root.append(introduction);
     graphDetails = el("details", "atlas-details");
     graphDetails.append(el("summary", "", t("About this graph")),
-      el("p", "wiki-intro", t("Nodes are Lean modules. Arrows record imports, from prerequisite to dependent.")));
-    graphDetails.append(el("h3", "section-label spaced", t("COLOR & DEPTH")));
+      explanation, researchLoop);
+    graphDetails.append(el("h3", "section-label spaced", t("READING THE GRAPH")));
     const key = el("ul", "dag-color-key");
     for (const [shade, label] of [
-      [DEPTH_COLORS[0], "Depth 0"], [DEPTH_COLORS[1], "Depth 1–3"],
-      [DEPTH_COLORS[2], "Depth 4–8"], [DEPTH_COLORS[3], "Depth 9+"],
-      [REUSE_COLOR, "Supports over 200 downstream modules"], [ISOLATED_COLOR, "No connections within this graph"],
+      ["#83b9f0", "Color follows connected import branches"],
+      ["#b3f2dc", "Larger nodes support more downstream modules"],
+      ["#edc785", "Brighter lines trace the shared dependency backbone"],
+      [ISOLATED_COLOR, "No connections within this graph"],
     ]) {
-      const row = el("li");
-      row.style.setProperty("--key-color", shade);
+      const row = el("li"); row.style.setProperty("--key-color", shade);
       row.append(el("span", "", t(label))); key.append(row);
     }
     graphDetails.append(key,
-      el("p", "wiki-intro", t("Depth counts the longest import chain inside this library. Pale green highlights shared prerequisites at any depth. Selecting a node changes the colors to show its relationships.")),
+      el("p", "wiki-intro", t("Imports flow downward through dependency depth. Branch colors organize connected modules; all cross-branch imports remain visible. Select a module to highlight prerequisites in gold and dependents in mint.")),
       el("h3", "section-label spaced", t("WHY SO MANY STARTING POINTS?")),
       el("p", "wiki-intro", t("A depth-zero module has no prerequisites inside this view. It can still use Mathlib, whose shared foundations are outside the map. These starting points are not foundational axioms.")),
       el("p", "theory-scope", t("The graph branches and merges: a module can import several others. It records code organization, not a minimal set of principles from which all mathematics is derived.")));
@@ -1972,7 +2048,8 @@ function renderTheory(root) {
   for (const [value, label] of [[currentNodes.length, "Modules"], [state.renderer.graphData().links.length, "Dependencies"], [group ? 1 : state.theory.components.length, "Connected components"], [group ? Math.max(...currentNodes.map(n => state.architecture.metrics.get(n.id).depth)) : state.theory.maxDepth, "Maximum dependency depth"]]) {
     const item = el("div"); item.append(el("dt", "", t(label)), el("dd", "", format(value))); facts.append(item);
   }
-  graphDetails.append(facts);
+  if (group) graphDetails.append(facts);
+  else root.insertBefore(facts, root.querySelector(".atlas-details"));
   graphDetails.append(el("p", "dag-admission", t("Mathematical view: {0} admitted · {1} excluded from {2} source modules. Certified source statistics describe the complete publication.", format(state.model.admission.admitted), format(state.model.admission.excluded), format(state.model.admission.source_truth_nodes))));
   if (!group) {
     const scope = el("div", "dag-connectivity");
@@ -1981,7 +2058,7 @@ function renderTheory(root) {
     if (state.isolatedNodes.length) scope.append(action(t("Locate unconnected modules →"), "research-link", focusIsolated));
     graphDetails.append(scope);
   }
-  graphDetails.append(el("p", "theory-scope", t("Arrows point from prerequisite to dependent. Position follows the real dependencies; colors show import depth and shared prerequisites.")));
+  graphDetails.append(el("p", "theory-scope", t("The opening camera frames the main connected structure. Fit entire graph includes the smaller components and unconnected modules; every module and import is loaded throughout.")));
   if (group) root.append(action(t("Return to the whole DAG"), "research-link", () => selectComponent(null)));
   else connections.append(action(t("Focus the largest connected component · {0} modules", format(state.theory.components[0].ids.length)), "research-link", () => selectComponent(state.theory.components[0].id)));
   connections.append(el("h3", "section-label spaced", t("SHARED PREREQUISITES")));
@@ -2201,6 +2278,10 @@ function returnToOverview() {
   else if (state.mode === "dependency") { state.selected = null; setMode("dependency"); }
   else setFamily(null);
 }
+$("#fit-all").addEventListener("click", () => {
+  if (!state.renderer) return;
+  rememberView(); stopRotation(); frameNodes(currentNodes);
+});
 $("#reset-camera").addEventListener("click", returnToOverview);
 $("#back-to-all").addEventListener("click", returnToOverview);
 $("#close-wiki").addEventListener("click", () =>

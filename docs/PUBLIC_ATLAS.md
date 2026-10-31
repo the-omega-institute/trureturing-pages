@@ -10,6 +10,9 @@ labels and Lean filenames alone are insufficient.
 
 The layout uses weak connected components and actual directed imports. Arrows
 point from prerequisite to dependent, with dependency depth compressed vertically.
+The opening camera frames the largest connected structure; **Fit entire graph**
+includes the smaller components and unconnected modules. All admitted nodes and
+imports are rendered throughout, including those outside the opening camera.
 Component names combine their leading domains and a representative module; names
 are editorial descriptions of real components, not additional graph connections.
 Readers can inspect modules with multiple direct prerequisites and follow genuine
@@ -59,6 +62,24 @@ together using vendored `d3-force-3d`. The deterministic simulation runs in a We
 Worker and stops before rendering. Family positions are editorial composition,
 not a metric of inter-family similarity. The About dialog states this boundary.
 
+The `atlas-branched-dag-v5` dependency layout spaces early import depths more
+widely and keeps long chains visible using a logarithmic vertical scale. A
+deterministic primary parent (chosen by downstream reuse, with identity ties)
+organizes drawing basins around large import trees. Multi-source graph distance
+assigns the remaining connected modules. Colors identify these drawing basins,
+not new mathematical subjects or inferred theorem relations. All secondary
+parents, joins, shortcut imports and cross-branch edges remain intact. Node size
+shows downstream reuse; brighter lines highlight real primary imports with shared
+downstream support. Landmark rings, readable counts and collision-avoiding labels
+with leaders identify important modules. Hover highlights incoming and outgoing
+imports; clicking an import opens its dependent module. Reduced motion disables
+flow particles and camera transitions.
+
+The startup builder publishes this deterministic layout under the existing digest
+contract. A verified v4 startup can still supply graph and Structure coordinates;
+the DAG worker refreshes its dependency positions. A v5 startup requires no client
+layout worker.
+
 The `atlas-dependency-scaffold-v2` layout selects a deterministic primary parent
 from existing same-family proof dependencies, weighted by actual reuse and
 downstream support. Depth and curved local targets give each family an internal
@@ -81,9 +102,9 @@ The advanced console remains available at `dag.html`. See
 [Living knowledge](LIVING_KNOWLEDGE.md) for the four-view information architecture.
 
 Selection colors distinguish the selected module, its imported prerequisites and
-downstream modules. The camera frames nearby direct
-neighbors around the selected concept; this framing does not truncate the full
-relationship set. Previous view restores the exact camera and exploration state,
+downstream modules. The camera fits the complete direct
+neighborhood of the selected concept; the relationship controls can expand the
+view to full lineage. Previous view restores the exact camera and exploration state,
 including on mobile. Adaptive landmark labels prioritize selected concepts and
 avoid controls and other labels.
 
@@ -140,7 +161,7 @@ the release's source catalog and must not be inferred by topology metrics.
 ## Startup performance
 
 `tools/build_atlas_startup.mjs` precomputes Structure and admitted DAG positions.
-The current profile is `atlas-evidenced-dag-v4`. A v3 compact startup view carries
+The current profile is `atlas-branched-dag-v5`. A v3 compact startup view carries
 all source node identities, relation tuples and certified topology counters,
 together with bounded admission summaries. It groups the exact source/frozen hash
 bytes and stores node fields in rows; no admission field is replaced by a label.
@@ -164,6 +185,10 @@ upgrade browser check supplies stale preceding-release modules and requires curr
 admission and counts. The legacy archive path remains available; absent declaration
 evidence reports an unavailable mathematical view rather than claiming an empty DAG
 is a successful projection.
+
+The v5 spatial renderer, dependency worker, startup loader, locale and stylesheet
+use `?v=spatial-v1` so a warm browser refreshes this presentation together.
+Admission and source-consumption interfaces retain their existing cache coordinate.
 
 Research and history load after the graph becomes interactive. Research has an
 explicit pending state; slow or failed research cannot delay the main Atlas.
@@ -209,6 +234,12 @@ occupied, pass another `--port`. Without compatible declaration evidence the
 preview explicitly reports the missing capability.
 
 ## Verification
+
+`NODE_PATH=/path/to/node_modules ATLAS_URL=http://127.0.0.1:8765/atlas.html node tests/browser/atlas-spatial-clarity.cjs`
+checks complete graph identity, camera scope and restoration, label collisions,
+complete direct-neighborhood framing, actual import tooltips/clicks, responsive
+English/Chinese views, and the absence of a layout worker with published v5 data.
+
 
 ```bash
 node --test tests/js/*.test.js tests/js/*.test.mjs

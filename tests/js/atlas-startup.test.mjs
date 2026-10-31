@@ -100,6 +100,13 @@ test("published startup preserves exact graph bytes and layout, validates all no
   await writeFile(join(root, legacyPath), legacyBytes);
   const legacyIndex = { ...index, fast: undefined, layout_profile: legacyLayout.layout_profile,
     layout: { path: legacyPath, digest: legacyDigest, bytes: legacyBytes.length } };
+  const v4Layout = { ...layout, layout_profile: "atlas-evidenced-dag-v4" };
+  const v4Bytes = gzipSync(JSON.stringify(v4Layout));
+  const v4Digest = hash(v4Bytes);
+  const v4Path = `data/atlas-startup/${v4Digest.slice(7)}.json.gz`;
+  await writeFile(join(root, v4Path), v4Bytes);
+  const v4Index = { ...index, fast: undefined, layout_profile: v4Layout.layout_profile,
+    layout: {path: v4Path, digest: v4Digest, bytes: v4Bytes.length} };
   const requests = [];
   let mode = "valid";
   t.mock.method(globalThis, "fetch", async (url, options) => {
@@ -114,7 +121,7 @@ test("published startup preserves exact graph bytes and layout, validates all no
     if (path === "data/atlas-startup.v1.json")
       return mode === "legacy"
         ? new Response("", { status: 404 })
-        : Response.json(mode === "v2" ? legacyIndex : mode === "profile-mismatch" ? { ...index, layout_profile: legacyLayout.layout_profile } : index);
+        : Response.json(mode === "v4" ? v4Index : mode === "v2" ? legacyIndex : mode === "profile-mismatch" ? { ...index, layout_profile: legacyLayout.layout_profile } : index);
     if (path === "data/pages-atlas-view.v1.json") return new Response(text);
     if (path === "data/atlas-admission.v1.json") return new Response(await readFile(join(root, path)));
     if (mode === "corrupt") return new Response("corrupt");
@@ -128,6 +135,11 @@ test("published startup preserves exact graph bytes and layout, validates all no
   assert.equal(result.timing.compact, true);
   assert.deepEqual(await result.loadDetails("A"), admittedGraph.nodes[0]);
   assert.ok(!requests.some(r => r.path === index.graph.path), "The canonical archive stays off the first-paint path");
+  mode = "v4";
+  const v4 = await loadStartup("https://example.test/");
+  assert.deepEqual(v4.positions, layout.positions);
+  assert.deepEqual(v4.graph, admittedGraph);
+  assert.equal(v4.dependencyPositions, null, "Verified v4 startup retains data and Structure positions while refreshing the spatial DAG");
   mode = "profile-mismatch";
   await assert.rejects(loadStartup("https://example.test/"), /profile disagrees/);
   mode = "v2";

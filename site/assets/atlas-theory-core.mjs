@@ -60,52 +60,91 @@ export function directedPath(architecture, from, to) {
   return path;
 }
 
-// Layout uses only directed dependencies and their connected components.
-// y strictly decreases with import depth. Square-root spacing keeps long tails
-// visible alongside broad shallow branches; x/z are relaxed by the actual edges.
-export function theoryLayout(theory, architecture) {
-  const centers = new Map();
-  let shelfX = -800, shelfZ = 340, shelfHeight = 0;
-  const connected = theory.components.filter(c => c.edgeCount);
-  connected.forEach((component, index) => {
-    const radius = 4 + Math.sqrt(component.ids.length) * 3;
-    if (!index) centers.set(component.id, { x: 0, z: 0, radius: 300, stretch: 2.2 });
-    else {
-      if (shelfX + radius * 2 > 800) {
-        shelfX = -800; shelfZ += shelfHeight + 15; shelfHeight = 0;
-      }
-      centers.set(component.id, { x: shelfX + radius, z: shelfZ + radius, radius });
-      shelfX += radius * 2 + 12; shelfHeight = Math.max(shelfHeight, radius * 2);
+// Primary parents organize drawing only. Secondary parents and every original
+// import remain in the graph. Branch basins use graph distance, never topics.
+export function dependencyBranches(theory, architecture) {
+  const primary = new Map(), rootByNode = new Map(), trees = new Map();
+  const order = [...theory.nodes].sort((a, b) => architecture.metrics.get(a.id).depth - architecture.metrics.get(b.id).depth || compare(a.id, b.id));
+  for (const node of order) {
+    const parent = [...architecture.parents.get(node.id)].sort((a, b) => architecture.metrics.get(b).reach - architecture.metrics.get(a).reach || compare(a, b))[0];
+    if (parent) primary.set(node.id, parent);
+    const root = parent ? rootByNode.get(parent) : node.id;
+    rootByNode.set(node.id, root);
+    if (!trees.has(root)) trees.set(root, []);
+    trees.get(root).push(node.id);
+  }
+  const palette = ['#72d8d5', '#83b9f0', '#c4a9ec', '#edc785', '#89c9aa', '#e29da9', '#88d4ec', '#b9cc7d', '#beadf0', '#e6ad83', '#76bde1', '#c4d7dd'];
+  const groups = [], byNode = new Map(), spine = new Set();
+  for (const component of theory.components) {
+    if (!component.edgeCount) continue;
+    const roots = [...new Set(component.ids.map(id => rootByNode.get(id)))];
+    const seeds = component.ids.length > 500
+      ? roots.sort((a, b) => trees.get(b).length - trees.get(a).length || compare(a, b)).slice(0, 12)
+      : [component.anchor];
+    const queue = [];
+    for (const seed of seeds) {
+      const group = { id: seed, anchor: seed, ids: [], component: component.id, color: palette[groups.length % palette.length] };
+      groups.push(group);
+      for (const id of (trees.get(seed) || [seed])) { byNode.set(id, group); queue.push(id); }
     }
+    // A multi-source breadth-first expansion attaches remaining modules through
+    // actual imports. Seeding the primary trees preserves complete long branches.
+    for (let i = 0; i < queue.length; i++) {
+      const id = queue[i];
+      for (const next of [...architecture.parents.get(id), ...architecture.children.get(id)]) {
+        if (byNode.has(next)) continue;
+        byNode.set(next, byNode.get(id)); queue.push(next);
+      }
+    }
+    for (const id of component.ids) byNode.get(id).ids.push(id);
+  }
+  for (const [target, source] of primary) {
+    if (architecture.metrics.get(source).reach >= 25 && architecture.metrics.get(target).reach >= 8)
+      spine.add(JSON.stringify([source, target]));
+  }
+  return { groups, byNode, primary, spine };
+}
+
+// Depth opens the dense early levels; branch basins keep real import trees
+// separated in 3D. Positions are deterministic and remain fixed on selection.
+export function theoryLayout(theory, architecture) {
+  const branches = dependencyBranches(theory, architecture), centers = new Map();
+  const main = theory.components.find(c => c.edgeCount);
+  const major = branches.groups.filter(g => g.component === main?.id);
+  major.forEach((group, index) => {
+    const fraction = major.length === 1 ? 0.5 : index / (major.length - 1);
+    centers.set(group.id, { x: (fraction - 0.5) * 1850, z: Math.sin(index * 2.4) * 170 });
   });
+  let shelfX = 1260, shelfZ = 0, rowHeight = 0;
+  for (const group of branches.groups.filter(g => g.component !== main?.id)) {
+    const radius = 5 + Math.sqrt(group.ids.length) * 3;
+    if (shelfX + radius * 2 > 2300) { shelfX = 1260; shelfZ -= rowHeight + 12; rowHeight = 0; }
+    centers.set(group.id, { x: shelfX + radius, z: shelfZ - radius });
+    shelfX += radius * 2 + 12; rowHeight = Math.max(rowHeight, radius * 2);
+  }
   const result = {}, nodes = [];
   let isolatedIndex = 0;
   for (const node of theory.nodes) {
-    const component = theory.componentByNode.get(node.id);
-    const depth = architecture.metrics.get(node.id).depth;
-    if (!component.edgeCount) {
-      result[node.id] = { x: 760 + (isolatedIndex % 36) * 9, y: 0, z: -170 + Math.floor(isolatedIndex / 36) * 9 };
+    const group = branches.byNode.get(node.id);
+    if (!group) {
+      result[node.id] = { x: 1300 + (isolatedIndex % 32) * 12, y: -930 - Math.floor(isolatedIndex / 32) * 7, z: 70 };
       isolatedIndex++; continue;
     }
-    const center = centers.get(component.id), seed = hash(node.id);
-    const angle = seed * 0.0001, radius = Math.sqrt((seed >>> 8) / 0xffffff) * center.radius;
-    const y = -Math.sqrt(depth) * 105;
-    nodes.push({ id: node.id, x: center.x + Math.cos(angle) * radius,
-      y, fy: y, z: center.z + Math.sin(angle) * radius, center });
+    const center = centers.get(group.id), seed = hash(node.id);
+    const angle = seed * 0.0001, radius = Math.sqrt((seed >>> 8) / 0xffffff) * (20 + Math.sqrt(group.ids.length) * 3.5);
+    const y = -Math.log2(1 + architecture.metrics.get(node.id).depth) * 200;
+    nodes.push({ id: node.id, x: center.x + Math.cos(angle) * radius, y, fy: y, z: center.z + Math.sin(angle) * radius, center, branch: group.id });
   }
   const simulation = forceSimulation(nodes, 3).stop()
     .force('link', forceLink(theory.edges.map(e => ({ source: e.source, target: e.target })))
-      .id(n => n.id).distance(e => Math.abs(e.source.fy - e.target.fy) + 12).strength(0.7))
-    .force('charge', forceManyBody().strength(-8).distanceMax(80))
-    .force('collision', forceCollide(2.2))
-    .force('x', forceX(n => n.center.x).strength(0.012))
-    .force('z', forceZ(n => n.center.z).strength(0.012));
-  simulation.tick(85);
-  for (const node of nodes) result[node.id] = {
-    // Give the main connected DAG enough horizontal room for branches and joins.
-    x: node.center.x + (node.x - node.center.x) * (node.center.stretch || 1),
-    y: node.fy, z: node.z,
-  };
+      .id(n => n.id).distance(e => Math.abs(e.source.fy - e.target.fy) + 28)
+      .strength(e => e.source.branch === e.target.branch ? 0.48 : 0.06))
+    .force('charge', forceManyBody().strength(-16).distanceMax(100))
+    .force('collision', forceCollide(3.4))
+    .force('x', forceX(n => n.center.x).strength(0.13))
+    .force('z', forceZ(n => n.center.z).strength(0.13));
+  simulation.tick(100);
+  for (const node of nodes) result[node.id] = { x: node.x, y: node.fy, z: node.z };
   return result;
 }
 

@@ -46,7 +46,8 @@ export function createAtlasScene(renderer, host, callbacks) {
   const research = new Group();
   const changes = new Group();
   const focus = new Group();
-  root.add(bundles, research, changes, focus);
+  const landmarks = new Group();
+  root.add(bundles, research, changes, focus, landmarks);
   renderer.scene().add(root);
   const ambient = new AmbientLight("#e4edf3", 0.85);
   const key = new DirectionalLight("#edfff8", 1.5);
@@ -248,6 +249,18 @@ export function createAtlasScene(renderer, host, callbacks) {
       focus.position.copy(vector(position));
       focus.add(ring);
     },
+    rebuildLandmarks(items) {
+      clear(landmarks);
+      for (const item of items) {
+        const group = new Group();
+        group.position.copy(vector(item.position));
+        for (const [scale, opacity, thickness] of [[1, .8, .32], [1.5, .18, .65]]) {
+          group.add(new Mesh(new TorusGeometry(item.radius * scale, thickness, 5, 40),
+            new MeshBasicMaterial({color: item.color, transparent: true, opacity, depthWrite: false})));
+        }
+        landmarks.add(group);
+      }
+    },
     updateCamera() {
       const distance = renderer
         .camera()
@@ -255,6 +268,7 @@ export function createAtlasScene(renderer, host, callbacks) {
       renderer.scene().fog.near = distance * 0.65;
       renderer.scene().fog.far = distance * 1.65;
       focus.quaternion.copy(renderer.camera().quaternion);
+      for (const group of landmarks.children) group.quaternion.copy(renderer.camera().quaternion);
     },
     rebuildChanges(summary, positions, visibleIds, enabled) {
       clear(changes);
@@ -302,6 +316,7 @@ export function createAtlasScene(renderer, host, callbacks) {
     },
     diagnostics() {
       return {
+        landmarks: landmarks.children.length,
         bundles: pickable.filter((o) => o.userData.type === "bundle").length,
         bundleObjects: bundles.children.length,
         bundlesVisible: bundles.visible,
@@ -319,6 +334,7 @@ export function createAtlasScene(renderer, host, callbacks) {
       clear(research);
       clear(changes);
       clear(focus);
+      clear(landmarks);
       renderer.scene().remove(root);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerdown", onDown);
