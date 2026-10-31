@@ -4,7 +4,7 @@
   globalThis.__researchRouteInstalled = true;
   const keys = new Set(['rp','rq','ra','rk','rh','rs','rl','ro','rw','node','q']);
   function route() {
-    if (!location.pathname.endsWith('/research.html')) return;
+    if (!/\/research(?:\.html)?$/.test(location.pathname)) return;
     let hash;
     try { hash = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     const legacy = document.getElementById('legacy-result-ids');
@@ -13,7 +13,7 @@
         hash === 'results' || hash === 'result-archive' || hash === 'resolved-questions' ||
         hash.startsWith('resolved-') || ['results-oeis','results-erdos','results-other'].includes(hash) || resultIds.includes(hash) ||
         ['research-bank','research-release-dossiers','research-workbench'].includes(hash)) {
-      const url = new URL(location.href); url.pathname = url.pathname.replace(/research\.html$/, 'conjectures.html');
+      const url = new URL(location.href); url.pathname = url.pathname.replace(/research(?:\.html)?$/, 'conjectures');
       location.replace(url.href);
     }
   }

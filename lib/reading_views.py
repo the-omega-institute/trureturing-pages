@@ -114,7 +114,7 @@ def add_spaces_navigation(document: str, root=''):
     primary knowledge destination. Do not alter citation or evidence links.
     """
     def nav(match):
-        content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status)\.html(?:[?#][^"]*)?"[^>]*>.*?</a>',
+        content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status)(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
                          '', match[1], flags=re.S)
         return '<nav aria-label="Primary navigation">' + content + '</nav>'
     return re.sub(r'<nav aria-label="Primary navigation">(.*?)</nav>', nav, document, flags=re.S)

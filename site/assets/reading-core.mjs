@@ -2,10 +2,10 @@ const LEGACY = new Set(['rp','rq','ra','rk','rh','rs','rl','ro','rw','node','q']
 export function questionDestination(href, base) {
   const url = new URL(href, base), current = new URL(base);
   const hash = url.hash.slice(1);
-  if (url.origin === current.origin && url.pathname.endsWith('/research.html') &&
+  if (url.origin === current.origin && /\/research(?:\.html)?$/.test(url.pathname) &&
       ([...new URLSearchParams(hash).keys()].some(k => LEGACY.has(k)) ||
        ['research-bank','research-release-dossiers','research-workbench'].includes(hash))) {
-    url.pathname = url.pathname.replace(/research\.html$/, 'conjectures.html');
+    url.pathname = url.pathname.replace(/research(?:\.html)?$/, 'conjectures');
   }
   return url.href;
 }

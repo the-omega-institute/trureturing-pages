@@ -15,7 +15,7 @@
   }
   function updateHome() {
     if (!atlas) return;
-    const url = new URL('../atlas.html', base);
+    const url = new URL('../atlas', base);
     url.searchParams.set('lang', runtime.lang() === 'zh' ? 'zh-CN' : 'en');
     atlas.href = url.href;
     atlas.textContent = runtime.L('← 理论图谱', '← Atlas');

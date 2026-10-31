@@ -14,6 +14,7 @@ SITE = ROOT / "site"
 CACHE = ROOT / "artifacts" / "atlas-preview"
 PUBLISHED = "https://the-omega-institute.github.io/trureturing-pages/"
 sys.path.insert(0, str(ROOT))
+from lib.preview_server import html_path
 
 
 def prepare(bundle=None):
@@ -59,8 +60,8 @@ class Handler(SimpleHTTPRequestHandler):
             return str(SITE / "not-found")
         if relative.as_posix() in ("data/truth-graph.v1.json", "data/certified-topology-view.v1.json"):
             return str(CACHE / "data/pages-atlas-view.v1.json")
-        local = SITE / relative
-        return str(local if local.exists() else CACHE / relative)
+        local = Path(html_path(SITE / relative, path))
+        return str(local) if local.exists() else html_path(CACHE / relative, path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

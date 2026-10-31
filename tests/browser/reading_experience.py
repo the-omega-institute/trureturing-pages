@@ -1,14 +1,17 @@
 """Native browser acceptance: preserve the original visualization and academic theme."""
 import argparse
 from functools import partial
-from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
+from http.server import ThreadingHTTPServer
 import json
 import gzip
 import re
 from pathlib import Path
 import threading
+import sys
 from urllib.parse import urljoin, urlsplit
 from playwright.sync_api import sync_playwright
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from lib.preview_server import PagesHTTPRequestHandler
 
 def assert_readable_text(page):
     def luminance(rgb):
@@ -28,7 +31,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--site',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args();args.output.mkdir(parents=True,exist_ok=True)
-    server=ThreadingHTTPServer(('127.0.0.1',0),partial(SimpleHTTPRequestHandler,directory=str(args.site.resolve())))
+    server=ThreadingHTTPServer(('127.0.0.1',0),partial(PagesHTTPRequestHandler,directory=str(args.site.resolve())))
     threading.Thread(target=server.serve_forever,daemon=True).start()
     base=f'http://127.0.0.1:{server.server_port}/';events=[];errors=[];requests=[]
     with sync_playwright() as p:
@@ -224,7 +227,7 @@ def main():
         href=first_change.locator('a').first.get_attribute('href')
         from urllib.parse import parse_qs, urlparse
         route = urlparse(href)
-        assert route.path.endswith('library-version.html')
+        assert route.path.endswith('/library-version')
         assert parse_qs(route.fragment) == {'release': [new['truth_release_digest']], 'node': [changed_id]}
         page.locator('[data-change-search]').fill('no-matching-change-0xdeadbeef')
         page.wait_for_function("document.querySelector('[data-change-record]')===null")
@@ -301,7 +304,7 @@ def main():
         isolated.close()
         events.append('Corrupt content fails visibly without blocking the graph; retry recovers after the artifact is available')
         page.goto(base+'spaces.html?lang=en',wait_until='domcontentloaded')
-        page.wait_for_url('**/atlas.html?lang=en#*',timeout=30000)
+        page.wait_for_url('**/atlas?lang=en#*',timeout=30000)
         assert page.locator('#spaces-compare').count()==0
         events.append('Legacy Spaces opens the existing Atlas rather than comparing web sources with internal knowledge')
         for name in ['research','conjectures','evolution']:

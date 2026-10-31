@@ -28,7 +28,7 @@ fs.mkdirSync(output, { recursive: true });
     const live = registry.visualizations.filter(v => v.status === 'live');
     assert.equal(await page.locator('.card').count(), live.length);
     assert.equal(live.length, 30);
-    assert.match(await page.locator('.pages-atlas-link').getAttribute('href'), /atlas\.html\?lang=en$/);
+    assert.match(await page.locator('.pages-atlas-link').getAttribute('href'), /atlas\?lang=en$/);
     await page.screenshot({ path: path.join(output, 'hub-en.png') });
     for (const entry of live) {
       await page.goto(base + '/visualize/' + entry.path + '?lang=en', { waitUntil: 'domcontentloaded' });
@@ -65,7 +65,7 @@ fs.mkdirSync(output, { recursive: true });
     await page.locator('.card').first().waitFor();
     await page.screenshot({ path: path.join(output, 'hub-zh-CN.png') });
     await page.locator('.pages-atlas-link').click();
-    assert.equal(new URL(page.url()).pathname, '/atlas.html');
+    assert.equal(new URL(page.url()).pathname, '/atlas');
     assert.equal(new URL(page.url()).searchParams.get('lang'), 'zh-CN');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(base + '/visualize/?lang=en');

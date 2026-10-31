@@ -3,12 +3,15 @@ import argparse
 from functools import partial
 import gzip
 import hashlib
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from http.server import ThreadingHTTPServer
 import json
 from pathlib import Path
 import threading
+import sys
 from urllib.parse import urlencode, urlsplit
 from playwright.sync_api import sync_playwright
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from lib.preview_server import PagesHTTPRequestHandler
 
 
 def main():
@@ -26,7 +29,7 @@ def main():
     release = entry['truth_release_digest']
     assert not (site / 'release' / release[7:] / 'node' / slug / 'index.html').exists()
 
-    class Handler(SimpleHTTPRequestHandler):
+    class Handler(PagesHTTPRequestHandler):
         def log_message(self, *_):
             pass
 
@@ -55,7 +58,7 @@ def main():
             page.goto(base + 'library-history.html?lang=en#' + urlencode({'release': release, 'node': node['id']}))
             page.wait_for_selector('.archive-row')
             href = page.locator('.archive-row').first.get_attribute('href')
-            assert urlsplit(href).path.endswith('/library-version.html'), href
+            assert urlsplit(href).path.endswith('/library-version'), href
             page.locator('.archive-row').first.click()
             page.wait_for_selector('#archived-concept h1')
             assert release in page.locator('#archived-concept').inner_text()
@@ -67,7 +70,7 @@ def main():
             ]:
                 page.goto(base + path)
                 page.wait_for_selector('#archived-concept h1')
-                assert '/library-version.html?' in page.url, page.url
+                assert '/library-version?' in page.url, page.url
                 assert page.locator('#archived-concept h1').inner_text() == expected_title
                 assert release in page.locator('#archived-concept').inner_text()
                 source = page.get_by_role('link', name='Source at this release').get_attribute('href')

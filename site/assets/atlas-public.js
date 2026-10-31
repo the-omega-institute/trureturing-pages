@@ -117,6 +117,8 @@ let lastLabelUpdate = 0;
 let resizeObserver;
 let wikiMap = null;
 let sceneLabels = [];
+const DEPTH_COLORS = ["#6ad7c8", "#87b9df", "#c4b4e7", "#edc66d"];
+const REUSE_COLOR = "#b3f2dc", ISOLATED_COLOR = "#64777e";
 
 function color(node) {
   if (state.selected)
@@ -129,9 +131,9 @@ function color(node) {
   if (["theory", "dependency"].includes(state.mode)) {
     const metrics = state.architecture.metrics.get(node.id);
     if (!metrics) return "#82b5e0";
-    if (!metrics.direct && !state.architecture.parents.get(node.id).size) return "#64777e";
-    if (metrics.reach > 200) return "#b3f2dc";
-    return ["#6ad7c8", "#87b9df", "#c4b4e7", "#edc66d"][Math.min(3, Math.floor(Math.sqrt(metrics.depth)))];
+    if (!metrics.direct && !state.architecture.parents.get(node.id).size) return ISOLATED_COLOR;
+    if (metrics.reach > 200) return REUSE_COLOR;
+    return DEPTH_COLORS[Math.min(3, Math.floor(Math.sqrt(metrics.depth)))];
   }
   if (
     state.bundle &&
@@ -1939,6 +1941,22 @@ function renderTheory(root) {
     graphDetails = el("details", "atlas-details");
     graphDetails.append(el("summary", "", t("About this graph")),
       el("p", "wiki-intro", t("Nodes are Lean modules. Arrows record imports, from prerequisite to dependent.")));
+    graphDetails.append(el("h3", "section-label spaced", t("COLOR & DEPTH")));
+    const key = el("ul", "dag-color-key");
+    for (const [shade, label] of [
+      [DEPTH_COLORS[0], "Depth 0"], [DEPTH_COLORS[1], "Depth 1–3"],
+      [DEPTH_COLORS[2], "Depth 4–8"], [DEPTH_COLORS[3], "Depth 9+"],
+      [REUSE_COLOR, "Supports over 200 downstream modules"], [ISOLATED_COLOR, "No connections within this graph"],
+    ]) {
+      const row = el("li");
+      row.style.setProperty("--key-color", shade);
+      row.append(el("span", "", t(label))); key.append(row);
+    }
+    graphDetails.append(key,
+      el("p", "wiki-intro", t("Depth counts the longest import chain inside this library. Pale green highlights shared prerequisites at any depth. Selecting a node changes the colors to show its relationships.")),
+      el("h3", "section-label spaced", t("WHY SO MANY STARTING POINTS?")),
+      el("p", "wiki-intro", t("A depth-zero module has no prerequisites inside this view. It can still use Mathlib, whose shared foundations are outside the map. These starting points are not foundational axioms.")),
+      el("p", "theory-scope", t("The graph branches and merges: a module can import several others. It records code organization, not a minimal set of principles from which all mathematics is derived.")));
     connections = el("details", "atlas-details");
     connections.append(el("summary", "", t("Explore connections")));
     root.append(graphDetails, connections);
@@ -1956,7 +1974,7 @@ function renderTheory(root) {
     if (state.isolatedNodes.length) scope.append(action(t("Locate unconnected modules →"), "research-link", focusIsolated));
     graphDetails.append(scope);
   }
-  graphDetails.append(el("p", "theory-scope", t("Arrows point from prerequisite to dependent. Position follows the real dependencies; color indicates dependency depth.")));
+  graphDetails.append(el("p", "theory-scope", t("Arrows point from prerequisite to dependent. Position follows the real dependencies; colors show import depth and shared prerequisites.")));
   if (group) root.append(action(t("Return to the whole DAG"), "research-link", () => selectComponent(null)));
   else connections.append(action(t("Focus the largest connected component · {0} modules", format(state.theory.components[0].ids.length)), "research-link", () => selectComponent(state.theory.components[0].id)));
   connections.append(el("h3", "section-label spaced", t("SHARED PREREQUISITES")));

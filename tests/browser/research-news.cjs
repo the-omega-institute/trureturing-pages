@@ -50,12 +50,12 @@ fs.mkdirSync(output, { recursive: true });
       });
     }
     await page.goto(`${root}/research.html#rp=dfao-finite-unsat`);
-    await page.waitForURL("**/conjectures.html#rp=dfao-finite-unsat");
+    await page.waitForURL("**/conjectures#rp=dfao-finite-unsat");
     await page.locator("#research-workbench").waitFor();
     await page.goto(`${root}/research.html#publications`);
-    assert.equal(new URL(page.url()).pathname.endsWith("/research.html"), true);
+    assert.equal(new URL(page.url()).pathname.endsWith("/research"), true);
     await page.evaluate(() => (location.hash = "research-bank"));
-    await page.waitForURL("**/conjectures.html#research-bank");
+    await page.waitForURL("**/conjectures#research-bank");
     assert.deepEqual(errors, []);
     assert.deepEqual(bookRequests, [], "Pages renders results without requesting mdBook data");
     const offline = await browser.newContext({ javaScriptEnabled: false });

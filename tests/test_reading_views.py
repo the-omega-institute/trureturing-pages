@@ -157,6 +157,12 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertNotIn('spaces.html',p.raw(nav));self.assertNotIn('version-status.html',p.raw(nav))
         self.assertIn('href="../../version-status.html"',out)
         self.assertEqual(out,add_spaces_navigation(out))
+        clean = add_spaces_navigation(raw.replace('spaces.html', 'spaces').replace('version-status.html', 'version-status'))
+        clean_parsed = Fragments(clean)
+        clean_nav = next(n for n in clean_parsed.select(tag='nav') if n.attrs.get('aria-label') == 'Primary navigation')
+        self.assertNotIn('version-status', clean_parsed.raw(clean_nav))
+        self.assertNotIn('spaces', clean_parsed.raw(clean_nav))
+        self.assertIn('href="../../version-status"', clean)
 
     def test_titles_cannot_insert_markup(self):
         records,source=results();records[0]['title']='<img src=x onerror=bad()>'
@@ -188,7 +194,7 @@ class ReadingViewsTests(unittest.TestCase):
 
     def test_spaces_is_only_a_compatibility_route_to_the_atlas(self):
         page=(ROOT/'site/spaces.html').read_text()
-        self.assertIn("new URL('atlas.html'",page)
+        self.assertIn("new URL('atlas'",page)
         self.assertIn('location.replace(target.href)',page)
         self.assertNotIn('spaces-compare',page)
 

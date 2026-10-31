@@ -2,9 +2,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {questionDestination,matchesQuery,hashTarget} from '../../site/assets/reading-core.mjs';
 import {compareContent,moduleTitle} from '../../site/assets/evolution-reader-core.mjs';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 const base='https://example.org/trureturing-pages/conjectures.html?lang=en';
 test('legacy question routes go directly to Conjectures and retain language',()=>{
- assert.equal(questionDestination('research.html?lang=en#rp=alpha',base),'https://example.org/trureturing-pages/conjectures.html?lang=en#rp=alpha');
+ assert.equal(questionDestination('research.html?lang=en#rp=alpha',base),'https://example.org/trureturing-pages/conjectures?lang=en#rp=alpha');
+});
+test('both clean and legacy research bookmarks retain their destination, query and fragment',()=>{
+ const script=readFileSync(new URL('../../site/assets/research-route.js',import.meta.url),'utf8');
+ for(const suffix of ['', '.html']) for(const hash of ['rp=alpha','resolved-alpha','results','research-bank']) {
+  const original=new URL('https://example.org/trureturing-pages/research'+suffix+'?lang=zh-CN#'+hash);
+  let destination;
+  vm.runInNewContext(script,{URL,URLSearchParams,location:{href:original.href,pathname:original.pathname,hash:original.hash,replace:href=>{destination=href;}},document:{getElementById:()=>null},addEventListener(){}});
+  assert.equal(destination,'https://example.org/trureturing-pages/conjectures?lang=zh-CN#'+hash);
+ }
+ assert.equal(questionDestination('research?lang=zh-CN#rp=alpha',base),'https://example.org/trureturing-pages/conjectures?lang=zh-CN#rp=alpha');
 });
 test('result and external links are left alone',()=>{
  assert.equal(questionDestination('research.html#resolved-alpha',base),'https://example.org/trureturing-pages/research.html#resolved-alpha');
