@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = 'research-updates.v1'
 EMPTY = {'schema_version': SCHEMA, 'publications': [], 'collaborations': []}
 SLUG = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
+MAX_FEED_BYTES = 8 * 1024 * 1024
 
 
 def fields(item, allowed, required):
@@ -157,8 +158,8 @@ def refresh_from_release(destination):
         subprocess.run(['gh', 'release', 'download', 'research-updates', '--repo', repo,
                         '--pattern', 'research-updates.v1.json', '--dir', temp], check=True)
         path = Path(temp) / 'research-updates.v1.json'
-        if path.stat().st_size > 1024 * 1024:
-            raise ValueError('Research feed exceeds 1 MiB')
+        if path.stat().st_size > MAX_FEED_BYTES:
+            raise ValueError('Research feed exceeds 8 MiB')
         feed = validate_feed(json.loads(path.read_text()))
         if not feed.get('updated_at'):
             raise ValueError('Released research feed needs updated_at')
