@@ -418,8 +418,28 @@ def assessment_details(item):
     return '<details class="assessment-evidence"><summary>Why this order</summary><ul>' + ''.join(rows) + '</ul></details>'
 
 
+def relationship_summary(project):
+    people = '; '.join(f'{esc(p["name"])} from {esc(p["institution"])}' for p in project['people'])
+    prefix = 'In collaboration with ' if project['status'] == 'confirmed_active' else 'Research exchange with '
+    sentence = prefix + people + ' to further investigate ' + esc(project['topic']) + '.'
+    if project.get('summary'):
+        sentence += ' ' + esc(project['summary'])
+    if project.get('date'):
+        sentence += f' <time datetime="{esc(project["date"])}">{esc(project["date"])}</time>'
+    return sentence
+
+
 def research_followups(slug, feed):
     sentences = []
+    for note in feed.get('notes', []):
+        if slug in note['problem_ids']:
+            links = []
+            for key, label in (('doi', 'DOI'), ('pdf_url', 'Read short note'),
+                               ('source_url', 'Source archive'), ('mathesis_url', 'Mathesis paper')):
+                if note.get(key):
+                    links.append(f'<a href="{esc(note[key])}">{label} ↗</a>')
+            sentences.append(f'<p class="research-note" data-note-id="{esc(note["id"])}">'
+                             f'{esc(note["title"])} · version {note["revision"]}: ' + ' · '.join(links) + '</p>')
     for paper in feed['publications']:
         if slug in paper['problem_ids']:
             label = 'arXiv' if urlsplit(paper['url']).hostname in ('arxiv.org', 'www.arxiv.org') else 'Paper'
@@ -427,9 +447,8 @@ def research_followups(slug, feed):
                              f'see more details here: <a href="{esc(paper["url"])}">{label}</a>.</p>')
     for project in feed['collaborations']:
         if slug in project['problem_ids']:
-            people = '; '.join(f'{esc(p["name"])} from {esc(p["institution"])}' for p in project['people'])
-            sentences.append(f'<p>In collaboration with {people} to further investigate '
-                             f'<a href="{esc(project["evidence_url"])}">{esc(project["topic"])}</a>.</p>')
+            sentences.append('<p>' + relationship_summary(project)
+                             + f' <a href="{esc(project["evidence_url"])}">Research details ↗</a></p>')
     return '<div class="research-followups">' + ''.join(sentences) + '</div>' if sentences else ''
 
 
@@ -444,8 +463,7 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
     feed = feed or EMPTY
     projects = ''.join('<article class="collaboration-news"><p class="eyebrow">Research in progress</p>'
                       f'<h3>{esc(project["topic"])}</h3>'
-                      '<p>In collaboration with ' + '; '.join(f'{esc(person["name"])} from {esc(person["institution"])}' for person in project['people'])
-                      + f' to further investigate {esc(project["topic"])}.</p>'
+                      '<p>' + relationship_summary(project) + '</p>'
                       f'<a href="{esc(project["evidence_url"])}">Follow the collaboration ↗</a></article>'
                       for project in feed['collaborations'])
     body = ('<main class="site-main research-news research-story-page"><header class="news-heading">'
@@ -459,7 +477,7 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
             '<div class="highlight-grid">' + research_highlights(snapshot, records, ranking, feed=feed, milestones=milestones) + '</div>'
             '</section>'
             + (parsed.raw(papers[0]) if papers else '<section id="publications"><h2>Publications</h2></section>')
-            + ('<section class="collaboration-news-list"><h2>Ongoing collaborations</h2>' + projects + '</section>' if projects else '')
+            + ('<section class="collaboration-news-list"><h2>Research exchanges &amp; collaborations</h2>' + projects + '</section>' if projects else '')
             + '</main>')
     result = common_shell(replace_main(document, body))
     # Bare historical result anchors are known from this exact catalogue. Other

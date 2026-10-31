@@ -58,7 +58,8 @@ def math_blocks(formulas):
     return "".join(f'<div class="math-display">{esc(formula)}</div>' for formula in formulas)
 
 
-def render_result_pages(output, items, shell):
+def render_result_pages(output, items, shell, feed=None):
+    from lib.reading_views import research_followups
     stories = json.loads(STORIES.read_text())
     resolved = {item['problem_slug'] for item in items if item.get('resolution_record')}
     followups = [family for family in followup_families() if family['id'] not in resolved]
@@ -91,6 +92,8 @@ def render_result_pages(output, items, shell):
 <section id="sources"><p class="eyebrow">06 / SOURCES</p><h2>Paper and proof provenance</h2><div class="result-source-links"><a href="{esc(item['source_url'])}">{esc(story['source_label'])}</a><a href="{lean_url}">Complete Lean source at the evidence commit</a><a href="https://the-omega-institute.github.io/trureturing-mdbook/Blueprint/{item['module']}.html">Further reading in mdBook</a></div><details class="result-provenance"><summary>Repository &amp; verification record</summary><p class="news-release-state">{esc(item['release_state'])}</p><div class="news-links"><a href="{REPO}/pull/{item['pr']}">Development PR #{item['pr']}</a><a href="{REPO}/blob/{item['source_commit']}/Golden/Frozen/state/{item['module']}.lean.json">Frozen module record</a></div><dl><dt>Source commit</dt><dd><code>{item['source_commit']}</code></dd><dt>Frozen module statement ID</dt><dd><code>{esc(item['statement_id'])}</code></dd><dt>Lean file SHA-256</dt><dd><code>{story['source_sha256']}</code></dd></dl><p>mdBook follows upstream development. The Lean source on this page is fixed to the commit above.</p></details></section>
 <section><h2>From this result to the next question</h2><p><a href="{root}discover.html?record=result%3A{item['id']}">Explore the evidence journey and research map</a></p></section>{next_section}<section class="result-more"><h2>More results</h2>{others}<a href="{root}conjectures.html">Explore the conjecture bank <i data-lucide="arrow-up-right"></i></a></section>
 </article></div></main>'''
+        if feed:
+            body = body.replace('<section id="sources">', research_followups(item.get('problem_slug') or item['id'], feed) + '<section id="sources">', 1)
         html = shell(item["title"], root, body, appearance="editorial").replace('</head>', f'<link rel="stylesheet" href="{root}assets/research-news.css"><link rel="stylesheet" href="{root}assets/research-result.css"><link rel="stylesheet" href="{root}assets/research-editorial.css"><script type="module" src="{root}assets/research-result.mjs"></script></head>')
         write(output / "results" / item["id"] / "index.html", html)
         write(output / source_asset, source)

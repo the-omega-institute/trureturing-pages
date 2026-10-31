@@ -32,7 +32,7 @@ def text_field(item, key):
 
 
 def validate_feed(feed):
-    fields(feed, ('schema_version', 'updated_at', 'publications', 'collaborations'),
+    fields(feed, ('schema_version', 'updated_at', 'publications', 'collaborations', 'notes'),
            ('schema_version', 'publications', 'collaborations'))
     if feed['schema_version'] != SCHEMA:
         raise ValueError('Unsupported research updates version')
@@ -48,7 +48,7 @@ def validate_feed(feed):
             common = ('id', 'problem_ids', 'topic', 'evidence_url')
             extra = (('title', 'authors', 'date', 'url', 'venue', 'status', 'summary')
                      if kind == 'publications' else ('status', 'people'))
-            fields(item, common + extra, common + extra)
+            fields(item, common + extra + (('summary', 'date') if kind == 'collaborations' else ()), common + extra)
             if not isinstance(item['id'], str) or not SLUG.fullmatch(item['id']) or item['id'] in ids:
                 raise ValueError('Invalid or duplicate research identity')
             ids.add(item['id'])
@@ -69,14 +69,54 @@ def validate_feed(feed):
                     raise ValueError('Duplicate canonical publication')
                 publications.add(identity)
             else:
-                if item['status'] != 'confirmed_active' or not item['people'] or not item['problem_ids']:
-                    raise ValueError('Only confirmed joint work on a specific problem is public')
+                if item['status'] not in ('confirmed_active', 'research_exchange') or not item['people'] or not item['problem_ids']:
+                    raise ValueError('Only selected, evidenced research relationships are public')
                 if not isinstance(item['people'], list):
                     raise ValueError('Collaborators must be a list')
+                if 'summary' in item:
+                    text_field(item, 'summary')
+                    if len(item['summary']) > 280:
+                        raise ValueError('Keep research updates brief')
+                if 'date' in item and date.fromisoformat(item['date']) > date.today():
+                    raise ValueError('Research update date is in the future')
                 for person in item['people']:
                     fields(person, ('name', 'institution'), ('name', 'institution'))
                     text_field(person, 'name')
                     text_field(person, 'institution')
+    if not isinstance(feed.get('notes', []), list):
+        raise ValueError('Public notes must be an array')
+    note_ids = set()
+    for note in feed.get('notes', []):
+        fields(note, ('id', 'problem_ids', 'title', 'revision', 'evidence_url',
+                      'doi', 'pdf_url', 'source_url', 'mathesis_url'),
+               ('id', 'problem_ids', 'title', 'revision', 'evidence_url'))
+        if (not isinstance(note['id'], str) or not SLUG.fullmatch(note['id']) or note['id'] in note_ids
+                or not isinstance(note['problem_ids'], list) or not note['problem_ids']
+                or any(not isinstance(p, str) or not SLUG.fullmatch(p) for p in note['problem_ids'])
+                or len(set(note['problem_ids'])) != len(note['problem_ids'])
+                or type(note['revision']) is not int or note['revision'] < 1):
+            raise ValueError('Invalid public note identity, problems or revision')
+        note_ids.add(note['id'])
+        text_field(note, 'title')
+        validate_http_url(note['evidence_url'])
+        if not note.get('doi') and not note.get('mathesis_url'):
+            raise ValueError('A reserved DOI or private draft is not a public note')
+        if 'doi' in note:
+            if not isinstance(note['doi'], str) or not re.fullmatch(r'https://doi\.org/10\.5281/zenodo\.\d+', note['doi']):
+                raise ValueError('Use a published production Zenodo DOI')
+        for key in ('pdf_url', 'source_url', 'mathesis_url'):
+            if key not in note:
+                continue
+            parts = validate_http_url(note[key])
+            if parts.scheme != 'https' or parts.query or parts.fragment:
+                raise ValueError('Use the public HTTPS artifact URL')
+            if key == 'mathesis_url':
+                valid = (parts.netloc == 'mathesis-omega-research.apps.chrono-ai.fun'
+                         and re.fullmatch(r'/papers/WP-\d{4}-\d{4,}', parts.path))
+            else:
+                valid = parts.netloc == 'zenodo.org' and re.fullmatch(r'/records/\d+/files/[^/]+', parts.path)
+            if not valid:
+                raise ValueError('Use a public note artifact, never a private submission URL')
     return feed
 
 

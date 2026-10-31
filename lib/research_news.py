@@ -335,7 +335,8 @@ def render_news(output, snapshot, shell, catalog_path=None):
     catalog['publications'] = merge_publications(catalog['publications'], feed)
     write(output / 'assets/publication-index.json', json.dumps({
         'schema_version': 'publication-index.v1', 'updated_at': feed.get('updated_at'),
-        'publications': catalog['publications']}, ensure_ascii=False, indent=2) + '\n')
+        'publications': catalog['publications'], 'notes': feed.get('notes', []),
+        'collaborations': feed['collaborations']}, ensure_ascii=False, indent=2) + '\n')
     publications, results, activities = [], [], []
     nodes = snapshot["graph"]["nodes"]
     records = [item for item in result_records(snapshot, catalog_path)
@@ -380,5 +381,5 @@ def render_news(output, snapshot, shell, catalog_path=None):
         '<link rel="stylesheet" href="assets/research-news.css"><link rel="stylesheet" href="assets/research-editorial.css">'
         '<script type="module" src="assets/research-news.mjs"></script></head>')
     write(output / "research.html", document)
-    render_result_pages(output, records, shell)
+    render_result_pages(output, records, shell, feed=feed)
     apply_reading_views(output, snapshot, records, feed)

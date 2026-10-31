@@ -175,7 +175,7 @@ class KnowledgeSpacesTests(unittest.TestCase):
         knowledge.write = lambda path, value: (path.parent.mkdir(parents=True, exist_ok=True), path.write_text(value))
         results = types.ModuleType('lib.research_results')
         results.STORIES = root/'stories.json';results.STORIES.write_text('{}')
-        results.render_result_pages = lambda *args: None
+        results.render_result_pages = lambda *args, **kwargs: None
         spec = importlib.util.spec_from_file_location('isolated_news', Path(__file__).resolve().parents[1]/'lib/research_news.py')
         module = importlib.util.module_from_spec(spec)
         with patch.dict(sys.modules, {'lib.knowledge_pages':knowledge, 'lib.research_results':results}):

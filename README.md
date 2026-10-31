@@ -57,6 +57,14 @@ containing the published source commit. Research is generated at `research.html`
 content history is at `library-history.html`. See [Living knowledge](docs/LIVING_KNOWLEDGE.md)
 for the two update clocks, archive format, research evidence boundaries, and tests.
 
+Outreach supplies a separate, selected public `research-updates.v1` feed. Papers
+update Research; brief research exchanges and confirmed collaborations appear
+there and on matching conjectures. Optional `notes[]` links each explicit problem
+ID to the exact short-note revision, its published Zenodo DOI/PDF/source and its
+public Mathesis paper. Private submissions, reserved DOI drafts and correspondence
+are excluded. The deployed `assets/publication-index.json` exposes the same links
+for readback. Missing notes remain coverage work in Outreach, never invented links.
+
 ## Truth boundary
 
 The site only consumes manually approved, frozen truth from trureturing, represented by a `source-snapshot.v1` input. It must not become a second source of truth: prose, node state, conclusions, and provenance stay owned by the frozen upstream snapshot.
