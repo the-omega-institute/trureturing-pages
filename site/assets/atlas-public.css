@@ -927,6 +927,12 @@ svg.lucide {
   padding: 10px 0;
   background: #090c10e8;
 }
+.selection-mode {
+  display: block;
+  margin-top: 5px;
+  color: #94b1b0;
+  font: 9px/1.5 ui-monospace, monospace;
+}
 .scene-labels {
   position: absolute;
   inset: 0;

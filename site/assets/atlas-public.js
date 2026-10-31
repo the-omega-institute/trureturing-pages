@@ -54,9 +54,11 @@ const state = {
   neighbors: new Set(),
   hover: null,
   rotating: false,
-  depth: "all",
+  // A click starts with a readable local neighborhood. Full lineage and the
+  // complete graph remain available through the relationship controls.
+  depth: "1",
   types: [...globalThis.TrureturingRelations.TYPES],
-  context: true,
+  context: false,
   related: null,
   metric: "reach",
   architecture: null,
@@ -388,6 +390,9 @@ function renderSelectionSummary() {
     facts.append(fact);
   }
   root.append(facts);
+  root.append(el("small", "selection-mode", state.context
+    ? t("Showing this module in the full graph")
+    : t("Showing direct prerequisites and dependents")));
 }
 function arrowLength(edge) {
   if (edge.category !== "proof") return 0;
@@ -1260,7 +1265,7 @@ function renderArticle(root) {
     return;
   }
   const relationshipControls = el("div", "relationship-controls");
-  const depthLabel = el("label", "", "Relationships");
+  const depthLabel = el("label", "", t("Relationships shown"));
   const depthSelect = el("select");
   depthSelect.setAttribute("aria-label", "Relationship range");
   for (const [value, label] of [
@@ -1268,7 +1273,7 @@ function renderArticle(root) {
     ["2", "Two hops"],
     ["all", "Full lineage"],
   ]) {
-    const option = el("option", "", label);
+    const option = el("option", "", t(label));
     option.value = value;
     depthSelect.append(option);
   }
@@ -1287,7 +1292,7 @@ function renderArticle(root) {
   });
   depthLabel.append(depthSelect);
   relationshipControls.append(depthLabel);
-  const contextLabel = el("label", "", "Keep context");
+  const contextLabel = el("label", "", t("Keep full graph context"));
   const contextInput = el("input");
   contextInput.type = "checkbox";
   contextInput.checked = state.context;
@@ -1305,7 +1310,7 @@ function renderArticle(root) {
       !state.model.relationships.edges.some((e) => e.category === category)
     )
       continue;
-    const label = el("label", "", name);
+    const label = el("label", "", t(name));
     const input = el("input");
     input.type = "checkbox";
     input.checked = state.types.includes(category);
@@ -1644,7 +1649,7 @@ async function load() {
         : state.structurePositions;
   if (["1", "2", "all"].includes(initial.get("depth")))
     state.depth = initial.get("depth");
-  state.context = initial.get("context") !== "0";
+  state.context = initial.has("context") ? initial.get("context") !== "0" : false;
   if (initial.has("types"))
     state.types = initial
       .get("types")
@@ -1958,7 +1963,9 @@ function renderTheory(root) {
       el("p", "wiki-intro", t("A depth-zero module has no prerequisites inside this view. It can still use Mathlib, whose shared foundations are outside the map. These starting points are not foundational axioms.")),
       el("p", "theory-scope", t("The graph branches and merges: a module can import several others. It records code organization, not a minimal set of principles from which all mathematics is derived.")));
     connections = el("details", "atlas-details");
-    connections.append(el("summary", "", t("Explore connections")));
+    connections.open = true;
+    connections.append(el("summary", "", t("Start with shared structures")),
+      el("p", "wiki-intro", t("These are the modules reused by the largest number of later modules. Select one to see its direct neighborhood.")));
     root.append(graphDetails, connections);
   }
   const facts = el("dl", "dag-facts");
