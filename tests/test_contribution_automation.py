@@ -228,5 +228,33 @@ class ContributionAutomationTests(unittest.TestCase):
     def test_checked_in_public_bootstrap_is_valid(self):
         self.assertEqual(len(load_feed()['publications']), 2)
 
+    def test_full_result_feed_refreshes_but_oversized_input_preserves_previous(self):
+        feed = dict(EMPTY, updated_at='2026-10-31T00:00:00Z', publications=[], notes=[])
+        for n in range(1600):
+            pid = f'result-{n}'
+            doi = f'https://doi.org/10.5281/zenodo.{10000000 + n}'
+            feed['publications'].append(dict(paper(), id=pid, problem_ids=[pid], url=doi))
+            feed['notes'].append({'id': pid, 'problem_ids': [pid], 'title': 'A checked theorem',
+                'revision': 1, 'doi': doi, 'evidence_url': paper()['evidence_url'],
+                'pdf_url': f'https://zenodo.org/records/{10000000 + n}/files/note-v1.pdf',
+                'source_url': f'https://zenodo.org/records/{10000000 + n}/files/source-v1.zip',
+                'mathesis_url': f'https://mathesis-omega-research.apps.chrono-ai.fun/papers/WP-2026-{n:04}'})
+        payload = json.dumps(feed, indent=2)
+        self.assertGreater(len(payload.encode()), 1024 * 1024)
+        def fetch(command, **kwargs):
+            if '--dir' in command:
+                (Path(command[command.index('--dir') + 1]) / 'research-updates.v1.json').write_text(payload)
+            return subprocess.CompletedProcess(command, 0, '{}', '')
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'feed.json'
+            with patch('lib.research_updates.subprocess.run', side_effect=fetch):
+                refresh_from_release(path)
+                self.assertEqual(json.loads(path.read_text()), feed)
+                before = path.read_bytes()
+                payload = ' ' * (8 * 1024 * 1024 + 1)
+                with self.assertRaisesRegex(ValueError, '8 MiB'):
+                    refresh_from_release(path)
+                self.assertEqual(path.read_bytes(), before)
+
 
 if __name__ == '__main__': unittest.main()
