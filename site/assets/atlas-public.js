@@ -1,5 +1,6 @@
+import { knowledgeModel, createKnowledgeMap } from "./atlas-knowledge.mjs?v=1";
 import { theoryModel, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=lean-admission-v2";
-import { t } from "./i18n.mjs?v=lean-admission-v2";
+import { t } from "./i18n.mjs?v=atlas-knowledge-v1";
 import {
   FAMILIES,
   createPublicModel,
@@ -45,7 +46,11 @@ const state = {
   renderer: null,
   family: null,
   selected: null,
-  mode: "theory",
+  mode: "knowledge",
+  knowledge: null,
+  knowledgeMap: null,
+  knowledgeTopic: null,
+  knowledgeLink: null,
   theory: null,
   isolatedNodes: [],
   component: null,
@@ -219,7 +224,9 @@ function syncUrl() {
   const params = new URLSearchParams();
   if (state.family) params.set("family", state.family);
   if (state.selected) params.set("node", state.selected);
-  if (state.mode !== "theory") params.set("mode", state.mode);
+  params.set("mode", state.mode);
+  if (state.mode === "knowledge" && state.knowledgeTopic) params.set("topic", state.knowledgeTopic);
+  if (state.mode === "knowledge" && state.knowledgeLink) params.set("connection", state.knowledgeLink);
   if (state.mode === "theory" && state.component) params.set("component", state.component);
   if (state.bundle) params.set("bundle", state.bundle);
   if (state.mode === "frontier" && state.problem)
@@ -243,6 +250,7 @@ function setMode(mode) {
     state.problem = null;
   }
   state.mode = mode;
+  if (mode === "knowledge") state.selected = null;
   state.family = null;
   state.component = null;
   if (mode === "frontier") ensureResearch();
@@ -288,6 +296,7 @@ function selectNode(id) {
   rememberView();
   state.bundle = null;
   const node = state.model.byId.get(id);
+  if (state.mode === "knowledge") { state.mode = "theory"; state.positions = state.theoryPositions; }
   const wasVisible = currentNodes.some((n) => n.id === id);
   state.selected = id;
   state.tab =
@@ -320,6 +329,8 @@ function rememberView() {
     problem: state.problem,
     mode: state.mode,
     component: state.component,
+    knowledgeTopic: state.knowledgeTopic,
+    knowledgeLink: state.knowledgeLink,
     tab: state.tab,
     context: state.context,
     depth: state.depth,
@@ -423,11 +434,32 @@ function particles(edge) {
     : 0;
 }
 function renderGraph() {
-  document.body.classList.toggle(
-    "architecture-mode",
-    state.mode === "dependency",
-  );
+  const knowledge = state.mode === "knowledge";
+  document.body.classList.toggle("knowledge-mode", knowledge);
+  document.body.classList.toggle("architecture-mode", state.mode === "dependency");
   document.body.classList.toggle("theory-mode", state.mode === "theory");
+  $("#knowledge-map").hidden = !knowledge;
+  $("#knowledge-status").hidden = !knowledge;
+  if (knowledge) {
+    state.related = null;
+    state.neighbors = new Set();
+    currentNodes = state.model.nodes;
+    state.renderer.graphData({ nodes: [], links: [] });
+    state.renderer.pauseAnimation();
+    const count = state.knowledgeMap.update(state.knowledgeTopic, state.knowledgeLink);
+    $("#knowledge-scope").textContent = state.knowledgeTopic
+      ? t("All {0} topic connections", count)
+      : t("Overview · {0} of {1} topic connections", count, state.knowledge.links.length);
+    $("#view-caption").textContent = t("TOPIC MAP / {0} modules / {1} module imports", format(state.model.nodes.length), format(state.model.edges.length));
+    document.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)));
+    $("#back-to-all").hidden = true;
+    $("#selection-summary").hidden = true;
+    $("#architecture-controls").hidden = true;
+    $("#theory-guide").hidden = true;
+    syncUrl();
+    return;
+  }
+  state.renderer.resumeAnimation();
   $("#theory-guide").hidden = state.mode !== "theory" || Boolean(state.selected || state.component);
   const view = viewFor(state.model, state);
   state.related = view.related;
@@ -627,6 +659,7 @@ function renderBundle(root) {
   root.append(list);
 }
 function frameNodes(nodes, minimumSpan = 0, anchor = null) {
+  if (state.mode === "knowledge") return;
   if (!nodes.length) return;
   const points = nodes.map((n) => state.positions[n.id]);
   if (state.mode === "frontier" && !state.selected)
@@ -730,6 +763,7 @@ function buildLabels() {
   updateLabels();
 }
 function updateLabels() {
+  if (state.mode === "knowledge") return;
   $("#node-labels").replaceChildren();
   nodeLabels = [];
   let candidates = [];
@@ -794,7 +828,7 @@ function updateLabels() {
   positionLabels();
 }
 function positionLabels() {
-  if (!state.renderer) return;
+  if (!state.renderer || state.mode === "knowledge") return;
   const width = $("#graph").clientWidth,
     height = $("#graph").clientHeight;
   const graphBounds = $("#graph").getBoundingClientRect();
@@ -1047,23 +1081,25 @@ function renderWiki() {
   wikiMap = null;
   const root = $("#wiki-content");
   root.replaceChildren();
-  const overview = state.mode === "theory" && !state.selected && !state.component && !state.changesPanel && !state.bundle;
+  const overview = state.mode === "knowledge" || state.mode === "theory" && !state.selected && !state.component && !state.changesPanel && !state.bundle;
   root.classList.toggle("atlas-overview", overview);
-  $("#wiki-panel-label").textContent = t(overview ? "ABOUT TRURETURING" : "CONCEPT WIKI");
+  $("#wiki-panel-label").textContent = t(state.mode === "knowledge" ? "KNOWLEDGE EXPLORER" : overview ? "ABOUT TRURETURING" : "CONCEPT WIKI");
   if (state.admissionNotice) {
     const notice = el("p", "admission-notice", t(state.admissionNotice));
     notice.setAttribute("role", "status"); root.append(notice);
   }
-  $("#close-wiki").hidden = !state.selected && !state.family;
+  const knowledgeFocus = state.mode === "knowledge" && Boolean(state.knowledgeTopic || state.knowledgeLink);
+  $("#close-wiki").hidden = !state.selected && !state.family && !knowledgeFocus;
   $("#wiki").classList.toggle(
     "has-selection",
-    Boolean(state.selected || state.family),
+    Boolean(state.selected || state.family || knowledgeFocus),
   );
   document.body.classList.toggle(
     "concept-open",
     Boolean(state.selected || state.family),
   );
   root.scrollTop = 0;
+  if (state.mode === "knowledge") { renderKnowledgeWiki(root); icons(); return; }
   if (state.changesPanel && !state.selected) {
     renderChanges(root);
     icons();
@@ -1518,6 +1554,12 @@ async function load() {
   state.theory = theoryModel(state.model, state.architecture);
   state.isolatedNodes = state.model.nodes.filter(n => !state.theory.componentByNode.get(n.id).edgeCount);
   state.bundles = relationBundles(state.model);
+  state.knowledge = knowledgeModel(state.model, state.architecture);
+  state.knowledgeMap = createKnowledgeMap($("#knowledge-map"), state.knowledge, {
+    onTopic: id => { state.knowledgeTopic = state.knowledgeTopic === id ? null : id; state.knowledgeLink = null; renderGraph(); renderWiki(); },
+    onNode: selectNode,
+    onLink: key => { state.knowledgeLink = key; renderGraph(); renderWiki(); },
+  });
   if (!state.model.nodes.length)
     throw new Error("Published declaration evidence is unavailable for this mathematical view. The complete source release remains available in the advanced workspace.");
   $("#loading-message").textContent = "Assembling the concept families";
@@ -1625,8 +1667,13 @@ async function load() {
   const initial = new URLSearchParams(location.hash.slice(1));
   if (FAMILIES.some((f) => f.id === initial.get("family")))
     { state.family = initial.get("family"); state.mode = "structure"; }
-  if (["theory", "structure", "dependency", "frontier"].includes(initial.get("mode")))
+  if (["knowledge", "theory", "structure", "dependency", "frontier"].includes(initial.get("mode")))
     state.mode = initial.get("mode");
+  if (initial.has("node") || initial.has("route") || initial.has("component")) {
+    if (state.mode === "knowledge") state.mode = "theory";
+  }
+  if (state.knowledge.byId.has(initial.get("topic"))) state.knowledgeTopic = initial.get("topic");
+  if (state.knowledge.links.some(l => l.key === initial.get("connection"))) state.knowledgeLink = initial.get("connection");
   if (state.theory.components.some(c => c.id === initial.get("component"))) state.component = initial.get("component");
   if (
     state.mode === "structure" &&
@@ -1703,6 +1750,7 @@ async function load() {
     selected: state.selected,
     family: state.family,
     mode: state.mode,
+    knowledge: { topics: state.knowledge.topics.length, pairs: state.knowledge.links.length, topic: state.knowledgeTopic, connection: state.knowledgeLink },
     theory: { nodes: state.theory.nodes.length, edges: state.theory.edges.length, components: state.theory.components.length, largestComponent: state.theory.components[0]?.ids.length || 0, isolated: state.theory.isolated, roots: state.theory.roots, maxDepth: state.theory.maxDepth, component: state.component },
     admission: state.model.admission,
     visibleEdges: state.renderer.graphData().links.filter(linkVisible).length,
@@ -1934,6 +1982,51 @@ function focusIsolated() {
   stopRotation();
   frameNodes(state.isolatedNodes);
 }
+function renderKnowledgeWiki(root) {
+  const topic = state.knowledge.byId.get(state.knowledgeTopic);
+  const link = state.knowledge.links.find(l => l.key === state.knowledgeLink);
+  const intro = el("div", "knowledge-intro");
+  intro.append(el("p", "eyebrow", t(link ? "TRACE THE CONNECTION" : topic ? "INSIDE THE TOPIC" : "MATHEMATICS, CONNECTED")),
+    el("h2", "", link ? t("Where ideas meet.") : topic ? t(topic.name) : t("Every result opens a new path.")),
+    el("p", "", link ? t("Every arrow below is an actual import from the published library. Open a module to read its mathematics and follow its prerequisites.") : topic ? t("Explore the modules in this topic and the ideas they share with the rest of the library.") : t("People and AI grow this shared mathematical library. Explore Lean-checked results, follow their connections, and discover what builds on them.")));
+  root.append(intro);
+  if (topic || link) root.append(action(t("← All topics"), "research-link knowledge-panel-close", () => { state.knowledgeTopic = null; state.knowledgeLink = null; renderGraph(); renderWiki(); }));
+  const facts = el("dl", "knowledge-facts");
+  const values = link ? [[link.forward, "Imports →"], [link.reverse, "Imports ←"]] : topic ? [[topic.nodes.length, "Modules"], [topic.internal, "Internal imports"]] : [[state.knowledge.modules, "Checked modules"], [state.knowledge.imports, "Module imports"]];
+  for (const [value, label] of values) { const cell = el("div"); cell.append(el("dt", "", t(label)), el("dd", "", format(value))); facts.append(cell); }
+  root.append(facts);
+  if (link) {
+    root.append(el("h3", "knowledge-section-title", t("{0} ↔ {1}", t(state.knowledge.byId.get(link.source).name), t(state.knowledge.byId.get(link.target).name))));
+    const direction = el("p", "knowledge-source-note", t("→ {0} to {1} · ← reverse direction", t(state.knowledge.byId.get(link.source).name), t(state.knowledge.byId.get(link.target).name))); root.append(direction);
+    const list = el("div"); let shown = 0;
+    const more = action("", "knowledge-open-dag", () => appendEdges());
+    function appendEdges() {
+      const end = Math.min(shown + 20, link.edges.length);
+      for (; shown < end; shown++) {
+        const edge = link.edges[shown], from = state.model.byId.get(edge.source), to = state.model.byId.get(edge.target);
+        const row = el("div", "knowledge-import-pair");
+        row.append(nodeButton(from, t("Prerequisite module")), el("span", "knowledge-pair-arrow", "↓"), nodeButton(to, t("Dependent module"))); list.append(row);
+      }
+      more.hidden = shown === link.edges.length;
+      more.textContent = t("Show more imports · {0} remaining", format(link.edges.length - shown));
+    }
+    root.append(list, more); appendEdges();
+  } else {
+    root.append(el("h3", "knowledge-section-title", t(topic ? "KEY MODULES" : "SHARED FOUNDATIONS")));
+    const nodes = topic ? topic.landmarks : rankedNodes(state.model.nodes, state.architecture, "reach").slice(0, 4);
+    for (const node of nodes) root.append(nodeButton(node, t("{0} downstream modules · {1} direct dependents", state.architecture.metrics.get(node.id).reach, state.architecture.metrics.get(node.id).direct)));
+    root.append(el("h3", "knowledge-section-title", t(topic ? "CONNECTED TOPICS" : "EXPLORE THE CONNECTIONS")));
+    const links = topic ? state.knowledge.links.filter(l => l.source === topic.id || l.target === topic.id) : state.knowledge.links.slice(0, 3);
+    for (const connection of links) {
+      const button = action("", "knowledge-link-row", () => { state.knowledgeLink = connection.key; renderGraph(); renderWiki(); });
+      button.append(el("span", "", `${t(state.knowledge.byId.get(connection.source).name)} ↔ ${t(state.knowledge.byId.get(connection.target).name)}`), el("small", "", t("{0} module imports · trace sources →", format(connection.edges.length)))); root.append(button);
+    }
+  }
+  root.append(action(t(topic ? "Open this topic in 3D ↗" : "Explore the full dependency DAG ↗"), "knowledge-open-dag", () => topic ? setFamily(topic.id) : setMode("theory")),
+    el("p", "knowledge-source-note", t("Topics organize the library for browsing. Connections aggregate published module imports; their numbers are exact. Select a topic to reveal every connected topic, or open the full DAG for individual modules.")));
+  const research = el("a", "research-link", t("Discover research results ↗")); research.href = "research"; root.append(research);
+}
+
 function renderTheory(root) {
   const group = state.theory.components.find(c => c.id === state.component);
   let graphDetails = root, connections = root;
@@ -2197,14 +2290,16 @@ document
 $("#zoom-in").addEventListener("click", () => zoom(0.76));
 $("#zoom-out").addEventListener("click", () => zoom(1.3));
 function returnToOverview() {
+  if (state.mode === "knowledge") { state.knowledgeTopic = null; state.knowledgeLink = null; renderGraph(); renderWiki(); return; }
   if (state.mode === "theory") { state.selected = null; selectComponent(null); }
   else if (state.mode === "dependency") { state.selected = null; setMode("dependency"); }
   else setFamily(null);
 }
+$("#knowledge-reset").addEventListener("click", () => { state.knowledgeTopic = null; state.knowledgeLink = null; renderGraph(); renderWiki(); });
 $("#reset-camera").addEventListener("click", returnToOverview);
 $("#back-to-all").addEventListener("click", returnToOverview);
 $("#close-wiki").addEventListener("click", () =>
-  ["theory", "dependency"].includes(state.mode) ? returnToOverview() : state.selected ? setFamily(state.family) : setFamily(null),
+  ["knowledge", "theory", "dependency"].includes(state.mode) ? returnToOverview() : state.selected ? setFamily(state.family) : setFamily(null),
 );
 $("#rotate-camera").addEventListener("click", () => {
   if (!state.renderer) return;
