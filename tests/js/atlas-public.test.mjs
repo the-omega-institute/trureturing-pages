@@ -1,4 +1,3 @@
-import "./atlas-knowledge.test.mjs";
 import { withEvidence } from "./atlas-evidence-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";

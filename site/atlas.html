@@ -7,18 +7,17 @@
     <link rel="icon" type="image/svg+xml" href="assets/brand-mark.svg" />
     <title>trureturing | Mathematical Atlas</title>
     <meta name="description" content="Human–AI research, connected through a growing mathematical library. Explore Lean-checked proofs, their dependencies and the questions they open." />
-    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2&amp;intro=6" />
+    <link rel="stylesheet" href="assets/atlas-public.css?v=lean-admission-v2&amp;intro=5" />
     <link rel="stylesheet" href="assets/relation-map.css" />
     <link rel="stylesheet" href="assets/architecture.css" />
     <link rel="stylesheet" href="assets/site-theme.css?v=tt-brand-v1" />
-    <link rel="stylesheet" href="assets/atlas-knowledge.css?v=1" />
     <script defer src="assets/vendor/3d-force-graph.min.js"></script>
     <script defer src="assets/vendor/lucide.min.js"></script>
     <script defer src="assets/concept-lens-core.js"></script>
     <script defer src="assets/vendor/d3.min.js"></script>
     <script defer src="assets/relation-map.js"></script>
-    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2&amp;intro=6"></script>
-    <script type="module" src="assets/i18n.mjs?v=atlas-knowledge-v1"></script>
+    <script type="module" src="assets/atlas-public.js?v=lean-admission-v2&amp;intro=5"></script>
+    <script type="module" src="assets/i18n.mjs?v=lean-admission-v2"></script>
 </head>
   <body class="site-themed">
     <header class="atlas-header">
@@ -37,11 +36,6 @@
     </header>
     <main class="atlas-app">
       <section class="universe" aria-label="Mathematical concept atlas">
-        <div id="knowledge-map" class="knowledge-map" hidden></div>
-        <div id="knowledge-status" class="knowledge-status" hidden>
-          <p><strong id="knowledge-scope">A connected view of mathematics</strong><span>Numbers on connections count real module imports. Select one to trace its sources.</span></p>
-          <button id="knowledge-reset" type="button" class="knowledge-reset">All topics ↗</button>
-        </div>
         <div
           id="graph"
           aria-label="Interactive three-dimensional concept graph"
@@ -49,7 +43,7 @@
         <div class="atlas-heading">
           <p class="eyebrow">THE OMEGA INSTITUTE</p>
           <div class="atlas-title"><img class="atlas-logo" src="assets/brand-mark.svg" width="48" height="48" alt="" /><h1>Mathematical Atlas<span>.</span></h1></div>
-          <p class="atlas-purpose">See how mathematical ideas connect.</p>
+          <p class="atlas-purpose">A map of our shared mathematical library.</p>
           <p class="atlas-counts" id="atlas-counts">
             Loading published mathematics
           </p>
@@ -80,8 +74,7 @@
         </form>
         <div class="view-controls" role="group" aria-label="Graph view">
           <div class="segmented">
-            <button data-mode="knowledge" aria-pressed="true">Knowledge map</button
-            ><button data-mode="theory" aria-pressed="false">Full DAG</button
+            <button data-mode="theory" aria-pressed="true">Full DAG</button
             ><button data-mode="dependency" aria-pressed="false">
               Dependencies</button
             ><button data-mode="structure" aria-pressed="false">Structure</button

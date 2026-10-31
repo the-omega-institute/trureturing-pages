@@ -39,7 +39,7 @@ let loadFailed = false;
 export const ready = (async () => {
   if (locale !== 'en') {
     try {
-      const response = await fetch(new URL(`./locales/${locale}.json?v=atlas-knowledge-v1`, import.meta.url), { signal: AbortSignal.timeout(8000) });
+      const response = await fetch(new URL(`./locales/${locale}.json?v=lean-admission-v2`, import.meta.url), { signal: AbortSignal.timeout(8000) });
       if (!response.ok) throw new Error(`Locale HTTP ${response.status}`);
       dictionary = await response.json();
       if (!dictionary || Array.isArray(dictionary) || typeof dictionary !== 'object' || Object.values(dictionary).some(value => typeof value !== 'string')) throw new Error('Invalid locale dictionary');
