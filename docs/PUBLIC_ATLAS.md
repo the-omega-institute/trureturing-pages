@@ -1,29 +1,7 @@
 # Public Mathematical Atlas
 
-`site/atlas.html` opens in **Knowledge map**, an interactive overview of the
-admitted library's editorial topic families. Each topic shows its exact module
-count, internal import count and a representative module ranked by downstream
-support. Connections aggregate real module imports between pairs of topics;
-arrows retain both directions when imports run both ways. A maximum-weight
-spanning forest keeps all connected topics represented, with additional strong
-connections up to twelve pairs. Selecting a topic shows every incident topic
-connection. Selecting a connection lists the original directed module pairs,
-with pagination and links into readable module neighborhoods. No topic membership
-or layout position asserts a mathematical dependency.
-
-The topic map uses responsive HTML cards and an SVG connection layer; numeric
-connection labels remain HTML so mobile layouts cannot distort their type. The
-3D renderer pauses while the topic map is visible. The sidebar provides exact
-release counts, reusable modules, source tracing and a complete-DAG entry point.
-English and Chinese views share topic and connection coordinates in their URLs;
-on mobile, inspecting a topic or connection opens a dismissible detail sheet.
-
-Run `node --test tests/js/atlas-public.test.mjs` for projection and count
-conservation, and `node tests/browser/atlas-knowledge.cjs` against the local
-preview for bilingual responsive layouts, source tracing, search and full-DAG
-transitions. `ATLAS_URL` and `ATLAS_OUTPUT` select the preview and evidence directory.
-
-**Full DAG** shows every admitted module and every published import between
+`site/atlas.html` is the public 3D module-import DAG and concept Wiki. It opens
+in **Full DAG**, showing every admitted module and every published import between
 admitted endpoints, including cross-parent and shortcut imports. Admission uses
 source-bound declaration and axiom evidence from the existing verified export and
 report, as described in [Truth consumption](TRUTH_RELEASE_CONSUMPTION.md).
