@@ -304,9 +304,11 @@ def main():
         isolated.close()
         events.append('Corrupt content fails visibly without blocking the graph; retry recovers after the artifact is available')
         page.goto(base+'spaces.html?lang=en',wait_until='domcontentloaded')
-        page.wait_for_url('**/atlas?lang=en#*',timeout=30000)
+        page.wait_for_function("window.atlasDiagnostics?.().mode === 'dependency'",timeout=60000)
+        assert page.url == base
+        assert page.locator('[data-mode]').evaluate_all("buttons => buttons.map(button => button.dataset.mode)")==['theory','structure','dependency']
         assert page.locator('#spaces-compare').count()==0
-        events.append('Legacy Spaces opens the existing Atlas rather than comparing web sources with internal knowledge')
+        events.append('Legacy Spaces opens Dependency with three ordered Atlas views and a clean home URL')
         for name in ['research','conjectures','evolution']:
             page.set_viewport_size({'width':390,'height':844})
             page.goto(base+name+'.html?lang=en',wait_until='networkidle')
