@@ -19,17 +19,25 @@ Readers can inspect modules with multiple direct prerequisites and follow genuin
 directed import paths through Architecture. These are module-level dependencies;
 the publication does not establish declaration-to-declaration theorem use.
 
-The sidebar reports statistics for the admitted induced view and states how many
-source modules are excluded. The complete source graph, its digest and certified
+The sidebar introduces the project as a growing knowledge graph of Lean-verified
+mathematics. Its visible research loop follows human questions, AI-assisted
+exploration and formalization checked by Lean, then human understanding and new
+questions. An inline SVG draws the directed Human → AI → Lean → Human cycle;
+its arrows run outside the three labeled cards. Graph explanations focus on
+reading and using this knowledge. The
+complete source graph, its digest and certified
 Topology counters remain intact and are checked before filtered metrics are
-recomputed. Search, selection, direct links, family, frontier, component and theory
+recomputed. Search, selection, direct links, family, component and theory
 views share the same admission rule. Selection exposes explanatory Blueprint prose
 and revision-pinned Lean sources in the Wiki without inserting documents,
 affinities or unfinished records into the mathematical DAG.
 
-**Dependencies** inspects the admitted graph and its support metrics.
-**Structure** groups admitted modules into editorial concept families;
-**Open questions** adds source-authored research associations separately.
+The three graph tabs are ordered **Full DAG → Connection → Dependency**.
+**Connection** preserves the original nine editorial concept families and their
+published positions. **Dependency** preserves the original published dependency
+layout, depth colors and selectable support metrics. Open questions are available
+on the standalone Conjectures and research dossier pages, without a graph mode.
+Legacy `mode=frontier` links redirect there before loading the graph.
 `atlas-explorer.html` remains an alias. `site/dag.html` retains the advanced
 source workspace. Branding, same-domain `/visualize/`, navigation, English/Chinese
 localization and mobile selection continue to use the existing site interfaces.
@@ -55,30 +63,75 @@ or stretching the coordinate axes cannot resolve that information problem.
 
 ## Presentation decisions
 
-The Structure view groups mathematical nodes into nine editorial concept families.
+The Connection view (internal legacy mode `structure`) groups mathematical nodes
+into nine editorial concept families.
 The mapping uses the existing `domain` field. Within a family, repository
 subtopics provide anchors and real dependency edges pull connected concepts
 together using vendored `d3-force-3d`. The deterministic simulation runs in a Web
 Worker and stops before rendering. Family positions are editorial composition,
-not a metric of inter-family similarity. The About dialog states this boundary.
+not a metric of inter-family similarity.
 
-The `atlas-branched-dag-v5` dependency layout spaces early import depths more
-widely and keeps long chains visible using a logarithmic vertical scale. A
-deterministic primary parent (chosen by downstream reuse, with identity ties)
-organizes drawing basins around large import trees. Multi-source graph distance
-assigns the remaining connected modules. Colors identify these drawing basins,
-not new mathematical subjects or inferred theorem relations. All secondary
-parents, joins, shortcut imports and cross-branch edges remain intact. Node size
-shows downstream reuse; brighter lines highlight real primary imports with shared
-downstream support. Landmark rings, readable counts and collision-avoiding labels
+The published `atlas-branched-dag-v5` read model remains the source contract.
+The current local preview uses a downstream presentation layout,
+`atlas-connected-flow-preview-v1`, in Full DAG. Dependency keeps the published
+`dependency_positions` from `atlas-branched-dag-v5`, with the existing DAG worker
+as its fallback. Its nodes use the original depth palette, high-reuse highlight,
+and size based on the selected reach, direct reuse or coverage metric. Its
+imports retain their original straight geometry.
+
+In Full DAG, all imports
+attract their endpoints without fixed branch centers. The primary predecessor is
+the deepest actual prerequisite, with reuse and stable identity as tie breakers.
+Rank spacing reflects the number of modules at adjacent ranks while preserving
+space along long sparse chains. Coordinates are deterministic and stay fixed
+during selection. Separate connected components and isolated records retain
+separate locations. All parents, joins, shortcut imports and cross connections
+remain intact.
+
+Three entry points identify actual directed lineages. Each contains its anchor
+and every reachable dependent; lineages can overlap at real joins. Their sets
+are also used for branch dimming, camera focus and legend counts.
+
+Full DAG colors encode distinct dependent modules, including indirect
+dependencies. Zero is separate, and positive counts are split at their median, 90th and 99th
+percentiles, keeping ties together and omitting empty ranges. For the pinned
+11,958-module release this gives 0 / 1–5 / 6–45 / 46–216 / 217–865, containing
+4,287 / 4,075 / 2,832 / 687 / 77 modules. The highest range is gold, then mint,
+blue, muted blue and dark blue. A legend inside the graph shows these actual
+ranges and counts. Clicking highlights a range's modules and incident imports;
+repeating the click or choosing Show all restores the overview without changing
+topology, coordinates or camera.
+
+Imports have their own quadratic geometry: primary chains use shallow spatial
+curves and cross connections use broader arcs. Bend is bounded so curves retain
+directed depth. Overview batches and native hover/selection links use the same
+path, so arrows and particles follow the displayed connection. Every sampled
+curve segment maps back to its exact original directed import for picking. Chain
+opacity is 0.253 for reused targets and 0.1104 for terminal/low-reuse targets;
+secondary connections use 0.018. The overview has no decorative branch rings.
+Full DAG node size shows downstream reuse. Collision-avoiding labels
 with leaders identify important modules. Hover highlights incoming and outgoing
 imports; clicking an import opens its dependent module. Reduced motion disables
 flow particles and camera transitions.
 
-The startup builder publishes this deterministic layout under the existing digest
-contract. A verified v4 startup can still supply graph and Structure coordinates;
-the DAG worker refreshes its dependency positions. A v5 startup requires no client
-layout worker.
+Curved overview links share a few drawing batches. Hidden native placeholders
+stay straight and have zero width; only hovered or selected native connections
+construct their matching curve geometry. This avoids building a duplicate tube
+for every invisible import during mode switches. Full graphs keep node resolution
+at seven segments; a selected small neighborhood can use twelve without rebuilding
+all overview spheres as the camera crosses a distance threshold.
+
+Selecting a module replaces the reuse legend with a compact key for the selected
+module, its prerequisites and the knowledge built on it. Connection retains its
+existing family colors and family navigation. The legend avoids label placement
+and remains within the graph on mobile.
+
+The preview's coordinate cache binds the existing Atlas graph digest and is
+checked for exact node membership, finite coordinates and directed rank. It is a
+Pages presentation artifact, generated with `tools/build_atlas_flow_preview.mjs`
+from the verified startup cache. A mismatched or missing cache falls back to an
+isolated layout worker. The published graph, digest contract, startup builder and
+source release remain intact. Connection keeps the published family positions.
 
 The `atlas-dependency-scaffold-v2` layout selects a deterministic primary parent
 from existing same-family proof dependencies, weighted by actual reuse and
@@ -91,7 +144,16 @@ source archive still distinguishes proof, affinity, document, advisory and autho
 relations for advanced tools and explanation. The mathematical selection controls
 provide direct, two-hop or full import lineage and optional surrounding admitted
 context. Full lineage follows ancestors and descendants without adding non-import
-relations. Scope, range and context remain shareable through URLs.
+relations. Exploration state stays in memory so the home address remains clean
+while switching views, selecting modules or changing relationship depth. Legacy
+links still restore their initial selection and range before the address is
+normalized to the home route; direct source and research links retain their
+existing destinations.
+
+Above 900 px, the graph and reading panel use a 70:30 split. In dependency
+overviews the camera fits the existing coordinates into the usable canvas using
+perspective bounds and the space occupied by the controls. This reduces empty
+space without changing the published layout or module positions.
 
 The right-hand Wiki reuses the existing Concept Lens core for authored summaries,
 theorems, facts, documents, and provenance. Connections distinguish prerequisites
@@ -108,7 +170,7 @@ view to full lineage. Previous view restores the exact camera and exploration st
 including on mobile. Adaptive landmark labels prioritize selected concepts and
 avoid controls and other labels.
 
-In Structure at overview distance, directed cross-family proof dependencies are aggregated
+In Connection at overview distance, directed cross-family proof dependencies are aggregated
 into curved bundles with exact counts. Selecting a bundle exposes every original
 source/target pair. Close zoom expands the individual dependencies, and the bundle
 toggle exposes them at any distance. Lighting, restrained distance fog and node
@@ -133,34 +195,34 @@ centered navigation in the second row, across current and immutable pages.
 
 ## Research questions and module state
 
-The Atlas `frontier` mode reads the same digest-verified Library snapshot as
-Research, bound to the exact Atlas graph, Truth release and source commit.
+The standalone Conjectures and research dossier pages present open questions.
+They use the digest-verified Library snapshot bound to the Atlas graph, Truth
+release and source commit.
 `Problems/*.md` supplies question titles, triage and `motivation_gids`; these
 authored links identify released foundations, not new proof dependencies.
 All source dossiers remain listed, including those with missing graph anchors.
-Selecting a question scopes the map to its released anchors and transitive proof
-prerequisites. Selecting a concept still exposes its complete relationships.
+Legacy Atlas question links open the corresponding standalone dossier when they
+contain a valid problem slug, or Conjectures otherwise. The homepage exposes
+exactly three mathematical graph views.
 
 Module `state=open` means an unfinished module. It does not establish a
 mathematical open problem: the release also contains engineering frontier
 modules such as PaperGenerator and ValuesProducer. These remain in the source archive and advanced workspace; they are excluded
 from the mathematical Atlas unless supported by the published proven catalog.
-Gold nodes denote research anchors; a closed foundation can support an open
-research question. A missing, corrupt or mismatched catalog reports unavailable
-research and never falls back to guessing from module status.
+Closed foundations can support an open research question. A missing, corrupt or
+mismatched catalog reports unavailable research and never falls back to guessing from module status.
 
-Wireframe question markers and dashed authored associations form a separate
-research overlay. Selecting a marker opens its released foundations and links to
-the dossier's missing bridges and proposed approach. Neither a marker nor its
-dashed connections represent a certified proof or an inferred solution.
+No question markers or authored research associations are drawn in the three
+homepage graph views. Dossiers retain their released foundations, missing bridges
+and proposed approaches.
 
-No Topology contract extension is required for this source-backed view. Topology
+No Topology contract extension is required. Topology
 continues to supply proof structure; authored research classification comes from
 the release's source catalog and must not be inferred by topology metrics.
 
 ## Startup performance
 
-`tools/build_atlas_startup.mjs` precomputes Structure and admitted DAG positions.
+`tools/build_atlas_startup.mjs` precomputes Connection and admitted DAG positions.
 The current profile is `atlas-branched-dag-v5`. A v3 compact startup view carries
 all source node identities, relation tuples and certified topology counters,
 together with bounded admission summaries. It groups the exact source/frozen hash

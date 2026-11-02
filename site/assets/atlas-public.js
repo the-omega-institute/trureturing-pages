@@ -1,4 +1,9 @@
-import { theoryModel, dependencyBranches, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=spatial-v1";
+import { reconcileRenderGraph } from "./atlas-render-state.mjs";
+import { fitOverview } from "./atlas-camera.mjs";
+import { reuseBands } from "./atlas-reuse.mjs";
+import { flowParents, flowLineages, readFlowLayout } from "./atlas-flow-layout.mjs";
+import { importGeometry } from "./atlas-import-geometry.mjs";
+import { theoryModel, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=spatial-v1";
 import { t } from "./i18n.mjs?v=spatial-v1";
 import {
   FAMILIES,
@@ -48,6 +53,16 @@ const state = {
   mode: "theory",
   theory: null,
   branches: null,
+  branch: null,
+  reuseFocus: null,
+  reuseBands: [],
+  flowPrimary: null,
+  renderData: null,
+  topologyRevision: 0,
+  bundleCache: null,
+  importCache: null,
+  overlayClickTime: 0,
+  modeTimings: [],
   isolatedNodes: [],
   component: null,
   theoryPositions: null,
@@ -92,6 +107,7 @@ const state = {
   showChanges: false,
   changesPanel: false,
   lod: "overview",
+  nodeResolution: 7,
 };
 const icon = (name) => {
   const el = document.createElement("i");
@@ -123,20 +139,85 @@ let wikiMap = null;
 let sceneLabels = [];
 const DEPTH_COLORS = ["#6ad7c8", "#87b9df", "#c4b4e7", "#edc66d"];
 const REUSE_COLOR = "#b3f2dc", ISOLATED_COLOR = "#64777e";
+function reuseBand(id) {
+  const reach = state.architecture.metrics.get(id)?.reach || 0;
+  return state.reuseBands.find(band => reach >= band.min);
+}
+function flowEdge(edge) {
+  return state.flowPrimary.get(endpoint(edge.target)) === endpoint(edge.source);
+}
+function reuseMatches(id) {
+  return !state.reuseFocus || reuseBand(id).id === state.reuseFocus;
+}
+function inBranch(id) {
+  return !state.branch || state.branches.groups.find(group=>group.id===state.branch)?.members.has(id);
+}
+function renderGraphLegend() {
+  const root = $("#dag-legend");
+  root.replaceChildren();
+  root.hidden = state.mode !== "theory";
+  if (root.hidden) return;
+  root.classList.toggle("is-selection", Boolean(state.selected));
+  if (state.selected) {
+    root.append(el("p", "dag-legend-title", t("Knowledge connections")));
+    const roles = el("div", "dag-role-key");
+    for (const [shade, label] of [[ROLE_COLORS.selected, "Selected module"], [ROLE_COLORS.upstream, "Prerequisites"], [ROLE_COLORS.downstream, "Built on this"]]) {
+      const item = el("span", "", t(label));
+      item.style.setProperty("--legend-color", shade); roles.append(item);
+    }
+    root.append(roles); return;
+  }
+  const header = el("div", "dag-legend-header");
+  header.append(el("p", "dag-legend-title", t("Depended on by")));
+  const reset = action(t("Show all"), "dag-legend-reset", () => setReuseFocus(null));
+  reset.hidden = !state.reuseFocus; header.append(reset);
+  const description = el("p", "dag-legend-description", t("Ranges follow this library's reuse distribution"));
+  description.title = t("Direct and indirect dependents. Positive counts are split at the median, 90th and 99th percentiles; zero is separate.");
+  root.append(header, description);
+  const bands = el("div", "dag-legend-bands");
+  for (const band of state.reuseBands) {
+    const count = currentNodes.filter(node => reuseBand(node.id).id === band.id && inBranch(node.id)).length;
+    const button = action("", "dag-legend-band", () => setReuseFocus(state.reuseFocus === band.id ? null : band.id));
+    button.dataset.reuseBand = band.id;
+    button.style.setProperty("--legend-color", band.color);
+    button.setAttribute("aria-pressed", String(state.reuseFocus === band.id));
+    button.setAttribute("aria-label", t("Highlight {0} modules depended on by {1} others", format(count), band.label));
+    button.title = button.getAttribute("aria-label");
+    button.disabled = !count;
+    button.append(el("span", "dag-legend-swatch"), el("strong", "", band.label), el("small", "", format(count)));
+    bands.append(button);
+  }
+  const lines = el("div", "dag-legend-lines");
+  for (const [label, path] of [["Dependency chain", "M1 10 Q14 -1 28 8"], ["Cross connections", "M1 10 Q14 -12 28 10"]]) {
+    const item = el("span"), svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 30 14"); svg.setAttribute("aria-hidden", "true");
+    const curve = document.createElementNS("http://www.w3.org/2000/svg", "path"); curve.setAttribute("d", path); svg.append(curve);
+    item.append(svg, el("span", "", t(label))); lines.append(item);
+  }
+  root.append(bands, lines, el("p", "dag-legend-hint", t(state.reuseFocus ? "Click again to restore the whole graph" : "Click a color to highlight its knowledge")));
+}
+function setReuseFocus(id) {
+  if (state.reuseFocus === id) return;
+  rememberView(); state.reuseFocus = id; state.hover = null;
+  stopRotation(); renderGraph();
+}
 
 function color(node) {
   if (state.selected)
     return ROLE_COLORS[
       focusRole(node.id, state.selected, state.related, state.model)
     ];
+  if (!inBranch(node.id)) return "#15232e";
   if (state.showChanges && state.changes?.added.has(node.id)) return "#9aefc0";
   if (state.showChanges && state.changes?.changed.has(node.id))
     return "#efb27e";
-  if (["theory", "dependency"].includes(state.mode)) {
+  if (state.mode === "theory") {
+    return reuseMatches(node.id) ? reuseBand(node.id).color : "#162530";
+  }
+  if (state.mode === "dependency") {
     const metrics = state.architecture.metrics.get(node.id);
     if (!metrics) return "#82b5e0";
     if (!metrics.direct && !state.architecture.parents.get(node.id).size) return ISOLATED_COLOR;
-    if (state.mode === "theory") return state.branches.byNode.get(node.id)?.color || ISOLATED_COLOR;
     if (metrics.reach > 200) return REUSE_COLOR;
     return DEPTH_COLORS[Math.min(3, Math.floor(Math.sqrt(metrics.depth)))];
   }
@@ -175,8 +256,18 @@ function edgeColor(edge) {
       : "#61b3a5";
   }
   if (state.hover && (from === state.hover || to === state.hover)) return to === state.hover ? "#f4cb7d" : "#8ff2da";
-  if (state.mode === "theory") return state.branches.spine.has(JSON.stringify([from, to]))
-    ? state.branches.byNode.get(from)?.color || "#8ed8e5" : "rgba(68, 113, 144, 0.38)";
+  if (state.branch) {
+    const a = inBranch(from);
+    const b = inBranch(to);
+    if (!a && !b) return "rgba(49, 75, 93, 0.045)";
+    if (!a || !b) return "rgba(85, 130, 153, 0.12)";
+  }
+  if (state.reuseFocus && state.mode === "theory") {
+    if (!reuseMatches(from) && !reuseMatches(to)) return "rgba(49, 75, 93, 0.025)";
+    return reuseBand(reuseMatches(from) ? from : to).color;
+  }
+  if (state.mode === "theory") return flowEdge(edge)
+    ? `rgba(112, 166, 185, ${state.architecture.metrics.get(to)?.reach > 5 ? .55 : .24})` : "rgba(68, 113, 144, 0.10)";
   if (state.mode === "dependency") return state.architecture.metrics.get(from)?.reach > 100 ? "#82b9b1" : "#6d8490";
   const a = state.model.byId.get(from),
     b = state.model.byId.get(to);
@@ -184,7 +275,10 @@ function edgeColor(edge) {
 }
 function edgeWidth(edge) {
   if (state.hover && (endpoint(edge.source) === state.hover || endpoint(edge.target) === state.hover)) return 2;
-  if (state.mode === "theory" && !state.selected) return state.branches.spine.has(JSON.stringify([endpoint(edge.source), endpoint(edge.target)])) ? 1.35 : 0.32;
+  if (state.mode === "theory" && !state.selected) {
+    if (state.reuseFocus) return reuseMatches(endpoint(edge.source)) || reuseMatches(endpoint(edge.target)) ? 1.35 : 0.32;
+    return flowEdge(edge) ? 1.35 : 0.32;
+  }
   if (state.selected)
     return state.related?.edgeIds.has(edge.relationId)
       ? edge.category === "proof"
@@ -197,8 +291,16 @@ function edgeWidth(edge) {
       ? 0.72
       : 0.16;
 }
+function nativeEdgeWidth(edge) {
+  return batchedImports() && !(state.hover && [endpoint(edge.source),endpoint(edge.target)].includes(state.hover)) ? 0 : edgeWidth(edge);
+}
+function nativeCurve(edge) {
+  if (state.mode === "theory")
+    return batchedImports() && !(state.hover && [endpoint(edge.source),endpoint(edge.target)].includes(state.hover)) ? 0 : importGeometry(edge, state.positions, flowEdge(edge)).curvature;
+  return edge.category === "affinity" ? .12 : edge.category === "document" ? .04 : 0;
+}
 function nodeSize(node) {
-  if (state.mode === "theory" && !state.selected) return 3 + Math.min(120, Math.log2(1 + state.architecture.metrics.get(node.id).reach) ** 2 * 1.6);
+  if (state.mode === "theory" && !state.selected) return 1.2 + Math.min(70, Math.log2(1 + state.architecture.metrics.get(node.id).reach) ** 2 * .75);
   if (state.mode === "dependency" && state.architecture.metrics.has(node.id)) {
     const value = state.architecture.metrics.get(node.id)[state.metric];
     return (
@@ -222,36 +324,23 @@ function stopRotation() {
   $("#rotate-camera").setAttribute("aria-pressed", "false");
 }
 function syncUrl() {
-  const params = new URLSearchParams();
-  if (state.family) params.set("family", state.family);
-  if (state.selected) params.set("node", state.selected);
-  if (state.mode !== "theory") params.set("mode", state.mode);
-  if (state.mode === "theory" && state.component) params.set("component", state.component);
-  if (state.bundle) params.set("bundle", state.bundle);
-  if (state.mode === "frontier" && state.problem)
-    params.set("problem", state.problem);
-  if (state.metric !== "reach") params.set("metric", state.metric);
-  if (state.depth !== "all") params.set("depth", state.depth);
-  if (!state.context) params.set("context", "0");
-  if (state.types.length !== globalThis.TrureturingRelations.TYPES.length)
-    params.set("types", state.types.join(","));
-  history.replaceState(
-    null,
-    "",
-    `${location.pathname}${location.search}${params.size ? `#${params}` : ""}`,
-  );
+  // Old shared links are read on startup. Browsing state stays in memory and
+  // language preference is already retained by i18n, keeping the address clean.
+  const home = new URL("./", location.href).pathname;
+  if (location.pathname !== home || location.search || location.hash)
+    history.replaceState(null, "", home);
 }
 function setMode(mode) {
-  if (!state.model) return;
-  if (mode === "frontier" || state.mode === "frontier") {
-    state.selected = null;
-    state.family = null;
-    state.problem = null;
-  }
+  if (mode === "frontier") { openQuestions(); return; }
+  if (!["theory", "structure", "dependency"].includes(mode)) return;
+  if (!state.model || state.mode === mode) return;
+  const started = performance.now();
+  state.branch = null;
+  if (mode !== "theory") state.reuseFocus = null;
+  state.hover = null;
   state.mode = mode;
   state.family = null;
   state.component = null;
-  if (mode === "frontier") ensureResearch();
   state.bundle = null;
   state.changesPanel = false;
   state.positions =
@@ -268,9 +357,13 @@ function setMode(mode) {
       ? [...state.neighbors].map((id) => state.model.byId.get(id))
       : overviewNodes(),
   );
+  state.modeTimings.push({mode, handlerMs: Math.round(performance.now() - started)});
+  if (state.modeTimings.length > 12) state.modeTimings.shift();
 }
 function setFamily(id) {
   if (!state.model) return;
+  state.branch = null;
+  state.hover = null;
   state.family = id;
   state.changesPanel = false;
   state.bundle = null;
@@ -294,6 +387,7 @@ function selectNode(id) {
   rememberView();
   state.bundle = null;
   const node = state.model.byId.get(id);
+  if (state.mode === "theory") state.branch ||= state.branches.byNode.get(id)?.id || null;
   const wasVisible = currentNodes.some((n) => n.id === id);
   state.selected = id;
   state.tab =
@@ -325,6 +419,8 @@ function rememberView() {
     selected: state.selected,
     problem: state.problem,
     mode: state.mode,
+    branch: state.branch,
+    reuseFocus: state.reuseFocus,
     component: state.component,
     tab: state.tab,
     context: state.context,
@@ -403,11 +499,7 @@ function arrowLength(edge) {
     ? 5
     : state.hover && [endpoint(edge.source), endpoint(edge.target)].includes(state.hover)
       ? 5
-    : state.mode === "theory"
-      ? state.branches.spine.has(JSON.stringify([endpoint(edge.source), endpoint(edge.target)])) ? 4 : 1.8
-      : state.mode === "dependency"
-        ? 2.4
-      : 0;
+    : state.selected ? 3 : 0;
 }
 function particles(edge) {
   return !reducedMotion &&
@@ -431,27 +523,25 @@ function renderGraph() {
   state.related = view.related;
   state.neighbors = view.related?.ids || new Set();
   currentNodes = view.nodes;
-  state.renderer.graphData({
-    nodes: view.nodes.map((n) => {
-      const p = state.positions[n.id];
-      return { ...n, ...p, fx: p.x, fy: p.y, fz: p.z };
-    }),
-    links: view.edges.map((e) => ({ ...e })),
-  });
+  const reconciled = reconcileRenderGraph(state.renderData, view, state.positions);
+  state.renderData = reconciled.data;
+  if (reconciled.topologyChanged) {
+    state.topologyRevision++;
+    state.renderer.graphData(reconciled.data);
+  } else if (reconciled.positionsChanged) {
+    // Fixed coordinates change between the three views. Reheat one
+    // zero-tick frame to apply them while retaining all node and link meshes.
+    state.renderer.d3ReheatSimulation();
+  }
   state.renderer
     .nodeRelSize(state.mode === "theory" ? 1.7 : 1.35)
     .nodeColor(color)
     .linkOpacity(state.selected ? 0.85 : state.mode === "theory" ? 0.72 : 0.36)
     .nodeVal(nodeSize)
     .linkColor(edgeColor)
-    .linkWidth(edgeWidth)
-    .linkCurvature((edge) =>
-      edge.category === "affinity"
-        ? 0.12
-        : edge.category === "document"
-          ? 0.04
-          : 0,
-    )
+    .linkWidth(nativeEdgeWidth)
+    .linkCurvature(nativeCurve)
+    .linkCurveRotation(edge => state.mode === "theory" ? importGeometry(edge, state.positions, flowEdge(edge)).rotation : 0)
     .linkDirectionalArrowLength(arrowLength)
     .linkDirectionalParticles(particles)
     .linkVisibility(linkVisible);
@@ -461,7 +551,7 @@ function renderGraph() {
       b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)),
     );
   $("#back-to-all").hidden = !state.family && !state.selected && !state.component;
-  $("#back-to-all").replaceChildren(icon("arrow-left"), document.createTextNode(state.mode === "theory" ? t("Theory overview") : t("All concepts")));
+  $("#back-to-all").replaceChildren(icon("arrow-left"), document.createTextNode(t(state.branch ? "Back to branch" : state.mode === "theory" ? "Theory overview" : "All concepts")));
   $("#architecture-controls").hidden = state.mode !== "dependency";
   $("#research-edge-key").hidden = state.mode !== "frontier";
   const family = FAMILIES.find((f) => f.id === state.family);
@@ -491,11 +581,17 @@ function renderGraph() {
       !state.selected || !state.types.includes(item.dataset.edgeKey);
   });
   renderSelectionSummary();
+  renderExplorePath();
+  renderGraphLegend();
   rebuildScene(view.edges);
   buildLabels();
   syncUrl();
 }
+function batchedImports() {
+  return Boolean(state.layers && !state.selected && state.mode === "theory");
+}
 function linkVisible(edge) {
+  if (batchedImports()) return Boolean(state.hover && [endpoint(edge.source),endpoint(edge.target)].includes(state.hover));
   if (state.mode !== "structure") return true;
   if (!state.bundlesVisible || edge.category !== "proof") return true;
   const a = state.model.byId.get(endpoint(edge.source)),
@@ -510,9 +606,13 @@ function updateVisualLevel() {
       .position.distanceTo(state.renderer.controls().target),
     Boolean(state.selected),
   );
+  const resolution = currentNodes.length > 2000 || level === "overview" ? 7 : 12;
+  if (resolution !== state.nodeResolution) {
+    state.nodeResolution = resolution;
+    state.renderer.nodeResolution(resolution);
+  }
   if (level !== state.lod) {
     state.lod = level;
-    state.renderer.nodeResolution(level === "overview" ? 7 : 12);
     updateLabels();
   }
   if (!state.layers) return;
@@ -534,24 +634,29 @@ function updateVisualLevel() {
 }
 function rebuildScene(edges = viewFor(state.model, state).edges) {
   if (!state.layers) return;
+  $("#scene-tooltip").hidden = true;
   const markers = researchMarkers(
     state.research,
     state.positions,
     state.problem,
   );
-  const descriptors = [
-    ...state.layers.rebuildBundles(
-      relationBundles(state.model, edges),
-      state.positions,
-      FAMILIES,
-      state.bundle,
-    ),
-    ...state.layers.rebuildResearch(
-      markers,
-      state.positions,
-      state.mode === "frontier",
-    ),
-  ];
+  const descriptors = [];
+  const batched = batchedImports();
+  const importCache = state.importCache;
+  if (!importCache || importCache.enabled !== batched || importCache.positions !== state.positions || importCache.revision !== state.topologyRevision || importCache.branch !== state.branch || importCache.reuseFocus !== state.reuseFocus || importCache.mode !== state.mode || importCache.changes !== state.changes || importCache.showChanges !== state.showChanges) {
+    state.layers.rebuildImports(edges, state.positions, edgeColor, edgeWidth, batched, flowEdge);
+    state.importCache = {enabled:batched,positions:state.positions,revision:state.topologyRevision,branch:state.branch,reuseFocus:state.reuseFocus,mode:state.mode,changes:state.changes,showChanges:state.showChanges};
+  }
+  state.renderer.linkVisibility(linkVisible);
+  if (state.mode === "structure") {
+    const cache = state.bundleCache;
+    if (!cache || cache.revision !== state.topologyRevision || cache.positions !== state.positions || cache.bundle !== state.bundle) {
+      state.bundleCache = { revision: state.topologyRevision, positions: state.positions, bundle: state.bundle,
+        descriptors: state.layers.rebuildBundles(relationBundles(state.model, edges), state.positions, FAMILIES, state.bundle) };
+    }
+    descriptors.push(...state.bundleCache.descriptors);
+  } else state.layers.setBundlesVisible(false);
+  descriptors.push(...state.layers.rebuildResearch(markers, state.positions, state.mode === "frontier"));
   state.layers.rebuildChanges(
     state.changes,
     state.positions,
@@ -561,13 +666,9 @@ function rebuildScene(edges = viewFor(state.model, state).edges) {
   state.layers.rebuildFocus(
     state.selected ? state.positions[state.selected] : null,
   );
-  const visibleIds = new Set(currentNodes.map(n => n.id));
-  state.layers.rebuildLandmarks(state.mode === "theory" && !state.selected
-    ? state.branches.groups.filter(g => g.ids.length >= 80 && visibleIds.has(g.anchor)).slice(0, 12).map(g => ({
-      position: state.positions[g.anchor], color: g.color, radius: Math.cbrt(nodeSize(state.model.byId.get(g.anchor))) * 1.7 + 4,
-    })) : []);
+  state.layers.rebuildLandmarks([]);
   $("#scene-labels").replaceChildren();
-  sceneLabels = descriptors.map((item) => {
+  sceneLabels = descriptors.filter(item => item.type === "research").map((item) => {
     const isResearch = item.type === "research";
     const label = action(
       isResearch ? item.title : `${format(item.count)} links`,
@@ -637,6 +738,7 @@ function renderCameraScope() {
   $("#fit-all").hidden = all || Boolean(state.component);
 }
 function overviewNodes() {
+  if (state.branch) return state.branches.groups.find(group => group.id === state.branch).ids.map(id => state.model.byId.get(id));
   return state.mode === "theory" && !state.component
     ? state.theory.components[0].ids.map(id => state.model.byId.get(id)) : currentNodes;
 }
@@ -647,6 +749,11 @@ function frameNodes(nodes, minimumSpan = 0, anchor = null) {
     renderCameraScope();
   }
   const points = nodes.map((n) => state.positions[n.id]);
+  if (state.mode === "theory" && !state.selected && !anchor) {
+    const members = new Set(nodes.map(node => node.id));
+    for (const edge of state.model.edges) if (members.has(endpoint(edge.source)) && members.has(endpoint(edge.target)))
+      points.push(importGeometry(edge, state.positions, flowEdge(edge)).point(.5));
+  }
   if (state.mode === "frontier" && !state.selected)
     points.push(
       ...researchMarkers(state.research, state.positions, state.problem).map(
@@ -668,6 +775,19 @@ function frameNodes(nodes, minimumSpan = 0, anchor = null) {
     window.innerWidth <= 700 && Boolean(state.selected || state.family);
   const topInset = compact ? 75 : window.innerWidth <= 900 ? 220 : 140;
   const bottomInset = compact ? 28 : 70;
+  if (["theory", "dependency"].includes(state.mode) && !state.selected && !anchor) {
+    const graphBounds = $("#graph").getBoundingClientRect();
+    const overlays = [...document.querySelectorAll(".atlas-heading, .search, .view-controls, .explore-path")]
+      .filter(item => !item.hidden && getComputedStyle(item).display !== "none");
+    const overlayBottom = Math.max(0, ...overlays.map(item => item.getBoundingClientRect().bottom - graphBounds.top));
+    const frame = fitOverview(points, {
+      width, height, fov: camera.fov,
+      padding: { left: width < 500 ? 24 : 44, right: width < 500 ? 24 : 36,
+        top: Math.max(topInset, overlayBottom + 16), bottom: bottomInset },
+    });
+    state.renderer.cameraPosition(frame.position, frame.target, reducedMotion ? 0 : 650);
+    return;
+  }
   const availableHeight = Math.max(100, height - topInset - bottomInset);
   const span = Math.max(
     ((anchor ? 2 * Math.max(anchor.x - x0, x1 - anchor.x) : x1 - x0) + (state.mode === "theory" ? 320 : 140)) /
@@ -725,14 +845,12 @@ function buildLabels() {
     };
     const label = action("", "family-label", () => setFamily(family.id));
     label.style.setProperty("--family-color", family.color);
-    label.append(
-      el("span", "family-label-name", family.name),
-      el("small", "", `${format(nodes.length)} concepts`),
-    );
+    label.append(el("span", "family-label-name", t(family.name)));
+    label.title = t("{0} modules", format(nodes.length));
     $("#family-labels").append(label);
     familyLabels.push({ label, point });
   }
-  if (state.mode === "theory" && !state.component && !state.selected) {
+  if (state.mode === "theory" && !state.component && !state.selected && state.cameraNodes === state.theory.nodes.length) {
     const separate = state.theory.components.slice(1).filter(c => c.edgeCount);
     if (separate.length) {
       const nodes = separate.flatMap(c => c.ids.map(id => state.model.byId.get(id)));
@@ -744,7 +862,7 @@ function buildLabels() {
       $("#family-labels").append(label); familyLabels.push({label,point,keepInside:true});
     }
   }
-  if (["theory", "dependency"].includes(state.mode) && !state.component && !state.selected && state.isolatedNodes.length) {
+  if (["theory", "dependency"].includes(state.mode) && !state.component && !state.selected && state.cameraNodes === state.theory.nodes.length && state.isolatedNodes.length) {
     const points = state.isolatedNodes.map(n => state.positions[n.id]);
     const point = {
       x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
@@ -785,48 +903,26 @@ function updateLabels() {
           state.scaffold.score(b.id) - state.scaffold.score(a.id)
         );
       })
-      .slice(0, narrow ? 4 : medium ? 6 : 10);
-  else if (state.mode === "theory") {
-    const visible = new Set(currentNodes.map(n => n.id));
-    candidates = state.branches.groups.filter(g => g.ids.length >= 80 && visible.has(g.anchor))
-      .filter((g, index) => index % 2 === 0).slice(0, narrow ? 2 : medium ? 3 : 6).map(g => state.model.byId.get(g.anchor));
-    for (const low of narrow ? [5, 20] : medium ? [2, 15, 35] : [2, 7, 15, 25, 40]) {
-      const landmark = rankedNodes(currentNodes.filter(n => {
-        const d = state.architecture.metrics.get(n.id).depth; return d >= low && d < low + 6;
-      }), state.architecture, "reach")[0];
-      if (landmark && !candidates.some(n => n.id === landmark.id)) candidates.push(landmark);
+      .slice(0, narrow ? 2 : 4);
+  else if (["theory", "dependency"].includes(state.mode)) {
+    if (state.reuseFocus) {
+      candidates = rankedNodes(currentNodes.filter(n => reuseMatches(n.id) && inBranch(n.id)), state.architecture, "reach").slice(0, narrow ? 1 : 3);
+    } else if (state.branch) {
+      const group = state.branches.groups.find(group => group.id === state.branch);
+      candidates = rankedNodes(group.ids.map(id => state.model.byId.get(id)), state.architecture, "reach").slice(0, narrow ? 1 : 2);
+    } else {
+      candidates = ["theory"].includes(state.mode) ? branchEntrances().slice(0, narrow ? 1 : 3).map(group => state.model.byId.get(group.anchor))
+        : rankedNodes(currentNodes, state.architecture, state.metric).slice(0, narrow ? 1 : 3);
     }
-  }
-  else if (state.mode === "dependency")
-    candidates = rankedNodes(
-      currentNodes,
-      state.architecture,
-      state.metric,
-    ).slice(0, 12);
-  else if (state.family)
-    candidates = currentNodes
-      .slice()
-      .sort(
-        (a, b) =>
-          state.model.children.get(b.id).size -
-          state.model.children.get(a.id).size,
-      )
-      .slice(0, state.lod === "detail" ? 14 : 6);
-  else if (state.mode === "structure" && state.lod !== "overview")
-    candidates = currentNodes
-      .filter((n) => state.scaffold.landmarks.has(n.id))
-      .sort((a, b) => state.scaffold.score(b.id) - state.scaffold.score(a.id))
-      .slice(
-        0,
-        window.innerWidth <= 700 ? 6 : state.lod === "detail" ? 18 : 10,
-      );
+  } else if (state.family) candidates = rankedNodes(currentNodes, state.architecture, "reach").slice(0, narrow ? 1 : 2);
   if (state.hover && !candidates.some((n) => n.id === state.hover))
     candidates.unshift(state.model.byId.get(state.hover));
   for (const node of candidates.filter(Boolean)) {
-    const label = action("", `node-label${node.id === state.selected ? " is-selected" : ""}`, () => selectNode(node.id));
+    const isEntrance = !state.selected && !state.branch && state.mode === "theory" && branchEntrances().some(group => group.anchor === node.id);
+    const label = action("", `node-label${node.id === state.selected ? " is-selected" : ""}${isEntrance ? " is-entrance" : ""}`, () => isEntrance ? focusBranch(node.id) : selectNode(node.id));
     label.append(el("strong", "", title(node)));
     const metrics = state.architecture.metrics.get(node.id);
-    if (metrics && ["theory", "dependency"].includes(state.mode))
+    if (metrics && node.id === state.hover)
       label.append(el("small", "", t("{0} downstream · depth {1}", format(metrics.reach), metrics.depth)));
     label.title = title(node);
     label.dataset.nodeId = node.id;
@@ -846,7 +942,7 @@ function positionLabels() {
   const graphBounds = $("#graph").getBoundingClientRect();
   const occupied = [
     ...document.querySelectorAll(
-      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom, .selection-summary, .theory-guide, .dag-navigation",
+      ".atlas-heading, .search, .view-controls, .graph-tools, .back-to-all, .atlas-bottom, .selection-summary, .theory-guide, .dag-navigation, .explore-path, .dag-legend",
     ),
   ]
     .filter((item) => !item.hidden && getComputedStyle(item).display !== "none")
@@ -951,18 +1047,13 @@ function nodeButton(node, subtitle) {
   b.append(copy, icon("arrow-up-right"));
   return b;
 }
+function openQuestions(slug) {
+  const path = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug || "")
+    ? `research/${slug}/` : "conjectures";
+  location.replace(new URL(path, location.href));
+}
 function selectProblem(slug) {
-  state.changesPanel = false;
-  state.bundle = null;
-  state.problem = slug;
-  state.selected = null;
-  state.family = null;
-  state.mode = "frontier";
-  state.positions = state.structurePositions;
-  stopRotation();
-  renderGraph();
-  renderWiki();
-  frameNodes(currentNodes);
+  openQuestions(slug);
 }
 function renderResearch(root) {
   appendRecentResults(root, state.graph.nodes, state.research?.resolved);
@@ -1572,9 +1663,11 @@ async function load() {
   state.model = createPublicModel(state.graph);
   // loadStartup has already validated the complete published topology.
   state.architecture = mathematicalArchitecture(state.model);
+  state.reuseBands = reuseBands(state.architecture.metrics);
+  state.flowPrimary = flowParents(state.architecture);
   state.scaffold = structuralScaffold(state.model, state.architecture);
   state.theory = theoryModel(state.model, state.architecture);
-  state.branches = dependencyBranches(state.theory, state.architecture);
+  state.branches = flowLineages(state.theory, state.architecture);
   state.isolatedNodes = state.model.nodes.filter(n => !state.theory.componentByNode.get(n.id).edgeCount);
   state.bundles = relationBundles(state.model);
   if (!state.model.nodes.length)
@@ -1605,15 +1698,31 @@ async function load() {
       worker.postMessage(state.graph);
     }));
   state.structurePositions = state.positions;
+  const flowStarted = performance.now();
+  const cachedFlow = await fetch(new URL("./assets/atlas-flow-preview.v1.json", location.href))
+    .then(response => { if (!response.ok) throw new Error("Flow layout unavailable"); return response.json(); })
+    .then(layout => readFlowLayout(layout, state.theory, state.graphDigest))
+    .catch(() => null);
+  const flowPositions = cachedFlow || await new Promise((resolve, reject) => {
+    const worker = new Worker(new URL("./atlas-flow-worker.mjs", import.meta.url), { type: "module" });
+    $("#loading-message").textContent = t("Laying out the complete dependency DAG");
+    worker.onmessage = ({data}) => { worker.terminate(); data.error ? reject(new Error(data.error)) : resolve(data.positions); };
+    worker.onerror = () => { worker.terminate(); reject(new Error("Dependency layout worker failed.")); };
+    worker.postMessage({
+      theory: { components: state.theory.components, edges: state.theory.edges },
+      architecture: { parents: state.architecture.parents, metrics: new Map([...state.architecture.metrics].map(([id, {depth, reach}]) => [id, {depth, reach}])) },
+    });
+  });
+  state.startup.flowLayoutMs = Math.round(performance.now() - flowStarted);
+  state.startup.flowLayoutSource = cachedFlow ? "matched-publication-cache" : "worker";
+  state.theoryPositions = documentPositions(state.model, flowPositions);
   const dependencyPositions = startup.dependencyPositions || await new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./atlas-dag-worker.mjs?v=spatial-v1", import.meta.url), { type: "module" });
-    $("#loading-message").textContent = t("Laying out the complete dependency DAG");
     worker.onmessage = ({data}) => { worker.terminate(); data.error ? reject(new Error(data.error)) : resolve(data.positions); };
     worker.onerror = () => { worker.terminate(); reject(new Error("Dependency layout worker failed.")); };
     worker.postMessage(state.graph);
   });
-  state.theoryPositions = documentPositions(state.model, dependencyPositions);
-  state.architecturePositions = state.theoryPositions;
+  state.architecturePositions = documentPositions(state.model, dependencyPositions);
   $("#release-state").textContent = "Verified release";
   $("#release-state").classList.add("is-ready");
   $("#release-note").textContent =
@@ -1633,7 +1742,7 @@ async function load() {
     .showNavInfo(false)
     .nodeLabel(() => "")
     .nodeRelSize(1.7)
-    .nodeResolution(10)
+    .nodeResolution(7)
     .nodeOpacity(0.94)
     .linkOpacity(0.36)
     .linkResolution(3)
@@ -1648,7 +1757,7 @@ async function load() {
     .onNodeHover((node) => {
       state.hover = node?.id || null;
       $("#graph").style.cursor = node ? "pointer" : "grab";
-      state.renderer.linkColor(edgeColor).linkWidth(edgeWidth).linkDirectionalArrowLength(arrowLength).linkDirectionalParticles(particles);
+      state.renderer.linkColor(edgeColor).linkWidth(nativeEdgeWidth).linkDirectionalArrowLength(arrowLength).linkDirectionalParticles(particles).linkVisibility(linkVisible);
       updateLabels();
     })
     .linkLabel(edge => {
@@ -1676,11 +1785,13 @@ async function load() {
       node.fy = node.y;
       node.fz = node.z;
       state.positions[node.id] = { x: node.x, y: node.y, z: node.z };
+      state.importCache = state.bundleCache = null;
       rebuildScene();
       buildLabels();
     })
     .onBackgroundClick(() => {
-      if (state.selected) returnToOverview();
+      if (performance.now() - state.overlayClickTime < 250) return;
+      if (state.selected) state.branch ? focusBranch(state.branch) : returnToOverview();
     });
   state.renderer.renderer().setPixelRatio(Math.min(window.devicePixelRatio, 2));
   const controls = state.renderer.controls();
@@ -1697,19 +1808,15 @@ async function load() {
   const initial = new URLSearchParams(location.hash.slice(1));
   if (FAMILIES.some((f) => f.id === initial.get("family")))
     { state.family = initial.get("family"); state.mode = "structure"; }
-  if (["theory", "structure", "dependency", "frontier"].includes(initial.get("mode")))
+  if (["theory", "structure", "dependency"].includes(initial.get("mode")))
     state.mode = initial.get("mode");
+  if (state.mode === "theory" && state.branches.groups.some(group => group.id === initial.get("branch"))) state.branch = initial.get("branch");
   if (state.theory.components.some(c => c.id === initial.get("component"))) state.component = initial.get("component");
   if (
     state.mode === "structure" &&
     state.bundles.some((b) => b.key === initial.get("bundle"))
   )
     state.bundle = initial.get("bundle");
-  if (state.mode === "frontier") {
-    state.family = null;
-    if (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(initial.get("problem") || ""))
-      state.problem = initial.get("problem");
-  }
   if (Object.hasOwn(METRICS, initial.get("metric")))
     state.metric = initial.get("metric");
   $("#architecture-metric").value = state.metric;
@@ -1743,8 +1850,8 @@ async function load() {
   let researchResize;
   window.addEventListener("resize", () => {
     clearTimeout(researchResize);
-    if (state.mode === "frontier")
-      researchResize = setTimeout(() => frameNodes(currentNodes), 100);
+    if (state.mode === "frontier" || (["theory", "dependency"].includes(state.mode) && !state.selected && !state.branch && !state.component))
+      researchResize = setTimeout(() => frameNodes(overviewNodes()), 100);
   });
   resize();
   renderGraph();
@@ -1773,22 +1880,33 @@ async function load() {
     nodes: currentNodes.length,
     edges: state.renderer.graphData().links.length,
     selected: state.selected,
+    hover: state.hover,
     family: state.family,
     mode: state.mode,
+    branch: state.branch,
+    reuseFocus: state.reuseFocus,
+    reuseBands: state.reuseBands.map(band => ({...band,count:currentNodes.filter(n=>reuseBand(n.id).id===band.id).length})),
+    layout: state.mode === "theory" ? "atlas-connected-flow-preview-v1" : state.mode === "dependency" ? "atlas-branched-dag-v5" : "published-concept-families",
+    flowPrimary: includeGraph ? [...state.flowPrimary].map(([target,source])=>[source,target]) : undefined,
+    lineages: includeGraph ? state.branches.groups.map(g=>({id:g.id,ids:g.ids})) : undefined,
+    nativeCurves: includeGraph && state.selected ? state.renderer.graphData().links.filter(e=>e.__curve).map(e=>({source:endpoint(e.source),target:endpoint(e.target),midpoint:e.__curve.getPoint(.5)})) : undefined,
+    performance: { modeTimings: state.modeTimings, topologyRevision: state.topologyRevision },
     theory: { nodes: state.theory.nodes.length, edges: state.theory.edges.length, components: state.theory.components.length, largestComponent: state.theory.components[0]?.ids.length || 0, isolated: state.theory.isolated, roots: state.theory.roots, maxDepth: state.theory.maxDepth, component: state.component },
     admission: state.model.admission,
-    visibleEdges: state.renderer.graphData().links.filter(linkVisible).length,
+    visibleEdges: batchedImports() ? state.layers.diagnostics().batchedImports : state.renderer.graphData().links.filter(linkVisible).length,
     problem: state.problem,
     researchQuestions: state.research?.problems.size || 0,
     researchAnchors: state.research?.byNode.size || 0,
     researchError: state.researchError,
     startup: state.startup,
     visuals: {
-      ...state.layers?.diagnostics(),
+      ...state.layers?.diagnostics({ includeGraph }),
+      ...(includeGraph && batchedImports() ? { importSamples: state.layers.diagnostics({includeGraph:true}).importSamples.map(sample=>({...sample,screen:state.renderer.graph2ScreenCoords(sample.midpoint.x,sample.midpoint.y,sample.midpoint.z)})) } : {}),
       error: state.layerError,
       bundle: state.bundle,
-      spineEdges: state.mode === "theory" ? state.branches.spine.size : state.scaffold.spine.size,
+      spineEdges: state.mode === "theory" ? state.flowPrimary.size : state.scaffold.spine.size,
       lod: state.lod,
+      nodeResolution: state.nodeResolution,
     },
     changes: state.changes
       ? {
@@ -1813,6 +1931,8 @@ async function load() {
           x: n.x,
           y: n.y,
           z: n.z,
+          ...(includeGraph ? { reach: state.architecture.metrics.get(n.id)?.reach || 0, color: color(n), highlighted: reuseMatches(n.id) } : {}),
+          ...(includeGraph && n.__threeObj ? { mesh: n.__threeObj.position.toArray(), meshColor: n.__threeObj.material?.color?.getHexString() } : {}),
           screen: state.renderer.graph2ScreenCoords(n.x, n.y, n.z),
         },
       ]),
@@ -1823,14 +1943,24 @@ async function load() {
     .then(({ createAtlasScene }) => {
       state.layers = createAtlasScene(state.renderer, $("#graph"), {
         select(item) {
-          if (item.type === "bundle") selectBundle(item.key);
+          if (item.type === "import") {
+            if (state.hover) return;
+            state.overlayClickTime = performance.now(); selectNode(endpoint(item.edge.target));
+          }
+          else if (item.type === "bundle") selectBundle(item.key);
           else if (item.type === "research") selectProblem(item.key);
         },
         hover(item, event) {
           const tooltip = $("#scene-tooltip");
+          if (item?.type === "import" && state.hover) item = null;
           tooltip.hidden = !item;
-          if (!item) return;
-          tooltip.textContent = `${item.title} / ${item.count} ${item.type === "research" ? "released foundations / research association" : "module imports"}`;
+          if (!item) { $("#graph").style.cursor = state.hover ? "pointer" : "grab"; return; }
+          if (item.type === "import") {
+            tooltip.replaceChildren(el("strong", "", title(state.model.byId.get(endpoint(item.edge.source)))),
+              el("span", "", `→ ${title(state.model.byId.get(endpoint(item.edge.target)))}`));
+            tooltip.dataset.source = endpoint(item.edge.source); tooltip.dataset.target = endpoint(item.edge.target);
+            $("#graph").style.cursor = "pointer";
+          } else tooltip.textContent = `${item.title} / ${item.count} ${item.type === "research" ? "released foundations / research association" : "module imports"}`;
           const rect = $("#graph").getBoundingClientRect();
           tooltip.style.left = `${Math.min(Math.max(16, event.clientX - rect.x + 12), rect.width - 296)}px`;
           tooltip.style.top = `${Math.min(event.clientY - rect.y + 16, rect.height - 110)}px`;
@@ -1991,7 +2121,10 @@ function renderChanges(root) {
 
 function selectComponent(id) {
   rememberView();
+  state.reuseFocus = null;
+  state.hover = null;
   state.component = id;
+  state.branch = null;
   state.selected = null;
   state.family = null;
   state.bundle = null;
@@ -2006,6 +2139,27 @@ function focusIsolated() {
   stopRotation();
   frameNodes(state.isolatedNodes);
 }
+function branchEntrances() {
+  return state.branches.groups;
+}
+function focusBranch(id) {
+  const group = state.branches.groups.find(group => group.id === id);
+  if (!group) return;
+  rememberView();
+  state.branch = id; state.selected = null; state.component = null; state.family = null;
+  state.hover = null; state.changesPanel = false;
+  stopRotation(); renderGraph(); renderWiki(); frameNodes(overviewNodes());
+}
+function renderExplorePath() {
+  const root = $("#explore-path"); root.replaceChildren();
+  const branch = state.branches.groups.find(group => group.id === state.branch);
+  root.append(action(t("Whole graph"), "", returnToOverview));
+  if (branch) {
+    root.append(el("span", "", " / "), action(t("Branch"), "", () => focusBranch(branch.id)));
+  } else if (state.family) root.append(el("span", "", ` / ${t(FAMILIES.find(f=>f.id===state.family).name)}`));
+  if (state.selected) root.append(el("span", "", ` / ${t("Module")}`));
+  root.hidden = state.mode === "frontier";
+}
 function renderTheory(root) {
   const group = state.theory.components.find(c => c.id === state.component);
   let graphDetails = root, connections = root;
@@ -2016,28 +2170,11 @@ function renderTheory(root) {
   } else {
     const introduction = atlasIntroduction.cloneNode(true);
     const explanation = introduction.querySelector(".atlas-explore");
-    const researchLoop = introduction.querySelector(".atlas-research-loop");
-    explanation.remove(); researchLoop.remove();
+    explanation.remove();
     root.append(introduction);
     graphDetails = el("details", "atlas-details");
     graphDetails.append(el("summary", "", t("About this graph")),
-      explanation, researchLoop);
-    graphDetails.append(el("h3", "section-label spaced", t("READING THE GRAPH")));
-    const key = el("ul", "dag-color-key");
-    for (const [shade, label] of [
-      ["#83b9f0", "Color follows connected import branches"],
-      ["#b3f2dc", "Larger nodes support more downstream modules"],
-      ["#edc785", "Brighter lines trace the shared dependency backbone"],
-      [ISOLATED_COLOR, "No connections within this graph"],
-    ]) {
-      const row = el("li"); row.style.setProperty("--key-color", shade);
-      row.append(el("span", "", t(label))); key.append(row);
-    }
-    graphDetails.append(key,
-      el("p", "wiki-intro", t("Imports flow downward through dependency depth. Branch colors organize connected modules; all cross-branch imports remain visible. Select a module to highlight prerequisites in gold and dependents in mint.")),
-      el("h3", "section-label spaced", t("WHY SO MANY STARTING POINTS?")),
-      el("p", "wiki-intro", t("A depth-zero module has no prerequisites inside this view. It can still use Mathlib, whose shared foundations are outside the map. These starting points are not foundational axioms.")),
-      el("p", "theory-scope", t("The graph branches and merges: a module can import several others. It records code organization, not a minimal set of principles from which all mathematics is derived.")));
+      explanation);
     connections = el("details", "atlas-details");
     connections.open = true;
     connections.append(el("summary", "", t("Start with shared structures")),
@@ -2050,11 +2187,9 @@ function renderTheory(root) {
   }
   if (group) graphDetails.append(facts);
   else root.insertBefore(facts, root.querySelector(".atlas-details"));
-  graphDetails.append(el("p", "dag-admission", t("Mathematical view: {0} admitted · {1} excluded from {2} source modules. Certified source statistics describe the complete publication.", format(state.model.admission.admitted), format(state.model.admission.excluded), format(state.model.admission.source_truth_nodes))));
   if (!group) {
     const scope = el("div", "dag-connectivity");
-    scope.append(el("p", "", t("{0} components with imports · {1} unconnected modules", format(state.theory.components.length - state.theory.isolated), format(state.theory.isolated))),
-      el("p", "", t("Each unconnected module counts as one component. The separate grid holds these modules; its rows and columns carry no mathematical meaning.")));
+    scope.append(el("p", "", t("{0} components with imports · {1} unconnected modules", format(state.theory.components.length - state.theory.isolated), format(state.theory.isolated))));
     if (state.isolatedNodes.length) scope.append(action(t("Locate unconnected modules →"), "research-link", focusIsolated));
     graphDetails.append(scope);
   }
@@ -2064,10 +2199,13 @@ function renderTheory(root) {
   connections.append(el("h3", "section-label spaced", t("SHARED PREREQUISITES")));
   rankedNodes(currentNodes, state.architecture, "reach").slice(0, 8).forEach(node => connections.append(nodeButton(node, t("{0} downstream modules · {1} direct dependents", state.architecture.metrics.get(node.id).reach, state.architecture.metrics.get(node.id).direct))));
   const components = el("details", "dag-components"); components.append(el("summary", "", t("Browse connected components")));
-  state.theory.components.filter(c => c.edgeCount).forEach(c => {
-    const button = action("", "dag-component", () => selectComponent(c.id));
-    button.append(el("strong", "", c.label), el("small", "", t("{0} modules · {1} imports · {2} joins", c.ids.length, c.edgeCount, c.joins.length)));
-    components.append(button);
+  components.addEventListener("toggle", () => {
+    if (!components.open || components.childElementCount > 1) return;
+    state.theory.components.filter(c => c.edgeCount).forEach(c => {
+      const button = action("", "dag-component", () => selectComponent(c.id));
+      button.append(el("strong", "", c.label), el("small", "", t("{0} modules · {1} imports · {2} joins", c.ids.length, c.edgeCount, c.joins.length)));
+      components.append(button);
+    });
   });
   connections.append(components);
   const joins = (group ? group.joins : state.theory.components.flatMap(c => c.joins)).slice(0, 8);
@@ -2078,7 +2216,6 @@ function renderTheory(root) {
   }
   const evolution = el("a", "research-link", t("See how the structure evolved →")); evolution.href = "evolution.html";
   root.append(evolution);
-  graphDetails.append(el("p", "architecture-provenance", t("Edges record module imports. External Mathlib dependencies are outside this graph. Depth spacing is compressed to keep long chains visible.")));
 }
 
 function renderArchitectureOverview(root) {
@@ -2105,7 +2242,7 @@ function renderArchitectureOverview(root) {
   const nodes = rankedNodes(currentNodes, state.architecture, state.metric);
   const rest = el("details");
   rest.append(el("summary", "", `All ranked modules / ${nodes.length}`));
-  nodes.forEach((node, index) => {
+  const rankRow = (node, index) => {
     const metrics = state.architecture.metrics.get(node.id);
     const button = action("", "architecture-rank", () => {
       selectNode(node.id);
@@ -2126,7 +2263,13 @@ function renderArchitectureOverview(root) {
       copy,
       el("b", "", metrics[state.metric].toLocaleString()),
     );
-    (index < 12 ? ranking : rest).append(button);
+    return button;
+  };
+  nodes.slice(0, 12).forEach((node, index) => ranking.append(rankRow(node, index)));
+  rest.addEventListener("toggle", () => {
+    if (!rest.open || rest.childElementCount > 1) return;
+    nodes.slice(12).forEach((node, index) => rest.append(rankRow(node, index + 12)));
+    icons();
   });
   ranking.append(rest);
   root.append(
@@ -2142,8 +2285,7 @@ function renderArchitectureOverview(root) {
 function renderArchitectureNode(root, node) {
   const metrics = state.architecture.metrics.get(node.id);
   metricFacts(root, metrics);
-  root.querySelector(".architecture-share").textContent = t("{0}% of admitted modules downstream", (metrics.share * 100).toFixed(2));
-  root.append(el("p", "architecture-provenance", t("Metrics and paths describe the admitted module-import view.")));
+  root.querySelector(".architecture-share").textContent = t("Supports {0}% of the knowledge graph", (metrics.share * 100).toFixed(2));
   const prerequisites = [...state.architecture.parents.get(node.id)];
   if (prerequisites.length) {
     const imports = el("details", "dag-import-join");
@@ -2201,7 +2343,7 @@ function renderArchitectureNode(root, node) {
     el(
       "p",
       "architecture-provenance",
-      "Counts refer to distinct modules. Downstream support is deduplicated; affinity and document links are excluded.",
+      "Reuse counts each dependent module once, including indirect dependencies.",
     ),
   );
 }
@@ -2274,18 +2416,30 @@ document
 $("#zoom-in").addEventListener("click", () => zoom(0.76));
 $("#zoom-out").addEventListener("click", () => zoom(1.3));
 function returnToOverview() {
-  if (state.mode === "theory") { state.selected = null; selectComponent(null); }
-  else if (state.mode === "dependency") { state.selected = null; setMode("dependency"); }
+  if (state.mode === "theory") { selectComponent(null); return; }
+  rememberView();
+  state.reuseFocus = null;
+  state.branch = null;
+  state.hover = null;
+  if (state.mode === "dependency") {
+    state.selected = null; state.family = null; state.component = null;
+    state.bundle = null; state.changesPanel = false;
+    stopRotation(); renderGraph(); renderWiki(); frameNodes(overviewNodes());
+  }
   else setFamily(null);
 }
 $("#fit-all").addEventListener("click", () => {
   if (!state.renderer) return;
-  rememberView(); stopRotation(); frameNodes(currentNodes);
+  rememberView(); state.branch = null; state.hover = null;
+  renderGraph(); renderWiki(); stopRotation(); frameNodes(currentNodes); buildLabels();
 });
 $("#reset-camera").addEventListener("click", returnToOverview);
-$("#back-to-all").addEventListener("click", returnToOverview);
+$("#back-to-all").addEventListener("click", () => {
+  if (state.selected && state.branch) focusBranch(state.branch);
+  else returnToOverview();
+});
 $("#close-wiki").addEventListener("click", () =>
-  ["theory", "dependency"].includes(state.mode) ? returnToOverview() : state.selected ? setFamily(state.family) : setFamily(null),
+  state.selected && state.branch ? focusBranch(state.branch) : ["theory", "dependency"].includes(state.mode) ? returnToOverview() : state.selected ? setFamily(state.family) : setFamily(null),
 );
 $("#rotate-camera").addEventListener("click", () => {
   if (!state.renderer) return;
@@ -2341,7 +2495,9 @@ document.addEventListener("keydown", (event) => {
     if (state.selected) setFamily(state.family);
   }
 });
-load().catch((error) => {
+const legacyView = new URLSearchParams(location.hash.slice(1));
+if (legacyView.get("mode") === "frontier") openQuestions(legacyView.get("problem"));
+else load().catch((error) => {
   $("#loading").classList.add("is-error");
   $("#loading-message").textContent = "The Atlas is unavailable";
   $("#loading-detail").textContent = error.message;

@@ -51,6 +51,7 @@
             <span>Branches share a color · larger nodes support more mathematics · imports flow downward</span>
           </div>
         </div>
+        <nav id="explore-path" class="explore-path" aria-label="Exploration path"></nav>
         <form class="search" id="concept-search" role="search">
           <i data-lucide="search"></i
           ><input
@@ -75,12 +76,8 @@
         <div class="view-controls" role="group" aria-label="Graph view">
           <div class="segmented">
             <button data-mode="theory" aria-pressed="true">Full DAG</button
-            ><button data-mode="dependency" aria-pressed="false">
-              Dependencies</button
-            ><button data-mode="structure" aria-pressed="false">Structure</button
-            ><button data-mode="frontier" aria-pressed="false">
-              Open questions
-            </button>
+            ><button data-mode="structure" aria-pressed="false">Connection</button
+            ><button data-mode="dependency" aria-pressed="false">Dependency</button>
           </div>
           <div id="architecture-controls" class="architecture-controls" hidden>
             <label for="architecture-metric">Node weight</label>
@@ -117,6 +114,7 @@
           <span id="camera-scope"></span>
           <button id="fit-all" type="button">Fit entire graph <span aria-hidden="true">↗</span></button>
         </div>
+        <section id="dag-legend" class="dag-legend" aria-label="Graph color legend" hidden></section>
         <div class="graph-tools" role="toolbar" aria-label="Camera controls">
           <button
             class="icon-button"
@@ -237,7 +235,7 @@
         <div id="map-note" class="map-note" hidden>
           <strong>About this map</strong>
           <p>
-            The mathematical DAG includes published modules with checked declarations and their module imports. Selecting a module preserves this admission rule. Arrows run from prerequisite to dependent; they do not assert theorem use. External Mathlib imports are outside the graph. Structure groups admitted modules into editorial topic families. Blueprint explanations remain available in the Wiki. Source publication bytes and certified topology remain separate from filtered-view statistics.
+            Explore a knowledge graph of Lean-verified mathematics. Each node is a module of definitions and proofs; connections show how modules depend on one another. Use the color legend to find widely reused knowledge, or select a node to read its mathematics and follow its connections.
           </p>
           <p id="release-note"></p>
           <button id="close-note">Close</button>
@@ -259,24 +257,49 @@
         <div id="wiki-content" class="wiki-content atlas-overview" aria-live="polite">
           <div class="atlas-introduction">
             <h2 class="atlas-project-title"><span>Mathematics,</span><span>built to grow.</span></h2>
+            <p class="atlas-verified">Lean-verified mathematical knowledge graph</p>
             <p class="atlas-project-intro">We bring people and AI together to research mathematical questions, check proofs in Lean, and grow a shared library of results.</p>
             <a class="atlas-project-link" href="research.html">See research results <span aria-hidden="true">↗</span></a>
+            <section class="atlas-research-loop" aria-labelledby="atlas-loop-title">
+              <h3 id="atlas-loop-title">Human · AI · Lean</h3>
+              <svg class="atlas-loop-diagram" viewBox="0 0 360 218" role="img" aria-labelledby="research-loop-title research-loop-description">
+                <title id="research-loop-title">A cycle of human insight, AI exploration and formal verification</title>
+                <desc id="research-loop-description">People ask questions and review results. AI helps develop proofs. Lean verifies them, and the knowledge returns to people to inspire new questions.</desc>
+                <defs>
+                  <marker id="research-loop-arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+                    <path d="M0 0 L6 3 L0 6 Z" fill="context-stroke" />
+                  </marker>
+                </defs>
+                <g class="atlas-loop-paths" fill="none" marker-end="url(#research-loop-arrow)">
+                  <path data-loop-from="human" data-loop-to="ai" d="M122 33 C63 33 42 80 58 124" />
+                  <path data-loop-from="ai" data-loop-to="lean" d="M118 161 C151 201 209 201 242 161" />
+                  <path data-loop-from="lean" data-loop-to="human" d="M302 124 C318 80 297 33 238 33" />
+                </g>
+                <g class="atlas-loop-node atlas-loop-human" data-loop-node="human" transform="translate(180 34)">
+                  <rect x="-52" y="-24" width="104" height="48" rx="9" />
+                  <text class="atlas-loop-name" text-anchor="middle" y="-3">Human</text>
+                  <text class="atlas-loop-action" text-anchor="middle" y="14">Question · Review</text>
+                </g>
+                <g class="atlas-loop-node atlas-loop-ai" data-loop-node="ai" transform="translate(62 154)">
+                  <rect x="-54" y="-24" width="108" height="48" rx="9" />
+                  <text class="atlas-loop-name" text-anchor="middle" y="-3">AI</text>
+                  <text class="atlas-loop-action" text-anchor="middle" y="14">Explore · Prove</text>
+                </g>
+                <g class="atlas-loop-node atlas-loop-lean" data-loop-node="lean" transform="translate(298 154)">
+                  <rect x="-54" y="-24" width="108" height="48" rx="9" />
+                  <text class="atlas-loop-name" text-anchor="middle" y="-3">Lean</text>
+                  <text class="atlas-loop-action" text-anchor="middle" y="14">Formal verification</text>
+                </g>
+                <text class="atlas-loop-center" x="180" y="113" text-anchor="middle">Knowledge grows</text>
+              </svg>
+              <p class="atlas-loop-return">Verified mathematics inspires the next human question.</p>
+            </section>
             <section class="atlas-explore" aria-labelledby="atlas-explanation-title">
               <h3 id="atlas-explanation-title">What is Atlas?</h3>
-              <p>Atlas is a map of that library. Each point is a Lean module of definitions and proofs. Arrows show module imports, from prerequisite to dependent.</p>
+              <p>A growing knowledge graph of Lean-verified mathematics. Each node contains formalized definitions and proofs; connections lead from prerequisites to the knowledge built on them.</p>
               <div class="atlas-connection-key"><span>Prerequisite module</span><span class="atlas-connection-arrow" aria-hidden="true">→</span><span>Dependent module</span></div>
               <p class="atlas-interaction-hint">Select a point to read the mathematics, inspect its proof and follow its connections.</p>
             </section>
-            <details class="atlas-research-loop">
-              <summary>An endless loop for truth</summary>
-              <ol class="atlas-loop-steps">
-                <li><span class="atlas-step-number" aria-hidden="true">01</span><span>Ask a question</span></li>
-                <li><span class="atlas-step-number" aria-hidden="true">02</span><span>Explore with AI</span></li>
-                <li><span class="atlas-step-number" aria-hidden="true">03</span><span>Check with Lean</span></li>
-                <li><span class="atlas-step-number" aria-hidden="true">04</span><span>Share and build on it</span></li>
-              </ol>
-              <p class="atlas-loop-return"><span aria-hidden="true">↻</span><span>Every result becomes a starting point for new questions.</span></p>
-            </details>
           </div>
           <p class="muted">Loading concept families...</p>
         </div>
