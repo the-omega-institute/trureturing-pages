@@ -14,6 +14,7 @@ import {
   searchNodes,
   title,
   viewFor,
+  architectureLayout,
 } from "./atlas-public-core.mjs?v=lean-admission-v2";
 import {
   METRICS,
@@ -137,8 +138,6 @@ let lastLabelUpdate = 0;
 let resizeObserver;
 let wikiMap = null;
 let sceneLabels = [];
-const DEPTH_COLORS = ["#6ad7c8", "#87b9df", "#c4b4e7", "#edc66d"];
-const REUSE_COLOR = "#b3f2dc", ISOLATED_COLOR = "#64777e";
 function reuseBand(id) {
   const reach = state.architecture.metrics.get(id)?.reach || 0;
   return state.reuseBands.find(band => reach >= band.min);
@@ -207,19 +206,12 @@ function color(node) {
     return ROLE_COLORS[
       focusRole(node.id, state.selected, state.related, state.model)
     ];
-  if (!inBranch(node.id)) return "#15232e";
+  if (state.mode === "theory" && !inBranch(node.id)) return "#15232e";
   if (state.showChanges && state.changes?.added.has(node.id)) return "#9aefc0";
   if (state.showChanges && state.changes?.changed.has(node.id))
     return "#efb27e";
   if (state.mode === "theory") {
     return reuseMatches(node.id) ? reuseBand(node.id).color : "#162530";
-  }
-  if (state.mode === "dependency") {
-    const metrics = state.architecture.metrics.get(node.id);
-    if (!metrics) return "#82b5e0";
-    if (!metrics.direct && !state.architecture.parents.get(node.id).size) return ISOLATED_COLOR;
-    if (metrics.reach > 200) return REUSE_COLOR;
-    return DEPTH_COLORS[Math.min(3, Math.floor(Math.sqrt(metrics.depth)))];
   }
   if (
     state.bundle &&
@@ -255,8 +247,8 @@ function edgeColor(edge) {
       ? "#cbaa65"
       : "#61b3a5";
   }
-  if (state.hover && (from === state.hover || to === state.hover)) return to === state.hover ? "#f4cb7d" : "#8ff2da";
-  if (state.branch) {
+  if (state.mode !== "dependency" && state.hover && (from === state.hover || to === state.hover)) return to === state.hover ? "#f4cb7d" : "#8ff2da";
+  if (state.mode === "theory" && state.branch) {
     const a = inBranch(from);
     const b = inBranch(to);
     if (!a && !b) return "rgba(49, 75, 93, 0.045)";
@@ -268,13 +260,12 @@ function edgeColor(edge) {
   }
   if (state.mode === "theory") return flowEdge(edge)
     ? `rgba(112, 166, 185, ${state.architecture.metrics.get(to)?.reach > 5 ? .55 : .24})` : "rgba(68, 113, 144, 0.10)";
-  if (state.mode === "dependency") return state.architecture.metrics.get(from)?.reach > 100 ? "#82b9b1" : "#6d8490";
   const a = state.model.byId.get(from),
     b = state.model.byId.get(to);
   return a.family === b.family ? familyFor(a).color : "#71818b";
 }
 function edgeWidth(edge) {
-  if (state.hover && (endpoint(edge.source) === state.hover || endpoint(edge.target) === state.hover)) return 2;
+  if (state.mode !== "dependency" && state.hover && (endpoint(edge.source) === state.hover || endpoint(edge.target) === state.hover)) return 2;
   if (state.mode === "theory" && !state.selected) {
     if (state.reuseFocus) return reuseMatches(endpoint(edge.source)) || reuseMatches(endpoint(edge.target)) ? 1.35 : 0.32;
     return flowEdge(edge) ? 1.35 : 0.32;
@@ -282,7 +273,7 @@ function edgeWidth(edge) {
   if (state.selected)
     return state.related?.edgeIds.has(edge.relationId)
       ? edge.category === "proof"
-        ? 1.6
+        ? state.mode === "dependency" ? 0.95 : 1.6
         : 0.48
       : 0.1;
   return state.mode === "dependency"
@@ -497,11 +488,14 @@ function arrowLength(edge) {
     (endpoint(edge.source) === state.selected ||
       endpoint(edge.target) === state.selected)
     ? 5
+    : state.mode === "dependency"
+      ? 2.4
     : state.hover && [endpoint(edge.source), endpoint(edge.target)].includes(state.hover)
       ? 5
     : state.selected ? 3 : 0;
 }
 function particles(edge) {
+  if (state.mode === "dependency" && !state.selected) return 0;
   return !reducedMotion &&
     (state.selected || state.hover) &&
     edge.category === "proof" &&
@@ -775,7 +769,7 @@ function frameNodes(nodes, minimumSpan = 0, anchor = null) {
     window.innerWidth <= 700 && Boolean(state.selected || state.family);
   const topInset = compact ? 75 : window.innerWidth <= 900 ? 220 : 140;
   const bottomInset = compact ? 28 : 70;
-  if (["theory", "dependency"].includes(state.mode) && !state.selected && !anchor) {
+  if (state.mode === "theory" && !state.selected && !anchor) {
     const graphBounds = $("#graph").getBoundingClientRect();
     const overlays = [...document.querySelectorAll(".atlas-heading, .search, .view-controls, .explore-path")]
       .filter(item => !item.hidden && getComputedStyle(item).display !== "none");
@@ -806,7 +800,7 @@ function frameNodes(nodes, minimumSpan = 0, anchor = null) {
     z: (z0 + z1) / 2,
   };
   state.renderer.cameraPosition(
-    state.mode === "theory" || state.mode === "dependency"
+    state.mode === "theory"
       ? { x: center.x + distance * 0.10, y: center.y + distance * 0.10, z: center.z + distance }
       : { x: center.x, y: center.y, z: center.z + distance },
     center,
@@ -862,7 +856,7 @@ function buildLabels() {
       $("#family-labels").append(label); familyLabels.push({label,point,keepInside:true});
     }
   }
-  if (["theory", "dependency"].includes(state.mode) && !state.component && !state.selected && state.cameraNodes === state.theory.nodes.length && state.isolatedNodes.length) {
+  if (state.mode === "theory" && !state.component && !state.selected && state.cameraNodes === state.theory.nodes.length && state.isolatedNodes.length) {
     const points = state.isolatedNodes.map(n => state.positions[n.id]);
     const point = {
       x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
@@ -904,7 +898,9 @@ function updateLabels() {
         );
       })
       .slice(0, narrow ? 2 : 4);
-  else if (["theory", "dependency"].includes(state.mode)) {
+  else if (state.mode === "dependency")
+    candidates = rankedNodes(currentNodes, state.architecture, state.metric).slice(0, 12);
+  else if (state.mode === "theory") {
     if (state.reuseFocus) {
       candidates = rankedNodes(currentNodes.filter(n => reuseMatches(n.id) && inBranch(n.id)), state.architecture, "reach").slice(0, narrow ? 1 : 3);
     } else if (state.branch) {
@@ -1716,13 +1712,9 @@ async function load() {
   state.startup.flowLayoutMs = Math.round(performance.now() - flowStarted);
   state.startup.flowLayoutSource = cachedFlow ? "matched-publication-cache" : "worker";
   state.theoryPositions = documentPositions(state.model, flowPositions);
-  const dependencyPositions = startup.dependencyPositions || await new Promise((resolve, reject) => {
-    const worker = new Worker(new URL("./atlas-dag-worker.mjs?v=spatial-v1", import.meta.url), { type: "module" });
-    worker.onmessage = ({data}) => { worker.terminate(); data.error ? reject(new Error(data.error)) : resolve(data.positions); };
-    worker.onerror = () => { worker.terminate(); reject(new Error("Dependency layout worker failed.")); };
-    worker.postMessage(state.graph);
-  });
-  state.architecturePositions = documentPositions(state.model, dependencyPositions);
+  // Restore the independent Dependency view used before PR #125: retain
+  // family composition horizontally and place modules by dependency depth.
+  state.architecturePositions = architectureLayout(state.model, state.structurePositions, state.architecture);
   $("#release-state").textContent = "Verified release";
   $("#release-state").classList.add("is-ready");
   $("#release-note").textContent =
@@ -1886,7 +1878,7 @@ async function load() {
     branch: state.branch,
     reuseFocus: state.reuseFocus,
     reuseBands: state.reuseBands.map(band => ({...band,count:currentNodes.filter(n=>reuseBand(n.id).id===band.id).length})),
-    layout: state.mode === "theory" ? "atlas-connected-flow-preview-v1" : state.mode === "dependency" ? "atlas-branched-dag-v5" : "published-concept-families",
+    layout: state.mode === "theory" ? "atlas-connected-flow-preview-v1" : state.mode === "dependency" ? "atlas-stable-family-depth" : "published-concept-families",
     flowPrimary: includeGraph ? [...state.flowPrimary].map(([target,source])=>[source,target]) : undefined,
     lineages: includeGraph ? state.branches.groups.map(g=>({id:g.id,ids:g.ids})) : undefined,
     nativeCurves: includeGraph && state.selected ? state.renderer.graphData().links.filter(e=>e.__curve).map(e=>({source:endpoint(e.source),target:endpoint(e.target),midpoint:e.__curve.getPoint(.5)})) : undefined,

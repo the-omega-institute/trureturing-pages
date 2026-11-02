@@ -34,8 +34,8 @@ affinities or unfinished records into the mathematical DAG.
 
 The three graph tabs are ordered **Full DAG → Connection → Dependency**.
 **Connection** preserves the original nine editorial concept families and their
-published positions. **Dependency** preserves the original published dependency
-layout, depth colors and selectable support metrics. Open questions are available
+published positions. **Dependency** restores the independent family/depth layout
+and family colors used before PR #125, with selectable support metrics. Open questions are available
 on the standalone Conjectures and research dossier pages, without a graph mode.
 Legacy `mode=frontier` links redirect there before loading the graph.
 `atlas-explorer.html` remains an alias. `site/dag.html` retains the advanced
@@ -73,11 +73,17 @@ not a metric of inter-family similarity.
 
 The published `atlas-branched-dag-v5` read model remains the source contract.
 The current local preview uses a downstream presentation layout,
-`atlas-connected-flow-preview-v1`, in Full DAG. Dependency keeps the published
-`dependency_positions` from `atlas-branched-dag-v5`, with the existing DAG worker
-as its fallback. Its nodes use the original depth palette, high-reuse highlight,
-and size based on the selected reach, direct reuse or coverage metric. Its
-imports retain their original straight geometry.
+`atlas-connected-flow-preview-v1`, in Full DAG. Dependency uses the existing
+`architectureLayout(model, structurePositions, architecture)`, as in commit
+`29d8b9362206f4293e1e1e21b9caa0c3a472baa5` (PR #117), before PR #125 replaced
+it with the main DAG coordinates. The stable layout retains the original family
+x coordinate, places modules at `y = 420 - depth * 24`, and derives z from the
+family-relative published positions. Nodes and within-family imports use family
+colors; cross-family imports are gray. Node size follows the selected reach,
+direct reuse or coverage metric. Straight imports retain their original arrows,
+and the camera faces the depth layers directly. Ranked labels use the original
+12 candidates with collision avoidance. Current admission and release verification
+still govern the complete mathematical graph.
 
 In Full DAG, all imports
 attract their endpoints without fixed branch centers. The primary predecessor is
