@@ -309,6 +309,15 @@ def main():
         assert page.locator('[data-mode]').evaluate_all("buttons => buttons.map(button => button.dataset.mode)")==['theory','structure','dependency']
         assert page.locator('#spaces-compare').count()==0
         events.append('Legacy Spaces opens Dependency with three ordered Atlas views and a clean home URL')
+        dependency = page.evaluate("window.atlasDiagnostics({includeGraph:true})")
+        assert dependency['layout']=='atlas-stable-family-depth'
+        assert len({p['color'] for p in dependency['positions'].values()})>=8
+        assert all(dependency['positions'][a]['y']>dependency['positions'][b]['y'] for a,b in dependency['edgePairs'])
+        page.locator('[data-mode="structure"]').click()
+        connection = page.evaluate("window.atlasDiagnostics({includeGraph:true})")
+        assert dependency['edgePairs']==connection['edgePairs']
+        assert all(p['x']==connection['positions'][key]['x'] and p['color']==connection['positions'][key]['color'] for key,p in dependency['positions'].items())
+        events.append('Stable Dependency retains family positions and colors while arranging every import by depth')
         for name in ['research','conjectures','evolution']:
             page.set_viewport_size({'width':390,'height':844})
             page.goto(base+name+'.html?lang=en',wait_until='networkidle')
