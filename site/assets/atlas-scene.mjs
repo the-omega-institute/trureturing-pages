@@ -4,6 +4,7 @@ import {
   Vector3,
   Color,
   BufferGeometry,
+  Float32BufferAttribute,
   CubicBezierCurve3,
   TubeGeometry,
   Mesh,
@@ -19,6 +20,8 @@ import {
   DirectionalLight,
   TorusGeometry,
 } from "./vendor/three-atlas.mjs";
+import { partitionImportEdges } from "./atlas-import-batches.mjs";
+import { importGeometry } from "./atlas-import-geometry.mjs";
 
 const vector = (point) => new Vector3(point.x, point.y, point.z);
 const average = (ids, positions) => {
@@ -47,7 +50,8 @@ export function createAtlasScene(renderer, host, callbacks) {
   const changes = new Group();
   const focus = new Group();
   const landmarks = new Group();
-  root.add(bundles, research, changes, focus, landmarks);
+  const imports = new Group();
+  root.add(bundles, research, changes, focus, landmarks, imports);
   renderer.scene().add(root);
   const ambient = new AmbientLight("#e4edf3", 0.85);
   const key = new DirectionalLight("#edfff8", 1.5);
@@ -72,12 +76,19 @@ export function createAtlasScene(renderer, host, callbacks) {
       (-(event.clientY - rect.y) / rect.height) * 2 + 1,
     );
     raycaster.setFromCamera(pointer, renderer.camera());
-    return raycaster.intersectObjects(
-      pickable.filter((o) => o.parent.visible),
-      false,
-    )[0]?.object.userData;
+    raycaster.params.Line.threshold = renderer.camera().position.distanceTo(renderer.controls().target) / Math.max(300, rect.height) * 2;
+    const hit = raycaster.intersectObjects(pickable.filter(o => o.visible && o.parent.visible), false)[0];
+    if (!hit) return null;
+    if (hit.object.userData.type === "imports") {
+      const edge = hit.object.userData.segmentEdges[Math.floor(hit.index / 2)];
+      return edge ? { type: "import", edge } : null;
+    }
+    return hit.object.userData;
   };
-  const onMove = (event) => callbacks.hover?.(pick(event), event);
+  const onMove = (event) => {
+    const orbiting = press && Math.hypot(event.clientX - press[0], event.clientY - press[1]) > 5;
+    callbacks.hover?.(orbiting ? null : pick(event), event);
+  };
   const onLeave = () => {
     press = null;
     callbacks.hover?.(null);
@@ -100,6 +111,39 @@ export function createAtlasScene(renderer, host, callbacks) {
   host.addEventListener("pointerup", onUp);
   host.addEventListener("pointerleave", onLeave);
   return {
+    rebuildImports(edges, positions, colorFor, widthFor, enabled, primaryFor) {
+      clear(imports);
+      pickable = pickable.filter(object => object.userData.type !== "imports");
+      imports.visible = enabled;
+      if (!enabled) return;
+      for (const batch of partitionImportEdges(edges, colorFor, widthFor)) {
+        const coordinates = [], colors = [], members = [], segmentEdges = [], samples = [];
+        for (const { edge, color: colorValue } of batch.members) {
+          const from = typeof edge.source === "object" ? edge.source.id : edge.source;
+          const to = typeof edge.target === "object" ? edge.target.id : edge.target;
+          const color = new Color(colorValue);
+          const route = importGeometry(edge, positions, primaryFor(edge));
+          let previous = route.point(0);
+          for (let step = 1; step <= route.steps; step++) {
+            const next = route.point(step / route.steps);
+            for (const p of [previous, next]) {
+              coordinates.push(p.x,p.y,p.z); colors.push(color.r,color.g,color.b);
+            }
+            segmentEdges.push(edge); previous = next;
+          }
+          const middle = route.point(.5);
+          samples.push({ source: from, target: to, midpoint: middle, curved: route.curvature > 0 });
+          members.push(edge);
+        }
+        if (!members.length) continue;
+        const geometry = new BufferGeometry();
+        geometry.setAttribute("position", new Float32BufferAttribute(coordinates,3));
+        geometry.setAttribute("color", new Float32BufferAttribute(colors,3));
+        const line = new LineSegments(geometry, new LineBasicMaterial({vertexColors:true, transparent:true, opacity:batch.opacity, depthWrite:false}));
+        line.userData = {type:"imports",edges:members,segmentEdges,samples};
+        imports.add(line); pickable.push(line);
+      }
+    },
     rebuildBundles(groups, positions, families, selected = null) {
       clear(bundles);
       pickable = pickable.filter((o) => o.userData.type !== "bundle");
@@ -314,9 +358,19 @@ export function createAtlasScene(renderer, host, callbacks) {
       for (const line of changes.children)
         line.material.opacity = 0.4 + amount * 0.4;
     },
-    diagnostics() {
+    diagnostics({ includeGraph = false } = {}) {
       return {
+        ...(includeGraph ? {
+          importPairs: imports.visible ? imports.children.flatMap(object => object.userData.edges.map(edge =>
+            [typeof edge.source === "object" ? edge.source.id : edge.source, typeof edge.target === "object" ? edge.target.id : edge.target])) : [],
+          importOpacities: imports.children.map(object => object.material.opacity),
+          importSamples: imports.children.flatMap(object => object.userData.samples).filter((_,i)=>i%7===0).slice(0,1200),
+        } : {}),
         landmarks: landmarks.children.length,
+        batchedImports: imports.visible ? imports.children.reduce((n,object) => n+object.userData.edges.length,0) : 0,
+        importDrawCalls: imports.visible ? imports.children.length : 0,
+        importSegments: imports.visible ? imports.children.reduce((n,object)=>n+object.userData.segmentEdges.length,0) : 0,
+        curvedImports: imports.visible ? imports.children.reduce((n,object)=>n+object.userData.samples.filter(s=>s.curved).length,0) : 0,
         bundles: pickable.filter((o) => o.userData.type === "bundle").length,
         bundleObjects: bundles.children.length,
         bundlesVisible: bundles.visible,
@@ -335,6 +389,7 @@ export function createAtlasScene(renderer, host, callbacks) {
       clear(changes);
       clear(focus);
       clear(landmarks);
+      clear(imports);
       renderer.scene().remove(root);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerdown", onDown);
