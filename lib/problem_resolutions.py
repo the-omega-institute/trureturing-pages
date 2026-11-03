@@ -43,7 +43,11 @@ def bind_resolutions(problems, blueprints, objects):
                 if kind not in ("proved", "refuted") or not isinstance(gid, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(?:/[A-Za-z_][A-Za-z0-9_]*)*\.[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*", gid):
                     raise ValueError(f"Resolution kind or declaration does not match host: {path}")
                 group = bindings.setdefault(slug, [])
-                if group and (group[0]["source_path"] != path or group[0]["kind"] != kind
+                # A problem may have several source records, including a
+                # strengthening in another Blueprint file.  Keep all records
+                # as one verified resolution group; reject only conflicting
+                # result kinds or a repeated declaration.
+                if group and (group[0]["kind"] != kind
                               or any(member["declaration_gid"] == gid for member in group)):
                     raise ValueError(f"Dangling or duplicate resolution problem: {path}")
                 group.append({"kind": kind, "declaration_gid": gid, "source_path": path,

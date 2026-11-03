@@ -57,6 +57,23 @@ class JointResolutionTests(unittest.TestCase):
         markers = [line for line in self.blueprint.splitlines() if line.startswith("<!-- scribe-open")]
         self.assertEqual(self.bind(), self.bind("\n\n".join(reversed(markers))))
 
+    def test_same_problem_can_have_a_separate_strengthening_blueprint(self):
+        alternate_path = "Blueprint/" + MODULE + "Balanced.md"
+        alternate_gid = MODULE + "Balanced.result"
+        alternate_marker = ('<!-- scribe-open-problem-resolution-v1 '
+                            '{"problem_slug":"' + SLUG + '","declaration_gid":"'
+                            + alternate_gid + '","resolution_kind":"proved"} -->')
+        objects = dict(self.objects)
+        objects["Golden/Frozen/state/" + MODULE + "Balanced.lean.json"] = "fixture"
+        problems = bind_resolutions(
+            [self.problem], {HOST: self.blueprint, alternate_path: alternate_marker}, objects)
+        resolution = problems[0]["resolution"]
+        self.assertEqual(resolution["declaration_gid"], alternate_gid)
+        self.assertEqual(
+            [member["declaration_gid"] for member in resolution["members"]],
+            sorted([*GIDS, alternate_gid]),
+        )
+
     def test_duplicate_conflicting_or_unanchored_claims_fail(self):
         markers = [line for line in self.blueprint.splitlines() if line.startswith("<!-- scribe-open")]
         for text in [self.blueprint + "\n" + markers[0],
