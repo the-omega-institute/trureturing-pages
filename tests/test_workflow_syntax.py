@@ -6,6 +6,10 @@ import yaml
 
 
 class WorkflowSyntaxTests(unittest.TestCase):
+    def test_outreach_research_updates_wake_the_existing_pages_build(self):
+        workflow = yaml.load((Path(__file__).resolve().parents[1] / ".github/workflows/pages.yml").read_text(), Loader=yaml.BaseLoader)
+        self.assertEqual(workflow["on"]["repository_dispatch"]["types"], ["research-updates"])
+
     def test_workflows_parse_before_github_evaluates_branch_filters(self):
         root = Path(__file__).resolve().parents[1] / ".github/workflows"
         for path in sorted(root.glob("*.yml")):

@@ -1,6 +1,8 @@
 name: Deploy truth-release DAG to GitHub Pages
 
 on:
+  repository_dispatch:
+    types: [research-updates]
   workflow_dispatch:
     inputs:
       truth_release_digest:
