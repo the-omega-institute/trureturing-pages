@@ -179,9 +179,18 @@ def pages_feed(feed):
     }
 
 
+def _strip_zenodo_links(paper):
+    """Remove archive-only supplemental links from the Pages publication card."""
+    result = dict(paper)
+    if isinstance(result.get('links'), list):
+        result['links'] = [link for link in result['links']
+                           if not _is_zenodo(link.get('url', ''))]
+    return result
+
+
 def merge_publications(existing, feed):
     """Preserve authored illustrations/qualifications; feed owns current paper facts."""
-    by_identity = {literature_identity(p['url'])[0]: dict(p) for p in existing}
+    by_identity = {literature_identity(p['url'])[0]: _strip_zenodo_links(p) for p in existing}
     for paper in pages_feed(feed)['publications']:
         identity = literature_identity(paper['url'])[0]
         previous = by_identity.pop(identity, {})
@@ -190,10 +199,10 @@ def merge_publications(existing, feed):
         for old_identity, candidate in list(by_identity.items()):
             if candidate['id'] in (paper['id'], 'paper-' + paper['id']):
                 previous = {**previous, **by_identity.pop(old_identity)}
-        by_identity[identity] = {**previous, **paper,
+        by_identity[identity] = _strip_zenodo_links({**previous, **paper,
             'id': previous.get('id', 'paper-' + paper['id']),
             'status': 'Preprint' if paper['status'] == 'preprint' else 'Published',
-            'highlight': previous.get('highlight', ''), 'evidence': paper['evidence_url']}
+            'highlight': previous.get('highlight', ''), 'evidence': paper['evidence_url']})
     return sorted(by_identity.values(), key=lambda p: (p['date'], p['id']), reverse=True)
 
 

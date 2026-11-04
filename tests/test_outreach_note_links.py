@@ -7,7 +7,7 @@ import unittest
 
 from lib.living_library import parse_problem, render_research
 from lib.reading_views import research_followups
-from lib.research_updates import EMPTY, pages_feed, validate_feed
+from lib.research_updates import EMPTY, merge_publications, pages_feed, validate_feed
 from tests.test_living_library import graph, problem_source
 
 
@@ -46,6 +46,18 @@ class OutreachLinksTests(unittest.TestCase):
         public = pages_feed(feed)
         self.assertEqual([p['id'] for p in public['publications']], ['arxiv-paper', 'formal-paper'])
         self.assertNotIn('notes', public)
+
+    def test_existing_publication_cards_drop_zenodo_supplement_links(self):
+        baseline = {**{
+            'id': 'arxiv-paper', 'problem_ids': [], 'topic': 'arXiv result',
+            'title': 'A preprint', 'authors': 'A. Author', 'date': '2026-10-31',
+            'url': 'https://arxiv.org/abs/2611.01064', 'venue': 'arXiv:2611.01064',
+            'status': 'preprint', 'summary': 'A public preprint.',
+            'evidence_url': 'https://arxiv.org/abs/2611.01064'},
+            'links': [{'label': 'Code', 'url': 'https://github.com/example/code'},
+                      {'label': 'Archived supplement', 'url': note()['doi']}]}
+        merged = merge_publications([baseline], EMPTY)
+        self.assertEqual([link['label'] for link in merged[0]['links']], ['Code'])
 
     def test_private_submission_sandbox_and_correspondence_fields_are_rejected(self):
         for change in ({'mathesis_url': note()['mathesis_url'].replace('/papers/', '/submissions/')},
