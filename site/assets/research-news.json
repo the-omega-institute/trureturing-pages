@@ -3,6 +3,19 @@
   "reviewed": "2026-10-30",
   "publications": [
     {
+      "id": "paper-singhvi-deletion-channel-input-entropy",
+      "title": "Maximal input entropy for binary two-deletion and two-insertion channels",
+      "authors": "Haobo Ma, Wenlin Zhang",
+      "date": "2026-10-31",
+      "venue": "arXiv:2611.01064v1",
+      "status": "Preprint",
+      "url": "https://arxiv.org/abs/2611.01064",
+      "image": "assets/publications/singhvi.jpg",
+      "summary": "Independent public preprint by Haobo Ma, Wenlin Zhang.",
+      "highlight": "",
+      "evidence": "Title, author order and first submission date checked against arXiv:2611.01064v1 and its PDF, submitted 31 October 2026. The preview is an unaltered render of that version’s first page."
+    },
+    {
       "id": "insertion-degree-descent",
       "title": "Block-exchange descent for insertion: commuting projections and minimum masks",
       "authors": "Haobo Ma, Wenlin Zhang, Charles E. Hughes",
@@ -142,7 +155,8 @@
           "label": "Institute announcement",
           "url": "https://github.com/the-omega-institute/.github/blob/f98733b9eb0f4423d668128a651ac0389bf3d485/profile/README.md#research-news"
         }
-      ]
+      ],
+      "image": "assets/publications/cross-engine-admission.jpg"
     },
     {
       "id": "subquorum",
@@ -202,7 +216,8 @@
       "doi": "10.1051/ita/2026032",
       "summary": "Exact limits on least-significant-digit-first Zeckendorf normalization, maximal prefix erasure, and sharp iteration depth for Berstel recoding. The published article distinguishes the classical ten-state presentation from its six-state output-delay quotient.",
       "highlight": "From Fibonacci structure to exact computational bounds",
-      "evidence": "Publication title, authors, date and scope verified against the publisher's Crossref record for DOI 10.1051/ita/2026032."
+      "evidence": "Publication title, authors, date and scope verified against the publisher's Crossref record for DOI 10.1051/ita/2026032.",
+      "image": "assets/publications/zeckendorf.jpg"
     },
     {
       "id": "routing",

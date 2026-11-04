@@ -28,15 +28,36 @@ Four more unaltered first-page previews were retrieved and rendered on 2026-10-3
 - `generalized-fidelity.jpg`: https://arxiv.org/pdf/2609.09753v3
   (first submitted 2026-09-09; v3 updated 2026-10-20)
 
+`singhvi.jpg` is an unaltered first-page render retrieved on 2026-11-04 from
+https://arxiv.org/pdf/2611.01064v1 (submitted 2026-10-31). Its title and author
+order were checked against the PDF. It was rendered at 960 pixels on the long
+edge using `pdftoppm -f 1 -singlefile -scale-to 960 -jpeg -jpegopt quality=90,optimize=y`.
+
 Titles, author order, dates and result scope were checked against the public
 arXiv records and these PDFs. The fidelity card retains its first submission
 date and identifies the October revision separately.
 
-The MATH-AI poster uses a typographic workshop label. Its title and acceptance
-are listed at https://mathai-2026.github.io/papers; the event page confirms
-12 December 2026 in Atlanta. The institute's announcement records the authors,
-poster format and announcement month. OpenReview denied automated API/PDF reads
-during this review, so no OpenReview abstract or preview was inferred.
+Two further first-page previews were rendered on 2026-11-04 from locally
+archived PDFs, with the same 960-pixel command:
+
+- `cross-engine-admission.jpg`: the authors' camera-ready manuscript,
+  `fkst-system-paper/output/pdf/mathai-camera-ready-2026-10-03.pdf` in the local
+  research workspace. Its first-page title matches the official acceptance
+  list, and its author order matches the existing publication catalog. The
+  public paper is https://openreview.net/forum?id=xOAZvprLXO. The PDF came from
+  the authors' archive; it was not retrieved from OpenReview during this review.
+- `zeckendorf.jpg`: the published RAIRO article archived as
+  `Documents/Codex/2026-08-17/jia/work/paper/ita20260032.pdf` in the local
+  archive. Its first page carries the exact catalog title, authors, volume 60,
+  article 29, DOI https://doi.org/10.1051/ita/2026032, and the publisher's
+  Creative Commons Attribution notice. The public PDF source is
+  https://www.rairo-ita.org/articles/ita/pdf/2026/01/ita20260032.pdf.
+
+The MATH-AI title and acceptance are listed at
+https://mathai-2026.github.io/papers; the event page confirms 12 December 2026
+in Atlanta. The institute's announcement records the authors, poster format
+and announcement month. No abstract or acceptance claim was inferred from
+the local preview.
 
 The research-news catch-up was compared with the organization profile at
 [`the-omega-institute/.github@f98733b9`](https://github.com/the-omega-institute/.github/blob/f98733b9eb0f4423d668128a651ac0389bf3d485/profile/README.md#research-news).
@@ -46,5 +67,5 @@ the profile's October 3 project statistics are not publication metadata.
 
 Generated using Poppler `pdftoppm -f 1 -singlefile -scale-to 680 -jpeg`.
 The previews link to the original articles and are attributed beside each image.
-The journal record uses a typographic label; its published title and DOI are
-verified against https://api.crossref.org/works/10.1051/ita/2026032.
+The journal's published title and DOI are also verified against
+https://api.crossref.org/works/10.1051/ita/2026032.

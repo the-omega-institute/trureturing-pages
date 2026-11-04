@@ -46,14 +46,30 @@
 .research-editorial .news-section-heading { padding-bottom: 24px; }
 .research-editorial :is(.news-section h2, .news-onward h2) { font: 32px/1.3 Georgia, "Times New Roman", serif; }
 .research-editorial .news-section-heading .eyebrow { display: none; }
-.research-editorial .news-paper { grid-template-columns: 144px minmax(0, 1fr); gap: 36px; padding-block: 32px; }
+.research-editorial .news-paper { grid-template-columns: 192px minmax(0, 1fr); gap: 40px; padding-block: 36px; align-items: start; }
 .research-editorial .news-paper > div:last-child { min-width: 0; }
 .research-editorial .news-paper h3 { font: 27px/1.3 Georgia, "Times New Roman", serif; max-width: 40ch; margin: 10px 0 16px; }
 .research-editorial .news-paper h3 a { color: var(--text); }
 .research-editorial .news-paper p { font-size: 14px; line-height: 1.7; max-width: 80ch; }
 .research-editorial .news-paper .eyebrow { color: #657074; font-size: 11px; }
 .research-editorial :is(.paper-authors, .paper-venue) { font-size: 12px; margin: 4px 0; }
-.research-editorial .paper-preview { width: 144px; height: 204px; border-color: #bfc7c9; }
+.research-editorial .paper-preview {
+  box-sizing: border-box;
+  width: 192px;
+  height: auto;
+  aspect-ratio: 1 / 1.4142;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #cdd3d6;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px #23262908, 0 10px 24px #2326290c;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.research-editorial .paper-preview img { object-fit: contain; }
+.research-editorial .paper-preview:is(:hover, :focus-visible) {
+  border-color: #78998c;
+  box-shadow: 0 3px 6px #2326290b, 0 12px 28px #23262914;
+}
 .research-editorial .journal-mark { width: 144px; min-height: 204px; background: #e3ece9; border-color: #a3b7ae; padding: 14px; }
 .research-editorial .journal-mark strong { font-family: Georgia, "Times New Roman", serif; }
 .research-editorial .publication-mark { overflow-wrap: anywhere; }
@@ -105,7 +121,7 @@
   .research-editorial .news-index { flex-direction: row; gap: 12px 24px; }
   .research-editorial .news-index > span { flex-basis: 100%; }
   .research-editorial .news-paper { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  .research-editorial .paper-preview { width: 100px; height: 142px; }
+  .research-editorial .paper-preview { width: 144px; }
   .research-editorial .journal-mark { width: 132px; min-height: 178px; }
   .research-editorial .news-section-heading { align-items: baseline; }
   .research-editorial :is(.news-section h2, .news-onward h2) { font-size: 27px; }
