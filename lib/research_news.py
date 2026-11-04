@@ -334,13 +334,13 @@ def render_news(output, snapshot, shell, catalog_path=None):
     feed = pages_feed(load_feed(feed_path if feed_path.exists() else None))
     # Keep the served asset on the same Pages-owned surface as the rendered
     # page. Zenodo note records are consumed by Mathesis and never published by
-    # Pages as research papers or note links.
+    # Pages as research papers. Only public Mathesis reading links are retained.
     write(output / 'assets/research-updates.json', json.dumps(
         feed, ensure_ascii=False, indent=2) + '\n')
     catalog['publications'] = merge_publications(catalog['publications'], feed)
     write(output / 'assets/publication-index.json', json.dumps({
         'schema_version': 'publication-index.v1', 'updated_at': feed.get('updated_at'),
-        'publications': catalog['publications'], 'notes': [],
+        'publications': catalog['publications'], 'notes': feed.get('notes', []),
         'collaborations': feed['collaborations']}, ensure_ascii=False, indent=2) + '\n')
     publications, results, activities = [], [], []
     nodes = snapshot["graph"]["nodes"]

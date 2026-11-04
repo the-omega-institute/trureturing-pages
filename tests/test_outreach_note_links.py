@@ -21,11 +21,12 @@ def note():
 
 
 class OutreachLinksTests(unittest.TestCase):
-    def test_note_doi_is_not_a_research_page_followup(self):
+    def test_mathesis_reading_link_belongs_to_conjecture_not_research_highlights(self):
         feed = validate_feed(dict(EMPTY, notes=[note()]))
         html = research_followups('test-question', feed)
         self.assertNotIn(note()['doi'], html)
-        self.assertNotIn(note()['mathesis_url'], html)
+        self.assertIn(note()['mathesis_url'], html)
+        self.assertNotIn(note()['mathesis_url'], research_followups('test-question', feed, include_mathesis=False))
         self.assertNotIn('version 2', html)
         self.assertEqual(research_followups('unrelated-question', feed), '')
 
@@ -39,13 +40,26 @@ class OutreachLinksTests(unittest.TestCase):
                   'title': 'A published paper', 'url': 'https://doi.org/10.1000/example',
                   'venue': 'Example Journal', 'status': 'published',
                   'evidence_url': 'https://doi.org/10.1000/example'}
+        accepted = {**formal, 'id': 'accepted-paper', 'url': 'https://example.org/accepted-paper',
+                    'status': 'accepted', 'evidence_url': 'https://example.org/acceptance'}
         zenodo = {**arxiv, 'id': 'zenodo-note', 'topic': 'Short note',
                   'title': 'An archived note', 'url': note()['doi'], 'venue': 'Zenodo',
                   'evidence_url': note()['evidence_url']}
-        feed = validate_feed(dict(EMPTY, publications=[arxiv, formal, zenodo], notes=[note()]))
+        feed = validate_feed(dict(EMPTY, publications=[arxiv, formal, accepted, zenodo], notes=[note()]))
         public = pages_feed(feed)
-        self.assertEqual([p['id'] for p in public['publications']], ['arxiv-paper', 'formal-paper'])
-        self.assertNotIn('notes', public)
+        self.assertEqual([p['id'] for p in public['publications']], ['arxiv-paper', 'formal-paper', 'accepted-paper'])
+        self.assertEqual(public['notes'], [{k: v for k, v in note().items() if k not in ('doi', 'pdf_url', 'source_url')}])
+        self.assertNotIn('zenodo', json.dumps(public))
+        self.assertEqual(merge_publications([], dict(EMPTY, publications=[accepted]))[0]['status'], 'Accepted')
+
+    def test_archive_only_and_non_arxiv_preprints_do_not_become_publications(self):
+        from lib.research_updates import is_pages_publication
+        for url in ('https://arxiv.org/abs/not-an-id', 'https://example.org/draft', note()['doi']):
+            self.assertFalse(is_pages_publication({'url': url, 'status': 'preprint'}))
+        self.assertTrue(is_pages_publication({'url': 'https://arxiv.org/abs/math/0301234', 'status': 'preprint'}))
+        self.assertFalse(is_pages_publication({'url': note()['doi'], 'status': 'published'}))
+        archive = {k: v for k, v in note().items() if k != 'mathesis_url'}
+        self.assertEqual(pages_feed(dict(EMPTY, notes=[archive]))['notes'], [])
 
     def test_existing_publication_cards_drop_zenodo_supplement_links(self):
         baseline = {**{
@@ -84,7 +98,7 @@ class OutreachLinksTests(unittest.TestCase):
         project['status'] = 'confirmed_active'
         self.assertIn('In collaboration with', research_followups('test-question', dict(EMPTY, collaborations=[project])))
 
-    def test_dossier_and_deployment_index_do_not_expose_note_links(self):
+    def test_dossier_and_index_keep_mathesis_mapping_without_archive_links(self):
         feed = dict(EMPTY, updated_at='2026-10-31T00:00:00Z', notes=[note()])
         problem = parse_problem(problem_source(), 'test-question.md')
         snapshot = {'graph': graph(), 'problems': [problem], 'truth_release_digest': 'sha256:' + 'a' * 64}
@@ -94,10 +108,13 @@ class OutreachLinksTests(unittest.TestCase):
             (output / 'assets/research-updates.json').write_text(json.dumps(feed))
             render_research(snapshot, output, {'path': 'data/test.json', 'digest': 'sha256:' + 'b' * 64})
             dossier = (output / 'research/test-question/index.html').read_text()
-            self.assertNotIn(note()['mathesis_url'], dossier)
+            self.assertIn(note()['mathesis_url'], dossier)
             self.assertNotIn(note()['doi'], dossier)
             index = json.loads((output / 'assets/publication-index.json').read_text())
-            self.assertEqual(index['notes'], [])
+            self.assertEqual(index['notes'], pages_feed(feed)['notes'])
+            research = (output / 'research.html').read_text()
+            self.assertNotIn(note()['doi'], research)
+            self.assertNotIn(note()['mathesis_url'], research)
             self.assertNotIn(note()['doi'], (output / 'assets/research-updates.json').read_text())
 
 

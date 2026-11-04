@@ -192,8 +192,10 @@ shape. **All example data below is fictional.**
 }
 ```
 
-Publication status is `preprint` or `published`; a draft, submission or acceptance
-without a publicly accessible paper does not qualify. A paper without a matching
+Publication status is `preprint`, `accepted` or `published`. Research publications
+are public arXiv papers or papers with evidenced formal acceptance/publication;
+drafts, submissions, reserved DOIs and Zenodo short notes do not qualify.
+A paper without a matching
 conjecture may have an empty `problem_ids` list and still appear on Research.
 Collaboration requires mutually confirmed, current work on a specific project,
 a publishable collaborator name/affiliation and public evidence. Interest, praise,
@@ -210,8 +212,12 @@ withdrawn feed-only papers. Existing editorial publications remain the bootstrap
 archive; withdrawing one of those also requires updating that original record.
 Canonical arXiv/version/DOI aliases deduplicate; existing paper anchors, images and
 scope qualifications are retained. No heuristic credit matching is performed.
-When a short note gains a new Zenodo version or a later journal paper, keep the
-same feed `id` and update its citation fields. Matching that stable ID also
+Zenodo versions and their DOIs are archived/displayed by Mathesis. Optional
+`notes[]` on Pages retains only a verified public `mathesis_url` plus its stable
+ID, problem IDs, title, revision and evidence URL. These are reading links on
+conjecture/dossier/result entries, not Research publication cards or highlight
+citations; DOI and archive-file fields are removed. When a note gains an arXiv
+or formally accepted/published paper, keep the same feed `id`. Matching that stable ID also
 replaces an editorial bootstrap citation even when the DOI changes. Use the
 existing editorial ID when first connecting a bootstrap paper to the feed;
 new feed-only entries receive the page anchor `paper-<id>`.

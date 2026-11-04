@@ -292,7 +292,7 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
                 + '<details class="editorial-details"><summary>Mathematical idea &amp; verification details</summary>'
                 + f'<p>{esc(pin["locator"])}</p>' + story_paragraphs(story)
                 + f'<a href="{esc(news["url"])}">Explore the result ↗</a></details>'
-                + research_followups(news['problem_id'], feed) + '</article>')
+                + research_followups(news['problem_id'], feed, include_mathesis=False) + '</article>')
             continue
         venue = quote = answer = ''
         headline = story['headline']
@@ -307,7 +307,7 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
             + ('' if quote else f'<p class="discovery-question">{esc(story.get("question") or news["title"])}</p>')
             + (f'<p class="discovery-finding">{esc(story["finding"])}</p>' if story.get('finding') else '')
             + '<div class="highlight-story">' + story_paragraphs(story, compact=True) + '</div>'
-            + research_followups(news['problem_id'], feed)
+            + research_followups(news['problem_id'], feed, include_mathesis=False)
             + f'<div class="news-links"><a href="{esc(news["url"])}">Explore the result ↗</a>'
             + (f'<a href="{esc(source)}">Original question ↗</a>' if source else '')
             + '</div></div></article>')
@@ -429,9 +429,9 @@ def relationship_summary(project):
     return sentence
 
 
-def research_followups(slug, feed):
-    # Zenodo note citations are a Mathesis surface. Research pages may show an
-    # arXiv preprint, a formal publication, or a factual collaboration only.
+def research_followups(slug, feed, *, include_mathesis=True):
+    # Conjectures link to their public Mathesis papers. Research highlights
+    # show eligible publications/relationships without short-note citations.
     from lib.research_updates import pages_feed
     feed = pages_feed(feed)
     sentences = []
@@ -440,6 +440,10 @@ def research_followups(slug, feed):
             label = 'arXiv' if urlsplit(paper['url']).hostname in ('arxiv.org', 'www.arxiv.org') else 'Paper'
             sentences.append(f'<p>Further research on {esc(paper["topic"])} — '
                              f'see more details here: <a href="{esc(paper["url"])}">{label}</a>.</p>')
+    if include_mathesis:
+        for note in feed.get('notes', []):
+            if slug in note['problem_ids']:
+                sentences.append(f'<p><a href="{esc(note["mathesis_url"])}">Read the paper on Mathesis ↗</a></p>')
     for project in feed['collaborations']:
         if slug in project['problem_ids']:
             sentences.append('<p>' + relationship_summary(project)
