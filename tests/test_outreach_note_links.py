@@ -21,6 +21,38 @@ def note():
 
 
 class OutreachLinksTests(unittest.TestCase):
+    def test_pre_reviewed_collection_link_reaches_dossier_without_research_publication(self):
+        selected = {**note(), 'mathesis_url':
+                    'https://mathesis-omega-research.apps.chrono-ai.fun/papers/checked-note?version=3'}
+        feed = dict(EMPTY, notes=[selected])
+        public = pages_feed(feed)
+        self.assertEqual(public['notes'][0]['revision'], 2)
+        self.assertEqual(public['notes'][0]['mathesis_url'], selected['mathesis_url'])
+        self.assertNotIn('doi', public['notes'][0])
+        problem = parse_problem(problem_source(), 'test-question.md')
+        snapshot = {'graph': graph(), 'problems': [problem], 'truth_release_digest': 'sha256:' + 'a' * 64}
+        with tempfile.TemporaryDirectory() as root:
+            output = Path(root)
+            (output / 'assets').mkdir()
+            (output / 'assets/research-updates.json').write_text(json.dumps(feed))
+            render_research(snapshot, output, {'path': 'data/test.json', 'digest': 'sha256:' + 'b' * 64})
+            self.assertIn(selected['mathesis_url'], (output / 'research/test-question/index.html').read_text())
+            index = json.loads((output / 'assets/publication-index.json').read_text())
+            self.assertEqual(index['notes'], public['notes'])
+            research = (output / 'research.html').read_text()
+            self.assertNotIn(selected['mathesis_url'], research)
+            self.assertNotIn(selected['doi'], research)
+
+    def test_collection_link_rejects_unpinned_wrong_work_and_private_routes(self):
+        for path in ['/papers/checked-note', '/papers/other-note?version=3',
+                     '/papers/checked-note?version=0', '/papers/checked-note?version=03',
+                     '/papers/checked-note?version=4294967296',
+                     '/papers/checked-note?version=3&private=true',
+                     '/papers/checked-note?version=3#other', '/submissions/checked-note?version=3']:
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                validate_feed(dict(EMPTY, notes=[{**note(), 'mathesis_url':
+                              'https://mathesis-omega-research.apps.chrono-ai.fun' + path}]))
+
     def test_mathesis_reading_link_belongs_to_conjecture_not_research_highlights(self):
         feed = validate_feed(dict(EMPTY, notes=[note()]))
         html = research_followups('test-question', feed)
