@@ -337,7 +337,8 @@ def render_news(output, snapshot, shell, catalog_path=None):
     # Pages as research papers. Only public Mathesis reading links are retained.
     write(output / 'assets/research-updates.json', json.dumps(
         feed, ensure_ascii=False, indent=2) + '\n')
-    catalog['publications'] = merge_publications(catalog['publications'], feed)
+    from lib.publication_previews import apply_previews
+    catalog['publications'] = apply_previews(merge_publications(catalog['publications'], feed), output)
     write(output / 'assets/publication-index.json', json.dumps({
         'schema_version': 'publication-index.v1', 'updated_at': feed.get('updated_at'),
         'publications': catalog['publications'], 'notes': feed.get('notes', []),

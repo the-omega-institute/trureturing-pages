@@ -1,5 +1,16 @@
 # Publication previews
 
+Feed-only arXiv publications receive first-page images automatically during
+Pages preparation through `python -m lib.publication_previews --site site`.
+The source is the announced arXiv revision (prefer the evidence URL); the
+first-page title must match the publication. Preparation pins the generated
+JPEGs and `assets/publication-previews.json` alongside the public feed in one
+artifact before fingerprinting build inputs. The offline renderer verifies
+image digests and revision bindings before attaching them to their canonical
+paper identities. Browser acceptance also includes feed-only publications and
+checks that their actual images load. Existing reviewed editorial previews
+remain in this directory. New screenshots do not require manual catalog rows.
+
 `eqt2.jpg` and `routing.jpg` are reduced, unaltered first-page renders of the
 authors' arXiv PDFs, retrieved on 2026-09-07:
 
