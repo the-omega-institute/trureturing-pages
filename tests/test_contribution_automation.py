@@ -155,7 +155,7 @@ class ContributionAutomationTests(unittest.TestCase):
         for status in ['active', 'interested', 'coauthorship_pending', 'completed']:
             with self.assertRaises(ValueError):
                 validate_feed(dict(EMPTY, collaborations=[dict(collaboration(), status=status)]))
-        for status in ['draft', 'submitted', 'accepted']:
+        for status in ['draft', 'submitted']:
             with self.assertRaises(ValueError):
                 validate_feed(dict(EMPTY, publications=[dict(paper(), status=status)]))
         with self.assertRaises(ValueError):
@@ -251,7 +251,8 @@ class ContributionAutomationTests(unittest.TestCase):
             with patch('lib.research_updates.subprocess.run', side_effect=fetch):
                 refresh_from_release(path)
                 self.assertEqual(json.loads(path.read_text()), pages_feed(feed))
-                self.assertEqual(json.loads(path.read_text()).get('notes'), None)
+                self.assertEqual(len(json.loads(path.read_text())['notes']), 1600)
+                self.assertNotIn('zenodo', path.read_text())
                 self.assertFalse(any('zenodo' in paper['url'].lower()
                                      for paper in json.loads(path.read_text())['publications']))
                 before = path.read_bytes()

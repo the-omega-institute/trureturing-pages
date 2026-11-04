@@ -66,7 +66,7 @@ def validate_feed(feed):
                 for key in ('title', 'authors', 'venue', 'summary'):
                     text_field(item, key)
                 date.fromisoformat(item['date'])
-                if item['status'] not in ('preprint', 'published'):
+                if item['status'] not in ('preprint', 'accepted', 'published'):
                     raise ValueError('A submission or draft is not a public paper')
                 identity = literature_identity(item['url'])[0]
                 if identity in publications:
@@ -137,12 +137,7 @@ def _host(value):
 
 
 def _is_arxiv(value):
-    parts = urlsplit(value)
-    host = _host(value)
-    if host == 'arxiv.org':
-        return bool(re.fullmatch(r'/(?:abs|html|pdf)/[^/]+(?:\.pdf)?/?', parts.path))
-    return (host in ('doi.org', 'dx.doi.org')
-            and bool(re.fullmatch(r'/10\.48550/arxiv\.\d{4}\.\d{4,5}(?:v\d+)?', parts.path, re.I)))
+    return literature_identity(value)[0].startswith('arxiv:')
 
 
 def _is_zenodo(value):
@@ -157,7 +152,7 @@ def is_pages_publication(paper):
     """Return whether a paper belongs on the public Research page.
 
     Zenodo is the archive for short notes and its DOI is shown by Mathesis.
-    Pages shows an arXiv preprint or a formally published record only.  Keep
+    Pages shows an arXiv preprint or a formally accepted/published record. Keep
     this boundary in the downstream renderer so an old or mixed Outreach feed
     cannot leak archive-only citations into the Research page.
     """
@@ -165,7 +160,7 @@ def is_pages_publication(paper):
         return False
     if _is_arxiv(paper['url']):
         return True
-    return paper.get('status') == 'published'
+    return paper.get('status', '').lower().split(' / ')[0] in ('accepted', 'accepted poster', 'published')
 
 
 def pages_feed(feed):
@@ -176,12 +171,27 @@ def pages_feed(feed):
         **({'updated_at': feed['updated_at']} if feed.get('updated_at') else {}),
         'publications': [paper for paper in feed['publications'] if is_pages_publication(paper)],
         'collaborations': list(feed['collaborations']),
+        # A verified public Mathesis page is the conjecture's reading entry.
+        # Archive DOI/files belong to Mathesis, not the Pages publication shelf.
+        'notes': [{key: note[key] for key in
+                   ('id', 'problem_ids', 'title', 'revision', 'evidence_url', 'mathesis_url')}
+                  for note in feed.get('notes', []) if note.get('mathesis_url')],
     }
+
+
+def _strip_zenodo_links(paper):
+    """Remove archive-only supplemental links from the Pages publication card."""
+    result = dict(paper)
+    if isinstance(result.get('links'), list):
+        result['links'] = [link for link in result['links']
+                           if not _is_zenodo(link.get('url', ''))]
+    return result
 
 
 def merge_publications(existing, feed):
     """Preserve authored illustrations/qualifications; feed owns current paper facts."""
-    by_identity = {literature_identity(p['url'])[0]: dict(p) for p in existing}
+    by_identity = {literature_identity(p['url'])[0]: _strip_zenodo_links(p)
+                   for p in existing if is_pages_publication(p)}
     for paper in pages_feed(feed)['publications']:
         identity = literature_identity(paper['url'])[0]
         previous = by_identity.pop(identity, {})
@@ -190,10 +200,10 @@ def merge_publications(existing, feed):
         for old_identity, candidate in list(by_identity.items()):
             if candidate['id'] in (paper['id'], 'paper-' + paper['id']):
                 previous = {**previous, **by_identity.pop(old_identity)}
-        by_identity[identity] = {**previous, **paper,
+        by_identity[identity] = _strip_zenodo_links({**previous, **paper,
             'id': previous.get('id', 'paper-' + paper['id']),
-            'status': 'Preprint' if paper['status'] == 'preprint' else 'Published',
-            'highlight': previous.get('highlight', ''), 'evidence': paper['evidence_url']}
+            'status': {'preprint': 'Preprint', 'accepted': 'Accepted', 'published': 'Published'}[paper['status']],
+            'highlight': previous.get('highlight', ''), 'evidence': paper['evidence_url']})
     return sorted(by_identity.values(), key=lambda p: (p['date'], p['id']), reverse=True)
 
 

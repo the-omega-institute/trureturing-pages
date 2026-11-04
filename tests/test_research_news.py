@@ -406,7 +406,10 @@ class ResearchNewsTests(unittest.TestCase):
         self.assertFalse(parsed.select(id='activities'))
         for item in json.loads(CATALOG.read_text())["publications"]:
             for link in item.get("links", []):
-                self.assertIn('href="' + link["url"] + '"', news)
+                if '10.5281/zenodo.' in link["url"].lower():
+                    self.assertNotIn('href="' + link["url"] + '"', news)
+                else:
+                    self.assertIn('href="' + link["url"] + '"', news)
 
     def test_information_architecture_gives_each_page_one_primary_job(self):
         snapshot = {"graph": graph(), "problems": [parse_problem(problem_source(), "test-question.md")], "truth_release_digest": "sha256:" + "a" * 64}
