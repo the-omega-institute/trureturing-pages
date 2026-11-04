@@ -61,6 +61,16 @@ def main():
             card=page.locator('[id="'+paper['id']+'"]')
             assert card.locator('h3').inner_text()==paper['title']
             assert card.locator('h3 a').get_attribute('href')==paper['url']
+        published=json.loads((args.site/'assets/publication-index.json').read_text())
+        for paper in published['publications']:
+            if 'arxiv.org/abs/' in paper['url']:
+                card=page.locator('[id="'+paper['id']+'"]')
+                assert card.locator('.journal-mark').count()==0,paper['title']
+                img=card.locator('.paper-preview img')
+                img.scroll_into_view_if_needed()
+                img.evaluate('e=>e.decode()')
+                assert img.evaluate('e=>e.naturalWidth>0'),paper['title']
+        page.locator('#publications').scroll_into_view_if_needed()
         page.screenshot(path=str(args.output/'research-publications-desktop.png'),full_page=True)
         events.append('Research presents papers and preprints without the duplicate result archive')
         page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')

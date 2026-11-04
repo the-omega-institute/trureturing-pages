@@ -101,6 +101,11 @@ def build(output):
     try:acquire('data/version-status.v1.json')
     except HTTPError as error:
         if error.code!=404:raise
+    # Include current feed-only papers in browser acceptance, just as deployment
+    # does. An editorial-only preview missed the newest arXiv placeholder cards.
+    acquire('assets/research-updates.json')
+    from lib.publication_previews import prepare_previews
+    prepare_previews(output)
     render_knowledge_site(graph,output)
     render_research(snapshots[-1],output,current)
     startup=json.loads(acquire('data/atlas-startup.v1.json'))
