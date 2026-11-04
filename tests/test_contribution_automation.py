@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 from lib.contributions import DIMENSIONS, build_index, documented_year, score
-from lib.research_updates import EMPTY, load_feed, merge_publications, refresh_from_release, validate_feed
+from lib.research_updates import EMPTY, load_feed, merge_publications, pages_feed, refresh_from_release, validate_feed
 from lib.reading_views import research_followups
 from lib.living_library import parse_problem
 from tests.test_living_library import problem_source
@@ -202,7 +202,8 @@ class ContributionAutomationTests(unittest.TestCase):
 
     def test_same_topic_or_problem_does_not_replace_another_paper(self):
         baseline = paper()
-        another = dict(paper(), id='independent-paper', url='https://doi.org/10.1234/independent')
+        another = dict(paper(), id='independent-paper', url='https://doi.org/10.1234/independent',
+                       venue='Example Journal', status='published')
         merged = merge_publications([baseline], dict(EMPTY, publications=[another]))
         self.assertEqual(len(merged), 2)
 
@@ -249,7 +250,10 @@ class ContributionAutomationTests(unittest.TestCase):
             path = Path(temp) / 'feed.json'
             with patch('lib.research_updates.subprocess.run', side_effect=fetch):
                 refresh_from_release(path)
-                self.assertEqual(json.loads(path.read_text()), feed)
+                self.assertEqual(json.loads(path.read_text()), pages_feed(feed))
+                self.assertEqual(json.loads(path.read_text()).get('notes'), None)
+                self.assertFalse(any('zenodo' in paper['url'].lower()
+                                     for paper in json.loads(path.read_text())['publications']))
                 before = path.read_bytes()
                 payload = ' ' * (8 * 1024 * 1024 + 1)
                 with self.assertRaisesRegex(ValueError, '8 MiB'):

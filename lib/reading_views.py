@@ -430,16 +430,11 @@ def relationship_summary(project):
 
 
 def research_followups(slug, feed):
+    # Zenodo note citations are a Mathesis surface. Research pages may show an
+    # arXiv preprint, a formal publication, or a factual collaboration only.
+    from lib.research_updates import pages_feed
+    feed = pages_feed(feed)
     sentences = []
-    for note in feed.get('notes', []):
-        if slug in note['problem_ids']:
-            links = []
-            for key, label in (('doi', 'DOI'), ('pdf_url', 'Read short note'),
-                               ('source_url', 'Source archive'), ('mathesis_url', 'Mathesis paper')):
-                if note.get(key):
-                    links.append(f'<a href="{esc(note[key])}">{label} ↗</a>')
-            sentences.append(f'<p class="research-note" data-note-id="{esc(note["id"])}">'
-                             f'{esc(note["title"])} · version {note["revision"]}: ' + ' · '.join(links) + '</p>')
     for paper in feed['publications']:
         if slug in paper['problem_ids']:
             label = 'arXiv' if urlsplit(paper['url']).hostname in ('arxiv.org', 'www.arxiv.org') else 'Paper'

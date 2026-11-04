@@ -7,7 +7,7 @@ import unittest
 
 from lib.living_library import parse_problem, render_research
 from lib.reading_views import research_followups
-from lib.research_updates import EMPTY, validate_feed
+from lib.research_updates import EMPTY, pages_feed, validate_feed
 from tests.test_living_library import graph, problem_source
 
 
@@ -21,13 +21,31 @@ def note():
 
 
 class OutreachLinksTests(unittest.TestCase):
-    def test_problem_links_show_the_exact_note_doi_and_public_mathesis_page(self):
+    def test_note_doi_is_not_a_research_page_followup(self):
         feed = validate_feed(dict(EMPTY, notes=[note()]))
         html = research_followups('test-question', feed)
-        for key in ('doi', 'pdf_url', 'source_url', 'mathesis_url'):
-            self.assertIn('href="' + note()[key] + '"', html)
-        self.assertIn('version 2', html)
+        self.assertNotIn(note()['doi'], html)
+        self.assertNotIn(note()['mathesis_url'], html)
+        self.assertNotIn('version 2', html)
         self.assertEqual(research_followups('unrelated-question', feed), '')
+
+    def test_pages_feed_keeps_arxiv_and_formal_publications_but_drops_zenodo(self):
+        arxiv = {'id': 'arxiv-paper', 'problem_ids': [], 'topic': 'arXiv result',
+                 'title': 'A preprint', 'authors': 'A. Author', 'date': '2026-10-31',
+                 'url': 'https://arxiv.org/abs/2611.01064', 'venue': 'arXiv:2611.01064',
+                 'status': 'preprint', 'summary': 'A public preprint.',
+                 'evidence_url': 'https://arxiv.org/abs/2611.01064'}
+        formal = {**arxiv, 'id': 'formal-paper', 'topic': 'Published result',
+                  'title': 'A published paper', 'url': 'https://doi.org/10.1000/example',
+                  'venue': 'Example Journal', 'status': 'published',
+                  'evidence_url': 'https://doi.org/10.1000/example'}
+        zenodo = {**arxiv, 'id': 'zenodo-note', 'topic': 'Short note',
+                  'title': 'An archived note', 'url': note()['doi'], 'venue': 'Zenodo',
+                  'evidence_url': note()['evidence_url']}
+        feed = validate_feed(dict(EMPTY, publications=[arxiv, formal, zenodo], notes=[note()]))
+        public = pages_feed(feed)
+        self.assertEqual([p['id'] for p in public['publications']], ['arxiv-paper', 'formal-paper'])
+        self.assertNotIn('notes', public)
 
     def test_private_submission_sandbox_and_correspondence_fields_are_rejected(self):
         for change in ({'mathesis_url': note()['mathesis_url'].replace('/papers/', '/submissions/')},
@@ -54,7 +72,7 @@ class OutreachLinksTests(unittest.TestCase):
         project['status'] = 'confirmed_active'
         self.assertIn('In collaboration with', research_followups('test-question', dict(EMPTY, collaborations=[project])))
 
-    def test_dossier_and_deployment_index_carry_the_same_public_note(self):
+    def test_dossier_and_deployment_index_do_not_expose_note_links(self):
         feed = dict(EMPTY, updated_at='2026-10-31T00:00:00Z', notes=[note()])
         problem = parse_problem(problem_source(), 'test-question.md')
         snapshot = {'graph': graph(), 'problems': [problem], 'truth_release_digest': 'sha256:' + 'a' * 64}
@@ -64,10 +82,11 @@ class OutreachLinksTests(unittest.TestCase):
             (output / 'assets/research-updates.json').write_text(json.dumps(feed))
             render_research(snapshot, output, {'path': 'data/test.json', 'digest': 'sha256:' + 'b' * 64})
             dossier = (output / 'research/test-question/index.html').read_text()
-            self.assertIn(note()['mathesis_url'], dossier)
-            self.assertIn(note()['doi'], dossier)
+            self.assertNotIn(note()['mathesis_url'], dossier)
+            self.assertNotIn(note()['doi'], dossier)
             index = json.loads((output / 'assets/publication-index.json').read_text())
-            self.assertEqual(index['notes'], [note()])
+            self.assertEqual(index['notes'], [])
+            self.assertNotIn(note()['doi'], (output / 'assets/research-updates.json').read_text())
 
 
 if __name__ == '__main__':

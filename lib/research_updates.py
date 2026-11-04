@@ -1,6 +1,8 @@
-"""The small public projection of outreach: papers OR confirmed joint work.
+"""The small Pages projection of Outreach: papers OR confirmed joint work.
 
 The feed is a full replacement. It must never contain private tracker records.
+The upstream feed may carry note metadata for the delivery contract, but
+``pages_feed`` removes Zenodo-only note citations: those are Mathesis-owned.
 No network access occurs while rendering, and publication identity is canonical.
 """
 from __future__ import annotations
@@ -12,6 +14,7 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+from urllib.parse import urlsplit
 
 from lib.literature import literature_identity, validate_http_url
 
@@ -126,10 +129,60 @@ def load_feed(path=None):
     return validate_feed(json.loads(path.read_text())) if path.exists() else dict(EMPTY)
 
 
+def _host(value):
+    try:
+        return (urlsplit(value).hostname or '').lower().removeprefix('www.')
+    except (AttributeError, ValueError):
+        return ''
+
+
+def _is_arxiv(value):
+    parts = urlsplit(value)
+    host = _host(value)
+    if host == 'arxiv.org':
+        return bool(re.fullmatch(r'/(?:abs|html|pdf)/[^/]+(?:\.pdf)?/?', parts.path))
+    return (host in ('doi.org', 'dx.doi.org')
+            and bool(re.fullmatch(r'/10\.48550/arxiv\.\d{4}\.\d{4,5}(?:v\d+)?', parts.path, re.I)))
+
+
+def _is_zenodo(value):
+    host = _host(value)
+    parts = urlsplit(value)
+    return (host == 'zenodo.org'
+            or (host in ('doi.org', 'dx.doi.org')
+                and bool(re.fullmatch(r'/10\.5281/zenodo\.\d+', parts.path, re.I))))
+
+
+def is_pages_publication(paper):
+    """Return whether a paper belongs on the public Research page.
+
+    Zenodo is the archive for short notes and its DOI is shown by Mathesis.
+    Pages shows an arXiv preprint or a formally published record only.  Keep
+    this boundary in the downstream renderer so an old or mixed Outreach feed
+    cannot leak archive-only citations into the Research page.
+    """
+    if _is_zenodo(paper['url']):
+        return False
+    if _is_arxiv(paper['url']):
+        return True
+    return paper.get('status') == 'published'
+
+
+def pages_feed(feed):
+    """Project the feed surface owned by Pages; note DOIs stay with Mathesis."""
+    validate_feed(feed)
+    return {
+        'schema_version': SCHEMA,
+        **({'updated_at': feed['updated_at']} if feed.get('updated_at') else {}),
+        'publications': [paper for paper in feed['publications'] if is_pages_publication(paper)],
+        'collaborations': list(feed['collaborations']),
+    }
+
+
 def merge_publications(existing, feed):
     """Preserve authored illustrations/qualifications; feed owns current paper facts."""
     by_identity = {literature_identity(p['url'])[0]: dict(p) for p in existing}
-    for paper in feed['publications']:
+    for paper in pages_feed(feed)['publications']:
         identity = literature_identity(paper['url'])[0]
         previous = by_identity.pop(identity, {})
         # A revised note or journal paper can replace the citation while the
@@ -160,7 +213,7 @@ def refresh_from_release(destination):
         path = Path(temp) / 'research-updates.v1.json'
         if path.stat().st_size > MAX_FEED_BYTES:
             raise ValueError('Research feed exceeds 8 MiB')
-        feed = validate_feed(json.loads(path.read_text()))
+        feed = pages_feed(validate_feed(json.loads(path.read_text())))
         if not feed.get('updated_at'):
             raise ValueError('Released research feed needs updated_at')
         destination = Path(destination)
