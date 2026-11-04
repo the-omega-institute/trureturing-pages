@@ -112,13 +112,18 @@ def validate_feed(feed):
             if key not in note:
                 continue
             parts = validate_http_url(note[key])
-            if parts.scheme != 'https' or parts.query or parts.fragment:
+            if parts.scheme != 'https' or parts.fragment:
                 raise ValueError('Use the public HTTPS artifact URL')
             if key == 'mathesis_url':
+                venue = bool(re.fullmatch(r'/papers/WP-\d{4}-\d{4,}', parts.path)) and not parts.query
+                collected = (parts.path == '/papers/' + note['id']
+                             and bool(re.fullmatch(r'version=[1-9]\d*', parts.query))
+                             and int(parts.query[8:]) <= 2**32 - 1)
                 valid = (parts.netloc == 'mathesis-omega-research.apps.chrono-ai.fun'
-                         and re.fullmatch(r'/papers/WP-\d{4}-\d{4,}', parts.path))
+                         and (venue or collected))
             else:
-                valid = parts.netloc == 'zenodo.org' and re.fullmatch(r'/records/\d+/files/[^/]+', parts.path)
+                valid = (parts.netloc == 'zenodo.org' and not parts.query
+                         and re.fullmatch(r'/records/\d+/files/[^/]+', parts.path))
             if not valid:
                 raise ValueError('Use a public note artifact, never a private submission URL')
     return feed
