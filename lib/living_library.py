@@ -256,10 +256,10 @@ def page_shell(title: str, root: str, body: str, active="Research", appearance=N
 
 
 def render_research(snapshot: dict, output: Path, entry: dict):
-    from lib.research_updates import load_feed
+    from lib.research_updates import load_feed, pages_feed
     from lib.reading_views import research_followups
     feed_path = output / 'assets/research-updates.json'
-    feed = load_feed(feed_path if feed_path.exists() else None)
+    feed = pages_feed(load_feed(feed_path if feed_path.exists() else None))
     generated_assets = snapshot.get("schema_version") == SNAPSHOT and (output / "assets/research-news.json").exists()
     if generated_assets:
         from lib.research_catalog import write_catalog
