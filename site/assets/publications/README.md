@@ -33,6 +33,17 @@ https://arxiv.org/pdf/2611.01064v1 (submitted 2026-10-31). Its title and author
 order were checked against the PDF. It was rendered at 960 pixels on the long
 edge using `pdftoppm -f 1 -singlefile -scale-to 960 -jpeg -jpegopt quality=90,optimize=y`.
 
+Two newer arXiv first-page previews were retrieved and rendered on 2026-11-04
+with the same 960-pixel command:
+
+- `two-qutrit-time-invariant-negativity.jpg`:
+  https://arxiv.org/pdf/2611.04568v1 (submitted 2026-11-03). The first page
+  identifies the title, Wenlin Zhang, Mazhar Ali and Haobo Ma, and version v1.
+- `cotfas-gaussian-discrete-approximation.jpg`:
+  https://arxiv.org/pdf/2610.05623v2 (posted 2026-11-03). The first page
+  identifies the revised title, Nicolae Cotfas, Haobo Ma and Wenlin Zhang, and
+  version v2.
+
 Titles, author order, dates and result scope were checked against the public
 arXiv records and these PDFs. The fidelity card retains its first submission
 date and identifies the October revision separately.

@@ -1,7 +1,33 @@
 {
   "schema_version": "pages-research-news.v1",
-  "reviewed": "2026-10-30",
+  "reviewed": "2026-11-04",
   "publications": [
+    {
+      "id": "paper-two-qutrit-time-invariant-negativity",
+      "title": "Time-invariant negativity and persistent bound entanglement in a cyclic two-qutrit family",
+      "authors": "Wenlin Zhang, Mazhar Ali, Haobo Ma",
+      "date": "2026-11-03",
+      "venue": "arXiv:2611.04568v1",
+      "status": "Preprint / quant-ph",
+      "url": "https://arxiv.org/abs/2611.04568",
+      "image": "assets/publications/two-qutrit-time-invariant-negativity.jpg",
+      "summary": "For a cyclic two-qutrit family under collective dephasing, the paper gives exact PPT and separability regions along the whole trajectory with explicit certificates, and a closed-form negativity. The entanglement is time-invariant exactly when the weight of the maximally entangled state exceeds r/(1+r+r^2); below that threshold it either dies suddenly or, for r different from 1 in an intermediate range, loses distillability and stays bound entangled at all later times.",
+      "highlight": "",
+      "evidence": "Title, author order and arXiv version checked against arXiv:2611.04568v1, whose public record is dated 3 November 2026, and its PDF. The preview is an unaltered render of that version’s first page."
+    },
+    {
+      "id": "paper-cotfas-gaussian-discrete-approximation",
+      "title": "Approximation of a continuous-variable Gaussian state by discrete-variable quantum states",
+      "authors": "Nicolae Cotfas, Haobo Ma, Wenlin Zhang",
+      "date": "2026-11-03",
+      "venue": "arXiv:2610.05623v2",
+      "status": "Preprint / quant-ph",
+      "url": "https://arxiv.org/abs/2610.05623",
+      "image": "assets/publications/cotfas-gaussian-discrete-approximation.jpg",
+      "summary": "For every centered one-mode Gaussian state, the signed Wigner periodization is a discrete-variable density operator in every odd dimension d at least 3, and positivity is equivalent to the one-mode uncertainty condition. A covariance-independent isometric embedding gives exponential convergence in trace norm with an explicit error bound uniform in Planck's constant.",
+      "highlight": "",
+      "evidence": "Title, author order and arXiv version checked against arXiv:2610.05623v2, posted 3 November 2026, and its PDF. The preview is an unaltered render of that version’s first page."
+    },
     {
       "id": "paper-singhvi-deletion-channel-input-entropy",
       "title": "Maximal input entropy for binary two-deletion and two-insertion channels",
