@@ -306,7 +306,7 @@ test('a requested history window reads only its snapshots and still verifies dig
   await assert.rejects(loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest,{limit:2}),/digest mismatch/);
 });
 
-test('full history overlaps bounded reads, preserves archive order, and stops after an invalid batch', async t => {
+test('full history refills bounded reads before a slow snapshot finishes and preserves archive order', async t => {
   const entries=[],files=new Map();
   for (const release of '012345678') {
     const value=graph(release),snapshot=snapshotFromGraph(value,await sha256(JSON.stringify(value)));
@@ -315,21 +315,57 @@ test('full history overlaps bounded reads, preserves archive order, and stops af
     files.set('/'+path,text);
   }
   const index={schema_version:'pages-architecture-history.v1',current_truth_release_digest:entries.at(-1).truth_release_digest,entries};
-  let active=0,peak=0,corrupt=false;
+  let active=0,peak=0,corrupt=false,firstFinished=false,refilledBeforeFirst=false;
+  let releaseFirst;
+  const firstRead=new Promise(resolve=>{releaseFirst=resolve;});
+  const fallback=setTimeout(releaseFirst,1000);
+  t.after(()=>clearTimeout(fallback));
   const requested=[];
   t.mock.method(globalThis,'fetch',async url=>{
     if(url.pathname.endsWith('architecture-history.v1.json'))return Response.json(index);
     requested.push(url.pathname);peak=Math.max(peak,++active);
     const position=entries.findIndex(entry=>'/'+entry.path===url.pathname);
-    await new Promise(resolve=>setTimeout(resolve,(4-position%4)*5));
+    if(position===8&&!firstFinished){refilledBeforeFirst=true;releaseFirst();}
+    if(!corrupt&&position===0)await firstRead;
+    else await new Promise(resolve=>setTimeout(resolve,corrupt?(position===0?0:20):5));
+    if(position===0)firstFinished=true;
     active--;
     return new Response(corrupt&&position===0?'{}':files.get(url.pathname));
   });
   const snapshots=await loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest);
   assert.deepEqual(snapshots.map(s=>s.truth_release_digest),entries.map(e=>e.truth_release_digest));
   assert.equal(new Set(requested).size,entries.length);
-  assert.ok(peak>1&&peak<=4,`unexpected concurrent reads: ${peak}`);
+  assert.equal(peak,8,`unexpected concurrent reads: ${peak}`);
+  assert.equal(refilledBeforeFirst,true,'A slow first snapshot must not leave the other read slots idle');
   requested.length=0;corrupt=true;
   await assert.rejects(loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest),/digest mismatch/);
-  assert.equal(requested.length,4);
+  assert.equal(requested.length,8);
+});
+
+test('a corrupt history snapshot cancels outstanding reads and returns its original verification error', async t => {
+  const entries=[],files=new Map();
+  for(const release of '0123456789ab') {
+    const value=graph(release),snapshot=snapshotFromGraph(value,await sha256(JSON.stringify(value)));
+    const text=JSON.stringify(snapshot),key=await sha256(text),path=`data/architecture/${key.slice(7)}.json`;
+    entries.push({path,digest:key,truth_release_digest:snapshot.truth_release_digest,atlas_graph_digest:snapshot.atlas_graph_digest});
+    files.set('/'+path,text);
+  }
+  const index={schema_version:'pages-architecture-history.v1',current_truth_release_digest:entries.at(-1).truth_release_digest,entries};
+  const requested=[],cancelled=[];
+  t.mock.method(globalThis,'fetch',async(url,{signal}={})=>{
+    if(url.pathname.endsWith('architecture-history.v1.json'))return Response.json(index);
+    const position=entries.findIndex(entry=>'/'+entry.path===url.pathname);
+    requested.push(position);
+    if(position===0)return new Response('{}');
+    await new Promise((resolve,reject)=>{
+      signal.addEventListener('abort',()=>{
+        cancelled.push(position);
+        reject(signal.reason);
+      },{once:true});
+    });
+    return new Response(files.get(url.pathname));
+  });
+  await assert.rejects(loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest),/digest mismatch/);
+  assert.deepEqual(requested,[0,1,2,3,4,5,6,7]);
+  assert.deepEqual(cancelled.sort(),[1,2,3,4,5,6,7]);
 });
