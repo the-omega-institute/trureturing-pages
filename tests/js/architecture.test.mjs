@@ -305,3 +305,31 @@ test('a requested history window reads only its snapshots and still verifies dig
   corrupt=true;
   await assert.rejects(loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest,{limit:2}),/digest mismatch/);
 });
+
+test('full history overlaps bounded reads, preserves archive order, and stops after an invalid batch', async t => {
+  const entries=[],files=new Map();
+  for (const release of '012345678') {
+    const value=graph(release),snapshot=snapshotFromGraph(value,await sha256(JSON.stringify(value)));
+    const text=JSON.stringify(snapshot),key=await sha256(text),path=`data/architecture/${key.slice(7)}.json`;
+    entries.push({path,digest:key,truth_release_digest:snapshot.truth_release_digest,atlas_graph_digest:snapshot.atlas_graph_digest});
+    files.set('/'+path,text);
+  }
+  const index={schema_version:'pages-architecture-history.v1',current_truth_release_digest:entries.at(-1).truth_release_digest,entries};
+  let active=0,peak=0,corrupt=false;
+  const requested=[];
+  t.mock.method(globalThis,'fetch',async url=>{
+    if(url.pathname.endsWith('architecture-history.v1.json'))return Response.json(index);
+    requested.push(url.pathname);peak=Math.max(peak,++active);
+    const position=entries.findIndex(entry=>'/'+entry.path===url.pathname);
+    await new Promise(resolve=>setTimeout(resolve,(4-position%4)*5));
+    active--;
+    return new Response(corrupt&&position===0?'{}':files.get(url.pathname));
+  });
+  const snapshots=await loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest);
+  assert.deepEqual(snapshots.map(s=>s.truth_release_digest),entries.map(e=>e.truth_release_digest));
+  assert.equal(new Set(requested).size,entries.length);
+  assert.ok(peak>1&&peak<=4,`unexpected concurrent reads: ${peak}`);
+  requested.length=0;corrupt=true;
+  await assert.rejects(loadHistory('https://example.test/',index.current_truth_release_digest,entries.at(-1).atlas_graph_digest),/digest mismatch/);
+  assert.equal(requested.length,4);
+});
