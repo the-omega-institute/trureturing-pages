@@ -353,7 +353,7 @@ export async function loadHistory(base, currentRelease, currentGraphDigest, { li
   const controller = new AbortController();
   let next = 0;
   let failure;
-  // Keep four reads occupied without waiting for the slowest item in a batch.
+  // Keep eight reads occupied without waiting for the slowest item in a batch.
   // Store by archive position and join every reader before returning or failing.
   async function readSnapshots() {
     while (!failure && next < entries.length) {
@@ -380,7 +380,7 @@ export async function loadHistory(base, currentRelease, currentGraphDigest, { li
       }
     }
   }
-  await Promise.all(Array.from({ length: Math.min(4, entries.length) }, readSnapshots));
+  await Promise.all(Array.from({ length: Math.min(8, entries.length) }, readSnapshots));
   if (failure) throw failure;
   return snapshots;
 }
