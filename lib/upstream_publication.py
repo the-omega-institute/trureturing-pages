@@ -67,6 +67,11 @@ CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed
 
 class PublicationGitHub(GitHub):
     """Retry report reads and verify ancestry independently of GitHub file diffs."""
+
+    # This client owns a complete commit-graph fallback. Keep the original
+    # HTTPError body available to its is_ancestor handler below.
+    _reverse_comparison_on_diff_timeout = False
+
     def get_json(self, path):
         for attempt in range(3):
             try:

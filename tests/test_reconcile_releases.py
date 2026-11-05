@@ -138,6 +138,73 @@ class ReconciliationPlanTests(unittest.TestCase):
                 reconcile.read_state(Path("unused"), "https://example.test/")
 
 
+class GitHubAncestryTests(unittest.TestCase):
+    older, newer = "a" * 40, "c" * 40
+
+    def diff_error(self):
+        from urllib.error import HTTPError
+        body = {"message": "Server Error: Sorry, this diff is taking too long to generate.",
+                "errors": [{"resource": "Comparison", "field": "diff", "code": "not_available"}]}
+        error = HTTPError("https://api.github.com/compare", 422, "Unprocessable Entity", {},
+                          BytesIO(json.dumps(body).encode()))
+        self.addCleanup(error.close)
+        return error
+
+    def test_large_diff_uses_reverse_evidence_even_with_a_cached_negative_reverse(self):
+        with tempfile.TemporaryDirectory() as temp:
+            cache = Path(temp) / "ancestry.json"
+            client = reconcile.GitHub(token="", ancestry_cache=cache)
+            client.ancestry_cache.record(self.newer, self.older, False)
+            reverse = {"status": "behind", "merge_base_commit": {"sha": self.older},
+                       "ahead_by": 0, "behind_by": 12}
+            with patch.object(client, "get_json", side_effect=[self.diff_error(), reverse]) as get:
+                self.assertTrue(client.is_ancestor(self.older, self.newer))
+            self.assertEqual([call.args[0] for call in get.call_args_list], [
+                f"compare/{self.older}...{self.newer}?per_page=1",
+                f"compare/{self.newer}...{self.older}?per_page=1",
+            ])
+            restored = reconcile.GitHub(token="", ancestry_cache=cache)
+            with patch.object(restored, "get_json", side_effect=AssertionError("verified fact was cached")):
+                self.assertTrue(restored.is_ancestor(self.older, self.newer))
+
+    def test_reverse_read_requires_exact_positive_ancestry_evidence(self):
+        for value in [
+            {"status": "behind", "merge_base_commit": {"sha": "b" * 40}, "ahead_by": 0},
+            {"status": "behind", "merge_base_commit": {"sha": self.older}, "ahead_by": 1},
+            {"status": "ahead", "merge_base_commit": {"sha": self.newer}, "behind_by": 0},
+            {"status": "diverged", "merge_base_commit": {"sha": "b" * 40}, "ahead_by": 2},
+        ]:
+            with self.subTest(value=value):
+                client = reconcile.GitHub(token="")
+                with patch.object(client, "get_json", side_effect=[self.diff_error(), value]):
+                    self.assertFalse(client.is_ancestor(self.older, self.newer))
+
+    def test_other_http_errors_do_not_trigger_another_query(self):
+        from urllib.error import HTTPError
+        for code, body in [(503, b"unavailable"), (422, b"invalid JSON"),
+                           (422, b'{"errors":[{"resource":"Comparison","field":"base","code":"invalid"}]}')]:
+            with self.subTest(code=code, body=body):
+                client = reconcile.GitHub(token="")
+                error = HTTPError("https://api.github.com/compare", code, "failure", {}, BytesIO(body))
+                self.addCleanup(error.close)
+                with patch.object(client, "get_json", side_effect=error) as get:
+                    with self.assertRaises(HTTPError) as raised:
+                        client.is_ancestor(self.older, self.newer)
+                self.assertIs(raised.exception, error)
+                self.assertEqual(get.call_count, 1)
+
+    def test_reverse_failure_propagates_without_a_retry_loop(self):
+        from urllib.error import HTTPError
+        client = reconcile.GitHub(token="")
+        error = HTTPError("https://api.github.com/reverse", 503, "unavailable", {}, None)
+        self.addCleanup(error.close)
+        with patch.object(client, "get_json", side_effect=[self.diff_error(), error]) as get:
+            with self.assertRaises(HTTPError) as raised:
+                client.is_ancestor(self.older, self.newer)
+        self.assertIs(raised.exception, error)
+        self.assertEqual(get.call_count, 2)
+
+
 class IngestionTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

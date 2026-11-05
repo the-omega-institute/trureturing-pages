@@ -50,8 +50,28 @@ def read_json(raw):
     return json.loads(raw, object_pairs_hook=vertical_smoke._reject_duplicate)
 
 
+def _comparison_diff_unavailable(error):
+    if error.code != 422:
+        return False
+    raw = error.read(MAX_METADATA_BYTES + 1)
+    if len(raw) > MAX_METADATA_BYTES:
+        return False
+    try:
+        value = read_json(raw)
+    except (ValueError, TypeError):
+        return False
+    errors = value.get("errors") if isinstance(value, dict) else None
+    return isinstance(errors, list) and any(
+        isinstance(item, dict) and item.get("resource") == "Comparison"
+        and item.get("field") == "diff" and item.get("code") == "not_available"
+        for item in errors
+    )
+
+
 class GitHub:
     """Public REST reads; GH_TOKEN is optional and only sent to api.github.com."""
+
+    _reverse_comparison_on_diff_timeout = True
 
     def __init__(self, repository=REPOSITORY, token=None, publication_repository=None, *, ancestry_cache=None):
         if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
@@ -122,12 +142,28 @@ class GitHub:
             known = self.ancestry_cache.get(older, newer)
             if known is not None:
                 return known
-        value = self.get_json(f"compare/{older}...{newer}?per_page=1")
+        reverse = False
+        try:
+            value = self.get_json(f"compare/{older}...{newer}?per_page=1")
+        except HTTPError as error:
+            if not self._reverse_comparison_on_diff_timeout or not _comparison_diff_unavailable(error):
+                raise
+            error.close()
+            # The API can time out producing a large directional file diff even
+            # with one requested commit. The reverse comparison still supplies
+            # an exact merge base and commit counts for the ancestry question.
+            value = self.get_json(f"compare/{newer}...{older}?per_page=1")
+            reverse = True
         if value.get("status") not in {"ahead", "behind", "identical", "diverged"}:
             raise ValueError("GitHub returned an invalid ancestry comparison")
-        result = (value["status"] in {"ahead", "identical"}
-                  and value.get("merge_base_commit", {}).get("sha") == older
-                  and value.get("behind_by") == 0)
+        if reverse:
+            result = (value["status"] == "behind"
+                      and value.get("merge_base_commit", {}).get("sha") == older
+                      and value.get("ahead_by") == 0)
+        else:
+            result = (value["status"] in {"ahead", "identical"}
+                      and value.get("merge_base_commit", {}).get("sha") == older
+                      and value.get("behind_by") == 0)
         if self.ancestry_cache:
             self.ancestry_cache.record(older, newer, result)
         return result

@@ -349,19 +349,25 @@ export async function loadHistory(base, currentRelease, currentGraphDigest, { li
   )
     throw new Error("Architecture history uses a different Atlas graph.");
   const snapshots = [];
-  for (const entry of limit === null ? index.entries : index.entries.slice(-limit)) {
-    const file = await fetch(new URL(entry.path, base));
-    if (!file.ok) throw new Error(`Architecture snapshot HTTP ${file.status}`);
-    const text = await file.text();
-    if ((await sha256(text)) !== entry.digest)
-      throw new Error("Architecture snapshot digest mismatch.");
-    const snapshot = validateSnapshot(JSON.parse(text));
-    if (
-      snapshot.truth_release_digest !== entry.truth_release_digest ||
-      snapshot.atlas_graph_digest !== entry.atlas_graph_digest
-    )
-      throw new Error("Architecture snapshot release mismatch.");
-    snapshots.push(snapshot);
+  const entries = limit === null ? index.entries : index.entries.slice(-limit);
+  // Full evolution history can contain hundreds of immutable snapshots. Bound
+  // simultaneous reads while preserving archive order and every verification.
+  for (let offset = 0; offset < entries.length; offset += 4) {
+    const batch = await Promise.all(entries.slice(offset, offset + 4).map(async (entry) => {
+      const file = await fetch(new URL(entry.path, base));
+      if (!file.ok) throw new Error(`Architecture snapshot HTTP ${file.status}`);
+      const text = await file.text();
+      if ((await sha256(text)) !== entry.digest)
+        throw new Error("Architecture snapshot digest mismatch.");
+      const snapshot = validateSnapshot(JSON.parse(text));
+      if (
+        snapshot.truth_release_digest !== entry.truth_release_digest ||
+        snapshot.atlas_graph_digest !== entry.atlas_graph_digest
+      )
+        throw new Error("Architecture snapshot release mismatch.");
+      return snapshot;
+    }));
+    snapshots.push(...batch);
   }
   return snapshots;
 }
