@@ -348,26 +348,39 @@ export async function loadHistory(base, currentRelease, currentGraphDigest, { li
     index.entries.at(-1).atlas_graph_digest !== currentGraphDigest
   )
     throw new Error("Architecture history uses a different Atlas graph.");
-  const snapshots = [];
   const entries = limit === null ? index.entries : index.entries.slice(-limit);
-  // Full evolution history can contain hundreds of immutable snapshots. Bound
-  // simultaneous reads while preserving archive order and every verification.
-  for (let offset = 0; offset < entries.length; offset += 4) {
-    const batch = await Promise.all(entries.slice(offset, offset + 4).map(async (entry) => {
-      const file = await fetch(new URL(entry.path, base));
-      if (!file.ok) throw new Error(`Architecture snapshot HTTP ${file.status}`);
-      const text = await file.text();
-      if ((await sha256(text)) !== entry.digest)
-        throw new Error("Architecture snapshot digest mismatch.");
-      const snapshot = validateSnapshot(JSON.parse(text));
-      if (
-        snapshot.truth_release_digest !== entry.truth_release_digest ||
-        snapshot.atlas_graph_digest !== entry.atlas_graph_digest
-      )
-        throw new Error("Architecture snapshot release mismatch.");
-      return snapshot;
-    }));
-    snapshots.push(...batch);
+  const snapshots = new Array(entries.length);
+  const controller = new AbortController();
+  let next = 0;
+  let failure;
+  // Keep four reads occupied without waiting for the slowest item in a batch.
+  // Store by archive position and join every reader before returning or failing.
+  async function readSnapshots() {
+    while (!failure && next < entries.length) {
+      const position = next++;
+      const entry = entries[position];
+      try {
+        const file = await fetch(new URL(entry.path, base), { signal: controller.signal });
+        if (!file.ok) throw new Error(`Architecture snapshot HTTP ${file.status}`);
+        const text = await file.text();
+        if ((await sha256(text)) !== entry.digest)
+          throw new Error("Architecture snapshot digest mismatch.");
+        const snapshot = validateSnapshot(JSON.parse(text));
+        if (
+          snapshot.truth_release_digest !== entry.truth_release_digest ||
+          snapshot.atlas_graph_digest !== entry.atlas_graph_digest
+        )
+          throw new Error("Architecture snapshot release mismatch.");
+        snapshots[position] = snapshot;
+      } catch (error) {
+        if (!failure) {
+          failure = error;
+          controller.abort();
+        }
+      }
+    }
   }
+  await Promise.all(Array.from({ length: Math.min(4, entries.length) }, readSnapshots));
+  if (failure) throw failure;
   return snapshots;
 }
