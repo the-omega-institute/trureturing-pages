@@ -1,7 +1,7 @@
 import { fixtureEvidence, withEvidence, fixtureDigest } from "./atlas-evidence-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash } from "node:crypto";
@@ -18,8 +18,9 @@ import {
 } from "../../site/assets/atlas-public-core.mjs";
 
 import { startupView, validateView, validateDetails, DETAIL_SCHEMA, detailShard } from "../../site/assets/atlas-startup-view.mjs";
-import { analyzeArchitecture } from "../../site/assets/architecture-core.mjs";
+import { analyzeArchitecture, mathematicalArchitecture } from "../../site/assets/architecture-core.mjs";
 import { theoryModel } from "../../site/assets/atlas-theory-core.mjs";
+import { readFlowLayout } from "../../site/assets/atlas-flow-layout.mjs";
 
 const hash = (text) =>
   "sha256:" + createHash("sha256").update(text).digest("hex");
@@ -48,6 +49,9 @@ test("published startup preserves exact graph bytes and layout, validates all no
   await writeFile(join(root, "graph.json"), text);
   await writeFile(join(root, "atlas-lean-evidence.v1.json"), JSON.stringify(fixtureEvidence(graph)));
   await writeFile(join(root, "manifest.json"), JSON.stringify(manifest));
+  await mkdir(join(root, "assets"));
+  const flowPath = join(root, "assets/atlas-flow-preview.v1.json");
+  await writeFile(flowPath, JSON.stringify({ atlas_graph_digest: hash("old release"), nodes: [] }));
   const build = () =>
     buildStartup(join(root, "graph.json"), join(root, "manifest.json"), root);
   const index = await build();
@@ -64,6 +68,12 @@ test("published startup preserves exact graph bytes and layout, validates all no
     gunzipSync(await readFile(join(root, index.layout.path))),
   );
   const admittedGraph = validateView(JSON.parse(gunzipSync(await readFile(join(root, index.fast.graph.path)))), manifest);
+  const model = createPublicModel(admittedGraph);
+  const theory = theoryModel(model, mathematicalArchitecture(model));
+  const flowPreview = JSON.parse(await readFile(flowPath));
+  const flowPositions = readFlowLayout(flowPreview, theory, manifest.atlas_graph_digest);
+  assert.deepEqual(Object.keys(flowPositions).sort(), ["A", "B"], "The published flow cache covers exactly the admitted Lean modules");
+  assert.ok(flowPositions.A.y > flowPositions.B.y, "The current release replaces stale coordinates with a valid directed layout");
   const packedLayout = JSON.parse(gunzipSync(await readFile(join(root, index.fast.layout.path))));
   const fastLayout = await expandLayout(packedLayout, admittedGraph);
   await assert.rejects(expandLayout(packedLayout, { ...admittedGraph, nodes: admittedGraph.nodes.slice().reverse() }), /source node order/);
