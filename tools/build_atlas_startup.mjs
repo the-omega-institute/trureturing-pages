@@ -19,6 +19,7 @@ import { analyzeArchitecture, mathematicalArchitecture } from "../site/assets/ar
 import { admissionFromEvidence, applyAdmission } from "../site/assets/atlas-admission.mjs";
 import { theoryModel, theoryLayout, documentPositions } from "../site/assets/atlas-theory-core.mjs";
 import { startupView, validateView, DETAIL_SCHEMA, DETAIL_SHARDS, detailShard } from "../site/assets/atlas-startup-view.mjs";
+import { buildFlowPreview } from "./build_atlas_flow_preview.mjs";
 
 const digest = (raw) =>
   "sha256:" + createHash("sha256").update(raw).digest("hex");
@@ -34,15 +35,19 @@ export async function buildStartup(graphPath, manifestPath, output) {
   const admission = admissionFromEvidence(sourceGraph, manifest, evidence);
   const graph = applyAdmission(sourceGraph, manifest, admission, evidence);
   const model = createPublicModel(graph), architecture = mathematicalArchitecture(model);
+  const theory = theoryModel(model, architecture);
   const layout = {
     schema_version: LAYOUT_SCHEMA,
     layout_profile: LAYOUT_PROFILE,
     atlas_graph_digest: manifest.atlas_graph_digest,
     truth_release_digest: manifest.truth_release_digest,
     positions: computeLayout(model),
-    dependency_positions: documentPositions(model, theoryLayout(theoryModel(model, architecture), architecture)),
+    dependency_positions: documentPositions(model, theoryLayout(theory, architecture)),
   };
   validateLayout(layout, graph, manifest);
+  const flowPreview = buildFlowPreview(theory, architecture, manifest.atlas_graph_digest);
+  await mkdir(join(output, "assets"), { recursive: true });
+  await writeFile(join(output, "assets/atlas-flow-preview.v1.json"), JSON.stringify(flowPreview) + "\n");
   await mkdir(join(output, "data/atlas-startup"), { recursive: true });
   const artifact = async (text) => {
     const bytes = gzipSync(text, { level: 9 });
