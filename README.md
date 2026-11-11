@@ -18,7 +18,9 @@ connected components. Dependencies adds support metrics; Structure provides the
 concept-family view. `atlas-explorer.html` is a compatibility alias.
 `site/dag.html` retains the advanced analysis console. The primary navigation
 also links directly to [Visualize](https://www.trureturing.org/visualize/),
-the companion collection of interactive explanations; Library retains the
+the companion collection of interactive explanations, and to
+[Mathesis](https://mathesis-omega-research.apps.chrono-ai.fun/) for paper review.
+The legacy `/review` URL redirects directly to Mathesis. Library retains the
 module texts, sources and release history. To preview against a
 verified copy of the current published release, run:
 

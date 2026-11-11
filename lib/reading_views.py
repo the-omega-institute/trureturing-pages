@@ -13,6 +13,8 @@ from pathlib import Path
 import re
 from urllib.parse import urlsplit
 
+from lib.knowledge_pages import MATHESIS_URL
+
 ROOT = Path(__file__).resolve().parents[1]
 VOID = set('area base br col embed hr img input link meta param source track wbr'.split())
 
@@ -116,8 +118,10 @@ def add_spaces_navigation(document: str, root=''):
     def nav(match):
         content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status)(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
                          '', match[1], flags=re.S)
-        if not re.search(r'href="' + re.escape(root) + r'review(?:\.html)?(?:[?#][^"]*)?"', content):
-            content += f'<a href="{root}review">Review</a>'
+        content = re.sub(r'(<a\b[^>]*href=")' + re.escape(root) + r'review(?:\.html)?(?:[?#][^"]*)?(")',
+                         lambda link: link[1] + MATHESIS_URL + link[2], content)
+        if f'href="{MATHESIS_URL}"' not in content:
+            content += f'<a href="{MATHESIS_URL}">Review</a>'
         return '<nav aria-label="Primary navigation">' + content + '</nav>'
     return re.sub(r'<nav aria-label="Primary navigation">(.*?)</nav>', nav, document, flags=re.S)
 

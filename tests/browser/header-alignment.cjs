@@ -11,7 +11,6 @@ const routes = [
   "library-history.html",
   "library-version.html",
   "conclusions.html",
-  "review.html",
   "dag.html",
   "knowledge/node/35b9ed520bf5997fd92ed38277ff38290799a1eb64af4b31738a853ddaaf7d4c/",
   "research/wall-sun-sun-golden-unit-lift/",
