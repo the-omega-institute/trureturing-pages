@@ -3,7 +3,7 @@ const PAGES = new Set([
   'index', 'atlas', 'atlas-explorer', 'research', 'conjectures', 'ranking',
   'evolution', 'evolution-structure', 'library-history', 'library-version',
   'contribute', 'discover', 'millennium', 'conclusions', 'dag', 'spaces',
-  'version-status', 'open-math',
+  'version-status', 'open-math', 'review',
 ]);
 const DEFAULT_ROOT = new URL('../', import.meta.url).href;
 
