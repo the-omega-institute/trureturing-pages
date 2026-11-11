@@ -21,7 +21,7 @@ test('language navigation retains graph, release, search and hash coordinates', 
 });
 test('clean page URLs work at a custom domain and project prefix without changing coordinates', () => {
   for (const scope of ['https://www.trureturing.org/', root]) {
-    for (const name of ['atlas', 'research', 'conjectures', 'evolution', 'library-version', 'open-math']) {
+    for (const name of ['atlas', 'research', 'conjectures', 'evolution', 'library-version', 'open-math', 'review']) {
       const old = scope + name + '.html?lang=zh-CN&snapshot=sha256%3A123#node=D5%2FS3%2FExample';
       const clean = scope + name + '?lang=zh-CN&snapshot=sha256%3A123#node=D5%2FS3%2FExample';
       assert.equal(pageURL(old, scope), clean);

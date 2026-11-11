@@ -11,6 +11,7 @@ const routes = [
   "library-history.html",
   "library-version.html",
   "conclusions.html",
+  "review.html",
   "dag.html",
   "knowledge/node/35b9ed520bf5997fd92ed38277ff38290799a1eb64af4b31738a853ddaaf7d4c/",
   "research/wall-sun-sun-golden-unit-lift/",
@@ -48,7 +49,7 @@ const routes = [
             .locator("a")
             .allTextContents()
             .then((items) => items.map((s) => s.trim())),
-          ["Explore", "Research", "Conjectures", "Library", "Evolution", "Visualize", "Contribute"],
+          ["Explore", "Research", "Conjectures", "Library", "Evolution", "Visualize", "Contribute", "Review"],
         );
         const header = page.locator("body > header").first();
         const brand = await header.locator(".brand").boundingBox();

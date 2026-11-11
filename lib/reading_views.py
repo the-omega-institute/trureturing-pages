@@ -116,6 +116,8 @@ def add_spaces_navigation(document: str, root=''):
     def nav(match):
         content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status)(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
                          '', match[1], flags=re.S)
+        if not re.search(r'href="' + re.escape(root) + r'review(?:\.html)?(?:[?#][^"]*)?"', content):
+            content += f'<a href="{root}review">Review</a>'
         return '<nav aria-label="Primary navigation">' + content + '</nav>'
     return re.sub(r'<nav aria-label="Primary navigation">(.*?)</nav>', nav, document, flags=re.S)
 
