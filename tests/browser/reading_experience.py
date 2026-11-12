@@ -187,7 +187,9 @@ def main():
         assert plain_page.locator('.curated-target').count()==34
         plain.close()
         events.append('All 19 curated questions and 34 subquestions remain available without JavaScript; unrelated future pursuits are removed')
-        page.goto(base+'evolution.html?lang=en',wait_until='networkidle')
+        # History streams all published snapshots. Wait for its verified scene
+        # below instead of requiring every request to finish during navigation.
+        page.goto(base+'evolution.html?lang=en',wait_until='domcontentloaded')
         page.wait_for_function('typeof window.architectureHistoryDiagnostics === "function"',timeout=60000)
         before=page.evaluate('window.architectureHistoryDiagnostics()')
         assert before['sceneNodes']>0 and before['sceneEdges']>0
