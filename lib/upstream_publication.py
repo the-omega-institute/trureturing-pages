@@ -44,11 +44,14 @@ CACHE_TAG = re.compile(
 REPORT = ".lake/build/stratalint/raw-lean-report.json"
 REPORT_FILES = tuple("raw-lean-report.json" + suffix for suffix in
                      ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip"))
-CACHE_LIMIT = 16 * 1024 ** 3
+# ci-43075312056-1 publishes a 17,819,549,204-byte multipart cache. Stream
+# this transport without retaining it on disk; keep a finite compressed bound
+# alongside the independent 64 GiB expanded and 2 GiB report-member limits.
+CACHE_LIMIT = 32 * 1024 ** 3
 # The published report material archive is one required tar member.  The
 # current v4 producer emits a 1.16 GiB materials.zip, so a 1 GiB member cap
 # rejects a valid report before its sidecar hashes can be checked.  Keep a
-# finite per-member bound while retaining the 16 GiB compressed archive and
+# finite per-member bound while retaining the 32 GiB compressed archive and
 # 64 GiB expanded archive limits below.
 REPORT_LIMIT = 2 * 1024 ** 3
 SCRIBE_LIMIT = 256 * 1024 ** 2
@@ -486,8 +489,10 @@ def cache_manifest(release):
             raise ValueError("cache part differs from release inventory")
     total = sum(part["bytes"] for part in parts)
     if (type(manifest["archive_bytes"]) is not int or total != manifest["archive_bytes"]
-            or total > CACHE_LIMIT or set(names) != {"manifest.json", *[p["name"] for p in parts]}):
+            or set(names) != {"manifest.json", *[p["name"] for p in parts]}):
         raise ValueError("cache archive size or inventory mismatch")
+    if total > CACHE_LIMIT:
+        raise ValueError(f"cache archive exceeds compressed size limit: {total} > {CACHE_LIMIT} bytes")
     return manifest
 
 
