@@ -68,7 +68,50 @@ def report_archive(extra=None, omit=None):
     return output.getvalue(), files
 
 
+def multipart_inventory(total):
+    """Build manifest metadata without allocating the declared archive bytes."""
+    manifest, snapshot, _ = transport(b'cache', version=4)
+    parts = []
+    remaining = total
+    while remaining:
+        size = min(remaining, 1610612736)
+        parts.append({'name': f'lean-build.tgz.part-{len(parts):02d}',
+                      'bytes': size, 'sha256': 'd' * 64})
+        remaining -= size
+    manifest.update(archive_bytes=total, parts=parts)
+    snapshot['assets'] = [snapshot['assets'][0], *[
+        {'name': p['name'], 'size': p['bytes'], 'state': 'uploaded',
+         'digest': 'sha256:' + p['sha256']} for p in parts]]
+    return manifest, snapshot
+
+
 class SourcePublicationTests(unittest.TestCase):
+    def test_multipart_cache_accepts_observed_size_and_enforces_compressed_bound(self):
+        # Actual archive_bytes from ci-43075312056-1: eleven 1.5 GiB parts
+        # followed by 102,809,108 bytes. The former 16 GiB cap rejected it.
+        for total in (17_819_549_204, publication.CACHE_LIMIT, publication.CACHE_LIMIT + 1):
+            manifest, snapshot = multipart_inventory(total)
+            with self.subTest(total=total), patch.object(
+                    publication, 'asset_bytes', return_value=json.dumps(manifest).encode()):
+                if total <= publication.CACHE_LIMIT:
+                    self.assertEqual(publication.cache_manifest(snapshot), manifest)
+                else:
+                    with self.assertRaisesRegex(ValueError, 'exceeds compressed size limit'):
+                        publication.cache_manifest(snapshot)
+
+    def test_larger_multipart_cache_still_requires_exact_release_inventory(self):
+        manifest, snapshot = multipart_inventory(17_819_549_204)
+        for mutate in (lambda r: r['assets'].pop(),
+                       lambda r: r['assets'][-1].update(size=1),
+                       lambda r: r['assets'][-1].update(digest='sha256:' + 'e' * 64),
+                       lambda r: r['assets'].append({**r['assets'][-1], 'name': 'extra'})):
+            broken = copy.deepcopy(snapshot)
+            mutate(broken)
+            with self.subTest(assets=broken['assets']), patch.object(
+                    publication, 'asset_bytes', return_value=json.dumps(manifest).encode()):
+                with self.assertRaises(ValueError):
+                    publication.cache_manifest(broken)
+
     def test_published_v4_report_material_member_fits_bounded_consumer_limit(self):
         # Receipt from the real ci-41104833528-1 archive.  Its report material
         # member is larger than the former 1 GiB cap but remains below the
