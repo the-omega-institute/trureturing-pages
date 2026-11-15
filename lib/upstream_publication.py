@@ -53,7 +53,7 @@ CACHE_LIMIT = 32 * 1024 ** 3
 # rejects a valid report before its sidecar hashes can be checked.  Keep a
 # finite per-member bound while retaining the 32 GiB compressed archive and
 # 64 GiB expanded archive limits below.
-REPORT_LIMIT = 2 * 1024 ** 3
+REPORT_LIMIT = vertical_smoke.MAX_RAW_REPORT_BYTES
 SCRIBE_LIMIT = 256 * 1024 ** 2
 OUTCOME_PATH = "data/upstream-publication-outcome.v1.json"
 OUTCOME_BRANCH = "pages-sync-status"

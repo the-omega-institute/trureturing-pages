@@ -61,7 +61,11 @@ ADMIN_NAMES = {
     "truth-release-publication.v1.json",
 }
 MAX_ARCHIVE_BYTES = 512 * 1024 * 1024
-MAX_BUNDLE_BYTES = 1024 * 1024 * 1024
+# Report acquisition already admits a 2 GiB raw report. Keep that artifact's
+# bound consistent through publication and extraction; reserve the existing
+# 1 GiB aggregate budget for all other bundle files.
+MAX_RAW_REPORT_BYTES = 2 * 1024 * 1024 * 1024
+MAX_BUNDLE_BYTES = MAX_RAW_REPORT_BYTES + 1024 * 1024 * 1024
 MAX_FILE_BYTES = 512 * 1024 * 1024
 MAX_BUNDLE_FILES = 16
 MAX_GRAPH_NODES = 100_000
@@ -156,6 +160,10 @@ def _require_safe_name(value: Any, label: str) -> str:
     return value
 
 
+def _file_size_limit(name: str) -> int:
+    return MAX_RAW_REPORT_BYTES if name == "raw-lean-report.json" else MAX_FILE_BYTES
+
+
 def extract_archive(archive: str | Path, output_directory: str | Path) -> None:
     """Extract only bounded, regular root files from an untrusted release tarball."""
     source = Path(archive)
@@ -182,7 +190,7 @@ def extract_archive(archive: str | Path, output_directory: str | Path) -> None:
             name = _require_safe_name(path.name, "archive member")
             if not member.isfile() or member.islnk() or member.issym():
                 raise ReleaseContractError(f"archive member is not a regular file: {member.name}")
-            if member.size < 0 or member.size > MAX_FILE_BYTES:
+            if member.size < 0 or member.size > _file_size_limit(name):
                 raise ReleaseContractError(f"archive member exceeds the per-file limit: {member.name}")
             total += member.size
             if total > MAX_BUNDLE_BYTES:
@@ -212,7 +220,7 @@ def _verify_root_files(bundle: Path) -> None:
         if entry.is_symlink() or not entry.is_file():
             raise ReleaseContractError(f"bundle entry is not a regular file: {entry.name}")
         size = entry.stat().st_size
-        if size > MAX_FILE_BYTES:
+        if size > _file_size_limit(entry.name):
             raise ReleaseContractError(f"bundle entry exceeds the per-file limit: {entry.name}")
         total += size
     if total > MAX_BUNDLE_BYTES:

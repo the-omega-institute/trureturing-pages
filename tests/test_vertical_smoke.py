@@ -8,6 +8,9 @@ import tarfile
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
+
+from lib import vertical_smoke
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +34,64 @@ RELEASE_DIGEST = "sha256:6263c6c313abc29ca5b27309f30012c643794d07916d5d9ea0cf01b
 
 
 class VerticalSmokeTests(unittest.TestCase):
+    def test_artifact_bounds_apply_to_both_extracted_and_local_files(self):
+        # Actual sparse file sizes exercise the former 512 MiB boundary without
+        # allocating report payloads.
+        cases = [('raw-lean-report.json', 512 * 1024 * 1024 + 1, True),
+                 ('raw-lean-report.json', vertical_smoke.MAX_RAW_REPORT_BYTES, True),
+                 ('raw-lean-report.json', vertical_smoke.MAX_RAW_REPORT_BYTES + 1, False),
+                 ('truth-export.v1.json', vertical_smoke.MAX_FILE_BYTES + 1, False),
+                 ('other.json', vertical_smoke.MAX_FILE_BYTES + 1, False)]
+        for name, size, accepted in cases:
+            with self.subTest(name=name, size=size), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                bundle = root / 'bundle'
+                bundle.mkdir()
+                with (bundle / name).open('wb') as output:
+                    output.truncate(size)
+                if accepted:
+                    vertical_smoke._verify_root_files(bundle)
+                else:
+                    with self.assertRaisesRegex(ReleaseContractError, 'per-file limit'):
+                        vertical_smoke._verify_root_files(bundle)
+
+        # Exercise archive admission with scaled payloads and normalized names.
+        for name, size, accepted in [('raw-lean-report.json', 32, True),
+                                     ('raw-lean-report.json', 33, False),
+                                     ('truth-export.v1.json', 17, False)]:
+            with self.subTest(archive_member=name, size=size), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                archive = root / 'bundle.tar.gz'
+                with tarfile.open(archive, 'w:gz') as output:
+                    member = tarfile.TarInfo('./' + name)
+                    member.size = size
+                    output.addfile(member, io.BytesIO(b'x' * size))
+                with patch.object(vertical_smoke, 'MAX_FILE_BYTES', 16), \
+                     patch.object(vertical_smoke, 'MAX_RAW_REPORT_BYTES', 32):
+                    if accepted:
+                        extract_archive(archive, root / 'extracted')
+                        self.assertEqual((root / 'extracted' / name).stat().st_size, size)
+                    else:
+                        with self.assertRaisesRegex(ReleaseContractError, 'per-file limit'):
+                            extract_archive(archive, root / 'extracted')
+
+    def test_larger_report_still_respects_aggregate_bundle_bound(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = root / 'bundle'
+            bundle.mkdir()
+            for name, size in [('raw-lean-report.json', 16), ('truth-export.v1.json', 8)]:
+                (bundle / name).write_bytes(b'x' * size)
+            archive = root / 'bundle.tar.gz'
+            with tarfile.open(archive, 'w:gz') as output:
+                for path in bundle.iterdir():
+                    output.add(path, arcname=path.name)
+            with patch.object(vertical_smoke, 'MAX_BUNDLE_BYTES', 23):
+                with self.assertRaisesRegex(ReleaseContractError, 'expanded-size limit'):
+                    vertical_smoke._verify_root_files(bundle)
+                with self.assertRaisesRegex(ReleaseContractError, 'expanded-size limit'):
+                    extract_archive(archive, root / 'extracted')
+
     @staticmethod
     def rebind_bundle(bundle):
         """Recompute transport hashes after an intentional fixture mutation."""

@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -90,6 +91,33 @@ class ReportProjectionTests(unittest.TestCase):
             self.assertEqual(selected['status'], 'content-validation-rejected')
             self.assertEqual(selected['rejection_reason'], reason)
             self.assertFalse(any('dag-render' in command for command in commands))
+
+    def test_larger_report_survives_publication_extraction_and_digest_verification(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            _, selected, _ = self.project_fixture(root)
+            bundle = root / 'bundle'
+            # Scale the generic limit to the other fixture artifacts, then
+            # publish a report above that limit without allocating 512 MiB.
+            ordinary_limit = max(p.stat().st_size for p in bundle.iterdir()
+                                 if p.name != 'raw-lean-report.json')
+            report_bytes = b'{"modules":[]}' + b' ' * (ordinary_limit * 2)
+            (root / 'reports/raw-lean-report.json').write_bytes(report_bytes)
+            with patch.object(vertical_smoke, 'MAX_FILE_BYTES', ordinary_limit), \
+                 patch.object(vertical_smoke, 'MAX_RAW_REPORT_BYTES', len(report_bytes)):
+                publication.write_report_projection(selected, root, root / 'reports', bundle)
+                digest = publication.publication_metadata(selected, bundle)['release_digest']
+                archive = root / 'bundle.tar.gz'
+                with tarfile.open(archive, 'w:gz') as output:
+                    for path in bundle.iterdir():
+                        output.add(path, arcname='./' + path.name)
+                extracted = root / 'extracted'
+                vertical_smoke.extract_archive(archive, extracted)
+                self.assertEqual(vertical_smoke.verify_bundle(extracted, digest)['release_digest'], digest)
+                self.assertEqual((extracted / 'raw-lean-report.json').read_bytes(), report_bytes)
+                (extracted / 'raw-lean-report.json').write_bytes(b'X' + report_bytes[1:])
+                with self.assertRaisesRegex(vertical_smoke.ReleaseContractError, 'hash|digest|SHA'):
+                    vertical_smoke.verify_bundle(extracted, digest)
 
     def test_export_infrastructure_failure_remains_retryable(self):
         with tempfile.TemporaryDirectory() as temp, self.assertRaises(subprocess.CalledProcessError):
