@@ -332,7 +332,10 @@ def main():
         events.append('Stable Dependency retains family positions and colors while arranging every import by depth')
         for name in ['research','conjectures','evolution']:
             page.set_viewport_size({'width':390,'height':844})
-            page.goto(base+name+'.html?lang=en',wait_until='networkidle')
+            page.goto(base+name+'.html?lang=en',
+                      wait_until='domcontentloaded' if name=='evolution' else 'networkidle')
+            if name=='evolution':
+                page.wait_for_function('typeof window.architectureHistoryDiagnostics === "function"',timeout=60000)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name
             page.screenshot(path=str(args.output/(name+'-restored-mobile.png')),full_page=True)
             if name=='conjectures':
