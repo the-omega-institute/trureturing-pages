@@ -28,7 +28,7 @@ The consumer verifies the cache manifest, asset inventory, per-part and whole
 archive SHA-256, then extracts only the checked report and its four sidecars.
 Each extracted report member is bounded at 2 GiB. This accommodates the
 required published v4 `raw-lean-report.json.materials.zip` member while
-keeping a finite per-member limit inside the 16 GiB compressed and 64 GiB
+keeping a finite per-member limit inside the 32 GiB compressed and 64 GiB
 expanded archive bounds. Extra producer cache members, including the optional
 `.reuse.json` and report logs, are ignored after the required five-member set
 is complete.
@@ -109,6 +109,13 @@ only after upload; a public
 source publication is never overwritten. These durable bundles are consumed
 alongside historical upstream truth releases through the existing source,
 ancestry, Library history and atomic ingestion checks.
+
+The retained `raw-lean-report.json` has the same 2 GiB bound during report
+acquisition, bundle verification and archive extraction. Other bundle files
+retain a 512 MiB per-file bound. The expanded bundle is limited to 3 GiB,
+allowing the report plus the existing 1 GiB budget for the remaining artifacts;
+the compressed Pages bundle remains limited to 512 MiB. Artifact hashes,
+source identity and provenance are verified after extraction.
 
 For a stalled publication, inspect the Pages selection summary first:
 
