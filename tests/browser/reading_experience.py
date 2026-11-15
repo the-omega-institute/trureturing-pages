@@ -305,7 +305,7 @@ def main():
         unavailable=isolated.new_page()
         unavailable.on('pageerror',lambda e:errors.append(str(e)))
         unavailable.route('**/'+latest_path,lambda route:route.fulfill(status=200,body='corrupt snapshot'))
-        unavailable.goto(base+'evolution.html?lang=en',wait_until='networkidle')
+        unavailable.goto(base+'evolution.html?lang=en',wait_until='domcontentloaded')
         unavailable.wait_for_selector('#release-content-changes[data-state="unavailable"]',state='attached',timeout=60000)
         unavailable.locator('#release-story > summary').click()
         assert unavailable.locator('button[data-change-count]:visible').count()==0
