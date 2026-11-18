@@ -492,7 +492,6 @@ def repair_history(output, previous_url=None, *, deployed=False, now=None):
         retained_receipts = validate_receipts({**receipts, "entries": retained_rows})
         clean = living_library.validate_index({**history, "entries": entries,
                                                "current_truth_release_digest": entries[-1]["truth_release_digest"]})
-        archived = living_library.load_archives(entries, output, previous_url)
         # Prepare a complete receipt ledger with the existing append/recovery
         # implementation before touching either published index.
         with tempfile.TemporaryDirectory(dir=output, prefix=".library-repair-") as temp:
@@ -500,9 +499,7 @@ def repair_history(output, previous_url=None, *, deployed=False, now=None):
             staged_receipts = _recover_receipts(staged_path, clean, retained_receipts,
                                                 deployed=bool(previous_url) or deployed, now=now)
             validate_receipt_history(clean, staged_receipts)
-            for entry, _, raw in archived:
-                if not (output / entry["path"]).exists():
-                    living_library.write_bytes(output / entry["path"], raw)
+            archived = living_library.iter_archives(entries, output, previous_url, restore=True)
             clean["timeline"] = living_library.write_timeline(archived, output)
             # Receipts first, history last: after interruption the cleaned rows
             # still match the old history, so a retry safely finishes the repair.

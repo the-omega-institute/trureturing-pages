@@ -339,17 +339,17 @@ def write(path: Path, content: str) -> None:
     tmp.replace(path)
 
 
-def retire_archived_knowledge_routes(graph: dict[str, Any], site_root: str | Path) -> None:
+def retire_archived_knowledge_routes(digest: str, site_root: str | Path) -> None:
     """Keep immutable snapshots; historical nodes use the shared version reader.
 
     Old per-node redirect files grow with every node in every release. Remove
     only the generated routes for a verified archived release, including files
     left by an earlier build. Current release pages remain independently served.
     """
-    digest, key = release_coordinate(graph)
-    if not _DIGEST.fullmatch(digest):
+    match = _DIGEST.fullmatch(digest)
+    if not match:
         raise ValueError("Archived Wiki requires a release digest.")
-    release_root = Path(site_root) / "release" / key
+    release_root = Path(site_root) / "release" / match.group(1)
     if (release_root / "node").exists():
         shutil.rmtree(release_root / "node")
     (release_root / "relations.v1.json").unlink(missing_ok=True)
