@@ -44,16 +44,15 @@ CACHE_TAG = re.compile(
 REPORT = ".lake/build/stratalint/raw-lean-report.json"
 REPORT_FILES = tuple("raw-lean-report.json" + suffix for suffix in
                      ("", ".sha256", ".input.attestation", ".provenance.json", ".materials.zip"))
+REPORT_MATERIALS = "raw-lean-report.json.materials.zip"
 # ci-43075312056-1 publishes a 17,819,549,204-byte multipart cache. Stream
 # this transport without retaining it on disk; keep a finite compressed bound
-# alongside the independent 64 GiB expanded and 2 GiB report-member limits.
+# alongside the independent 64 GiB expanded and report-member limits.
 CACHE_LIMIT = 32 * 1024 ** 3
-# The published report material archive is one required tar member.  The
-# current v4 producer emits a 1.16 GiB materials.zip, so a 1 GiB member cap
-# rejects a valid report before its sidecar hashes can be checked.  Keep a
-# finite per-member bound while retaining the 32 GiB compressed archive and
-# 64 GiB expanded archive limits below.
 REPORT_LIMIT = vertical_smoke.MAX_RAW_REPORT_BYTES
+# The CI archive from run 44250346867 contains a 2,394,732,223-byte materials
+# ZIP. This sidecar is streamed to disk and is not part of the Pages bundle.
+REPORT_MATERIALS_LIMIT = 4 * 1024 ** 3
 SCRIBE_LIMIT = 256 * 1024 ** 2
 OUTCOME_PATH = "data/upstream-publication-outcome.v1.json"
 OUTCOME_BRANCH = "pages-sync-status"
@@ -743,8 +742,15 @@ def acquire_report(selection, destination):
                 name = member.name[len(prefix):] if member.name.startswith(prefix) else None
                 if name not in REPORT_FILES:
                     continue
-                if name in found or not member.isfile() or member.size > REPORT_LIMIT:
-                    raise ValueError("invalid or duplicate report member in cache archive")
+                if name in found:
+                    raise ValueError(f"duplicate report member in cache archive: {name}")
+                if not member.isfile() or member.size < 0:
+                    raise ValueError(f"invalid report member in cache archive: {name}")
+                limit = REPORT_MATERIALS_LIMIT if name == REPORT_MATERIALS else REPORT_LIMIT
+                if member.size > limit:
+                    raise ValueError(
+                        f"report member exceeds size limit: {name} ({member.size} > {limit} bytes)"
+                    )
                 found.add(name)
                 with bundle.extractfile(member) as source, (destination / name).open("wb") as target:
                     shutil.copyfileobj(source, target)
@@ -754,8 +760,9 @@ def acquire_report(selection, destination):
             pass
         if found != set(REPORT_FILES):
             raise ValueError("upstream cache snapshot has an incomplete report bundle")
-        report = (destination / REPORT_FILES[0]).read_bytes()
-        if (destination / (REPORT_FILES[0] + ".sha256")).read_text().split() != [hashlib.sha256(report).hexdigest(), REPORT_FILES[0]]:
+        report = destination / REPORT_FILES[0]
+        digest = vertical_smoke._sha256(report).removeprefix("sha256:")
+        if (destination / (report.name + ".sha256")).read_text().split() != [digest, report.name]:
             raise ValueError("raw report SHA-256 mismatch")
     except Exception:
         for name in REPORT_FILES:

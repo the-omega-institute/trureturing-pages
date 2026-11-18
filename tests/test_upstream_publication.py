@@ -53,11 +53,12 @@ def transport(raw, source=B, version=3):
     return manifest, snapshot, data
 
 
-def report_archive(extra=None, omit=None):
+def report_archive(extra=None, omit=None, materials=b'checked'):
     report = b'{"modules":[],"schema":"stratalint-raw-lean-report-v2"}'
     files = {name: b'checked' for name in publication.REPORT_FILES}
     files['raw-lean-report.json'] = report
     files['raw-lean-report.json.sha256'] = hashlib.sha256(report).hexdigest().encode() + b'  raw-lean-report.json\n'
+    files[publication.REPORT_MATERIALS] = materials
     output = io.BytesIO()
     with tarfile.open(fileobj=output, mode='w:gz') as archive:
         for name, data in files.items():
@@ -112,13 +113,24 @@ class SourcePublicationTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     publication.cache_manifest(broken)
 
-    def test_published_v4_report_material_member_fits_bounded_consumer_limit(self):
-        # Receipt from the real ci-41104833528-1 archive.  Its report material
-        # member is larger than the former 1 GiB cap but remains below the
-        # bounded 2 GiB limit used by acquire_report.
-        observed_material_bytes = 1_240_698_590
-        self.assertGreater(observed_material_bytes, 1024 ** 3)
-        self.assertLessEqual(observed_material_bytes, publication.REPORT_LIMIT)
+    def test_stream_applies_separate_materials_bound(self):
+        # Scale the real failure from CI run 44250346867 (2,394,732,223 bytes)
+        # to exercise the extraction branch without allocating a multi-GiB ZIP.
+        for size, accepted in ((192, True), (193, False)):
+            raw, files = report_archive(materials=b'm' * size)
+            manifest, _, _ = transport(raw)
+            selection = {'report_release_tag': TAG, 'report_manifest': manifest}
+            with self.subTest(size=size), tempfile.TemporaryDirectory() as temp, \
+                 patch.object(publication, 'REPORT_LIMIT', 128), \
+                 patch.object(publication, 'REPORT_MATERIALS_LIMIT', 192), \
+                 patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+                if accepted:
+                    publication.acquire_report(selection, temp)
+                    self.assertEqual({p.name: p.read_bytes() for p in Path(temp).iterdir()}, files)
+                else:
+                    with self.assertRaisesRegex(ValueError, r'materials\.zip \(193 > 192 bytes\)'):
+                        publication.acquire_report(selection, temp)
+                    self.assertEqual(list(Path(temp).iterdir()), [])
 
     def test_newest_source_wins_over_late_rerun_and_excludes_noncanonical_runs(self):
         client = GitHub(); client.is_ancestor = lambda a, b: a <= b
@@ -375,7 +387,7 @@ class SourcePublicationTests(unittest.TestCase):
         manifest, _, _ = transport(raw)
         with tempfile.TemporaryDirectory() as temp, patch.object(publication, 'REPORT_LIMIT', 1), \
              patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
-            with self.assertRaisesRegex(ValueError, 'invalid or duplicate report member'):
+            with self.assertRaisesRegex(ValueError, r'report member exceeds size limit: raw-lean-report\.json'):
                 publication.acquire_report({'report_release_tag': TAG, 'report_manifest': manifest}, temp)
             self.assertEqual(list(Path(temp).iterdir()), [])
 
