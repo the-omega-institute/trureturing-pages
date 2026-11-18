@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Iterable, Iterator
 import hashlib
 import gzip
 from http.client import IncompleteRead
 import io
+from itertools import chain
 import json
 import re
 import subprocess
@@ -324,7 +326,7 @@ def render_research(snapshot: dict, output: Path, entry: dict):
     write(output / "library-history.html", page_shell("Library history", "", history_body, "Library"))
 
 
-def content_timeline(archived: list) -> dict:
+def content_timeline(archived: Iterable[tuple[dict, dict, bytes]]) -> dict:
     nodes, problems, previous_nodes, previous_problems = {}, {}, {}, {}
     for index, (_, snapshot, _) in enumerate(archived):
         current_nodes = {n["id"]: n for n in snapshot["graph"]["nodes"]}
@@ -349,9 +351,9 @@ def content_timeline(archived: list) -> dict:
     return {"schema_version": "pages-content-timeline.v1", "nodes": nodes, "problems": problems}
 
 
-def load_archives(entries: list, output: Path, previous_url: str | None = None) -> list:
-    """Load and verify snapshots for both normal builds and projection repair."""
-    archived = []
+def iter_archives(entries: list, output: Path, previous_url: str | None = None, *,
+                  restore: bool = False) -> Iterator[tuple[dict, dict, bytes]]:
+    """Verify one snapshot at a time, optionally staging its immutable bytes."""
     for entry in entries:
         local = output / entry["path"]
         # Match the reconciler's local checkpoint precedence over a stale CDN.
@@ -361,11 +363,12 @@ def load_archives(entries: list, output: Path, previous_url: str | None = None) 
         item = archive_json(entry, data)
         if item.get("schema_version") != SNAPSHOT or item.get("truth_release_digest") != entry["truth_release_digest"] or item.get("atlas_graph_digest") != entry["atlas_graph_digest"] or item["graph"]["source_snapshot"]["truth_release_digest"] != entry["truth_release_digest"]:
             raise ValueError("Archived Library snapshot failed verification.")
-        archived.append((entry, item, data))
-    return archived
+        if restore and not local.exists():
+            write_bytes(local, data)
+        yield entry, item, data
 
 
-def write_timeline(archived: list, output: Path) -> dict:
+def write_timeline(archived: Iterable[tuple[dict, dict, bytes]], output: Path) -> dict:
     timeline = json.dumps(content_timeline(archived), ensure_ascii=False, separators=(",", ":")) + "\n"
     data = compress(timeline.encode())
     key = digest(data)
@@ -415,12 +418,15 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
     else:
         raise ValueError("A real Library release requires its exact source checkout.")
     entries = list(prior["entries"]) if prior else []
-    archived = load_archives(entries, output, previous_url)
+    is_current = bool(entries and entries[-1]["truth_release_digest"] == release)
+    archived = iter_archives(entries, output, previous_url, restore=rebuild_current or not is_current)
     # A release coordinate is immutable even when a repeated build would render
     # a different snapshot.  The reconciler normally short-circuits before
     # calling us; keeping the guard here protects direct callers and stale-run
     # retries after the existing archive has been verified.
-    if prior and prior["entries"][-1]["truth_release_digest"] == release:
+    if is_current:
+        for _, latest, _ in archived:
+            pass
         if rebuild_current:
             # A fresh build-basic tree has none of the deployed Library files.
             # Restore immutable bytes, but render routes using today's Pages code.
@@ -435,12 +441,10 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
                 timeline_raw = local.read_bytes() if local.exists() or not previous_url else read_remote(previous_url, timeline["path"])
                 if digest(timeline_raw) != key or archive_json(timeline, timeline_raw).get("schema_version") != "pages-content-timeline.v1":
                     raise ValueError("Archived Library timeline failed verification.")
-            for coordinate, item, content in archived:
-                write_bytes(output / coordinate["path"], content)
-                if item["truth_release_digest"] != release:
-                    retire_archived_knowledge_routes(item["graph"], output)
+            for coordinate in entries[:-1]:
+                retire_archived_knowledge_routes(coordinate["truth_release_digest"], output)
             render_knowledge_site(graph, output)
-            render_research(archived[-1][1], output, entries[-1])
+            render_research(latest, output, entries[-1])
             if timeline_raw is not None:
                 write_bytes(output / timeline["path"], timeline_raw)
             if not index_path.exists():
@@ -451,24 +455,18 @@ def build_library(graph_path: Path, manifest_path: Path, output: Path, source_re
     snapshot = create_snapshot(graph, graph_hash, problems, blobs, quarantined_problems=quarantine_audit)
     data = compress((json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode())
     key = digest(data)
-    existing = next((i for i, (entry, item, _) in enumerate(archived) if entry["digest"] == key or item == snapshot), None)
-    if existing is not None and existing != len(entries) - 1:
+    if any(entry["truth_release_digest"] == release for entry in entries):
         raise ValueError("Incoming Library release is older than the archived tip.")
     entry = {"digest": key, "path": f"data/library/{key[7:]}.json.gz", "truth_release_digest": release, "atlas_graph_digest": graph_hash, "source_commit": graph["source_snapshot"].get("source_commit"), "node_count": len(graph["nodes"]), "problem_count": len(problems), "quarantined_problems": quarantine_audit}
-    if existing is None:
-        entries.append(entry)
-        archived.append((entry, snapshot, data))
-    else:
-        entry = entries[existing]
+    index = validate_index({"schema_version": SCHEMA, "current_truth_release_digest": release,
+                            "entries": [*entries, entry]})
+    index["timeline"] = write_timeline(chain(archived, [(entry, snapshot, data)]), output)
+    write_bytes(output / entry["path"], data)
     # Rebuild old Wiki routes from immutable content; publish the new index only after all output succeeds.
-    for coordinate, item, content in archived:
-        write_bytes(output / coordinate["path"], content)
-        if item["truth_release_digest"] != release:
-            retire_archived_knowledge_routes(item["graph"], output)
+    for coordinate in entries:
+        retire_archived_knowledge_routes(coordinate["truth_release_digest"], output)
     render_knowledge_site(graph, output)
     render_research(snapshot, output, entry)
-    timeline = write_timeline(archived, output)
-    index = validate_index({"schema_version": SCHEMA, "current_truth_release_digest": release, "entries": entries, "timeline": timeline})
     write(index_path, json.dumps(index, indent=2) + "\n")
     return index
 
