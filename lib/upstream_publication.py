@@ -70,10 +70,6 @@ CONTENT_REJECTIONS = ("TRUTH_RELEASE_INVALID residual frontier evaluation failed
 class PublicationGitHub(GitHub):
     """Retry report reads and verify ancestry independently of GitHub file diffs."""
 
-    # This client owns a complete commit-graph fallback. Keep the original
-    # HTTPError body available to its is_ancestor handler below.
-    _reverse_comparison_on_diff_timeout = False
-
     def get_json(self, path):
         for attempt in range(3):
             try:
@@ -90,28 +86,14 @@ class PublicationGitHub(GitHub):
     def is_ancestor(self, older, newer):
         require_oid(older)
         require_oid(newer)
-        if getattr(self, '_git_ancestry', None) is not None:
+        if older == newer:
+            return True
+        if getattr(self, '_ancestry_directory', None) is not None:
+            # The report planner has a verified, commit-only Git graph.
+            # The Compare API also computes file diffs and can fail before
+            # providing ancestry, including with an empty HTTP 422 body.
             return self._git_is_ancestor(older, newer)
-        try:
-            return super().is_ancestor(older, newer)
-        except HTTPError as error:
-            if error.code != 422 or not getattr(self, '_ancestry_directory', None):
-                raise
-            # GitHub computes file diffs even on later comparison pages. Only
-            # its explicit diff-generation failure may use the Git transport;
-            # authorization, malformed requests and other 422s still fail closed.
-            try:
-                detail = json.loads(error.read(16384))
-            except (ValueError, UnicodeError):
-                raise error
-            errors = detail.get('errors') if isinstance(detail, dict) else None
-            if not isinstance(errors, list) or not any(
-                    isinstance(item, dict) and item.get('resource') == 'Comparison'
-                    and item.get('field') == 'diff' and item.get('code') == 'not_available'
-                    for item in errors):
-                raise
-            error.close()
-        return self._git_is_ancestor(older, newer)
+        return super().is_ancestor(older, newer)
 
     def _git_is_ancestor(self, older, newer):
         repository = Path(self._ancestry_directory) / 'source.git'

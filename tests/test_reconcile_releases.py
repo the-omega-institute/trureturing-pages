@@ -410,6 +410,16 @@ class IngestionTests(unittest.TestCase):
         history = json.loads(self.history_path.read_text())
         receipts = json.loads(self.receipts_path.read_text())
         reconcile.check_checkpoint(self.output, self.release)
+        with patch.object(reconcile, "read_deployed_state", side_effect=[(None, receipts), (history, receipts)]) as observe, \
+             patch.object(reconcile.time, "sleep") as wait:
+            reconcile.check_checkpoint(self.output, self.release, "https://example.test/")
+            self.assertEqual(observe.call_count, 2)
+            wait.assert_called_once_with(1)
+        with patch.object(reconcile, "read_deployed_state", return_value=(None, receipts)) as observe, \
+             patch.object(reconcile.time, "sleep"):
+            with self.assertRaisesRegex(ValueError, "receipt has no matching history"):
+                reconcile.check_checkpoint(self.output, self.release, "https://example.test/")
+            self.assertEqual(observe.call_count, 3)
         with patch.object(reconcile, "read_state", side_effect=[(history, receipts), (HISTORY, EMPTY_RECEIPTS)]):
             with self.assertRaisesRegex(ValueError, "checkpoint.*history"):
                 reconcile.check_checkpoint(self.output, self.release, "https://example.test/")
