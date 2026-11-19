@@ -298,13 +298,17 @@ def read_state(output, previous_url=None, history_path=None, receipts_path=None,
     return history, receipts
 
 
+class ReceiptHistoryMismatch(ValueError):
+    """A validated receipt refers to a snapshot absent from the history index."""
+
+
 def validate_receipt_history(history, receipts, *, allow_orphans=False, allow_duplicate_receipts=False):
     coordinates = {(e["truth_release_digest"], e["digest"]) for e in history_entries(history)}
     for receipt in validate_receipts(receipts, allow_duplicate_releases=allow_duplicate_receipts)["entries"]:
         if (receipt["release_digest"], receipt["library_entry_digest"]) not in coordinates:
             if allow_orphans:
                 continue
-            raise ValueError("ingestion receipt has no matching history entry; restore history before retrying")
+            raise ReceiptHistoryMismatch("ingestion receipt has no matching history entry; restore history before retrying")
 
 
 def current_release(history):
@@ -616,8 +620,18 @@ def check_checkpoint(output, expected_digest, previous_url=None):
     history, receipts = read_state(output)
     validate_receipt_history(history, receipts)
     if previous_url:
-        previous_history, previous_receipts = read_deployed_state(previous_url)
-        validate_receipt_history(previous_history, previous_receipts)
+        for attempt in range(3):
+            previous_history, previous_receipts = read_deployed_state(previous_url)
+            try:
+                validate_receipt_history(previous_history, previous_receipts)
+            except ReceiptHistoryMismatch:
+                if attempt == 2:
+                    raise
+                # The CDN can expose the receipt before its matching index.
+                # Re-read both with a fresh observation before comparing prefixes.
+                time.sleep(attempt + 1)
+            else:
+                break
         previous_entries = history_entries(previous_history)
         if history_entries(history)[:len(previous_entries)] != previous_entries:
             raise ValueError("checkpoint would overwrite newer or different deployed history")
