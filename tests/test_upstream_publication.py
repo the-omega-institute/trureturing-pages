@@ -1,6 +1,7 @@
 import copy
 import base64
 import subprocess
+import sys
 import zipfile
 import hashlib
 import io
@@ -264,7 +265,7 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertEqual(publication.report_ci(client,{'id':7},B,C)[1]['status'],'awaiting-upstream-ci')
 
     def planned(self, existing=None, scribe_required=False, resources=None, previous=None, adapter=None,
-                ci=None, newer=False, newer_ci=None, version=3, report_projection=False):
+                ci=None, newer=False, newer_ci=None, version=3, report_projection=False, tools_pin=None):
         upstream, pages = GitHub(), GitHub('owner/pages')
         upstream.dev_head = lambda: C; upstream.is_ancestor = lambda a, b: a <= b
         manifest, snapshot, data = transport(b'cache', version=version)
@@ -279,10 +280,14 @@ class SourcePublicationTests(unittest.TestCase):
             if path == 'actions/workflows/ci-current.yml': return {'id': 7, 'path': '.github/workflows/ci-current.yml', 'state': 'active'}
             if path == 'branches/dev': return {'protected': True}
             if path.startswith('contents/tools/'):
+                if tools_pin:
+                    raise HTTPError(path, 404, 'Not Found', {}, None)
                 code = (b'FrozenStateCatalog.Load --candidate-lean-report'
                         if report_projection and 'TruthExportCommand.cs' in path
                         else b'--scribe-pack' if scribe_required else b'legacy native exporter')
                 return {'content': base64.b64encode(code).decode()}
+            if path == f'contents/{publication.TOOLS_PIN}?ref={B}':
+                return {'content': base64.b64encode(json.dumps(tools_pin).encode()).decode()}
             if path.startswith('contents/'): return {'type': 'file', 'path': '.github/workflows/ci-current.yml'}
             if path == 'actions/runs/123/attempts/1': return producer
             if path == 'actions/runs/124/attempts/1': return {**producer, 'id':124, 'head_sha':C}
@@ -307,6 +312,29 @@ class SourcePublicationTests(unittest.TestCase):
         self.assertEqual(selection['required_checks'], ['required', 'lean-cache-publication'])
         self.assertTrue(any('head_sha=' + B in call for call in calls))
         self.assertFalse(any('artifacts' in call or 'ci-push' in call for call in calls))
+
+    def test_plan_uses_pinned_tools_when_exporter_is_no_longer_tracked(self):
+        output = io.BytesIO()
+        with tarfile.open(fileobj=output, mode='w:gz') as archive:
+            for name, data in ((publication.RELEASE_COMMAND, b'--scribe-pack'),
+                               (publication.EXPORT_COMMAND, b'FrozenStateCatalog.Load --candidate-lean-report')):
+                member = tarfile.TarInfo(name)
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
+        raw = output.getvalue()
+        pin = {'version': 'v0.1.1-feature.47.g965614132617', 'sha256': hashlib.sha256(raw).hexdigest()}
+        with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)) as fetch:
+            selection, calls = self.planned(adapter=C, tools_pin=pin, resources=[self.scribe_release()])
+        self.assertIn(f'contents/{publication.TOOLS_PIN}?ref={B}', calls)
+        self.assertTrue(fetch.call_args.args[0].full_url.endswith(f"/{pin['version']}/trureturing-tools.tar.gz"))
+        self.assertTrue(selection['should_build'])
+        self.assertEqual(selection['tools_release'], pin)
+        self.assertEqual(selection['source_commit'], B)
+        self.assertEqual(selection['projection_contract'], publication.PROJECTION_CONTRACT)
+        self.assertEqual(selection['scribe']['source_commit'], B)
+        with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw + b'altered')):
+            with self.assertRaisesRegex(ValueError, 'pinned digest'):
+                self.planned(adapter=C, tools_pin=pin)
 
     def test_plan_discovers_namespaced_v4_report_and_keeps_exact_dev_ci_gate(self):
         selected, calls = self.planned(version=4)
@@ -411,6 +439,30 @@ class SourcePublicationTests(unittest.TestCase):
             self.assertEqual(env['STRATALINT_CACHE_WRITES'], 'false')
             self.assertEqual([k for k in env if k.startswith('GITHUB_')], ['GITHUB_REPOSITORY'])
             self.assertNotIn('GH_TOKEN', env); self.assertNotIn('CI_PLAN_PATH', env)
+
+    def test_projection_installs_only_the_tools_pinned_by_the_selected_checkout(self):
+        pin = {'version': 'v0.1.1', 'sha256': 'e' * 64}
+        selection = {'source_commit': B, 'source_tree': A, 'required_checks': list(publication.EXPORT_CHECKS),
+                     'produced_at': '2026-10-02T00:00:00Z', 'tools_release': pin}
+        with tempfile.TemporaryDirectory() as temp, \
+             patch.object(publication.subprocess, 'check_output', return_value=B + '\n' + A + '\n'), \
+             patch.object(publication.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout='')) as execute:
+            root = Path(temp)
+            reports = root / 'report'
+            reports.mkdir()
+            for name in publication.REPORT_FILES:
+                (reports / name).write_bytes(b'checked')
+            pin_file = root / publication.TOOLS_PIN
+            pin_file.parent.mkdir()
+            pin_file.write_text(json.dumps({**pin, 'sha256': 'f' * 64}))
+            with self.assertRaisesRegex(ValueError, 'differs from selected tools release'):
+                publication.project(selection, root, reports, root / 'out')
+            execute.assert_not_called()
+            pin_file.write_text(json.dumps(pin))
+            publication.project(selection, root, reports, root / 'out')
+        commands = [call.args[0] for call in execute.call_args_list]
+        self.assertEqual(commands[0], [sys.executable, publication.TOOLS_INSTALLER])
+        self.assertEqual([c[1] for c in commands[1:3]], ['restore', 'build'])
 
     def test_removed_workflow_cannot_reuse_historical_success_as_freshness(self):
         upstream, pages = GitHub(), GitHub('owner/pages'); upstream.dev_head = lambda: C

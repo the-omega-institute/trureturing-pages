@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 import subprocess
 import shutil
+import sys
 import tarfile
 import tempfile
 import re
@@ -36,6 +37,13 @@ WORKFLOW = "ci-current.yml"
 CHECKS = ("required",)
 EXPORT_CHECKS = (*CHECKS, "lean-cache-publication")
 CACHE_WORKFLOW = "lean-cache-publish.yml"
+TOOLS_PIN = "Meta/tools-release.json"
+TOOLS_INSTALLER = ".github/scripts/install-tools.py"
+TOOLS_RELEASES = "https://github.com/the-omega-institute/trureturing-tools/releases/download"
+TOOLS_ARCHIVE_LIMIT = 32 * 1024 ** 2
+EXPORTER_COMMANDS = "tools/StrataLint.Cli/Commands"
+RELEASE_COMMAND = f"{EXPORTER_COMMANDS}/TruthReleaseCommand.cs"
+EXPORT_COMMAND = f"{EXPORTER_COMMANDS}/TruthExportCommand.cs"
 CACHE_TAG = re.compile(
     r"lean-cache-(?:v2|verify-v1)-[0-9a-f]{40}-linux-arm64-"
     r"(?:report-[a-z0-9][a-z0-9-]{0,127}-env-[0-9a-f]{12}-ci-)?"
@@ -190,6 +198,8 @@ def input_digest(selection, adapter_commit):
              "report_archive_sha256": selection["report_manifest"]["archive_sha256"],
              "projection_contract": selection.get("projection_contract"),
              "scribe": selection.get("scribe")}
+    if "tools_release" in selection:
+        value["tools_release"] = selection["tools_release"]
     return "sha256:" + hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
@@ -547,6 +557,53 @@ def plan(pages_repository, adapter_commit=None):
         return _plan(source, pages_repository, adapter_commit)
 
 
+def read_tools_pin(raw):
+    pin = json.loads(raw, object_pairs_hook=vertical_smoke._reject_duplicate)
+    if (not isinstance(pin, dict) or set(pin) not in ({"version", "sha256"}, {"version", "sha256", "workflow_sha"})
+            or not isinstance(pin["version"], str)
+            or not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?", pin["version"])
+            or not isinstance(pin["sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", pin["sha256"])):
+        raise ValueError("invalid upstream tools release pin")
+    if "workflow_sha" in pin:
+        require_oid(pin["workflow_sha"])
+    return pin
+
+
+def exporter_sources(source, commit):
+    def contents(path):
+        entry = source.get_json(f"contents/{path}?ref={commit}")
+        return base64.b64decode("".join(entry["content"].split()), validate=True)
+
+    try:
+        release = contents(RELEASE_COMMAND)
+    except HTTPError as error:
+        if error.code != 404:
+            raise
+        error.close()
+    else:
+        try:
+            export = contents(EXPORT_COMMAND)
+        except HTTPError as error:
+            if error.code != 404:
+                raise
+            error.close()
+            export = b""
+        return release, export, None
+
+    # These revisions pin the exporter that upstream CI installs. Read its
+    # command sources from the release without executing or extracting it.
+    pin = read_tools_pin(contents(TOOLS_PIN))
+    url = f"{TOOLS_RELEASES}/{pin['version']}/trureturing-tools.tar.gz"
+    with urlopen(Request(url, headers={"User-Agent": "pages-source-consumer"}), timeout=60) as response:
+        raw = response.read(TOOLS_ARCHIVE_LIMIT + 1)
+    if len(raw) > TOOLS_ARCHIVE_LIMIT or hashlib.sha256(raw).hexdigest() != pin["sha256"]:
+        raise ValueError("upstream tools archive exceeds its bound or differs from the pinned digest")
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+        release = archive.extractfile(RELEASE_COMMAND).read()
+        export = archive.extractfile(EXPORT_COMMAND).read()
+    return release, export, pin
+
+
 def _plan(source, pages_repository, adapter_commit):
     pages = PublicationGitHub(pages_repository)
     workflow = source.get_json("actions/workflows/" + WORKFLOW)
@@ -624,26 +681,20 @@ def _plan(source, pages_repository, adapter_commit):
                 "ci_run_id": run["id"], "ci_run_attempt": run["run_attempt"], "ci_url": run["html_url"],
                 "report_run_id": producer["id"], "report_run_attempt": producer["run_attempt"],
                 "report_manifest": manifest, "required_checks": list(EXPORT_CHECKS), "rejections": rejections}
-        contract = source.get_json(f"contents/tools/StrataLint.Cli/Commands/TruthReleaseCommand.cs?ref={commit}")
-        code = base64.b64decode(contract["content"]).decode()
-        if "--scribe-pack" in code:
+        release_code, export_code, tools_pin = exporter_sources(source, commit)
+        if tools_pin:
+            selection["tools_release"] = tools_pin
+        if b"--scribe-pack" in release_code:
             selection["scribe"] = scribe_selection(source, releases, commit, head)
             if selection["scribe"] is None:
                 selection.update(should_build=False, status="awaiting-scribe-publication")
         # State-table sources already expose a report consumer independently of
         # full truth-release issuance. Use that interface, without asking the
         # producer to republish or inventing event-ledger fields.
-        try:
-            export = source.get_json(f"contents/tools/StrataLint.Cli/Commands/TruthExportCommand.cs?ref={commit}")
-        except HTTPError as error:
-            if error.code != 404:
-                raise
-        else:
-            export_code = base64.b64decode(export["content"]).decode()
-            if (adapter_commit and "FrozenStateCatalog.Load" in export_code
-                    and "--candidate-lean-report" in export_code):
-                selection.update(projection_contract=PROJECTION_CONTRACT,
-                                 adapter_commit=require_oid(adapter_commit), pages_repository=pages_repository)
+        if (adapter_commit and b"FrozenStateCatalog.Load" in export_code
+                and b"--candidate-lean-report" in export_code):
+            selection.update(projection_contract=PROJECTION_CONTRACT,
+                             adapter_commit=require_oid(adapter_commit), pages_repository=pages_repository)
         if adapter_commit:
             selection["input_digest"] = input_digest(selection, adapter_commit)
             rejection = next((r for r in rejections if r["input_digest"] == selection["input_digest"]), None)
@@ -771,6 +822,10 @@ def project(selection, repository, report_directory, destination):
                    if not key.startswith(("GITHUB_", "CI_"))
                    and key not in {"CANDIDATE_SHA", "BASE_SHA", "GH_TOKEN"}}
     environment.update(GITHUB_REPOSITORY=REPOSITORY, STRATALINT_CACHE_WRITES="false")
+    if selection.get("tools_release"):
+        if read_tools_pin((repository / TOOLS_PIN).read_bytes()) != selection["tools_release"]:
+            raise ValueError("upstream checkout differs from selected tools release")
+        subprocess.run([sys.executable, TOOLS_INSTALLER], cwd=repository, check=True, env=environment)
     target = repository / REPORT
     target.parent.mkdir(parents=True, exist_ok=True)
     for name in REPORT_FILES:
