@@ -365,7 +365,8 @@ jobs:
           previous="$RUNNER_TEMP/previous-pages-conformation.v1.json"
           previous_arg='-'
           previous_url="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/data/pages-conformation.v1.json?run=${GITHUB_RUN_ID}"
-          status="$(curl -sS -L --max-filesize 16777216 -o "$previous" -w '%{http_code}' "$previous_url")"
+          # The live atlas conformation has already grown past 16 MiB.
+          status="$(curl -sS -L --max-filesize $((64 * 1024 * 1024)) -o "$previous" -w '%{http_code}' "$previous_url")"
           if [[ "$status" == '200' ]]; then
             if jq -e \
               '.schema_version == "pages-conformation.v1"
