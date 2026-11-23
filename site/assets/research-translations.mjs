@@ -14,6 +14,7 @@ export async function validateEntry(key, entry, cryptoAPI = globalThis.crypto) {
       || Object.values(entry.segments).some(parts=>!Array.isArray(parts) || parts.some(p=>
         !p || Object.keys(p).sort().join()!=='kind,text' || !['text','math','code'].includes(p.kind) || typeof p.text!=='string'))
       || entry.review?.passed !== true || !Array.isArray(entry.review?.issues) || entry.review.issues.length !== 0
+      || entry.review?.source_context !== 'full-source.v1'
       || entry.review?.source_digest !== key || entry.review?.content_digest !== entry.content_digest
       || !entry.review?.model || !hashPattern.test(entry.review?.response_digest)) return false;
   const raw = new TextEncoder().encode(canonical({fields:entry.fields,segments:entry.segments}));

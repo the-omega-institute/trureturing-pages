@@ -10,7 +10,7 @@ function entry() {
   segments.finding=[{kind:'text',text:'对每个 '},{kind:'math',text:'n>5040'},{kind:'text',text:'，该界成立。'}];
   const content_digest='sha256:'+createHash('sha256').update(canonical({fields,segments})).digest('hex');
   return [key,{source_digest:key,fields,segments,content_digest,review:{source_digest:key,content_digest,
-    passed:true,issues:[],model:'test-reviewer',response_digest:'sha256:'+'b'.repeat(64)}}];
+    passed:true,issues:[],source_context:'full-source.v1',model:'test-reviewer',response_digest:'sha256:'+'b'.repeat(64)}}];
 }
 test('a reviewed translation must match the displayed source and exact rendered content',async()=>{
   const [key,value]=entry();assert.equal(await validateEntry(key,value,webcrypto),true);
@@ -23,4 +23,8 @@ test('unreviewed text and HTML payloads are rejected',async()=>{
   value.review.passed=true;value.segments.finding.push({kind:'html',text:'<script>bad()</script>'});
   assert.equal(await validateEntry(key,value,webcrypto),false);
   assert.equal(await validateEntry(key,undefined,webcrypto),false);
+});
+test('a legacy review without full formula context cannot replace the source',async()=>{
+  const [key,value]=entry();delete value.review.source_context;
+  assert.equal(await validateEntry(key,value,webcrypto),false);
 });
