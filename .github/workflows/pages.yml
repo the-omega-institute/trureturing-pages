@@ -619,6 +619,20 @@ jobs:
           path: _site/data/version-status.v1.json
           if-no-files-found: warn
 
+  request-translations:
+    needs: deploy
+    if: needs.deploy.result == 'success' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Translate the successfully published research through its downstream Action
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run research-translations.yml --repo "$GITHUB_REPOSITORY" --ref dev
+
   publish-observation:
     needs: [prepare, deploy]
     if: always() && github.ref == 'refs/heads/dev'
