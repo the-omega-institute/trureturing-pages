@@ -39,6 +39,27 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_formula_only_field_can_remain_verbatim_after_independent_review(self):
+        source = example(); item = source['results'][0]
+        formula = 'D(r,c,2) = 2c²r² − 2(cr² + c²r) + ½(r² + c²) − 22cr + (59/2)(c + r) − 30; r, c ≥ 3.'
+        item['fields']['question'] = formula
+        item['source_digest'] = digest({'policy': POLICY, **{k: item[k] for k in ['id', 'kind', 'source_binding', 'fields']}})
+        source['source_set_digest'] = digest(source['results'])
+        client = Client()
+        accepted = translate_batch(source['results'], client, source)
+        self.assertEqual(client.calls, [False, True])
+        self.assertEqual(accepted[item['source_digest']]['fields']['question'], formula)
+
+    def test_untranslated_explanatory_paragraph_still_fails_admission(self):
+        source = example(); item = source['results'][0]
+        item['fields']['question'] = 'This mathematical result determines every coefficient of the proposed sequence.'
+        item['source_digest'] = digest({'policy': POLICY, **{k: item[k] for k in ['id', 'kind', 'source_binding', 'fields']}})
+        source['source_set_digest'] = digest(source['results'])
+        client = Client()
+        with self.assertRaisesRegex(ValueError, 'English paragraph'):
+            translate_batch(source['results'], client, source)
+        self.assertEqual(client.calls, [False])
+
     def test_formula_prose_translates_while_formula_structure_is_preserved(self):
         for source, target in [
                 (r'$$D\text{ is inner}\Longleftrightarrow p^{-e}C\in\mathbb Z^N$$',

@@ -432,7 +432,8 @@ def translate_batch(items, client, source, feedback=None):
         for field, original in item['fields'].items():
             if bool(original.strip()) != bool(fields[field].strip()):
                 raise ValueError('Translation omitted a nonempty field')
-            if (len(LITERAL.sub('', original).strip()) > 40
+            prose = LITERAL.sub('', original).strip()
+            if (len(prose) > 40 and re.search(r'\b[A-Za-z]{2,}(?:\s+[A-Za-z]{2,}){2,}\b', prose)
                     and not re.search(r'[\u3400-\u9fff]', fields[field])):
                 raise ValueError('Translation retained an English paragraph')
         fields_by_source[item['source_digest']] = fields
