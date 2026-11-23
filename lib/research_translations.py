@@ -173,15 +173,24 @@ def read_json_url(url, token=None):
 
 def fetch_cache(repository, fallback_url=None):
     url = f'https://api.github.com/repos/{repository}/contents/{CACHE_PATH}?ref={BRANCH}&observation={time.time_ns()}'
+    branch_missing = False
     try:
         return validate_cache(read_json_url(url, os.environ.get('GH_TOKEN')))
+    except HTTPError as error:
+        branch_missing = error.code == 404
     except (OSError, ValueError, KeyError):
-        if fallback_url:
-            try:
-                return validate_cache(read_json_url(fallback_url.rstrip('/') + '/' + ASSET_PATH + '?translation=' + str(time.time_ns())))
-            except (OSError, ValueError, KeyError):
-                pass
+        pass
+    fallback_missing = not fallback_url
+    if fallback_url:
+        try:
+            return validate_cache(read_json_url(fallback_url.rstrip('/') + '/' + ASSET_PATH + '?translation=' + str(time.time_ns())))
+        except HTTPError as error:
+            fallback_missing = error.code == 404
+        except (OSError, ValueError, KeyError):
+            pass
+    if branch_missing and fallback_missing:
         return empty_cache()
+    raise ValueError('Reviewed translation cache is unavailable; refusing to replace it with an empty cache')
 
 
 class ModelClient:

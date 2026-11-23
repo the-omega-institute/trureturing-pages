@@ -2,10 +2,12 @@ import copy
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
+from urllib.error import HTTPError
 
 from lib.research_translations import (
     FIELDS, POLICY, SOURCE_SCHEMA, build_source, canonical, digest, empty_cache, protect,
-    restore, segments, source_item, translate_batch, translate_source, validate_cache, validate_source,
+    restore, segments, source_item, translate_batch, translate_source, validate_cache, validate_source, fetch_cache,
 )
 
 
@@ -33,6 +35,14 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_unavailable_cache_cannot_be_mistaken_for_an_empty_initial_cache(self):
+        with patch('lib.research_translations.read_json_url',side_effect=OSError('offline')):
+            with self.assertRaisesRegex(ValueError,'refusing to replace'):
+                fetch_cache('owner/pages','https://example.org')
+        missing=HTTPError('https://example.org',404,'Missing',{},None)
+        with patch('lib.research_translations.read_json_url',side_effect=missing):
+            self.assertEqual(fetch_cache('owner/pages','https://example.org'),empty_cache())
+
     def test_formulas_identifiers_numerals_and_order_are_preserved(self):
         text=r'For $n>5040$, c0 = 1 and $H(n)<\tau(n)$; https://example.org/1989.'
         masked,literals=protect(text)
