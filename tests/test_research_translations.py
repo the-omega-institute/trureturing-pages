@@ -10,7 +10,7 @@ from urllib.error import HTTPError
 from lib.research_translations import (
     FIELDS, MODEL, POLICY, REVIEW_CONTEXT, SOURCE_SCHEMA, ModelClient, admitted_cache, build_source,
     canonical, digest, empty_cache, protect,
-    restore, segments, source_item, translate_batch, translate_source, translate_with_recovery,
+    restore, segments, source_item, source_candidates, mask_candidate, translate_batch, translate_source, translate_with_recovery,
     validate_cache, validate_source, fetch_cache,
 )
 
@@ -39,6 +39,52 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_word_number_joiners_are_not_forced_to_be_negative_values(self):
+        for source,target in [('order-812','812 阶'),('period-43','周期为 43'),
+                              ('revision-59','第 59 次修订'),('type-4c','4c 型'),
+                              ('3-by-3','3×3'),('Spin-1','自旋为 1')]:
+            masked,literals=protect(source)
+            self.assertEqual(restore(masked,literals),source)
+            self.assertTrue(all(not value.startswith('-') for value in literals.values()),source)
+            self.assertEqual(restore(mask_candidate(source,target),literals),target)
+        with self.assertRaisesRegex(ValueError,'joining hyphen'):
+            mask_candidate('order-812','-812 阶')
+        with self.assertRaisesRegex(ValueError,'joining hyphen'):
+            mask_candidate('Spin-1','自旋−1')
+        self.assertEqual(restore(mask_candidate('rank-1','rank-1'),protect('rank-1')[1]),'rank-1')
+
+    def test_true_minus_signs_math_variables_and_verbatim_formulas_stay_protected(self):
+        for source in ['n-1','ell-1','kappa-1','pq-1',r'\tau-1','n=-812','n=−812',
+                       r'$rank-1$', '`order-812`']:
+            masked,literals=protect(source)
+            self.assertEqual(restore(masked,literals),source)
+            self.assertTrue(any('-' in value or '−' in value for value in literals.values()),source)
+
+    def test_incompatible_cached_sign_is_revoked_until_correction(self):
+        source=example();item=source['results'][0]
+        item['fields']['headline']='A rank-1 bound';item['fields']['formal_title']='A rank-1 bound'
+        item['source_digest']=digest({'policy':POLICY,**{k:item[k] for k in ['id','kind','source_binding','fields']}})
+        source['source_set_digest']=digest(source['results'])
+        class TranslateRank(Client):
+            def complete(self,messages,review=False):
+                response,receipt=super().complete(messages,review)
+                if not review:
+                    response['translations']={k:v.replace('A rank-','一个秩为 ').replace(' bound','的界')
+                                              for k,v in response['translations'].items()}
+                return response,receipt
+        valid={**empty_cache(),'entries':translate_batch(source['results'],TranslateRank(),source)}
+        bad=copy.deepcopy(valid);entry=bad['entries'][item['source_digest']]
+        for field in ['headline','formal_title']:entry['fields'][field]=entry['fields'][field].replace(' 1',' -1')
+        entry['segments']={k:segments(v) for k,v in entry['fields'].items()}
+        entry['content_digest']=digest({'fields':entry['fields'],'segments':entry['segments']})
+        entry['review']['content_digest']=entry['content_digest']
+        candidates=source_candidates(source,bad)
+        self.assertEqual(admitted_cache({**empty_cache(),'entries':candidates})['entries'],{})
+        self.assertEqual(candidates[item['source_digest']]['review']['previous_source_context'],REVIEW_CONTEXT)
+        current,stats=translate_source(source,bad,TranslateRank())
+        self.assertEqual(stats['pending'],0)
+        self.assertEqual(current['entries'][item['source_digest']]['fields']['headline'],valid['entries'][item['source_digest']]['fields']['headline'])
+
     def test_generation_and_review_receive_complete_unmasked_definitions(self):
         source=example()
         item=source['results'][0]

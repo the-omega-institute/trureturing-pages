@@ -29,6 +29,10 @@ FIELDS = ('headline', 'formal_title', 'question', 'finding', 'context', 'impact'
 LIMIT = 32 * 1024 * 1024
 HASH = re.compile(r'sha256:[a-f0-9]{64}\Z')
 PLACEHOLDER = re.compile(r'__LITERAL_[a-f0-9]{12}_\d+__')
+NUMBERED_TERMS = frozenset(('arity base bound by case characteristic class codimension color colour '
+    'degree depth dimension height index length level mod modulo multiplicity non order period phase '
+    'rank revision size spin stage step tier token type version weight width').split())
+WORD_BEFORE = re.compile(r'(?<![A-Za-z\\])([A-Za-z]+)\Z')
 LITERAL = re.compile(
     r'```[\s\S]*?```|`[^`\n]+`|\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]+\$|'
     r'\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|https?://[^\s)]+|'
@@ -95,15 +99,23 @@ def validate_source(value):
     return value
 
 
+def numbered_modifier(text, match):
+    """English numbered modifiers use a joining hyphen, not a unary minus."""
+    word = WORD_BEFORE.search(text[:match.start()])
+    return (word[1] if word and word[1].lower() in NUMBERED_TERMS else '') if match[0].startswith('-') else ''
+
+
 def protect(text):
     if PLACEHOLDER.search(text):
         raise ValueError('Source contains a reserved translation placeholder')
     prefix = hashlib.sha256(text.encode()).hexdigest()[:12]
     literals = {}
     def replace(match):
+        joining = bool(numbered_modifier(text, match))
+        literal = match[0][1:] if joining else match[0]
         key = f'__LITERAL_{prefix}_{len(literals)}__'
-        literals[key] = match[0]
-        return key
+        literals[key] = literal
+        return ('-' if joining else '') + key
     return LITERAL.sub(replace, text), literals
 
 
@@ -274,6 +286,8 @@ strict bounds, partial results and open cases. Add no claims or explanations. Em
 The results provide field mappings and the complete original formulas and definitions for context.
 Use those definitions to disambiguate terminology and modifier order; translate only the strings keys,
 retaining their placeholders in the output.
+Joining hyphens in numbered modifiers such as rank-1 or order-812 do not make the numbers negative.
+Preserve genuine negative values and subtractions.
 Distinguish established results from hypothetical sufficient conditions. Use Chinese words for spelled-out numbers.
 When previous_attempt_issues is supplied, revise previous_translations to resolve those review issues,
 checking every correction against the English source. Return every string.'''
@@ -298,10 +312,14 @@ def mask_candidate(original, translated):
     """Recover source placeholders for correction feedback from a cached candidate."""
     _, literals = protect(original)
     parts, cursor = [], 0
-    for token, literal in literals.items():
+    for (token, literal), match in zip(literals.items(), LITERAL.finditer(original)):
         offset = translated.find(literal, cursor)
         if offset < 0:
             raise ValueError('Cached candidate changed a source literal')
+        if numbered_modifier(original, match) and offset and translated[offset-1] in '-−':
+            word = WORD_BEFORE.search(translated[:offset-1])
+            if translated[offset-1] == '−' or not word or word[1].lower() not in NUMBERED_TERMS:
+                raise ValueError('An English word-number joining hyphen became a negative value')
         parts.extend([translated[cursor:offset], token])
         cursor = offset + len(literal)
     parts.append(translated[cursor:])
@@ -312,6 +330,13 @@ def mask_candidate(original, translated):
 
 
 def review_fields(items, fields_by_source, generations, client, source, masked=None):
+    for item in items:
+        for field, original in item['fields'].items():
+            try:
+                mask_candidate(original, fields_by_source[item['source_digest']][field])
+            except ValueError as error:
+                raise TranslationRejected([{'id': item['source_digest'], 'field': field,
+                    'reason': str(error)}], masked or {}, 'Translation failed literal preservation') from error
     rows = [{'id': item['source_digest'], 'kind': item['kind'], 'english': item['fields'],
              'chinese': fields_by_source[item['source_digest']]} for item in items]
     review, receipt = client.complete([{'role': 'system', 'content': REVIEW},
@@ -344,9 +369,6 @@ def review_fields(items, fields_by_source, generations, client, source, masked=N
 
 
 def review_cached(items, candidates, client, source):
-    for item in items:
-        for field, original in item['fields'].items():
-            mask_candidate(original, candidates[item['source_digest']]['fields'][field])
     return review_fields(items,
         {item['source_digest']: candidates[item['source_digest']]['fields'] for item in items},
         {item['source_digest']: candidates[item['source_digest']].get('generation', {}) for item in items},
@@ -441,11 +463,30 @@ def translation_batches(pending, batch_size=8, max_characters=6000):
     return batches
 
 
+def source_candidates(source, previous):
+    """Recheck cached literal meaning when the source lexer becomes more precise."""
+    wanted = {r['source_digest'] for r in source['results']}
+    candidates = {k: v for k, v in previous['entries'].items() if k in wanted}
+    for item in source['results']:
+        key = item['source_digest']
+        entry = candidates.get(key)
+        if not entry or entry['review'].get('source_context') != REVIEW_CONTEXT:
+            continue
+        try:
+            for field, original in item['fields'].items():
+                mask_candidate(original, entry['fields'][field])
+        except ValueError:
+            review = dict(entry['review'])
+            review['previous_source_context'] = review.pop('source_context')
+            candidates[key] = {**entry, 'review': review}
+    return candidates
+
+
 def translate_source(source, previous, client, *, batch_size=8, workers=6, checkpoint=None):
     validate_source(source)
     validate_cache(previous)
     wanted = {r['source_digest'] for r in source['results']}
-    candidates = {k: v for k, v in previous['entries'].items() if k in wanted}
+    candidates = source_candidates(source, previous)
     entries = admitted_cache({**empty_cache(), 'entries': candidates})['entries']
     pending = [r for r in source['results'] if r['source_digest'] not in entries]
     batches = translation_batches([r for r in pending if r['source_digest'] in candidates], batch_size)
