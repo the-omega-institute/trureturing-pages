@@ -202,7 +202,14 @@ def write_status(output, value):
         source, target = ROOT / "site/assets" / name, output / "assets" / name
         if source.resolve() != target.resolve():
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, target)
+            if name == "locales/zh-CN.json" and target.exists():
+                # Research generation adds source-bound display translations.
+                # Staging status last must retain them while refreshing UI copy.
+                translations = json.loads(target.read_text())
+                translations.update(json.loads(source.read_text()))
+                target.write_text(json.dumps(translations, ensure_ascii=False, indent=2) + "\n")
+            else:
+                shutil.copyfile(source, target)
 
 
 def refresh_status(output, *, previous_url=None, releases_file=None, ancestry_file=None,

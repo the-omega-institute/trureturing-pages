@@ -20,7 +20,7 @@ const route = path => root + path;
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), found = [];
       while (walker.nextNode()) {
         const n=walker.currentNode;
-        if (!n.parentElement.closest('script,style,textarea,code,pre,.katex,math,.site-language,[data-i18n-original]') && /\p{Script=Han}/u.test(n.textContent)) found.push(n.textContent);
+        if (n.parentElement.checkVisibility() && !n.parentElement.closest('script,style,textarea,code,pre,.katex,math,.site-language,[data-i18n-original]') && /\p{Script=Han}/u.test(n.textContent)) found.push(n.textContent);
       }
       for(const n of document.querySelectorAll('[title],[aria-label],[placeholder]')) if(!n.closest('.site-language')) for(const k of ['title','aria-label','placeholder']) if(/\p{Script=Han}/u.test(n.getAttribute(k)||''))found.push(n.getAttribute(k));
       return found;

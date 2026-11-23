@@ -123,6 +123,7 @@ def result_story(problem, record, item, authored=None):
     entry = authored.get(record['id'], {})
     if entry.get('binding') == story_binding(problem, record):
         return {**entry['en'], 'impact': entry['en'].get('context') or scope_impact(item),
+                'translations': {'zh-CN': entry.get('zh-CN', {})},
                 'origin': 'source-bound-editorial', 'binding': entry['binding']}
     assessment = item.get('assessment', {})
     sections = problem.get('sections', {})

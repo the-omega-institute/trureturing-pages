@@ -272,6 +272,82 @@
         "idea": "用整数基重建序列，逐次证明乘积保持整数性，再通过归纳覆盖所有正整数次幂。",
         "boundary": "结论针对形式级数，无需解析收敛或有限支撑假设。"
       }
+    },
+    "sud-marshall-wang-rieffel-wudarski-2022-maten-worst-case-fidelity": {
+      "binding": "8d39ef0f76f59433bc8dfeed1e1fa5dbdea1412fa993775ce4814d442b245b58",
+      "en": {
+        "headline": "The sharp worst-case MATEN process fidelity is $4^{-N}$ for $N\\ge2$",
+        "question": "We conjecture that the effective channel with the maximally entangled $\\chi$ matrix is the worst case scenario for the proposed MATEN protocol.",
+        "context": "MATEN retains each single-qubit process marginal and discards correlations between different process coordinates. A worst-case fidelity bound determines how much global process information this approximation can lose even when the marginals are known exactly.",
+        "finding": "The product of single-site process marginals has squared fidelity at least four to the minus N, with equality for cyclic wire permutations on at least two qubits.",
+        "idea": "1. Classical overlap. For a probability distribution $p$ on the Pauli strings, let $qk(j)=\\sum{x:xk=j}p(x)$.",
+        "boundary": ""
+      },
+      "zh-CN": {
+        "headline": "MATEN 过程保真度的最坏情形精确值：当 $N\\ge2$ 时为 $4^{-N}$",
+        "question": "原文猜测：对于提出的 MATEN 协议，过程矩阵 $\\chi$ 最大纠缠的有效信道会给出最坏情形。",
+        "context": "MATEN 保留每个量子比特的过程边缘分布，并舍去不同过程坐标之间的关联。即使这些边缘分布已被精确确定，最坏情形的保真度界仍能告诉我们，这种近似最多会损失多少整体过程信息。",
+        "finding": "我们证明：单比特过程边缘分布的乘积与原过程的平方保真度至少为 $4^{-N}$；当量子比特数不少于两个时，循环置换线路可达到等号。",
+        "idea": "先研究经典概率分布的重叠：对于 Pauli 串上的分布 $p$，取坐标边缘分布 $q_k(j)=\\sum_{x:x_k=j}p(x)$。",
+        "boundary": ""
+      }
+    },
+    "kumar-peng-tran-2022-modular-integer-complexity-conjecture-4-4": {
+      "binding": "2f93bedefd20e5aa9a316d5b453fa9841b9c96868f157519576b6d5394789af5",
+      "en": {
+        "headline": "Kumar–Peng–Tran Conjecture 4.4 fails at modulus 17",
+        "question": "E(m, 2) is the third most inefficient for odd m.",
+        "context": "The settlement supplies a counterexample to the individual-base reading of the source's third-place assertion. At $m=17$, base $2$ has inefficiency at most six while bases $1$, $3$ and $16$ each have inefficiency greater than six.",
+        "finding": "Three unit bases modulo seventeen have greater inefficiency than base two.",
+        "idea": "The module defines $V(s,n)$ as the finite set of residues obtainable from expressions with at most $n$ leaves.",
+        "boundary": ""
+      },
+      "zh-CN": {
+        "headline": "模数 17 给出 Kumar–Peng–Tran 猜想 4.4 的反例",
+        "question": "对于奇数模数 $m$，底数 $2$ 的低效程度 $E(m,2)$ 是否总排在第三位？",
+        "context": "按单个底数分别比较的原文解读，这个反例推翻了“底数 2 排第三”的断言。取 $m=17$ 时，底数 $2$ 的低效程度至多为六，而底数 $1$、$3$、$16$ 的低效程度都大于六。",
+        "finding": "我们给出模 17 下的三个可逆底数，它们的低效程度都严格高于底数 2。",
+        "idea": "用 $V(s,n)$ 表示由至多含 $n$ 个叶节点的表达式能得到的剩余类组成的有限集合。",
+        "boundary": ""
+      }
+    },
+    "manju-sharma-2024-conjecture-4-4-refutation": {
+      "binding": "28413a78cd3fe105c8f81d4150f2f3545f9ce1bf63f9e30eeae2ab2fea772a9a",
+      "en": {
+        "headline": "Manju–Sharma's printed Conjecture 4.4",
+        "question": "Under these hypotheses, Conjecture 4.4, lines 1287–1289, asserts the\nfollowing three statements together, universally over all the objects above: $$\\begin{aligned}\n D\\text{ is inner}&\\ \\Longleftrightarrow\\ p^{-e}\\operatorname{Adj}(A)C\\in\\mathbb Z^N,\\\\\n (\\forall i<N,\\ p^e\\mid c_i)&\\ \\Longrightarrow\\ D\\text{ is inner},\\\\\n (\\forall i<N,\\ p\\mid c_i)&\\ \\Longrightarrow\\ D\\text{ is inner}.\n\\end{aligned}$$",
+        "context": "The claim seeks an integral innerness criterion from the generator value of a twisted derivation. A faithful counterexample must keep the actual cyclotomic integer ring, its ordered power basis, its two endomorphisms and the full product law.",
+        "finding": "A verified counterexample disproves the recorded statement.",
+        "idea": "Take the actual O4=RingOfIntegers (CyclotomicField 4 Rat).",
+        "boundary": "both extra sufficient implications have false antecedents here because c0=1. Neither is independently refuted."
+      },
+      "zh-CN": {
+        "headline": "Manju–Sharma 原文猜想 4.4 的反例与结论范围",
+        "question": "原文猜想 4.4 在所列假设下，同时对全部相关对象断言以下三个命题：$$\\begin{aligned}D\\text{ 为内导子}&\\ \\Longleftrightarrow\\ p^{-e}\\operatorname{Adj}(A)C\\in\\mathbb Z^N,\\\\(\\forall i<N,\\ p^e\\mid c_i)&\\ \\Longrightarrow\\ D\\text{ 为内导子},\\\\(\\forall i<N,\\ p\\mid c_i)&\\ \\Longrightarrow\\ D\\text{ 为内导子}.\\end{aligned}$$",
+        "context": "该猜想试图从扭导子在生成元处的取值，得到整数环上的内导子判据。反例必须保留实际的分圆整数环、有序幂基、两个环自同态，以及完整的乘积法则，才能确实回答原问题。",
+        "finding": "经核验的反例推翻了原文同时断言的整体命题。",
+        "idea": "在实际的四分圆数域整数环中构造反例。",
+        "boundary": "在这个反例中 $c_0=1$，因此另外两个充分条件的前提都不成立；它们没有被分别反驳。"
+      }
+    },
+    "campbell-2010-log-negativity-resource-independence": {
+      "binding": "a79210c32f1ae2d6180510d712d224720de24eb032b03db8a7ba50359de941b2",
+      "en": {
+        "headline": "Log-negativity entangling capacity depends on the input resource for CPTP maps",
+        "question": "The most obvious open question is whether log-negativity EC is resource independent for all unitaries, or indeed all CPTP maps, or whether this is a singular feature of 2-qubit gates.",
+        "context": "Resource independence asks whether prior entanglement can improve the maximum increase of the same entanglement measure. Log-negativity vanishes on every PPT state, including bound-entangled states.",
+        "finding": "The all-CPTP clause is refuted.",
+        "idea": "The five Tiles product vectors define an orthogonal projector $P$; put $Q=I9-P$, $\\tau=Q/4$, $\\phi=(|00\\rangle+|11\\rangle)/\\sqrt{2}$, $\\Phi=|\\phi\\rangle\\langle\\phi|$, and $F=|22\\rangle\\langle22|$.",
+        "boundary": "The unitary clause and the source's two-qutrit unitary conjecture remain open."
+      },
+      "zh-CN": {
+        "headline": "对于 CPTP 映射，对数负性纠缠能力会依赖输入资源",
+        "question": "对数负性纠缠能力是否对所有酉操作、乃至所有完全正保迹映射（CPTP 映射）都不依赖输入资源？还是说，这种独立性只是双量子比特门的特殊性质？",
+        "context": "资源独立性问的是：预先共享的纠缠，能否提高同一种纠缠度量的最大增量？所有 PPT 态的对数负性都为零，其中也包括束缚纠缠态。",
+        "finding": "我们反驳了“对所有 CPTP 映射都成立”这一分句。",
+        "idea": "五个 Tiles 乘积向量定义正交投影 $P$；再取 $Q=I_9-P$、$\\tau=Q/4$、$\\phi=(|00\\rangle+|11\\rangle)/\\sqrt{2}$、$\\Phi=|\\phi\\rangle\\langle\\phi|$ 和 $F=|22\\rangle\\langle22|$。",
+        "boundary": "关于酉操作的分句，以及原文针对两个三能级量子系统的酉操作猜想，仍未解决。"
+      }
     }
   }
 }
