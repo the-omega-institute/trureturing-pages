@@ -1,0 +1,10 @@
+{
+  "schema_version": "prior-results.v1",
+  "results": [
+    {
+      "id": "erdos-1979-exactly-one-divisor-unimodality",
+      "reason": "Already disproved by S. Cambie (arXiv:2501.10333, 2025); erdosproblems.com #692. The release re-verifies a known answer and is not headlined.",
+      "source_url": "https://www.erdosproblems.com/692"
+    }
+  ]
+}

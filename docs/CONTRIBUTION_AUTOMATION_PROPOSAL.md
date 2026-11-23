@@ -1,6 +1,6 @@
 # Contributions and follow-up research
 
-Conjectures opens with a release overview and a unified list of contributions: source-bound editorial selections first, then the automatic reading order.
+Conjectures opens with a release overview and a unified, automatically ranked list of contributions. Every published result participates in the same order; new results can replace earlier leaders without a selected-ID list.
 Pages owns both the ranking policy and its implementation. trureturing keeps its
 existing dossiers, proof descriptions, release artifacts and release notification.
 There are no new required upstream fields and no new mathematical research tasks.
@@ -13,7 +13,7 @@ or visible point totals. OEIS and paper-derived results share one list. Original
 source links and exact mathematical statements remain in the expanded evidence.
 Open questions are grouped in a secondary disclosure: named questions and related foundations, extensions of existing results, and external classics. The separate Millennium map is not presented as our promised future work.
 
-Research opens with original questions and precise answers from editorial and threshold-selected results, then lists public papers and preprints by date. Outreach supplies either a
+Research opens with original questions and precise answers from automatically threshold-selected results, then lists public papers and preprints by date. Outreach supplies either a
 public paper or mutually confirmed active joint research. The follow-up copy is:
 
 - “Further research on {topic} — see more details here: [arXiv / Paper].”
@@ -22,45 +22,26 @@ public paper or mutually confirmed active joint research. The follow-up copy is:
 Either qualifies independently; both may appear. Associations use exact problem
 IDs, not guessed links between papers mentioning similar topics.
 
-## Source-bound editorial selection
+## Automatic replacement on publication
 
-`config/editorial-pins.v1.json` owns a small reviewed reading order in Pages.
-These entries are not claims of objective impact, novelty, author endorsement or
-collaboration. They do not modify the numerical score. The first three valid
-selections lead Research; all valid pins lead Conjectures. Other results still
-enter Research automatically when they satisfy the existing threshold.
+Every build evaluates all currently published results and sorts them by score,
+then conceptual contribution, proof methods and stable ID. There are no manually
+pinned positions or overrides of the Research selection thresholds. A new result
+enters the same calculation immediately on publication. Higher-scoring arrivals
+replace earlier leaders; lower-scoring arrivals remain in their ranked positions.
+Changed evidence recomputes the order, and withdrawn results leave the projection.
 
-Every entry contains the exact released result ID, a reason, headline, venue,
-source URL and locator, answer, visible scope, and bilingual editorial copy.
-`quote_kind: verbatim` permits only whitespace and Markdown blockquote-marker
-normalization against the released dossier's Problem section. A paraphrase is
-explicitly labeled and must carry a matching `source_excerpt`. Chinese quotations
-are labeled translations. Typeset rewrites of LaTeX are paraphrases, not purported
-verbatim quotations.
+Research uses the same order and includes every result satisfying all selection
+thresholds. Its first three qualifiers are featured; there is no quota to fill
+when fewer results qualify. Readable authored explanations never affect rank or
+eligibility, and every result has an automatic dossier-based fallback.
 
-`editorial_binding(problem, record)` binds the copy to the Problem, Motivation,
-Route and Triage sections, plus the result identity, kind, scope, statement ID,
-module, declaration and summary. A changed source URL, quotation or binding
-removes the editorial copy and priority on the next build. It is reported in
-`editorial_pins_stale`; absent releases appear in `editorial_pins_missing`.
-Unrelated release commits do not invalidate otherwise unchanged selections.
-A stale selection can still qualify automatically, using the ordinary released
-story rather than the old editorial text.
-
-To add or refresh a selection, review the released question, bibliographic
-locator, statement interpretation, proof account and exact scope first. Compute
-the binding from that reviewed snapshot and its generated result record; do not
-refresh hashes unattended merely to make stale selections pass. Keep the reason
-and Chinese copy consistent with the supported claim. The current 12 entries
-were checked against the retained released dossiers; this is not a comprehensive
-independent literature-priority review.
-
-Known prior answers belong in `excluded` with attribution and a source reference.
-They stay in the full result inventory but cannot become Research highlights.
-The index records editorial selection as `basis: editorial_pin` alongside any
-numeric `threshold_reasons` it overrides. Rebuilds remain deterministic and do not
-append duplicate news. All original proof records are available in the nested
-Verification details disclosure, including without JavaScript.
+`config/prior-results.v1.json` records cited known prior answers, with attribution
+and a public source. These records prevent an already answered question from
+becoming a new Research highlight. They never change scores or Conjectures order.
+All original proof records remain in the nested Verification details disclosure,
+including without JavaScript. Rebuilds are deterministic and replace the current
+projection without appending duplicate news.
 
 ## Automatic ranking in Pages
 
@@ -116,7 +97,7 @@ citations. These estimates can be inspected under “Why this order” in each r
 The original verified statement and proof remain the authority for mathematical
 claims. Existing human abstracts and dossier prose supply the short explanation.
 
-The current release's 1,419 results are evaluated directly from their existing
+Every result in the current release is evaluated directly from its existing
 content. The existing `truth-release-published` notification triggers the normal
 Pages build, which recomputes and stores the order. Outreach updates do not add
 ranking points. No extra trureturing issue, schema, export or release is required.
@@ -127,7 +108,7 @@ The editable Pages policy is `config/contribution-policy.v3.json`. By default a
 result qualifies at **50 points or above**, with documented problem significance
 at least **2/4** and at least **22.5 contribution points**. These are evidence-based
 editorial thresholds, not citation counts, percentile cutoffs or peer consensus.
-There is no quota: a release with no valid pins or qualifying results produces an empty
+There is no quota: a release with no qualifying results produces an empty
 selection rather than promoting low-scoring entries to fill the layout.
 
 Every release build writes `assets/research-milestones.json`, bound to the same
@@ -145,7 +126,7 @@ results; implementation details and formula-heavy excerpts remain in the proof
 record. Fourteen bilingual explanations in `site/assets/contribution-stories.json`
 are bound by SHA-256 to their problem sections, result kind, scope and statement
 identity. A changed input invalidates the authored story and uses the fallback.
-An authored story never affects the score or qualification; editorial pins are a separate, explicitly recorded selection mechanism. Small diagrams
+An authored story never affects the score or qualification. Small diagrams
 explain mathematical relationships and are labelled as explanations, not data.
 
 Publications and confirmed collaborations remain independent of this threshold.
