@@ -32,7 +32,7 @@ def readable(text, *, limit=1):
     """Retain mathematical statements while omitting implementation metadata."""
     selected = []
     for sentence in sentences(text):
-        if not 45 <= len(sentence) <= 540 or PIPELINE.search(sentence):
+        if not 25 <= len(sentence) <= 540 or PIPELINE.search(sentence):
             continue
         if re.search(r'\bFin\s+\d|https?://|\b(?:preregister|declaration|kernel.checked|Lean|Mathlib|admission|private|source_path|definitionally)\b', sentence, re.I):
             continue
@@ -63,6 +63,13 @@ def source_question(text, *, include_definition=True):
             if include_definition and re.match(r'^(?:Here\b|where\b|The quantity\b)', definition) and len(quote + definition) <= 1800:
                 quote += ' ' + definition
             return quote
+    paragraphs = re.split(r'\n\s*\n', text)
+    for i, paragraph in enumerate(paragraphs):
+        if re.search(r'\bConjecture\s+[\d.]+.{0,100}\b(?:asserts?|states?|asks?)\b', paragraph, re.I | re.S):
+            if i + 1 < len(paragraphs) and paragraphs[i + 1].lstrip().startswith('$$'):
+                paragraph += ' ' + paragraphs[i + 1]
+            if len(paragraph) <= 1800:
+                return paragraph
     return readable(text)
 
 
@@ -83,9 +90,32 @@ def scope_impact(item):
 
 def is_assertion(text):
     """A topic heading alone does not tell the reader what was established."""
+    if (re.search(r'\b(?:open question|whether|we conjecture|we ask)\b|\?', text, re.I)
+            and not re.search(r'\b(?:prov\w*|refut\w*|disprov\w*|counterexample|settles?|answers?)\b', text, re.I)):
+        return False
     return bool(re.search(r'\b(?:is|are|has|have|holds?|satisf(?:y|ies)|gives?|forces?|equals?|'
                           r'attains?|determines?|admits?|exists?|implies?|refutes?|proves?|'
                           r'establish(?:es)?|characteri[sz](?:es)?)\b|[≤≥=]|证明|反例|等于|存在|成立', text, re.I))
+
+
+def source_answer_and_scope(problem):
+    """Use explicit settlement prose, keeping unresolved source clauses visible."""
+    prose = re.sub(r'(?m)^>[^\n]*(?:\n>[^\n]*)*', '', problem.get('sections', {}).get('Problem', ''))
+    answer = scope = ''
+    for sentence in sentences(prose):
+        clean = readable(sentence)
+        if not clean:
+            continue
+        if not answer and re.search(r'\b(?:is|are) (?:refuted|disproved|proved|settled)\b', clean, re.I) and not re.search(r'\b(?:already|previously)\b', clean, re.I):
+            answer = clean
+        if not scope and re.search(r'\b(?:clause|classification|question)\b.{0,120}\bremains? open\b|\bleaves? .{0,120} open\b', clean, re.I):
+            scope = clean
+    triage = problem.get('sections', {}).get('Triage', '')
+    boundary = re.search(r'(?im)^[^\n]*\bLogical boundary\b[^\n]*(?:\n(?!\s*[-*]\s|\s*\n)[^\n]*)*', triage)
+    if boundary:
+        text = re.sub(r'^[\s*\-]*Logical boundary[\s:*]*', '', boundary[0], flags=re.I)
+        scope = readable(text, limit=2) or scope
+    return answer, scope
 
 
 def result_story(problem, record, item, authored=None):
@@ -96,9 +126,11 @@ def result_story(problem, record, item, authored=None):
                 'origin': 'source-bound-editorial', 'binding': entry['binding']}
     assessment = item.get('assessment', {})
     sections = problem.get('sections', {})
+    explicit_answer, explicit_scope = source_answer_and_scope(problem)
     finding = readable(assessment.get('contribution'))
     if not is_assertion(finding):
         finding = ''
+    finding = finding or explicit_answer
     question = source_question(sections.get('Problem')) or source_question(record.get('scope'))
     question_core = source_question(sections.get('Problem'), include_definition=False) or source_question(record.get('scope'), include_definition=False)
     # A terse module abstract can merely repeat its title. For a fully delivered
@@ -140,7 +172,7 @@ def result_story(problem, record, item, authored=None):
             'impact': context or scope_impact(item),
             'finding': finding,
             'idea': idea,
-            'boundary': readable(assessment.get('next_question')),
+            'boundary': readable(assessment.get('next_question')) or explicit_scope,
             'origin': 'released-dossier', 'binding': story_binding(problem, record)}
 
 

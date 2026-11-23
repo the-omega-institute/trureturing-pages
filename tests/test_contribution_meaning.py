@@ -9,7 +9,7 @@ from pathlib import Path
 import unittest
 
 from lib.contributions import build_index, documented_year, scope_evidence
-from lib.contribution_stories import result_story, readable, source_question
+from lib.contribution_stories import result_story, readable, source_question, source_answer_and_scope, is_assertion
 from lib.living_library import parse_problem
 from lib.reading_views import render_result_index, story_inline
 from tests.test_reading_views import document
@@ -79,6 +79,17 @@ class ContributionMeaningTests(unittest.TestCase):
     def test_question_selection_skips_quoted_definitions(self):
         text = '> Definition 1. A K-set is a set with the stated property.\n\n> Open Question: Find the smallest K-set.'
         self.assertEqual(source_question(text), 'Open Question: Find the smallest K-set.')
+
+    def test_open_question_is_not_repeated_as_an_answer(self):
+        self.assertFalse(is_assertion('The open question is whether the capacity is independent of the input.'))
+        problem = {'sections': {'Problem': '> Is every map in A or B independent?\n\nThe all-A clause is refuted. The B clause remains open.'}}
+        answer, scope = source_answer_and_scope(problem)
+        self.assertEqual(answer, 'The all-A clause is refuted.')
+        self.assertEqual(scope, 'The B clause remains open.')
+
+    def test_unquoted_mathematical_paraphrase_wins_over_bibliographic_metadata(self):
+        text = 'The reference names Conjecture 4.3.\n\nUnder these hypotheses, Conjecture 4.4 asserts the following together:\n\n$$A=B.$$'
+        self.assertTrue(source_question(text).startswith('Under these hypotheses'))
 
     def test_question_answer_and_importance_are_visible_in_the_closed_row(self):
         source = document(f'<main><article class="news-result" id="{self.record["id"]}">Exact proof record</article></main>')
