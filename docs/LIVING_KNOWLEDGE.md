@@ -157,8 +157,6 @@ permission; build/deployment jobs retain their existing permissions. It reuses
 immutable ancestry facts already saved by deployment preparation while reading
 mutable release, branch and CI metadata afresh. The branch
 is not a truth release, deployment source or ingestion receipt. It never edits
-upstream truth or confirms an unserved candidate. Version status and Evolution
-read its public JSON through the Contents API, with Raw, the deployed snapshot
-and embedded last-good status as fallbacks. Source and release observations
-older than two hours are visibly stale. This updates diagnostics on no-op runs without downloading or
-redeploying the complete site artifact.
+upstream truth or confirms an unserved candidate. Automation can read this internal JSON independently of site content. The public
+status page and Evolution's operational counters have been removed. This updates
+diagnostics on no-op runs without downloading or redeploying the complete site artifact.

@@ -25,6 +25,7 @@ if (index) {
     more.textContent = t('Show {0} more results', Math.min(pageSize, Math.max(0, total - limit)));
     clear.hidden = !search.value;
     index.querySelector('[data-result-empty]').hidden = total !== 0;
+    dispatchEvent(new Event('research-results-rendered'));
   }
   search.addEventListener('input', () => { limit = pageSize; render(); });
   clear.addEventListener('click', () => {
@@ -49,4 +50,5 @@ if (index) {
   index.querySelector('[data-index-controls]').hidden = false;
   render(); followLink();
   addEventListener('hashchange', followLink);
+  addEventListener('research-translations-ready', render);
 }

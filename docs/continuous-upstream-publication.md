@@ -64,7 +64,7 @@ When no resource publication is available, selection reports
 `awaiting-scribe-publication` and skips downloading and building. This is a
 successful polling attempt with a **blocked publication**, not a synchronized
 source. Pages records the report source and reason on its diagnostic branch;
-the version-status page displays the wait even when the workflow is green.
+the internal status JSON records the wait even when the workflow is green.
 Changed script content is never substituted by a published older definition.
 
 For state-table sources with the existing `truth-export` interface, Pages runs

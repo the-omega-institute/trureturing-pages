@@ -1,11 +1,9 @@
 # Version status contract and publication
 
-`version-status.html` is a compact primary navigation entry alongside Evolution
-and Conjectures. The home page only gains that link. The five counts, live and
-upstream digests, lag, pending/blocked counts and quarantine total are visible;
-per-release details are collapsed by default. The existing site localization
-provides English by default and Chinese through `?lang=zh-CN` or the language
-selector.
+Operational diagnostics are machine-readable data for synchronization and deployment.
+The public version-status page and its navigation entries have been removed.
+`write_status` writes JSON, removes a retired cached HTML page, and leaves display
+assets and translation dictionaries alone.
 
 The generated artifact is **`_site/data/version-status.v1.json`**, served at
 `data/version-status.v1.json`, beside Library history and ingestion receipts.
@@ -102,48 +100,19 @@ snapshot with its original counts, digests and `observed_at`, and records the
 failed refresh stage/time. With no valid snapshot it emits explicit unavailable
 state and null counts. It never substitutes zero for a failed network read.
 
-The page embeds the **same status JSON as its deployed data file** in an escaped
-`application/json` script. On a first visit it can render that snapshot even
-when fetching the JSON returns 404, times out, fails validation or is older than
-the HTML snapshot. It retains the last valid in-memory observation for subsequent
-refreshes and labels the view “Showing the last valid version” / “显示的是最后有效版本”,
-including the last observed halt stage and the status refresh failure. It needs
-neither browser storage nor a prior successful visit. With no snapshot it says
-status is unavailable. Source metadata is escaped before HTML rendering.
-
-An observation older than two hours is visibly marked stale, even if fetching
-the deployed JSON succeeds. The seven-day publication inactivity signal is also
-recomputed from the browser clock. Both thresholds describe observation age or
-publication inactivity; they do not fabricate progress or failure evidence.
-
-The downstream `pages-sync-status` branch publishes observations independently
-of content deployment. Refresh first reads its public JSON through GitHub's
-Contents API, with the raw JSON media type and a unique observation query. No
-token is sent. A moving Raw CDN URL can return the old branch contents even when
-the caller requests no cache and changes the query; the API avoids that measured
-delay. If the public API is limited or unavailable, the browser tries Raw, then
-the deployed JSON, then the embedded last-good snapshot. All diagnostic responses
-must pass the existing contract, be `observed` rather than unserved `on-deploy`
-candidates, and not precede the last valid observation.
-
-The page explicitly shows observation time and stale/unknown-current-progress
-notices. An observation still confirms deployment only through the served Library
-and receipt ledger. This diagnostic path reads no private workflow logs and does
-not create a content deployment path or bypass freshness and admission gates.
-
-`awaiting-upstream-ci` and `upstream-ci-failed` describe the latest published
-report's exact source. Its CI run/status/conclusion are shown separately from
-the moving `dev` CI. An older admitted report may update live content while that
-newer report remains unresolved; a successful downstream polling run does not
-erase this distinction.
+The `pages-sync-status` branch retains validated observations independently of
+content deployment. These observations do not create receipts, confirm unserved
+candidates, or bypass freshness/admission gates. A successful polling workflow
+can still be waiting for upstream CI or a compatible resource publication.
+Source metadata and report-specific CI remain separate from the moving dev head.
 
 ## Workflow and offline use
 
 `pages.yml` observes status after preflight even if no release is eligible, and
 retains `version-status-reconciliation`. After ingestion/finalization/cache save,
 it stages version status in `_site` before the existing freshness check and
-`upload-pages-artifact`; this also runs on cache restores. `data/` and the embedded
-HTML therefore travel in the same Pages artifact as Library history/receipts.
+`upload-pages-artifact`; this also runs on cache restores. `data/` travels in the same Pages artifact as Library history/receipts; no
+public status HTML is generated.
 On failure, a diagnostic observation reads local completed history against the
 actual served ledger and is retained as `version-status-build`. No new deployment
 is attempted on failure. The completed ingestion cache remains owned by the

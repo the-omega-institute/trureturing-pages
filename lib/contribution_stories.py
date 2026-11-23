@@ -118,12 +118,11 @@ def source_answer_and_scope(problem):
     return answer, scope
 
 
-def result_story(problem, record, item, authored=None):
+def _english_story(problem, record, item, authored=None):
     authored = load_stories() if authored is None else authored
     entry = authored.get(record['id'], {})
     if entry.get('binding') == story_binding(problem, record):
         return {**entry['en'], 'impact': entry['en'].get('context') or scope_impact(item),
-                'translations': {'zh-CN': entry.get('zh-CN', {})},
                 'origin': 'source-bound-editorial', 'binding': entry['binding']}
     assessment = item.get('assessment', {})
     sections = problem.get('sections', {})
@@ -175,6 +174,14 @@ def result_story(problem, record, item, authored=None):
             'idea': idea,
             'boundary': readable(assessment.get('next_question')) or explicit_scope,
             'origin': 'released-dossier', 'binding': story_binding(problem, record)}
+
+
+def result_story(problem, record, item, authored=None):
+    from lib.research_translations import source_item
+    story = _english_story(problem, record, item, authored)
+    story['formal_title'] = item.get('title') or record['title']
+    story['translation_source'] = source_item(record, story, story['formal_title'])['source_digest']
+    return story
 
 
 def build_milestones(snapshot, records, ranking, destination=None):

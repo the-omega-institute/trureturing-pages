@@ -157,14 +157,14 @@ class ReadingViewsTests(unittest.TestCase):
         out=add_spaces_navigation(raw); p=Fragments(out)
         nav=next(n for n in p.select(tag='nav') if n.attrs.get('aria-label')=='Primary navigation')
         self.assertNotIn('spaces.html',p.raw(nav));self.assertNotIn('version-status.html',p.raw(nav))
-        self.assertIn('href="../../version-status.html"',out)
+        self.assertNotIn('href="../../version-status.html"',out)
         self.assertEqual(out,add_spaces_navigation(out))
         clean = add_spaces_navigation(raw.replace('spaces.html', 'spaces').replace('version-status.html', 'version-status'))
         clean_parsed = Fragments(clean)
         clean_nav = next(n for n in clean_parsed.select(tag='nav') if n.attrs.get('aria-label') == 'Primary navigation')
         self.assertNotIn('version-status', clean_parsed.raw(clean_nav))
         self.assertNotIn('spaces', clean_parsed.raw(clean_nav))
-        self.assertIn('href="../../version-status"', clean)
+        self.assertNotIn('href="../../version-status"', clean)
 
     def test_titles_cannot_insert_markup(self):
         records,source=results();records[0]['title']='<img src=x onerror=bad()>'
@@ -191,7 +191,7 @@ class ReadingViewsTests(unittest.TestCase):
             self.assertIn('id="'+identity+'"',page)
         self.assertNotIn('evolution-reader.mjs',page)
         self.assertIn('architecture-history.js',page)
-        self.assertIn('id="publication-status"',page)
+        self.assertNotIn('id="publication-status"',page)
         self.assertIn('Point size = modules grouped here',page)
 
     def test_spaces_is_only_a_compatibility_route_to_the_atlas(self):

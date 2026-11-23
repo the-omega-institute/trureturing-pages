@@ -118,10 +118,11 @@ class VersionStatusTests(unittest.TestCase):
             self.assertEqual(value["counts"]["published"], 3)
             self.assertTrue((Path(temp) / status.STATUS_PATH).exists())
 
-    def test_refresh_failure_keeps_last_good_counts_and_embeds_fallback(self):
+    def test_refresh_failure_keeps_last_good_diagnostics_without_public_page(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             original = self.build()
+            (root / "version-status.html").write_text("Retired cached page")
             status.write_status(root, original)
             with patch.object(reconcile.GitHub, "releases", side_effect=OSError("offline")):
                 result = status.refresh_status(root, now=NOW)
@@ -130,24 +131,21 @@ class VersionStatusTests(unittest.TestCase):
             self.assertEqual(result["observed_at"], original["observed_at"])
             self.assertEqual(result["observation"]["state"], "last-good")
             self.assertEqual(result["observation"]["halt_stage"], "published")
-            html = (root / "version-status.html").read_text()
-            self.assertIn('id="version-status-snapshot"', html)
-            self.assertIn(digest("a"), html)
+            self.assertFalse((root / "version-status.html").exists())
+            self.assertEqual(json.loads((root / status.STATUS_PATH).read_text()), result)
 
     def test_status_staging_retains_generated_research_translations(self):
         from lib.reading_views import apply_reading_views
-        from lib.contribution_stories import load_stories
-        story = next(iter(load_stories().values()))
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             locale = root / "assets/locales/zh-CN.json"
             locale.parent.mkdir(parents=True)
-            locale.write_text(json.dumps({"Original question": "Stale interface copy"}))
+            locale.write_text(json.dumps({"Original question": "原问题", "A faithful explanation": "忠实的说明"}))
             apply_reading_views(root, {}, [])
-            self.assertEqual(json.loads(locale.read_text())[story['en']['finding']], story['zh-CN']['finding'])
+            before = locale.read_bytes()
             status.write_status(root, self.build())
             translations = json.loads(locale.read_text())
-            self.assertEqual(translations[story['en']['finding']], story['zh-CN']['finding'])
+            self.assertEqual(locale.read_bytes(), before)
             self.assertEqual(translations['Original question'], '原问题')
             status.write_status(root, self.build())
             self.assertEqual(json.loads(locale.read_text()), translations)
@@ -249,16 +247,15 @@ class VersionStatusTests(unittest.TestCase):
             with self.assertRaises(ValidationError):
                 validate(schema, broken)
 
-    def test_page_navigation_and_workflow_publish_status_inside_same_artifact(self):
+    def test_diagnostics_have_no_public_page_or_navigation_but_keep_workflow_contract(self):
         from lib.knowledge_pages import site_header
-        # Diagnostics remain under Evolution, not a sixth primary destination.
         header = site_header("../../")
         self.assertIn('href="../../evolution"', header)
         self.assertNotIn('href="../../version-status.html"', header)
         evolution = (ROOT / "site/evolution.html").read_text()
-        self.assertIn('id="publication-status"', evolution)
-        self.assertIn('href="version-status.html"', evolution)
-        self.assertTrue((ROOT / "site/version-status.html").exists())
+        self.assertNotIn('id="publication-status"', evolution)
+        self.assertNotIn('version-status', evolution)
+        self.assertFalse((ROOT / "site/version-status.html").exists())
         workflow = yaml.load((ROOT / ".github/workflows/pages.yml").read_text(), Loader=yaml.BaseLoader)
         steps = workflow["jobs"]["deploy"]["steps"]
         build = next(i for i, s in enumerate(steps) if "lib.version_status" in s.get("run", "") and "--for-deployment" in s["run"])

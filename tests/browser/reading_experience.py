@@ -96,15 +96,38 @@ def main():
         assert [r['score'] for r in ranked]==sorted((r['score'] for r in ranked),reverse=True)
         assert [item['id'] for item in milestones['results']]==[item['id'] for item in ranked if item['research_news']['eligible']]
         assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked]
-        if rows.locator('.story-copy[lang="zh-CN"]').count():
+        translation_cache=json.loads((args.site/'assets/locales/research.zh-CN.v1.json').read_text())
+        accepted=translation_cache['entries']
+        if accepted:
             page.goto(base+'conjectures.html?lang=zh-CN',wait_until='networkidle')
+            page.wait_for_selector('.story-copy[data-translated="true"]')
             assert page.locator('.story-copy[lang="zh-CN"]:visible').count()>0
-            assert page.locator('.story-copy[lang="en"]:visible').count()==0
-            assert '查看发布进度' in page.locator('.release-summary').inner_text()
+            for node in page.locator('.story-copy:visible').all():
+                key=node.get_attribute('data-translation-source')
+                assert node.get_attribute('lang')==('zh-CN' if key in accepted else 'en')
+            assert page.locator('a[href*="version-status"]').count()==0
+            translated_row=page.locator('[data-result-row]:has([data-translated="true"])').first
+            key=translated_row.locator('[data-translation-source]').first.get_attribute('data-translation-source')
+            headline=accepted[key]['fields']['headline']
+            page.locator('#results-query').fill(headline)
+            assert translated_row.is_visible()
+            translated_row.locator(':scope > summary').click()
+            page.wait_for_function("key => [...document.querySelectorAll('[data-translation-source]')].filter(n=>n.dataset.translationSource===key && n.checkVisibility()).every(n=>n.dataset.translated==='true')",arg=key)
+            for field in ['question','finding','impact']:
+                assert translated_row.locator(f'[data-translation-field="{field}"]').first.get_attribute('lang')=='zh-CN'
+            page.screenshot(path=str(args.output/'conjecture-chinese-reviewed.png'),full_page=True)
+            bad=json.loads(json.dumps(translation_cache))
+            for entry in bad['entries'].values():entry['review']['passed']=False
+            cache_route='**/assets/locales/research.zh-CN.v1.json'
+            page.route(cache_route,lambda route:route.fulfill(json=bad))
+            page.reload(wait_until='networkidle')
+            assert page.locator('[data-translated]').count()==0
+            assert page.locator('.story-copy[lang="en"]:visible').count()>0
+            page.unroute(cache_route)
             page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
             assert page.locator('.story-copy[lang="zh-CN"]:visible').count()==0
             assert page.locator('.story-copy[lang="en"]:visible').count()>0
-            events.append('Complete source-bound Chinese explanations survive final staging; language switching hides the other copy')
+            events.append('Reviewed Chinese content, Chinese search and expanded fields work; unreviewed cache falls back to original text')
         page.screenshot(path=str(args.output/'conjecture-contributions-desktop.png'),full_page=True)
         events.append('The first viewport shows contributions already ranked from existing upstream content; no dimension or source choices')
         if total>8:
@@ -305,10 +328,7 @@ def main():
         assert page.locator('#release-play').get_attribute('aria-label')=='Play release evolution'
         events.append('Playback advances the original graph and pauses normally')
         events.append('The original graph, time view, controls and baseline semantics work with real history')
-        page.locator('#publication-status > summary').click()
-        page.wait_for_function("!['Publication status','Checking publication status'].includes(document.getElementById('publication-summary').textContent)")
-        assert page.locator('#publication-stages li').count() in [0,5]
-        events.append('Publication diagnostics are an optional inline disclosure in Evolution')
+        assert page.locator('#publication-status,a[href*="version-status"]').count()==0
         # A corrupt Library artifact must never turn into zero changes, and a
         # retry must evict the failed request instead of caching failure forever.
         latest_path=library[-1]['path']
