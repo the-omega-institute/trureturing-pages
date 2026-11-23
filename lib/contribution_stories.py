@@ -151,7 +151,17 @@ def _english_story(problem, record, item, authored=None):
         else:
             finding = readable(assessment.get('general_scope')) or readable(record.get('scope'))
     context = readable(sections.get('Motivation'), limit=2)
-    idea = readable(delivered_prose(sections.get('Route')))
+    route = delivered_prose(sections.get('Route'))
+    idea = readable(route)
+    # An announced witness must include its definition for a standalone account.
+    if re.search(r'\bfixed density matrices[.:]?\s*$', idea, re.I):
+        blocks = re.split(r'\n\s*\n', route)
+        for before, definition in zip(blocks, blocks[1:]):
+            definition = definition.strip()
+            if (re.search(r'\bfixed density matrices[.:]?\s*$', before, re.I)
+                    and definition.startswith(('$', r'\(', r'\[')) and len(idea + definition) <= 1800):
+                idea += ' ' + definition
+                break
     dimensions = assessment.get('dimensions', {})
     if not idea:
         support = ' '.join(dimensions.get('methods', {}).get('supporting_excerpts', []))

@@ -76,6 +76,16 @@ class ContributionMeaningTests(unittest.TestCase):
         self.assertIn('math-inline', story_inline(r'The bound is $4^{-N}$ for $N\ge2$.'))
         self.assertNotIn('<script>', story_inline('<script>alert(1)</script>'))
 
+    def test_announced_fixed_density_matrices_keep_their_definition(self):
+        definition = r'$\rho=\tfrac12(|0\rangle\langle0|+|1\rangle\langle1|),\quad\sigma=I/7.$'
+        self.problem['sections']['Route'] = ('All witness identities concern only $d=7$ and the fixed density matrices\n\n'
+                                            + definition + '\n\nThe parameters satisfy the stated identity.')
+        before = self.item()
+        story = result_story(self.problem, self.record, before, authored={})
+        self.assertIn(definition, story['idea'])
+        self.assertIn('fixed density matrices', story['idea'])
+        self.assertEqual(self.item(), before)
+
     def test_question_selection_skips_quoted_definitions(self):
         text = '> Definition 1. A K-set is a set with the stated property.\n\n> Open Question: Find the smallest K-set.'
         self.assertEqual(source_question(text), 'Open Question: Find the smallest K-set.')
