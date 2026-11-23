@@ -506,6 +506,13 @@ def source_candidates(source, previous):
     return candidates
 
 
+def admit_source_cache(source, cache):
+    """Project only compatible, reviewed entries for this exact page source."""
+    validate_source(source)
+    validate_cache(cache)
+    return admitted_cache({**empty_cache(), 'entries': source_candidates(source, cache)})
+
+
 def translate_source(source, previous, client, *, batch_size=8, workers=6, checkpoint=None):
     validate_source(source)
     validate_cache(previous)
