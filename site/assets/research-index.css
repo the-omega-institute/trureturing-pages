@@ -443,6 +443,7 @@
 .research-news .story-copy,
 .research-news :is(.highlight-story, .result-story-expanded) p > .story-copy { font:inherit; color:inherit; margin:0; letter-spacing:inherit; text-transform:inherit; }
 .research-news .story-copy { display:inline; }
+.research-news .story-copy .math-inline { display:inline-block; max-width:100%; overflow-x:auto; vertical-align:middle; }
 .release-summary { display:flex; flex-wrap:wrap; gap:12px 28px; padding:13px 0 20px; border-bottom:1px solid #cdd7d0; margin-bottom:24px; color:#596d62; font-size:13px; }
 .release-summary strong { color:#285d4d; font-size:17px; margin-right:5px; font-variant-numeric:tabular-nums; }
 .contribution-home .result-summary { gap:14px; }
