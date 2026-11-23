@@ -253,7 +253,7 @@ def story_paragraphs(story, *, compact=False):
               ('idea', 'The idea'), ('finding', 'Our contribution'), ('boundary', 'Scope & next question')]
     if compact:
         fields = [('context', 'Why it matters'), ('idea', 'The idea'), ('boundary', 'Scope & next question')]
-    return ''.join(f'<p><span>{esc(label)}</span>{story_inline(story[key])}</p>'
+    return ''.join(f'<p><span>{esc(label)}</span>{story_copy(story, key)}</p>'
                    for key, label in fields if story.get(key))
 
 
@@ -266,11 +266,22 @@ def story_inline(text):
     return MARKDOWN.renderInline(' '.join(text.split()))
 
 
+def story_copy(story, key):
+    """Render each language as a complete sentence, including its mathematics."""
+    original = story_inline(story.get(key, ''))
+    translations = story.get('translations', {}).get('zh-CN', {})
+    translated = translations.get(key) or (translations.get('context') if key == 'impact' else '')
+    if not translated:
+        return original
+    return (f'<span class="story-copy" lang="en" translate="no">{original}</span>'
+            f'<span class="story-copy" lang="zh-CN" translate="no">{story_inline(translated)}</span>')
+
+
 def result_reading_lines(story):
     fields = [('question', 'Original question'), ('finding', 'Our answer'), ('impact', 'Why it matters'), ('boundary', 'Scope')]
     return ''.join(f'<span class="result-reading-line" data-story-field="{key}">'
                    f'<span class="result-reading-label">{label}</span>'
-                   f'<span class="result-reading-text">{story_inline(story[key])}</span></span>'
+                   f'<span class="result-reading-text">{story_copy(story, key)}</span></span>'
                    for key, label in fields if story.get(key))
 
 
@@ -293,16 +304,15 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
         date = (f'<p class="discovery-history"><span>{esc(history["label"])}</span><strong>{esc(history["value"])}</strong></p>') if history else ''
         person = f'<p class="discovery-person">{esc(highlight["person"])}</p>' if highlight['person'] else ''
         source = record.get('source_url', '')
-        headline = story['headline']
         cards.append(f'<article class="highlight-card" id="news-{esc(news["id"])}" data-milestone-id="{esc(news["id"])}">'
             '<aside class="discovery-context">'
             f'<p class="eyebrow">{esc(discipline_for(record.get("module")))}</p>'
             f'<strong class="discovery-contribution">{esc(highlight["headline"])}</strong>{date}{person}'
             f'<span class="highlight-outcome {esc(record["kind"])}">{esc(record["kind"].capitalize())}</span>'
             + discovery_diagram(story.get('diagram')) + '</aside><div class="discovery-story">'
-            + f'<h3><a href="{esc(news["url"])}">{story_inline(headline)}</a></h3>'
-            + f'<p class="discovery-question">{story_inline(story.get("question") or news["title"])}</p>'
-            + (f'<p class="discovery-finding">{story_inline(story["finding"])}</p>' if story.get('finding') else '')
+            + f'<h3><a href="{esc(news["url"])}">{story_copy(story, "headline")}</a></h3>'
+            + f'<p class="discovery-question">{story_copy(story, "question") or story_inline(news["title"])}</p>'
+            + (f'<p class="discovery-finding">{story_copy(story, "finding")}</p>' if story.get('finding') else '')
             + '<div class="highlight-story">' + story_paragraphs(story, compact=True) + '</div>'
             + research_followups(news['problem_id'], feed, include_mathesis=False)
             + f'<div class="news-links"><a href="{esc(news["url"])}">Explore the result ↗</a>'
@@ -357,7 +367,7 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
         formal = (f'<span class="result-formal-title">{story_inline(assessed["title"])}</span>') if story['headline'] != assessed['title'] else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
-            f'<summary>{impacts}<span class="result-summary"><strong>{story_inline(story["headline"])}</strong>{preview}{formal}</span>'
+            f'<summary>{impacts}<span class="result-summary"><strong>{story_copy(story, "headline")}</strong>{preview}{formal}</span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
             f'<div class="reading-item-body">'

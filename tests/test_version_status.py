@@ -134,6 +134,24 @@ class VersionStatusTests(unittest.TestCase):
             self.assertIn('id="version-status-snapshot"', html)
             self.assertIn(digest("a"), html)
 
+    def test_status_staging_retains_generated_research_translations(self):
+        from lib.reading_views import apply_reading_views
+        from lib.contribution_stories import load_stories
+        story = next(iter(load_stories().values()))
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            locale = root / "assets/locales/zh-CN.json"
+            locale.parent.mkdir(parents=True)
+            locale.write_text(json.dumps({"Original question": "Stale interface copy"}))
+            apply_reading_views(root, {}, [])
+            self.assertEqual(json.loads(locale.read_text())[story['en']['finding']], story['zh-CN']['finding'])
+            status.write_status(root, self.build())
+            translations = json.loads(locale.read_text())
+            self.assertEqual(translations[story['en']['finding']], story['zh-CN']['finding'])
+            self.assertEqual(translations['Original question'], '原问题')
+            status.write_status(root, self.build())
+            self.assertEqual(json.loads(locale.read_text()), translations)
+
     def test_first_failure_is_unknown_not_zero_and_missing_explicit_input_fails_soft(self):
         with tempfile.TemporaryDirectory() as temp:
             with patch.object(reconcile.GitHub, "releases", side_effect=OSError("offline")):

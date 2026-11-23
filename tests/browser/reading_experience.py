@@ -96,6 +96,15 @@ def main():
         assert [r['score'] for r in ranked]==sorted((r['score'] for r in ranked),reverse=True)
         assert [item['id'] for item in milestones['results']]==[item['id'] for item in ranked if item['research_news']['eligible']]
         assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked]
+        if rows.locator('.story-copy[lang="zh-CN"]').count():
+            page.goto(base+'conjectures.html?lang=zh-CN',wait_until='networkidle')
+            assert page.locator('.story-copy[lang="zh-CN"]:visible').count()>0
+            assert page.locator('.story-copy[lang="en"]:visible').count()==0
+            assert '查看发布进度' in page.locator('.release-summary').inner_text()
+            page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
+            assert page.locator('.story-copy[lang="zh-CN"]:visible').count()==0
+            assert page.locator('.story-copy[lang="en"]:visible').count()>0
+            events.append('Complete source-bound Chinese explanations survive final staging; language switching hides the other copy')
         page.screenshot(path=str(args.output/'conjecture-contributions-desktop.png'),full_page=True)
         events.append('The first viewport shows contributions already ranked from existing upstream content; no dimension or source choices')
         if total>8:
@@ -107,7 +116,7 @@ def main():
         assert page.locator('[data-result-row]:visible').count()==0
         page.locator('[data-clear-search]').click()
         assert page.locator('[data-result-row]:visible').count()==min(8,total)
-        title=rows.first.locator('summary strong').text_content()
+        title=rows.first.locator('summary strong').inner_text()
         page.locator('#results-query').fill(title)
         assert rows.first.is_visible()
         rows.first.locator(':scope > summary').click()
