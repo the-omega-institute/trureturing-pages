@@ -39,6 +39,26 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_inline_math_line_wrap_does_not_capture_adjacent_english_prose(self):
+        formula = '$\\nu\\frac{c+\\nu}{2}\\leq N_2(\\sigma)\\leq\n\\frac{\\nu}{2}$'
+        source = 'The bound ' + formula + ' holds for all states $\\sigma$ with fixed negativity $N(\\sigma)=\\nu$.'
+        target = '不等式 ' + formula + ' 对所有态 $\\sigma$ 成立，其中固定的负性为 $N(\\sigma)=\\nu$。'
+        masked, literals = protect(source)
+        self.assertIn(formula, literals.values())
+        self.assertIn('holds for all states', masked)
+        self.assertIn('with fixed negativity', masked)
+        self.assertEqual(restore(masked, literals), source)
+        self.assertEqual(restore(mask_candidate(source, target), literals), target)
+
+    def test_multiline_inline_math_retains_formula_prose_translation_boundaries(self):
+        source = 'For $x>0,\n\\text{for all }y$, the bound holds.'
+        target = '对于 $x>0,\n\\text{对所有 }y$，这个界成立。'
+        masked, literals = protect(source)
+        self.assertIn('for all ', masked)
+        self.assertEqual(restore(mask_candidate(source, target), literals), target)
+        with self.assertRaisesRegex(ValueError, 'source literal'):
+            mask_candidate(source, target.replace('x>0', 'x>=0'))
+
     def test_formula_only_field_can_remain_verbatim_after_independent_review(self):
         source = example(); item = source['results'][0]
         formula = 'D(r,c,2) = 2c²r² − 2(cr² + c²r) + ½(r² + c²) − 22cr + (59/2)(c + r) − 30; r, c ≥ 3.'

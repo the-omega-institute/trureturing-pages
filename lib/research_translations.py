@@ -36,7 +36,7 @@ WORD_BEFORE = re.compile(r'(?<![A-Za-z\\])([A-Za-z]+)\Z')
 MATH_TEXT = re.compile(r'\\text\{([^{}]*)\}')
 MATH_PROSE = re.compile(r'\b(?:for|if|and|or|is|are|even|odd|otherwise|such|when|with|where)\b', re.I)
 LITERAL = re.compile(
-    r'```[\s\S]*?```|`[^`\n]+`|\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]+\$|'
+    r'```[\s\S]*?```|`[^`\n]+`|\$\$[\s\S]*?\$\$|(?<!\\)\$[^$]+\$|'
     r'\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|https?://[^\s)]+|'
     r'\b[A-Za-z][A-Za-z0-9_]*\d[A-Za-z0-9_]*\b|'
     r'[α-ωΑ-ΩµΞτχ]+(?:_?\d+)?|[-−+]?\d+(?:[.,]\d+)*|'
