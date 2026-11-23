@@ -49,9 +49,13 @@ ARTIFACT_PROFILES = {
         "frozen_ledger_head": "frozen-ledger-head.json",
     },
 }
+# The published scheduled writer uses the same state-table files and snapshot
+# dialect. Accept its explicit producer marker with the complete existing checks.
+ARTIFACT_PROFILES["truth-release-scheduled"] = dict(ARTIFACT_PROFILES["truth-release"])
 SNAPSHOT_SCHEMAS = {
     "pages-report-projection.v1": "pages-source-snapshot.v1",
     "truth-release": "source-snapshot",
+    "truth-release-scheduled": "source-snapshot",
     "truth-release.v1": "source-snapshot.v1",
     "truth-release.v2": "source-snapshot.v2",
 }
@@ -356,7 +360,7 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
         raise ReleaseContractError("source snapshot schema disagrees with the release manifest")
     if schema == "pages-report-projection.v1":
         _verify_report_projection(bundle, snapshot, manifest, source_commit, source_tree, producer_commit)
-    if schema == "truth-release":
+    if schema in ("truth-release", "truth-release-scheduled"):
         # The state-table dialect removes event-ledger fields, while keeping
         # transport filenames and the remaining source/hash bindings stable.
         _require_keys(snapshot, {
