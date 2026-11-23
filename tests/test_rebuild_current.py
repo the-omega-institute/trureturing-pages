@@ -330,7 +330,7 @@ class RebuildWorkflowTests(unittest.TestCase):
 
     def test_rebuild_reuses_only_verified_generation_and_keeps_publication_gates(self):
         jobs = self.workflow["jobs"]
-        self.assertEqual(set(jobs), {"prepare", "deploy", "publish-observation"})
+        self.assertEqual(set(jobs), {"prepare", "deploy", "publish-observation", "request-translations"})
         self.assertIn("steps.selection.outputs.rebuild", jobs["prepare"]["outputs"]["rebuild"])
         self.assertIn("should_build == 'true'", jobs["deploy"]["if"])
         steps = jobs["deploy"]["steps"]
