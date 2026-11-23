@@ -18,6 +18,14 @@ The browser prefers the enriched view and falls back to the basic view only when
 enriched file is absent. CI and deployment never upload a partially enriched build: any
 runner or consumer failure stops the single job before `upload-pages-artifact`.
 
+The restored scheduled publisher emits the explicit `truth-release-scheduled`
+manifest marker. It shares the state-table `truth-release` contract: the unchanged
+`source-snapshot` dialect and exactly five artifact roles (snapshot, truth graph,
+raw Lean report, declarations/export and Blueprint index). Pages accepts this
+marker through that same strict profile. Archive bounds, exact role/file sets,
+artifact hashes, release digest and source/producer bindings remain required;
+mixed historical snapshot dialects and unknown future markers are rejected.
+
 ## Topology invocation
 
 The upstream CLI at tag `v0.2.0-alpha.1` is intentionally non-packable. Pages therefore

@@ -131,7 +131,7 @@ class VerticalSmokeTests(unittest.TestCase):
         return bundle, cls.rebind_bundle(bundle)
 
     @classmethod
-    def state_table_bundle(cls, directory):
+    def state_table_bundle(cls, directory, schema="truth-release"):
         bundle, _ = cls.v2_bundle(directory)
         (bundle / "frozen-ledger-head.json").unlink()
         snapshot_path = bundle / "source-snapshot.v1.json"
@@ -142,10 +142,53 @@ class VerticalSmokeTests(unittest.TestCase):
         snapshot_path.write_text(json.dumps(snapshot))
         manifest_path = bundle / "release-manifest.v1.json"
         manifest = json.loads(manifest_path.read_text())
-        manifest["schema"] = "truth-release"
+        manifest["schema"] = schema
         del manifest["artifacts"]["frozen_ledger_head"]
         manifest_path.write_text(json.dumps(manifest))
         return bundle, cls.rebind_bundle(bundle)
+
+    def test_scheduled_state_table_bundle_preserves_transport_source_and_projection(self):
+        from lib.upstream_publication import publication_metadata
+        with tempfile.TemporaryDirectory() as directory:
+            bundle, digest = self.state_table_bundle(directory, "truth-release-scheduled")
+            archive = Path(directory) / "scheduled.tar.gz"
+            with tarfile.open(archive, "w:gz") as output:
+                for path in bundle.iterdir():output.add(path, arcname=path.name)
+            acquired = Path(directory) / "acquired"
+            extract_archive(archive, acquired)
+            verified = verify_bundle(acquired, digest)
+            selection = {"source_commit": verified["source_commit"], "source_tree": verified["source_tree"],
+                         "ci_run_id": 42, "should_build": True}
+            self.assertEqual(publication_metadata(selection, acquired)["release_digest"], digest)
+            site = Path(directory) / "site"
+            build_basic_site(acquired, site)
+            basic = json.loads((site / "data/basic-truth-graph.v1.json").read_text())
+            self.assertEqual(basic["source_snapshot"]["truth_release_digest"], digest)
+            self.assertEqual(basic["source_snapshot"]["source_commit"], verified["source_commit"])
+
+    def test_scheduled_state_table_does_not_relax_artifact_or_snapshot_admission(self):
+        for mutation in ("changed-bytes", "swapped-roles", "rebound-old-snapshot", "rebound-source", "unknown"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                bundle, _ = self.state_table_bundle(directory, "truth-release-scheduled")
+                path = bundle / "release-manifest.v1.json"
+                manifest = json.loads(path.read_text())
+                if mutation == "changed-bytes":
+                    (bundle / "raw-lean-report.json").write_text("different report")
+                elif mutation == "swapped-roles":
+                    roles = manifest["artifacts"]
+                    roles["truth_graph"], roles["raw_lean_report"] = roles["raw_lean_report"], roles["truth_graph"]
+                    path.write_text(json.dumps(manifest))
+                elif mutation == "unknown":
+                    manifest["schema"] = "truth-release-scheduled.v99"
+                    path.write_text(json.dumps(manifest))
+                else:
+                    snapshot_path = bundle / "source-snapshot.v1.json"
+                    snapshot = json.loads(snapshot_path.read_text())
+                    if mutation == "rebound-old-snapshot":snapshot["schema"] = "source-snapshot.v2"
+                    else:snapshot["source_commit"] = "a" * 40
+                    snapshot_path.write_text(json.dumps(snapshot))
+                    self.rebind_bundle(bundle)
+                with self.assertRaises(ReleaseContractError):verify_bundle(bundle)
 
     def test_state_table_bundle_reaches_metadata_archive_and_basic_site(self):
         from lib.upstream_publication import publication_metadata
