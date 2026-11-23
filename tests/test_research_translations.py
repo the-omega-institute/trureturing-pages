@@ -39,6 +39,38 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_conditions_in_quoted_math_translate_without_rewriting_program_syntax(self):
+        for source, target in [
+                (r'`\item $\{0,1,2\}$ if $b\ne1$ and $a=1$`', r'`\item $\{0,1,2\}$ 若 $b\ne1$ 且 $a=1$`'),
+                ('`B = Lin{L : L ⊂ {1,…,k} and |L| ≤ q}`', '`B = Lin{L : L ⊂ {1,…,k} 且 |L| ≤ q}`'),
+                (r'$\min_{i,j\text{ distinct}} f(i,j)$', r'$\min_{i,j\text{ 两两不同}} f(i,j)$')]:
+            masked, literals = protect(source)
+            self.assertEqual(restore(masked, literals), source)
+            self.assertEqual(restore(mask_candidate(source, target), literals), target)
+            with self.assertRaisesRegex(ValueError, 'English prose inside'):
+                mask_candidate(source, source)
+        program = '`if x ≤ y then x else y`'
+        self.assertEqual(list(protect(program)[1].values()), [program])
+
+    def test_old_review_cannot_admit_untranslated_exposed_formula_prose(self):
+        source = example(); item = source['results'][0]
+        item['fields']['question'] = '`B = Lin{L : L ⊂ {1,…,k} and |L| ≤ q}`'
+        item['source_digest'] = digest({'policy': POLICY, **{k: item[k] for k in ['id', 'kind', 'source_binding', 'fields']}})
+        source['source_set_digest'] = digest(source['results'])
+        class MathWords(Client):
+            def complete(self, messages, review=False):
+                response, receipt = super().complete(messages, review)
+                if not review:
+                    response['translations'] = {k: v.replace('and', '且') for k, v in response['translations'].items()}
+                return response, receipt
+        cache = {**empty_cache(), 'entries': translate_batch(source['results'], MathWords(), source)}
+        entry = cache['entries'][item['source_digest']]
+        entry['fields']['question'] = item['fields']['question']
+        entry['segments'] = {k: segments(v) for k, v in entry['fields'].items()}
+        entry['content_digest'] = digest({'fields': entry['fields'], 'segments': entry['segments']})
+        entry['review']['content_digest'] = entry['content_digest']
+        self.assertEqual(admit_source_cache(source, cache)['entries'], {})
+
     def test_inline_code_provenance_translates_without_changing_the_formula(self):
         source = '`a(n) = A323884(25*n). [Conjectured by Sequence Machine in 2026]`'
         target = '`a(n) = A323884(25*n). [由 Sequence Machine 于 2026 年提出此猜想]`'

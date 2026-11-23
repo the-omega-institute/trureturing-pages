@@ -34,8 +34,9 @@ NUMBERED_TERMS = frozenset(('arity base bound by case characteristic class codim
     'rank revision size spin stage step tier token type version weight width').split())
 WORD_BEFORE = re.compile(r'(?<![A-Za-z\\])([A-Za-z]+)\Z')
 MATH_TEXT = re.compile(r'\\text\{([^{}]*)\}')
-MATH_PROSE = re.compile(r'\b(?:for|if|and|or|is|are|even|odd|otherwise|such|when|with|where)\b', re.I)
+MATH_PROSE = re.compile(r'\b(?:for|if|and|or|is|are|even|odd|distinct|otherwise|such|when|with|where)\b', re.I)
 CODE_ANNOTATION = re.compile(r'\[((?:Conjectured|Asked|Posed|Proposed|Suggested|Stated) by [^\[\]`\n]+)\](?=`$)', re.I)
+CODE_MATH_WORD = re.compile(r'\b(?:if|and|or|distinct)\b')
 LITERAL = re.compile(
     r'```[\s\S]*?```|`[^`\n]+`|\$\$[\s\S]*?\$\$|(?<!\\)\$[^$]+\$|'
     r'\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|https?://[^\s)]+|'
@@ -108,24 +109,32 @@ def numbered_modifier(text, match):
     return (word[1] if word and word[1].lower() in NUMBERED_TERMS else '') if match[0].startswith('-') else ''
 
 
+def exposed_prose(match):
+    """Locate explanation inside quoted mathematics, retaining executable syntax."""
+    spans = []
+    if match[0].startswith(('$', r'\(', r'\[')):
+        for prose in MATH_TEXT.finditer(match[0]):
+            content = prose[1]
+            if (MATH_PROSE.search(content) and re.fullmatch(r'[A-Za-z\s.,;:!?-]+', content)
+                    and not re.search(r'\b[A-Za-z]\b', content)):
+                spans.append((match.start() + prose.start(1), match.start() + prose.end(1)))
+    elif match[0].startswith('`') and not match[0].startswith('```'):
+        spans = [(match.start() + note.start(1), match.start() + note.end(1))
+                 for note in CODE_ANNOTATION.finditer(match[0])]
+        if (re.search(r'[$\\∀∃≤≥≠∈∉⊂⊆…]', match[0])
+                and not re.search(r':=|=>|\b(?:then|else|return|def|fun|lambda)\b', match[0])):
+            for word in CODE_MATH_WORD.finditer(match[0]):
+                start, end = match.start() + word.start(), match.start() + word.end()
+                if not any(a <= start < b for a, b in spans):
+                    spans.append((start, end))
+    return sorted(spans)
+
+
 def literal_spans(text):
-    """Expose plain prose in TeX text nodes while protecting the surrounding formula."""
+    """Expose prose while protecting the surrounding formula in ordered pieces."""
     for match in LITERAL.finditer(text):
         cursor = match.start()
-        prose_spans = []
-        if match[0].startswith(('$', r'\(', r'\[')):
-            for prose in MATH_TEXT.finditer(match[0]):
-                content = prose[1]
-                # Leave identifiers, variables, nested TeX and symbolic expressions verbatim.
-                if (not MATH_PROSE.search(content) or not re.fullmatch(r'[A-Za-z\s.,;:!?-]+', content)
-                        or re.search(r'\b[A-Za-z]\b', content)):
-                    continue
-                start, end = match.start() + prose.start(1), match.start() + prose.end(1)
-                prose_spans.append((start, end))
-        elif match[0].startswith('`') and not match[0].startswith('```'):
-            prose_spans = [(match.start() + note.start(1), match.start() + note.end(1))
-                           for note in CODE_ANNOTATION.finditer(match[0])]
-        for start, end in prose_spans:
+        for start, end in exposed_prose(match):
             if cursor < start:
                 yield cursor, start, False
             for inner in LITERAL.finditer(text, start, end):
@@ -322,6 +331,7 @@ Joining hyphens in numbered modifiers such as rank-1 or order-812 do not make th
 Preserve genuine negative values and subtractions.
 Translate exposed English prose inside TeX text nodes, retaining all surrounding formula placeholders.
 Translate exposed provenance annotations inside inline code, preserving the formula and all names.
+Translate exposed condition words in quoted mathematics; executable syntax stays protected.
 Keep mathematical operator names and code identifiers in their original notation.
 Distinguish established results from hypothetical sufficient conditions. Use Chinese words for spelled-out numbers.
 When previous_attempt_issues is supplied, revise previous_translations to resolve those review issues,
@@ -349,8 +359,8 @@ class TranslationRejected(ValueError):
 def mask_candidate(original, translated):
     """Recover source placeholders for correction feedback from a cached candidate."""
     _, literals = protect(original)
-    parts, cursor = [], 0
-    for (token, literal), (_, _, joining) in zip(literals.items(), literal_spans(original)):
+    parts, cursor, boundaries = [], 0, {}
+    for (token, literal), (start, end, joining) in zip(literals.items(), literal_spans(original)):
         offset = translated.find(literal, cursor)
         if offset < 0:
             raise ValueError('Cached candidate changed a source literal')
@@ -359,7 +369,13 @@ def mask_candidate(original, translated):
             if translated[offset-1] == '−' or not word or word[1].lower() not in NUMBERED_TERMS:
                 raise ValueError('An English word-number joining hyphen became a negative value')
         parts.extend([translated[cursor:offset], token])
+        boundaries[start + int(joining)] = offset
         cursor = offset + len(literal)
+        boundaries[end] = cursor
+    for match in LITERAL.finditer(original):
+        for start, end in exposed_prose(match):
+            if not re.search(r'[\u3400-\u9fff]', translated[boundaries[start]:boundaries[end]]):
+                raise ValueError('Translation retained English prose inside a formula')
     parts.append(translated[cursor:])
     value = ''.join(parts)
     if restore(value, literals) != translated:
