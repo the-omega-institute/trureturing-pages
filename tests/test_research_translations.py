@@ -39,6 +39,19 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_inline_code_provenance_translates_without_changing_the_formula(self):
+        source = '`a(n) = A323884(25*n). [Conjectured by Sequence Machine in 2026]`'
+        target = '`a(n) = A323884(25*n). [由 Sequence Machine 于 2026 年提出此猜想]`'
+        masked, literals = protect(source)
+        self.assertIn('Conjectured by Sequence Machine in', masked)
+        self.assertNotIn('2026', masked)
+        self.assertEqual(restore(masked, literals), source)
+        self.assertEqual(restore(mask_candidate(source, target), literals), target)
+        with self.assertRaisesRegex(ValueError, 'source literal'):
+            mask_candidate(source, target.replace('25*n', '26*n'))
+        for code in ['`array[index]`', '`iterate F (n+1) x`', '```a(n) [Conjectured by X]```']:
+            self.assertEqual(list(protect(code)[1].values()), [code])
+
     def test_inline_math_line_wrap_does_not_capture_adjacent_english_prose(self):
         formula = '$\\nu\\frac{c+\\nu}{2}\\leq N_2(\\sigma)\\leq\n\\frac{\\nu}{2}$'
         source = 'The bound ' + formula + ' holds for all states $\\sigma$ with fixed negativity $N(\\sigma)=\\nu$.'
@@ -206,6 +219,8 @@ class ResearchTranslationTests(unittest.TestCase):
                     self_test.assertIn('1/(d_j-d_i)',row['english']['question'])
                     self_test.assertIn('$n>5040$',row['chinese']['finding'])
                     self_test.assertNotIn('__LITERAL_',json.dumps(row))
+                    self_test.assertEqual(row['verbatim_literals']['question'], ['`H(n) = sum 1/(d_j-d_i)`'])
+                    self_test.assertNotIn('reciprocal', ''.join(row['verbatim_literals']['question']))
                 else:
                     self_test.assertEqual(row['original'],item['fields'])
                     self_test.assertIn('__LITERAL_',request['strings'][row['fields']['finding']])
