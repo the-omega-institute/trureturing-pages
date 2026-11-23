@@ -106,7 +106,7 @@ ranking points. No extra trureturing issue, schema, export or release is require
 
 ## Automatic Research News selection
 
-The editable Pages policy is `config/contribution-policy.v4.json`. By default a
+The editable Pages policy is `config/contribution-policy.v3.json`. By default a
 result qualifies at **50 points or above**, with documented problem significance
 at least **2/4** and at least **22.5 contribution points**. These are evidence-based
 editorial thresholds, not citation counts, percentile cutoffs or peer consensus.

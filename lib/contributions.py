@@ -18,14 +18,14 @@ from lib.literature import problem_source_url
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = 'contribution-ranking.v4'
-POLICY_PATH = ROOT / 'config/contribution-policy.v4.json'
+POLICY_PATH = ROOT / 'config/contribution-policy.v3.json'
 PRIOR_RESULTS_PATH = ROOT / 'config/prior-results.v1.json'
 
 
 def validate_policy(value):
     dimensions = {'significance', 'concepts', 'methods', 'advance', 'standing', 'history', 'attention'}
     if (set(value) != {'schema_version', 'reference_year', 'weights', 'research_news'}
-            or value['schema_version'] != 'contribution-policy.v4'
+            or value['schema_version'] != 'contribution-policy.v3'
             or type(value['reference_year']) is not int or not 1900 <= value['reference_year'] <= 2100
             or set(value['weights']) != dimensions):
         raise ValueError('Invalid contribution policy')

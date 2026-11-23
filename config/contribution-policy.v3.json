@@ -1,5 +1,5 @@
 {
-  "schema_version": "contribution-policy.v4",
+  "schema_version": "contribution-policy.v3",
   "reference_year": 2026,
   "weights": {
     "significance": 20,
