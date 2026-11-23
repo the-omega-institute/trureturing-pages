@@ -5,6 +5,7 @@ import argparse
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
+from http.client import HTTPException
 import json
 import os
 from pathlib import Path
@@ -249,6 +250,10 @@ class ModelClient:
                 if error.code not in (429, 502, 503, 504) or attempt == 2:
                     raise
                 time.sleep(min(30, max(2 ** attempt, int(error.headers.get('Retry-After', '0')))))
+            except (OSError, HTTPException):
+                if attempt == 2:
+                    raise
+                time.sleep(2 ** attempt)
         raise ValueError('Translation provider unavailable')
 
 
@@ -268,8 +273,8 @@ Check translation fidelity; do not judge or revise the English theorem itself.''
 
 
 class TranslationRejected(ValueError):
-    def __init__(self, issues, translations):
-        super().__init__('Independent translation fidelity review rejected the batch: '
+    def __init__(self, issues, translations, message='Independent translation fidelity review rejected the batch'):
+        super().__init__(message + ': '
                          + json.dumps(issues, ensure_ascii=False))
         self.feedback = {'issues': issues, 'previous_translations': translations}
 
@@ -286,12 +291,21 @@ def translate_batch(items, client, source, feedback=None):
     request = {'strings': strings}
     if feedback:
         request['previous_attempt_issues'] = feedback
+        request['results'] = [{'id': item['source_digest'], 'kind': item['kind'],
+                               'fields': references[item['source_digest']]} for item in items]
     response, generation = client.complete([{'role': 'system', 'content': TRANSLATE},
         {'role': 'user', 'content': json.dumps(request, ensure_ascii=False)}])
     masked_translations = response.get('translations') if isinstance(response, dict) else None
     if not isinstance(masked_translations, dict) or set(masked_translations) != set(strings):
         raise ValueError('Translation response omitted or added source strings')
-    translated = {key: restore(value, protected[key]) for key, value in masked_translations.items()}
+    translated, issues = {}, []
+    for key, value in masked_translations.items():
+        try:
+            translated[key] = restore(value, protected[key])
+        except ValueError as error:
+            issues.append({'key': key, 'reason': str(error), 'required_literals': list(protected[key])})
+    if issues:
+        raise TranslationRejected(issues, masked_translations, 'Translation failed literal preservation')
     candidates, review_rows = [], []
     for item in items:
         fields = {field: translated[key] for field, key in references[item['source_digest']].items()}
@@ -343,7 +357,7 @@ def translate_with_recovery(items, client, source):
         for item in items:
             try:
                 accepted.update(translate_with_recovery([item], client, source))
-            except (OSError, ValueError, KeyError, TypeError) as failure:
+            except (OSError, HTTPException, ValueError, KeyError, TypeError) as failure:
                 print(f'Translation not admitted for {item["id"]}: {failure}', flush=True)
         return accepted
 
@@ -379,7 +393,7 @@ def translate_source(source, previous, client, *, batch_size=8, workers=6, check
                 if checkpoint:
                     checkpoint({**empty_cache(), 'entries': dict(entries)})
                 print(f'Translation fidelity review accepted {len(entries)}/{len(wanted)} results', flush=True)
-            except (OSError, ValueError, KeyError, TypeError) as error:
+            except (OSError, HTTPException, ValueError, KeyError, TypeError) as error:
                 print(f'Translation batch retained in original language: {type(error).__name__}: {error}', flush=True)
     cache = {**empty_cache(), 'entries': entries}
     changed = canonical(cache) != canonical(previous)

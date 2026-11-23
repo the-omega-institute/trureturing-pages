@@ -1,4 +1,6 @@
 import copy
+from http.client import IncompleteRead
+import io
 import json
 from pathlib import Path
 import unittest
@@ -6,8 +8,9 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 
 from lib.research_translations import (
-    FIELDS, POLICY, SOURCE_SCHEMA, build_source, canonical, digest, empty_cache, protect,
-    restore, segments, source_item, translate_batch, translate_source, validate_cache, validate_source, fetch_cache,
+    FIELDS, MODEL, POLICY, SOURCE_SCHEMA, ModelClient, build_source, canonical, digest, empty_cache, protect,
+    restore, segments, source_item, translate_batch, translate_source, translate_with_recovery,
+    validate_cache, validate_source, fetch_cache,
 )
 
 
@@ -35,6 +38,77 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_interrupted_stream_is_retried_without_reusing_partial_output(self):
+        def event(text):
+            return ('data: '+json.dumps({'model':MODEL,'choices':[{'delta':{'content':text}}]})+'\n').encode()
+        class Interrupted(io.BytesIO):
+            headers={'Content-Type':'text/event-stream'}
+            def __iter__(self):
+                yield event('{"ok":')
+                raise IncompleteRead(b'')
+        complete=io.BytesIO(event('{"ok":true}')+b'data: [DONE]\n')
+        complete.headers={'Content-Type':'text/event-stream'}
+        with patch('lib.research_translations.urlopen',side_effect=[Interrupted(),complete]) as request, \
+                patch('lib.research_translations.time.sleep'):
+            value,receipt=ModelClient('test-only').complete([])
+        self.assertEqual(value,{'ok':True})
+        self.assertEqual(request.call_count,2)
+        self.assertEqual(receipt['model'],MODEL)
+
+    def test_one_broken_batch_cannot_discard_other_accepted_checkpoints(self):
+        source=example()
+        other=copy.deepcopy(source['results'][0]);other['id']='another-bound'
+        other['source_digest']=digest({'policy':POLICY,**{k:other[k] for k in ['id','kind','source_binding','fields']}})
+        source['results'].append(other);source['source_set_digest']=digest(source['results'])
+        accepted=translate_batch([other],Client(),source)
+        def simulate(items,*args):
+            if items[0]['id']=='a-bound':raise IncompleteRead(b'')
+            return accepted
+        checkpoints=[]
+        with patch('lib.research_translations.translate_with_recovery',side_effect=simulate):
+            cache,stats=translate_source(source,empty_cache(),Client(),batch_size=1,checkpoint=checkpoints.append)
+        self.assertEqual(cache['entries'],accepted)
+        self.assertEqual(checkpoints[-1],cache)
+        self.assertEqual(stats['failed'],['a-bound'])
+        self.assertEqual(stats['pending'],1)
+
+    def test_interrupted_individual_retry_retains_its_accepted_sibling(self):
+        source=example()
+        other=copy.deepcopy(source['results'][0]);other['id']='another-bound'
+        other['source_digest']=digest({'policy':POLICY,**{k:other[k] for k in ['id','kind','source_binding','fields']}})
+        source['results'].append(other);source['source_set_digest']=digest(source['results'])
+        accepted=translate_batch([source['results'][0]],Client(),source)
+        def simulate(items,*args):
+            if len(items)>1:raise ValueError('Rejected batch')
+            if items[0]['id']=='another-bound':raise IncompleteRead(b'')
+            return accepted
+        with patch('lib.research_translations.translate_batch',side_effect=simulate):
+            self.assertEqual(translate_with_recovery(source['results'],Client(),source),accepted)
+
+    def test_literal_repair_receives_the_candidate_and_exact_missing_tokens(self):
+        class CorruptOnce(Client):
+            def complete(self,messages,review=False):
+                request=json.loads(messages[-1]['content'])
+                if not review and self.calls:
+                    feedback=request['previous_attempt_issues']
+                    issue=feedback['issues'][0]
+                    self_test.assertIn(issue['key'],feedback['previous_translations'])
+                    self_test.assertTrue(issue['required_literals'])
+                    self_test.assertEqual(request['results'][0]['id'],example()['results'][0]['source_digest'])
+                response,receipt=super().complete(messages,review)
+                if not review and len(self.calls)==1:
+                    for key,value in response['translations'].items():
+                        _,literals=protect(example()['results'][0]['fields']['finding'])
+                        token=next(iter(literals))
+                        if token in value:
+                            response['translations'][key]=value.replace(token,'')
+                return response,receipt
+        self_test=self
+        client=CorruptOnce()
+        accepted=translate_with_recovery(example()['results'],client,example())
+        self.assertEqual(len(accepted),1)
+        self.assertEqual(client.calls,[False,False,True])
+
     def test_unavailable_cache_cannot_be_mistaken_for_an_empty_initial_cache(self):
         with patch('lib.research_translations.read_json_url',side_effect=OSError('offline')):
             with self.assertRaisesRegex(ValueError,'refusing to replace'):
