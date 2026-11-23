@@ -3,6 +3,15 @@ export const ADMISSION_SCHEMA = "pages-atlas-admission.v1";
 export const EVIDENCE_SCHEMA = "pages-atlas-lean-evidence.v1";
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const AXIOMS = new Set(["propext", "Classical.choice", "Quot.sound"]);
+const OMEGA_LIBRARIES = new Set(["OmegaInit", "OmegaMath"]);
+
+export function omegaOnlyAxiomFree({ measurement } = {}) {
+  const { libraries, axioms } = measurement || {};
+  return Array.isArray(libraries) && libraries.length > 0 &&
+    libraries.every(library => OMEGA_LIBRARIES.has(library)) &&
+    Array.isArray(axioms) && axioms.length === 0;
+}
+
 export function supportedLean(node) {
   const e = node.lean;
   return node.kind === "truth" && e?.eligible === true &&

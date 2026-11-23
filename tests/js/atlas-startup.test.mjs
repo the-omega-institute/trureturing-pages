@@ -21,6 +21,7 @@ import { startupView, validateView, validateDetails, DETAIL_SCHEMA, detailShard 
 import { analyzeArchitecture, mathematicalArchitecture } from "../../site/assets/architecture-core.mjs";
 import { theoryModel } from "../../site/assets/atlas-theory-core.mjs";
 import { readFlowLayout } from "../../site/assets/atlas-flow-layout.mjs";
+import { omegaOnlyAxiomFree } from "../../site/assets/atlas-admission.mjs";
 
 const hash = (text) =>
   "sha256:" + createHash("sha256").update(text).digest("hex");
@@ -47,7 +48,21 @@ test("published startup preserves exact graph bytes and layout, validates all no
     atlas_graph_digest: hash(text),
   };
   await writeFile(join(root, "graph.json"), text);
-  await writeFile(join(root, "atlas-lean-evidence.v1.json"), JSON.stringify(fixtureEvidence(graph)));
+  const evidence = fixtureEvidence(graph);
+  const legacyReceipt = { name: "Fixture.legacy", name_key: "legacy", kind: "theorem", statement_id: fixtureDigest, type_sha256: fixtureDigest, axioms: [] };
+  const measurements = [
+    { libraries: ["OmegaMath", "OmegaInit"], axioms: [] },
+    { libraries: ["Mathlib"], axioms: [] },
+    { libraries: ["OmegaInit"], axioms: ["propext"] },
+    { libraries: ["OmegaMath"], omega_only_axiom_free: true },
+    { libraries: [], axioms: [] },
+    { axioms: [] },
+    { omega_only_axiom_free: true },
+  ];
+  const receipts = [...measurements.map((measurement, i) => ({ ...legacyReceipt, name: `Fixture.result${i}`, name_key: `result${i}`,
+    measurement })), legacyReceipt];
+  Object.assign(evidence.nodes[0], { declarations: receipts, declaration_count: receipts.length, theorem_count: receipts.length });
+  await writeFile(join(root, "atlas-lean-evidence.v1.json"), JSON.stringify(evidence));
   await writeFile(join(root, "manifest.json"), JSON.stringify(manifest));
   await mkdir(join(root, "assets"));
   const flowPath = join(root, "assets/atlas-flow-preview.v1.json");
@@ -143,12 +158,16 @@ test("published startup preserves exact graph bytes and layout, validates all no
   assert.equal(result.timing.source, "precomputed");
   assert.deepEqual(result.dependencyPositions, fastLayout.dependency_positions);
   assert.equal(result.timing.compact, true);
-  assert.deepEqual(await result.loadDetails("A"), admittedGraph.nodes[0]);
+  assert.equal(Object.hasOwn(admittedGraph.nodes[0], "lean_declarations"), false);
+  const detail = await result.loadDetails("A");
+  assert.deepEqual(detail.lean_declarations, receipts);
+  assert.deepEqual(detail.lean_declarations.filter(omegaOnlyAxiomFree).map(row => row.name), ["Fixture.result0"]);
   assert.ok(!requests.some(r => r.path === index.graph.path), "The canonical archive stays off the first-paint path");
   mode = "v4";
   const v4 = await loadStartup("https://example.test/");
   assert.deepEqual(v4.positions, layout.positions);
   assert.deepEqual(v4.graph, admittedGraph);
+  assert.deepEqual((await v4.loadDetails("A")).lean_declarations, receipts);
   assert.equal(v4.dependencyPositions, null, "Verified v4 startup retains data and Structure positions while refreshing the spatial DAG");
   mode = "profile-mismatch";
   await assert.rejects(loadStartup("https://example.test/"), /profile disagrees/);
@@ -162,6 +181,7 @@ test("published startup preserves exact graph bytes and layout, validates all no
   const legacy = await loadStartup("https://example.test/");
   assert.equal(legacy.positions, null);
   assert.deepEqual(legacy.graph, admittedGraph);
+  assert.equal(legacy.loadDetails, undefined);
 });
 
 

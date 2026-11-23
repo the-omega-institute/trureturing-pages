@@ -7,6 +7,20 @@ from .problem_resolutions import KERNEL_AXIOMS, VERIFIED_STATUSES, index_truth_e
 from .vertical_smoke import ReleaseContractError, _read_json, _sha256, _DIGEST, verify_bundle
 
 SCHEMA = "pages-atlas-lean-evidence.v1"
+OMEGA_LIBRARIES = {"OmegaInit", "OmegaMath"}
+
+
+def _declaration_measurement(declaration):
+    measurement = {}
+    for key in ("libraries", "axioms"):
+        values = declaration.get(key)
+        if isinstance(values, list) and all(isinstance(value, str) for value in values):
+            measurement[key] = values
+    libraries = measurement.get("libraries")
+    if (declaration.get("omega_only_axiom_free") is True and libraries
+            and set(libraries) <= OMEGA_LIBRARIES and measurement.get("axioms") == []):
+        measurement["omega_only_axiom_free"] = True
+    return measurement
 
 
 def project_evidence(bundle, verified):
@@ -78,7 +92,11 @@ def project_evidence(bundle, verified):
                         or not _DIGEST.fullmatch(receipt.get("statement_id", ""))
                         or not _DIGEST.fullmatch(receipt.get("type_sha256", ""))):
                     raise ReleaseContractError(f"Export/report declaration identity mismatch: {path}")
-                receipts.append({k: receipt[k] for k in ("name", "name_key", "kind", "statement_id", "type_sha256", "axioms")})
+                detail = {k: receipt[k] for k in ("name", "name_key", "kind", "statement_id", "type_sha256", "axioms")}
+                measurement = _declaration_measurement(decl)
+                if measurement:
+                    detail["measurement"] = measurement
+                receipts.append(detail)
             if len(receipts) != len({d["name_key"] for d in receipts}):
                 raise ReleaseContractError(f"Duplicate published declaration identity: {path}")
             if {d["name_key"] for d in receipts} != {k for k, d in declarations.items() if d.get("include_in_statement") is True}:

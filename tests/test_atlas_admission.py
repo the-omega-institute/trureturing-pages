@@ -40,6 +40,48 @@ class AtlasAdmissionTests(unittest.TestCase):
         self.assertEqual(node["theorem_count"], 0)
         self.assertEqual(node["declarations"][0]["name"], "A.Nested.result")
         self.assertEqual(node["declarations"][0]["axioms"], [])
+        self.assertNotIn("measurement", node["declarations"][0])
+
+    def test_measurements_come_from_each_matched_export_declaration(self):
+        cases = [
+            ({"libraries": ["OmegaMath", "OmegaInit"], "axioms": [], "omega_only_axiom_free": True}, True),
+            ({"libraries": ["Mathlib"], "axioms": ["propext"], "omega_only_axiom_free": True}, False),
+            ({"libraries": ["OmegaInit"], "omega_only_axiom_free": True}, False),
+            ({"libraries": [], "axioms": []}, False),
+            ({"axioms": []}, False),
+            ({"omega_only_axiom_free": True}, False),
+            ({}, False),
+        ]
+
+        def mutate(export, report):
+            node = export["nodes"][0]
+            module = report["modules"][0]
+            node.update(libraries=["OmegaInit"], axioms=[])
+            prototype = module["declarations"][0]
+            node["declarations"] = []
+            module["declarations"] = []
+            for i, (fields, _) in enumerate(cases):
+                key = f"key-{i}"
+                statement_id = "sha256:" + f"{i:064x}"
+                node["declarations"].append({"declaration_name_key": key, "kind": "def",
+                                              "statement_id": statement_id, **fields})
+                module["declarations"].append({**prototype, "name": f"A.Nested.result{i}", "name_key": key,
+                                               "statement_id": statement_id, "libraries": ["OmegaInit"]})
+            module["declarations"].append({**prototype, "name_key": "orphan", "include_in_statement": False,
+                                           "libraries": ["OmegaInit"], "omega_only_axiom_free": True})
+            module["declarations"].reverse()
+
+        rows = self.run_fixture(mutate)["nodes"][0]["declarations"]
+        self.assertEqual(len(rows), len(cases))
+        for i, (row, (fields, positive)) in enumerate(zip(rows, cases)):
+            with self.subTest(row=i):
+                self.assertEqual(row["name_key"], f"key-{i}")
+                self.assertEqual(row["statement_id"], "sha256:" + f"{i:064x}")
+                self.assertEqual(row["axioms"], [])
+                expected = {key: fields[key] for key in ("libraries", "axioms") if key in fields}
+                if positive:
+                    expected["omega_only_axiom_free"] = True
+                self.assertEqual(row.get("measurement"), expected or None)
 
     def test_missing_and_non_kernel_axioms_are_exclusions(self):
         for mutation, reason in [(lambda e, r: e["nodes"][0].pop("node_axiom_closure"), "missing-node-axioms"),

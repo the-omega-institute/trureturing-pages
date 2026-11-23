@@ -4,7 +4,8 @@ import { reuseBands } from "./atlas-reuse.mjs";
 import { flowParents, flowLineages, readFlowLayout } from "./atlas-flow-layout.mjs";
 import { importGeometry } from "./atlas-import-geometry.mjs";
 import { theoryModel, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=spatial-v1";
-import { t } from "./i18n.mjs?v=spatial-v1";
+import { ready as localeReady, t } from "./i18n.mjs?v=declaration-evidence-v1";
+import { omegaOnlyAxiomFree } from "./atlas-admission.mjs?v=declaration-evidence-v1";
 import {
   FAMILIES,
   createPublicModel,
@@ -1586,7 +1587,7 @@ function renderArticle(root) {
   }
   const audit = el("details", "article-audit");
   audit.append(
-    el("summary", "", "Source & provenance"),
+    el("summary", "", t("Source & declaration evidence")),
     el("p", "", node.repo_path || node.id),
     el("p", "", state.graph.source_snapshot.truth_release_digest),
   );
@@ -1594,21 +1595,30 @@ function renderArticle(root) {
     el("p", "", t(node.lean.freeze_status === "frozen" ? "Frozen in this publication" : "Proven; awaiting freezing")),
     el("p", "", t("Module axiom union: {0}", node.lean.node_axiom_closure.join(", ") || "∅")),
     el("p", "", t("Lean source hash: {0}", node.lean.source_sha256)));
-  if (node.lean_declarations) {
+  audit.append(el("p", "declaration-legend", t("In this release, “Omega only · zero axioms” means the declaration has at least one measured library, all are OmegaInit or OmegaMath, and its measured axiom list is empty. Missing measurements are unknown.")));
+  if (node.lean_declarations?.length) {
     const declarations = el("details", "declaration-receipts");
-    declarations.append(el("summary", "", t("Inspect declaration identities and axioms")));
-    declarations.addEventListener("toggle", () => {
+    declarations.append(el("summary", "", t("Inspect declaration evidence")));
+    const measured = values => Array.isArray(values) ? values.join(", ") || "∅" : t("Unknown");
+    declarations.addEventListener("toggle", async () => {
+      await localeReady;
       if (!declarations.open || declarations.querySelector("ol")) return;
       const list = el("ol");
       for (const decl of node.lean_declarations) {
         const row = el("li");
-        row.append(el("code", "", decl.name), el("p", "", `${decl.kind} · ${decl.statement_id}`),
-          el("p", "", t("Declaration axioms: {0}", decl.axioms.join(", ") || "∅")));
+        row.append(el("code", "", decl.name));
+        if (omegaOnlyAxiomFree(decl)) row.append(el("span", "omega-only-badge", t("Omega only · zero axioms")));
+        row.append(el("p", "", `${decl.kind} · ${decl.statement_id}`),
+          el("p", "", t("Measured libraries: {0}", measured(decl.measurement?.libraries))),
+          el("p", "", t("Measured axioms: {0}", measured(decl.measurement?.axioms))),
+          el("p", "", t("Lean report axioms: {0}", measured(decl.axioms))));
         list.append(row);
       }
       declarations.append(list);
     });
     audit.append(declarations);
+  } else {
+    audit.append(el("p", "", t("Declaration details are unavailable in this view.")));
   }
   const source = state.graph.source_snapshot;
   if (/^[\w.-]+\/[\w.-]+$/.test(source.source_repo || "") &&
