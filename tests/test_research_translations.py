@@ -119,9 +119,14 @@ class ResearchTranslationTests(unittest.TestCase):
         import yaml
         root=Path(__file__).resolve().parents[1]
         workflow=yaml.load((root/'.github/workflows/research-translations.yml').read_text(),Loader=yaml.BaseLoader)
-        self.assertIn('workflow_run',workflow['on'])
-        self.assertEqual(workflow['on']['workflow_run']['branches'],['dev'])
-        self.assertIn("conclusion == 'success'",workflow['jobs']['translate']['if'])
+        self.assertEqual(set(workflow['on']),{'workflow_dispatch'})
+        self.assertIn("refs/heads/dev",workflow['jobs']['translate']['if'])
+        pages=yaml.load((root/'.github/workflows/pages.yml').read_text(),Loader=yaml.BaseLoader)
+        dispatch=pages['jobs']['request-translations']
+        self.assertEqual(dispatch['needs'],'deploy')
+        self.assertIn("needs.deploy.result == 'success'",dispatch['if'])
+        self.assertEqual(dispatch['permissions'],{'actions':'write','contents':'read'})
+        self.assertIn('gh workflow run research-translations.yml',dispatch['steps'][0]['run'])
         text=(root/'.github/workflows/research-translations.yml').read_text()
         self.assertNotIn('git push',text)
         self.assertIn('RESEARCH_TRANSLATION_API_KEY',text)
