@@ -39,6 +39,48 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_formula_prose_translates_while_formula_structure_is_preserved(self):
+        for source, target in [
+                (r'$$D\text{ is inner}\Longleftrightarrow p^{-e}C\in\mathbb Z^N$$',
+                 r'$$D\text{ 为内导子}\Longleftrightarrow p^{-e}C\in\mathbb Z^N$$'),
+                (r'$f(x)>1\qquad\text{for every real }x\leq-1$',
+                 r'$f(x)>1\qquad\text{对每个实数 }x\leq-1$'),
+                (r'$f(d)=\begin{cases}d^2&\text{for }d\text{ even,}\\d^3&\text{for }d\text{ odd.}\end{cases}$',
+                 r'$f(d)=\begin{cases}d^2&\text{当 }d\text{ 为偶数时，}\\d^3&\text{当 }d\text{ 为奇数时。}\end{cases}$')]:
+            masked, literals = protect(source)
+            self.assertEqual(restore(masked, literals), source)
+            self.assertEqual(restore(mask_candidate(source, target), literals), target)
+        with self.assertRaisesRegex(ValueError, 'source literal'):
+            mask_candidate(r'$f(x)>1\text{ for all states}$', r'$f(x)\ge1\text{ 对所有态}$')
+
+    def test_tex_identifiers_variables_and_nested_content_stay_verbatim(self):
+        for source in [r'$\text{rank}(A)=1$', r'$\text{for all x} f(x)>0$',
+                       r'$\text{for $n>0$}f(n)>0$', r'`D\text{ is inner}`']:
+            masked, literals = protect(source)
+            self.assertEqual(restore(masked, literals), source)
+            self.assertNotIn(' is inner', masked)
+            self.assertNotIn('for all x', masked)
+            self.assertNotIn('rank', masked)
+
+    def test_generation_can_translate_formula_text_and_still_requires_review(self):
+        source = example(); item = source['results'][0]
+        item['fields']['question'] = r'$D\text{ is inner}\Longleftrightarrow C\in\mathbb Z^N$'
+        item['source_digest'] = digest({'policy': POLICY, **{k: item[k] for k in ['id', 'kind', 'source_binding', 'fields']}})
+        source['source_set_digest'] = digest(source['results'])
+        class FormulaClient(Client):
+            def complete(self, messages, review=False):
+                response, receipt = super().complete(messages, review)
+                if not review:
+                    response['translations'] = {k: v.replace(' is inner', ' 为内导子')
+                                                for k, v in response['translations'].items()}
+                return response, receipt
+        client = FormulaClient()
+        accepted = translate_batch(source['results'], client, source)
+        self.assertEqual(client.calls, [False, True])
+        entry = accepted[item['source_digest']]
+        self.assertEqual(entry['fields']['question'], r'$D\text{ 为内导子}\Longleftrightarrow C\in\mathbb Z^N$')
+        self.assertTrue(any(p['kind'] == 'math' and '为内导子' in p['text'] for p in entry['segments']['question']))
+
     def test_word_number_joiners_are_not_forced_to_be_negative_values(self):
         for source,target in [('order-812','812 阶'),('period-43','周期为 43'),
                               ('revision-59','第 59 次修订'),('type-4c','4c 型'),

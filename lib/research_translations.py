@@ -33,6 +33,8 @@ NUMBERED_TERMS = frozenset(('arity base bound by case characteristic class codim
     'degree depth dimension height index length level mod modulo multiplicity non order period phase '
     'rank revision size spin stage step tier token type version weight width').split())
 WORD_BEFORE = re.compile(r'(?<![A-Za-z\\])([A-Za-z]+)\Z')
+MATH_TEXT = re.compile(r'\\text\{([^{}]*)\}')
+MATH_PROSE = re.compile(r'\b(?:for|if|and|or|is|are|even|odd|otherwise|such|when|with|where)\b', re.I)
 LITERAL = re.compile(
     r'```[\s\S]*?```|`[^`\n]+`|\$\$[\s\S]*?\$\$|(?<!\\)\$[^$\n]+\$|'
     r'\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|https?://[^\s)]+|'
@@ -105,18 +107,39 @@ def numbered_modifier(text, match):
     return (word[1] if word and word[1].lower() in NUMBERED_TERMS else '') if match[0].startswith('-') else ''
 
 
+def literal_spans(text):
+    """Expose plain prose in TeX text nodes while protecting the surrounding formula."""
+    for match in LITERAL.finditer(text):
+        cursor = match.start()
+        if match[0].startswith(('$', r'\(', r'\[')):
+            for prose in MATH_TEXT.finditer(match[0]):
+                content = prose[1]
+                # Leave identifiers, variables, nested TeX and symbolic expressions verbatim.
+                if (not MATH_PROSE.search(content) or not re.fullmatch(r'[A-Za-z\s.,;:!?-]+', content)
+                        or re.search(r'\b[A-Za-z]\b', content)):
+                    continue
+                start, end = match.start() + prose.start(1), match.start() + prose.end(1)
+                if cursor < start:
+                    yield cursor, start, False
+                cursor = end
+        if cursor < match.end():
+            yield cursor, match.end(), bool(numbered_modifier(text, match))
+
+
 def protect(text):
     if PLACEHOLDER.search(text):
         raise ValueError('Source contains a reserved translation placeholder')
     prefix = hashlib.sha256(text.encode()).hexdigest()[:12]
     literals = {}
-    def replace(match):
-        joining = bool(numbered_modifier(text, match))
-        literal = match[0][1:] if joining else match[0]
+    parts, cursor = [], 0
+    for start, end, joining in literal_spans(text):
+        literal = text[start + int(joining):end]
         key = f'__LITERAL_{prefix}_{len(literals)}__'
         literals[key] = literal
-        return ('-' if joining else '') + key
-    return LITERAL.sub(replace, text), literals
+        parts.extend([text[cursor:start + int(joining)], key])
+        cursor = end
+    parts.append(text[cursor:])
+    return ''.join(parts), literals
 
 
 def restore(text, literals):
@@ -288,6 +311,7 @@ Use those definitions to disambiguate terminology and modifier order; translate 
 retaining their placeholders in the output.
 Joining hyphens in numbered modifiers such as rank-1 or order-812 do not make the numbers negative.
 Preserve genuine negative values and subtractions.
+Translate exposed English prose inside TeX text nodes, retaining all surrounding formula placeholders.
 Distinguish established results from hypothetical sufficient conditions. Use Chinese words for spelled-out numbers.
 When previous_attempt_issues is supplied, revise previous_translations to resolve those review issues,
 checking every correction against the English source. Return every string.'''
@@ -312,11 +336,11 @@ def mask_candidate(original, translated):
     """Recover source placeholders for correction feedback from a cached candidate."""
     _, literals = protect(original)
     parts, cursor = [], 0
-    for (token, literal), match in zip(literals.items(), LITERAL.finditer(original)):
+    for (token, literal), (_, _, joining) in zip(literals.items(), literal_spans(original)):
         offset = translated.find(literal, cursor)
         if offset < 0:
             raise ValueError('Cached candidate changed a source literal')
-        if numbered_modifier(original, match) and offset and translated[offset-1] in '-−':
+        if joining and offset and translated[offset-1] in '-−':
             word = WORD_BEFORE.search(translated[:offset-1])
             if translated[offset-1] == '−' or not word or word[1].lower() not in NUMBERED_TERMS:
                 raise ValueError('An English word-number joining hyphen became a negative value')
