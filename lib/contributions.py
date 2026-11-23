@@ -19,7 +19,7 @@ from lib.literature import problem_source_url
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = 'contribution-ranking.v3'
 POLICY_PATH = ROOT / 'config/contribution-policy.v3.json'
-PINS_PATH = ROOT / 'config/editorial-pins.v1.json'
+PRIOR_RESULTS_PATH = ROOT / 'config/prior-results.v1.json'
 
 
 def validate_policy(value):
@@ -48,52 +48,24 @@ def validate_policy(value):
 SETTINGS = validate_policy(json.loads(POLICY_PATH.read_text()))
 
 
-def editorial_binding(problem, record):
-    """Bind reviewed copy to the question, proof account and exact delivered scope."""
-    material = {'sections': {key: problem.get('sections', {}).get(key, '')
-                            for key in ('Problem', 'Motivation', 'Route', 'Triage')},
-                'record': {key: record.get(key) for key in
-                           ('id', 'kind', 'scope', 'statement_id', 'module', 'declaration', 'summary')}}
-    return hashlib.sha256(json.dumps(material, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-
-
-def source_text(value):
-    # Whitespace and Markdown blockquote markers only; mathematical signs stay intact.
-    return ' '.join(re.sub(r'(?m)^[ \t]*>+[ \t]?', '', value).split())
-
-
-def pin_matches(pin, problem, record):
-    excerpt = pin.get('quote') if pin.get('quote_kind') == 'verbatim' else pin.get('source_excerpt')
-    return (bool(excerpt) and source_text(excerpt) in source_text(problem.get('sections', {}).get('Problem', ''))
-            and pin.get('binding') == editorial_binding(problem, record)
-            and pin.get('source_url') == problem_source_url(problem))
-
-
-def load_pins(path=None):
-    """Editorial reading order. Pins move results; they never change a score."""
-    path = Path(path or PINS_PATH)
-    if not path.exists():
-        return {'pins': [], 'excluded': []}
+def load_prior_results(path=None):
+    """Cited prior answers affect news eligibility, never the result order."""
+    path = Path(path or PRIOR_RESULTS_PATH)
     data = json.loads(path.read_text())
-    if data.get('schema_version') != 'editorial-pins.v1' or not isinstance(data.get('pins'), list):
-        raise ValueError('Invalid editorial pins')
-    seen = set()
-    for entry in [*data['pins'], *data.get('excluded', [])]:
+    if data.get('schema_version') != 'prior-results.v1' or not isinstance(data.get('results'), list):
+        raise ValueError('Invalid prior results')
+    results = {}
+    for entry in data['results']:
         key = entry.get('id')
-        if not isinstance(key, str) or not key or key in seen or not str(entry.get('reason') or '').strip():
-            raise ValueError('Every editorial pin or exclusion needs a unique id and a reason')
-        seen.add(key)
-        if entry in data['pins']:
-            required = ('headline', 'venue', 'quote', 'quote_by', 'answer', 'scope', 'source_url', 'locator', 'binding')
-            if any(not isinstance(entry.get(k), str) or not entry[k].strip() for k in required):
-                raise ValueError('Editorial pins require reviewed copy, scope and source binding')
-            if (entry.get('quote_kind') not in ('verbatim', 'paraphrase')
-                    or not re.fullmatch(r'[a-f0-9]{64}', entry['binding'])
-                    or urlsplit(entry['source_url']).scheme != 'https'
-                    or not urlsplit(entry['source_url']).netloc
-                    or (entry['quote_kind'] == 'paraphrase' and not entry.get('source_excerpt'))):
-                raise ValueError('Invalid editorial source or quote type')
-    return {'pins': data['pins'], 'excluded': data.get('excluded', [])}
+        source = urlsplit(str(entry.get('source_url') or ''))
+        if (not isinstance(key, str) or not key or key in results
+                or not isinstance(entry.get('reason'), str) or not entry['reason'].strip()
+                or source.scheme != 'https' or not source.netloc):
+            raise ValueError('Every prior result needs a unique id, reason and public source')
+        results[key] = entry
+    return results
+
+
 REFERENCE_YEAR = SETTINGS['reference_year']  # Fixed; rebuilds never silently age results.
 DIMENSIONS = {
     'significance': ('Problem significance', 30),
@@ -382,21 +354,16 @@ def score(dimensions):
 
 
 def ranking_key(item):
-    pin = item.get('editorial_pin')
-    return (0 if pin else 1, pin['position'] if pin else 0,
-            -item['score'], -item['assessment']['dimensions']['concepts']['level'],
+    return (-item['score'], -item['assessment']['dimensions']['concepts']['level'],
             -item['assessment']['dimensions']['methods']['level'], item['id'])
 
 
-def build_index(snapshot, records, destination=None, pins=None):
+def build_index(snapshot, records, destination=None):
     profiles = json.loads((ROOT / 'site/assets/scholarly-context.json').read_text())['people']
-    pins = load_pins() if pins is None else pins
-    pinned = {pin['id']: {**pin, 'position': position + 1} for position, pin in enumerate(pins['pins'])}
-    excluded = {entry['id']: entry for entry in pins['excluded']}
+    prior_results = load_prior_results()
     problems = {p['slug']: p for p in snapshot.get('problems', [])}
     nodes, consumers = context(snapshot, records)
     items = []
-    stale = []
     for record in records:
         problem = problems.get(record.get('problem_slug') or record['id'], {})
         assessed = derive_assessment(problem, record, snapshot, nodes, consumers, profiles)
@@ -414,23 +381,14 @@ def build_index(snapshot, records, destination=None, pins=None):
             'problem': {k: v for k, v in problem.items() if k != 'contribution_assessment'},
             'record': record, 'assessment': assessed}, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         identities = (record['id'], record.get('problem_slug'))
-        pin = next((pinned[key] for key in identities if key in pinned), None)
-        if pin and pin_matches(pin, problem, record):
-            item['editorial_pin'] = pin
-        elif pin:
-            stale.append({'id': pin['id'], 'reason': 'source_or_scope_changed'})
-        exclusion = next((excluded[key] for key in identities if key in excluded), None)
-        if exclusion:
-            item['editorial_exclusion'] = exclusion
+        prior = next((prior_results[key] for key in identities if key in prior_results), None)
+        if prior:
+            item['prior_result'] = prior
         items.append(item)
-    found = {item['editorial_pin']['id'] for item in items if item.get('editorial_pin')}
     payload = {'schema_version': POLICY, 'owner': 'trureturing-pages', 'reference_year': REFERENCE_YEAR,
                'source_commit': snapshot.get('graph', {}).get('source_snapshot', {}).get('source_commit'),
                'dimensions': {k: {'label': label, 'weight': weight} for k, (label, weight) in DIMENSIONS.items()},
                'research_news_policy': SETTINGS['research_news'],
-               'editorial_pins': [pin['id'] for pin in pins['pins'] if pin['id'] in found],
-               'editorial_pins_stale': stale,
-               'editorial_pins_missing': [pin['id'] for pin in pins['pins'] if pin['id'] not in found and pin['id'] not in {s['id'] for s in stale}],
                'results': sorted(items, key=ranking_key)}
     for item in payload['results']:
         policy = SETTINGS['research_news']
@@ -441,15 +399,9 @@ def build_index(snapshot, records, destination=None, pins=None):
             reasons.append('insufficient_problem_context')
         if item['contribution_points'] < policy['minimum_contribution_points']:
             reasons.append('insufficient_contribution')
-        if item.get('editorial_exclusion'):
-            item['research_news'] = {'eligible': False, 'reasons': ['editorial_exclusion', *reasons]}
-        elif item.get('editorial_pin'):
-            # A pin is an editorial selection, recorded as such beside the
-            # threshold reasons it overrides.
-            item['research_news'] = {'eligible': True, 'reasons': [], 'basis': 'editorial_pin',
-                                     'threshold_reasons': reasons}
-        else:
-            item['research_news'] = {'eligible': not reasons, 'reasons': reasons}
+        if item.get('prior_result'):
+            reasons.insert(0, 'known_prior_result')
+        item['research_news'] = {'eligible': not reasons, 'reasons': reasons}
     if destination:
         destination = Path(destination)
         destination.parent.mkdir(parents=True, exist_ok=True)

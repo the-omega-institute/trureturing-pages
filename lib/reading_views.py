@@ -257,17 +257,8 @@ def story_paragraphs(story, *, compact=False):
                    for key, label in fields if story.get(key))
 
 
-def editorial_question(pin):
-    """Translated quotations are labeled; a paraphrase never gains quotation marks."""
-    direct = pin.get('quote_kind') == 'verbatim'
-    label = 'Source excerpt' if direct else 'The question · paraphrased'
-    text = '“' + pin['quote'] + '”' if direct else pin['quote']
-    return (f'<div class="discovery-quote"><p class="quote-label">{label}</p>'
-            f'<blockquote><p>{esc(text)}</p><cite>{esc(pin["quote_by"])}</cite></blockquote></div>')
-
-
 def research_highlights(snapshot, records, ranking, limit=None, feed=None, milestones=None):
-    """Reviewed selections and threshold-qualified results share one news feed."""
+    """Every threshold-qualified result enters the news feed in automatic order."""
     from lib.contribution_stories import build_milestones
     from lib.result_highlights import result_highlight
     from lib.research_updates import EMPTY
@@ -285,32 +276,15 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
         date = (f'<p class="discovery-history"><span>{esc(history["label"])}</span><strong>{esc(history["value"])}</strong></p>') if history else ''
         person = f'<p class="discovery-person">{esc(highlight["person"])}</p>' if highlight['person'] else ''
         source = record.get('source_url', '')
-        pin = news.get('pin') or {}
-        if pin:
-            cards.append(f'<article class="highlight-card editorial-card" id="news-{esc(news["id"])}" data-milestone-id="{esc(news["id"])}">'
-                f'<div class="editorial-card-top"><span class="eyebrow">{esc(pin["venue"])}</span><span class="editorial-choice">Editorial selection</span></div>'
-                + editorial_question(pin)
-                + f'<p class="discovery-answer"><span>Our answer</span><strong>{esc(pin["answer"])}</strong></p>'
-                + f'<h3><a href="{esc(news["url"])}">{esc(pin["headline"])}</a></h3>'
-                + f'<p class="editorial-scope">{esc(pin["scope"])}</p>'
-                + f'<div class="news-links"><a class="verification-link" href="{esc(news["url"])}">✓ Lean 4 kernel-checked</a>'
-                + f'<a href="{esc(pin["source_url"])}">Original question ↗</a></div>'
-                + '<details class="editorial-details"><summary>Mathematical idea &amp; verification details</summary>'
-                + f'<p>{esc(pin["locator"])}</p>' + story_paragraphs(story)
-                + f'<a href="{esc(news["url"])}">Explore the result ↗</a></details>'
-                + research_followups(news['problem_id'], feed, include_mathesis=False) + '</article>')
-            continue
-        venue = quote = answer = ''
         headline = story['headline']
         cards.append(f'<article class="highlight-card" id="news-{esc(news["id"])}" data-milestone-id="{esc(news["id"])}">'
             '<aside class="discovery-context">'
-            f'<p class="eyebrow">{esc(discipline_for(record.get("module")))}</p>{venue}'
+            f'<p class="eyebrow">{esc(discipline_for(record.get("module")))}</p>'
             f'<strong class="discovery-contribution">{esc(highlight["headline"])}</strong>{date}{person}'
             f'<span class="highlight-outcome {esc(record["kind"])}">{esc(record["kind"].capitalize())}</span>'
             + discovery_diagram(story.get('diagram')) + '</aside><div class="discovery-story">'
-            + quote + answer
             + f'<h3><a href="{esc(news["url"])}">{esc(headline)}</a></h3>'
-            + ('' if quote else f'<p class="discovery-question">{esc(story.get("question") or news["title"])}</p>')
+            + f'<p class="discovery-question">{esc(story.get("question") or news["title"])}</p>'
             + (f'<p class="discovery-finding">{esc(story["finding"])}</p>' if story.get('finding') else '')
             + '<div class="highlight-story">' + story_paragraphs(story, compact=True) + '</div>'
             + research_followups(news['problem_id'], feed, include_mathesis=False)
@@ -345,15 +319,11 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
         problem = problems.get(r.get('problem_slug') or r['id'], {})
         highlight = result_highlight(r, assessed, problem)
         story = result_story(problem, r, assessed, stories)
-        pin = assessed.get('editorial_pin') or {}
-        if pin:
-            story = {**story, 'headline': pin['headline'], 'finding': pin['scope']}
         search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
         search += ' ' + assessed['title'] + ' ' + highlight['headline'] + ' ' + discipline_for(r.get('module'))
         search += ' ' + ' '.join(str(v) for v in story.values())
         if story['origin'] == 'source-bound-editorial':
             search += ' ' + ' '.join(stories[r['id']].get('zh-CN', {}).values())
-        search += ' ' + ' '.join(str(v) for v in pin.values())
         excerpt = story.get('finding', '')
         if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
             excerpt = ''
@@ -365,22 +335,18 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
         impacts = (f'<span class="result-impact-list"><span class="result-impact-field">{esc(discipline_for(r.get("module")))}</span>'
                    f'<span class="result-impact-tag">{esc(highlight["headline"])}</span>{year}{person}'
                    + ('<span class="result-news-label">Research highlight</span>' if assessed.get('research_news', {}).get('eligible') else '') + '</span>')
-        if pin:
-            impacts = (f'<span class="result-impact-list"><span class="result-impact-field">{esc(pin["venue"])}</span>'
-                       f'<span class="result-impact-tag">{esc(pin["answer"])}</span>'
-                       '<span class="result-news-label">Editorial selection</span></span>')
         evidence = ''.join(f'<li><span>{esc(fact["label"])}</span><p>{esc(fact["text"])}</p>'
                            + (f'<a href="{esc(fact["url"])}">Read source ↗</a>' if fact['url'] else '') + '</li>'
                            for fact in highlight['evidence'])
         context = ('<details class="highlight-evidence"><summary>About this highlight</summary>'
                    f'<ul>{evidence}</ul></details>') if evidence else ''
-        formal = (f'<span class="result-formal-title">{esc(assessed["title"])}</span>') if not pin and story['headline'] != assessed['title'] else ''
+        formal = (f'<span class="result-formal-title">{esc(assessed["title"])}</span>') if story['headline'] != assessed['title'] else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
             f'<summary>{impacts}<span class="result-summary"><strong>{esc(story["headline"])}</strong>{preview}{formal}</span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
-            f'<div class="reading-item-body">' + (editorial_question(pin) if pin else '')
+            f'<div class="reading-item-body">'
             + f'<div class="result-story-expanded">{story_paragraphs(story)}</div>'
             f'{research_followups(r.get("problem_slug") or r["id"], feed)}'
             f'<details class="verification-details"><summary>Verification details</summary>{articles[r["id"]]}</details>{context}{assessment_details(assessed)}</div></details>')
@@ -410,10 +376,9 @@ def assessment_details(item):
     if not data:
         return ''
     rows = []
-    if pin := item.get('editorial_pin'):
-        rows.append(f'<li><strong>Editorial pin</strong> · position {pin["position"]}<p>{esc(pin["reason"])}</p></li>')
-    if exclusion := item.get('editorial_exclusion'):
-        rows.append(f'<li><strong>Not headlined</strong><p>{esc(exclusion["reason"])}</p></li>')
+    if prior := item.get('prior_result'):
+        rows.append(f'<li><strong>Known prior answer</strong><p>{esc(prior["reason"])}</p>'
+                    f'<a href="{esc(prior["source_url"])}">Read source ↗</a></li>')
     for key, fact in data.items():
         if not fact['level']:
             continue
@@ -547,11 +512,9 @@ def ranking_guide(ranking):
     return ('<main class="site-main ranking-method">'
             '<header class="ranking-heading"><a href="conjectures.html#results">← Back to results</a>'
             '<h1>About this order</h1>'
-            '<p>Editorial selections come first. The rest of the collection is ordered automatically with each release.</p></header>'
+            '<p>Every release automatically ranks all results by the importance of the question and the contribution of its resolution.</p></header>'
             '<section aria-labelledby="reading-order-title"><h2 id="reading-order-title">Reading order</h2>'
-            '<ol class="ranking-order"><li id="editorial-pins"><h3>Editorial selection</h3>'
-            '<p>A small reviewed selection leads with a clear source question, answer and mathematical scope.</p></li>'
-            '<li><h3>Automatic order</h3><p>All other results are ranked from their released dossiers and proof explanations. The score combines the importance of the question with the contribution of its resolution.</p></li></ol></section>'
+            '<p>All results share one automatic order derived from their released dossiers and proof explanations. New results enter this order on publication and can replace earlier results at the top.</p></section>'
             '<section aria-labelledby="score-factors-title"><h2 id="score-factors-title">What the score considers</h2>'
             '<table class="ranking-factors"><thead><tr><th scope="col">Dimension</th><th scope="col">Weight</th><th scope="col">Evidence used</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>'
@@ -560,17 +523,17 @@ def ranking_guide(ranking):
             '<div class="ranking-details-body"><h3>Score calculation</h3>'
             '<p>Each dimension is rated from 0 to 4 using documented evidence. C is the weighted contribution from concepts, methods and mathematical advance; I is the weighted total of the other dimensions.</p>'
             f'<p class="ranking-formula"><code>C + I × (0.4 + 0.6 × C / {maximum})</code></p>'
-            '<p>This adjustment gives a question’s background more influence when the released result makes a stronger mathematical contribution. Editorial selections change reading order without changing scores.</p>'
+            '<p>This adjustment gives a question’s background more influence when the released result makes a stronger mathematical contribution.</p>'
             '<p>Missing evidence earns no credit. Source collections such as OEIS do not affect the score. A source date records historical context, not years of unsuccessful research.</p>'
             '<section id="research-news-selection"><h3>Research highlights</h3>'
-            '<p>Highlights include valid editorial selections and every result meeting all three automatic thresholds:</p>'
+            '<p>Highlights include every result meeting all three automatic thresholds:</p>'
             '<dl class="ranking-thresholds"><div><dt>Total score</dt>'
             f'<dd>{policy["minimum_score"]} / 100</dd></div><div><dt>Problem significance</dt>'
             f'<dd>{policy["minimum_significance"]} / 4</dd></div><div><dt>Contribution points</dt>'
             f'<dd>{policy["minimum_contribution_points"]} / {maximum}</dd></div></dl>'
             '<p>Known prior answers are excluded from highlights. Public papers and confirmed collaborations are shown independently of these thresholds.</p></section>'
             '<h3>When a release changes</h3>'
-            '<p>Every release refreshes the scores. Changed sources or result scopes disable the corresponding editorial selection until reviewed. Rebuilds update existing highlights without duplicate announcements.</p>'
+            '<p>Every release recomputes all scores and highlights from the current results. New qualifying results appear automatically; withdrawn results leave the list. Rebuilds update existing highlights without duplicate announcements.</p>'
             '<p>For an individual result, open “Why this order” to inspect its reasons and sources. Equal scores share a priority band; concept and method levels, then stable result IDs, break ties.</p>'
             '</div></details></main>')
 
@@ -585,12 +548,6 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
     locale_path = output / 'assets/locales/zh-CN.json'
     if locale_path.exists():
         translations = json.loads(locale_path.read_text())
-        from lib.contributions import load_pins
-        for pin in load_pins()['pins']:
-            for key, translated in pin.get('zh-CN', {}).items():
-                translations[pin[key]] = translated
-                if key == 'quote':
-                    translations['“' + pin[key] + '”'] = '“' + translated + '”'
         for story in load_stories().values():
             translations.update({text: story['zh-CN'][key] for key, text in story['en'].items()
                                  if key != 'diagram' and key in story.get('zh-CN', {})})

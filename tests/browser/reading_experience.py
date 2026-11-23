@@ -47,10 +47,8 @@ def main():
         milestones=json.loads((args.site/'assets/research-milestones.json').read_text())
         assert page.locator('.highlight-card').count()==len(milestones['results'])
         assert page.locator('[data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results']]
-        assert all(item.get('pin') or item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
-        featured_pins=[item['pin'] for item in milestones['results'][:milestones['policy']['featured_count']] if item.get('pin')]
-        assert page.locator('.featured-discoveries .editorial-card').count()==len(featured_pins)
-        assert page.locator('.featured-discoveries .discovery-answer strong').all_text_contents()==[pin['answer'] for pin in featured_pins]
+        assert all(item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
+        assert page.locator('.featured-discoveries [data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results'][:milestones['policy']['featured_count']]]
         assert page.locator('.question-authors,.selection-note,.research-news-intro').count()==0
         assert 'Fin 16' not in page.locator('#highlights').inner_text()
         assert 'The released statement is proved.' not in page.locator('#highlights').inner_text()
@@ -92,6 +90,7 @@ def main():
         assert page.locator('#conjecture-overview').bounding_box()['y'] < 360
         ranked=json.loads((args.site/'assets/contribution-index.json').read_text())['results']
         assert len(ranked)==total and all(isinstance(r['score'],(int,float)) for r in ranked)
+        assert [r['score'] for r in ranked]==sorted((r['score'] for r in ranked),reverse=True)
         assert [item['id'] for item in milestones['results']]==[item['id'] for item in ranked if item['research_news']['eligible']]
         assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked]
         page.screenshot(path=str(args.output/'conjecture-contributions-desktop.png'),full_page=True)
