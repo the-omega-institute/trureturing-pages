@@ -1526,6 +1526,14 @@ button.research-link {
 .dag-color-key li { display: flex; align-items: center; gap: 9px; line-height: 1.5; }
 .dag-color-key li::before { content: ""; width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: var(--key-color); }
 .article-audit p, .declaration-receipts code { overflow-wrap: anywhere; }
+.omega-only-badge {
+  display: inline-block;
+  margin-inline-start: .6em;
+  padding: 0 .45em;
+  border: 1px solid #477e70;
+  border-radius: 4px;
+  color: #a8e3d1;
+}
 .declaration-receipts li { padding: 8px 0; }
 .dag-import-join { margin: 20px 0; font-size: 12px; }
 .theory-mode .node-label { max-width: 190px; font-size: 9px; line-height: 1.45; background: #10191fe8; border-color: #385052; }

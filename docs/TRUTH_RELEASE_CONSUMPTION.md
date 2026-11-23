@@ -46,6 +46,21 @@ Advisory, affinity, document and arbitrary `certified` labels cannot create an
 import edge. Node prerequisite content addresses arise from module adjacency;
 they do not establish declaration-to-declaration proof use.
 
+## Declaration measurements
+
+Both native bundles and Pages report projections can carry optional `libraries`
+and `axioms` arrays on each `stratalint.truth-export.v2` declaration row. Pages
+binds them to the same name key, kind and statement ID used for admission and
+retains them in the declaration's `measurement` object in the lazy Atlas
+details. Empty arrays are explicit measurements. Missing arrays are unknown.
+The separate Lean report axioms remain available as report evidence.
+
+The Atlas shows **Omega only · zero axioms** for a declaration with a nonempty
+library list containing only `OmegaInit` or `OmegaMath` and an explicitly empty
+axiom list. The arrays determine the badge, even when the producer's optional
+`omega_only_axiom_free` marker is absent. The measurements describe the statement
+in the served release and can differ across release snapshots.
+
 ## Startup and statistics
 
 `build_basic_site` writes `data/atlas-lean-evidence.v1.json` as a build input.
