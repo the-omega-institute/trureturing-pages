@@ -346,7 +346,7 @@ def main():
                 first_result = page.locator('[data-result-row]').first
                 rail = first_result.locator('.result-impact-list').bounding_box()
                 description = first_result.locator('.result-summary').bounding_box()
-                assert rail['y'] + rail['height'] <= description['y']
+                assert description['y'] + description['height'] <= rail['y']
                 page.locator('#more-questions > summary').click()
                 assert page.locator('[data-curated-question]:visible').count()==6
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1')

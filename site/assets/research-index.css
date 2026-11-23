@@ -459,4 +459,17 @@
  .result-reading-text { font-size:14px; line-height:1.7; }
  .contribution-home .result-summary { gap:14px; }
  .release-summary { gap:10px 18px; }
+ .contribution-home .contribution-heading { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-bottom:12px; }
+ .contribution-home .contribution-heading h1 { font-size:36px; margin:0; }
+ .contribution-home .contribution-heading p { display:none; }
+ .contribution-home .contribution-heading > a { margin:0 0 0 auto; }
+ .contribution-home .release-summary { padding:10px 0 14px; margin-bottom:14px; }
+ .contribution-home .resolved-results-heading .eyebrow,
+ .contribution-home .resolved-results-heading > p { display:none; }
+ .contribution-home .resolved-results-heading { padding:0 0 12px; }
+ .contribution-home .resolved-results-heading h2 { font-size:23px; margin:0; }
+ .contribution-home .result-summary { grid-row:1; }
+ .contribution-home .result-impact-list { grid-row:2; }
+ .contribution-home .result-disclosure { grid-row:3; }
+ .contribution-home .result-news-label { display:none; }
 }
