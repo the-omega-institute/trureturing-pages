@@ -1,0 +1,75 @@
+name: Translate released research into Chinese
+
+on:
+  workflow_run:
+    workflows: [Deploy truth-release DAG to GitHub Pages]
+    types: [completed]
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: research-translations-zh-CN
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Validate translation admission and browser content integrity
+        run: |
+          python -m unittest tests.test_research_translations
+          node --test tests/js/research-translations.test.mjs
+      - name: Translate new or changed published text and independently review fidelity
+        id: translation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESEARCH_TRANSLATION_API_KEY: ${{ secrets.RESEARCH_TRANSLATION_API_KEY }}
+        run: >-
+          python -m lib.research_translations translate
+          --repository "$GITHUB_REPOSITORY"
+          --output "$RUNNER_TEMP/research-translations.json"
+          --github-output "$GITHUB_OUTPUT"
+      - name: Publish only accepted source-bound translations
+        if: steps.translation.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python -m lib.research_translations publish
+          --repository "$GITHUB_REPOSITORY"
+          --input "$RUNNER_TEMP/research-translations.json"
+          --revision "$GITHUB_SHA"
+      - name: Refresh translated display through the existing verified Pages pipeline
+        if: steps.translation.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref dev -f rebuild_current=true
+      - name: Report unresolved translations without admitting rejected text
+        if: steps.translation.outputs.pending != '0'
+        run: |
+          printf '%s\n' 'Some source text remains untranslated; rejected text was not published.' >&2
+          exit 1
+      - name: Preserve accepted translations if a run is interrupted
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: accepted-research-translations
+          path: ${{ runner.temp }}/research-translations.json
+          if-no-files-found: ignore
+          retention-days: 7

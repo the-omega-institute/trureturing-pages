@@ -64,6 +64,14 @@ jobs:
       - name: Prepare PDF first pages for new arXiv publications
         run: python -m lib.publication_previews --site site
 
+      - name: Read reviewed translations before fingerprinting presentation inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python -m lib.research_translations refresh
+          --repository "$GITHUB_REPOSITORY"
+          --output site/assets/locales/research.zh-CN.v1.json
+
       - name: Pin the same public research input for deployment
         uses: actions/upload-artifact@v4
         with:
@@ -72,6 +80,7 @@ jobs:
             site/assets/research-updates.json
             site/assets/publication-previews.json
             site/assets/publications/generated/
+            site/assets/locales/research.zh-CN.v1.json
           if-no-files-found: error
 
       - name: Restore immutable ancestry facts

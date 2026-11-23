@@ -179,7 +179,7 @@ class ResearchCatalogTests(unittest.TestCase):
             parsed = Fragments((out / 'conjectures.html').read_text())
             row = Fragments(parsed.raw(parsed.select(id='resolved-' + slug)[0]))
             finding = next(e for e in row.select(tag='span') if e.attrs.get('data-story-field') == 'finding')
-            self.assertIn('<span class="result-reading-text">' + expected + '</span>', row.raw(finding))
+            self.assertIn(expected, row.raw(finding))
             statement = row.raw(row.select(cls='result-statement')[0])
             self.assertIn('<p>0,4</p>', statement)
             self.assertIn(expected, statement)

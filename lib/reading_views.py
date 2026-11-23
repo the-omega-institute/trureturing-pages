@@ -112,9 +112,11 @@ def replace_main(document: str, body: str):
 def add_spaces_navigation(document: str, root=''):
     """Compatibility name. Keep knowledge and contribution destinations in primary navigation.
 
-    The diagnostic page and old Spaces URLs remain resolvable, but neither is a
-    primary knowledge destination. Do not alter citation or evidence links.
+    Old Spaces URLs remain resolvable. The retired operational status page has
+    no public entry points. Do not alter citation or evidence links.
     """
+    document = re.sub(r'<a\b[^>]*href="/?(?:\.\.?/)*version-status(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
+                      '', document, flags=re.S)
     def nav(match):
         content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status)(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
                          '', match[1], flags=re.S)
@@ -133,6 +135,8 @@ def common_shell(document: str, root=''):
     if 'assets/reading.css' not in document:
         document = document.replace('</head>', f'<link rel="stylesheet" href="{root}assets/reading.css">'
             f'<script type="module" src="{root}assets/reading.mjs"></script></head>', 1)
+    if 'assets/research-translations.mjs' not in document:
+        document = document.replace('</head>', f'<script type="module" src="{root}assets/research-translations.mjs"></script></head>', 1)
     document = re.sub(r'<body\b([^>]*)>',
                       lambda m: m[0] if 'data-reading-page' in m[1] else '<body' + m[1] + ' data-reading-page>', document, count=1)
     return add_spaces_navigation(document, root)
@@ -267,14 +271,16 @@ def story_inline(text):
 
 
 def story_copy(story, key):
-    """Render each language as a complete sentence, including its mathematics."""
-    original = story_inline(story.get(key, ''))
-    translations = story.get('translations', {}).get('zh-CN', {})
-    translated = translations.get(key) or (translations.get('context') if key == 'impact' else '')
-    if not translated:
+    """Only reviewed translations of this exact released text may replace it."""
+    text = story.get(key, '')
+    if not text:
+        return ''
+    original = story_inline(text)
+    if not story.get('translation_source'):
         return original
-    return (f'<span class="story-copy" lang="en" translate="no">{original}</span>'
-            f'<span class="story-copy" lang="zh-CN" translate="no">{story_inline(translated)}</span>')
+    return (f'<span class="story-copy" lang="en" translate="no" '
+            f'data-translation-source="{esc(story["translation_source"])}" '
+            f'data-translation-field="{esc(key)}">{original}</span>')
 
 
 def result_reading_lines(story):
@@ -349,8 +355,6 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
         search = ' '.join(str(r.get(k) or '') for k in ('title', 'module', 'source_url', 'field', 'summary', 'declaration'))
         search += ' ' + assessed['title'] + ' ' + highlight['headline'] + ' ' + discipline_for(r.get('module'))
         search += ' ' + ' '.join(str(v) for v in story.values())
-        if story['origin'] == 'source-bound-editorial':
-            search += ' ' + ' '.join(stories[r['id']].get('zh-CN', {}).values())
         preview = result_reading_lines(story)
         history = highlight['history']
         year = (f'<span class="result-impact-history"><span>{esc(history["label"])}</span> '
@@ -364,7 +368,7 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
                            for fact in highlight['evidence'])
         context = ('<details class="highlight-evidence"><summary>About this highlight</summary>'
                    f'<ul>{evidence}</ul></details>') if evidence else ''
-        formal = (f'<span class="result-formal-title">{story_inline(assessed["title"])}</span>') if story['headline'] != assessed['title'] else ''
+        formal = (f'<span class="result-formal-title">{story_copy(story, "formal_title")}</span>') if story['headline'] != assessed['title'] else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
             f'<summary>{impacts}<span class="result-summary"><strong>{story_copy(story, "headline")}</strong>{preview}{formal}</span>'
@@ -505,8 +509,7 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
         '<p>The original question. Our answer. Why the result matters.</p></div>'
         '<a href="research.html">Research highlights ↗</a></header>'
         + f'<div class="release-summary"><span><strong>{len(records):,}</strong> resolved results</span>'
-        f'<span><strong>{proved:,}</strong> proved</span><span><strong>{len(records) - proved:,}</strong> refuted</span>'
-        '<a href="version-status.html">Publication coverage ↗</a></div>'
+        f'<span><strong>{proved:,}</strong> proved</span><span><strong>{len(records) - proved:,}</strong> refuted</span></div>'
         + '<section class="resolved-results-heading" aria-labelledby="resolved-results-title"><div><p class="eyebrow">PROBLEMS &amp; CONTRIBUTIONS</p><h2 id="resolved-results-title">Resolved conjectures</h2></div><p>The question, its history, and the idea that resolves it.</p></section>'
         + render_result_index(result_document or document, snapshot, records, ranking, feed)
         + '<details class="release-overview"><summary>Results by mathematical area</summary>' + overview + '</details>'
@@ -570,16 +573,11 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
     output = Path(output)
     from lib.living_library import page_shell
     from lib.contributions import build_index
-    from lib.contribution_stories import build_milestones, load_stories
+    from lib.contribution_stories import build_milestones
+    from lib.research_translations import build_source, SOURCE_PATH
     ranking = build_index(snapshot, records, output / 'assets/contribution-index.json')
     milestones = build_milestones(snapshot, records, ranking, output / 'assets/research-milestones.json')
-    locale_path = output / 'assets/locales/zh-CN.json'
-    if locale_path.exists():
-        translations = json.loads(locale_path.read_text())
-        for story in load_stories().values():
-            translations.update({text: story['zh-CN'][key] for key, text in story['en'].items()
-                                 if key != 'diagram' and key in story.get('zh-CN', {})})
-        locale_path.write_text(json.dumps(translations, ensure_ascii=False, indent=2) + '\n')
+    (output / SOURCE_PATH).write_text(json.dumps(build_source(snapshot, records, ranking), ensure_ascii=False) + '\n')
     source = (output / 'research.html').read_text() if (output / 'research.html').exists() else ''
     if source and not (output / 'conjectures.html').exists():
         (output / 'conjectures.html').write_text(page_shell('Conjectures', '', '<main></main>', active='Conjectures', appearance='editorial').replace(

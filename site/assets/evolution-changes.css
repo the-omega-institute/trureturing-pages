@@ -71,7 +71,6 @@
 #release-story { padding:0 20px; margin:22px 0; background:transparent; }
 #release-story > summary { padding:14px 0; font-size:13px; color:#c4d8cd; cursor:pointer; }
 #release-story[open] { padding-bottom:18px; }
-#publication-status { margin:12px 0; }
 @media(max-width:760px) {
  .evolution-workspace { padding-top:14px; }
  #evolution-map { height:52vh; min-height:320px; }

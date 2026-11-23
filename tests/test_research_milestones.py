@@ -87,13 +87,15 @@ class ResearchMilestoneTests(unittest.TestCase):
                              'zh-CN': {'headline': '明确的研究问题', 'finding': '有来源的结论说明。'}}}
         story = result_story(self.problem, self.record, ranking['results'][0], authored)
         self.assertEqual(story['headline'], 'A readable research question')
-        self.assertEqual(story['translations']['zh-CN']['finding'], '有来源的结论说明。')
+        self.assertNotIn('translations', story)
+        original_translation_source = story['translation_source']
         self.assertEqual(self.rank(), ranking)
         self.problem['sections']['Triage'] += '\nThe theorem has changed.'
         story = result_story(self.problem, self.record, self.rank()['results'][0], authored)
         self.assertEqual(story['origin'], 'released-dossier')
         self.assertNotEqual(story['headline'], 'A readable research question')
         self.assertNotIn('translations', story)
+        self.assertNotEqual(story['translation_source'], original_translation_source)
 
     def test_legacy_and_preprint_dates_match_real_hosts_only(self):
         for url, expected in [('https://arxiv.org/abs/quant-ph/0504166v1', 2005),
@@ -157,7 +159,7 @@ class ResearchMilestoneTests(unittest.TestCase):
         self.assertNotIn('<img src=x', html)
         self.assertNotIn('<script>bad()', html)
         self.assertIn('&lt;img', html)
-        self.assertIn('&lt;script', html)
+        self.assertNotIn('&lt;script', html)  # Hand-authored translations are not admitted.
 
 
 if __name__ == '__main__':

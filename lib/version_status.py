@@ -12,7 +12,6 @@ from datetime import datetime
 from functools import lru_cache
 import json
 from pathlib import Path
-import shutil
 import sys
 import tempfile
 
@@ -188,28 +187,13 @@ def fallback_status(previous, now, stage="published"):
 
 
 def write_status(output, value):
+    """Stage machine-readable diagnostics without a public status page."""
     validate_status(value)
     output = Path(output)
     encoded = json.dumps(value, ensure_ascii=False, indent=2) + "\n"
-    # Always start from the source template, including on cached build retries.
-    template = (ROOT / "site/version-status.html").read_text()
-    embedded = encoded.replace("<", "\\u003c").replace("&", "\\u0026")
-    page = template.replace("<!-- VERSION_STATUS_SNAPSHOT -->", embedded)
     living_library.write_bytes(output / STATUS_PATH, encoded.encode())
-    living_library.write_bytes(output / "version-status.html", page.encode())
-    (output / "assets").mkdir(parents=True, exist_ok=True)
-    for name in ("version-status-core.mjs", "version-status.mjs", "version-status.css", "site-theme.css", "i18n.mjs", "locales/zh-CN.json"):
-        source, target = ROOT / "site/assets" / name, output / "assets" / name
-        if source.resolve() != target.resolve():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            if name == "locales/zh-CN.json" and target.exists():
-                # Research generation adds source-bound display translations.
-                # Staging status last must retain them while refreshing UI copy.
-                translations = json.loads(target.read_text())
-                translations.update(json.loads(source.read_text()))
-                target.write_text(json.dumps(translations, ensure_ascii=False, indent=2) + "\n")
-            else:
-                shutil.copyfile(source, target)
+    # A generated cache or a retry can still contain the retired document.
+    (output / "version-status.html").unlink(missing_ok=True)
 
 
 def refresh_status(output, *, previous_url=None, releases_file=None, ancestry_file=None,

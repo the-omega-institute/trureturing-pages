@@ -104,6 +104,8 @@ def build(output):
     # Include current feed-only papers in browser acceptance, just as deployment
     # does. An editorial-only preview missed the newest arXiv placeholder cards.
     acquire('assets/research-updates.json')
+    from lib.research_translations import fetch_cache, canonical, ASSET_PATH
+    (output / ASSET_PATH).write_bytes(canonical(fetch_cache('the-omega-institute/trureturing-pages', BASE)) + b'\n')
     from lib.publication_previews import prepare_previews
     prepare_previews(output)
     render_knowledge_site(graph,output)
