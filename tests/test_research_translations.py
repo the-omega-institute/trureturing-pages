@@ -8,7 +8,8 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 
 from lib.research_translations import (
-    FIELDS, MODEL, POLICY, SOURCE_SCHEMA, ModelClient, build_source, canonical, digest, empty_cache, protect,
+    FIELDS, MODEL, POLICY, REVIEW_CONTEXT, SOURCE_SCHEMA, ModelClient, admitted_cache, build_source,
+    canonical, digest, empty_cache, protect,
     restore, segments, source_item, translate_batch, translate_source, translate_with_recovery,
     validate_cache, validate_source, fetch_cache,
 )
@@ -38,6 +39,104 @@ class Client:
 
 
 class ResearchTranslationTests(unittest.TestCase):
+    def test_generation_and_review_receive_complete_unmasked_definitions(self):
+        source=example()
+        item=source['results'][0]
+        item['fields']['question']='Here `H(n) = sum 1/(d_j-d_i)` defines the reciprocal of each divisor difference.'
+        item['source_digest']=digest({'policy':POLICY,**{k:item[k] for k in ['id','kind','source_binding','fields']}})
+        source['source_set_digest']=digest(source['results'])
+        self_test=self
+        class InspectContext(Client):
+            def complete(self,messages,review=False):
+                request=json.loads(messages[-1]['content'])
+                row=request['results'][0]
+                if review:
+                    self_test.assertEqual(row['english'],item['fields'])
+                    self_test.assertIn('1/(d_j-d_i)',row['english']['question'])
+                    self_test.assertIn('$n>5040$',row['chinese']['finding'])
+                    self_test.assertNotIn('__LITERAL_',json.dumps(row))
+                else:
+                    self_test.assertEqual(row['original'],item['fields'])
+                    self_test.assertIn('__LITERAL_',request['strings'][row['fields']['finding']])
+                return super().complete(messages,review)
+        # This client only translates the surrounding English needed by this fixture.
+        class TranslateQuestion(InspectContext):
+            def complete(self,messages,review=False):
+                response,receipt=super().complete(messages,review)
+                if not review:
+                    response['translations']={k:v.replace('Here ','这里 ').replace(
+                        ' defines the reciprocal of each divisor difference.',' 定义每个约数之差的倒数。')
+                        for k,v in response['translations'].items()}
+                return response,receipt
+        accepted=translate_batch(source['results'],TranslateQuestion(),source)
+        self.assertEqual(accepted[item['source_digest']]['review']['source_context'],REVIEW_CONTEXT)
+
+    def test_legacy_candidates_are_rereviewed_without_regeneration(self):
+        source=example()
+        legacy={**empty_cache(),'entries':translate_batch(source['results'],Client(),source)}
+        for entry in legacy['entries'].values():entry['review'].pop('source_context')
+        self.assertEqual(admitted_cache(legacy)['entries'],{})
+        client=Client()
+        current,stats=translate_source(source,legacy,client)
+        self.assertEqual(client.calls,[True])
+        self.assertEqual(stats['pending'],0)
+        self.assertEqual(len(admitted_cache(current)['entries']),1)
+        self.assertEqual(next(iter(current['entries'].values()))['fields'],next(iter(legacy['entries'].values()))['fields'])
+        client=Client()
+        same,stats=translate_source(source,current,client)
+        self.assertEqual(same,current)
+        self.assertFalse(stats['changed'])
+        self.assertEqual(client.calls,[])
+
+    def test_rejected_legacy_candidate_is_corrected_and_independently_reviewed(self):
+        source=example()
+        legacy={**empty_cache(),'entries':translate_batch(source['results'],Client(),source)}
+        for entry in legacy['entries'].values():entry['review'].pop('source_context')
+        class InitiallyRejected(Client):
+            def complete(self,messages,review=False):
+                self.reject=review and self.calls.count(True)==0
+                return super().complete(messages,review)
+        client=InitiallyRejected()
+        current,stats=translate_source(source,legacy,client)
+        self.assertEqual(client.calls,[True,False,True])
+        self.assertEqual(stats['pending'],0)
+        self.assertEqual(len(admitted_cache(current)['entries']),1)
+
+    def test_interrupted_rereview_preserves_candidate_without_admitting_it(self):
+        source=example()
+        legacy={**empty_cache(),'entries':translate_batch(source['results'],Client(),source)}
+        for entry in legacy['entries'].values():entry['review'].pop('source_context')
+        class Interrupted(Client):
+            def complete(self,*args,**kwargs):raise IncompleteRead(b'')
+        current,stats=translate_source(source,legacy,Interrupted())
+        self.assertEqual(current,legacy)
+        self.assertEqual(stats['pending'],1)
+        self.assertEqual(admitted_cache(current)['entries'],{})
+
+    def test_cached_candidate_still_needs_exact_source_literals(self):
+        source=example()
+        legacy={**empty_cache(),'entries':translate_batch(source['results'],Client(),source)}
+        entry=next(iter(legacy['entries'].values()))
+        entry['review'].pop('source_context')
+        entry['fields']['finding']=entry['fields']['finding'].replace('5040','1')
+        entry['segments']={k:segments(v) for k,v in entry['fields'].items()}
+        entry['content_digest']=digest({'fields':entry['fields'],'segments':entry['segments']})
+        entry['review']['content_digest']=entry['content_digest']
+        validate_cache(legacy)
+        client=Client()
+        current,stats=translate_source(source,legacy,client)
+        self.assertEqual(client.calls,[False,True])
+        self.assertEqual(stats['pending'],0)
+        self.assertIn('5040',next(iter(current['entries'].values()))['fields']['finding'])
+
+    def test_pages_reads_only_receipts_with_full_source_context(self):
+        source=example()
+        legacy={**empty_cache(),'entries':translate_batch(source['results'],Client(),source)}
+        for entry in legacy['entries'].values():entry['review'].pop('source_context')
+        with patch('lib.research_translations.read_json_url',return_value=legacy):
+            self.assertEqual(fetch_cache('owner/pages'),empty_cache())
+            self.assertEqual(fetch_cache('owner/pages',include_candidates=True),legacy)
+
     def test_interrupted_stream_is_retried_without_reusing_partial_output(self):
         def event(text):
             return ('data: '+json.dumps({'model':MODEL,'choices':[{'delta':{'content':text}}]})+'\n').encode()
