@@ -52,6 +52,7 @@ class ResearchMilestoneTests(unittest.TestCase):
         settings = copy.deepcopy(SETTINGS)
         settings['research_news']['minimum_score'] = 0
         self.problem['sections']['Route'] = 'A finite certificate evaluates a witness.'
+        self.problem['sections']['Problem'] = 'A conjectured inequality with no identified general source question.'
         self.problem['sections']['Triage'] = 'certified-instance; proof_shape: bind-only'
         self.record['kind'] = 'refuted'
         with patch('lib.contributions.SETTINGS', settings):

@@ -2,10 +2,10 @@
   "schema_version": "contribution-policy.v3",
   "reference_year": 2026,
   "weights": {
-    "significance": 30,
-    "concepts": 20,
+    "significance": 20,
+    "concepts": 10,
     "methods": 15,
-    "advance": 15,
+    "advance": 35,
     "standing": 5,
     "history": 10,
     "attention": 5

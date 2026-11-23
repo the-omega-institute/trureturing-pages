@@ -253,7 +253,24 @@ def story_paragraphs(story, *, compact=False):
               ('idea', 'The idea'), ('finding', 'Our contribution'), ('boundary', 'Scope & next question')]
     if compact:
         fields = [('context', 'Why it matters'), ('idea', 'The idea'), ('boundary', 'Scope & next question')]
-    return ''.join(f'<p><span>{esc(label)}</span>{esc(story[key])}</p>'
+    return ''.join(f'<p><span>{esc(label)}</span>{story_inline(story[key])}</p>'
+                   for key, label in fields if story.get(key))
+
+
+def story_inline(text):
+    """Render sourced mathematics without exposing raw TeX or accepting HTML."""
+    from lib.living_library import MARKDOWN
+    text = re.sub(r'!?(\[[^\]]+\])\([^\s)]+\)', lambda m: m[1][1:-1], str(text or ''))
+    text = re.sub(r'\$\$(.*?)\$\$', lambda m: r'\(' + m[1].strip() + r'\)', text, flags=re.S)
+    text = re.sub(r'(?<!\\)\$([^$]+)\$', lambda m: r'\(' + m[1] + r'\)', text)
+    return MARKDOWN.renderInline(' '.join(text.split()))
+
+
+def result_reading_lines(story):
+    fields = [('question', 'Original question'), ('finding', 'Our answer'), ('impact', 'Why it matters'), ('boundary', 'Scope')]
+    return ''.join(f'<span class="result-reading-line" data-story-field="{key}">'
+                   f'<span class="result-reading-label">{label}</span>'
+                   f'<span class="result-reading-text">{story_inline(story[key])}</span></span>'
                    for key, label in fields if story.get(key))
 
 
@@ -283,9 +300,9 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
             f'<strong class="discovery-contribution">{esc(highlight["headline"])}</strong>{date}{person}'
             f'<span class="highlight-outcome {esc(record["kind"])}">{esc(record["kind"].capitalize())}</span>'
             + discovery_diagram(story.get('diagram')) + '</aside><div class="discovery-story">'
-            + f'<h3><a href="{esc(news["url"])}">{esc(headline)}</a></h3>'
-            + f'<p class="discovery-question">{esc(story.get("question") or news["title"])}</p>'
-            + (f'<p class="discovery-finding">{esc(story["finding"])}</p>' if story.get('finding') else '')
+            + f'<h3><a href="{esc(news["url"])}">{story_inline(headline)}</a></h3>'
+            + f'<p class="discovery-question">{story_inline(story.get("question") or news["title"])}</p>'
+            + (f'<p class="discovery-finding">{story_inline(story["finding"])}</p>' if story.get('finding') else '')
             + '<div class="highlight-story">' + story_paragraphs(story, compact=True) + '</div>'
             + research_followups(news['problem_id'], feed, include_mathesis=False)
             + f'<div class="news-links"><a href="{esc(news["url"])}">Explore the result ↗</a>'
@@ -324,10 +341,7 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
         search += ' ' + ' '.join(str(v) for v in story.values())
         if story['origin'] == 'source-bound-editorial':
             search += ' ' + ' '.join(stories[r['id']].get('zh-CN', {}).values())
-        excerpt = story.get('finding', '')
-        if re.match(r'^(?:(?:The )?OEIS\b|Quoted directly\b|From \[)', excerpt, re.I):
-            excerpt = ''
-        preview = f'<span class="result-excerpt">{esc(excerpt)}</span>' if excerpt else ''
+        preview = result_reading_lines(story)
         history = highlight['history']
         year = (f'<span class="result-impact-history"><span>{esc(history["label"])}</span> '
                 f'<span class="result-impact-year">{esc(history["value"])}</span></span>') if history else ''
@@ -340,10 +354,10 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
                            for fact in highlight['evidence'])
         context = ('<details class="highlight-evidence"><summary>About this highlight</summary>'
                    f'<ul>{evidence}</ul></details>') if evidence else ''
-        formal = (f'<span class="result-formal-title">{esc(assessed["title"])}</span>') if story['headline'] != assessed['title'] else ''
+        formal = (f'<span class="result-formal-title">{story_inline(assessed["title"])}</span>') if story['headline'] != assessed['title'] else ''
         rows.append(f'<details id="resolved-{esc(r["id"])}" class="reading-item result-item" data-result-row '
             f'data-kind="{esc(r["kind"])}" data-search="{esc(search.lower())}">'
-            f'<summary>{impacts}<span class="result-summary"><strong>{esc(story["headline"])}</strong>{preview}{formal}</span>'
+            f'<summary>{impacts}<span class="result-summary"><strong>{story_inline(story["headline"])}</strong>{preview}{formal}</span>'
             f'<span class="result-outcome {esc(r["kind"])}">{esc(r["kind"].capitalize())}</span>'
             '<span class="result-disclosure" aria-hidden="true">+</span></summary>'
             f'<div class="reading-item-body">'
@@ -475,13 +489,17 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
     from lib.contributions import build_index
     ranking = ranking or build_index(snapshot, records, output / 'assets/contribution-index.json')
     overview = render_conjecture_overview(records)
+    proved = sum(r.get('kind') == 'proved' for r in records)
     body = ('<main class="site-main research-home research-news contribution-home" data-curated-home>'
-        '<header class="contribution-heading"><div><p class="eyebrow">THE OMEGA INSTITUTE / CONTRIBUTIONS</p><h1>Conjectures</h1>'
-        '<p>What the release settles, why it matters, and what it opens next.</p></div>'
+        '<header class="contribution-heading"><div><p class="eyebrow">TRURETURING / MATHEMATICAL RESULTS</p><h1>Conjectures</h1>'
+        '<p>The original question. Our answer. Why the result matters.</p></div>'
         '<a href="research.html">Research highlights ↗</a></header>'
-        + overview
+        + f'<div class="release-summary"><span><strong>{len(records):,}</strong> resolved results</span>'
+        f'<span><strong>{proved:,}</strong> proved</span><span><strong>{len(records) - proved:,}</strong> refuted</span>'
+        '<a href="version-status.html">Publication coverage ↗</a></div>'
         + '<section class="resolved-results-heading" aria-labelledby="resolved-results-title"><div><p class="eyebrow">PROBLEMS &amp; CONTRIBUTIONS</p><h2 id="resolved-results-title">Resolved conjectures</h2></div><p>The question, its history, and the idea that resolves it.</p></section>'
         + render_result_index(result_document or document, snapshot, records, ranking, feed)
+        + '<details class="release-overview"><summary>Results by mathematical area</summary>' + overview + '</details>'
         + '<details id="more-questions" class="more-questions"><summary>Open questions &amp; research directions</summary>'
         + render_collection(catalog, snapshot, sources['questions'], show_source_filters=False)
         + '</details></main>')
