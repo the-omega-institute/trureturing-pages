@@ -8,7 +8,7 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 
 from lib.research_translations import (
-    FIELDS, MODEL, POLICY, REVIEW_CONTEXT, SOURCE_SCHEMA, ModelClient, admitted_cache, build_source,
+    FIELDS, MODEL, POLICY, REVIEW_CONTEXT, SOURCE_SCHEMA, ModelClient, admitted_cache, admit_source_cache, build_source,
     canonical, digest, empty_cache, protect,
     restore, segments, source_item, source_candidates, mask_candidate, translate_batch, translate_source, translate_with_recovery,
     validate_cache, validate_source, fetch_cache,
@@ -122,10 +122,32 @@ class ResearchTranslationTests(unittest.TestCase):
         entry['review']['content_digest']=entry['content_digest']
         candidates=source_candidates(source,bad)
         self.assertEqual(admitted_cache({**empty_cache(),'entries':candidates})['entries'],{})
+        self.assertEqual(admit_source_cache(source, bad)['entries'], {})
+        self.assertEqual(admit_source_cache(source, valid), valid)
         self.assertEqual(candidates[item['source_digest']]['review']['previous_source_context'],REVIEW_CONTEXT)
         current,stats=translate_source(source,bad,TranslateRank())
         self.assertEqual(stats['pending'],0)
         self.assertEqual(current['entries'][item['source_digest']]['fields']['headline'],valid['entries'][item['source_digest']]['fields']['headline'])
+
+    def test_page_projection_rechecks_cache_against_its_exported_source(self):
+        from lib.reading_views import apply_reading_views
+        import tempfile
+        source = example()
+        cache = {**empty_cache(), 'entries': translate_batch(source['results'], Client(), source)}
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp)
+            path = output / 'assets/locales/research.zh-CN.v1.json'
+            path.parent.mkdir(parents=True)
+            path.write_bytes(canonical(cache))
+            # An English source change invalidates the old translation even if its review is valid.
+            item = source['results'][0]
+            item['fields']['finding'] += ' The strengthened bound is strict.'
+            item['source_digest'] = digest({'policy': POLICY, **{k: item[k] for k in ['id', 'kind', 'source_binding', 'fields']}})
+            source['source_set_digest'] = digest(source['results'])
+            with patch('lib.research_translations.build_source', return_value=source):
+                apply_reading_views(output, {}, [])
+            self.assertEqual(json.loads(path.read_text())['entries'], {})
+            self.assertEqual(json.loads((output / 'assets/research-translation-source.v1.json').read_text()), source)
 
     def test_generation_and_review_receive_complete_unmasked_definitions(self):
         source=example()

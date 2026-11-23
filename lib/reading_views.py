@@ -574,10 +574,14 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
     from lib.living_library import page_shell
     from lib.contributions import build_index
     from lib.contribution_stories import build_milestones
-    from lib.research_translations import build_source, SOURCE_PATH
+    from lib.research_translations import build_source, admit_source_cache, canonical, SOURCE_PATH, ASSET_PATH
     ranking = build_index(snapshot, records, output / 'assets/contribution-index.json')
     milestones = build_milestones(snapshot, records, ranking, output / 'assets/research-milestones.json')
-    (output / SOURCE_PATH).write_text(json.dumps(build_source(snapshot, records, ranking), ensure_ascii=False) + '\n')
+    translation_source = build_source(snapshot, records, ranking)
+    (output / SOURCE_PATH).write_text(json.dumps(translation_source, ensure_ascii=False) + '\n')
+    cache_path = output / ASSET_PATH
+    if cache_path.exists():
+        cache_path.write_bytes(canonical(admit_source_cache(translation_source, json.loads(cache_path.read_text()))) + b'\n')
     source = (output / 'research.html').read_text() if (output / 'research.html').exists() else ''
     if source and not (output / 'conjectures.html').exists():
         (output / 'conjectures.html').write_text(page_shell('Conjectures', '', '<main></main>', active='Conjectures', appearance='editorial').replace(
