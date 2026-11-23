@@ -81,13 +81,16 @@ def main():
         assert page.locator('[data-rank-dimension],[data-result-collection],[data-curated-source]').count()==0
         assert page.locator('#conjecture-overview').count()==1
         assert page.locator('#conjecture-overview .overview-map').count()==1
-        assert page.locator('#conjecture-overview-title').is_visible()
+        assert not page.locator('#conjecture-overview-title').is_visible()
+        assert page.locator('.release-summary').is_visible()
         assert page.locator('#resolved-results-title').is_visible()
         assert page.locator('.result-impact-tag').count()>=total
         rail = rows.first.locator('.result-impact-list').bounding_box()
         description = rows.first.locator('.result-summary').bounding_box()
         assert rail['x'] + rail['width'] < description['x']
-        assert page.locator('#conjecture-overview').bounding_box()['y'] < 360
+        assert rows.first.bounding_box()['y'] < 550
+        for field in ['question', 'finding', 'impact']:
+            assert rows.first.locator(f'[data-story-field="{field}"]').is_visible(),field
         ranked=json.loads((args.site/'assets/contribution-index.json').read_text())['results']
         assert len(ranked)==total and all(isinstance(r['score'],(int,float)) for r in ranked)
         assert [r['score'] for r in ranked]==sorted((r['score'] for r in ranked),reverse=True)
@@ -338,7 +341,8 @@ def main():
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),name
             page.screenshot(path=str(args.output/(name+'-restored-mobile.png')),full_page=True)
             if name=='conjectures':
-                assert page.locator('#conjecture-overview-title').bounding_box()['y'] < 540
+                assert page.locator('.release-summary').bounding_box()['y'] < 540
+                assert not page.locator('#conjecture-overview-title').is_visible()
                 first_result = page.locator('[data-result-row]').first
                 rail = first_result.locator('.result-impact-list').bounding_box()
                 description = first_result.locator('.result-summary').bounding_box()

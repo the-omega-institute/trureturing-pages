@@ -126,4 +126,6 @@ def result_highlight(record, item, problem=None):
     if person and standing.get('evidence'):
         evidence.append({'label': 'Scholarly context', 'text': standing.get('rationale', ''),
                          'url': _public_url(standing['evidence'][-1])})
+    if assessment.get('scope') == 'partial':
+        headline = 'Partial answer' if kind == 'proved' else 'Scoped refutation'
     return {'headline': headline, 'history': history, 'person': person, 'evidence': evidence}

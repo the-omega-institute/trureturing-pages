@@ -7,7 +7,7 @@ There are no new required upstream fields and no new mathematical research tasks
 
 ## The pages
 
-The first view has a title, a small search field and the ordered results. There
+The first view has a title, compact counts, a small search field and the ordered results. Every closed row shows the original question, actual answer and significance before its proof disclosure. The area map follows the results in a separate disclosure. There
 are no reader-selected ranking dimensions, source categories, outcome dropdowns
 or visible point totals. OEIS and paper-derived results share one list. Original
 source links and exact mathematical statements remain in the expanded evidence.
@@ -51,17 +51,19 @@ bound proof's human-readable abstract and dependencies between released results.
 Every result gets a numeric score on every build, including new arrivals. No
 assessment form or new `contribution_assessment` field is requested upstream.
 
-`contribution-ranking.v3` uses these dimensions and maximum weights:
+`contribution-ranking.v4` uses these dimensions and maximum weights:
 
 | Dimension | Weight | Existing evidence used |
 | --- | ---: | --- |
-| Problem significance | 30 | An explicitly identified source question, a documented broader connection, or dependency by another released result. A workflow tier alone is capped at level 2; module reuse alone cannot establish field-wide foundational status. |
-| Conceptual contribution | 20 | A structural formulation/correspondence in the delivered argument; stronger credit for an explicitly introduced concept. A source definition alone is insufficient. |
+| Problem significance | 20 | An explicitly identified source question, a documented broader connection, or dependency by another released result. A workflow tier alone is capped at level 2; module reuse alone cannot establish field-wide foundational status. |
+| Conceptual contribution | 10 | A structural formulation/correspondence in the delivered argument; stronger credit for an explicitly introduced concept. A source definition alone is insufficient. |
 | Proof methods | 15 | Existing `proof_shape: content` records and a described mathematical mechanism, such as an injection, induction, spectral estimate or isoperimetric argument. |
-| Mathematical advance | 15 | The actual proved/refuted scope. A general proof or parameterized obstruction gains more credit than one certificate; an explicitly unresolved stronger claim limits the credit. |
+| Mathematical advance | 35 | The exact source target resolved, including complete refutations. An explicit remaining part of that target limits credit. Bounded computations alone cannot establish an unbounded positive theorem. |
 | Scholarly context | 5 | Documented proposer background in Pages' cited reference file, matched only to the primary attribution. Incidental names in proof routes and secondary literature cannot transfer reputation. |
 | Historical context | 10 | A dated conjecture line, otherwise the source bibliography/arXiv date. An OEIS AUTHOR date is never substituted for a later conjecture date. |
 | Prior research | 5 | Earlier mathematical results or partial cases described in the motivation. Literature-search volume, failed searches and unverified coverage do not earn credit. |
+
+The largest weight belongs to the actual mathematical advance. A complete general resolution of an explicit source question earns full advance credit whether it is a proof or refutation; it need not introduce a new named concept. A sound reduction of a general theorem to completely discharged finite obligations can earn full method credit. Supporting certificate/module counts never add credit. Open extensions and other questions in the same paper do not turn a complete delivered target into a partial answer. Explicit restrictions of the original target still limit its advance and are shown in the closed result row. An OEIS link does not erase a primary paper explicitly dated in the dossier.
 
 Each dimension has a capped level from 0 to 4. Signals are conservative reading
 rules, not an independent semantic review or novelty certification. Repeating
@@ -71,11 +73,11 @@ are excluded from contribution signals. Prior literature, computed experiments, 
 not block scoring or remove the result from the list.
 
 Let C be the weighted contribution points (`concepts + methods + advance`, maximum
-50), and I the weighted context points (the remaining dimensions, maximum 50).
+60), and I the weighted context points (the remaining dimensions, maximum 40).
 The overall score is:
 
 ```
-C + I × (0.4 + 0.6 × C / 50)
+C + I × (0.4 + 0.6 × C / 60)
 ```
 
 This couples the importance of a question to the actual contribution. An old
@@ -98,13 +100,13 @@ The original verified statement and proof remain the authority for mathematical
 claims. Existing human abstracts and dossier prose supply the short explanation.
 
 Every result in the current release is evaluated directly from its existing
-content. The existing `truth-release-published` notification triggers the normal
+content. Merged work enters the resolved catalogue only when its source and verification belong to a compatible published release; a merged PR alone is not a release attestation. The existing `truth-release-published` notification triggers the normal
 Pages build, which recomputes and stores the order. Outreach updates do not add
 ranking points. No extra trureturing issue, schema, export or release is required.
 
 ## Automatic Research News selection
 
-The editable Pages policy is `config/contribution-policy.v3.json`. By default a
+The editable Pages policy is `config/contribution-policy.v4.json`. By default a
 result qualifies at **50 points or above**, with documented problem significance
 at least **2/4** and at least **22.5 contribution points**. These are evidence-based
 editorial thresholds, not citation counts, percentile cutoffs or peer consensus.
@@ -120,7 +122,7 @@ qualifying results appear; the first three are expanded and the rest are in a
 “More research highlights” disclosure. Search and pagination never change the
 Conjectures ranking.
 
-`lib/contribution_stories.py` supplies question / context / idea / finding /
+`lib/contribution_stories.py` supplies source-question / answer / significance / proof-idea /
 boundary prose. Existing release explanations are the automatic fallback for new
 results; implementation details and formula-heavy excerpts remain in the proof
 record. Fourteen bilingual explanations in `site/assets/contribution-stories.json`

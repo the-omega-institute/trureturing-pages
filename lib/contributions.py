@@ -17,15 +17,15 @@ from urllib.parse import urlsplit
 from lib.literature import problem_source_url
 
 ROOT = Path(__file__).resolve().parents[1]
-POLICY = 'contribution-ranking.v3'
-POLICY_PATH = ROOT / 'config/contribution-policy.v3.json'
+POLICY = 'contribution-ranking.v4'
+POLICY_PATH = ROOT / 'config/contribution-policy.v4.json'
 PRIOR_RESULTS_PATH = ROOT / 'config/prior-results.v1.json'
 
 
 def validate_policy(value):
     dimensions = {'significance', 'concepts', 'methods', 'advance', 'standing', 'history', 'attention'}
     if (set(value) != {'schema_version', 'reference_year', 'weights', 'research_news'}
-            or value['schema_version'] != 'contribution-policy.v3'
+            or value['schema_version'] != 'contribution-policy.v4'
             or type(value['reference_year']) is not int or not 1900 <= value['reference_year'] <= 2100
             or set(value['weights']) != dimensions):
         raise ValueError('Invalid contribution policy')
@@ -68,10 +68,10 @@ def load_prior_results(path=None):
 
 REFERENCE_YEAR = SETTINGS['reference_year']  # Fixed; rebuilds never silently age results.
 DIMENSIONS = {
-    'significance': ('Problem significance', 30),
-    'concepts': ('Conceptual contribution', 20),
+    'significance': ('Problem significance', 20),
+    'concepts': ('Conceptual contribution', 10),
     'methods': ('Proof methods', 15),
-    'advance': ('Mathematical advance', 15),
+    'advance': ('Mathematical advance', 35),
     'standing': ('Scholarly context', 5),
     'history': ('Historical context', 10),
     'attention': ('Prior research', 5),
@@ -82,7 +82,7 @@ if sum(weight for _, weight in DIMENSIONS.values()) != 100:
 REPO = 'https://github.com/the-omega-institute/trureturing'
 MONTH = r'(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)'
 NEGATION = re.compile(r'\b(?:not|no|neither|without|unproved|unverified|proposed|would|could|might|planned|try|seek|remains? open|not formalized|outside|out of scope)\b', re.I)
-PIPELINE = re.compile(r'D5/|Blueprint/|std3|Scribe|Freeze|frozen|admission|preregister|proof_shape|escape_witness|utility[:=]|source[- ]bound|kernel', re.I)
+PIPELINE = re.compile(r'D5/|Blueprint/|std3|Scribe|Freeze|frozen|admission|preregister|proof_shape|escape_witness|utility[:=]|source[- ]bound|kernel[- ](?:checked|verified|verification)|Lean kernel', re.I)
 
 
 def plain(text):
@@ -125,15 +125,16 @@ def documented_year(problem):
     dated = [y for y in dated if y <= REFERENCE_YEAR]
     if dated:
         return min(dated), 'Dated conjecture statement'
-    # Do not substitute an OEIS entry's creation/author date for its conjecture.
-    if urlsplit(problem.get('url', '')).hostname in ('oeis.org', 'www.oeis.org'):
-        return None, None
     header = question.split('\n\n', 1)[0]
     years = set(re.findall(r'\(((?:18|19|20)\d{2})\)', header))
-    if len(years) == 1 and re.search(r'\b(?:printed page|journal|paper|section)\b', header, re.I):
+    if len(years) == 1 and re.search(r'\b(?:printed page|journal|paper|section)\b|\bprinted p\.', header, re.I):
         year = int(next(iter(years)))
         if year <= REFERENCE_YEAR:
             return year, 'Year in the primary source attribution'
+    # An OEIS link can accompany an explicitly quoted primary paper above.
+    # Otherwise its entry creation/author date does not date the conjecture.
+    if urlsplit(problem.get('url', '')).hostname in ('oeis.org', 'www.oeis.org'):
+        return None, None
     for key in ('url', 'doi', 'arxiv_id'):
         value = problem.get(key)
         value = str(value or '')
@@ -211,6 +212,23 @@ def context(snapshot, records):
     return nodes, consumers
 
 
+def scope_evidence(question, proof_text, triage):
+    """Separate the delivered target from open extensions and other source questions."""
+    boundary = next((s for s in sentences(question + '\n\n' + triage) if re.search(
+        r'\b(?:does not (?:settle|resolve) the (?:full|general|original)|'
+        r'(?:we|this (?:result|theorem|proof)) (?:only (?:prove|resolve|settle)|proves? only)|'
+        r'only the .{0,60}(?:special|finite|bounded|restricted) case|'
+        r'(?:it|this result|the result) leaves? .{0,140} open|'
+        r'the (?:full|general|original) (?:conjecture|recursion|question) remains? open)\b', s, re.I)), '')
+    general = next((s for s in sentences(question + '\n\n' + proof_text) if re.search(
+        r'\b(?:for (?:every|all)|every (?:positive|natural|integer|dimension)|'
+        r'arbitrary (?:depth|dimension|size|prime)|all (?:positive|integer|dimensions)|'
+        r'unconditional|infinite (?:locally finite |connected )?graphs)\b|'
+        r'∀|\\forall\b|\bfor\s+\$?n\s*(?:>|≥|>=|\\ge)', s, re.I)
+        and not re.search(r'\b(?:would|could|might|not formalized|proposed extension)\b', s, re.I)), '')
+    return general, boundary
+
+
 def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
     sections = problem.get('sections', {})
     question = sections.get('Problem', record.get('scope', ''))
@@ -233,7 +251,9 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
 
     put('significance', 1, 'A released resolution of an explicitly recorded external question.', urls=[source, dossier])
     named = next((s for s in sentences(question) if len(s) <= 1800 and re.search(
-        r'\b(?:conjecture\s+\d|(?:open )?(?:problem|question)\s+\d|open (?:question|problem)|we (?:now )?ask)\b', s, re.I)), None)
+        r'\b(?:conjecture\s+\d|(?:open )?(?:problem|question)\s+\d|open (?:question|problem)|'
+        r'we (?:now )?(?:ask|conjecture)|(?:section|paper).{0,30}asks|'
+        r'(?:may|can|does|is there).{5,350}\?)', s, re.I)), None)
     if named:
         put('significance', 2, 'An explicitly identified research question in the original source.', named, [source, dossier])
     tier = re.search(r'\bTier[ -]*([123])\b', triage + '\n' + motivation + '\n' + question, re.I)
@@ -273,7 +293,9 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
                     r'\b(?:spectral|eigen\w*|resolvent|determinant|rank bound)\b',
                     r'\b(?:convex\w*|duality|separat\w*|interpolat\w*|pinching|majorant)\b',
                     r'\b(?:factorization|valuation|divisib\w*|generating function)\b',
-                    r'\b(?:energy estimate|isoperimetr\w*|sum.of.squares|curvature)\b'):
+                    r'\b(?:energy estimate|isoperimetr\w*|sum.of.squares|curvature)\b',
+                    r'\b(?:covariance|orthogonal\w*|positive.semidefinite kernel|Cauchy.Schwarz)\b',
+                    r'\b(?:product (?:model|measure|law)|independent (?:coordinate|random)|coupling|martingale)\b'):
         mechanism = safe_excerpt(proof_text, pattern)
         if mechanism and mechanism not in mechanisms:
             mechanisms.append(mechanism)
@@ -285,7 +307,13 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
 
     put('advance', 2 if record['kind'] == 'proved' else 1,
         'The exact recorded statement is proved.' if record['kind'] == 'proved' else 'The exact recorded statement is refuted; a single witness does not by itself imply a broader advance.')
-    universal = positive_excerpt(question, r'\b(?:for (?:every|all)|every (?:positive|integer|dimension)|arbitrary (?:depth|dimension|size)|all (?:positive|integer|dimensions))\b')
+    universal, boundary = scope_evidence(question, proof_text, triage)
+    if (universal and not boundary and not instance and record['kind'] == 'proved'
+            and re.search(r'\binduction\b', proof_text, re.I)
+            and re.search(r'\bfinite (?:obligations|families|domains|certificates)\b', proof_text, re.I)
+            and re.search(r'\b(?:discharg\w*|soundness|suppl\w*)\b', proof_text, re.I)):
+        put('methods', 4, 'A general proof reduces the target to a complete finite domain and discharges its obligations with proved certificates.',
+            universal)
     family = safe_excerpt(proof_text, r'\b(?:infinite family|for (?:every|all)|uniform(?:ly)? in|arbitrary (?:depth|dimension)|all dimensions)\b')
     if record['kind'] == 'proved' and (universal or family):
         put('advance', 3, 'The proved statement applies to the stated general family, not just a checked finite range.', universal or family)
@@ -299,8 +327,8 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
     sharp = safe_excerpt(conclusion, r'\b(?:sharp (?:upper |lower )?bound|global (?:minimum|maximum|optimum)|exact optimum)\b')
     if record['kind'] == 'proved' and sharp and re.search(r'\battain\w*\b', str(conclusion), re.I):
         put('advance', 4, 'The released conclusion establishes an optimal bound and an attaining case, giving an exact extremal answer.', sharp)
-    boundary = next((s for s in sentences(question + '\n\n' + triage)
-                     if re.search(r'only .{0,60}(?:case|difference|recurrence)|does not (?:settle|resolve)|remains? (?:open|untouched)|out of scope|outside (?:that|this|the) result|no claim about', s, re.I)), '')
+    if named and universal and not boundary:
+        put('advance', 4, 'The released result resolves the explicitly stated source question throughout its general scope.', universal)
     if boundary:
         facts['advance']['level'] = min(2, facts['advance']['level'])
         facts['advance']['boundary'] = boundary[:1800]
@@ -339,6 +367,7 @@ def derive_assessment(problem, record, snapshot, nodes, consumers, profiles):
         contribution = str(record.get('summary', '')).strip() or first_readable(route)
     return {'dimensions': facts, 'question_context': first_readable(motivation),
             'contribution': contribution, 'next_question': boundary,
+            'general_scope': universal or family or '',
             'scope': 'partial' if boundary else 'recorded_statement',
             'basis': 'Existing source dossier, released proof explanation and recorded dependencies'}
 

@@ -28,28 +28,97 @@ def load_stories():
     return json.loads(path.read_text())['stories'] if path.exists() else {}
 
 
-def readable(text):
-    """Keep actual explanatory prose; equations and implementation stay in evidence."""
+def readable(text, *, limit=1):
+    """Retain mathematical statements while omitting implementation metadata."""
+    selected = []
     for sentence in sentences(text):
         if not 45 <= len(sentence) <= 540 or PIPELINE.search(sentence):
             continue
-        if re.search(r'\$|\\[a-zA-Z]|\bFin\s+\d|→|\||https?://|\b(?:preregister|declaration|kernel.checked|Lean|Mathlib|admission|private|source_path)\b', sentence, re.I):
+        if re.search(r'\bFin\s+\d|https?://|\b(?:preregister|declaration|kernel.checked|Lean|Mathlib|admission|private|source_path|definitionally)\b', sentence, re.I):
             continue
         if re.match(r'^(?:The )?(?:OEIS|FORMULA|COMMENT|AUTHOR|LINK|REFERENCE)|^Quoted|^From ', sentence, re.I):
             continue
-        return sentence
-    return ''
+        selected.append(sentence)
+        if len(selected) == limit:
+            break
+    return ' '.join(selected)
+
+
+def source_question(text, *, include_definition=True):
+    """Prefer the actual question to its bibliography or workflow description."""
+    text = str(text or '')
+    quotes = list(re.finditer(r'(?m)^>[^\n]*(?:\n>[^\n]*)*', text))
+    def priority(match):
+        quote = re.sub(r'(?m)^>[ \t]?', '', match[0]).strip()
+        if re.match(r'^(?:Definition|Theorem|Lemma|Proposition)\b', quote, re.I):
+            return -1
+        return 2 if re.search(r'\b(?:conjectur\w*|open question|we ask)\b|\?', quote, re.I) else 1
+    quotes.sort(key=priority, reverse=True)
+    for match in quotes:
+        if priority(match) < 0:
+            continue
+        quote = re.sub(r'(?m)^>[ \t]?', '', match[0]).strip()
+        if quote and len(quote) <= 1800:
+            definition = text[match.end():].strip().split('\n\n', 1)[0]
+            if include_definition and re.match(r'^(?:Here\b|where\b|The quantity\b)', definition) and len(quote + definition) <= 1800:
+                quote += ' ' + definition
+            return quote
+    return readable(text)
+
+
+def scope_impact(item):
+    """Explain documented reach without inventing novelty or field-wide influence."""
+    assessment = item.get('assessment', {})
+    facts = assessment.get('dimensions', {})
+    advance = facts.get('advance', {}).get('level', 0)
+    history = facts.get('history', {})
+    year = history.get('source_year')
+    context = f'The question is recorded in a {year} source. ' if year else ''
+    if assessment.get('scope') == 'partial':
+        return context + 'This settles the stated special case; the broader question remains open.'
+    if advance >= 3 and item.get('general_scope', assessment.get('general_scope')):
+        return context + 'The proof covers every case allowed by the stated hypotheses.'
+    return context + 'The result answers the source question in the exact scope stated here.'
+
+
+def is_assertion(text):
+    """A topic heading alone does not tell the reader what was established."""
+    return bool(re.search(r'\b(?:is|are|has|have|holds?|satisf(?:y|ies)|gives?|forces?|equals?|'
+                          r'attains?|determines?|admits?|exists?|implies?|refutes?|proves?|'
+                          r'establish(?:es)?|characteri[sz](?:es)?)\b|[≤≥=]|证明|反例|等于|存在|成立', text, re.I))
 
 
 def result_story(problem, record, item, authored=None):
     authored = load_stories() if authored is None else authored
     entry = authored.get(record['id'], {})
     if entry.get('binding') == story_binding(problem, record):
-        return {**entry['en'], 'origin': 'source-bound-editorial', 'binding': entry['binding']}
+        return {**entry['en'], 'impact': entry['en'].get('context') or scope_impact(item),
+                'origin': 'source-bound-editorial', 'binding': entry['binding']}
     assessment = item.get('assessment', {})
     sections = problem.get('sections', {})
-    finding = readable(assessment.get('contribution')) or readable(record.get('summary'))
-    context = readable(sections.get('Motivation'))
+    finding = readable(assessment.get('contribution'))
+    if not is_assertion(finding):
+        finding = ''
+    question = source_question(sections.get('Problem')) or source_question(record.get('scope'))
+    question_core = source_question(sections.get('Problem'), include_definition=False) or source_question(record.get('scope'), include_definition=False)
+    # A terse module abstract can merely repeat its title. For a fully delivered
+    # affirmative conjecture, retain the source's actual mathematical assertion.
+    if (record.get('kind') == 'proved' and assessment.get('scope') != 'partial'
+            and assessment.get('general_scope') and re.match(r'^We conjecture that\b', question, re.I)
+            and (not finding or re.search(r'\bconjecture\b', finding, re.I))):
+        finding = 'We prove that ' + re.sub(r'^We conjecture that\s*', '', question_core, flags=re.I)
+    if not finding:
+        summary = readable(record.get('summary'))
+        if is_assertion(summary) and not re.search(r'\bconjectur\w*\b', summary, re.I):
+            finding = summary
+        elif (record.get('kind') == 'proved' and assessment.get('scope') != 'partial'
+              and question_core and '?' not in question_core and is_assertion(question_core)):
+            finding = 'Proved for the stated scope: ' + question_core
+        elif record.get('kind') == 'refuted':
+            finding = 'A verified counterexample disproves the recorded statement.'
+        else:
+            finding = readable(assessment.get('general_scope')) or readable(record.get('scope'))
+    context = readable(sections.get('Motivation'), limit=2)
     idea = readable(delivered_prose(sections.get('Route')))
     dimensions = assessment.get('dimensions', {})
     if not idea:
@@ -66,8 +135,9 @@ def result_story(problem, record, item, authored=None):
         if techniques:
             idea = 'The proof uses ' + ' and '.join(techniques[:2]) + '.'
     return {'headline': item.get('title') or record['title'],
-            'question': readable(sections.get('Problem')),
+            'question': question,
             'context': context,
+            'impact': context or scope_impact(item),
             'finding': finding,
             'idea': idea,
             'boundary': readable(assessment.get('next_question')),

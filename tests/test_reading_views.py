@@ -136,7 +136,7 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertIn('Scope sequence', out)
         self.assertNotIn('Awaiting assessments', out)
 
-    def test_conjectures_open_with_release_overview_and_accessible_map(self):
+    def test_conjectures_lead_with_results_and_keep_the_area_map_in_a_disclosure(self):
         records, result_document = results()
         snapshot, source = conjectures()
         with tempfile.TemporaryDirectory() as temp:
@@ -148,7 +148,9 @@ class ReadingViewsTests(unittest.TestCase):
         self.assertIn('>3</strong><span>resolved results</span>', out)
         self.assertIn('>2</strong><span>proved</span>', out)
         self.assertIn('>1</strong><span>refuted</span>', out)
-        self.assertLess(out.index('id="conjecture-overview"'), out.index('id="results"'))
+        self.assertLess(out.index('id="results"'), out.index('id="conjecture-overview"'))
+        self.assertIn('class="release-overview"', out)
+        self.assertIn('class="release-summary"', out)
 
     def test_primary_navigation_is_restored_without_changing_evidence_links(self):
         raw=document('<main><a href="../../version-status.html">Diagnostic evidence</a></main>').replace('href="spaces.html"','href="../../spaces.html"')
