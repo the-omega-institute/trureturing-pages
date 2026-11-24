@@ -2446,6 +2446,14 @@ document
   );
 $("#zoom-in").addEventListener("click", () => zoom(0.76));
 $("#zoom-out").addEventListener("click", () => zoom(1.3));
+$("#release-change-note").addEventListener("click", event => {
+  event.preventDefault();
+  if (!state.model) return;
+  if (!$("#evolution")) selectComponent(null);
+  const section = $("#evolution");
+  section.open = true;
+  section.scrollIntoView({block: 'nearest'});
+});
 function returnToOverview() {
   if (state.mode === "theory") { selectComponent(null); return; }
   rememberView();
