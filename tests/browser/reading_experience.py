@@ -9,7 +9,7 @@ from pathlib import Path
 import threading
 import sys
 from urllib.parse import urljoin, urlsplit
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from lib.preview_server import PagesHTTPRequestHandler
 
@@ -45,8 +45,9 @@ def main():
         assert page.locator('[data-result-row]').count()==0
         assert page.locator('.research-highlights').count()==1
         milestones=json.loads((args.site/'assets/research-milestones.json').read_text())
-        assert page.locator('.highlight-card').count()==len(milestones['results'])
-        assert page.locator('[data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results']]
+        featured=milestones['policy']['featured_count']
+        assert page.locator('.highlight-card').count()==min(featured,len(milestones['results']))
+        assert page.locator('template[data-research-highlight]').count()==max(0,len(milestones['results'])-featured)
         assert all(item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
         assert page.locator('.featured-discoveries [data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results'][:milestones['policy']['featured_count']]]
         assert page.locator('.question-authors,.selection-note,.research-news-intro').count()==0
@@ -73,7 +74,8 @@ def main():
         events.append('Research presents papers and preprints without the duplicate result archive')
         page.goto(base+'conjectures.html?lang=en',wait_until='networkidle')
         rows=page.locator('#results [data-result-row]')
-        total=rows.count()
+        result_catalog=page.locator('#result-catalog').evaluate('e=>JSON.parse(e.textContent)')
+        total=len(result_catalog)
         assert total>0
         assert rows.evaluate_all("rows => rows.every(row => row.firstElementChild.tagName === 'SUMMARY')")
         assert page.locator('#results [data-result-row]:visible').count()==min(8,total)
@@ -84,7 +86,7 @@ def main():
         assert not page.locator('#conjecture-overview-title').is_visible()
         assert page.locator('.release-summary').is_visible()
         assert page.locator('#resolved-results-title').is_visible()
-        assert page.locator('.result-impact-tag').count()>=total
+        assert page.locator('.result-impact-tag').count()==min(8,total)
         rail = rows.first.locator('.result-impact-list').bounding_box()
         description = rows.first.locator('.result-summary').bounding_box()
         assert rail['x'] + rail['width'] < description['x']
@@ -95,7 +97,8 @@ def main():
         assert len(ranked)==total and all(isinstance(r['score'],(int,float)) for r in ranked)
         assert [r['score'] for r in ranked]==sorted((r['score'] for r in ranked),reverse=True)
         assert [item['id'] for item in milestones['results']]==[item['id'] for item in ranked if item['research_news']['eligible']]
-        assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked]
+        assert [r['id'] for r in result_catalog]==['resolved-'+r['id'] for r in ranked]
+        assert rows.evaluate_all('rows => rows.map(row => row.id)')==['resolved-'+r['id'] for r in ranked[:8]]
         translation_cache=json.loads((args.site/'assets/locales/research.zh-CN.v1.json').read_text())
         accepted=translation_cache['entries']
         if accepted:
@@ -132,13 +135,13 @@ def main():
         events.append('The first viewport shows contributions already ranked from existing upstream content; no dimension or source choices')
         if total>8:
             page.locator('[data-result-more]').click()
-            assert page.locator('[data-result-row]:visible').count()==min(16,total)
+            expect(page.locator('[data-result-row]:visible')).to_have_count(min(16,total))
             assert page.locator('[data-result-row] > summary').nth(8).evaluate('e=>e===document.activeElement')
         page.locator('#results-query').fill('no-matching-result-0xdeadbeef')
-        assert page.locator('[data-result-empty]').is_visible()
-        assert page.locator('[data-result-row]:visible').count()==0
+        expect(page.locator('[data-result-empty]')).to_be_visible()
+        expect(page.locator('[data-result-row]:visible')).to_have_count(0)
         page.locator('[data-clear-search]').click()
-        assert page.locator('[data-result-row]:visible').count()==min(8,total)
+        expect(page.locator('[data-result-row]:visible')).to_have_count(min(8,total))
         title=rows.first.locator('summary strong').inner_text()
         page.locator('#results-query').fill(title)
         assert rows.first.is_visible()
@@ -173,7 +176,8 @@ def main():
         plain=browser.new_context(java_script_enabled=False)
         plain_page=plain.new_page()
         plain_page.goto(base+'conjectures.html?lang=en')
-        assert plain_page.locator('[data-result-row]:visible').count()==total
+        assert plain_page.locator('[data-result-row]:visible').count()==min(8,total)
+        assert plain_page.locator('noscript a').count()==total
         plain_page.locator('[data-result-row] > summary').last.click()
         plain_page.locator('.verification-details > summary').last.click()
         assert plain_page.locator('.news-result').last.is_visible()
@@ -221,6 +225,24 @@ def main():
         assert plain_page.locator('.curated-target').count()==34
         plain.close()
         events.append('All 19 curated questions and 34 subquestions remain available without JavaScript; unrelated future pursuits are removed')
+        requests.clear()
+        page.goto(base+'atlas.html?lang=en',wait_until='domcontentloaded')
+        page.wait_for_function('window.atlasDiagnostics?.().visuals.batchedNodes>0',timeout=60000)
+        overview=page.evaluate('window.atlasDiagnostics()')
+        assert overview['visuals']['batchedNodes']==overview['nodes']
+        assert overview['visuals']['nodeDrawCalls']==1
+        assert overview['visuals']['batchedImports']==overview['edges']
+        assert page.locator('nav[aria-label="Primary navigation"] a[href*="knowledge/"],nav[aria-label="Primary navigation"] a[href*="evolution"]').count()==0
+        assert not any('library-history.v1.json' in u or 'architecture-history.v1.json' in u for u in requests)
+        page.locator('#evolution > summary').click()
+        page.wait_for_selector('#evolution[data-loaded="true"]')
+        growth_index=json.loads((args.site/'data/library-history.v1.json').read_text())['entries']
+        assert page.locator('#evolution input').input_value()==str(len(growth_index)-1)
+        page.locator('#evolution input').fill('0')
+        assert f'{growth_index[0]["node_count"]:,}' in page.locator('#evolution').inner_text()
+        assert not any('/data/library/' in u or '/data/architecture/' in u for u in requests)
+        page.locator('#evolution').screenshot(path=str(args.output/'atlas-integrated-growth.png'))
+        events.append('Explore batches every published module/import; Library and growth are secondary, with no archive snapshot downloads')
         # History streams all published snapshots. Wait for its verified scene
         # below instead of requiring every request to finish during navigation.
         page.goto(base+'evolution.html?lang=en',wait_until='domcontentloaded')

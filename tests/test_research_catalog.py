@@ -147,7 +147,17 @@ class ResearchCatalogTests(unittest.TestCase):
                                                   "digest": "sha256:" + "a" * 64})
             research = (out / "conjectures.html").read_text()
             index = json.loads((out / "api/v1/index.json").read_text())
-            self.assertEqual(research.count('class="news-result"'), 164)
+            self.assertEqual(research.count('class="news-result"'), 8)
+            from lib.reading_views import Fragments
+            from hashlib import sha256
+            parsed=Fragments(research);node=parsed.select(id='result-catalog')[0]
+            catalog=json.loads(research[node.inner:node.end].rsplit('</script>',1)[0])
+            self.assertEqual(len(catalog),164)
+            self.assertEqual({r['id'].removeprefix('resolved-') for r in catalog},self.verified)
+            for record in catalog:
+                data=(out/record['path']).read_bytes()
+                self.assertEqual(record['digest'],'sha256:'+sha256(data).hexdigest())
+                self.assertIn(('id="'+record['id']+'"').encode(),data)
             self.assertEqual({r["id"].removeprefix("result:") for r in index["records"]
                               if r["kind"] == "result"}, self.verified)
             self.assertEqual({f["id"] for f in json.loads((out / "assets/research-catalog.json").read_text())["families"]}, self.verified)

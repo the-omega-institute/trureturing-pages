@@ -197,10 +197,15 @@ class KnowledgeSpacesTests(unittest.TestCase):
             self.assertIn('id="results"',body)
             self.assertIn('id="result-archive"',body)
             self.assertNotIn('id="resolved-questions-archive"',body)
-            self.assertEqual(9,body.count('class="news-result"'))
+            self.assertEqual(8,body.count('class="news-result"'))
+            from lib.reading_views import Fragments
+            parsed=Fragments(body);node=parsed.select(id='result-catalog')[0]
+            catalog=json.loads(body[node.inner:node.end].rsplit('</script>',1)[0])
+            self.assertEqual(9,len(catalog))
+            cards=''.join((root/entry['path']).read_text() for entry in catalog)
             for i in range(9):
-                self.assertIn(f'id="result-{i}"',body)
-                self.assertIn(f'id="resolved-result-{i}"',body)
+                self.assertIn(f'id="result-{i}"',cards)
+                self.assertIn(f'id="resolved-result-{i}"',cards)
             self.assertNotIn('What we are working on now',body)
 
     def test_legacy_news_renderer_does_not_create_verified_spaces(self):

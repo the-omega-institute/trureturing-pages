@@ -8,6 +8,8 @@ import {
   CubicBezierCurve3,
   TubeGeometry,
   Mesh,
+  Points,
+  ShaderMaterial,
   MeshBasicMaterial,
   LineSegments,
   Line,
@@ -19,7 +21,7 @@ import {
   AmbientLight,
   DirectionalLight,
   TorusGeometry,
-} from "./vendor/three-atlas.mjs";
+} from "./vendor/three-atlas.mjs?v=points-v1";
 import { partitionImportEdges } from "./atlas-import-batches.mjs";
 import { importGeometry } from "./atlas-import-geometry.mjs";
 
@@ -51,7 +53,8 @@ export function createAtlasScene(renderer, host, callbacks) {
   const focus = new Group();
   const landmarks = new Group();
   const imports = new Group();
-  root.add(bundles, research, changes, focus, landmarks, imports);
+  const nodes = new Group();
+  root.add(bundles, research, changes, focus, landmarks, imports, nodes);
   renderer.scene().add(root);
   const ambient = new AmbientLight("#e4edf3", 0.85);
   const key = new DirectionalLight("#edfff8", 1.5);
@@ -68,16 +71,41 @@ export function createAtlasScene(renderer, host, callbacks) {
   let pickable = [],
     labels = [],
     press = null;
+  let nodeItems = [], projectedNodes = null, moveFrame = 0, moveEvent;
+  function pickNode(event, rect) {
+    if (!nodes.visible) return null;
+    if (!projectedNodes) {
+      const camera = renderer.camera();
+      const scale = rect.height / (2 * Math.tan(camera.fov * Math.PI / 360));
+      projectedNodes = nodeItems.map(item => {
+        const view = vector(item.position).applyMatrix4(camera.matrixWorldInverse);
+        const screen = renderer.graph2ScreenCoords(item.position.x, item.position.y, item.position.z);
+        return {...item, screen, depth: -view.z, pixels: Math.max(4, item.radius * scale / -view.z)};
+      });
+    }
+    const x = event.clientX - rect.x, y = event.clientY - rect.y;
+    let best = null;
+    for (const item of projectedNodes) {
+      if (item.depth <= 0 || Math.hypot(item.screen.x-x, item.screen.y-y) > item.pixels + 2) continue;
+      if (!best || item.depth < best.depth) best = item;
+    }
+    return best ? {type: 'node', id: best.id} : null;
+  }
   const pick = (event) => {
     if (!root.visible) return null;
     const rect = host.getBoundingClientRect();
+    const node = pickNode(event, rect);
+    if (node) return node;
     pointer.set(
       ((event.clientX - rect.x) / rect.width) * 2 - 1,
       (-(event.clientY - rect.y) / rect.height) * 2 + 1,
     );
     raycaster.setFromCamera(pointer, renderer.camera());
     raycaster.params.Line.threshold = renderer.camera().position.distanceTo(renderer.controls().target) / Math.max(300, rect.height) * 2;
-    const hit = raycaster.intersectObjects(pickable.filter(o => o.visible && o.parent.visible), false)[0];
+    // Dense imports stay selectable on click. Hovering the complete line mesh
+    // would raycast hundreds of thousands of segments on every pointer move.
+    const hit = raycaster.intersectObjects(pickable.filter(o => o.visible && o.parent.visible &&
+      (event.type === 'pointerup' || o.userData.type !== 'imports')), false)[0];
     if (!hit) return null;
     if (hit.object.userData.type === "imports") {
       const edge = hit.object.userData.segmentEdges[Math.floor(hit.index / 2)];
@@ -86,10 +114,16 @@ export function createAtlasScene(renderer, host, callbacks) {
     return hit.object.userData;
   };
   const onMove = (event) => {
-    const orbiting = press && Math.hypot(event.clientX - press[0], event.clientY - press[1]) > 5;
-    callbacks.hover?.(orbiting ? null : pick(event), event);
+    moveEvent = event;
+    if (moveFrame) return;
+    moveFrame = requestAnimationFrame(() => {
+      moveFrame = 0;
+      const orbiting = press && Math.hypot(moveEvent.clientX - press[0], moveEvent.clientY - press[1]) > 5;
+      callbacks.hover?.(orbiting ? null : pick(moveEvent), moveEvent);
+    });
   };
   const onLeave = () => {
+    cancelAnimationFrame(moveFrame); moveFrame = 0;
     press = null;
     callbacks.hover?.(null);
   };
@@ -101,7 +135,7 @@ export function createAtlasScene(renderer, host, callbacks) {
       !press ||
       Math.hypot(event.clientX - press[0], event.clientY - press[1]) > 5
     )
-      return;
+      { press = null; return; }
     const item = pick(event);
     if (item) callbacks.select(item);
     press = null;
@@ -111,7 +145,43 @@ export function createAtlasScene(renderer, host, callbacks) {
   host.addEventListener("pointerup", onUp);
   host.addEventListener("pointerleave", onLeave);
   return {
-    rebuildImports(edges, positions, colorFor, widthFor, enabled, primaryFor) {
+    rebuildNodes(items, positions, colorFor, radiusFor, enabled) {
+      clear(nodes);
+      nodes.visible = enabled;
+      nodeItems = []; projectedNodes = null;
+      if (!enabled || !items.length) return;
+      const coordinates = [], colors = [], radii = [];
+      for (const item of items) {
+        const position = positions[item.id], radius = radiusFor(item);
+        const color = new Color(colorFor(item));
+        coordinates.push(position.x, position.y, position.z);
+        colors.push(color.r, color.g, color.b); radii.push(radius);
+        nodeItems.push({id: item.id, position, radius});
+      }
+      const geometry = new BufferGeometry();
+      geometry.setAttribute('position', new Float32BufferAttribute(coordinates, 3));
+      geometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
+      geometry.setAttribute('radius', new Float32BufferAttribute(radii, 1));
+      const mesh = new Points(geometry, new ShaderMaterial({
+        uniforms: {height: {value: host.clientHeight * renderer.renderer().getPixelRatio()},
+          fogNear: {value: 1500}, fogFar: {value: 4500}},
+        vertexShader: `attribute vec3 color; attribute float radius;
+          uniform float height; varying vec3 tint; varying float depth;
+          void main() { vec4 view = modelViewMatrix * vec4(position, 1.0);
+            tint = color; depth = -view.z; gl_Position = projectionMatrix * view;
+            gl_PointSize = max(1.0, radius * height * projectionMatrix[1][1] / -view.z); }`,
+        fragmentShader: `varying vec3 tint; varying float depth; uniform float fogNear; uniform float fogFar;
+          void main() { vec2 p = gl_PointCoord * 2.0 - 1.0; float r = dot(p,p);
+            if (r > 1.0) discard;
+            vec3 shaded = tint * (0.72 + 0.28 * sqrt(1.0-r));
+            gl_FragColor = vec4(mix(shaded, vec3(0.003,0.004,0.005), smoothstep(fogNear,fogFar,depth)), 1.0);
+            #include <tonemapping_fragment>
+            #include <colorspace_fragment>
+          }`,
+      }));
+      nodes.add(mesh);
+    },
+    rebuildImports(edges, positions, colorFor, widthFor, enabled, primaryFor, curved = true) {
       clear(imports);
       pickable = pickable.filter(object => object.userData.type !== "imports");
       imports.visible = enabled;
@@ -122,7 +192,12 @@ export function createAtlasScene(renderer, host, callbacks) {
           const from = typeof edge.source === "object" ? edge.source.id : edge.source;
           const to = typeof edge.target === "object" ? edge.target.id : edge.target;
           const color = new Color(colorValue);
-          const route = importGeometry(edge, positions, primaryFor(edge));
+          const route = curved ? importGeometry(edge, positions, primaryFor(edge)) : {
+            steps: 1, curvature: 0,
+            point: t => ({x: positions[from].x * (1-t) + positions[to].x * t,
+              y: positions[from].y * (1-t) + positions[to].y * t,
+              z: positions[from].z * (1-t) + positions[to].z * t}),
+          };
           let previous = route.point(0);
           for (let step = 1; step <= route.steps; step++) {
             const next = route.point(step / route.steps);
@@ -306,11 +381,17 @@ export function createAtlasScene(renderer, host, callbacks) {
       }
     },
     updateCamera() {
+      projectedNodes = null;
       const distance = renderer
         .camera()
         .position.distanceTo(renderer.controls().target);
       renderer.scene().fog.near = distance * 0.65;
       renderer.scene().fog.far = distance * 1.65;
+      for (const mesh of nodes.children) {
+        mesh.material.uniforms.height.value = host.clientHeight * renderer.renderer().getPixelRatio();
+        mesh.material.uniforms.fogNear.value = distance * .65;
+        mesh.material.uniforms.fogFar.value = distance * 1.65;
+      }
       focus.quaternion.copy(renderer.camera().quaternion);
       for (const group of landmarks.children) group.quaternion.copy(renderer.camera().quaternion);
     },
@@ -367,6 +448,8 @@ export function createAtlasScene(renderer, host, callbacks) {
           importSamples: imports.children.flatMap(object => object.userData.samples).filter((_,i)=>i%7===0).slice(0,1200),
         } : {}),
         landmarks: landmarks.children.length,
+        batchedNodes: nodes.visible ? nodeItems.length : 0,
+        nodeDrawCalls: nodes.visible ? nodes.children.length : 0,
         batchedImports: imports.visible ? imports.children.reduce((n,object) => n+object.userData.edges.length,0) : 0,
         importDrawCalls: imports.visible ? imports.children.length : 0,
         importSegments: imports.visible ? imports.children.reduce((n,object)=>n+object.userData.segmentEdges.length,0) : 0,

@@ -1553,6 +1553,17 @@ button.research-link {
   .theory-mode .back-to-all { top: 284px; }
   .concept-open.theory-mode .back-to-all { top: 60px; }
 }
+.atlas-secondary-links, .atlas-growth { margin-top: 18px; font-size: 12px; color: #91a3af; }
+.atlas-secondary-links a, .atlas-growth a { color: #9cbcaf; text-decoration: none; }
+.atlas-growth { border-top: 1px solid #26333b; padding-top: 15px; }
+.atlas-growth summary { cursor: pointer; }
+.atlas-growth [data-library-growth] { padding-top: 12px; line-height: 1.6; }
+.atlas-growth svg { display: block; width: 100%; margin: 12px 0; overflow: visible; }
+.atlas-growth polyline { fill: none; stroke: #83c4b1; stroke-width: 2; }
+.atlas-growth circle { fill: #e5eecf; }
+.atlas-growth label { display: block; }
+.atlas-growth input { display: block; width: 100%; margin: 10px 0; accent-color: #83c4b1; }
+.atlas-growth p:last-child { font-size: 11px; color: #7d8f9c; }
 
 /* A wider spatial canvas, with compact reading guidance and anchored landmarks. */
 .wiki .atlas-project-title { font-size: 26px; margin: 0 0 14px; }
