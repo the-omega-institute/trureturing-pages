@@ -78,7 +78,8 @@
           "node --test tests/js/*.test.mjs"
         ]
       ],
-      "auto_merge": true
+      "auto_merge": true,
+      "github_service": "display-pages-github"
     },
     "the-omega-institute/trureturing-outreach-engine": {
       "branch": "main",
@@ -105,7 +106,9 @@
           "managed/tests"
         ]
       ],
-      "auto_merge": false
+      "auto_merge": false,
+      "github_service": "display-outreach-github"
     }
-  }
+  },
+  "publisher_login": "AlyciaBHZ"
 }
