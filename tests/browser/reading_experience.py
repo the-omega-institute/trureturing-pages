@@ -51,6 +51,11 @@ def main():
         assert all(item['score']>=milestones['policy']['minimum_score'] for item in milestones['results'])
         assert page.locator('.featured-discoveries [data-milestone-id]').evaluate_all('cards => cards.map(card => card.dataset.milestoneId)')==[item['id'] for item in milestones['results'][:milestones['policy']['featured_count']]]
         assert page.locator('.question-authors,.selection-note,.research-news-intro').count()==0
+        if page.locator('.highlight-card').count():
+            stories=page.locator('.featured-discoveries .discovery-story').evaluate_all('nodes=>nodes.map(n=>n.getBoundingClientRect().toJSON())')
+            assert all(story['width']>=500 for story in stories),stories
+            cards=page.locator('.featured-discoveries .highlight-card').evaluate_all('nodes=>nodes.map(n=>n.getBoundingClientRect().toJSON())')
+            assert all(cards[i]['bottom']<=cards[i+1]['top'] for i in range(len(cards)-1)),cards
         assert 'Fin 16' not in page.locator('#highlights').inner_text()
         assert 'The released statement is proved.' not in page.locator('#highlights').inner_text()
         assert page.locator('#highlights + #publications').count()==1
