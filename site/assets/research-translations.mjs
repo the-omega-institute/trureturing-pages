@@ -68,10 +68,12 @@ export async function installTranslations(root=document, fetcher=globalThis.fetc
     if (entries[key]) row.dataset.search+=' '+Object.values(entries[key].fields).join(' ').toLowerCase();
   }
   const index=root.querySelector('[data-research-index]');
-  if (index?.resultRecords) for (const record of index.resultRecords) {
+  const records=index?.resultRecords || (catalogNode ? catalog : null);
+  if (records) for (const record of records) {
     const entry=entries[record.translation_source];
     if (entry) record.search+=' '+Object.values(entry.fields).join(' ').toLowerCase();
   }
+  if (index && records) index.resultRecords=records;
   function apply() {
     const scopes=index ? [...index.querySelectorAll('[data-result-row]')].filter(row=>!row.hidden) : [root];
     const visible=[];

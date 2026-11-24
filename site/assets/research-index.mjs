@@ -9,7 +9,12 @@ if (index) {
   const archive = index.querySelector('#result-archive');
   const cached = new Map([...archive.querySelectorAll('[data-result-row]')].map(row => [row.id, row]));
   const catalog = document.getElementById('result-catalog');
-  const records = catalog ? JSON.parse(catalog.textContent) : [...cached.values()].map(row => ({id: row.id, search: row.dataset.search}));
+  // Translations may finish before this module arrives over the network. Reuse
+  // their enriched catalogue so the ready event's timing cannot lose search text.
+  const records = index.resultRecords || (catalog ? JSON.parse(catalog.textContent) : [...cached.values()].map(row => ({
+    id: row.id, search: row.dataset.search,
+    translation_source: row.querySelector('[data-translation-source]')?.dataset.translationSource,
+  })));
   index.resultRecords = records;
   const search = index.querySelector('#results-query');
   const more = index.querySelector('[data-result-more]');
