@@ -21,5 +21,8 @@ SVG pan/zoom for the Atlas sidebar and generated Wiki pages.
 
 `three-atlas.mjs` is a tree-shaken module for semantic overlay geometry, built
 from `tools/three-atlas-entry.mjs` with Three.js 0.184.0 and esbuild 0.25.5.
+Build with `node tools/build_three_atlas.cjs`. The build substitutes
+`crypto.randomUUID()` for Three.js's internal object UUID generator. Other
+mathematical random-number operations retain the library implementation.
 It uses the existing force-graph renderer; it does not create another canvas.
 The Three.js license is retained in `three.LICENSE`.

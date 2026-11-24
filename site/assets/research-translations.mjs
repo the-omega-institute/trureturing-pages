@@ -43,6 +43,8 @@ export async function installTranslations(root=document, fetcher=globalThis.fetc
   await ready;
   if (locale !== 'zh-CN' || !root.querySelector('[data-translation-source]')) return;
   let entries={};
+  const catalogNode=root.querySelector('#result-catalog');
+  const catalog=catalogNode ? JSON.parse(catalogNode.textContent) : [];
   try {
     const response=await fetcher(new URL('./locales/research.zh-CN.v1.json',import.meta.url),
       {cache:'no-cache',signal:AbortSignal.timeout(15000)});
@@ -51,6 +53,9 @@ export async function installTranslations(root=document, fetcher=globalThis.fetc
     if (cache.schema_version!=='research-translations.v1' || cache.policy!=='research-translation.v1'
         || cache.locale!=='zh-CN' || !cache.entries || Array.isArray(cache.entries)) return;
     const wanted=new Set([...root.querySelectorAll('[data-translation-source]')].map(n=>n.dataset.translationSource));
+    for (const template of root.querySelectorAll('template[data-research-highlight]'))
+      for (const node of template.content.querySelectorAll('[data-translation-source]')) wanted.add(node.dataset.translationSource);
+    for (const record of catalog) wanted.add(record.translation_source);
     await Promise.all([...wanted].map(async key=>{
       const entry=cache.entries[key];
       if (await validateEntry(key,entry)) entries[key]=entry;
@@ -62,10 +67,20 @@ export async function installTranslations(root=document, fetcher=globalThis.fetc
     const key=row.querySelector('[data-translation-source]')?.dataset.translationSource;
     if (entries[key]) row.dataset.search+=' '+Object.values(entries[key].fields).join(' ').toLowerCase();
   }
+  const index=root.querySelector('[data-research-index]');
+  if (index?.resultRecords) for (const record of index.resultRecords) {
+    const entry=entries[record.translation_source];
+    if (entry) record.search+=' '+Object.values(entry.fields).join(' ').toLowerCase();
+  }
   function apply() {
-    for (const node of root.querySelectorAll('[data-translation-source]:not([data-translated])')) {
+    const scopes=index ? [...index.querySelectorAll('[data-result-row]')].filter(row=>!row.hidden) : [root];
+    const visible=[];
+    for (const scope of scopes) for (const node of scope.querySelectorAll('[data-translation-source]:not([data-translated])')) {
       const entry=entries[node.dataset.translationSource], field=node.dataset.translationField;
-      if (!entry || !FIELDS.includes(field) || node.closest('[data-result-row]')?.hidden || !node.checkVisibility()) continue;
+      if (entry && FIELDS.includes(field) && node.checkVisibility()) visible.push([node,entry,field]);
+    }
+    // Finish visibility reads before KaTeX/DOM writes to avoid repeated layouts.
+    for (const [node,entry,field] of visible) {
       node.replaceChildren(fragment(entry.segments[field]));
       node.lang='zh-CN'; node.dataset.translated='true';
     }

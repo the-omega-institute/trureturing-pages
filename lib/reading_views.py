@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from html import escape
 from html.parser import HTMLParser
 import json
+from hashlib import sha256
 from pathlib import Path
 import re
 from urllib.parse import urlsplit
@@ -118,7 +119,7 @@ def add_spaces_navigation(document: str, root=''):
     document = re.sub(r'<a\b[^>]*href="/?(?:\.\.?/)*version-status(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
                       '', document, flags=re.S)
     def nav(match):
-        content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status)(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
+        content = re.sub(r'<a\b[^>]*href="[^"]*(?:spaces|version-status|evolution|knowledge/)(?:\.html)?(?:[?#][^"]*)?"[^>]*>.*?</a>',
                          '', match[1], flags=re.S)
         content = re.sub(r'(<a\b[^>]*href=")' + re.escape(root) + r'review(?:\.html)?(?:[?#][^"]*)?(")',
                          lambda link: link[1] + MATHESIS_URL + link[2], content)
@@ -327,10 +328,12 @@ def research_highlights(snapshot, records, ranking, limit=None, feed=None, miles
     if not cards:
         return '<p class="discovery-empty">Research milestones will appear here as results meet the selection criteria. Explore all resolved questions below.</p>'
     featured = ranking['research_news_policy']['featured_count']
-    return '<div class="featured-discoveries">' + ''.join(cards[:featured]) + '</div>' + ('<details class="more-milestones"><summary>More research highlights</summary>' + ''.join(cards[featured:]) + '</details>' if len(cards) > featured else '')
+    return '<div class="featured-discoveries">' + ''.join(cards[:featured]) + '</div>' + ('<details class="more-milestones"><summary>More research highlights</summary>'
+        + ''.join('<template data-research-highlight>' + card + '</template>' for card in cards[featured:])
+        + '<div data-highlight-list></div><button type="button" data-highlight-more hidden>Show more highlights</button></details>' if len(cards) > featured else '')
 
 
-def render_result_index(document, snapshot, records, ranking=None, feed=None):
+def render_result_index(document, snapshot, records, ranking=None, feed=None, output=None):
     """Server-ranked contributions, with one small search field and no score controls."""
     from lib.contributions import build_index
     from lib.research_updates import EMPTY
@@ -345,6 +348,7 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
     problems = {p['slug']: p for p in snapshot.get('problems', [])}
     stories = load_stories()
     rows = []
+    catalog = []
     for r in sorted(records, key=lambda r: order[r['id']]):
         if r['id'] not in articles:
             raise ValueError('Result card is absent: ' + r['id'])
@@ -378,13 +382,28 @@ def render_result_index(document, snapshot, records, ranking=None, feed=None):
             + f'<div class="result-story-expanded">{story_paragraphs(story)}</div>'
             f'{research_followups(r.get("problem_slug") or r["id"], feed)}'
             f'<details class="verification-details"><summary>Verification details</summary>{articles[r["id"]]}</details>{context}{assessment_details(assessed)}</div></details>')
+        if output is not None:
+            payload = rows[-1].encode('utf-8')
+            digest = sha256(payload).hexdigest()
+            path = f'assets/result-cards/{digest}.html'
+            destination = Path(output) / path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(payload)
+            catalog.append(dict(id='resolved-' + r['id'], search=search.lower(),
+                translation_source=story['translation_source'], path=path, digest='sha256:' + digest,
+                title=story['headline'], url=('research/' + r['problem_slug'] + '/') if r.get('problem_slug') else ('results/' + r['id'] + '/')))
+    lazy_index = ''
+    if catalog:
+        lazy_index = '<script type="application/json" id="result-catalog">' + json.dumps(catalog, ensure_ascii=False).replace('<', '\\u003c') + '</script>'
+        lazy_index += '<noscript><ul>' + ''.join(f'<li><a href="{esc(item["url"])}">{esc(item["title"])}</a></li>' for item in catalog) + '</ul></noscript>'
+        rows = rows[:8]
     return ('<section id="results" class="contribution-results" data-research-index aria-label="Contributions">'
         '<div class="contribution-toolbar" data-index-controls hidden><label for="results-query">'
         '<span class="visually-hidden">Search results</span>'
         '<input id="results-query" type="search" placeholder="Search results" autocomplete="off"></label>'
         f'<p role="status" aria-live="polite" data-result-count>{len(records)} results</p>'
         '<button type="button" data-clear-search hidden>Clear search</button></div>'
-        '<div id="result-archive">' + ''.join(rows) + '</div>'
+        + lazy_index + '<div id="result-archive">' + ''.join(rows) + '</div>'
         '<div class="research-no-results" data-result-empty hidden><h3>No matching results</h3>'
         '<p>Try another title or mathematical topic.</p></div>'
         '<div class="research-pagination"><button type="button" data-result-more hidden>Show more results</button></div>'
@@ -465,12 +484,12 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
                       f'<a href="{esc(project["evidence_url"])}">Follow the collaboration ↗</a></article>'
                       for project in feed['collaborations'])
     body = ('<main class="site-main research-news research-story-page"><header class="news-heading">'
-            '<div class="research-intro"><p class="eyebrow">THE OMEGA INSTITUTE / RESEARCH</p>'
+            '<div class="research-intro"><p class="eyebrow">TRURETURING / RESEARCH</p>'
             '<h1>Research highlights</h1><p class="news-lede">The questions we resolve. The ideas they make possible.</p>'
             f'<p class="research-intro-note"><strong>{data["proved"]:,} <span>proofs</span> · {data["refuted"]:,} <span>refutations</span>.</strong> Each result links a question from the literature to its precise formal statement and released Lean evidence.</p>'
             '<nav class="news-links" aria-label="Research destinations">'
-            '<a href="conjectures.html#results">See all conjectures ↗</a></nav></div>'
-            f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><p>Questions from the literature.<br>Answers checked by Lean.</p><a href="evolution.html">Explore the release history ↗</a></div></header>'
+            '<a href="conjectures.html#results">See all conjectures ↗</a><a href="knowledge/">Knowledge library ↗</a><a href="atlas.html#evolution">Library growth ↗</a></nav></div>'
+            f'<div class="research-hero-mark" aria-label="Research release overview"><strong>{data["total"]:,}</strong><span>resolved results</span><p>Questions from the literature.<br>Answers checked by Lean.</p></div></header>'
             '<section id="highlights" class="research-highlights" aria-labelledby="research-highlights-title"><div class="research-section-heading"><h2 id="research-highlights-title">Selected results</h2><a href="conjectures.html#results">Browse the full result order ↗</a></div>'
             '<div class="highlight-grid">' + research_highlights(snapshot, records, ranking, feed=feed, milestones=milestones) + '</div>'
             '</section>'
@@ -482,6 +501,7 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
     # fragments (including paper anchors) stay on Research.
     aliases = json.dumps([r['id'] for r in records]).replace('<', '\\u003c')
     result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css">'
+                            '<script type="module" src="assets/research-highlights.mjs"></script>'
                             '<script type="application/json" id="legacy-result-ids">' + aliases + '</script>'
                             '<script src="assets/research-route.js"></script></head>', 1)
     return result
@@ -511,7 +531,7 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
         + f'<div class="release-summary"><span><strong>{len(records):,}</strong> resolved results</span>'
         f'<span><strong>{proved:,}</strong> proved</span><span><strong>{len(records) - proved:,}</strong> refuted</span></div>'
         + '<section class="resolved-results-heading" aria-labelledby="resolved-results-title"><div><p class="eyebrow">PROBLEMS &amp; CONTRIBUTIONS</p><h2 id="resolved-results-title">Resolved conjectures</h2></div><p>The question, its history, and the idea that resolves it.</p></section>'
-        + render_result_index(result_document or document, snapshot, records, ranking, feed)
+        + render_result_index(result_document or document, snapshot, records, ranking, feed, output)
         + '<details class="release-overview"><summary>Results by mathematical area</summary>' + overview + '</details>'
         + '<details id="more-questions" class="more-questions"><summary>Open questions &amp; research directions</summary>'
         + render_collection(catalog, snapshot, sources['questions'], show_source_filters=False)

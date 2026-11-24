@@ -8,6 +8,8 @@ export {
   CubicBezierCurve3,
   TubeGeometry,
   Mesh,
+  Points,
+  ShaderMaterial,
   MeshBasicMaterial,
   Line,
   LineSegments,

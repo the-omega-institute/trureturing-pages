@@ -391,6 +391,9 @@
 
 /* Editorial questions and answers, with scope visible before the audit layer. */
 .featured-discoveries { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+/* Story cards already have a context rail and a reading column. Give each
+   story the full row instead of nesting that layout in three narrow columns. */
+.research-story-page .featured-discoveries { display:block; }
 .research-news .editorial-card { display:flex; flex-direction:column; gap:0; min-width:0; padding:26px; border:1px solid #cbd6cf; background:#f4f5f0; }
 .editorial-card-top { display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; }
 .editorial-card-top .eyebrow { color:#304e42; font-size:11px; line-height:1.6; }

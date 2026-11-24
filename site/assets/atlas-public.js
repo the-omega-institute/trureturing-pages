@@ -1,10 +1,11 @@
 import { reconcileRenderGraph } from "./atlas-render-state.mjs";
+import {installGrowth} from "./atlas-growth.mjs";
 import { fitOverview } from "./atlas-camera.mjs";
 import { reuseBands } from "./atlas-reuse.mjs";
 import { flowParents, flowLineages, readFlowLayout } from "./atlas-flow-layout.mjs";
 import { importGeometry } from "./atlas-import-geometry.mjs";
 import { theoryModel, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=spatial-v1";
-import { ready as localeReady, t } from "./i18n.mjs?v=declaration-evidence-v1";
+import { ready as localeReady, t } from "./i18n.mjs";
 import { omegaOnlyAxiomFree } from "./atlas-admission.mjs?v=declaration-evidence-v1";
 import {
   FAMILIES,
@@ -135,8 +136,16 @@ const atlasIntroduction = document.querySelector(".atlas-introduction").cloneNod
 let currentNodes = [];
 let familyLabels = [];
 let nodeLabels = [];
-let lastLabelUpdate = 0;
 let resizeObserver;
+let renderIdleTimer;
+function wakeRenderer(settleMs = 800) {
+  if (!state.renderer) return;
+  state.renderer.resumeAnimation();
+  clearTimeout(renderIdleTimer);
+  renderIdleTimer = setTimeout(() => {
+    if (!state.selected && !state.rotating && !state.dragging) state.renderer.pauseAnimation();
+  }, settleMs);
+}
 let wikiMap = null;
 let sceneLabels = [];
 function reuseBand(id) {
@@ -506,6 +515,7 @@ function particles(edge) {
     : 0;
 }
 function renderGraph() {
+  wakeRenderer();
   document.body.classList.toggle(
     "architecture-mode",
     state.mode === "dependency",
@@ -529,6 +539,8 @@ function renderGraph() {
     state.renderer.d3ReheatSimulation();
   }
   state.renderer
+    .nodeVisibility(Boolean(state.selected))
+    .enablePointerInteraction(Boolean(state.selected))
     .nodeRelSize(state.mode === "theory" ? 1.7 : 1.35)
     .nodeColor(color)
     .linkOpacity(state.selected ? 0.85 : state.mode === "theory" ? 0.72 : 0.36)
@@ -583,10 +595,10 @@ function renderGraph() {
   syncUrl();
 }
 function batchedImports() {
-  return Boolean(state.layers && !state.selected && state.mode === "theory");
+  return Boolean(state.layers && !state.selected);
 }
 function linkVisible(edge) {
-  if (batchedImports()) return Boolean(state.hover && [endpoint(edge.source),endpoint(edge.target)].includes(state.hover));
+  if (!state.selected) return false;
   if (state.mode !== "structure") return true;
   if (!state.bundlesVisible || edge.category !== "proof") return true;
   const a = state.model.byId.get(endpoint(edge.source)),
@@ -637,9 +649,11 @@ function rebuildScene(edges = viewFor(state.model, state).edges) {
   );
   const descriptors = [];
   const batched = batchedImports();
+  state.layers.rebuildNodes(currentNodes, state.positions, color,
+    node => (state.mode === "theory" ? 1.7 : 1.35) * Math.cbrt(nodeSize(node)), !state.selected);
   const importCache = state.importCache;
   if (!importCache || importCache.enabled !== batched || importCache.positions !== state.positions || importCache.revision !== state.topologyRevision || importCache.branch !== state.branch || importCache.reuseFocus !== state.reuseFocus || importCache.mode !== state.mode || importCache.changes !== state.changes || importCache.showChanges !== state.showChanges) {
-    state.layers.rebuildImports(edges, state.positions, edgeColor, edgeWidth, batched, flowEdge);
+    state.layers.rebuildImports(edges, state.positions, edgeColor, edgeWidth, batched, flowEdge, state.mode === 'theory');
     state.importCache = {enabled:batched,positions:state.positions,revision:state.topologyRevision,branch:state.branch,reuseFocus:state.reuseFocus,mode:state.mode,changes:state.changes,showChanges:state.showChanges};
   }
   state.renderer.linkVisibility(linkVisible);
@@ -680,6 +694,7 @@ function rebuildScene(edges = viewFor(state.model, state).edges) {
     return { ...item, label };
   });
   updateVisualLevel();
+  wakeRenderer();
 }
 function selectBundle(key) {
   if (!state.bundles.some((b) => b.key === key)) return;
@@ -738,6 +753,7 @@ function overviewNodes() {
     ? state.theory.components[0].ids.map(id => state.model.byId.get(id)) : currentNodes;
 }
 function frameNodes(nodes, minimumSpan = 0, anchor = null) {
+  wakeRenderer();
   if (!nodes.length) return;
   if (state.mode === "theory" && !state.selected) {
     state.cameraNodes = nodes.length;
@@ -809,6 +825,7 @@ function frameNodes(nodes, minimumSpan = 0, anchor = null) {
   );
 }
 function zoom(multiplier) {
+  wakeRenderer();
   if (!state.renderer) return;
   stopRotation();
   const camera = state.renderer.camera(),
@@ -1737,7 +1754,7 @@ async function load() {
       rendererConfig: {
         antialias: true,
         alpha: false,
-        preserveDrawingBuffer: true,
+        preserveDrawingBuffer: false,
       },
     })($("#graph"))
     .backgroundColor("#090c10")
@@ -1746,6 +1763,8 @@ async function load() {
     .nodeRelSize(1.7)
     .nodeResolution(7)
     .nodeOpacity(0.94)
+    .nodeVisibility(false)
+    .enablePointerInteraction(false)
     .linkOpacity(0.36)
     .linkResolution(3)
     .linkDirectionalArrowRelPos(0.84)
@@ -1803,9 +1822,15 @@ async function load() {
   controls.minDistance = 65;
   controls.maxDistance = 6500;
   controls.addEventListener("start", stopRotation);
+  controls.addEventListener("start", () => wakeRenderer());
   controls.addEventListener("change", () => {
+    wakeRenderer(250);
     updateVisualLevel();
     positionLabels();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) state.renderer.pauseAnimation();
+    else wakeRenderer();
   });
   const initial = new URLSearchParams(location.hash.slice(1));
   if (FAMILIES.some((f) => f.id === initial.get("family")))
@@ -1837,6 +1862,7 @@ async function load() {
       .split(",")
       .filter((type) => globalThis.TrureturingRelations.TYPES.includes(type));
   const resize = () => {
+    wakeRenderer();
     document.documentElement.style.setProperty(
       "--atlas-header-height",
       `${$(".atlas-header").getBoundingClientRect().height}px`,
@@ -1844,6 +1870,7 @@ async function load() {
     state.renderer
       .width($("#graph").clientWidth)
       .height($("#graph").clientHeight);
+    updateVisualLevel();
     positionLabels();
   };
   resizeObserver = new ResizeObserver(resize);
@@ -1865,14 +1892,6 @@ async function load() {
     const initialNode = initial.get("node") || LEGACY_ROUTE_ANCHORS[initial.get("route")];
     if (initialNode) selectNode(initialNode);
   });
-  const animateLabels = (time) => {
-    if (time - lastLabelUpdate > 80) {
-      positionLabels();
-      lastLabelUpdate = time;
-    }
-    requestAnimationFrame(animateLabels);
-  };
-  requestAnimationFrame(animateLabels);
   // Read-only telemetry for local rendering and interaction verification.
   window.atlasDiagnostics = ({ includeGraph = false } = {}) => ({
     ...(includeGraph ? {
@@ -1892,7 +1911,8 @@ async function load() {
     flowPrimary: includeGraph ? [...state.flowPrimary].map(([target,source])=>[source,target]) : undefined,
     lineages: includeGraph ? state.branches.groups.map(g=>({id:g.id,ids:g.ids})) : undefined,
     nativeCurves: includeGraph && state.selected ? state.renderer.graphData().links.filter(e=>e.__curve).map(e=>({source:endpoint(e.source),target:endpoint(e.target),midpoint:e.__curve.getPoint(.5)})) : undefined,
-    performance: { modeTimings: state.modeTimings, topologyRevision: state.topologyRevision },
+    performance: { modeTimings: state.modeTimings, topologyRevision: state.topologyRevision,
+      render: {...state.renderer.renderer().info.render}, nativeNodes: state.renderer.graphData().nodes.filter(n => n.__threeObj?.visible).length },
     theory: { nodes: state.theory.nodes.length, edges: state.theory.edges.length, components: state.theory.components.length, largestComponent: state.theory.components[0]?.ids.length || 0, isolated: state.theory.isolated, roots: state.theory.roots, maxDepth: state.theory.maxDepth, component: state.component },
     admission: state.model.admission,
     visibleEdges: batchedImports() ? state.layers.diagnostics().batchedImports : state.renderer.graphData().links.filter(linkVisible).length,
@@ -1941,11 +1961,14 @@ async function load() {
     ),
     camera: state.renderer.camera().position.toArray(),
   });
-  import("./atlas-scene.mjs?v=spatial-v1")
+  import("./atlas-scene.mjs?v=points-v1")
     .then(({ createAtlasScene }) => {
       state.layers = createAtlasScene(state.renderer, $("#graph"), {
         select(item) {
-          if (item.type === "import") {
+          state.overlayClickTime = performance.now();
+          if (!item) { if (state.selected) returnToOverview(); return; }
+          if (item.type === "node") selectNode(item.id);
+          else if (item.type === "import") {
             if (state.hover) return;
             state.overlayClickTime = performance.now(); selectNode(endpoint(item.edge.target));
           }
@@ -1953,7 +1976,12 @@ async function load() {
           else if (item.type === "research") selectProblem(item.key);
         },
         hover(item, event) {
+          if (!state.selected) {
+            const hover = item?.type === "node" ? item.id : null;
+            if (state.hover !== hover) { state.hover = hover; updateLabels(); }
+          }
           const tooltip = $("#scene-tooltip");
+          if (item?.type === "node") { tooltip.hidden = true; $("#graph").style.cursor = "pointer"; return; }
           if (item?.type === "import" && state.hover) item = null;
           tooltip.hidden = !item;
           if (!item) { $("#graph").style.cursor = state.hover ? "pointer" : "grab"; return; }
@@ -2174,6 +2202,7 @@ function renderTheory(root) {
     const explanation = introduction.querySelector(".atlas-explore");
     explanation.remove();
     root.append(introduction);
+    installGrowth(introduction);
     graphDetails = el("details", "atlas-details");
     graphDetails.append(el("summary", "", t("About this graph")),
       explanation);
@@ -2216,7 +2245,7 @@ function renderTheory(root) {
       el("p", "wiki-intro", t("These modules import multiple prerequisites. Open Architecture to inspect their directed import paths.")));
     joins.forEach(id => connections.append(nodeButton(state.model.byId.get(id), t("{0} direct prerequisites", state.architecture.parents.get(id).size))));
   }
-  const evolution = el("a", "research-link", t("See how the structure evolved →")); evolution.href = "evolution.html";
+  const evolution = el("a", "research-link", t("See how the structure evolved →")); evolution.href = "#evolution";
   root.append(evolution);
 }
 
@@ -2417,6 +2446,14 @@ document
   );
 $("#zoom-in").addEventListener("click", () => zoom(0.76));
 $("#zoom-out").addEventListener("click", () => zoom(1.3));
+$("#release-change-note").addEventListener("click", event => {
+  event.preventDefault();
+  if (!state.model) return;
+  if (!$("#evolution")) selectComponent(null);
+  const section = $("#evolution");
+  section.open = true;
+  section.scrollIntoView({block: 'nearest'});
+});
 function returnToOverview() {
   if (state.mode === "theory") { selectComponent(null); return; }
   rememberView();
@@ -2447,6 +2484,7 @@ $("#rotate-camera").addEventListener("click", () => {
   if (!state.renderer) return;
   state.rotating = !state.rotating;
   state.renderer.controls().autoRotate = state.rotating;
+  wakeRenderer();
   $("#rotate-camera").setAttribute("aria-pressed", String(state.rotating));
 });
 $("#about-atlas").addEventListener("click", () => {

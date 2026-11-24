@@ -250,7 +250,9 @@ class VersionStatusTests(unittest.TestCase):
     def test_diagnostics_have_no_public_page_or_navigation_but_keep_workflow_contract(self):
         from lib.knowledge_pages import site_header
         header = site_header("../../")
-        self.assertIn('href="../../evolution"', header)
+        self.assertIn('href="../../atlas"', header)
+        self.assertNotIn('href="../../evolution"', header)
+        self.assertNotIn('href="../../knowledge/"', header)
         self.assertNotIn('href="../../version-status.html"', header)
         evolution = (ROOT / "site/evolution.html").read_text()
         self.assertNotIn('id="publication-status"', evolution)

@@ -24,7 +24,7 @@ class MillenniumTests(unittest.TestCase):
             nav = re.search(r'<nav aria-label="Primary navigation">(.*?)</nav>', html, re.S)
             if nav:
                 self.assertEqual(re.findall(r'>(Explore|Research|Conjectures|Library|Evolution)<', nav[1]),
-                                 ['Explore', 'Research', 'Conjectures', 'Library', 'Evolution'], str(page))
+                                 ['Explore', 'Research', 'Conjectures'], str(page))
         translations = json.loads((ROOT / 'site/assets/locales/zh-CN.json').read_text())
         for english, translated in translations.items():
             self.assertEqual(set(re.findall(r'\{\d+\}', english)),
