@@ -1,0 +1,111 @@
+{
+  "schema": "omega.display-monitor.v1",
+  "repository": "the-omega-institute/trureturing-pages",
+  "checks": [
+    {
+      "id": "home",
+      "url": "https://www.trureturing.org/",
+      "owner": "the-omega-institute/trureturing-pages",
+      "kind": "html",
+      "contains": "trureturing"
+    },
+    {
+      "id": "atlas",
+      "url": "https://www.trureturing.org/data/atlas-startup.v1.json",
+      "owner": "the-omega-institute/trureturing-pages",
+      "kind": "json",
+      "equals": {
+        "schema_version": "pages-atlas-startup.v1"
+      },
+      "required": [
+        "truth_release_digest",
+        "graph",
+        "layout"
+      ]
+    },
+    {
+      "id": "publication-feed",
+      "url": "https://www.trureturing.org/assets/publication-index.json",
+      "owner": "the-omega-institute/trureturing-pages",
+      "kind": "json",
+      "equals": {
+        "schema_version": "publication-index.v1"
+      },
+      "required": [
+        "publications",
+        "notes"
+      ]
+    }
+  ],
+  "browser": [
+    {
+      "id": "reader",
+      "url": "https://www.trureturing.org/",
+      "owner": "the-omega-institute/trureturing-pages"
+    }
+  ],
+  "targets": {
+    "the-omega-institute/trureturing-pages": {
+      "branch": "dev",
+      "paths": [
+        "site/assets/",
+        "site/index.html",
+        "lib/research_updates.py",
+        "lib/research_news.py"
+      ],
+      "verify": [
+        [
+          "python3",
+          "-m",
+          "pip",
+          "install",
+          "-r",
+          "requirements.txt"
+        ],
+        [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_*.py"
+        ],
+        [
+          "bash",
+          "-c",
+          "node --test tests/js/*.test.mjs"
+        ]
+      ],
+      "auto_merge": true
+    },
+    "the-omega-institute/trureturing-outreach-engine": {
+      "branch": "main",
+      "paths": [
+        "managed/delivery.py",
+        "managed/mathesis_delivery.py",
+        "managed/public_feed.py",
+        "managed/shortnotes.py"
+      ],
+      "verify": [
+        [
+          "python3",
+          "-m",
+          "compileall",
+          "-q",
+          "managed"
+        ],
+        [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "managed/tests"
+        ]
+      ],
+      "auto_merge": false
+    }
+  }
+}
