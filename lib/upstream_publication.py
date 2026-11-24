@@ -559,13 +559,19 @@ def plan(pages_repository, adapter_commit=None):
 
 def read_tools_pin(raw):
     pin = json.loads(raw, object_pairs_hook=vertical_smoke._reject_duplicate)
-    if (not isinstance(pin, dict) or set(pin) not in ({"version", "sha256"}, {"version", "sha256", "workflow_sha"})
-            or not isinstance(pin["version"], str)
+    if (not isinstance(pin, dict) or not {"version", "sha256"} <= pin.keys()
+            or not pin.keys() <= {"version", "sha256", "workflow_sha", "source_sha", "previous_pin"}
+            or not all(isinstance(value, str) for value in pin.values())
             or not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?", pin["version"])
             or not isinstance(pin["sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", pin["sha256"])):
         raise ValueError("invalid upstream tools release pin")
-    if "workflow_sha" in pin:
-        require_oid(pin["workflow_sha"])
+    for field in ("workflow_sha", "previous_pin"):
+        if field in pin:
+            require_oid(pin[field])
+    if "source_sha" in pin:
+        preview = re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+-pr\.([1-9][0-9]*)\.[1-9][0-9]*\.g([0-9a-f]{12})", pin["version"])
+        if not preview or not require_oid(pin["source_sha"]).startswith(preview[2]):
+            raise ValueError("tools preview differs from its pinned source")
     return pin
 
 
@@ -600,7 +606,12 @@ def exporter_sources(source, commit):
         raise ValueError("upstream tools archive exceeds its bound or differs from the pinned digest")
     with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
         release = archive.extractfile(RELEASE_COMMAND).read()
-        export = archive.extractfile(EXPORT_COMMAND).read()
+        try:
+            export = archive.extractfile(EXPORT_COMMAND).read()
+        except KeyError:
+            # Current tools expose the report reader through truth-release only.
+            # Keep native issuance when no separate truth-export exists.
+            export = b""
     return release, export, pin
 
 
@@ -838,7 +849,8 @@ def project(selection, repository, report_directory, destination):
                    cwd=repository, check=True, env=environment)
     command = ["dotnet", "tools/StrataLint.Cli/bin/Release/net10.0/StrataLint.dll", "truth-release",
                "--out", str(Path(destination).resolve()), "--candidate-lean-report", str(target),
-               "--producer-package-commit", commit, "--produced-at", selection["produced_at"],
+               "--producer-package-commit", selection.get("tools_release", {}).get("source_sha", commit),
+               "--produced-at", selection["produced_at"],
                "--commit-on-protected-dev", "true"]
     scribe = selection.get("scribe")
     pack_arguments = []
