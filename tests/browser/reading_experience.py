@@ -136,6 +136,21 @@ def main():
             assert page.locator('.story-copy[lang="zh-CN"]:visible').count()==0
             assert page.locator('.story-copy[lang="en"]:visible').count()>0
             events.append('Reviewed Chinese content, Chinese search and expanded fields work; unreviewed cache falls back to original text')
+            delayed=browser.new_context()
+            delayed_page=delayed.new_page()
+            held=[]
+            delayed_page.add_init_script("addEventListener('research-translations-ready',()=>window.__translationsReady=true)")
+            delayed_page.route('**/assets/research-index.mjs*',lambda route:held.append(route))
+            delayed_page.goto(base+'conjectures.html?lang=zh-CN',wait_until='commit')
+            delayed_page.wait_for_function('window.__translationsReady===true')
+            assert held
+            for route in held:route.continue_()
+            delayed_page.wait_for_selector('[data-index-controls]:visible')
+            delayed_page.wait_for_function("headline => document.querySelector('[data-research-index]').resultRecords.some(record=>record.search.includes(headline.toLowerCase()))",arg=headline)
+            delayed_page.locator('#results-query').fill(headline)
+            expect(delayed_page.locator('[data-result-row]')).not_to_have_count(0)
+            delayed.close()
+            events.append('Chinese search works when translations finish before the search module loads')
         page.screenshot(path=str(args.output/'conjecture-contributions-desktop.png'),full_page=True)
         events.append('The first viewport shows contributions already ranked from existing upstream content; no dimension or source choices')
         if total>8:
