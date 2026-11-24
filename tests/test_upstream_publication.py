@@ -322,7 +322,8 @@ class SourcePublicationTests(unittest.TestCase):
                 member.size = len(data)
                 archive.addfile(member, io.BytesIO(data))
         raw = output.getvalue()
-        pin = {'version': 'v0.1.1-feature.47.g965614132617', 'sha256': hashlib.sha256(raw).hexdigest()}
+        pin = {'version': 'v0.1.1-pr.54.85.gbde58fcea76c', 'sha256': hashlib.sha256(raw).hexdigest(),
+               'source_sha': 'bde58fcea76c0538fd182630f05cc1ab12e5bee9', 'previous_pin': 'f7d6891680829ecbe5d96318def7633a4d57c80c'}
         with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)) as fetch:
             selection, calls = self.planned(adapter=C, tools_pin=pin, resources=[self.scribe_release()])
         self.assertIn(f'contents/{publication.TOOLS_PIN}?ref={B}', calls)
@@ -335,6 +336,33 @@ class SourcePublicationTests(unittest.TestCase):
         with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw + b'altered')):
             with self.assertRaisesRegex(ValueError, 'pinned digest'):
                 self.planned(adapter=C, tools_pin=pin)
+
+    def test_current_tools_without_truth_export_keep_native_release_consumer(self):
+        output = io.BytesIO()
+        with tarfile.open(fileobj=output, mode='w:gz') as archive:
+            data = b'FrozenStateCatalog.Load --candidate-lean-report --scribe-pack'
+            member = tarfile.TarInfo(publication.RELEASE_COMMAND); member.size = len(data)
+            archive.addfile(member, io.BytesIO(data))
+        raw = output.getvalue()
+        pin = {'version': 'v0.1.1-pr.54.85.gbde58fcea76c', 'sha256': hashlib.sha256(raw).hexdigest(),
+               'source_sha': 'bde58fcea76c0538fd182630f05cc1ab12e5bee9', 'previous_pin': A}
+        with patch.object(publication, 'urlopen', return_value=io.BytesIO(raw)):
+            selection, _ = self.planned(adapter=C, tools_pin=pin, resources=[self.scribe_release()])
+        self.assertTrue(selection['should_build'])
+        self.assertEqual(selection['tools_release'], pin)
+        self.assertEqual(selection['source_commit'], B)
+        self.assertNotIn('projection_contract', selection)
+
+    def test_tools_pin_matches_current_upstream_adoption_contract(self):
+        pin = {'version': 'v0.1.1-pr.54.85.gbde58fcea76c', 'sha256': 'e' * 64,
+               'source_sha': 'bde58fcea76c0538fd182630f05cc1ab12e5bee9', 'previous_pin': A}
+        for value in [pin, {**pin, 'workflow_sha': B}, {'version': 'v0.1.1', 'sha256': 'e' * 64},
+                      {'version': 'v0.1.1-feature.47.g965614132617', 'sha256': 'e' * 64, 'workflow_sha': B}]:
+            self.assertEqual(publication.read_tools_pin(json.dumps(value).encode()), value)
+        for changes in [{'source_sha': B}, {'previous_pin': 'dev'}, {'source_sha': 'bde58fcea76c'},
+                        {'source_sha': None}, {'version': 'v0.1.1'}, {'unexpected': 'metadata'}]:
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                publication.read_tools_pin(json.dumps({**pin, **changes}).encode())
 
     def test_plan_discovers_namespaced_v4_report_and_keeps_exact_dev_ci_gate(self):
         selected, calls = self.planned(version=4)
@@ -441,7 +469,8 @@ class SourcePublicationTests(unittest.TestCase):
             self.assertNotIn('GH_TOKEN', env); self.assertNotIn('CI_PLAN_PATH', env)
 
     def test_projection_installs_only_the_tools_pinned_by_the_selected_checkout(self):
-        pin = {'version': 'v0.1.1', 'sha256': 'e' * 64}
+        pin = {'version': 'v0.1.1-pr.54.85.gbde58fcea76c', 'sha256': 'e' * 64,
+               'source_sha': 'bde58fcea76c0538fd182630f05cc1ab12e5bee9', 'previous_pin': A}
         selection = {'source_commit': B, 'source_tree': A, 'required_checks': list(publication.EXPORT_CHECKS),
                      'produced_at': '2026-10-02T00:00:00Z', 'tools_release': pin}
         with tempfile.TemporaryDirectory() as temp, \
@@ -463,6 +492,8 @@ class SourcePublicationTests(unittest.TestCase):
         commands = [call.args[0] for call in execute.call_args_list]
         self.assertEqual(commands[0], [sys.executable, publication.TOOLS_INSTALLER])
         self.assertEqual([c[1] for c in commands[1:3]], ['restore', 'build'])
+        command = commands[-1]
+        self.assertEqual(command[command.index('--producer-package-commit') + 1], pin['source_sha'])
 
     def test_removed_workflow_cannot_reuse_historical_success_as_freshness(self):
         upstream, pages = GitHub(), GitHub('owner/pages'); upstream.dev_head = lambda: C

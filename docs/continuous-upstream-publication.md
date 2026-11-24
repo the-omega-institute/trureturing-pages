@@ -36,6 +36,16 @@ locked dependencies. It never runs Lean or reconstructs formal evidence.
 
 New exporters require a published `scribe-resources-*` pack. Pages checks the
 exporter contract at the selected immutable source before downloading the cache.
+When the source delegates its exporter to `trureturing-tools`, Pages consumes the
+exact version and archive SHA-256 in that source's `Meta/tools-release.json`.
+Current paired PR pins also retain `source_sha` and `previous_pin`; the full source
+must match the PR version's commit suffix. Historical two-field and workflow pins
+remain supported. The upstream source installer owns adoption verification, and
+Pages verifies the selected checkout's complete pin again before installing it.
+Tools releases that provide only `truth-release` keep that native report-consumer
+path; absence of a separate `truth-export` is supported. The tools pin's explicit
+source SHA supplies the exporter producer identity, independently of the
+mathematical source commit.
 A usable pack must declare an immutable protected-dev source as its release
 target and its Git tag must resolve to that source. The archive SHA-256 is
 transport evidence; the tag's
