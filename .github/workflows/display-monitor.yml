@@ -19,9 +19,9 @@ permissions:
 jobs:
   monitor:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.head_repository.full_name == github.repository
-    uses: the-omega-institute/.github/.github/workflows/display-monitor.yml@ed1bca429e166e2e2dc608e945f1a771c9de8b7e
+    uses: the-omega-institute/.github/.github/workflows/display-monitor.yml@1d38e523dc0b325825e67589c8894b0a831e4404
     with:
-      monitor_revision: ed1bca429e166e2e2dc608e945f1a771c9de8b7e
+      monitor_revision: 1d38e523dc0b325825e67589c8894b0a831e4404
       verify_model: ${{ inputs.verify_model || false }}
     secrets:
       model_key: ${{ secrets.NYXID_MONITOR_KEY }}
