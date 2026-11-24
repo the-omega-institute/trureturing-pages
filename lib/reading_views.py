@@ -137,7 +137,7 @@ def common_shell(document: str, root=''):
         document = document.replace('</head>', f'<link rel="stylesheet" href="{root}assets/reading.css">'
             f'<script type="module" src="{root}assets/reading.mjs"></script></head>', 1)
     if 'assets/research-translations.mjs' not in document:
-        document = document.replace('</head>', f'<script type="module" src="{root}assets/research-translations.mjs"></script></head>', 1)
+        document = document.replace('</head>', f'<script type="module" src="{root}assets/research-translations.mjs?v=reading-experience-v2"></script></head>', 1)
     document = re.sub(r'<body\b([^>]*)>',
                       lambda m: m[0] if 'data-reading-page' in m[1] else '<body' + m[1] + ' data-reading-page>', document, count=1)
     return add_spaces_navigation(document, root)
@@ -500,7 +500,7 @@ def render_research_groups(document, snapshot, records, feed=None, ranking=None,
     # Bare historical result anchors are known from this exact catalogue. Other
     # fragments (including paper anchors) stay on Research.
     aliases = json.dumps([r['id'] for r in records]).replace('<', '\\u003c')
-    result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css">'
+    result = result.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css?v=reading-experience-v2">'
                             '<script type="module" src="assets/research-highlights.mjs"></script>'
                             '<script type="application/json" id="legacy-result-ids">' + aliases + '</script>'
                             '<script src="assets/research-route.js"></script></head>', 1)
@@ -538,8 +538,8 @@ def render_conjecture_groups(document, snapshot, output, result_document=None, r
         + '</details></main>')
     result = common_shell(replace_main(document, body))
     return result.replace('</head>', '<link rel="stylesheet" href="assets/conjecture-collection.css">'
-        '<link rel="stylesheet" href="assets/research-index.css">'
-        '<script type="module" src="assets/research-index.mjs"></script>'
+        '<link rel="stylesheet" href="assets/research-index.css?v=reading-experience-v2">'
+        '<script type="module" src="assets/research-index.mjs?v=reading-experience-v2"></script>'
         '<script type="module" src="assets/conjecture-collection.mjs"></script></head>', 1)
 
 
@@ -612,7 +612,7 @@ def apply_reading_views(output: Path, snapshot: dict, records: list, feed=None):
         if path.exists():
             path.write_text(render(path.read_text()), encoding='utf-8')
     guide = common_shell(page_shell('About this order', '', ranking_guide(ranking), appearance='editorial'))
-    (output / 'ranking.html').write_text(guide.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css"></head>', 1))
+    (output / 'ranking.html').write_text(guide.replace('</head>', '<link rel="stylesheet" href="assets/research-index.css?v=reading-experience-v2"></head>', 1))
     for pattern in ('research/*/index.html', 'results/*/index.html', 'oeis/*/index.html'):
         for path in output.glob(pattern):
             path.write_text(common_shell(path.read_text(), '../../'), encoding='utf-8')
