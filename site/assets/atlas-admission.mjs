@@ -12,6 +12,32 @@ export function omegaOnlyAxiomFree({ measurement } = {}) {
     Array.isArray(axioms) && axioms.length === 0;
 }
 
+const STRICT_FIELDS = ["axioms", "declaration_name_key", "kind", "libraries", "official_statement_type_address", "statement_type_address"];
+const measurementArray = values => Array.isArray(values) && values.every((value, i) =>
+  typeof value === "string" && value.trim() && !/[\u0000-\u001f\u007f-\u009f]/.test(value) && (i === 0 || values[i - 1] < value));
+
+export function strictOmegaMeasurement(declaration) {
+  const measurement = declaration.measurement;
+  if (!measurement || !Object.hasOwn(measurement, "strict_omega")) return null;
+  const strict = measurement.strict_omega;
+  if (!strict || JSON.stringify(Object.keys(strict).sort()) !== JSON.stringify(STRICT_FIELDS) ||
+      typeof strict.declaration_name_key !== "string" || !strict.declaration_name_key ||
+      strict.declaration_name_key !== declaration.name_key || strict.kind !== declaration.kind ||
+      !["axiom", "constructor", "def", "inductive", "opaque", "quotient", "recursor", "theorem"].includes(strict.kind) ||
+      ![strict.statement_type_address, strict.official_statement_type_address].every(value => typeof value === "string" && DIGEST.test(value)) ||
+      strict.official_statement_type_address !== declaration.type_sha256 ||
+      ![measurement, strict].every(row => measurementArray(row.libraries) && measurementArray(row.axioms)))
+    throw new Error("Invalid or crossed strict Omega declaration measurement.");
+  return strict;
+}
+
+export function validateStrictOmegaDeclarations(declarations, freezeStatus) {
+  for (const declaration of declarations || []) {
+    if (strictOmegaMeasurement(declaration) && freezeStatus !== "frozen")
+      throw new Error("Strict Omega measurement requires frozen membership.");
+  }
+}
+
 export function supportedLean(node) {
   const e = node.lean;
   return node.kind === "truth" && e?.eligible === true &&
@@ -32,6 +58,7 @@ export function admissionFromEvidence(graph, manifest, evidence) {
   const byPath = new Map();
   for (const node of evidence?.nodes || []) {
     if (byPath.has(node.repo_path)) throw new Error("Duplicate Lean evidence path.");
+    validateStrictOmegaDeclarations(node.declarations, node.freeze_status);
     byPath.set(node.repo_path, node);
   }
   const nodes = graph.nodes.filter(n => n.kind === "truth").map(node => {
@@ -69,7 +96,10 @@ export function applyAdmission(graph, manifest, admission, evidence = null) {
   }
   if (byId.size !== graph.nodes.filter(n => n.kind === "truth").length)
     throw new Error("Incomplete Atlas admission coverage.");
-  const receipts = new Map((evidence?.nodes || []).map(n => [n.repo_path, n.declarations]));
+  const receipts = new Map((evidence?.nodes || []).map(n => {
+    validateStrictOmegaDeclarations(n.declarations, n.freeze_status);
+    return [n.repo_path, n.declarations];
+  }));
   const nodes = graph.nodes.map(node => {
     if (node.kind !== "truth") return node;
     const row = byId.get(node.id);

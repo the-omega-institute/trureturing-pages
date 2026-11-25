@@ -6,7 +6,7 @@ import { flowParents, flowLineages, readFlowLayout } from "./atlas-flow-layout.m
 import { importGeometry } from "./atlas-import-geometry.mjs";
 import { theoryModel, documentPositions, directedPath, LEGACY_ROUTE_ANCHORS } from "./atlas-theory-core.mjs?v=spatial-v1";
 import { ready as localeReady, t } from "./i18n.mjs";
-import { omegaOnlyAxiomFree } from "./atlas-admission.mjs?v=declaration-evidence-v1";
+import { omegaOnlyAxiomFree, strictOmegaMeasurement } from "./atlas-admission.mjs?v=strict-omega-v1";
 import {
   FAMILIES,
   createPublicModel,
@@ -32,7 +32,7 @@ import {
 } from "./architecture-ui.mjs";
 import { loadResearch } from "./atlas-research-core.mjs";
 import { appendRecentResults } from "./atlas-results.mjs";
-import { loadStartup } from "./atlas-startup.mjs?v=spatial-v1";
+import { loadStartup } from "./atlas-startup.mjs?v=strict-omega-v1";
 import {
   structuralScaffold,
   focusRole,
@@ -1625,9 +1625,14 @@ function renderArticle(root) {
         const row = el("li");
         row.append(el("code", "", decl.name));
         if (omegaOnlyAxiomFree(decl)) row.append(el("span", "omega-only-badge", t("Omega only · zero axioms")));
+        const strict = strictOmegaMeasurement(decl);
+        if (strict?.axioms.length === 0)
+          row.append(el("span", "omega-only-badge strict-omega-badge", t("Strict Omega backend · measured zero axioms")));
         row.append(el("p", "", `${decl.kind} · ${decl.statement_id}`),
-          el("p", "", t("Measured libraries: {0}", measured(decl.measurement?.libraries))),
-          el("p", "", t("Measured axioms: {0}", measured(decl.measurement?.axioms))),
+          el("p", "", t(strict ? "Official measured libraries: {0}" : "Measured libraries: {0}", measured(decl.measurement?.libraries))),
+          el("p", "", t(strict ? "Official measured axioms: {0}" : "Measured axioms: {0}", measured(decl.measurement?.axioms))),
+          el("p", "", t("Strict Omega backend libraries: {0}", measured(strict?.libraries))),
+          el("p", "", t("Strict Omega backend axioms: {0}", measured(strict?.axioms))),
           el("p", "", t("Lean report axioms: {0}", measured(decl.axioms))));
         list.append(row);
       }

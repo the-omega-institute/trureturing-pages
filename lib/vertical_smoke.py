@@ -282,6 +282,66 @@ def _bounded_graph(graph: dict[str, Any]) -> None:
         raise ReleaseContractError("blueprint anchor count is outside bounds")
 
 
+_STRICT_OMEGA_FIELDS = {"declaration_name_key", "kind", "statement_type_address",
+                        "official_statement_type_address", "libraries", "axioms"}
+
+
+def _measurement_array(values):
+    return (isinstance(values, list)
+            and all(isinstance(value, str) and value.strip() and not any(ord(c) < 32 or 127 <= ord(c) <= 159 for c in value)
+                    for value in values)
+            and values == sorted(set(values), key=lambda value: value.encode("utf-16-be")))
+
+
+def validate_strict_omega(declaration, freeze_status, official_type_address=None):
+    """Validate a paired declaration and, when supplied, its official report type address."""
+    if "strict_omega" not in declaration:
+        return None
+    strict = declaration["strict_omega"]
+    if (freeze_status != "frozen" or not isinstance(strict, dict) or set(strict) != _STRICT_OMEGA_FIELDS
+            or not isinstance(strict["declaration_name_key"], str) or not strict["declaration_name_key"]
+            or any(strict[key] != declaration.get(key) for key in ("declaration_name_key", "kind"))
+            or strict["kind"] not in ("axiom", "constructor", "def", "inductive", "opaque", "quotient", "recursor", "theorem")
+            or any(not isinstance(strict[key], str) or not _DIGEST.fullmatch(strict[key])
+                   for key in ("statement_type_address", "official_statement_type_address"))
+            or any(not _measurement_array(row.get(key)) for row in (declaration, strict) for key in ("libraries", "axioms"))
+            or (official_type_address is not None and strict["official_statement_type_address"] != official_type_address)):
+        raise ReleaseContractError("Invalid or crossed strict Omega declaration measurement")
+    return strict
+
+
+def _verify_strict_omega_pairs(export, graph, source_commit, source_tree):
+    export_pairs = {}
+    for node in export.get("nodes", []):
+        for declaration in node.get("declarations", []):
+            strict = validate_strict_omega(declaration, node.get("freeze_status"))
+            if strict is None:
+                continue
+            key = (node["repo_path"], declaration["declaration_name_key"], declaration["kind"], declaration["statement_id"])
+            if key in export_pairs:
+                raise ReleaseContractError("Duplicate strict Omega export declaration")
+            export_pairs[key] = declaration
+    graph_pairs = {}
+    for node in graph["truth"]["nodes"]:
+        if "strict_omega_declarations" not in node:
+            continue
+        pairs = node["strict_omega_declarations"]
+        if node.get("state") != "closed" or not isinstance(pairs, list) or not pairs:
+            raise ReleaseContractError("Invalid strict Omega graph declaration list")
+        for declaration in pairs:
+            if validate_strict_omega(declaration, "frozen") is None:
+                raise ReleaseContractError("Missing strict Omega graph measurement")
+            key = (node["repo_path"], declaration["declaration_name_key"], declaration["kind"], declaration["statement_id"])
+            if key in graph_pairs:
+                raise ReleaseContractError("Duplicate strict Omega graph declaration")
+            graph_pairs[key] = declaration
+    if export_pairs != graph_pairs:
+        raise ReleaseContractError("Strict Omega measurements disagree between truth export and graph")
+    if export_pairs and (export.get("source_commit") != source_commit or export.get("source_tree") != source_tree
+                         or export.get("dialect") != "stratalint.truth-export.v2" or export.get("schema_version") != 2):
+        raise ReleaseContractError("Strict Omega measurements disagree with verified publication identity")
+
+
 def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = None) -> dict[str, Any]:
     bundle = Path(bundle_directory)
     _verify_root_files(bundle)
@@ -385,6 +445,7 @@ def verify_bundle(bundle_directory: str | Path, expected_digest: str | None = No
         raise ReleaseContractError("source snapshot is not bound to the truth graph bytes")
     graph = _read_json(graph_path)
     _bounded_graph(graph)
+    _verify_strict_omega_pairs(_read_json(bundle / artifacts["truth_export"]["file"]), graph, source_commit, source_tree)
 
     return {
         "schema": "verified-truth-release.v1",

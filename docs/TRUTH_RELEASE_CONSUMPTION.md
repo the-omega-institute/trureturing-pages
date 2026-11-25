@@ -59,7 +59,22 @@ The Atlas shows **Omega only · zero axioms** for a declaration with a nonempty
 library list containing only `OmegaInit` or `OmegaMath` and an explicitly empty
 axiom list. The arrays determine the badge, even when the producer's optional
 `omega_only_axiom_free` marker is absent. The measurements describe the statement
-in the served release and can differ across release snapshots.
+at the last frozen statement pin and can differ across release snapshots.
+
+A frozen declaration may also include `strict_omega`, paired with the official
+measurement. The six fields are `declaration_name_key`, `kind`,
+`statement_type_address`, `official_statement_type_address`, `libraries`, and
+`axioms`. Both type addresses are canonical SHA-256 statement digests, and the
+official address must match the verified Lean report receipt. The two arrays
+are always present on a measured strict reading, including empty arrays and
+mixed dependencies. The graph carries the same complete paired rows in
+`strict_omega_declarations`. The release validator checks their correspondence
+with the export and the Atlas validates each pair against the report before
+publishing its declaration-detail shard. The Atlas labels the official and
+strict Omega backend libraries and axioms independently. An absent strict
+reading displays as unknown, and an empty measured array displays as ∅. The
+strict backend receives its own measured zero-axiom badge only when its axiom
+array is explicitly empty.
 
 ## Startup and statistics
 

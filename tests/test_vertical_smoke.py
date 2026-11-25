@@ -147,6 +147,72 @@ class VerticalSmokeTests(unittest.TestCase):
         manifest_path.write_text(json.dumps(manifest))
         return bundle, cls.rebind_bundle(bundle)
 
+    def test_verified_publication_projects_paired_tetrahedron_mixed_and_legacy(self):
+        from lib.atlas_admission import project_evidence
+
+        with tempfile.TemporaryDirectory() as directory:
+            bundle, _ = self.state_table_bundle(directory, "truth-release-scheduled")
+            snapshot = json.loads((bundle / "source-snapshot.v1.json").read_text())
+            graph = json.loads((bundle / "truth-graph.v1.json").read_text())
+            node = graph["truth"]["nodes"][0]
+            path = "D5/S3/Quantum/AURICOmega/RationalBlochTetrahedron.lean"
+            node.update(repo_path=path)
+            tetra_key = "ns(ns(ns(ns(ns(ns(n0,2:D5),2:S3),7:Quantum),10:AURICOmega),24:RationalBlochTetrahedron),38:no_rational_bloch_tetrahedral_triangle)"
+            digest = lambda char: "sha256:" + char * 64
+            declarations = [
+                {"declaration_name_key": tetra_key, "kind": "theorem", "statement_id": digest("1"),
+                 "libraries": ["Init", "OmegaMath"], "axioms": ["propext"],
+                 "strict_omega": {"declaration_name_key": tetra_key, "kind": "theorem",
+                                  "statement_type_address": digest("2"), "official_statement_type_address": digest("3"),
+                                  "libraries": ["OmegaInit", "OmegaMath"], "axioms": []}},
+                {"declaration_name_key": "mixed", "kind": "theorem", "statement_id": digest("4"),
+                 "libraries": ["Init", "Mathlib", "OmegaMathlib"], "axioms": ["Classical.choice", "Quot.sound", "propext"],
+                 "strict_omega": {"declaration_name_key": "mixed", "kind": "theorem",
+                                  "statement_type_address": digest("5"), "official_statement_type_address": digest("6"),
+                                  "libraries": ["Mathlib", "OmegaMathlib"], "axioms": ["propext"]}},
+                {"declaration_name_key": "legacy", "kind": "theorem", "statement_id": digest("7"),
+                 "libraries": ["OmegaMath"], "axioms": [], "omega_only_axiom_free": True},
+            ]
+            node["strict_omega_declarations"] = copy.deepcopy(declarations[:2])
+            export = {"schema_version": 2, "dialect": "stratalint.truth-export.v2",
+                      "source_commit": snapshot["source_commit"], "source_tree": snapshot["source_tree"],
+                      "nodes": [{"repo_path": path, "freeze_status": "frozen", "frozen_node_id": digest("8"),
+                                 "node_axiom_closure": ["Classical.choice", "Quot.sound", "propext"],
+                                 "declarations": declarations}]}
+            receipts = [{"name": "D5.S3.Quantum.AURICOmega.RationalBlochTetrahedron." + name,
+                         "name_key": row["declaration_name_key"], "kind": row["kind"], "statement_id": row["statement_id"],
+                         "type_sha256": row.get("strict_omega", {}).get("official_statement_type_address", digest("9")),
+                         "include_in_statement": True, "axioms": row["axioms"]}
+                        for name, row in zip(("no_rational_bloch_tetrahedral_triangle", "mixed", "legacy"), declarations)]
+            report = {"schema": "stratalint-raw-lean-report-v3", "modules": [{"source_path": path,
+                      "source_sha256": digest("a"), "declarations": receipts}]}
+
+            def publish():
+                for name, value in [("truth-export.v1.json", export), ("truth-graph.v1.json", graph), ("raw-lean-report.json", report)]:
+                    (bundle / name).write_text(json.dumps(value))
+                for field, name in [("declarations_sha256", "truth-export.v1.json"),
+                                    ("truth_graph_sha256", "truth-graph.v1.json"), ("raw_lean_report_sha256", "raw-lean-report.json")]:
+                    snapshot[field] = vertical_smoke._sha256(bundle / name)
+                (bundle / "source-snapshot.v1.json").write_text(json.dumps(snapshot))
+                return self.rebind_bundle(bundle)
+
+            verified = verify_bundle(bundle, publish())
+            details = project_evidence(bundle, verified)["nodes"][0]["declarations"]
+            self.assertEqual(details[0]["measurement"]["axioms"], ["propext"])
+            self.assertEqual(details[0]["measurement"]["strict_omega"], declarations[0]["strict_omega"])
+            self.assertEqual(details[1]["measurement"]["strict_omega"]["axioms"], ["propext"])
+            self.assertEqual(details[1]["measurement"]["axioms"], ["Classical.choice", "Quot.sound", "propext"])
+            self.assertNotIn("strict_omega", details[2]["measurement"])
+            self.assertTrue(details[2]["measurement"]["omega_only_axiom_free"])
+
+            node["strict_omega_declarations"][0]["strict_omega"]["axioms"] = ["propext"]
+            with self.assertRaisesRegex(ReleaseContractError, "disagree between truth export and graph"):
+                verify_bundle(bundle, publish())
+            node["strict_omega_declarations"] = copy.deepcopy(declarations[:2])
+            receipts[0]["type_sha256"] = digest("b")
+            with self.assertRaisesRegex(ReleaseContractError, "crossed strict Omega"):
+                project_evidence(bundle, verify_bundle(bundle, publish()))
+
     def test_scheduled_state_table_bundle_preserves_transport_source_and_projection(self):
         from lib.upstream_publication import publication_metadata
         with tempfile.TemporaryDirectory() as directory:

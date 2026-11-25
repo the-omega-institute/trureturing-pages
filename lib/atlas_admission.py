@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from .problem_resolutions import KERNEL_AXIOMS, VERIFIED_STATUSES, index_truth_export
-from .vertical_smoke import ReleaseContractError, _read_json, _sha256, _DIGEST, verify_bundle
+from .vertical_smoke import ReleaseContractError, _read_json, _sha256, _DIGEST, verify_bundle, validate_strict_omega
 
 SCHEMA = "pages-atlas-lean-evidence.v1"
 OMEGA_LIBRARIES = {"OmegaInit", "OmegaMath"}
@@ -94,6 +94,9 @@ def project_evidence(bundle, verified):
                     raise ReleaseContractError(f"Export/report declaration identity mismatch: {path}")
                 detail = {k: receipt[k] for k in ("name", "name_key", "kind", "statement_id", "type_sha256", "axioms")}
                 measurement = _declaration_measurement(decl)
+                strict = validate_strict_omega(decl, node["freeze_status"], receipt["type_sha256"])
+                if strict is not None:
+                    measurement["strict_omega"] = strict
                 if measurement:
                     detail["measurement"] = measurement
                 receipts.append(detail)
