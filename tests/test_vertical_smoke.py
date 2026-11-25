@@ -222,6 +222,12 @@ class VerticalSmokeTests(unittest.TestCase):
             self.assertNotIn("strict_omega", details[2]["measurement"])
             self.assertTrue(details[2]["measurement"]["omega_only_axiom_free"])
 
+            declarations[0]["strict_omega"]["axioms"] = ["sorryAx"]
+            node["strict_omega_declarations"] = copy.deepcopy(declarations[:2])
+            with self.assertRaisesRegex(ReleaseContractError, "Invalid or crossed strict Omega"):
+                verify_bundle(bundle, publish())
+            declarations[0]["strict_omega"]["axioms"] = []
+
             node["strict_omega_declarations"][0]["strict_omega"]["axioms"] = ["propext"]
             with self.assertRaisesRegex(ReleaseContractError, "disagree between truth export and graph"):
                 verify_bundle(bundle, publish())

@@ -13,6 +13,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+KERNEL_AXIOMS = frozenset({"propext", "Classical.choice", "Quot.sound"})
 TOPOLOGY_VERSION = "0.2.0-alpha.1"
 TOPOLOGY_PRODUCER_COMMIT = "dbd407d52806b4a87bb3c129f810a10d438a2b53"
 ALGORITHM_PROFILE = ROOT / "config" / "algorithm-profile.v1.json"
@@ -305,6 +306,7 @@ def validate_strict_omega(declaration, freeze_status, official_type_address=None
             or any(not isinstance(strict[key], str) or not _DIGEST.fullmatch(strict[key])
                    for key in ("statement_type_address", "official_statement_type_address"))
             or any(not _measurement_array(row.get(key)) for row in (declaration, strict) for key in ("libraries", "axioms"))
+            or not set(strict["axioms"]) <= KERNEL_AXIOMS
             or (official_type_address is not None and strict["official_statement_type_address"] != official_type_address)):
         raise ReleaseContractError("Invalid or crossed strict Omega declaration measurement")
     return strict

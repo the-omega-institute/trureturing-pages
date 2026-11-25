@@ -4,6 +4,8 @@ import re
 
 from markdown_it import MarkdownIt
 
+from .vertical_smoke import KERNEL_AXIOMS
+
 MARKDOWN = MarkdownIt("commonmark", {"html": True})
 MARKER = re.compile(r"<!-- scribe-open-problem-resolution-v1 (.+) -->")
 
@@ -76,7 +78,6 @@ def bind_resolutions(problems, blueprints, objects):
 # that truth from the release bundle's truth-export and never re-derive or trust the
 # Markdown marker alone. The bundle is the sole truth authority, so this gate consumes it
 # and does not weaken truth-release.
-KERNEL_AXIOMS = frozenset({"propext", "Classical.choice", "Quot.sound"})
 VERIFIED_STATUSES = frozenset({"frozen", "proven-not-yet-frozen"})
 TRUTH_EXPORT_DIALECT = "stratalint.truth-export.v2"
 
