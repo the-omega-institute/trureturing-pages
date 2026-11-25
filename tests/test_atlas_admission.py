@@ -120,3 +120,23 @@ class AtlasAdmissionTests(unittest.TestCase):
         evidence = self.run_fixture(lambda e, r: e.update(dialect="legacy"))
         self.assertEqual(evidence["coverage"], "unavailable")
         self.assertEqual(evidence["nodes"], [])
+
+    def test_scoped_and_unknown_report_versions_are_unavailable(self):
+        for schema in ("stratalint-scoped-lean-report-v2", "stratalint-raw-lean-report-v5"):
+            with self.subTest(schema=schema):
+                evidence = self.run_fixture(lambda e, r: r.update(schema=schema))
+                self.assertEqual(evidence["coverage"], "unavailable")
+                self.assertEqual(evidence["nodes"], [])
+
+    def test_v4_rejects_malformed_report_receipts(self):
+        for mutate, error in [
+            (lambda r: r.update(modules={}), "modules must be an array"),
+            (lambda r: r["modules"][0].pop("source_path"), "missing its source path"),
+            (lambda r: r["modules"][0].update(declarations={}), "declarations must be an array"),
+            (lambda r: r["modules"][0]["declarations"][0].update(axioms=[42]), "declaration receipt"),
+        ]:
+            def use_v4(export, report):
+                report.update(schema="stratalint-raw-lean-report-v4")
+                mutate(report)
+            with self.subTest(error=error), self.assertRaisesRegex(ReleaseContractError, error):
+                self.run_fixture(use_v4)

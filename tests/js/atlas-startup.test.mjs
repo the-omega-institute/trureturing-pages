@@ -21,7 +21,7 @@ import { startupView, validateView, validateDetails, DETAIL_SCHEMA, detailShard 
 import { analyzeArchitecture, mathematicalArchitecture } from "../../site/assets/architecture-core.mjs";
 import { theoryModel } from "../../site/assets/atlas-theory-core.mjs";
 import { readFlowLayout } from "../../site/assets/atlas-flow-layout.mjs";
-import { omegaOnlyAxiomFree } from "../../site/assets/atlas-admission.mjs";
+import { omegaOnlyAxiomFree, strictOmegaMeasurement } from "../../site/assets/atlas-admission.mjs";
 
 const hash = (text) =>
   "sha256:" + createHash("sha256").update(text).digest("hex");
@@ -59,9 +59,17 @@ test("published startup preserves exact graph bytes and layout, validates all no
     { axioms: [] },
     { omega_only_axiom_free: true },
   ];
+  const tetraName = "D5.S3.Quantum.AURICOmega.RationalBlochTetrahedron.no_rational_bloch_tetrahedral_triangle";
+  const paired = (name, key, libraries, axioms, strictLibraries, strictAxioms) => ({ ...legacyReceipt, name,
+    name_key: key, axioms, measurement: { libraries, axioms, strict_omega: {
+      declaration_name_key: key, kind: "theorem", statement_type_address: hash(`strict ${key}`),
+      official_statement_type_address: fixtureDigest, libraries: strictLibraries, axioms: strictAxioms } } });
+  const tetra = paired(tetraName, "tetra", ["Init", "OmegaMath"], ["propext"], ["OmegaInit", "OmegaMath"], []);
+  const mixed = paired("Fixture.mixed", "mixed", ["Init", "Mathlib"], ["Classical.choice", "Quot.sound", "propext"],
+    ["Mathlib", "OmegaMathlib"], ["propext"]);
   const receipts = [...measurements.map((measurement, i) => ({ ...legacyReceipt, name: `Fixture.result${i}`, name_key: `result${i}`,
-    measurement })), legacyReceipt];
-  Object.assign(evidence.nodes[0], { declarations: receipts, declaration_count: receipts.length, theorem_count: receipts.length });
+    measurement })), tetra, mixed, legacyReceipt];
+  Object.assign(evidence.nodes[0], { freeze_status: "frozen", declarations: receipts, declaration_count: receipts.length, theorem_count: receipts.length });
   await writeFile(join(root, "atlas-lean-evidence.v1.json"), JSON.stringify(evidence));
   await writeFile(join(root, "manifest.json"), JSON.stringify(manifest));
   await mkdir(join(root, "assets"));
@@ -162,6 +170,14 @@ test("published startup preserves exact graph bytes and layout, validates all no
   const detail = await result.loadDetails("A");
   assert.deepEqual(detail.lean_declarations, receipts);
   assert.deepEqual(detail.lean_declarations.filter(omegaOnlyAxiomFree).map(row => row.name), ["Fixture.result0"]);
+  assert.deepEqual(detail.lean_declarations.filter(strictOmegaMeasurement).map(row => row.name), [tetraName, "Fixture.mixed"]);
+  assert.deepEqual(strictOmegaMeasurement(detail.lean_declarations.find(row => row.name === tetraName)).axioms, []);
+  assert.deepEqual(strictOmegaMeasurement(detail.lean_declarations.find(row => row.name === "Fixture.mixed")).axioms, ["propext"]);
+  assert.equal(strictOmegaMeasurement(detail.lean_declarations.find(row => row.name === "Fixture.legacy")), null);
+  const crossed = structuredClone(tetra);
+  crossed.measurement.strict_omega.official_statement_type_address = hash("wrong official type");
+  assert.throws(() => strictOmegaMeasurement(crossed), /crossed strict Omega/);
+
   assert.ok(!requests.some(r => r.path === index.graph.path), "The canonical archive stays off the first-paint path");
   mode = "v4";
   const v4 = await loadStartup("https://example.test/");

@@ -1,7 +1,7 @@
 import { verifyGraph } from "./atlas-public-core.mjs?v=lean-admission-v2";
 import { sha256, analyzeArchitecture } from "./architecture-core.mjs?v=lean-admission-v2";
-import { applyAdmission, admissionFromEvidence, supportedLean } from "./atlas-admission.mjs?v=lean-admission-v2";
-import { validateView, validateDetails, detailShard, DETAIL_SHARDS } from "./atlas-startup-view.mjs?v=lean-admission-v2";
+import { applyAdmission, admissionFromEvidence, supportedLean } from "./atlas-admission.mjs?v=strict-omega-v1";
+import { validateView, validateDetails, detailShard, DETAIL_SHARDS } from "./atlas-startup-view.mjs?v=strict-omega-v1";
 
 export const STARTUP_SCHEMA = "pages-atlas-startup.v1";
 export const LAYOUT_SCHEMA = "pages-public-layout.v1";

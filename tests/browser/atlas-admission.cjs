@@ -64,6 +64,23 @@ fs.mkdirSync(output, { recursive: true });
     assert.equal(await page.locator(".declaration-receipts li").count(), unfrozen.lean.declaration_count);
     const displayedNames = await page.locator(".declaration-receipts li > code").allTextContents();
     assert.ok(displayedNames.every(n => n.includes(".")));
+    const tetrahedron = model.nodes.find(n => n.repo_path === "D5/S3/Quantum/AURICOmega/RationalBlochTetrahedron.lean");
+    if (tetrahedron) {
+      await choose(tetrahedron.id);
+      await page.locator(".article-audit > summary").click();
+      await page.locator(".declaration-receipts > summary").click();
+      const row = page.locator(".declaration-receipts li").filter({ hasText: "no_rational_bloch_tetrahedral_triangle" });
+      await row.waitFor();
+      const detailsRef = index.fast.details[(await import("../../site/assets/atlas-startup-view.mjs")).detailShard(tetrahedron.id)];
+      const shard = JSON.parse(gunzipSync(await (await page.request.get(root + "/" + detailsRef.path)).body()));
+      const declaration = shard.nodes.find(n => n.id === tetrahedron.id).lean_declarations.find(d => d.name.endsWith(".no_rational_bloch_tetrahedral_triangle"));
+      const strict = declaration.measurement?.strict_omega;
+      const display = values => Array.isArray(values) ? values.join(", ") || "∅" : "Unknown";
+      assert.ok((await row.innerText()).includes(`Strict Omega backend libraries: ${display(strict?.libraries)}`));
+      assert.ok((await row.innerText()).includes(`Strict Omega backend axioms: ${display(strict?.axioms)}`));
+      assert.equal(await row.locator(".strict-omega-badge").count(), strict?.axioms.length === 0 ? 1 : 0);
+      if (strict) assert.ok((await row.innerText()).includes(`Official measured axioms: ${display(declaration.measurement.axioms)}`));
+    }
     await choose(definition.id);
     assert.ok((await page.locator(".article-meta").innerText()).includes("Verified definitions"));
     await page.getByRole("button", { name: "Return to all concepts", exact: true }).click();

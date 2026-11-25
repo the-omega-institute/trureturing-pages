@@ -1,6 +1,6 @@
 // A presentation read model of the verified release. Every node and relation
 // retains its identity and order; full node records are fetched only on demand.
-import { applyAdmission } from "./atlas-admission.mjs?v=lean-admission-v2";
+import { applyAdmission, validateStrictOmegaDeclarations } from "./atlas-admission.mjs?v=strict-omega-v1";
 export const VIEW_SCHEMA = "pages-atlas-startup-view.v3";
 const LEGACY_VIEW_SCHEMA = "pages-atlas-startup-view.v2";
 export const DETAIL_SCHEMA = "pages-atlas-node-details.v1";
@@ -144,6 +144,7 @@ export function validateDetails(details, manifest, graph, shard) {
     const original = expected.get(node.id);
     if (!original || result.has(node.id) || FIELDS.some(key => Object.hasOwn(original, key) && JSON.stringify(node[key]) !== JSON.stringify(original[key])))
       throw new Error("Concept details disagree with the startup view.");
+    validateStrictOmegaDeclarations(node.lean_declarations, node.lean?.freeze_status);
     result.set(node.id, node);
   }
   return result;
