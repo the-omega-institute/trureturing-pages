@@ -148,6 +148,11 @@ class VerticalSmokeTests(unittest.TestCase):
         return bundle, cls.rebind_bundle(bundle)
 
     def test_verified_publication_projects_paired_tetrahedron_mixed_and_legacy(self):
+        for schema in ("stratalint-raw-lean-report-v3", "stratalint-raw-lean-report-v4"):
+            with self.subTest(schema=schema):
+                self.check_paired_publication(schema)
+
+    def check_paired_publication(self, schema):
         from lib.atlas_admission import project_evidence
 
         with tempfile.TemporaryDirectory() as directory:
@@ -157,13 +162,16 @@ class VerticalSmokeTests(unittest.TestCase):
             node = graph["truth"]["nodes"][0]
             path = "D5/S3/Quantum/AURICOmega/RationalBlochTetrahedron.lean"
             node.update(repo_path=path)
+            # Addresses and measurements from the compiled tetrahedron pair.
             tetra_key = "ns(ns(ns(ns(ns(ns(n0,2:D5),2:S3),7:Quantum),10:AURICOmega),24:RationalBlochTetrahedron),38:no_rational_bloch_tetrahedral_triangle)"
             digest = lambda char: "sha256:" + char * 64
             declarations = [
-                {"declaration_name_key": tetra_key, "kind": "theorem", "statement_id": digest("1"),
+                {"declaration_name_key": tetra_key, "kind": "theorem",
+                 "statement_id": "sha256:11f4108d8e44c8d48c50396c98d1e894a8f20dca352818988fba534d106f005f",
                  "libraries": ["Init", "OmegaMath"], "axioms": ["propext"],
                  "strict_omega": {"declaration_name_key": tetra_key, "kind": "theorem",
-                                  "statement_type_address": digest("2"), "official_statement_type_address": digest("3"),
+                                  "statement_type_address": "sha256:a3825e05565b86ae4d55d83cfa574f894876d771bda9fd40edeb5ef62a523d30",
+                                  "official_statement_type_address": "sha256:f4fcb4f3696ca26b62a1d4bec8a34c50d3c521d5426d5794437767eef25c57da",
                                   "libraries": ["OmegaInit", "OmegaMath"], "axioms": []}},
                 {"declaration_name_key": "mixed", "kind": "theorem", "statement_id": digest("4"),
                  "libraries": ["Init", "Mathlib", "OmegaMathlib"], "axioms": ["Classical.choice", "Quot.sound", "propext"],
@@ -184,8 +192,15 @@ class VerticalSmokeTests(unittest.TestCase):
                          "type_sha256": row.get("strict_omega", {}).get("official_statement_type_address", digest("9")),
                          "include_in_statement": True, "axioms": row["axioms"]}
                         for name, row in zip(("no_rational_bloch_tetrahedral_triangle", "mixed", "legacy"), declarations)]
-            report = {"schema": "stratalint-raw-lean-report-v3", "modules": [{"source_path": path,
-                      "source_sha256": digest("a"), "declarations": receipts}]}
+            report = {"schema": schema, "modules": [{
+                "module": "D5.S3.Quantum.AURICOmega.RationalBlochTetrahedron",
+                "source_path": path,
+                "source_sha256": "sha256:cd25900782ae87f0bc7009977e8e4bf75f6115b1a5766a7ad81f47cd51b88943",
+                "imports": ["OmegaMath.Geometry.BargmannGram.PureTetrahedron"],
+                "information_registration_errors": [],
+                "information_templates": {"inventory": [], "records": [], "registered": [], "schema_version": 1},
+                "declarations": sorted(receipts, key=lambda row: row["name_key"]),
+            }]}
 
             def publish():
                 for name, value in [("truth-export.v1.json", export), ("truth-graph.v1.json", graph), ("raw-lean-report.json", report)]:
@@ -197,7 +212,9 @@ class VerticalSmokeTests(unittest.TestCase):
                 return self.rebind_bundle(bundle)
 
             verified = verify_bundle(bundle, publish())
-            details = project_evidence(bundle, verified)["nodes"][0]["declarations"]
+            evidence = project_evidence(bundle, verified)
+            self.assertEqual(evidence["coverage"], "available")
+            details = evidence["nodes"][0]["declarations"]
             self.assertEqual(details[0]["measurement"]["axioms"], ["propext"])
             self.assertEqual(details[0]["measurement"]["strict_omega"], declarations[0]["strict_omega"])
             self.assertEqual(details[1]["measurement"]["strict_omega"]["axioms"], ["propext"])
@@ -209,7 +226,11 @@ class VerticalSmokeTests(unittest.TestCase):
             with self.assertRaisesRegex(ReleaseContractError, "disagree between truth export and graph"):
                 verify_bundle(bundle, publish())
             node["strict_omega_declarations"] = copy.deepcopy(declarations[:2])
-            receipts[0]["type_sha256"] = digest("b")
+            receipts[0]["statement_id"] = digest("b")
+            with self.assertRaisesRegex(ReleaseContractError, "declaration identity mismatch"):
+                project_evidence(bundle, verify_bundle(bundle, publish()))
+            receipts[0]["statement_id"] = declarations[0]["statement_id"]
+            receipts[0]["type_sha256"] = declarations[0]["strict_omega"]["statement_type_address"]
             with self.assertRaisesRegex(ReleaseContractError, "crossed strict Omega"):
                 project_evidence(bundle, verify_bundle(bundle, publish()))
 

@@ -8,6 +8,8 @@ from .vertical_smoke import ReleaseContractError, _read_json, _sha256, _DIGEST, 
 
 SCHEMA = "pages-atlas-lean-evidence.v1"
 OMEGA_LIBRARIES = {"OmegaInit", "OmegaMath"}
+# The producer changed axiom collection in v4 and kept the declaration receipt fields.
+RAW_REPORT_SCHEMAS = ("stratalint-raw-lean-report-v3", "stratalint-raw-lean-report-v4")
 
 
 def _declaration_measurement(declaration):
@@ -45,15 +47,20 @@ def project_evidence(bundle, verified):
     }
     # Historical/mock releases lack the declaration contract. Preserve that gap
     # explicitly; Closed is never a fallback proof receipt.
-    if export.get("dialect") != "stratalint.truth-export.v2" or report.get("schema") != "stratalint-raw-lean-report-v3":
+    if export.get("dialect") != "stratalint.truth-export.v2" or report.get("schema") not in RAW_REPORT_SCHEMAS:
         result.update(coverage="unavailable", reason="unsupported-declaration-evidence")
         return result
     if any(export.get(key) != value for key, value in identity.items()):
         raise ReleaseContractError("Atlas declaration evidence has a different source identity")
     catalog = index_truth_export(export)
     reports = {}
-    for module in report["modules"]:
-        path = module.get("source_path")
+    modules = report.get("modules")
+    if not isinstance(modules, list):
+        raise ReleaseContractError("Lean report modules must be an array")
+    for module in modules:
+        path = module.get("source_path") if isinstance(module, dict) else None
+        if not isinstance(path, str) or not path:
+            raise ReleaseContractError("Lean report module is missing its source path")
         if path in reports:
             raise ReleaseContractError(f"Duplicate Lean report module: {path}")
         reports[path] = module
@@ -72,15 +79,22 @@ def project_evidence(bundle, verified):
         elif not set(node["node_axiom_closure"]) <= KERNEL_AXIOMS:
             entry["reason"] = "non-kernel-axioms"
         else:
-            if not _DIGEST.fullmatch(module.get("source_sha256", "")):
+            source_hash = module.get("source_sha256")
+            if not isinstance(source_hash, str) or not _DIGEST.fullmatch(source_hash):
                 raise ReleaseContractError(f"Invalid Lean source binding: {path}")
+            module_declarations = module.get("declarations")
+            if not isinstance(module_declarations, list):
+                raise ReleaseContractError(f"Lean report declarations must be an array: {path}")
             declarations, union = {}, set()
-            for decl in module.get("declarations", []):
-                key = decl.get("name_key")
-                if not key or key in declarations or not isinstance(decl.get("axioms"), list):
+            for decl in module_declarations:
+                key = decl.get("name_key") if isinstance(decl, dict) else None
+                if not isinstance(key, str) or not key or key in declarations:
+                    raise ReleaseContractError(f"Incomplete/duplicate Lean declaration receipt: {path}")
+                axioms = decl.get("axioms")
+                if not isinstance(axioms, list) or any(not isinstance(axiom, str) for axiom in axioms):
                     raise ReleaseContractError(f"Incomplete/duplicate Lean declaration receipt: {path}")
                 declarations[key] = decl
-                union.update(decl["axioms"])
+                union.update(axioms)
             if union != set(node["node_axiom_closure"]):
                 raise ReleaseContractError(f"Export/report axiom union mismatch: {path}")
             receipts = []
@@ -105,7 +119,7 @@ def project_evidence(bundle, verified):
             if {d["name_key"] for d in receipts} != {k for k, d in declarations.items() if d.get("include_in_statement") is True}:
                 raise ReleaseContractError(f"Incomplete published declaration membership: {path}")
             entry.update(eligible=True, freeze_status=node["freeze_status"],
-                         frozen_node_id=node["frozen_node_id"], source_sha256=module["source_sha256"],
+                         frozen_node_id=node["frozen_node_id"], source_sha256=source_hash,
                          node_axiom_closure=sorted(union), declarations=receipts,
                          declaration_count=len(receipts),
                          theorem_count=sum(d["kind"] == "theorem" for d in receipts))

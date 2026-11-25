@@ -18,8 +18,10 @@ full-topology counters are never rewritten to fit a filtered presentation.
 ## Mathematical Atlas admission
 
 `lib.atlas_admission` derives a Pages-only evidence file from the verified bundle.
-The current supported contracts are `stratalint.truth-export.v2` and
-`stratalint-raw-lean-report-v3`. A mathematical module must have:
+The Atlas accepts `stratalint.truth-export.v2` with either
+`stratalint-raw-lean-report-v3` or `stratalint-raw-lean-report-v4`. Both raw
+report versions provide the same declaration receipt fields. V4 changes how
+the producer collects axioms. Atlas admission requires all of the following.
 
 - membership in the published proven catalog, with status `frozen` or
   `proven-not-yet-frozen`;
