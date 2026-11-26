@@ -620,7 +620,7 @@ jobs:
           if-no-files-found: warn
 
   request-translations:
-    needs: deploy
+    needs: [prepare, deploy]
     if: needs.deploy.result == 'success' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -631,7 +631,10 @@ jobs:
       - name: Translate the successfully published research through its downstream Action
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run research-translations.yml --repo "$GITHUB_REPOSITORY" --ref dev
+          EXPECTED_RELEASE_DIGEST: ${{ needs.prepare.outputs.release_digest }}
+        run: >-
+          gh workflow run research-translations.yml --repo "$GITHUB_REPOSITORY" --ref dev
+          -f "expected_release_digest=$EXPECTED_RELEASE_DIGEST"
 
   publish-observation:
     needs: [prepare, deploy]

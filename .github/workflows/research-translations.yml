@@ -2,6 +2,11 @@ name: Translate released research into Chinese
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_release_digest:
+        description: 'Published release that must be visible before translation (empty selects current)'
+        type: string
+        required: false
 
 permissions:
   contents: write
@@ -34,11 +39,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RESEARCH_TRANSLATION_API_KEY: ${{ secrets.RESEARCH_TRANSLATION_API_KEY }}
+          EXPECTED_RELEASE_DIGEST: ${{ inputs.expected_release_digest }}
         run: >-
           python -m lib.research_translations translate
           --repository "$GITHUB_REPOSITORY"
           --output "$RUNNER_TEMP/research-translations.json"
           --github-output "$GITHUB_OUTPUT"
+          --expected-release-digest "$EXPECTED_RELEASE_DIGEST"
       - name: Publish only accepted source-bound translations
         if: steps.translation.outputs.changed == 'true'
         env:
