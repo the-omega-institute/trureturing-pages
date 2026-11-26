@@ -7,69 +7,131 @@ on:
         description: 'Published release that must be visible before translation (empty selects current)'
         type: string
         required: false
+  schedule:
+    - cron: '47 * * * *'
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 concurrency:
   group: research-translations-zh-CN
   cancel-in-progress: false
 
 jobs:
-  translate:
+  prepare:
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-24.04
-    timeout-minutes: 360
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    outputs:
+      has_work: ${{ steps.plan.outputs.has_work }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
-      - name: Validate translation admission and browser content integrity
+      - name: Validate translation admission and task isolation
         run: |
-          python -m unittest tests.test_research_translations
+          python -m unittest tests.test_research_translation_agent tests.test_research_translations
           node --test tests/js/research-translations.test.mjs
-      - name: Translate new or changed published text and independently review fidelity
-        id: translation
+      - name: Reserve only untranslated source before starting the translation agent
+        id: plan
         env:
           GH_TOKEN: ${{ github.token }}
-          RESEARCH_TRANSLATION_API_KEY: ${{ secrets.RESEARCH_TRANSLATION_API_KEY }}
           EXPECTED_RELEASE_DIGEST: ${{ inputs.expected_release_digest }}
         run: >-
-          python -m lib.research_translations translate
-          --repository "$GITHUB_REPOSITORY"
-          --output "$RUNNER_TEMP/research-translations.json"
-          --github-output "$GITHUB_OUTPUT"
+          python -m lib.research_translation_agent prepare
           --expected-release-digest "$EXPECTED_RELEASE_DIGEST"
-      - name: Publish only accepted source-bound translations
-        if: steps.translation.outputs.changed == 'true'
+          --directory "$RUNNER_TEMP/translation-task" --github-output "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        if: steps.plan.outputs.has_work == 'true'
+        with:
+          name: translation-task-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/translation-task/task.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Keep deferred work visible without repeating model calls
+        if: steps.plan.outputs.has_work == 'false' && steps.plan.outputs.pending != '0'
+        run: |
+          printf '%s\n' 'Translation tasks remain in cooldown or have reached their allowance. Model calls were skipped; inspect the task summary.' >&2
+          exit 1
+
+  translate:
+    needs: prepare
+    if: needs.prepare.outputs.has_work == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: translation-task-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/translation-task
+      - name: Translate and independently review bounded tasks without GitHub write credentials
+        env:
+          RESEARCH_TRANSLATION_API_KEY: ${{ secrets.RESEARCH_TRANSLATION_API_KEY }}
+        run: >-
+          python -m lib.research_translation_agent work
+          --task "$RUNNER_TEMP/translation-task/task.json" --directory "$RUNNER_TEMP/translation-result"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: translation-result-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/translation-result/result.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  publish:
+    needs: [prepare, translate]
+    if: always() && needs.prepare.outputs.has_work == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: translation-task-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/translation-task
+      - uses: actions/download-artifact@v4
+        with:
+          name: translation-result-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/translation-result
+      - name: Validate exact reservation, source and review before publishing Chinese
+        id: publication
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          python -m lib.research_translations publish
-          --repository "$GITHUB_REPOSITORY"
-          --input "$RUNNER_TEMP/research-translations.json"
-          --revision "$GITHUB_SHA"
+          python -m lib.research_translation_agent finish
+          --task "$RUNNER_TEMP/translation-task/task.json" --directory "$RUNNER_TEMP/translation-result"
+          --github-output "$GITHUB_OUTPUT"
       - name: Refresh translated display through the existing verified Pages pipeline
-        if: steps.translation.outputs.changed == 'true'
+        if: steps.publication.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref dev -f rebuild_current=true
-      - name: Report unresolved translations without admitting rejected text
-        if: steps.translation.outputs.pending != '0'
+      - name: Keep remaining translation work visible
+        if: steps.publication.outputs.pending != '0'
         run: |
-          printf '%s\n' 'Some source text remains untranslated; rejected text was not published.' >&2
+          printf '%s\n' 'Chinese translation remains pending. Backlog, cooldown and exhausted tasks stay visible; no unreviewed text is published.' >&2
           exit 1
-      - name: Preserve accepted translations if a run is interrupted
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: accepted-research-translations
-          path: ${{ runner.temp }}/research-translations.json
-          if-no-files-found: ignore
-          retention-days: 7

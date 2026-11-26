@@ -258,10 +258,11 @@ def fetch_cache(repository, fallback_url=None, *, include_candidates=False):
 
 
 class ModelClient:
-    def __init__(self, key, base_url=BASE_URL):
+    def __init__(self, key, base_url=BASE_URL, *, attempts=3, output_tokens=None, request_bytes=None):
         if not key:
             raise ValueError('RESEARCH_TRANSLATION_API_KEY is not configured')
         self.key, self.base_url = key, base_url
+        self.attempts, self.output_tokens, self.request_bytes = attempts, output_tokens, request_bytes
 
     def complete(self, messages, *, review=False):
         effort = 'medium' if review else 'low'
@@ -273,12 +274,15 @@ class ModelClient:
             except (ValueError, TypeError):
                 pass
         payload = {'model': MODEL, 'messages': messages, 'stream': True,
-                   'max_tokens': 8192 if review else 24576, 'reasoning_effort': effort,
+                   'max_tokens': self.output_tokens or (8192 if review else 24576), 'reasoning_effort': effort,
                    'response_format': {'type': 'json_object'}}
-        request = Request(self.base_url + '/chat/completions', data=json.dumps(payload, ensure_ascii=False).encode(), headers={
+        data = json.dumps(payload, ensure_ascii=False).encode()
+        if self.request_bytes is not None and len(data) > self.request_bytes:
+            raise ValueError('Translation request exceeds the agent context limit')
+        request = Request(self.base_url + '/chat/completions', data=data, headers={
             'Authorization': 'Bearer ' + self.key, 'Content-Type': 'application/json',
             'Accept': 'text/event-stream', 'User-Agent': 'trureturing-research-translations/1.0'})
-        for attempt in range(3):
+        for attempt in range(self.attempts):
             try:
                 text, model, raw_digest, total = '', None, hashlib.sha256(), 0
                 with urlopen(request, timeout=90) as response:
@@ -318,11 +322,11 @@ class ModelClient:
                     raise ValueError('Translation provider did not confirm the requested model')
                 return json.loads(text), {'model': model, 'response_digest': 'sha256:' + raw_digest.hexdigest()}
             except HTTPError as error:
-                if error.code not in (429, 502, 503, 504) or attempt == 2:
+                if error.code not in (429, 502, 503, 504) or attempt == self.attempts-1:
                     raise
                 time.sleep(min(30, max(2 ** attempt, int(error.headers.get('Retry-After', '0')))))
             except (OSError, HTTPException):
-                if attempt == 2:
+                if attempt == self.attempts-1:
                     raise
                 time.sleep(2 ** attempt)
         raise ValueError('Translation provider unavailable')
