@@ -35,6 +35,18 @@
         "publications",
         "notes"
       ]
+    },
+    {
+      "id": "publication-progress",
+      "owner": "the-omega-institute/trureturing-pages",
+      "kind": "json",
+      "url": "https://www.trureturing.org/data/version-status.v1.json",
+      "equals": {
+        "schema_version": "pages-version-status.v1",
+        "head.behind": 0
+      },
+      "timestamp": "observed_at",
+      "max_age_seconds": 10800
     }
   ],
   "browser": [
