@@ -163,6 +163,28 @@ class TranslationAgentTests(unittest.TestCase):
         with patch('lib.research_translations.urlopen',side_effect=transport):
             self.assertEqual(tr.ModelClient('fixture',attempts=1,output_tokens=8192).complete([])[0],{})
 
+    def test_complete_worker_uses_two_fresh_http_requests_and_only_reviewed_output_is_publishable(self):
+        task,state=self.plan();payloads=[];fixture=Model()
+        def transport(request,timeout):
+            payload=json.loads(request.data);payloads.append(payload)
+            self.assertEqual([row['role'] for row in payload['messages']],['system','user'])
+            self.assertNotIn('tools',payload)
+            self.assertEqual(payload['max_tokens'],agent.OUTPUT_TOKENS)
+            value,_=fixture.complete(payload['messages'],review=len(payloads)==2)
+            response=io.BytesIO(json.dumps({'model':tr.MODEL,'choices':[{'message':{
+                'content':json.dumps(value)}}]}).encode())
+            response.headers={'Content-Type':'application/json'}
+            return response
+        client=tr.ModelClient('fixture-only',attempts=1,output_tokens=agent.OUTPUT_TOKENS,
+                              request_bytes=agent.REQUEST_BYTES)
+        with patch('lib.research_translations.urlopen',side_effect=transport):
+            result=agent.work(task,client,100,1)
+        self.assertEqual(len(payloads),2)
+        self.assertNotEqual(payloads[0]['messages'][0],payloads[1]['messages'][0])
+        _,stats=agent.finish(task,result,state,tr.empty_cache(),100,1)
+        self.assertEqual(stats['pending'],0)
+        self.assertEqual(stats['requests'],2)
+
     def test_foreign_or_corrupt_history_cannot_admit_work(self):
         for change in [{'repository':'other/repo'},{'tasks':{'bad':[]}}, {'daily_requests':{'2026-11-27':129}}]:
             with self.subTest(change=change),self.assertRaises(ValueError):
