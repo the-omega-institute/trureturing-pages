@@ -521,8 +521,8 @@ class ResearchTranslationTests(unittest.TestCase):
         import yaml
         root=Path(__file__).resolve().parents[1]
         workflow=yaml.load((root/'.github/workflows/research-translations.yml').read_text(),Loader=yaml.BaseLoader)
-        self.assertEqual(set(workflow['on']),{'workflow_dispatch'})
-        self.assertIn("refs/heads/dev",workflow['jobs']['translate']['if'])
+        self.assertEqual(set(workflow['on']),{'workflow_dispatch','schedule'})
+        self.assertIn("refs/heads/dev",workflow['jobs']['prepare']['if'])
         pages=yaml.load((root/'.github/workflows/pages.yml').read_text(),Loader=yaml.BaseLoader)
         dispatch=pages['jobs']['request-translations']
         self.assertEqual(dispatch['needs'],['prepare','deploy'])
