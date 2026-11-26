@@ -11,7 +11,7 @@ from lib.research_translations import (
     FIELDS, MODEL, POLICY, REVIEW_CONTEXT, SOURCE_SCHEMA, ModelClient, admitted_cache, admit_source_cache, build_source,
     canonical, digest, empty_cache, protect,
     restore, segments, source_item, source_candidates, mask_candidate, translate_batch, translate_source, translate_with_recovery,
-    validate_cache, validate_source, fetch_cache,
+    validate_cache, validate_source, fetch_cache, published_source,
 )
 
 
@@ -36,6 +36,37 @@ class Client:
                     .replace('The assertion for unitary maps remains open.','关于酉映射的断言仍未解决。')
                     .replace('A uniform bound','一个一致的界') for key,text in source.items()}
         return {'translations':translated},{'model':'test-translator','response_digest':'sha256:'+'c'*64}
+
+
+class PublishedSourceTests(unittest.TestCase):
+    def test_mutually_consistent_old_cdn_views_cannot_satisfy_new_release_dispatch(self):
+        old = example()
+        new = {**old, 'truth_release_digest':'sha256:'+'b'*64, 'source_commit':'b'*40}
+        views = [old, {'source_commit':old['source_commit'],'release_digest':old['truth_release_digest']},
+                 new, {'source_commit':new['source_commit'],'release_digest':new['truth_release_digest']}]
+        with patch('time.time_ns', side_effect=[1,2]), patch('time.sleep') as pause:
+            fetch = lambda url: views.pop(0)
+            actual = published_source('https://example.org/',new['truth_release_digest'],fetch=fetch,pause=pause)
+        self.assertEqual(actual,new)
+        pause.assert_called_once_with(10)
+
+    def test_stale_or_mixed_cdn_views_fail_after_bounded_read_only_wait(self):
+        old = example()
+        for manifest in ({'source_commit':old['source_commit'],'release_digest':old['truth_release_digest']},
+                         {'source_commit':'c'*40,'release_digest':'sha256:'+'b'*64}):
+            with self.subTest(manifest=manifest), patch('time.sleep') as pause:
+                responses = [old,manifest]*6
+                with self.assertRaisesRegex(ValueError,'no model work started'):
+                    published_source('https://example.org/','sha256:'+'b'*64,fetch=lambda url:responses.pop(0),pause=pause)
+                self.assertEqual(pause.call_count,5)
+                self.assertEqual(responses,[])
+
+    def test_manual_current_source_still_requires_source_manifest_agreement(self):
+        source=example()
+        responses=[source,{'source_commit':source['source_commit'],'release_digest':source['truth_release_digest']}]
+        self.assertEqual(published_source('https://example.org/',fetch=lambda url:responses.pop(0)),source)
+        with self.assertRaisesRegex(ValueError,'Invalid expected'):
+            published_source('https://example.org/','not-a-release',fetch=lambda url:self.fail('must not fetch'))
 
 
 class ResearchTranslationTests(unittest.TestCase):
@@ -494,10 +525,12 @@ class ResearchTranslationTests(unittest.TestCase):
         self.assertIn("refs/heads/dev",workflow['jobs']['translate']['if'])
         pages=yaml.load((root/'.github/workflows/pages.yml').read_text(),Loader=yaml.BaseLoader)
         dispatch=pages['jobs']['request-translations']
-        self.assertEqual(dispatch['needs'],'deploy')
+        self.assertEqual(dispatch['needs'],['prepare','deploy'])
         self.assertIn("needs.deploy.result == 'success'",dispatch['if'])
         self.assertEqual(dispatch['permissions'],{'actions':'write','contents':'read'})
         self.assertIn('gh workflow run research-translations.yml',dispatch['steps'][0]['run'])
+        self.assertEqual(dispatch['steps'][0]['env']['EXPECTED_RELEASE_DIGEST'],'${{ needs.prepare.outputs.release_digest }}')
+        self.assertIn('expected_release_digest=$EXPECTED_RELEASE_DIGEST',dispatch['steps'][0]['run'])
         text=(root/'.github/workflows/research-translations.yml').read_text()
         self.assertNotIn('git push',text)
         self.assertIn('RESEARCH_TRANSLATION_API_KEY',text)
