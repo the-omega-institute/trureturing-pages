@@ -187,6 +187,17 @@ class TranslationAgentTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError,'SHA changed'):agent.main()
             self.assertFalse((Path(d)/'task.json').exists())
 
+    def test_paid_planning_never_uses_stale_served_cache_when_authoritative_cache_is_unavailable(self):
+        with tempfile.TemporaryDirectory() as d, patch.dict(os.environ,{'GITHUB_RUN_ID':'100','GITHUB_RUN_ATTEMPT':'1'}), \
+             patch('sys.argv',['agent','prepare','--directory',d]), \
+             patch.object(tr,'published_source',return_value=source()), \
+             patch.object(tr,'fetch_cache',side_effect=ValueError('Authoritative cache unavailable')) as fetch, \
+             patch.object(agent.Store,'save') as save:
+            with self.assertRaisesRegex(ValueError,'unavailable'):agent.main()
+            fetch.assert_called_once_with(REPO,include_candidates=True)
+            save.assert_not_called()
+            self.assertFalse((Path(d)/'task.json').exists())
+
     def test_workflow_keeps_inspection_translation_and_publication_independent(self):
         root=Path(__file__).resolve().parents[1]
         workflow=yaml.load((root/'.github/workflows/research-translations.yml').read_text(),Loader=yaml.BaseLoader)

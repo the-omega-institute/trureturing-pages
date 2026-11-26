@@ -232,7 +232,9 @@ def main():
     directory=args.directory;directory.mkdir(parents=True,exist_ok=True)
     if args.action=='prepare':
         source=tr.published_source('https://www.trureturing.org/',args.expected_release_digest)
-        previous=tr.fetch_cache(args.repository,'https://www.trureturing.org/',include_candidates=True)
+        # The branch is authoritative for paid work. A stale served fallback
+        # must not make an already translated item look untranslated.
+        previous=tr.fetch_cache(args.repository,include_candidates=True)
         store=Store(args.repository);state,sha=store.load()
         if state is None:
             admitted=tr.admit_source_cache(source,previous)['entries']
@@ -256,7 +258,7 @@ def main():
         task=json.loads(args.task.read_text());result=json.loads((directory/'result.json').read_text())
         state,_=Store(args.repository).load()
         if state is None:raise ValueError('Translation agent reservation disappeared')
-        previous=tr.fetch_cache(args.repository,'https://www.trureturing.org/',include_candidates=True)
+        previous=tr.fetch_cache(args.repository,include_candidates=True)
         cache,stats=finish(task,result,state,previous,run_id,attempt)
         if stats['changed']:tr.publish_cache(args.repository,cache,os.environ['GITHUB_SHA'])
         outputs(args.github_output,changed=stats['changed'],pending=stats['pending'])
