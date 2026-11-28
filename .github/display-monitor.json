@@ -45,7 +45,20 @@
         "schema_version": "pages-version-status.v1",
         "head.behind": 0
       },
-      "timestamp": "observed_at",
+      "required": [
+        "observed_at"
+      ]
+    },
+    {
+      "id": "publication-observer",
+      "owner": "the-omega-institute/trureturing-pages",
+      "kind": "json",
+      "url": "https://api.github.com/repos/the-omega-institute/trureturing-pages/commits/pages-sync-status",
+      "equals": {
+        "commit.message": "Observe served Pages release and upstream publication progress",
+        "files.0.filename": "data/version-status.v1.json"
+      },
+      "timestamp": "commit.committer.date",
       "max_age_seconds": 10800
     }
   ],
