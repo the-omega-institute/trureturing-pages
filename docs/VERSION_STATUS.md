@@ -106,6 +106,15 @@ candidates, or bypass freshness/admission gates. A successful polling workflow
 can still be waiting for upstream CI or a compatible resource publication.
 Source metadata and report-specific CI remain separate from the moving dev head.
 
+The Pages display monitor checks the served snapshot's schema and `head.behind`
+without aging its on-deploy timestamp: an unchanged site can legitimately keep
+that snapshot. A separate `publication-observer` probe checks the public
+`pages-sync-status` branch commit, its observation-writer message and changed
+status-file path, with a three-hour maximum age. This checks whether the existing
+observer is still publishing. The commit timestamp is an observer heartbeat,
+not evidence that a new release was deployed or that an observation is fresh;
+those facts remain in the validated status content and served receipts.
+
 ## Workflow and offline use
 
 `pages.yml` observes status after preflight even if no release is eligible, and
